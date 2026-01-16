@@ -1,0 +1,17 @@
+{$DOMAIN} {
+  encode gzip
+
+  handle_path /healthz {
+    respond "ok" 200
+  }
+
+  # Homework Helper
+  handle_path /helper/* {
+    reverse_proxy helper_web:8010
+  }
+
+  # Class Hub
+  handle {
+    reverse_proxy classhub_web:8000
+  }
+}

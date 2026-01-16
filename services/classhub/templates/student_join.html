@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Join Class</title>
+    <style>
+      body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width:720px; margin:40px auto; padding:0 16px;}
+      .card{border:1px solid #ddd; border-radius:14px; padding:18px;}
+      label{display:block; margin-top:12px; font-weight:600;}
+      input{width:100%; padding:10px; border-radius:10px; border:1px solid #ccc; font-size:16px;}
+      button{margin-top:16px; padding:10px 14px; font-size:16px; border-radius:10px; border:1px solid #333; background:#fff; cursor:pointer;}
+      .muted{color:#666; font-size:14px;}
+      .error{color:#b00020; margin-top:10px;}
+    </style>
+  </head>
+  <body>
+    <h1>Join your class</h1>
+    <p class="muted">Enter the class code your teacher gives you. Pick a name that your teacher will recognize.</p>
+
+    <div class="card">
+      <label for="code">Class code</label>
+      <input id="code" placeholder="ABCD1234" autocomplete="off" />
+
+      <label for="name">Your name</label>
+      <input id="name" placeholder="Ada" autocomplete="off" />
+
+      <button id="join">Join</button>
+      <div id="msg" class="error" style="display:none"></div>
+    </div>
+
+    <p class="muted" style="margin-top:18px">Teacher/admin? Use <a href="/admin/">/admin</a>.</p>
+
+    <script>
+      const msg = document.getElementById('msg');
+      const showErr = (t) => { msg.textContent = t; msg.style.display = 'block'; };
+
+      // Django CSRF: read csrftoken cookie and send it as X-CSRFToken.
+      // This keeps CSRF protection enabled without requiring a full form POST.
+      const getCookie = (name) => {
+        const cookies = document.cookie ? document.cookie.split('; ') : [];
+        for (const c of cookies) {
+          const idx = c.indexOf('=');
+          if (idx === -1) continue;
+          const k = c.slice(0, idx);
+          const v = c.slice(idx + 1);
+          if (k === name) return decodeURIComponent(v);
+        }
+        return '';
+      };
+
+      const csrfToken = () => getCookie('csrftoken') || '';
+
+      document.getElementById('join').addEventListener('click', async () => {
+        msg.style.display = 'none';
+        const class_code = (document.getElementById('code').value || '').trim();
+        const display_name = (document.getElementById('name').value || '').trim();
+
+        const res = await fetch('/join', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken(),
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({ class_code, display_name })
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          const e = data.error || 'join_failed';
+          if (e === 'invalid_code') return showErr('That class code is not recognized.');
+          if (e === 'class_locked') return showErr('This class is locked right now.');
+          if (e === 'missing_fields') return showErr('Please enter a class code and your name.');
+          return showErr('Could not join. Try again.');
+        }
+
+        window.location.href = '/student';
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,86 @@
+"""Data model for the MVP.
+
+Teachers/admins can manage these objects in Django admin.
+Students never authenticate with email/password; they join a class by code.
+
+Note: for Day-1, we keep the model tiny. As the platform grows, add:
+- Organizations/schools (multi-tenancy)
+- Assignment/submission
+- Audit logs
+"""
+
+import secrets
+from django.db import models
+
+
+def gen_class_code(length: int = 8) -> str:
+    """Generate a human-friendly class code.
+
+    Excludes ambiguous characters (0/O, 1/I).
+    """
+    alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
+class Class(models.Model):
+    name = models.CharField(max_length=200)
+    join_code = models.CharField(max_length=16, unique=True, default=gen_class_code)
+    is_locked = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.join_code})"
+
+
+class Module(models.Model):
+    classroom = models.ForeignKey(Class, on_delete=models.CASCADE, related_name="modules")
+    title = models.CharField(max_length=200)
+    order_index = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order_index", "id"]
+
+    def __str__(self) -> str:
+        return f"{self.classroom.name}: {self.title}"
+
+
+class Material(models.Model):
+    TYPE_LINK = "link"
+    TYPE_TEXT = "text"
+    TYPE_CHOICES = [
+        (TYPE_LINK, "Link"),
+        (TYPE_TEXT, "Text"),
+    ]
+
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="materials")
+    title = models.CharField(max_length=200)
+    type = models.CharField(max_length=16, choices=TYPE_CHOICES, default=TYPE_LINK)
+
+    # For link material
+    url = models.URLField(blank=True, default="")
+
+    # For text material
+    body = models.TextField(blank=True, default="")
+
+    order_index = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order_index", "id"]
+
+    def __str__(self) -> str:
+        return self.title
+
+
+class StudentIdentity(models.Model):
+    """A pseudonymous identity stored per-class.
+
+    Created when a student joins via class code.
+    The id is stored in the session cookie.
+    """
+
+    classroom = models.ForeignKey(Class, on_delete=models.CASCADE, related_name="students")
+    display_name = models.CharField(max_length=80)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_seen_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self) -> str:
+        return f"{self.display_name} @ {self.classroom.join_code}"

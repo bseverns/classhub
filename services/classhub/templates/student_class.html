@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ classroom.name }}</title>
+    <style>
+      body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width:900px; margin:40px auto; padding:0 16px;}
+      .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+      .muted{color:#666; font-size:14px;}
+      .module{border:1px solid #ddd; border-radius:14px; padding:16px; margin-top:16px;}
+      .mat{margin-top:10px; padding:10px; border-radius:12px; background:#f7f7f7;}
+      a{color:inherit;}
+      .pill{display:inline-block; padding:4px 10px; border:1px solid #aaa; border-radius:999px; font-size:12px;}
+      .helper{border:1px solid #ddd; border-radius:14px; padding:16px; margin-top:22px;}
+      textarea{width:100%; min-height:80px; padding:10px; border-radius:10px; border:1px solid #ccc; font-size:15px;}
+      button{margin-top:10px; padding:10px 14px; font-size:15px; border-radius:10px; border:1px solid #333; background:#fff; cursor:pointer;}
+      pre{white-space:pre-wrap;}
+    </style>
+  </head>
+  <body>
+    <div class="top">
+      <div>
+        <h1 style="margin:0">{{ classroom.name }}</h1>
+        <div class="muted">Signed in as <strong>{{ student.display_name }}</strong> · Code <span class="pill">{{ classroom.join_code }}</span></div>
+      </div>
+      <div>
+        <a class="muted" href="/logout">Log out</a>
+      </div>
+    </div>
+
+    {% if modules %}
+      {% for m in modules %}
+        <div class="module">
+          <h2 style="margin:0">{{ m.title }}</h2>
+
+          {% if m.materials.all %}
+            {% for mat in m.materials.all %}
+              <div class="mat">
+                <strong>{{ mat.title }}</strong>
+                {% if mat.type == 'link' and mat.url %}
+                  <div><a href="{{ mat.url }}" target="_blank" rel="noopener">Open link</a></div>
+                {% elif mat.type == 'text' and mat.body %}
+                  <pre>{{ mat.body }}</pre>
+                {% else %}
+                  <div class="muted">(Empty material — teacher will fill this in.)</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="muted">No materials yet.</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="muted">No modules yet. A teacher/admin can add them in /admin.</p>
+    {% endif %}
+
+    <div class="helper">
+      <h2 style="margin:0">Homework Helper</h2>
+      <p class="muted">This is a Day‑1 wire-up. It will become smarter once it can cite your class materials.</p>
+
+      <textarea id="q" placeholder="Ask for help…"></textarea>
+      <button id="ask">Ask</button>
+      <pre id="a" class="muted"></pre>
+    </div>
+
+    <script>
+      const out = document.getElementById('a');
+      document.getElementById('ask').addEventListener('click', async () => {
+        out.textContent = 'Thinking…';
+        const message = (document.getElementById('q').value || '').trim();
+        const res = await fetch('/helper/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+
+        if (!res.ok) {
+          out.textContent = 'Helper error (check server logs).';
+          return;
+        }
+
+        const data = await res.json();
+        out.textContent = data.text || '(no output)';
+      });
+    </script>
+  </body>
+</html>
