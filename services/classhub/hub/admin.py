@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Class, Module, Material, StudentIdentity
+from django.utils.html import format_html
+
+from .models import Class, Module, Material, StudentIdentity, Submission
 
 @admin.register(Class)
 class ClassAdmin(admin.ModelAdmin):
@@ -22,3 +24,16 @@ class StudentIdentityAdmin(admin.ModelAdmin):
     list_display = ("display_name", "classroom", "created_at", "last_seen_at")
     list_filter = ("classroom",)
     search_fields = ("display_name",)
+
+
+@admin.register(Submission)
+class SubmissionAdmin(admin.ModelAdmin):
+    list_display = ("id", "uploaded_at", "student", "material", "original_filename", "download_link")
+    list_filter = ("material__module__classroom", "material")
+    search_fields = ("original_filename", "student__display_name")
+    readonly_fields = ("uploaded_at",)
+
+    def download_link(self, obj: Submission):
+        return format_html('<a href="/submission/{}/download">Download</a>', obj.id)
+
+    download_link.short_description = "Download"

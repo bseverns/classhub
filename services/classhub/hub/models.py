@@ -5,7 +5,7 @@ Students never authenticate with email/password; they join a class by code.
 
 Note: for Day-1, we keep the model tiny. As the platform grows, add:
 - Organizations/schools (multi-tenancy)
-- Assignment/submission
+- Rubrics/grading + teacher feedback
 - Audit logs
 """
 
@@ -46,9 +46,11 @@ class Module(models.Model):
 class Material(models.Model):
     TYPE_LINK = "link"
     TYPE_TEXT = "text"
+    TYPE_UPLOAD = "upload"
     TYPE_CHOICES = [
         (TYPE_LINK, "Link"),
         (TYPE_TEXT, "Text"),
+        (TYPE_UPLOAD, "Upload"),
     ]
 
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="materials")
@@ -61,6 +63,11 @@ class Material(models.Model):
     # For text material
     body = models.TextField(blank=True, default="")
 
+    # For upload material
+    # Comma-separated list of extensions (including the leading dot), e.g. ".sb3,.png"
+    accepted_extensions = models.CharField(max_length=200, blank=True, default="")
+    max_upload_mb = models.PositiveIntegerField(default=50)
+
     order_index = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -68,6 +75,37 @@ class Material(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+def _submission_upload_to(instance: "Submission", filename: str) -> str:
+    """Upload path for student submissions.
+
+    We keep paths boring and segregated by class + material.
+    """
+    classroom_id = instance.material.module.classroom_id
+    material_id = instance.material_id
+    student_id = instance.student_id
+    return f"submissions/class_{classroom_id}/material_{material_id}/student_{student_id}/{filename}"
+
+
+class Submission(models.Model):
+    """A student file upload tied to a specific Material.
+
+    Students do not have accounts; we tie this to StudentIdentity (stored in session).
+    """
+
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name="submissions")
+    student = models.ForeignKey("StudentIdentity", on_delete=models.CASCADE, related_name="submissions")
+    original_filename = models.CharField(max_length=255, blank=True, default="")
+    file = models.FileField(upload_to=_submission_upload_to)
+    note = models.TextField(blank=True, default="")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-uploaded_at", "-id"]
+
+    def __str__(self) -> str:
+        return f"Submission {self.id} ({self.student.display_name} → {self.material.title})"
 
 
 class StudentIdentity(models.Model):

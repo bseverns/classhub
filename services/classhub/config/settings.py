@@ -12,9 +12,22 @@ import os
 import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Repo-authored curriculum content lives inside the Django build context so it
+# ships with the container image.
+#
+# Layout:
+#   services/classhub/content/courses/<course_slug>/course.yaml
+#   services/classhub/content/courses/<course_slug>/lessons/*.md
+CONTENT_ROOT = BASE_DIR / "content"
 env = environ.Env(
     DJANGO_DEBUG=(bool, False),
 )
+
+# Repo-authored content packs live under:
+#   services/classhub/content/courses/<course_slug>/...
+CONTENT_ROOT = BASE_DIR / "content"
+CONTENT_COURSES_ROOT = CONTENT_ROOT / "courses"
 
 DEBUG = env.bool("DJANGO_DEBUG", default=False)
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="dev-only-change-me")
@@ -86,6 +99,17 @@ STORAGES = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Uploads (student submissions)
+#
+# We intentionally do NOT serve these as public /media files.
+# Downloads go through a permission-checked Django view.
+MEDIA_ROOT = Path(os.environ.get("CLASSHUB_UPLOAD_ROOT", "/uploads"))
+MEDIA_URL = "/_uploads/"
+
+# Conservative defaults; raise if you expect large assets.
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB (larger files stream to disk)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 60 * 1024 * 1024  # 60MB request cap
 
 # When behind Caddy, Django should respect forwarded proto for secure cookies.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

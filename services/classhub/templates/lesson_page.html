@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ front_matter.title|default:lesson_slug }}</title>
+    <style>
+      body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width:960px; margin:40px auto; padding:0 16px;}
+      .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+      .muted{color:#666; font-size:14px;}
+      .card{border:1px solid #ddd; border-radius:14px; padding:16px; margin-top:16px;}
+      .nav{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
+      .btn{display:inline-block; padding:8px 12px; border:1px solid #333; border-radius:10px; text-decoration:none; background:#fff;}
+      .btn:visited{color:inherit;}
+      h1,h2,h3{line-height:1.2;}
+      code, pre{background:#f7f7f7; border-radius:10px;}
+      pre{padding:12px; overflow:auto;}
+      code{padding:2px 6px;}
+      table{border-collapse:collapse; width:100%;}
+      th,td{border:1px solid #ddd; padding:8px; text-align:left;}
+      blockquote{border-left:3px solid #ddd; margin:12px 0; padding-left:12px; color:#444;}
+    </style>
+  </head>
+  <body>
+    <div class="top">
+      <div>
+        <div class="muted">Course: <a href="/course/{{ course_slug }}">{{ course.title|default:course_slug }}</a></div>
+        <h1 style="margin:6px 0 0 0">{{ front_matter.title|default:lesson_slug }}</h1>
+        {% if front_matter.makes %}
+          <div class="muted">Makes: {{ front_matter.makes }}</div>
+        {% endif %}
+      </div>
+      <div class="nav">
+        <a class="btn" href="/student">Back to class</a>
+        {% if prev %}
+          <a class="btn" href="/course/{{ course_slug }}/{{ prev.slug }}">← Prev</a>
+        {% endif %}
+        {% if next %}
+          <a class="btn" href="/course/{{ course_slug }}/{{ next.slug }}">Next →</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      {{ lesson_html|safe }}
+    </div>
+
+    <p class="muted">If something feels unsafe to share, keep your work private and submit only the file. You control what leaves your device.</p>
+  </body>
+</html>

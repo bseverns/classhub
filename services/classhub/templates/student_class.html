@@ -19,6 +19,7 @@
     </style>
   </head>
   <body>
+    {% load hub_extras %}
     <div class="top">
       <div>
         <h1 style="margin:0">{{ classroom.name }}</h1>
@@ -42,6 +43,16 @@
                   <div><a href="{{ mat.url }}" target="_blank" rel="noopener">Open link</a></div>
                 {% elif mat.type == 'text' and mat.body %}
                   <pre>{{ mat.body }}</pre>
+                {% elif mat.type == 'upload' %}
+                  {% with s=submissions_by_material|get_item:mat.id %}
+                    <div class="muted">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
+                    <div>
+                      <a href="/material/{{ mat.id }}/upload">Upload / view submissions</a>
+                      {% if s %}
+                        <span class="muted">· {{ s.count }} uploaded (latest saved)</span>
+                      {% endif %}
+                    </div>
+                  {% endwith %}
                 {% else %}
                   <div class="muted">(Empty material — teacher will fill this in.)</div>
                 {% endif %}

@@ -8,6 +8,10 @@ This repo is intentionally *Day‑1 shippable*: it boots on a single Ubuntu serv
 - **Homework Helper** (Django): separate service behind `/helper/*` using OpenAI **Responses API**.
 - **Postgres + Redis + MinIO + Caddy**: boring infrastructure you can trust.
 
+Also included:
+
+- **Upload dropbox** for Scratch `.sb3` files (per-lesson, tied to the student session cookie)
+
 > Philosophy: keep the system legible. Logs you can read. Deploys you can repeat. Features that don’t hide in someone else’s cloud.
 
 ## Quick start (local / no domain yet)
@@ -55,6 +59,32 @@ See:
 - Add RAG over class materials (pgvector) and citations in helper
 - Add optional “return code” for students who clear cookies
 - Add Google SSO for teachers (student access can remain class-code)
+
+## Repo-authored course packs (markdown)
+
+This repo can ship curriculum **inside the codebase** (versioned in git) and render it
+as student-facing pages.
+
+Layout:
+
+```
+services/classhub/content/
+  courses/
+    <course_slug>/
+      course.yaml
+      lessons/*.md
+      video-scripts/*.md
+      checklists/*.md
+```
+
+Import a course pack into a Class as Modules + Materials:
+
+```bash
+cd compose
+docker compose exec classhub_web python manage.py import_coursepack --course-slug piper_scratch_12_session --create-class --replace
+```
+
+Students will see one module per session with an **Open lesson** link.
 
 ## Repository map
 

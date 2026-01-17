@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Upload - {{ material.title }}</title>
+    <style>
+      body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width:900px; margin:40px auto; padding:0 16px;}
+      .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+      .muted{color:#666; font-size:14px;}
+      .card{border:1px solid #ddd; border-radius:14px; padding:16px; margin-top:16px;}
+      input[type=file]{display:block; margin-top:8px;}
+      textarea{width:100%; padding:10px; border-radius:10px; border:1px solid #ccc; font-size:15px;}
+      button{margin-top:10px; padding:10px 14px; font-size:15px; border-radius:10px; border:1px solid #333; background:#fff; cursor:pointer;}
+      .err{color:#8a1f1f; background:#fbe9e9; padding:10px; border-radius:10px; border:1px solid #e7b4b4; margin-top:12px;}
+      table{width:100%; border-collapse:collapse; margin-top:10px;}
+      th,td{border-bottom:1px solid #eee; padding:8px; text-align:left;}
+      a{color:inherit;}
+    </style>
+  </head>
+  <body>
+    <div class="top">
+      <div>
+        <h1 style="margin:0">{{ material.title }}</h1>
+        <div class="muted">Signed in as <strong>{{ student.display_name }}</strong> - {{ classroom.name }}</div>
+      </div>
+      <div>
+        <a class="muted" href="/student">Back to class</a> - <a class="muted" href="/logout">Log out</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0">Upload your work</h2>
+      <p class="muted" style="margin-top:8px">Allowed: <strong>{{ allowed_exts|join:", " }}</strong> - Max <strong>{{ material.max_upload_mb }}MB</strong></p>
+
+      {% if error %}
+        <div class="err">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data" style="margin-top:12px">
+        {% csrf_token %}
+        {{ form.file }}
+        <div style="margin-top:10px">{{ form.note }}</div>
+        <button type="submit">Upload</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0">Your uploads</h2>
+      {% if submissions %}
+        <table>
+          <thead>
+            <tr>
+              <th>When</th>
+              <th>File</th>
+              <th>Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in submissions %}
+              <tr>
+                <td class="muted">{{ s.uploaded_at }}</td>
+                <td>{{ s.original_filename }}</td>
+                <td><a href="/submission/{{ s.id }}/download">Download</a></td>
+              </tr>
+              {% if s.note %}
+                <tr>
+                  <td></td>
+                  <td colspan="2" class="muted">Note: {{ s.note }}</td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="muted" style="margin-top:10px">No uploads yet.</p>
+      {% endif %}
+    </div>
+  </body>
+</html>

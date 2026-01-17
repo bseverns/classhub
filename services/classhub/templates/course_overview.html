@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ course.title|default:course_slug }}</title>
+    <style>
+      body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width:900px; margin:40px auto; padding:0 16px;}
+      .muted{color:#666; font-size:14px;}
+      .card{border:1px solid #ddd; border-radius:14px; padding:16px; margin-top:16px;}
+      a{color:inherit;}
+      ul{padding-left:18px;}
+      li{margin:8px 0;}
+    </style>
+  </head>
+  <body>
+    <h1 style="margin:0">{{ course.title|default:course_slug }}</h1>
+    {% if course.privacy %}
+      <p class="muted">{{ course.privacy|join:" · " }}</p>
+    {% endif %}
+
+    <div class="card">
+      <h2 style="margin:0">Lessons</h2>
+      <ul>
+        {% for l in lessons %}
+          <li>
+            <a href="/course/{{ course_slug }}/{{ l.slug }}">Session {{ l.session }}: {{ l.title }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+      <p class="muted">Tip: This page is primarily for verifying links. Students usually enter via a class code and land on <code>/student</code>.</p>
+    </div>
+
+    <p class="muted"><a href="/">Back to join</a></p>
+  </body>
+</html>

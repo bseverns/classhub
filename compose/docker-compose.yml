@@ -69,6 +69,9 @@ services:
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       DJANGO_DEBUG: ${DJANGO_DEBUG}
       CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
+      CLASSHUB_UPLOAD_ROOT: /uploads
+    volumes:
+      - ../data/classhub_uploads:/uploads
     depends_on:
       postgres:
         condition: service_healthy
