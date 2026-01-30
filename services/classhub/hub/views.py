@@ -5,6 +5,7 @@ import zipfile
 from pathlib import Path
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.middleware.csrf import get_token
@@ -226,6 +227,39 @@ def _parse_extensions(ext_csv: str) -> list[str]:
     return out
 
 
+def _build_lesson_topics(front_matter: dict) -> list[str]:
+    if not isinstance(front_matter, dict):
+        return []
+
+    topics = []
+    makes = front_matter.get("makes")
+    if makes:
+        topics.append(f"Makes: {makes}")
+
+    needs = front_matter.get("needs") or []
+    if needs:
+        joined = ", ".join(str(item).strip() for item in needs if item)
+        if joined:
+            topics.append(f"Needs: {joined}")
+
+    videos = front_matter.get("videos") or []
+    if videos:
+        labels = []
+        for video in videos:
+            if isinstance(video, dict):
+                label = video.get("id") or video.get("title")
+                if label:
+                    labels.append(label)
+        if labels:
+            topics.append("Videos: " + ", ".join(labels))
+
+    session = front_matter.get("session")
+    if session:
+        topics.append(f"Session: {session}")
+
+    return topics
+
+
 def material_upload(request, material_id: int):
     """Student upload page for a Material of type=upload."""
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
@@ -363,6 +397,18 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
     prev_l = lessons[idx - 1] if isinstance(idx, int) and idx > 0 else None
     next_l = lessons[idx + 1] if isinstance(idx, int) and idx + 1 < len(lessons) else None
 
+    helper_context = fm.get("title") or lesson_slug
+    helper_topics = _build_lesson_topics(fm)
+    helper_widget = render_to_string(
+        "includes/helper_widget.html",
+        {
+            "helper_title": "Lesson helper",
+            "helper_description": "Need a hint for this lesson? Ask the helper to guide you without handing out answers.",
+            "helper_context": helper_context,
+            "helper_topics": " | ".join(helper_topics),
+        },
+    )
+
     return render(
         request,
         "lesson_page.html",
@@ -374,6 +420,7 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
             "lesson_html": html,
             "prev": prev_l,
             "next": next_l,
+            "helper_widget": helper_widget,
         },
     )
 
