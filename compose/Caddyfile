@@ -7,7 +7,7 @@
 
   # Homework Helper
   handle_path /helper/* {
-    reverse_proxy helper_web:8010
+    reverse_proxy helper_web:8000
   }
 
   # Class Hub
