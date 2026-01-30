@@ -67,6 +67,9 @@
       <p class="muted">No modules yet. A teacher/admin can add them in /admin.</p>
     {% endif %}
 
-    {% include "includes/helper_widget.html" with helper_description="This is a Day‑1 wire-up. It will become smarter once it can cite your class materials." helper_context="classroom_summary" %}
+    {% include "includes/helper_widget.html"
+      with helper_description="This is a Day‑1 wire-up. It will become smarter once it can cite your class materials."
+      helper_context="Classroom summary: "|add:classroom.name
+      helper_topics="Classroom overview" %}
   </body>
 </html>

@@ -116,6 +116,8 @@ def chat(request):
     except Exception:
         return JsonResponse({"error": "bad_json"}, status=400)
 
+    context_value = payload.get("context")
+    topics_value = payload.get("topics")
     message = (payload.get("message") or "").strip()
     if not message:
         return JsonResponse({"error": "missing_message"}, status=400)
@@ -126,6 +128,21 @@ def chat(request):
     backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
     strictness = (os.getenv("HELPER_STRICTNESS", "light") or "light").lower()
     instructions = build_instructions(strictness)
+    context_parts = []
+    if context_value:
+        context_parts.append(f"Lesson context: {context_value}")
+
+    topics: list[str] = []
+    if isinstance(topics_value, str):
+        topics = [t.strip() for t in topics_value.split("|") if t.strip()]
+    elif isinstance(topics_value, list):
+        topics = [str(t).strip() for t in topics_value if str(t).strip()]
+
+    if topics:
+        context_parts.append("Topics: " + ", ".join(topics))
+
+    if context_parts:
+        instructions = f"{instructions} {'; '.join(context_parts)}."
 
     max_concurrency = int(os.getenv("HELPER_MAX_CONCURRENCY", "2"))
     max_wait = float(os.getenv("HELPER_QUEUE_MAX_WAIT_SECONDS", "10"))

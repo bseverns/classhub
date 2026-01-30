@@ -1,3 +1,4 @@
+{% load hub_extras %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -45,7 +46,11 @@
       {{ lesson_html|safe }}
     </div>
 
-    {% include "includes/helper_widget.html" with helper_title="Lesson helper" helper_description="Need a hint for this lesson? Ask the helper to guide you without handing out answers." helper_context=lesson_slug %}
+    {% include "includes/helper_widget.html"
+      with helper_title="Lesson helper"
+           helper_description="Need a hint for this lesson? Ask the helper to guide you without handing out answers."
+           helper_context=front_matter.title|default:lesson_slug
+           helper_topics=front_matter|lesson_topics %}
 
     <p class="muted">If something feels unsafe to share, keep your work private and submit only the file. You control what leaves your device.</p>
   </body>

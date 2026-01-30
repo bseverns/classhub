@@ -70,6 +70,19 @@ We support two modes:
 The strictness switch is intentionally simple so teachers can “throw the switch”
 without code changes.
 
+## Lesson context metadata
+
+Lesson pages now pass contextual data down to the helper widget so the backend
+knows which lesson (and which topics) the student is working on:
+
+- `data-helper-context`: lesson title/slug (or classroom summary) stored as `context`.
+- `data-helper-topics`: a short summary derived from the lesson front matter (makes,
+  needs, videos, session) stored as `topics`.
+
+The helper service appends those values to the system instructions before calling
+the LLM, giving you transparent, lesson-aware responses. Customize the include
+or the lesson front matter to adjust how much metadata flows through.
+
 ## Queue / concurrency limits
 
 On CPU-only servers, limit concurrent model calls to avoid overload.
