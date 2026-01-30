@@ -1,0 +1,86 @@
+# Development
+
+This repo is optimized for **fast local iteration** with Docker Compose.
+By default, Docker Compose will load `compose/docker-compose.override.yml`
+if it exists, which enables hot reload for Django code and templates.
+
+## Hot reload (local dev)
+
+The override file:
+
+- bind-mounts the source into the containers
+- runs Django's dev server (`runserver`)
+- sets `DJANGO_DEBUG=1`
+
+Start the stack:
+
+```bash
+cd compose
+docker compose up -d
+```
+
+Then edit files under:
+
+- `services/classhub/` (Class Hub Django app)
+- `services/homework_helper/` (Homework Helper Django app)
+- `services/classhub/content/` (markdown course packs)
+
+Django's autoreloader will pick up Python + template changes, and the
+lesson pages read markdown files from disk on each request.
+
+## Local LLM (Ollama)
+
+By default, the helper uses Ollama. Make sure the model server is running:
+
+```bash
+cd compose
+docker compose exec ollama ollama pull llama3.2:1b
+```
+
+If you run Ollama outside of Compose, set `OLLAMA_BASE_URL` in `compose/.env`
+so the container can reach it.
+
+## Content-only updates
+
+If you only want curriculum hot reload (not Python code), you can mount
+just the content directory instead of the full app:
+
+```yaml
+services:
+  classhub_web:
+    volumes:
+      - ../services/classhub/content:/app/content
+      - ../data/classhub_uploads:/uploads
+```
+
+## When rebuilds are required
+
+You **still** need an image rebuild when you change:
+
+- `requirements.txt` (Python dependencies)
+- Dockerfiles or OS-level packages
+- production-only assets that rely on `collectstatic`
+
+For production-style builds:
+
+```bash
+cd compose
+docker compose up -d --build
+```
+
+The production container entrypoint already runs:
+
+- `python manage.py migrate`
+- `python manage.py collectstatic --noinput`
+- Gunicorn server
+
+## Debug vs production behavior
+
+With `DJANGO_DEBUG=1`:
+
+- Django serves static assets directly (no `collectstatic` required)
+- stack traces are shown in the browser
+- **do not** use this in production
+
+In production, remove the override file or set `DJANGO_DEBUG=0`
+and rebuild the image.

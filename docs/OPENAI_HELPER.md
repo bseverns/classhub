@@ -1,32 +1,95 @@
-# Homework Helper (OpenAI)
+# Homework Helper (LLM backend)
 
 The helper service is a Django app that exposes:
 
 - `GET /helper/healthz`
 - `POST /helper/chat`
 
-## Responses API
+By default, the helper is wired to a local LLM server (Ollama).
+OpenAI is supported as an **optional** backend, but is not required.
 
-We use OpenAI's **Responses API** (recommended for new projects), and read `response.output_text` from the SDK.
+## Backend selection
 
-Reference examples show:
+Set the backend in `compose/.env`:
 
-```python
-from openai import OpenAI
-client = OpenAI()
-response = client.responses.create(model="gpt-5.2", input="hello")
-print(response.output_text)
+```bash
+HELPER_LLM_BACKEND=ollama   # or "openai"
+HELPER_STRICTNESS=light     # or "strict"
+HELPER_MAX_CONCURRENCY=2
+HELPER_QUEUE_MAX_WAIT_SECONDS=10
+HELPER_QUEUE_POLL_SECONDS=0.2
+HELPER_QUEUE_SLOT_TTL_SECONDS=120
 ```
 
-See OpenAI quickstart + guides for the current shape. citeturn0search0turn0search2turn0search3
+### Ollama (local)
 
-## Tutor stance
+Required env:
 
-We bias toward learning:
-- ask clarifying questions
-- give steps and hints
-- avoid producing final answers for graded work
+```
+OLLAMA_BASE_URL=http://ollama:11434
+OLLAMA_MODEL=llama3.2:1b
+OLLAMA_TIMEOUT_SECONDS=30
+```
+
+Ollama is included in `compose/docker-compose.yml` and persists models at
+`data/ollama/`. Pull a model with:
+
+```bash
+cd compose
+docker compose exec ollama ollama pull llama3.2:1b
+```
+
+On CPU-only servers with limited RAM, keep the model small (1B–2B range).
+Larger models may be too slow or may not fit in memory.
+
+If you run Ollama outside of Compose, set `OLLAMA_BASE_URL` to the host address
+that containers can reach.
+
+### OpenAI (optional)
+
+If you want to re-enable OpenAI later:
+
+```
+HELPER_LLM_BACKEND=openai
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-5.2
+```
+
+You will also need to add the `openai` dependency back to
+`services/homework_helper/requirements.txt`.
+
+## Tutor stance and strictness
+
+We support two modes:
+
+- `HELPER_STRICTNESS=light` (default): may give direct answers, but must explain
+  reasoning and include a check-for-understanding question.
+- `HELPER_STRICTNESS=strict`: no final answers for graded work; respond with
+  hints, steps, and questions.
+
+The strictness switch is intentionally simple so teachers can “throw the switch”
+without code changes.
+
+## Queue / concurrency limits
+
+On CPU-only servers, limit concurrent model calls to avoid overload.
+The helper uses a small Redis-backed slot queue:
+
+- `HELPER_MAX_CONCURRENCY`: maximum simultaneous LLM calls (default: 2)
+- `HELPER_QUEUE_MAX_WAIT_SECONDS`: how long to wait for a slot (default: 10)
+- `HELPER_QUEUE_POLL_SECONDS`: polling interval (default: 0.2)
+- `HELPER_QUEUE_SLOT_TTL_SECONDS`: auto-release safety timeout (default: 120)
+
+Canonical policy notes live in:
+
+- `services/homework_helper/tutor/fixtures/policy_prompts.md`
+- `docs/HELPER_POLICY.md`
 
 ## RAG (planned)
 
 Phase 2 will retrieve relevant snippets from class materials and include citations.
+
+## Evals (recommended)
+
+- `services/homework_helper/tutor/fixtures/eval_prompts.jsonl`
+- `docs/HELPER_EVALS.md`

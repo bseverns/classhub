@@ -13,3 +13,4 @@ After bootstrapping:
 - add SSH keys for deploy user
 - (optionally) enable SSH hardening
 - point DNS when domain is known
+- install/configure the LLM backend (Ollama by default)

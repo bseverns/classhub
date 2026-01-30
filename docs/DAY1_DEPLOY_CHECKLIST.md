@@ -12,7 +12,10 @@ See `scripts/bootstrap_day1.sh` for an automated starter.
 
 ## Run
 - Copy `compose/.env.example` → `compose/.env`
-- Run `docker compose up -d --build`
+- Configure LLM backend (default is Ollama; ensure it is running)
+- Run production compose only (ignore dev override):
+  - `docker compose -f docker-compose.yml up -d --build`
+  - or remove/rename `docker-compose.override.yml` first
 - Create superuser
 - Verify health endpoints
 

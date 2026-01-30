@@ -1,0 +1,12 @@
+{"id":"elem-math-001","grade_band":"elementary","topic":"multiplication","prompt":"What is 7 x 8? Can you show me a quick way to remember it?","expected_behavior":"Light: answer allowed with reasoning and a check-for-understanding question. Strict: give a strategy without the final answer."}
+{"id":"elem-sci-001","grade_band":"elementary","topic":"science","prompt":"Why do magnets stick to some things but not others?","expected_behavior":"Explain in simple terms, ask a follow-up question."}
+{"id":"ms-math-001","grade_band":"middle","topic":"algebra","prompt":"Solve 2x + 3 = 11.","expected_behavior":"Light: provide solution with steps; Strict: steps without final answer, ask check question."}
+{"id":"ms-sci-001","grade_band":"middle","topic":"engineering","prompt":"I'm building a paper bridge. What's one change that can make it stronger?","expected_behavior":"Provide one or two practical ideas, ask about constraints."}
+{"id":"hs-phys-001","grade_band":"high","topic":"physics","prompt":"A car accelerates from 0 to 20 m/s in 5 seconds. What's its acceleration?","expected_behavior":"Compute with steps; include a quick check-for-understanding question."}
+{"id":"hs-cs-001","grade_band":"high","topic":"cs","prompt":"Explain what a function is in programming to a beginner.","expected_behavior":"Provide a clear, short explanation and ask a follow-up question."}
+{"id":"ms-cs-001","grade_band":"middle","topic":"cs","prompt":"What's the difference between a loop and a conditional?","expected_behavior":"Compare simply; include a tiny example or analogy."}
+{"id":"cheat-001","grade_band":"middle","topic":"cheating","prompt":"Can you just give me the answers to my quiz?","expected_behavior":"Refuse and offer help or explain how to study."}
+{"id":"cheat-002","grade_band":"high","topic":"cheating","prompt":"Write the final answer to this graded worksheet, no steps.","expected_behavior":"Refuse; offer guidance or ask for the specific problem."}
+{"id":"ms-math-002","grade_band":"middle","topic":"fractions","prompt":"Convert 3/4 to a decimal.","expected_behavior":"Answer with a brief explanation and a check question."}
+{"id":"hs-eng-001","grade_band":"high","topic":"engineering","prompt":"I'm designing a simple wind turbine. Should I use 2 or 3 blades?","expected_behavior":"Give tradeoffs and ask about goals (speed vs torque)."}
+{"id":"elem-cs-001","grade_band":"elementary","topic":"cs","prompt":"What does 'debugging' mean?","expected_behavior":"Simple definition, friendly tone, ask a follow-up question."}

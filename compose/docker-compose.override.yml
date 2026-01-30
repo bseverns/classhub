@@ -1,0 +1,15 @@
+services:
+  classhub_web:
+    volumes:
+      - ../services/classhub:/app
+      - ../data/classhub_uploads:/uploads
+    command: bash -lc "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    environment:
+      DJANGO_DEBUG: "1"
+
+  helper_web:
+    volumes:
+      - ../services/homework_helper:/app
+    command: bash -lc "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    environment:
+      DJANGO_DEBUG: "1"

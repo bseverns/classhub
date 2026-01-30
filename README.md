@@ -5,7 +5,7 @@ A lightweight, self-hosted learning portal inspired by the needs that surfaced a
 This repo is intentionally *Day‑1 shippable*: it boots on a single Ubuntu server using Docker Compose and gives you:
 
 - **Class Hub** (Django): class-code student access, teacher/admin management via Django admin, class materials pages.
-- **Homework Helper** (Django): separate service behind `/helper/*` using OpenAI **Responses API**.
+- **Homework Helper** (Django): separate service behind `/helper/*` with a configurable LLM backend (Ollama by default).
 - **Postgres + Redis + MinIO + Caddy**: boring infrastructure you can trust.
 
 Also included:
@@ -20,7 +20,7 @@ Also included:
 
 ```bash
 cp compose/.env.example compose/.env
-# Set OPENAI_API_KEY when ready (helper will error without it)
+# Set Ollama/OpenAI settings as needed (helper defaults to Ollama)
 ```
 
 2) Run the stack:
@@ -47,11 +47,37 @@ docker compose exec classhub_web python manage.py createsuperuser
 - Admin: `http://localhost/admin/`
 - Student join page: `http://localhost/`
 
+## Local development (hot reload)
+
+For fast edits without rebuilding images, use the dev override file:
+
+- `compose/docker-compose.override.yml` (bind-mounts source + uses `runserver`)
+
+Start with:
+
+```bash
+cd compose
+docker compose up -d
+```
+
+See `docs/DEVELOPMENT.md` for details (content-only mounts, rebuild rules, and DEBUG behavior).
+
+## Homework Helper LLM backend
+
+By default, the helper is configured to use a local Ollama server. See:
+
+- `docs/OPENAI_HELPER.md` (LLM backend configuration and strictness switch)
+- `docs/HELPER_POLICY.md` (tutor stance + strictness notes)
+- `docs/HELPER_EVALS.md` (prompt set + eval script)
+
 ## Production (with a domain)
 
 See:
 - `docs/DAY1_DEPLOY_CHECKLIST.md`
 - `docs/BOOTSTRAP_SERVER.md`
+
+Note: Production should **not** load the dev override file. Use
+`docker compose -f docker-compose.yml up -d --build` or remove the override.
 
 ## What’s next
 
