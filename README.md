@@ -6,6 +6,7 @@ This repo is intentionally *Day‑1 shippable*: it boots on a single Ubuntu serv
 
 - **Class Hub** (Django): class-code student access, teacher/admin management via Django admin, class materials pages.
 - **Homework Helper** (Django): separate service behind `/helper/*` with a configurable LLM backend (Ollama by default).
+- Helper widget now lives in both the class summary and each lesson page so students can ask for hints in context.
 - **Postgres + Redis + MinIO + Caddy**: boring infrastructure you can trust.
 
 Also included:

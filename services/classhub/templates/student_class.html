@@ -67,34 +67,6 @@
       <p class="muted">No modules yet. A teacher/admin can add them in /admin.</p>
     {% endif %}
 
-    <div class="helper">
-      <h2 style="margin:0">Homework Helper</h2>
-      <p class="muted">This is a Day‑1 wire-up. It will become smarter once it can cite your class materials.</p>
-
-      <textarea id="q" placeholder="Ask for help…"></textarea>
-      <button id="ask">Ask</button>
-      <pre id="a" class="muted"></pre>
-    </div>
-
-    <script>
-      const out = document.getElementById('a');
-      document.getElementById('ask').addEventListener('click', async () => {
-        out.textContent = 'Thinking…';
-        const message = (document.getElementById('q').value || '').trim();
-        const res = await fetch('/helper/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
-        });
-
-        if (!res.ok) {
-          out.textContent = 'Helper error (check server logs).';
-          return;
-        }
-
-        const data = await res.json();
-        out.textContent = data.text || '(no output)';
-      });
-    </script>
+    {% include "includes/helper_widget.html" with helper_description="This is a Day‑1 wire-up. It will become smarter once it can cite your class materials." helper_context="classroom_summary" %}
   </body>
 </html>

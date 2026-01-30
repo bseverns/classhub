@@ -1,0 +1,92 @@
+<div class="helper-widget" data-helper-context="{{ helper_context|default:'' }}">
+  <h2 style="margin:0; font-size:1.25rem;">{{ helper_title|default:"Homework Helper" }}</h2>
+  <p class="helper-description">{{ helper_description|default:"Ask the helper for hints, steps, or feedback." }}</p>
+
+  <textarea class="helper-input" placeholder="Ask for help…"></textarea>
+  <button class="helper-submit">{{ helper_button_label|default:"Ask" }}</button>
+  <pre class="helper-output" aria-live="polite"></pre>
+</div>
+
+<style>
+  .helper-widget {
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 22px;
+    background: #fff;
+    max-width: 720px;
+  }
+  .helper-widget textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    font-family: inherit;
+  }
+  .helper-widget button {
+    margin-top: 10px;
+    padding: 10px 14px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid #333;
+    background: #fff;
+    cursor: pointer;
+  }
+  .helper-widget pre {
+    white-space: pre-wrap;
+    margin-top: 12px;
+    color: #444;
+    min-height: 40px;
+  }
+  .helper-description {
+    color: #666;
+    font-size: 14px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+  }
+</style>
+
+<script>
+(function () {
+  const widgets = document.querySelectorAll(".helper-widget");
+  widgets.forEach((widget) => {
+    const textarea = widget.querySelector(".helper-input");
+    const button = widget.querySelector(".helper-submit");
+    const output = widget.querySelector(".helper-output");
+    const context = widget.dataset.helperContext;
+
+    const setOutput = (txt) => {
+      output.textContent = txt;
+    };
+
+    button.addEventListener("click", async () => {
+      const message = (textarea.value || "").trim();
+      if (!message) {
+        setOutput("Type a question before asking.");
+        return;
+      }
+      setOutput("Thinking…");
+      try {
+        const payload = { message };
+        if (context) {
+          payload.context = context;
+        }
+        const res = await fetch("/helper/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          throw new Error("helper_error");
+        }
+        const data = await res.json();
+        setOutput(data.text || "(no output)");
+      } catch (err) {
+        setOutput("Helper error (check server logs).");
+      }
+    });
+  });
+})();
+</script>
