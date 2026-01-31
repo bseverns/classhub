@@ -15,6 +15,7 @@ Set the backend in `compose/.env`:
 ```bash
 HELPER_LLM_BACKEND=ollama   # or "openai"
 HELPER_STRICTNESS=light     # or "strict"
+HELPER_SCOPE_MODE=soft      # or "strict"
 HELPER_MAX_CONCURRENCY=2
 HELPER_QUEUE_MAX_WAIT_SECONDS=10
 HELPER_QUEUE_POLL_SECONDS=0.2
@@ -82,6 +83,13 @@ knows which lesson (and which topics) the student is working on:
 The helper service appends those values to the system instructions before calling
 the LLM, giving you transparent, lesson-aware responses. Customize the include
 or the lesson front matter to adjust how much metadata flows through.
+
+## Scope mode
+
+Use `HELPER_SCOPE_MODE` to control how strictly the helper stays within the lesson:
+
+- `soft` (default): prefer lesson scope, gently redirect off-topic requests
+- `strict`: refuse unrelated questions and ask students to rephrase
 
 ## Queue / concurrency limits
 

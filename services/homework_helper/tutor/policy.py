@@ -1,19 +1,43 @@
 STRICTNESS_LIGHT = "light"
 STRICTNESS_STRICT = "strict"
+SCOPE_SOFT = "soft"
+SCOPE_STRICT = "strict"
 
 
-def build_instructions(strictness: str) -> str:
-    """Return the tutor stance string based on strictness.
+def _format_scope(context: str, topics: list[str]) -> str:
+    parts = []
+    if context:
+        parts.append(f"Lesson context: {context}")
+    if topics:
+        parts.append("Topics: " + ", ".join(topics))
+    return " ".join(parts)
 
-    The strictness switch is intentionally simple so teachers can flip it
-    without changing code.
-    """
+
+def build_instructions(strictness: str, context: str = "", topics: list[str] | None = None, scope_mode: str = SCOPE_SOFT) -> str:
+    """Return the tutor stance string based on strictness + lesson scope."""
     base = (
         "You are a calm, encouraging homework helper. "
         "Teach by guiding: ask clarifying questions, give hints, outline steps, "
         "and check understanding. "
         "Keep responses concise."
     )
+
+    topics = topics or []
+    scope_text = _format_scope(context, topics)
+    if scope_text:
+        if scope_mode == SCOPE_STRICT:
+            base += (
+                " Only answer within this lesson scope. "
+                + scope_text
+                + " If the question is unrelated, say you can only help with this lesson "
+                "and ask the student to rephrase."
+            )
+        else:
+            base += (
+                " Prefer answers grounded in this lesson. "
+                + scope_text
+                + " If the question seems unrelated, gently redirect it back to the lesson."
+            )
 
     if strictness == STRICTNESS_STRICT:
         return (

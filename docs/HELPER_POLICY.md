@@ -35,3 +35,10 @@ HELPER_STRICTNESS=strict
 
 On CPU-only servers, use the helper queue settings in `compose/.env` to cap
 concurrency and avoid timeouts.
+
+## Scope mode (lesson focus)
+
+Set `HELPER_SCOPE_MODE` in `compose/.env`:
+
+- `soft`: lesson-first answers with gentle redirects
+- `strict`: refuse off-topic requests and ask the student to rephrase
