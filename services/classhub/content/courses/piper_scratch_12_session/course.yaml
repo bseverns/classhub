@@ -9,6 +9,7 @@ privacy:
   - "No camera required; voice optional."
   - "Use a chosen name/nickname."
   - "Save locally first; upload privately."
+helper_reference: piper_scratch
 lessons:
   - session: 1
     slug: s01-welcome-private-workflow

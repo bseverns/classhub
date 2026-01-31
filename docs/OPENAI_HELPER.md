@@ -17,6 +17,8 @@ HELPER_LLM_BACKEND=ollama   # or "openai"
 HELPER_STRICTNESS=light     # or "strict"
 HELPER_SCOPE_MODE=soft      # or "strict"
 HELPER_REFERENCE_FILE=/app/tutor/reference/piper_scratch.md
+HELPER_REFERENCE_DIR=/app/tutor/reference
+HELPER_REFERENCE_MAP={"piper_scratch":"piper_scratch.md"}
 HELPER_MAX_CONCURRENCY=2
 HELPER_QUEUE_MAX_WAIT_SECONDS=10
 HELPER_QUEUE_POLL_SECONDS=0.2
@@ -97,6 +99,23 @@ HELPER_REFERENCE_FILE=/app/tutor/reference/piper_scratch.md
 
 The example `piper_scratch.md` lives in the helper image and can be edited to
 match your curriculum.
+
+### Multiple reference files (per course or lesson)
+
+Use a reference key in `course.yaml` or `lesson` entries:
+
+```
+helper_reference: piper_scratch
+```
+
+Then configure a map in `.env` so the helper can resolve the key to a file:
+
+```
+HELPER_REFERENCE_DIR=/app/tutor/reference
+HELPER_REFERENCE_MAP={"piper_scratch":"piper_scratch.md"}
+```
+
+This keeps file access safe and lets you swap references per lesson or course.
 
 ## Scope mode
 

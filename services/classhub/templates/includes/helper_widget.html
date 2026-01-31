@@ -2,6 +2,7 @@
   class="helper-widget"
   data-helper-context="{{ helper_context|default:'' }}"
   data-helper-topics="{{ helper_topics|default:'' }}"
+  data-helper-reference="{{ helper_reference|default:'' }}"
 >
   <h2 style="margin:0; font-size:1.25rem;">{{ helper_title|default:"Homework Helper" }}</h2>
   <p class="helper-description">{{ helper_description|default:"Ask the helper for hints, steps, or feedback." }}</p>
@@ -61,6 +62,7 @@
     const output = widget.querySelector(".helper-output");
     const context = widget.dataset.helperContext;
     const topicsData = widget.dataset.helperTopics;
+    const referenceKey = widget.dataset.helperReference;
     const topics = topicsData
       ? topicsData.split("|").map((topic) => topic.trim()).filter(Boolean)
       : [];
@@ -83,6 +85,9 @@
         }
         if (topics.length) {
           payload.topics = topics;
+        }
+        if (referenceKey) {
+          payload.reference = referenceKey;
         }
         const res = await fetch("/helper/chat", {
           method: "POST",

@@ -135,6 +135,7 @@ def chat(request):
 
     context_value = payload.get("context")
     topics_value = payload.get("topics")
+    reference_key = payload.get("reference")
     message = (payload.get("message") or "").strip()
     if not message:
         return JsonResponse({"error": "missing_message"}, status=400)
@@ -150,7 +151,17 @@ def chat(request):
         topics = [t.strip() for t in topics_value.split("|") if t.strip()]
     elif isinstance(topics_value, list):
         topics = [str(t).strip() for t in topics_value if str(t).strip()]
+    reference_dir = os.getenv("HELPER_REFERENCE_DIR", "/app/tutor/reference").strip()
+    reference_map_raw = os.getenv("HELPER_REFERENCE_MAP", "").strip()
     reference_file = os.getenv("HELPER_REFERENCE_FILE", "").strip()
+    if reference_key and reference_map_raw:
+        try:
+            reference_map = json.loads(reference_map_raw)
+            rel = reference_map.get(reference_key)
+            if rel:
+                reference_file = str(Path(reference_dir) / rel)
+        except Exception:
+            pass
     reference_text = _load_reference_text(reference_file)
     instructions = build_instructions(
         strictness,

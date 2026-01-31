@@ -52,20 +52,20 @@ def _load_course_manifest(course_slug: str) -> dict:
     return yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
 
 
-def _load_lesson_markdown(course_slug: str, lesson_slug: str) -> tuple[dict, str]:
-    """Return (front_matter, markdown_body)."""
+def _load_lesson_markdown(course_slug: str, lesson_slug: str) -> tuple[dict, str, dict]:
+    """Return (front_matter, markdown_body, lesson_meta)."""
     manifest = _load_course_manifest(course_slug)
     lessons = manifest.get("lessons") or []
     match = next((l for l in lessons if (l.get("slug") == lesson_slug)), None)
     if not match:
-        return {}, ""
+        return {}, "", {}
 
     rel = match.get("file")
     if not rel:
-        return {}, ""
+        return {}, "", match
     lesson_path = (_COURSES_DIR / course_slug / rel).resolve()
     if not lesson_path.exists():
-        return {}, ""
+        return {}, "", match
 
     raw = lesson_path.read_text(encoding="utf-8")
     if raw.startswith("---"):
@@ -78,8 +78,8 @@ def _load_lesson_markdown(course_slug: str, lesson_slug: str) -> tuple[dict, str
             except yaml.scanner.ScannerError as exc:
                 raise ValueError(f"Invalid YAML in {lesson_path}: {exc}") from exc
             body = parts[2].lstrip("\n")
-            return fm, body
-    return {}, raw
+            return fm, body, match
+    return {}, raw, match
 
 
 def _render_markdown_to_safe_html(markdown_text: str) -> str:
@@ -390,7 +390,7 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
         return HttpResponse("Course not found", status=404)
 
     try:
-        fm, body_md = _load_lesson_markdown(course_slug, lesson_slug)
+        fm, body_md, lesson_meta = _load_lesson_markdown(course_slug, lesson_slug)
     except ValueError as exc:
         return HttpResponse(f"Invalid lesson metadata: {exc}", status=500)
     if not body_md:
@@ -405,6 +405,7 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
 
     helper_context = fm.get("title") or lesson_slug
     helper_topics = _build_lesson_topics(fm)
+    helper_reference = lesson_meta.get("helper_reference") or manifest.get("helper_reference") or ""
     helper_widget = render_to_string(
         "includes/helper_widget.html",
         {
@@ -412,6 +413,7 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
             "helper_description": "Need a hint for this lesson? Ask the helper to guide you without handing out answers.",
             "helper_context": helper_context,
             "helper_topics": " | ".join(helper_topics),
+            "helper_reference": helper_reference,
         },
     )
 
