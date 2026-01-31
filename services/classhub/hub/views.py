@@ -257,6 +257,12 @@ def _build_lesson_topics(front_matter: dict) -> list[str]:
     if session:
         topics.append(f"Session: {session}")
 
+    helper_notes = front_matter.get("helper_notes") or []
+    if helper_notes:
+        notes = ", ".join(str(item).strip() for item in helper_notes if item)
+        if notes:
+            topics.append("Notes: " + notes)
+
     return topics
 
 

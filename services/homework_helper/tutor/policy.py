@@ -13,7 +13,13 @@ def _format_scope(context: str, topics: list[str]) -> str:
     return " ".join(parts)
 
 
-def build_instructions(strictness: str, context: str = "", topics: list[str] | None = None, scope_mode: str = SCOPE_SOFT) -> str:
+def build_instructions(
+    strictness: str,
+    context: str = "",
+    topics: list[str] | None = None,
+    scope_mode: str = SCOPE_SOFT,
+    reference_text: str = "",
+) -> str:
     """Return the tutor stance string based on strictness + lesson scope."""
     base = (
         "You are a calm, encouraging homework helper. "
@@ -38,6 +44,13 @@ def build_instructions(strictness: str, context: str = "", topics: list[str] | N
                 + scope_text
                 + " If the question seems unrelated, gently redirect it back to the lesson."
             )
+
+    if reference_text:
+        base += (
+            " Use the following reference facts as ground truth for this course. "
+            + reference_text.strip()
+            + " "
+        )
 
     if strictness == STRICTNESS_STRICT:
         return (

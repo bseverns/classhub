@@ -3,6 +3,8 @@ import os
 import re
 import urllib.error
 import urllib.request
+from functools import lru_cache
+from pathlib import Path
 
 from django.core.cache import cache
 from django.http import JsonResponse
@@ -82,6 +84,21 @@ def _openai_chat(model: str, instructions: str, message: str) -> tuple[str, str]
     return (getattr(response, "output_text", "") or ""), model
 
 
+@lru_cache(maxsize=4)
+def _load_reference_text(path_str: str) -> str:
+    if not path_str:
+        return ""
+    path = Path(path_str)
+    if not path.exists():
+        return ""
+    text = path.read_text(encoding="utf-8").strip()
+    if not text:
+        return ""
+    # Keep it compact for the system prompt.
+    lines = [line.strip() for line in text.splitlines() if line.strip() and not line.strip().startswith("#")]
+    return " ".join(lines)
+
+
 @require_GET
 def healthz(request):
     backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
@@ -133,11 +150,14 @@ def chat(request):
         topics = [t.strip() for t in topics_value.split("|") if t.strip()]
     elif isinstance(topics_value, list):
         topics = [str(t).strip() for t in topics_value if str(t).strip()]
+    reference_file = os.getenv("HELPER_REFERENCE_FILE", "").strip()
+    reference_text = _load_reference_text(reference_file)
     instructions = build_instructions(
         strictness,
         context=context_value or "",
         topics=topics,
         scope_mode=scope_mode,
+        reference_text=reference_text,
     )
 
     max_concurrency = int(os.getenv("HELPER_MAX_CONCURRENCY", "2"))

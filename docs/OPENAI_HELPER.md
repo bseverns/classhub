@@ -16,6 +16,7 @@ Set the backend in `compose/.env`:
 HELPER_LLM_BACKEND=ollama   # or "openai"
 HELPER_STRICTNESS=light     # or "strict"
 HELPER_SCOPE_MODE=soft      # or "strict"
+HELPER_REFERENCE_FILE=/app/tutor/reference/piper_scratch.md
 HELPER_MAX_CONCURRENCY=2
 HELPER_QUEUE_MAX_WAIT_SECONDS=10
 HELPER_QUEUE_POLL_SECONDS=0.2
@@ -83,6 +84,19 @@ knows which lesson (and which topics) the student is working on:
 The helper service appends those values to the system instructions before calling
 the LLM, giving you transparent, lesson-aware responses. Customize the include
 or the lesson front matter to adjust how much metadata flows through.
+
+## Course reference facts
+
+You can reinforce subject expertise by providing a reference file with concrete
+facts and workflows for the course. The helper will include this text in the
+system instructions:
+
+```
+HELPER_REFERENCE_FILE=/app/tutor/reference/piper_scratch.md
+```
+
+The example `piper_scratch.md` lives in the helper image and can be edited to
+match your curriculum.
 
 ## Scope mode
 
