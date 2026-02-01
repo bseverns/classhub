@@ -3,7 +3,7 @@
 ## Start / stop
 
 ```bash
-cd /srv/classhub/compose
+cd /srv/lms/compose
 docker compose up -d
 # stop:
 docker compose down
@@ -29,7 +29,7 @@ from the `helper_web` container.
 Pull a model (Compose):
 
 ```bash
-cd compose
+cd /srv/lms/compose
 docker compose exec ollama ollama pull llama3.2:1b
 ```
 
@@ -63,6 +63,10 @@ docker compose logs -f --tail=200 classhub_web
 
 - `scripts/backup_postgres.sh`
 - `scripts/backup_minio.sh`
+
+## Disaster recovery
+
+See `docs/DISASTER_RECOVERY.md` for a start-from-zero checklist and settings.
 
 ## Restore drill (recommended)
 

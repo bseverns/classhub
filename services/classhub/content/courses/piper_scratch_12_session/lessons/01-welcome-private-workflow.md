@@ -46,6 +46,15 @@ teacher_panel:
   assessment:
     - Student can produce a local `.sb3` file.
     - Student can submit without using public sharing.
+helper_allowed_topics:
+  - "open scratch"
+  - "make a small change"
+  - "download .sb3"
+  - "upload file"
+  - "re-open project"
+  - "upload .sb3"
+  - "reboot once if frozen."
+  - "check downloads"
 ---
 ## Safety + privacy
 - No camera required; voice optional.

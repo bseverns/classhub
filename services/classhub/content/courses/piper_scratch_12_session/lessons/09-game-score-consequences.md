@@ -44,6 +44,15 @@ teacher_panel:
     - Broadcast handlers missing.
   assessment:
     - Student demonstrates at least one state variable and one outcome.
+helper_allowed_topics:
+  - "open your session 8 project."
+  - "create variable score"
+  - "increase score when collecting something."
+  - "add a hazard that broadcasts game_over"
+  - "show a message on game_over ."
+  - "download .sb3"
+  - "upload .sb3"
+  - "reboot once if frozen."
 ---
 ## Safety + privacy
 - No camera required; voice optional.

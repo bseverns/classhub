@@ -46,6 +46,15 @@ teacher_panel:
   assessment:
     - Student can create a looped behavior.
     - Student uses private-save workflow.
+helper_allowed_topics:
+  - "open scratch"
+  - "make the sprite move 10 steps."
+  - "put the motion inside a forever"
+  - "change backdrop once during the loop."
+  - "download .sb3"
+  - "upload file"
+  - "upload .sb3"
+  - "reboot once if frozen."
 ---
 ## Safety + privacy
 - No camera required; voice optional.

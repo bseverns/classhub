@@ -27,3 +27,6 @@
 - Common snags:
 - Movement too fast/slow.
 - Boundary logic confusing—use simple edge checks.
+
+## Scratch-only reminder
+- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.

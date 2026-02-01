@@ -44,6 +44,15 @@ teacher_panel:
     - Boundary logic confusing—use simple edge checks.
   assessment:
     - Student maps input to motion reliably.
+helper_allowed_topics:
+  - "start a new scratch project ."
+  - "add controls: arrow keys move sprite."
+  - "add boundaries ."
+  - "add one collectible or one obstacle."
+  - "download .sb3"
+  - "upload .sb3"
+  - "reboot once if frozen."
+  - "check downloads"
 ---
 ## Safety + privacy
 - No camera required; voice optional.

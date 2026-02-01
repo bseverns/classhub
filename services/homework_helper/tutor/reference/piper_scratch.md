@@ -1,7 +1,7 @@
 # Reference: piper_scratch
 
 ## Audience + environment
-- Age range: 3rd to 6th grade.
+- Age range: 5th to 7th grade.
 - Devices: standard Piper kits with Raspberry Pi 3 B+, monitor/speaker in the case, external mouse.
 - Kit parts in case: two breadboards and basic electronics parts from the Piper kit.
 - Core work happens in Scratch and local file system.
@@ -34,6 +34,7 @@
 - "Closer" means move up -> Not necessarily. In Scratch, bigger size + lower position reads as closer.
 - "Front" means top of screen -> In Scratch, front is layer order.
 - "Save" means share publicly -> Save locally and upload privately.
+- "Code" means typed text -> In this class, use Scratch blocks, not text languages.
 
 ## Expert guidance (Scratch techniques)
 - To make a sprite feel closer:
@@ -51,6 +52,9 @@
 
 ## Off-topic handling
 - If a question is unrelated, redirect to the current Scratch task.
+
+## Scratch-only reminder
+- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.
 
 ## Safety + privacy
 - Avoid requesting personal info.

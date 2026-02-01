@@ -27,3 +27,6 @@
 - Common snags:
 - Difficulty jumps too sharply—smooth with smaller increments.
 - Instructions too long—keep short.
+
+## Scratch-only reminder
+- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.

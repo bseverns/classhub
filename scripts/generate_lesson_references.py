@@ -117,6 +117,9 @@ def _render_reference(
     add_section("Extend", "extend")
     add_section("Teacher notes", "teacher panel")
     lines.append("")
+    lines.append("## Scratch-only reminder")
+    lines.append("- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.")
+    lines.append("")
     return "\n".join(lines)
 
 

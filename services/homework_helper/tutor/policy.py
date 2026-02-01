@@ -18,6 +18,7 @@ def build_instructions(
     context: str = "",
     topics: list[str] | None = None,
     scope_mode: str = SCOPE_SOFT,
+    allowed_topics: list[str] | None = None,
     reference_text: str = "",
 ) -> str:
     """Return the tutor stance string based on strictness + lesson scope."""
@@ -29,7 +30,19 @@ def build_instructions(
     )
 
     topics = topics or []
+    allowed_topics = allowed_topics or []
     scope_text = _format_scope(context, topics)
+    scratch_signal = (
+        "scratch" in (context or "").lower()
+        or any("scratch" in t.lower() for t in topics)
+        or "scratch" in (reference_text or "").lower()
+    )
+    if scratch_signal:
+        base += (
+            " This course uses Scratch (blocks-based). "
+            "Do not answer in text programming languages (e.g., Pascal, Python, Java, C++). "
+            "If asked about those, redirect to Scratch blocks and the current lesson."
+        )
     if scope_text:
         if scope_mode == SCOPE_STRICT:
             base += (
@@ -44,6 +57,12 @@ def build_instructions(
                 + scope_text
                 + " If the question seems unrelated, gently redirect it back to the lesson."
             )
+    if allowed_topics:
+        base += (
+            " Allowed topics for this lesson: "
+            + ", ".join(allowed_topics)
+            + ". If asked about something else, redirect to these topics."
+        )
 
     if reference_text:
         base += (

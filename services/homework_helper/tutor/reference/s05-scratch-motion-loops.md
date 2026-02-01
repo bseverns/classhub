@@ -27,3 +27,6 @@
 - Common snags:
 - Students forget to download.
 - Loops run too fast—add waits.
+
+## Scratch-only reminder
+- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.

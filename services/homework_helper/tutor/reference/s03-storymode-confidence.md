@@ -26,3 +26,6 @@
 - Common snags:
 - Students get pulled into long sequences—cap time.
 - Audio distraction—offer no-sound path.
+
+## Scratch-only reminder
+- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.

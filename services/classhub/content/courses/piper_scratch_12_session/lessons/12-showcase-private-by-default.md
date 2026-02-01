@@ -45,6 +45,14 @@ teacher_panel:
     - Students forget to keep a local copy—repeat download.
   assessment:
     - Student can articulate process and next steps.
+helper_allowed_topics:
+  - "upload .sb3"
+  - "post 1 screenshot"
+  - "write 5-8 sentences: what you learned"
+  - "optional: if you *want*, share publicly;"
+  - "reboot once if frozen."
+  - "check downloads"
+  - "use the help form to upload"
 ---
 ## Safety + privacy
 - No camera required; voice optional.

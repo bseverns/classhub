@@ -47,6 +47,15 @@ teacher_panel:
   assessment:
     - Student can open/close apps.
     - Student can articulate where files go (Downloads/folders).
+helper_allowed_topics:
+  - "boot the piper kit to the"
+  - "find the wi‑fi icon"
+  - "open piper once; close it."
+  - "open pipercode once; close it."
+  - "take a screenshot of the desktop"
+  - "shut down safely."
+  - "upload .png"
+  - "reboot once if frozen."
 ---
 ## Safety + privacy
 - No camera required; voice optional.

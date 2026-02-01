@@ -46,6 +46,15 @@ teacher_panel:
   assessment:
     - Student can run/stop a block program.
     - Student can write clear reproduction steps.
+helper_allowed_topics:
+  - "open pipercode."
+  - "create a new project."
+  - "add 2-5 blocks"
+  - "save your project."
+  - "screenshot your blocks."
+  - "fill out one bug report ."
+  - "upload .png"
+  - "reboot once if frozen."
 ---
 ## Safety + privacy
 - No camera required; voice optional.

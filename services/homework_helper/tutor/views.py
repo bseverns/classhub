@@ -17,6 +17,23 @@ from .queueing import acquire_slot, release_slot
 EMAIL_RE = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
 PHONE_RE = re.compile(r"\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b")
 SAFE_REF_KEY_RE = re.compile(r"^[a-z0-9_-]+$")
+DEFAULT_TEXT_LANGUAGE_KEYWORDS = [
+    "pascal",
+    "python",
+    "java",
+    "javascript",
+    "typescript",
+    "c++",
+    "c#",
+    "csharp",
+    "ruby",
+    "php",
+    "go",
+    "golang",
+    "rust",
+    "swift",
+    "kotlin",
+]
 
 
 def _redact(text: str) -> str:
@@ -47,6 +64,8 @@ def _rate_limit(key: str, limit: int, window_seconds: int) -> bool:
 
 def _ollama_chat(base_url: str, model: str, instructions: str, message: str) -> tuple[str, str]:
     url = base_url.rstrip("/") + "/api/chat"
+    temperature = float(os.getenv("OLLAMA_TEMPERATURE", "0.2"))
+    top_p = float(os.getenv("OLLAMA_TOP_P", "0.9"))
     payload = {
         "model": model,
         "messages": [
@@ -54,6 +73,10 @@ def _ollama_chat(base_url: str, model: str, instructions: str, message: str) -> 
             {"role": "user", "content": message},
         ],
         "stream": False,
+        "options": {
+            "temperature": temperature,
+            "top_p": top_p,
+        },
     }
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
@@ -103,6 +126,33 @@ def _resolve_reference_file(reference_key: str | None, reference_dir: str, refer
         if candidate.exists():
             return str(candidate)
     return ""
+
+
+def _is_scratch_context(context_value: str, topics: list[str], reference_text: str) -> bool:
+    if "scratch" in (context_value or "").lower():
+        return True
+    if any("scratch" in t.lower() for t in topics):
+        return True
+    if "scratch" in (reference_text or "").lower():
+        return True
+    return False
+
+
+def _parse_csv_list(raw: str) -> list[str]:
+    return [part.strip().lower() for part in (raw or "").split(",") if part.strip()]
+
+
+def _contains_text_language(message: str, keywords: list[str]) -> bool:
+    lowered = message.lower()
+    return any(keyword in lowered for keyword in keywords)
+
+
+def _normalize_allowed_topics(value) -> list[str]:
+    if isinstance(value, list):
+        return [str(v).strip() for v in value if str(v).strip()]
+    if isinstance(value, str):
+        return [v.strip() for v in value.split("|") if v.strip()]
+    return []
 
 
 @lru_cache(maxsize=4)
@@ -156,6 +206,7 @@ def chat(request):
 
     context_value = payload.get("context")
     topics_value = payload.get("topics")
+    allowed_topics_value = payload.get("allowed_topics")
     reference_key = payload.get("reference")
     message = (payload.get("message") or "").strip()
     if not message:
@@ -172,6 +223,7 @@ def chat(request):
         topics = [t.strip() for t in topics_value.split("|") if t.strip()]
     elif isinstance(topics_value, list):
         topics = [str(t).strip() for t in topics_value if str(t).strip()]
+    allowed_topics = _normalize_allowed_topics(allowed_topics_value)
     reference_dir = os.getenv("HELPER_REFERENCE_DIR", "/app/tutor/reference").strip()
     reference_map_raw = os.getenv("HELPER_REFERENCE_MAP", "").strip()
     reference_file = os.getenv("HELPER_REFERENCE_FILE", "").strip()
@@ -179,11 +231,39 @@ def chat(request):
     if resolved:
         reference_file = resolved
     reference_text = _load_reference_text(reference_file)
+    env_keywords = _parse_csv_list(os.getenv("HELPER_TEXT_LANGUAGE_KEYWORDS", ""))
+    lang_keywords = env_keywords or DEFAULT_TEXT_LANGUAGE_KEYWORDS
+    if _contains_text_language(message, lang_keywords) and _is_scratch_context(context_value or "", topics, reference_text):
+        return JsonResponse({
+            "text": (
+                "We’re using Scratch blocks in this class, not text programming languages. "
+                "Tell me which Scratch block or part of your project you’re stuck on, "
+                "and I’ll help you with the Scratch version."
+            ),
+            "model": "",
+            "backend": backend,
+            "strictness": strictness,
+        })
+    if allowed_topics:
+        filter_mode = (os.getenv("HELPER_TOPIC_FILTER_MODE", "soft") or "soft").lower()
+        message_l = message.lower()
+        if filter_mode in {"soft", "strict"} and not any(t.lower() in message_l for t in allowed_topics):
+            return JsonResponse({
+                "text": (
+                    "Let’s keep this focused on today’s lesson topics: "
+                    + ", ".join(allowed_topics)
+                    + ". Which part of that do you need help with?"
+                ),
+                "model": "",
+                "backend": backend,
+                "strictness": strictness,
+            })
     instructions = build_instructions(
         strictness,
         context=context_value or "",
         topics=topics,
         scope_mode=scope_mode,
+        allowed_topics=allowed_topics,
         reference_text=reference_text,
     )
 

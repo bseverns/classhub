@@ -27,3 +27,6 @@
 - Common snags:
 - Game starts immediately—missing gate.
 - Credits reveal real names—remind pseudonyms.
+
+## Scratch-only reminder
+- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.

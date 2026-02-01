@@ -70,6 +70,7 @@ By default, the helper is configured to use a local Ollama server. See:
 - `docs/OPENAI_HELPER.md` (LLM backend configuration and strictness switch)
 - `docs/HELPER_POLICY.md` (tutor stance + strictness notes)
 - `docs/HELPER_EVALS.md` (prompt set + eval script)
+- `docs/DISASTER_RECOVERY.md` (start-from-zero rebuild checklist)
 
 ## Production (with a domain)
 

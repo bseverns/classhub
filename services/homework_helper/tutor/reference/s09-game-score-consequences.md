@@ -27,3 +27,6 @@
 - Common snags:
 - Score updates too often (multiple hits) — add cooldown.
 - Broadcast handlers missing.
+
+## Scratch-only reminder
+- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.

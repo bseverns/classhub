@@ -27,3 +27,6 @@
 - Common snags:
 - Keyboard/mouse not detected.
 - Wi‑Fi list reveals network names—avoid showing on recordings.
+
+## Scratch-only reminder
+- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.

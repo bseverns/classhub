@@ -3,6 +3,7 @@
   data-helper-context="{{ helper_context|default:'' }}"
   data-helper-topics="{{ helper_topics|default:'' }}"
   data-helper-reference="{{ helper_reference|default:'' }}"
+  data-helper-allowed-topics="{{ helper_allowed_topics|default:'' }}"
 >
   <h2 style="margin:0; font-size:1.25rem;">{{ helper_title|default:"Homework Helper" }}</h2>
   <p class="helper-description">{{ helper_description|default:"Ask the helper for hints, steps, or feedback." }}</p>
@@ -63,8 +64,12 @@
     const context = widget.dataset.helperContext;
     const topicsData = widget.dataset.helperTopics;
     const referenceKey = widget.dataset.helperReference;
+    const allowedTopicsData = widget.dataset.helperAllowedTopics;
     const topics = topicsData
       ? topicsData.split("|").map((topic) => topic.trim()).filter(Boolean)
+      : [];
+    const allowedTopics = allowedTopicsData
+      ? allowedTopicsData.split("|").map((topic) => topic.trim()).filter(Boolean)
       : [];
 
     const setOutput = (txt) => {
@@ -88,6 +93,9 @@
         }
         if (referenceKey) {
           payload.reference = referenceKey;
+        }
+        if (allowedTopics.length) {
+          payload.allowed_topics = allowedTopics;
         }
         const res = await fetch("/helper/chat", {
           method: "POST",

@@ -27,3 +27,6 @@
 - Common snags:
 - Animation too fast/slow.
 - Students stuck in costume editor—timebox.
+
+## Scratch-only reminder
+- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.

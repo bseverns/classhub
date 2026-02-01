@@ -27,3 +27,6 @@
 - Common snags:
 - Students can’t find Downloads.
 - Students confuse ‘share’ with ‘save’.
+
+## Scratch-only reminder
+- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.

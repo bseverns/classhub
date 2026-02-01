@@ -48,6 +48,22 @@
 - Set `helper_reference: <lesson_slug>` per lesson in `course.yaml`.
 - Allow safe slug-based reference lookup in the helper.
 
+## 2026-02-01 — Scratch-only guardrails for helper responses
+
+**Why:**
+- Avoid irrelevant text-language answers (e.g., Pascal) for Scratch lessons.
+- Keep responses aligned with blocks-based instruction.
+
+**Tradeoffs:**
+- Overly strict keyword filtering may redirect some legitimate questions.
+
+**Plan:**
+- Add Scratch-only guardrails in the prompt policy.
+- Add a lightweight redirect filter in the helper for text-language keywords.
+- Lower randomness for the Ollama backend.
+- Allow an explicit per-lesson allowed-topics list and redirect off-topic queries.
+- Default to strict scope + strict allowed-topics for Scratch-only course delivery.
+
 ## 2026-01-16 — Student access is class-code + display name
 
 **Why:**

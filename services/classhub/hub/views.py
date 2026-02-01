@@ -266,6 +266,18 @@ def _build_lesson_topics(front_matter: dict) -> list[str]:
     return topics
 
 
+def _build_allowed_topics(front_matter: dict) -> list[str]:
+    if not isinstance(front_matter, dict):
+        return []
+    allowed = front_matter.get("helper_allowed_topics") or front_matter.get("allowed_topics") or []
+    if isinstance(allowed, str):
+        parts = [p.strip() for p in allowed.split("|") if p.strip()]
+        return parts
+    if isinstance(allowed, list):
+        return [str(p).strip() for p in allowed if str(p).strip()]
+    return []
+
+
 def material_upload(request, material_id: int):
     """Student upload page for a Material of type=upload."""
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
@@ -405,6 +417,7 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
 
     helper_context = fm.get("title") or lesson_slug
     helper_topics = _build_lesson_topics(fm)
+    helper_allowed_topics = _build_allowed_topics(fm)
     helper_reference = lesson_meta.get("helper_reference") or manifest.get("helper_reference") or ""
     helper_widget = render_to_string(
         "includes/helper_widget.html",
@@ -414,6 +427,7 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
             "helper_context": helper_context,
             "helper_topics": " | ".join(helper_topics),
             "helper_reference": helper_reference,
+            "helper_allowed_topics": " | ".join(helper_allowed_topics),
         },
     )
 

@@ -41,6 +41,14 @@ teacher_panel:
   assessment:
     - Student can launch/exit StoryMode.
     - Student reflection shows attention to process.
+helper_allowed_topics:
+  - "open piper ."
+  - "complete one guided step."
+  - "exit back to desktop."
+  - "write 3 sentences: what you did"
+  - "reboot once if frozen."
+  - "check downloads"
+  - "use the help form to upload"
 ---
 ## Safety + privacy
 - No camera required; voice optional.

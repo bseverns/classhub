@@ -45,6 +45,15 @@ teacher_panel:
     - Students stuck in costume editor—timebox.
   assessment:
     - Student can use costumes and waits to create motion.
+helper_allowed_topics:
+  - "open your session 5 project or"
+  - "create or import 2 costumes for"
+  - "code: forever → next costume →"
+  - "adjust wait to feel right."
+  - "download .sb3"
+  - "upload file"
+  - "upload .sb3"
+  - "reboot once if frozen."
 ---
 ## Safety + privacy
 - No camera required; voice optional.

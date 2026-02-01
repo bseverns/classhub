@@ -27,3 +27,6 @@
 - Common snags:
 - Students don’t know what changed.
 - Screenshots missing blocks—teach zoom/fit.
+
+## Scratch-only reminder
+- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.

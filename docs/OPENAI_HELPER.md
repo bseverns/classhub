@@ -15,7 +15,7 @@ Set the backend in `compose/.env`:
 ```bash
 HELPER_LLM_BACKEND=ollama   # or "openai"
 HELPER_STRICTNESS=light     # or "strict"
-HELPER_SCOPE_MODE=soft      # or "strict"
+HELPER_SCOPE_MODE=strict    # or "soft"
 HELPER_REFERENCE_FILE=/app/tutor/reference/piper_scratch.md
 HELPER_REFERENCE_DIR=/app/tutor/reference
 HELPER_REFERENCE_MAP={"piper_scratch":"piper_scratch.md"}
@@ -23,6 +23,8 @@ HELPER_MAX_CONCURRENCY=2
 HELPER_QUEUE_MAX_WAIT_SECONDS=10
 HELPER_QUEUE_POLL_SECONDS=0.2
 HELPER_QUEUE_SLOT_TTL_SECONDS=120
+HELPER_TOPIC_FILTER_MODE=strict
+HELPER_TEXT_LANGUAGE_KEYWORDS=pascal,python,java,javascript,typescript,c++,c#,csharp,ruby,php,go,golang,rust,swift,kotlin
 ```
 
 ### Ollama (local)
@@ -33,6 +35,8 @@ Required env:
 OLLAMA_BASE_URL=http://ollama:11434
 OLLAMA_MODEL=llama3.2:1b
 OLLAMA_TIMEOUT_SECONDS=30
+OLLAMA_TEMPERATURE=0.2
+OLLAMA_TOP_P=0.9
 ```
 
 Ollama is included in `compose/docker-compose.yml` and persists models at
@@ -86,6 +90,29 @@ knows which lesson (and which topics) the student is working on:
 The helper service appends those values to the system instructions before calling
 the LLM, giving you transparent, lesson-aware responses. Customize the include
 or the lesson front matter to adjust how much metadata flows through.
+
+## Allowed topics (per lesson)
+
+You can provide an explicit allowed-topics list in lesson front matter to keep
+students on the intended scope. Add either of these:
+
+```yaml
+helper_allowed_topics:
+  - sprites
+  - motion blocks
+  - saving .sb3
+```
+
+The helper will gently redirect questions outside this list when
+`HELPER_TOPIC_FILTER_MODE=soft` (or refuse when set to `strict`).
+
+You can also auto-generate a starter list from lesson markdown:
+
+```bash
+python3 scripts/add_helper_allowed_topics.py \
+  --lessons-dir services/classhub/content/courses/piper_scratch_12_session/lessons \
+  --write
+```
 
 ## Course reference facts
 

@@ -45,6 +45,15 @@ teacher_panel:
     - Sound triggers overwhelm—optional.
   assessment:
     - Student structures a scene with at least one intentional transition.
+helper_allowed_topics:
+  - "choose or import 2 sprites."
+  - "choose or import 1 backdrop."
+  - "animate at least one sprite ."
+  - "add one ‘shift’ moment ."
+  - "add an ending cue ."
+  - "download .sb3"
+  - "upload .sb3"
+  - "reboot once if frozen."
 ---
 ## Safety + privacy
 - No camera required; voice optional.

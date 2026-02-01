@@ -45,6 +45,15 @@ teacher_panel:
     - Credits reveal real names—remind pseudonyms.
   assessment:
     - Project has a readable entry and stable restart.
+helper_allowed_topics:
+  - "open session 10 project."
+  - "create a start screen backdrop ."
+  - "gate game start behind a key"
+  - "add a credits line ."
+  - "test: restart twice to ensure it"
+  - "download .sb3"
+  - "upload .sb3"
+  - "reboot once if frozen."
 ---
 ## Safety + privacy
 - No camera required; voice optional.
