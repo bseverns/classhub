@@ -114,6 +114,19 @@ python3 scripts/add_helper_allowed_topics.py \
   --write
 ```
 
+## New course scaffold
+
+To create a brand-new course folder + lesson stubs + a reference file:
+
+```bash
+python3 scripts/new_course_scaffold.py \
+  --slug robotics_intro \
+  --title "Robotics: Sensors + Motion" \
+  --sessions 8 \
+  --duration 75 \
+  --age-band "5th-7th"
+```
+
 ## Course reference facts
 
 You can reinforce subject expertise by providing a reference file with concrete

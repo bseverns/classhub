@@ -71,6 +71,8 @@ By default, the helper is configured to use a local Ollama server. See:
 - `docs/HELPER_POLICY.md` (tutor stance + strictness notes)
 - `docs/HELPER_EVALS.md` (prompt set + eval script)
 - `docs/DISASTER_RECOVERY.md` (start-from-zero rebuild checklist)
+- `scripts/new_course_scaffold.py` (create a new course skeleton)
+- `docs/COURSE_AUTHORING.md` (how to create and edit courses)
 
 ## Production (with a domain)
 
