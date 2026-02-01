@@ -155,6 +155,23 @@ def _normalize_allowed_topics(value) -> list[str]:
     return []
 
 
+def _tokenize(text: str) -> set[str]:
+    parts = re.split(r"[^a-z0-9]+", text.lower())
+    return {p for p in parts if len(p) >= 4}
+
+
+def _allowed_topic_overlap(message: str, allowed_topics: list[str]) -> bool:
+    if not allowed_topics:
+        return True
+    msg_tokens = _tokenize(message)
+    if not msg_tokens:
+        return False
+    topic_tokens: set[str] = set()
+    for topic in allowed_topics:
+        topic_tokens |= _tokenize(topic)
+    return bool(msg_tokens & topic_tokens)
+
+
 @lru_cache(maxsize=4)
 def _load_reference_text(path_str: str) -> str:
     if not path_str:
@@ -246,8 +263,7 @@ def chat(request):
         })
     if allowed_topics:
         filter_mode = (os.getenv("HELPER_TOPIC_FILTER_MODE", "soft") or "soft").lower()
-        message_l = message.lower()
-        if filter_mode in {"soft", "strict"} and not any(t.lower() in message_l for t in allowed_topics):
+        if filter_mode == "strict" and not _allowed_topic_overlap(message, allowed_topics):
             return JsonResponse({
                 "text": (
                     "Let’s keep this focused on today’s lesson topics: "

@@ -104,7 +104,7 @@ helper_allowed_topics:
 ```
 
 The helper will gently redirect questions outside this list when
-`HELPER_TOPIC_FILTER_MODE=soft` (or refuse when set to `strict`).
+`HELPER_TOPIC_FILTER_MODE=soft` (no blocking) and will redirect when set to `strict`.
 
 You can also auto-generate a starter list from lesson markdown:
 
