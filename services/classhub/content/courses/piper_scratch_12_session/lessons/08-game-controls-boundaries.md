@@ -2,7 +2,7 @@
 course: piper-scratch-12
 session: 8
 slug: s08-game-controls-boundaries
-title: "Game I: Controls + Boundaries"
+title: "Level 2: New Mechanic, New Mood"
 duration_minutes: 75
 makes: A controllable character that stays on screen.
 needs:
@@ -54,63 +54,55 @@ helper_allowed_topics:
   - "reboot once if frozen."
   - "check downloads"
 ---
-## Safety + privacy
-- No camera required; voice optional.
-- Use a chosen name or nickname.
-- Save locally first; upload privately.
+**Mission:** Build Level 2 with one new mechanic that changes the game.
 
-## Watch
+## Teacher prep (before class)
+- Have 2–3 “mechanic recipes” ready on the board (patrol enemy, key/door, moving platform).
 
-### V12 — Collisions + win/lose broadcast (intro) (4 min)
-**After this you can:** Detect contact and respond.
+## Materials
+- Devices with Scratch
+- Timer visible
+- Handouts (if used)
 
-### V06 — Save privately: Download to your computer (3 min)
-**After this you can:** Save an `.sb3` locally every time.
+## Agenda (60 minutes)
+**0:00–0:05 Launch**
+- “Hands off keys.”
+- Say today’s mission.
+- Quick preview: what should be working by minute 40.
 
-## Do
+**0:05–0:12 Micro-lesson (demo)**
+- Show examples of a “new mechanic”:
+  - moving platforms
+  - key + locked door
+  - faster hazards
+  - enemy that chases when close
+- Teach: keep Level 2 *different*, not just harder.
 
-- [ ] Start a new Scratch project (or fork your scene).
-- [ ] Add controls: arrow keys move sprite.
-- [ ] Add boundaries (stop at edges or wrap).
-- [ ] Add one collectible OR one obstacle.
-- [ ] Download as `S08_game_controls_v1.sb3` and upload.
+**0:12–0:42 Build sprints**
+**Sprint A:** Choose a new mechanic and prototype it in Level2.  
+**Reset:** Save + teacher checks that the mechanic works once.  
+**Sprint B:** Integrate the mechanic into the goal (door, score, survive).  
+**Reset:** Stand + save.  
+**Sprint C:** Add balancing (make it fair) and communicate with text/hints.
 
-**Stop point:** If movement works and you saved the file, you’re done.
+**0:42–0:52 Playtest rotation**
+- Prompt: “What’s new in Level 2? How did you learn it?”
+- Testers note if the rule was unclear.
 
-## Submit
+**0:52–1:00 Share + Save**
+- 2–3 shares.
+- Everyone writes: “Next time I will…”
 
-Upload: `S08_game_controls_v1.sb3` (.sb3)
+## Checkpoints (what you must see working)
+- Level 2 exists and is reachable.
+- A new mechanic is present and functional.
 
-## Help
+## Common stuck points + fixes
+- If it doesn’t start: add a hat block (green flag / key press).
+- If it loops forever: add a condition or a reset.
 
-**Quick fixes**
-- Reboot once if frozen.
-- Check Downloads and try again.
-- Use the help form to upload your `.sb3` or a screenshot.
+## Extensions (fast finisher menu)
+- Add an optional secret room.
+- Add a second cutscene (very short) triggered by a mid-level event.
+- Add a countdown timer for Level 2.
 
-**Ask for help:** (link to LMS help form)
-
-## Extend (optional)
-
-- Add a sprint key (shift) that increases speed.
-- Add a ‘slow mode’ for accessibility.
-
----
-
-<details>
-<summary><strong>Teacher panel</strong></summary>
-
-
-**Purpose:** Establish player control and readable game space.
-
-
-**Common snags:**
-
-- Movement too fast/slow.
-- Boundary logic confusing—use simple edge checks.
-
-**What to look for:**
-
-- Student maps input to motion reliably.
-
-</details>

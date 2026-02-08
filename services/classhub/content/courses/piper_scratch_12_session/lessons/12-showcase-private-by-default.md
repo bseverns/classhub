@@ -2,7 +2,7 @@
 course: piper-scratch-12
 session: 12
 slug: s12-showcase-private-by-default
-title: "Showcase: Private-by-default"
+title: "Showcase: Game Festival + Creator Talk"
 duration_minutes: 75
 makes: A private showcase post and a reflection; optional public share only by choice.
 needs:
@@ -54,62 +54,56 @@ helper_allowed_topics:
   - "check downloads"
   - "use the help form to upload"
 ---
-## Safety + privacy
-- No camera required; voice optional.
-- Use a chosen name or nickname.
-- Save locally first; upload privately.
+**Mission:** Publish, present, celebrate, and reflect.
 
-## Watch
+## Teacher prep (before class)
+- Prepare a simple “festival map” and rotation timer.
+- Decide showcase format: gallery walk or stations.
 
-### V06 — Save privately: Download to your computer (3 min)
-**After this you can:** Keep your project as a file you own.
+## Materials
+- Devices with Scratch
+- Timer visible
+- Handouts (if used)
 
-### V09 — Submit `.sb3` to LMS + reopen later (4 min)
-**After this you can:** Share privately and keep control.
+## Agenda (60 minutes)
+**0:00–0:05 Launch**
+- “Hands off keys.”
+- Say today’s mission.
+- Quick preview: what should be working by minute 40.
 
-## Do
+**0:05–0:12 Micro-lesson (demo)**
+- Model a 30-second creator talk:
+  - controls + goal
+  - favorite moment
+  - hardest part + how you solved it
+- Teach: how to share project link and credit assets (if used).
 
-- [ ] Upload your final `.sb3` file to the LMS.
-- [ ] Post 1 screenshot (optional) and 1 sentence: what your game is.
-- [ ] Write 5–8 sentences: what you learned / what you’re proud of / what you’d add next.
-- [ ] Optional: If you *want*, share publicly; otherwise stop here.
+**0:12–0:42 Build sprints**
+**Sprint A:** Final fixes + final save + project title cleanup.  
+**Reset:** Save + test start-to-finish once.  
+**Sprint B:** Create a short “instructions card” on the menu or first scene.  
+**Reset:** Stand + save.  
+**Sprint C:** Showcase setup: stations, rotation order, creator talk practice.
 
-**Stop point:** If you submitted privately and wrote your reflection, you’re done.
+**0:42–0:52 Playtest rotation**
+- Prompt: “Play like a guest at a museum. Leave a kind note.”
+- Optional: sticky-note feedback.
 
-## Submit
+**0:52–1:00 Share + Save**
+- 2–3 shares.
+- Everyone writes: “Next time I will…”
 
-Post:
+## Checkpoints (what you must see working)
+- Project runs from beginning to ending.
+- Has 2+ levels and 1+ cutscene.
+- Student can explain controls and goal.
 
-## Help
+## Common stuck points + fixes
+- If it doesn’t start: add a hat block (green flag / key press).
+- If it loops forever: add a condition or a reset.
 
-**Quick fixes**
-- Reboot once if frozen.
-- Check Downloads and try again.
-- Use the help form to upload your `.sb3` or a screenshot.
+## Extensions (fast finisher menu)
+- Add a credits screen.
+- Add a sequel hook (“To be continued…”).
+- Add a speedrun timer.
 
-**Ask for help:** (link to LMS help form)
-
-## Extend (optional)
-
-- Write a sequel idea in 3 bullets.
-- Sketch your next game mechanic (one paragraph).
-
----
-
-<details>
-<summary><strong>Teacher panel</strong></summary>
-
-
-**Purpose:** Celebrate work without requiring exposure; reinforce agency and consent.
-
-
-**Common snags:**
-
-- Students think sharing is required—repeat ‘optional’.
-- Students forget to keep a local copy—repeat download.
-
-**What to look for:**
-
-- Student can articulate process and next steps.
-
-</details>

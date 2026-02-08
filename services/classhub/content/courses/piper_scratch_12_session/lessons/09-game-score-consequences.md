@@ -2,7 +2,7 @@
 course: piper-scratch-12
 session: 9
 slug: s09-game-score-consequences
-title: "Game II: Score + Consequences"
+title: "Enemy AI: Patrols and Chasers (Simple + Reliable)"
 duration_minutes: 75
 makes: Score increases and a lose condition ends the round.
 needs:
@@ -54,64 +54,53 @@ helper_allowed_topics:
   - "upload .sb3"
   - "reboot once if frozen."
 ---
-## Safety + privacy
-- No camera required; voice optional.
-- Use a chosen name or nickname.
-- Save locally first; upload privately.
+**Mission:** Add enemies with predictable behavior and fair collisions.
 
-## Watch
+## Teacher prep (before class)
+- Remind students to separate scripts by purpose: movement vs collision.
 
-### V11 — Variables + score (game heartbeat) (4 min)
-**After this you can:** Create and update a score variable.
+## Materials
+- Devices with Scratch
+- Timer visible
+- Handouts (if used)
 
-### V12 — Collisions + win/lose broadcast (5 min)
-**After this you can:** End the round cleanly via broadcast.
+## Agenda (60 minutes)
+**0:00–0:05 Launch**
+- “Hands off keys.”
+- Say today’s mission.
+- Quick preview: what should be working by minute 40.
 
-## Do
+**0:05–0:12 Micro-lesson (demo)**
+- Build a patrol enemy:
+  - move steps
+  - if touching edge → turn around
+- Optionally: chase when close using `distance to` and `point towards`.
 
-- [ ] Open your Session 8 project.
-- [ ] Create variable `score` and set to 0 on start.
-- [ ] Increase score when collecting something.
-- [ ] Add a hazard that broadcasts `game_over` when touched.
-- [ ] Show a message on `game_over` (or stop scripts).
-- [ ] Download as `S09_score_v1.sb3` and upload.
+**0:12–0:42 Build sprints**
+**Sprint A:** Add one enemy and test collisions.  
+**Reset:** Save + teacher checks “one hit = one life.”  
+**Sprint B:** Add a second enemy or a stronger enemy in Level2.  
+**Reset:** Stand + save.  
+**Sprint C:** Add fairness: warning movement, slower speed, or safe zones.
 
-**Stop point:** If score changes and game_over works once, you’re good.
+**0:42–0:52 Playtest rotation**
+- Prompt: “Is it fair? Can you learn the enemy pattern?”
+- Testers suggest one fairness change.
 
-## Submit
+**0:52–1:00 Share + Save**
+- 2–3 shares.
+- Everyone writes: “Next time I will…”
 
-Upload: `S09_score_v1.sb3` (.sb3)
+## Checkpoints (what you must see working)
+- Enemy moves predictably.
+- Collision with enemy triggers damage/reset correctly.
 
-## Help
+## Common stuck points + fixes
+- If it doesn’t start: add a hat block (green flag / key press).
+- If it loops forever: add a condition or a reset.
 
-**Quick fixes**
-- Reboot once if frozen.
-- Check Downloads and try again.
-- Use the help form to upload your `.sb3` or a screenshot.
+## Extensions (fast finisher menu)
+- Add a boss phase (enemy with 3 hits).
+- Add enemy animations (costumes).
+- Add enemy sound cues.
 
-**Ask for help:** (link to LMS help form)
-
-## Extend (optional)
-
-- Add a timer variable.
-- Add a win condition at score 10.
-
----
-
-<details>
-<summary><strong>Teacher panel</strong></summary>
-
-
-**Purpose:** Teach state, feedback, and clean endings.
-
-
-**Common snags:**
-
-- Score updates too often (multiple hits) — add cooldown.
-- Broadcast handlers missing.
-
-**What to look for:**
-
-- Student demonstrates at least one state variable and one outcome.
-
-</details>

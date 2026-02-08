@@ -2,7 +2,7 @@
 course: piper-scratch-12
 session: 5
 slug: s05-scratch-motion-loops
-title: "Scratch: Motion + Loops"
+title: "Level 1 Design: Win Conditions + Game Map"
 duration_minutes: 75
 makes: A sprite that moves in a loop and changes backdrop once.
 needs:
@@ -56,65 +56,55 @@ helper_allowed_topics:
   - "upload .sb3"
   - "reboot once if frozen."
 ---
-## Safety + privacy
-- No camera required; voice optional.
-- Use a chosen name or nickname.
-- Save locally first; upload privately.
+**Mission:** Design Level 1 with a clear goal and a plan for Level 2.
 
-## Watch
+## Teacher prep (before class)
+- Print **Handout 05** (Level Map Worksheet).
+- Bring pencils/markers for quick planning.
 
-### V05 — Open Scratch + start a new project (3 min)
-**After this you can:** Open the editor and locate the main zones.
+## Materials
+- Devices with Scratch
+- Timer visible
+- Handouts (if used)
 
-### V06 — Save privately: Download to your computer (3 min)
-**After this you can:** Save an `.sb3` locally every time.
+## Agenda (60 minutes)
+**0:00–0:05 Launch**
+- “Hands off keys.”
+- Say today’s mission.
+- Quick preview: what should be working by minute 40.
 
-## Do
+**0:05–0:12 Micro-lesson (demo)**
+- Show 3 win conditions:
+  1) reach the door,
+  2) collect X points,
+  3) survive Y seconds.
+- Teach: `wait until`, comparisons (`>`, `=`), simple timers.
 
-- [ ] Open Scratch.
-- [ ] Make the sprite move 10 steps.
-- [ ] Put the motion inside a `forever` loop.
-- [ ] Change backdrop once during the loop.
-- [ ] Download as `S05_move_v1.sb3`.
-- [ ] Upload to LMS.
+**0:12–0:42 Build sprints**
+**Sprint A:** Choose a win condition and make it work in Level 1.  
+**Reset:** Save + fill out Level Map worksheet.  
+**Sprint B:** Add obstacles that match the goal (not random chaos).  
+**Reset:** Stand + save.  
+**Sprint C:** Build a “door” sprite that you’ll use for level transitions next week.
 
-**Stop point:** If you downloaded `S05_move_v1.sb3`, you’re good.
+**0:42–0:52 Playtest rotation**
+- Prompt: “Do you know what to do in the first 10 seconds?”
+- Testers must say the goal out loud.
 
-## Submit
+**0:52–1:00 Share + Save**
+- 2–3 shares.
+- Everyone writes: “Next time I will…”
 
-Upload: `S05_move_v1.sb3` (.sb3)
+## Checkpoints (what you must see working)
+- Level 1 has a goal that can be completed.
+- A win moment triggers something visible (message, sound, or screen).
 
-## Help
+## Common stuck points + fixes
+- If it doesn’t start: add a hat block (green flag / key press).
+- If it loops forever: add a condition or a reset.
 
-**Quick fixes**
-- Reboot once if frozen.
-- Check Downloads and try again.
-- Use the help form to upload your `.sb3` or a screenshot.
+## Extensions (fast finisher menu)
+- Add a checkpoint halfway through Level 1.
+- Add a tutorial hint (text bubble) triggered after 5 seconds.
+- Add a bonus collectible that’s risky to reach.
 
-**Ask for help:** (link to LMS help form)
-
-## Extend (optional)
-
-- Add a second sprite that appears when the backdrop changes.
-- Add a sound only when the backdrop changes.
-
----
-
-<details>
-<summary><strong>Teacher panel</strong></summary>
-
-
-**Purpose:** Introduce the stage/sprite mental model and loops.
-
-
-**Common snags:**
-
-- Students forget to download.
-- Loops run too fast—add waits.
-
-**What to look for:**
-
-- Student can create a looped behavior.
-- Student uses private-save workflow.
-
-</details>

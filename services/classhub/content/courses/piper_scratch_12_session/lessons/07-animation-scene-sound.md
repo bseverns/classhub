@@ -2,7 +2,7 @@
 course: piper-scratch-12
 session: 7
 slug: s07-animation-scene-sound
-title: "Animation II: Scene + Sound"
+title: "Cutscenes: Freeze Controls, Tell a Story, Return to Play"
 duration_minutes: 75
 makes: A micro-scene with two characters and a clear beginning/shift/end.
 needs:
@@ -55,64 +55,56 @@ helper_allowed_topics:
   - "upload .sb3"
   - "reboot once if frozen."
 ---
-## Safety + privacy
-- No camera required; voice optional.
-- Use a chosen name or nickname.
-- Save locally first; upload privately.
+**Mission:** Create Cutscene 1 and use broadcast messages to control it.
 
-## Watch
+## Teacher prep (before class)
+- Print **Handout 07** (Cutscene Storyboard).
+- Decide a default broadcast name set (freeze/unfreeze).
 
-### V08 — Import assets + keep an assets folder (4 min)
-**After this you can:** Bring in sprites/backdrops without chaos.
+## Materials
+- Devices with Scratch
+- Timer visible
+- Handouts (if used)
 
-### V10 — Costumes + timing (animation loop) (4 min)
-**After this you can:** Use timing to control a scene.
+## Agenda (60 minutes)
+**0:00–0:05 Launch**
+- “Hands off keys.”
+- Say today’s mission.
+- Quick preview: what should be working by minute 40.
 
-## Do
+**0:05–0:12 Micro-lesson (demo)**
+- Teach 3 rules of cutscenes:
+  1) freeze controls
+  2) show story beats (say/think + movement)
+  3) unfreeze and start next level
+- Teach: `broadcast and wait`, `show/hide`, timing with `wait`.
 
-- [ ] Choose or import 2 sprites.
-- [ ] Choose or import 1 backdrop.
-- [ ] Animate at least one sprite (costumes or motion).
-- [ ] Add one ‘shift’ moment (sound, message, or backdrop change).
-- [ ] Add an ending cue (stop, fade, or final pose).
-- [ ] Download as `S07_scene_v1.sb3` and upload.
+**0:12–0:42 Build sprints**
+**Sprint A:** Create a Cutscene1 backdrop and a cutscene script that runs when Level1 is complete.  
+**Reset:** Save + teacher checks “controls freeze.”  
+**Sprint B:** Add 2–4 story beats (dialogue + movement/animation).  
+**Reset:** Stand + save.  
+**Sprint C:** End the cutscene by switching to Level2 and unfreezing controls.
 
-**Stop point:** If you have two sprites and one clear change, you’re good.
+**0:42–0:52 Playtest rotation**
+- Prompt: “Does the cutscene clearly tell you what changes in Level 2?”
+- Testers must answer: “What is my new mission?”
 
-## Submit
+**0:52–1:00 Share + Save**
+- 2–3 shares.
+- Everyone writes: “Next time I will…”
 
-Upload: `S07_scene_v1.sb3` (.sb3)
+## Checkpoints (what you must see working)
+- Cutscene triggers after Level 1 win.
+- Player cannot move during cutscene.
+- Cutscene ends and Level 2 begins.
 
-## Help
+## Common stuck points + fixes
+- If it doesn’t start: add a hat block (green flag / key press).
+- If it loops forever: add a condition or a reset.
 
-**Quick fixes**
-- Reboot once if frozen.
-- Check Downloads and try again.
-- Use the help form to upload your `.sb3` or a screenshot.
+## Extensions (fast finisher menu)
+- Add camera tricks: fade (change brightness effect), zoom illusion (sprite size), dramatic pause.
+- Add a second character entering/exiting.
+- Add a short sound cue between beats.
 
-**Ask for help:** (link to LMS help form)
-
-## Extend (optional)
-
-- Add subtitles (text) for accessibility.
-- Add a ‘quiet mode’ toggle that disables sound.
-
----
-
-<details>
-<summary><strong>Teacher panel</strong></summary>
-
-
-**Purpose:** Move from loops into authored moments and narrative beats.
-
-
-**Common snags:**
-
-- Asset hunting spirals—provide a pack.
-- Sound triggers overwhelm—optional.
-
-**What to look for:**
-
-- Student structures a scene with at least one intentional transition.
-
-</details>

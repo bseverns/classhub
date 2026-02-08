@@ -1,5 +1,5 @@
 slug: piper_scratch_12_session
-title: "Piper + Scratch: Animation → Games (Private-by-default)"
+title: "Scratch Game Design + Cutscenes Lab (Grades 3–5)"
 sessions: 12
 default_duration_minutes: 75
 needs:
@@ -13,61 +13,61 @@ helper_reference: piper_scratch
 lessons:
   - session: 1
     slug: s01-welcome-private-workflow
-    title: "Welcome + Private Workflow"
+    title: "Welcome to the Studio: Build the Controls"
     file: lessons/01-welcome-private-workflow.md
     helper_reference: s01-welcome-private-workflow
   - session: 2
     slug: s02-piper-desktop-basics
-    title: "Piper Desktop Basics"
+    title: "Animation Magic: Costumes + Timing"
     file: lessons/02-piper-desktop-basics.md
     helper_reference: s02-piper-desktop-basics
   - session: 3
     slug: s03-storymode-confidence
-    title: "StoryMode: Guided Confidence"
+    title: "Game Rules: Score + Collectibles"
     file: lessons/03-storymode-confidence.md
     helper_reference: s03-storymode-confidence
   - session: 4
     slug: s04-pipercode-debugging
-    title: "PiperCode: Blocks + Debugging"
+    title: "Obstacles + Lives: The Art of Try Again"
     file: lessons/04-pipercode-debugging.md
     helper_reference: s04-pipercode-debugging
   - session: 5
     slug: s05-scratch-motion-loops
-    title: "Scratch: Motion + Loops"
+    title: "Level 1 Design: Win Conditions + Game Map"
     file: lessons/05-scratch-motion-loops.md
     helper_reference: s05-scratch-motion-loops
   - session: 6
     slug: s06-animation-costumes-timing
-    title: "Animation I: Costumes + Timing"
+    title: "Scene Switching: Backdrops as Rooms (Menu → Level 1)"
     file: lessons/06-animation-costumes-timing.md
     helper_reference: s06-animation-costumes-timing
   - session: 7
     slug: s07-animation-scene-sound
-    title: "Animation II: Scene + Sound"
+    title: "Cutscenes: Freeze Controls, Tell a Story, Return to Play"
     file: lessons/07-animation-scene-sound.md
     helper_reference: s07-animation-scene-sound
   - session: 8
     slug: s08-game-controls-boundaries
-    title: "Game I: Controls + Boundaries"
+    title: "Level 2: New Mechanic, New Mood"
     file: lessons/08-game-controls-boundaries.md
     helper_reference: s08-game-controls-boundaries
   - session: 9
     slug: s09-game-score-consequences
-    title: "Game II: Score + Consequences"
+    title: "Enemy AI: Patrols and Chasers (Simple + Reliable)"
     file: lessons/09-game-score-consequences.md
     helper_reference: s09-game-score-consequences
   - session: 10
     slug: s10-game-levels-difficulty
-    title: "Game III: Levels + Difficulty"
+    title: "Polish Pass: Instructions, Win/Lose Screens, Game Feel"
     file: lessons/10-game-levels-difficulty.md
     helper_reference: s10-game-levels-difficulty
   - session: 11
     slug: s11-packaging-start-screen
-    title: "Packaging: Start Screen + Instructions"
+    title: "Debug + Playtest Notes → Revisions"
     file: lessons/11-packaging-start-screen.md
     helper_reference: s11-packaging-start-screen
   - session: 12
     slug: s12-showcase-private-by-default
-    title: "Showcase: Private-by-default"
+    title: "Showcase: Game Festival + Creator Talk"
     file: lessons/12-showcase-private-by-default.md
     helper_reference: s12-showcase-private-by-default

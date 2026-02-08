@@ -2,7 +2,7 @@
 course: piper-scratch-12
 session: 4
 slug: s04-pipercode-debugging
-title: "PiperCode: Blocks + Debugging"
+title: "Obstacles + Lives: The Art of Try Again"
 duration_minutes: 75
 makes: A tiny block program + a first bug report practice.
 needs:
@@ -56,65 +56,53 @@ helper_allowed_topics:
   - "upload .png"
   - "reboot once if frozen."
 ---
-## Safety + privacy
-- No camera required; voice optional.
-- Use a chosen name or nickname.
-- Save locally first; upload privately.
+**Mission:** Add hazards, lives, and a reset that returns the player to a start point.
 
-## Watch
+## Teacher prep (before class)
+- Have a reset pattern ready: `broadcast reset` and `go to x/y`.
+- Consider marking “start spot” on stage with a visible object.
 
-### V03 — PiperCode (open + run + save) (4 min)
-**After this you can:** Create a project, run it, and save it.
+## Materials
+- Devices with Scratch
+- Timer visible
+- Handouts (if used)
 
-### V14 — Bug report workflow (how to ask for help) (3 min)
-**After this you can:** Describe a problem in a way that gets fast help.
+## Agenda (60 minutes)
+**0:00–0:05 Launch**
+- “Hands off keys.”
+- Say today’s mission.
+- Quick preview: what should be working by minute 40.
 
-## Do
+**0:05–0:12 Micro-lesson (demo)**
+- Create variable `lives`.
+- Build live: hazard reduces lives and broadcasts `reset`; player goes to start.
+- Teach: `broadcast`, `if touching`, `set lives`, `change lives by`.
 
-- [ ] Open `Pipercode`.
-- [ ] Create a new project.
-- [ ] Add 2–5 blocks and run it.
-- [ ] Save your project.
-- [ ] Screenshot your blocks.
-- [ ] Fill out one bug report (even if you’re not stuck).
+**0:12–0:42 Build sprints**
+**Sprint A:** Add one hazard + lives system.  
+**Reset:** Save + teacher checks “lives decreases once per hit.”  
+**Sprint B:** Add a safe “start spot” and reset behavior.  
+**Reset:** Stand + save.  
+**Sprint C:** Add a simple game over screen when lives = 0.
 
-**Stop point:** If you ran your project and captured a screenshot, you’re done.
+**0:42–0:52 Playtest rotation**
+- Prompt: “Is it fair? Does it feel like you get a second chance?”
+- Testers note: too hard / too easy / confusing.
 
-## Submit
+**0:52–1:00 Share + Save**
+- 2–3 shares.
+- Everyone writes: “Next time I will…”
 
-Upload: `S04_pipercode_blocks.png` (.png, .jpg)
+## Checkpoints (what you must see working)
+- `lives` variable decreases on hazard.
+- `reset` returns player to a start point reliably.
 
-## Help
+## Common stuck points + fixes
+- If it doesn’t start: add a hat block (green flag / key press).
+- If it loops forever: add a condition or a reset.
 
-**Quick fixes**
-- Reboot once if frozen.
-- Check Downloads and try again.
-- Use the help form to upload your `.sb3` or a screenshot.
+## Extensions (fast finisher menu)
+- Add invincibility blink for 1 second after hit.
+- Add moving hazard (patrol left/right).
+- Add health hearts UI (icons).
 
-**Ask for help:** (link to LMS help form)
-
-## Extend (optional)
-
-- Break one thing on purpose and fix it.
-- Swap the order of two blocks and observe the change.
-
----
-
-<details>
-<summary><strong>Teacher panel</strong></summary>
-
-
-**Purpose:** Teach that debugging is normal and describable.
-
-
-**Common snags:**
-
-- Students don’t know what changed.
-- Screenshots missing blocks—teach zoom/fit.
-
-**What to look for:**
-
-- Student can run/stop a block program.
-- Student can write clear reproduction steps.
-
-</details>

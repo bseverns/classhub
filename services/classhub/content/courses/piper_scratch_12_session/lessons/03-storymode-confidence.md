@@ -2,7 +2,7 @@
 course: piper-scratch-12
 session: 3
 slug: s03-storymode-confidence
-title: "StoryMode: Guided Confidence"
+title: "Game Rules: Score + Collectibles"
 duration_minutes: 75
 makes: One completed guided step in StoryMode and a short reflection.
 needs:
@@ -50,60 +50,53 @@ helper_allowed_topics:
   - "check downloads"
   - "use the help form to upload"
 ---
-## Safety + privacy
-- No camera required; voice optional.
-- Use a chosen name or nickname.
-- Save locally first; upload privately.
+**Mission:** Create a collectible and a score counter that behaves.
 
-## Watch
+## Teacher prep (before class)
+- Print **Handout 03** (Score + Collision Recipes).
+- Make sure students can find Variables category quickly.
 
-### V02 — Piper StoryMode (what it is + when we use it) (4 min)
-**After this you can:** Launch StoryMode and complete one step.
+## Materials
+- Devices with Scratch
+- Timer visible
+- Handouts (if used)
 
-## Do
+## Agenda (60 minutes)
+**0:00–0:05 Launch**
+- “Hands off keys.”
+- Say today’s mission.
+- Quick preview: what should be working by minute 40.
 
-- [ ] Open `Piper` (StoryMode).
-- [ ] Complete one guided step.
-- [ ] Exit back to desktop.
-- [ ] Write 3 sentences: what you did / what surprised you / what you want to try next.
+**0:05–0:12 Micro-lesson (demo)**
+- Make a variable `score` and show it on screen.
+- Build live: collectible moves to random spot when touched; score increases by 1.
+- Teach: variables, `if touching`, `go to random position`, `change score by`.
 
-**Stop point:** If you completed one step and wrote your 3 sentences, you’re done.
+**0:12–0:42 Build sprints**
+**Sprint A:** Add a collectible and make score increase once per touch.  
+**Reset:** Save + teacher checks “score doesn’t climb forever.”  
+**Sprint B:** Add 2nd collectible type worth 5 points (optional).  
+**Reset:** Stand + save.  
+**Sprint C:** Add a goal: “Collect 10 to win Level 1” (we’ll finalize next week).
 
-## Submit
+**0:42–0:52 Playtest rotation**
+- Prompt: “Does the score match what you did?”
+- Testers try to break it: touch repeatedly, hold sprite on coin.
 
-Post:
+**0:52–1:00 Share + Save**
+- 2–3 shares.
+- Everyone writes: “Next time I will…”
 
-## Help
+## Checkpoints (what you must see working)
+- `score` variable exists and changes correctly.
+- Collectible moves/hides after being collected.
 
-**Quick fixes**
-- Reboot once if frozen.
-- Check Downloads and try again.
-- Use the help form to upload your `.sb3` or a screenshot.
+## Common stuck points + fixes
+- If it doesn’t start: add a hat block (green flag / key press).
+- If it loops forever: add a condition or a reset.
 
-**Ask for help:** (link to LMS help form)
+## Extensions (fast finisher menu)
+- Add a sparkle animation when collecting.
+- Add a sound effect.
+- Add a timer bonus (score +1 each second remaining).
 
-## Extend (optional)
-
-- Do one additional step only if you feel good.
-- Write one question you’d like to explore later.
-
----
-
-<details>
-<summary><strong>Teacher panel</strong></summary>
-
-
-**Purpose:** A low-stakes on-ramp: success first, complexity later.
-
-
-**Common snags:**
-
-- Students get pulled into long sequences—cap time.
-- Audio distraction—offer no-sound path.
-
-**What to look for:**
-
-- Student can launch/exit StoryMode.
-- Student reflection shows attention to process.
-
-</details>

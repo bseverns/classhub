@@ -2,7 +2,7 @@
 course: piper-scratch-12
 session: 6
 slug: s06-animation-costumes-timing
-title: "Animation I: Costumes + Timing"
+title: "Scene Switching: Backdrops as Rooms (Menu → Level 1)"
 duration_minutes: 75
 makes: A short looping animation using costume changes.
 needs:
@@ -55,64 +55,54 @@ helper_allowed_topics:
   - "upload .sb3"
   - "reboot once if frozen."
 ---
-## Safety + privacy
-- No camera required; voice optional.
-- Use a chosen name or nickname.
-- Save locally first; upload privately.
+**Mission:** Build clean transitions using backdrops and broadcasts.
 
-## Watch
+## Teacher prep (before class)
+- Consider creating a “Backdrops checklist” on the board:
+  Menu, Level1, Cutscene1, Level2, Win, GameOver.
 
-### V10 — Costumes + timing (animation loop) (4 min)
-**After this you can:** Animate with 2+ costumes and a wait.
+## Materials
+- Devices with Scratch
+- Timer visible
+- Handouts (if used)
 
-### V06 — Save privately: Download to your computer (3 min)
-**After this you can:** Save an `.sb3` locally every time.
+## Agenda (60 minutes)
+**0:00–0:05 Launch**
+- “Hands off keys.”
+- Say today’s mission.
+- Quick preview: what should be working by minute 40.
 
-## Do
+**0:05–0:12 Micro-lesson (demo)**
+- Teach the doorway pattern:
+  - touching door → `broadcast [level complete] and wait`
+  - switch backdrop to Level1 / Cutscene / Level2
+- Teach: `switch backdrop`, `when backdrop switches to`.
 
-- [ ] Open your Session 5 project or start new.
-- [ ] Create or import 2 costumes for a sprite.
-- [ ] Code: `forever → next costume → wait`.
-- [ ] Adjust wait to feel right.
-- [ ] Download as `S06_animation_v1.sb3`.
-- [ ] Upload to LMS.
+**0:12–0:42 Build sprints**
+**Sprint A:** Create backdrops: Menu + Level1.  
+**Reset:** Save + teacher checks “start button works.”  
+**Sprint B:** Add a start button that broadcasts `start game` and switches to Level1.  
+**Reset:** Stand + save.  
+**Sprint C:** Make sure the right sprites show/hide on each backdrop.
 
-**Stop point:** If your sprite animates and you downloaded the file, you’re done.
+**0:42–0:52 Playtest rotation**
+- Prompt: “Can you start the game without help?”
+- Testers write down the controls they discovered.
 
-## Submit
+**0:52–1:00 Share + Save**
+- 2–3 shares.
+- Everyone writes: “Next time I will…”
 
-Upload: `S06_animation_v1.sb3` (.sb3)
+## Checkpoints (what you must see working)
+- Menu exists and leads to Level1.
+- Sprites appear in the correct scene (no random leftovers).
 
-## Help
+## Common stuck points + fixes
+- If it doesn’t start: add a hat block (green flag / key press).
+- If it loops forever: add a condition or a reset.
 
-**Quick fixes**
-- Reboot once if frozen.
-- Check Downloads and try again.
-- Use the help form to upload your `.sb3` or a screenshot.
+## Extensions (fast finisher menu)
+- Add an instructions screen from the menu.
+- Add a settings toggle (sound on/off).
+- Add a title animation on the menu.
 
-**Ask for help:** (link to LMS help form)
-
-## Extend (optional)
-
-- Animate a second sprite with a different tempo.
-- Add a backdrop change every 8 costume switches.
-
----
-
-<details>
-<summary><strong>Teacher panel</strong></summary>
-
-
-**Purpose:** Teach time as a design material (pacing).
-
-
-**Common snags:**
-
-- Animation too fast/slow.
-- Students stuck in costume editor—timebox.
-
-**What to look for:**
-
-- Student can use costumes and waits to create motion.
-
-</details>

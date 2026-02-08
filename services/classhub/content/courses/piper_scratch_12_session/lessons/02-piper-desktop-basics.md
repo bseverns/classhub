@@ -2,7 +2,7 @@
 course: piper-scratch-12
 session: 2
 slug: s02-piper-desktop-basics
-title: Piper Desktop Basics
+title: "Animation Magic: Costumes + Timing"
 duration_minutes: 75
 makes: Confidence navigating the Piper desktop and opening core apps.
 needs:
@@ -57,66 +57,53 @@ helper_allowed_topics:
   - "upload .png"
   - "reboot once if frozen."
 ---
-## Safety + privacy
-- No camera required; voice optional.
-- Use a chosen name or nickname.
-- Save locally first; upload privately.
+**Mission:** Animate a character and understand frame-by-frame timing.
 
-## Watch
+## Teacher prep (before class)
+- Print **Handout 02** (Animation Recipe).
+- Prepare one “too fast” example to fix with the class.
 
-### V01 — Boot + desktop tour (Piper kit) (4 min)
-**After this you can:** Reach desktop and identify key icons.
+## Materials
+- Devices with Scratch
+- Timer visible
+- Handouts (if used)
 
-### V04 — Wi‑Fi + volume + safe shutdown (4 min)
-**After this you can:** Connect (if needed) and shut down safely.
+## Agenda (60 minutes)
+**0:00–0:05 Launch**
+- “Hands off keys.”
+- Say today’s mission.
+- Quick preview: what should be working by minute 40.
 
-## Do
+**0:05–0:12 Micro-lesson (demo)**
+- Open a sprite costume tab: duplicate, edit, flip.
+- Build live: walk cycle using `next costume` inside a loop.
+- Teach: `repeat`, `wait`, `next costume`.
 
-- [ ] Boot the Piper kit to the desktop.
-- [ ] Find the Wi‑Fi icon and volume icon (no need to connect if at school).
-- [ ] Open `Piper` once; close it.
-- [ ] Open `Pipercode` once; close it.
-- [ ] Take a screenshot of the desktop (no personal info).
-- [ ] Shut down safely.
+**0:12–0:42 Build sprints**
+**Sprint A:** Create 2–4 costumes and make a short animation (idle or walk).  
+**Reset:** Save + show teacher animation once.  
+**Sprint B:** Add a second animation (jump, wave, blink).  
+**Reset:** Stretch + save.  
+**Sprint C:** Add a short “intro animation” on green flag (character enters stage).
 
-**Stop point:** If you opened and closed `Piper` and `Pipercode`, you’re good.
+**0:42–0:52 Playtest rotation**
+- Prompt: “Which animation feels smooth? Which feels too fast?”
+- Testers suggest one timing change: slower or faster.
 
-## Submit
+**0:52–1:00 Share + Save**
+- 2–3 shares.
+- Everyone writes: “Next time I will…”
 
-Upload: `S02_desktop_screenshot.png` (.png, .jpg)
+## Checkpoints (what you must see working)
+- Sprite has 2+ costumes.
+- A script switches costumes with timing (not instant chaos).
 
-## Help
+## Common stuck points + fixes
+- If it doesn’t start: add a hat block (green flag / key press).
+- If it loops forever: add a condition or a reset.
 
-**Quick fixes**
-- Reboot once if frozen.
-- Check Downloads and try again.
-- Use the help form to upload your `.sb3` or a screenshot.
+## Extensions (fast finisher menu)
+- Add an animated enemy or pet.
+- Add sound synced to animation.
+- Create a looping background animation (clouds drifting).
 
-**Ask for help:** (link to LMS help form)
-
-## Extend (optional)
-
-- Create a folder called `ScratchProjects/` on the desktop or Documents.
-- Practice reopening an app you closed.
-
----
-
-<details>
-<summary><strong>Teacher panel</strong></summary>
-
-
-**Purpose:** Reduce friction so the machine feels legible and student-controlled.
-
-
-**Common snags:**
-
-- Keyboard/mouse not detected.
-- Wi‑Fi list reveals network names—avoid showing on recordings.
-- Students power-off without shutdown.
-
-**What to look for:**
-
-- Student can open/close apps.
-- Student can articulate where files go (Downloads/folders).
-
-</details>

@@ -2,7 +2,7 @@
 course: piper-scratch-12
 session: 10
 slug: s10-game-levels-difficulty
-title: "Game III: Levels + Difficulty"
+title: "Polish Pass: Instructions, Win/Lose Screens, Game Feel"
 duration_minutes: 75
 makes: Difficulty ramps over time or across levels.
 needs:
@@ -54,64 +54,55 @@ helper_allowed_topics:
   - "upload .sb3"
   - "reboot once if frozen."
 ---
-## Safety + privacy
-- No camera required; voice optional.
-- Use a chosen name or nickname.
-- Save locally first; upload privately.
+**Mission:** Make the game readable and satisfying: instructions, feedback, endings.
 
-## Watch
+## Teacher prep (before class)
+- Consider an “arcade rotation” setup: chairs rotate every 2 minutes during playtest.
 
-### V11 — Variables + score (reuse) (3 min)
-**After this you can:** Use variables to control difficulty.
+## Materials
+- Devices with Scratch
+- Timer visible
+- Handouts (if used)
 
-### V13 — Start screen + instructions (preview) (4 min)
-**After this you can:** Gate gameplay behind a start.
+## Agenda (60 minutes)
+**0:00–0:05 Launch**
+- “Hands off keys.”
+- Say today’s mission.
+- Quick preview: what should be working by minute 40.
 
-## Do
+**0:05–0:12 Micro-lesson (demo)**
+- Show examples of polish:
+  - instruction text on menu
+  - sound for collect/hit
+  - win screen + game over screen
+  - screen shake illusion (small quick moves)
+- Teach: UI sprites can live on top of the game.
 
-- [ ] Open Session 9 project.
-- [ ] Add `level` variable (start at 1).
-- [ ] Increase difficulty when score reaches a threshold (or timer).
-- [ ] Make something change: speed, spawn rate, obstacle count.
-- [ ] Add a simple instruction text (goal + controls).
-- [ ] Download as `S10_levels_v1.sb3` and upload.
+**0:12–0:42 Build sprints**
+**Sprint A:** Add instructions (menu or first 5 seconds of Level1).  
+**Reset:** Save + teacher checks instructions are visible.  
+**Sprint B:** Add win screen and game over screen.  
+**Reset:** Stand + save.  
+**Sprint C:** Add at least 2 sound or animation feedback moments.
 
-**Stop point:** If something gets harder and you can explain why, you’re done.
+**0:42–0:52 Playtest rotation**
+- Prompt: “Can you understand the game without the creator explaining it?”
+- Testers try silently; if confused, they note where.
 
-## Submit
+**0:52–1:00 Share + Save**
+- 2–3 shares.
+- Everyone writes: “Next time I will…”
 
-Upload: `S10_levels_v1.sb3` (.sb3)
+## Checkpoints (what you must see working)
+- Instructions exist.
+- Win and/or GameOver screen exists and triggers correctly.
 
-## Help
+## Common stuck points + fixes
+- If it doesn’t start: add a hat block (green flag / key press).
+- If it loops forever: add a condition or a reset.
 
-**Quick fixes**
-- Reboot once if frozen.
-- Check Downloads and try again.
-- Use the help form to upload your `.sb3` or a screenshot.
+## Extensions (fast finisher menu)
+- Add sound toggle in menu.
+- Add a score summary on win screen.
+- Add a “play again” button.
 
-**Ask for help:** (link to LMS help form)
-
-## Extend (optional)
-
-- Add an ‘easy mode’ toggle.
-- Add a ‘practice mode’ with no hazards.
-
----
-
-<details>
-<summary><strong>Teacher panel</strong></summary>
-
-
-**Purpose:** Introduce pacing and tuning: games are systems that evolve.
-
-
-**Common snags:**
-
-- Difficulty jumps too sharply—smooth with smaller increments.
-- Instructions too long—keep short.
-
-**What to look for:**
-
-- Student uses variables to alter behavior over time.
-
-</details>
