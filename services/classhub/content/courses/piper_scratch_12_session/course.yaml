@@ -13,7 +13,7 @@ helper_reference: piper_scratch
 lessons:
   - session: 1
     slug: s01-welcome-private-workflow
-    title: "Welcome to the Studio: Build the Controls"
+    title: "Welcome to the Studio: Build the Controls (Piper StoryMode)"
     file: lessons/01-welcome-private-workflow.md
     helper_reference: s01-welcome-private-workflow
   - session: 2
