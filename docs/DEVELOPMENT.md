@@ -61,6 +61,27 @@ services:
       - ../data/classhub_uploads:/uploads
 ```
 
+## Rebuild course pack in DB
+
+When lesson markdown or `course.yaml` changes, re-import the course pack
+to refresh Modules + Materials for a class:
+
+```bash
+CLASS_CODE=BZ2CYTTE scripts/rebuild_coursepack.sh
+```
+
+You can also pass flags directly:
+
+```bash
+scripts/rebuild_coursepack.sh --course-slug piper_scratch_12_session --class-code BZ2CYTTE
+```
+
+To create a brand-new class from the course title:
+
+```bash
+scripts/rebuild_coursepack.sh --course-slug piper_scratch_12_session --create-class
+```
+
 ## When rebuilds are required
 
 You **still** need an image rebuild when you change:

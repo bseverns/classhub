@@ -1,5 +1,19 @@
 # Decisions (living)
 
+## 2026-02-08 — Scripted course-pack rebuilds for test classes
+
+**Why:**
+- Curriculum edits require re-importing Modules + Materials.
+- We want a single, repeatable command that targets a class code or creates a new class.
+
+**Tradeoffs:**
+- Assumes a Compose-based workflow and container name `classhub_web`.
+- Adds a small maintenance surface (the wrapper script).
+
+**Plan:**
+- Add `scripts/rebuild_coursepack.sh` to wrap `import_coursepack`.
+- Document the script in `docs/DEVELOPMENT.md`.
+
 ## 2026-02-04 — Lesson-linked homework dropbox from front matter
 
 **Why:**
