@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teacher · Lessons</title>
+    {% include "includes/glass_theme.html" %}
+    <style>
+      .heading h1 { margin: 6px 0 0 0; font-size: clamp(1.8rem, 2.5vw, 2.3rem); }
+      .filter-form { justify-content: flex-start; }
+      .filter-form label { margin: 0; align-self: center; }
+      .filter-form select { width: auto; min-width: 200px; }
+      .quick { margin-top: 10px; }
+      .dropbox {
+        margin: 0 0 12px 0;
+        padding: 10px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.4);
+        border: 1px solid rgba(22, 59, 80, 0.12);
+      }
+      .dropbox:last-child { margin-bottom: 0; }
+      .actions { margin-top: 6px; }
+      .actions a { margin-right: 10px; font-size: 13px; }
+    </style>
+  </head>
+  <body class="glass-theme">
+    <div class="shell">
+      <div class="top heading">
+        <div>
+          <div class="muted"><a href="/teach">Teacher</a> · <a href="/admin/">Admin</a></div>
+          <h1>Lesson Tracker</h1>
+          <div class="muted">Focus on lesson links and submission progress.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <form method="get" class="row filter-form">
+          <label for="class_id">Class</label>
+          <select name="class_id" id="class_id">
+            <option value="0" {% if not selected_class_id %}selected{% endif %}>All classes</option>
+            {% for classroom in classes %}
+              <option value="{{ classroom.id }}" {% if selected_class_id == classroom.id %}selected{% endif %}>{{ classroom.name }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit">Apply</button>
+        </form>
+      </div>
+
+      {% for group in class_rows %}
+        <div class="card">
+          <div class="row">
+            <div>
+              <h2 style="margin:0">{{ group.classroom.name }}</h2>
+              <div class="muted">Join code <span class="pill">{{ group.classroom.join_code }}</span> · Students {{ group.student_count }}</div>
+            </div>
+            <div class="muted"><a href="/teach/class/{{ group.classroom.id }}">Open class dashboard</a></div>
+          </div>
+
+          {% if group.lesson_rows %}
+            <table style="margin-top:12px">
+              <thead>
+                <tr>
+                  <th>Module</th>
+                  <th>Lesson</th>
+                  <th>Dropboxes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in group.lesson_rows %}
+                  <tr>
+                    <td><strong>{{ row.module.title }}</strong></td>
+                    <td>
+                      <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
+                      <div class="muted">{{ row.course_slug }} / {{ row.lesson_slug }}</div>
+                      {% if row.review_url %}
+                        <a class="quick" href="{{ row.review_url }}">{{ row.review_label }}</a>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if row.dropboxes %}
+                        {% for dropbox in row.dropboxes %}
+                          <div class="dropbox">
+                            <div><a href="/teach/material/{{ dropbox.id }}/submissions">{{ dropbox.title }}</a></div>
+                            <div class="muted">
+                              Submitted {{ dropbox.submitted }} / {{ group.student_count }}
+                              · Missing {{ dropbox.missing }}
+                              {% if dropbox.last_uploaded_at %}· Latest {{ dropbox.last_uploaded_at }}{% endif %}
+                            </div>
+                            <div class="actions">
+                              <a href="/teach/material/{{ dropbox.id }}/submissions">All</a>
+                              <a href="/teach/material/{{ dropbox.id }}/submissions?show=missing">Missing</a>
+                              <a href="/teach/material/{{ dropbox.id }}/submissions?download=zip_latest">ZIP latest</a>
+                            </div>
+                          </div>
+                        {% endfor %}
+                      {% else %}
+                        <span class="muted">No upload dropbox in this module.</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="muted" style="margin-top:12px">No lesson links found in this class yet.</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      {% if not class_rows %}
+        <div class="card">
+          <p class="muted">No classes available.</p>
+        </div>
+      {% endif %}
+    </div>
+  </body>
+</html>

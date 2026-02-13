@@ -2,6 +2,7 @@
 
 - Student accounts are pseudonymous (class-code + display name).
 - Teacher/admin uses Django auth (password).
+- Prefer staff (non-superuser) teacher accounts for daily use; keep superusers for ops.
 - Keep `DJANGO_SECRET_KEY` secret.
 - Use HTTPS in production.
 - Ensure `DJANGO_DEBUG=0` in production and do not run the dev override file.

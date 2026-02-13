@@ -1,5 +1,38 @@
 # Decisions (living)
 
+## 2026-02-13 — Add `create_teacher` management command for staff account ops
+
+**Why:**
+- Shell one-liners for user creation are easy to mistype and hard to remember.
+- Teacher onboarding and recovery should use a repeatable, documented command.
+
+**Tradeoffs:**
+- Adds a small command-maintenance surface in `hub.management.commands`.
+- We still rely on Django password auth (SSO planned later).
+
+**Plan:**
+- Add `manage.py create_teacher` for create/update flows.
+- Default to `is_staff=True`, non-superuser for least privilege.
+- Support updates (`--update`) for password resets and account activation changes.
+
+## 2026-02-13 — Teacher-first portal centered on lessons and submissions
+
+**Why:**
+- Teachers primarily need lesson flow and submission visibility, not full admin object editing.
+- Existing `/teach` screens exposed module/material internals first, which made day-to-day teaching tasks slower.
+
+**Tradeoffs:**
+- Lesson tracking depends on detecting lesson links from module materials (`/course/<course>/<lesson>` pattern).
+- If classes use custom link structures, they may not appear in the lesson tracker.
+
+**Plan:**
+- Add `/teach/lessons` as a lesson-level tracker grouped by class.
+- Show per-lesson dropbox progress (`submitted / total`, missing count, latest upload timestamp).
+- Add direct triage actions from lesson rows (`all`, `missing`, `download latest zip`) to reduce click depth.
+- Add a primary row-level `Review missing now` shortcut that targets the highest-missing dropbox.
+- Add recent submissions summary to `/teach` for quick triage.
+- Keep module/material editing in place as a secondary workflow, not the primary teacher view.
+
 ## 2026-02-08 — Scripted course-pack rebuilds for test classes
 
 **Why:**

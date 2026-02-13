@@ -22,6 +22,7 @@ urlpatterns = [
 
     # Teacher cockpit (staff-only)
     path("teach", views.teach_home),
+    path("teach/lessons", views.teach_lessons),
     path("teach/create-class", views.teach_create_class),
     path("teach/class/<int:class_id>", views.teach_class_dashboard),
     path("teach/class/<int:class_id>/toggle-lock", views.teach_toggle_lock),
@@ -33,4 +34,3 @@ urlpatterns = [
     path("teach/module/<int:module_id>/move-material", views.teach_move_material),
     path("teach/material/<int:material_id>/submissions", views.teach_material_submissions),
 ]
-

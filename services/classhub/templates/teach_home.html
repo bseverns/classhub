@@ -4,72 +4,106 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Teacher · Class Hub</title>
+    {% include "includes/glass_theme.html" %}
     <style>
-      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; max-width:1000px; margin:40px auto; padding:0 16px;}
-      .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
-      .muted{color:#666; font-size:14px;}
-      .card{border:1px solid #ddd; border-radius:14px; padding:16px; margin-top:16px;}
-      .row{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;}
-      .pill{display:inline-block; padding:4px 10px; border:1px solid #aaa; border-radius:999px; font-size:12px;}
-      input, textarea{width:100%; padding:10px; border-radius:10px; border:1px solid #ccc; font-size:15px;}
-      button{padding:10px 14px; font-size:15px; border-radius:10px; border:1px solid #333; background:#fff; cursor:pointer;}
-      a{color:inherit;}
-      table{width:100%; border-collapse:collapse;}
-      th, td{padding:10px; border-bottom:1px solid #eee; text-align:left; vertical-align:top;}
-      th{font-size:13px; color:#666; font-weight:600;}
+      .shell { max-width: 1040px; }
+      .title-row h1 { margin: 0; font-size: clamp(1.9rem, 2.7vw, 2.4rem); }
+      .title-row .muted { margin-top: 4px; }
+      .status-open { color: #1a7f51; font-weight: 700; }
+      .status-locked { color: #8a4e15; font-weight: 700; }
+      .class-link { font-weight: 700; }
+      .submit-wrap { margin-top: 12px; }
     </style>
   </head>
-  <body>
-    <div class="top">
-      <div>
-        <h1 style="margin:0">Teacher</h1>
-        <div class="muted">Staff-only cockpit · <a href="/admin/">Admin</a> · <a href="/">Student join page</a></div>
-      </div>
-      <div class="muted">Signed in as <strong>{{ request.user.username }}</strong></div>
-    </div>
-
-    <div class="card">
-      <h2 style="margin:0 0 10px 0">Create a class</h2>
-      <form method="post" action="/teach/create-class">
-        {% csrf_token %}
-        <div style="max-width:520px">
-          <label class="muted">Class name</label>
-          <input name="name" placeholder="e.g., Piper + Scratch (Period 3)" />
+  <body class="glass-theme">
+    <div class="shell">
+      <div class="top title-row">
+        <div>
+          <h1>Teacher Portal</h1>
+          <div class="muted">Staff-only cockpit · <a href="/teach/lessons">Lesson tracker</a> · <a href="/admin/">Admin</a> · <a href="/">Student join page</a></div>
         </div>
-        <button type="submit" style="margin-top:12px">Create</button>
-      </form>
-    </div>
-
-    <div class="card">
-      <div class="row">
-        <h2 style="margin:0">Classes</h2>
-        <div class="muted">Tip: keep codes on the projector, not in email.</div>
+        <div class="muted">Signed in as <strong>{{ request.user.username }}</strong></div>
       </div>
 
-      {% if classes %}
-        <table>
-          <thead>
-            <tr>
-              <th>Class</th>
-              <th>Join code</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for c in classes %}
+      <div class="card">
+        <h2 style="margin:0 0 10px 0">Create a class</h2>
+        <form method="post" action="/teach/create-class">
+          {% csrf_token %}
+          <div style="max-width:520px">
+            <label>Class name</label>
+            <input name="name" placeholder="e.g., Piper + Scratch (Period 3)" />
+          </div>
+          <div class="submit-wrap">
+            <button type="submit">Create class</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <h2 style="margin:0">Classes</h2>
+          <div class="muted">Tip: keep codes visible in-room, not in email.</div>
+        </div>
+
+        {% if classes %}
+          <table>
+            <thead>
               <tr>
-                <td><strong>{{ c.name }}</strong></td>
-                <td><span class="pill">{{ c.join_code }}</span></td>
-                <td class="muted">{% if c.is_locked %}Locked{% else %}Open{% endif %}</td>
-                <td><a href="/teach/class/{{ c.id }}">Open</a></td>
+                <th>Class</th>
+                <th>Join code</th>
+                <th>Status</th>
+                <th></th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p class="muted">No classes yet.</p>
-      {% endif %}
+            </thead>
+            <tbody>
+              {% for c in classes %}
+                <tr>
+                  <td><strong>{{ c.name }}</strong></td>
+                  <td><span class="pill">{{ c.join_code }}</span></td>
+                  <td>{% if c.is_locked %}<span class="status-locked">Locked</span>{% else %}<span class="status-open">Open</span>{% endif %}</td>
+                  <td class="class-link"><a href="/teach/class/{{ c.id }}">Open</a> · <a href="/teach/lessons?class_id={{ c.id }}">Lessons</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="muted">No classes yet.</p>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <h2 style="margin:0">Recent submissions</h2>
+          <div class="muted">Latest uploads across all classes</div>
+        </div>
+
+        {% if recent_submissions %}
+          <table>
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Student</th>
+                <th>Class</th>
+                <th>Material</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sub in recent_submissions %}
+                <tr>
+                  <td class="muted">{{ sub.uploaded_at }}</td>
+                  <td><strong>{{ sub.student.display_name }}</strong></td>
+                  <td class="muted">{{ sub.material.module.classroom.name }}</td>
+                  <td class="muted">{{ sub.material.title }}</td>
+                  <td><a href="/teach/material/{{ sub.material.id }}/submissions">Open queue</a> · <a href="/submission/{{ sub.id }}/download">Download</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="muted">No submissions yet.</p>
+        {% endif %}
+      </div>
     </div>
   </body>
 </html>

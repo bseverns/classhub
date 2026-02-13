@@ -99,3 +99,26 @@ curl -i -X POST http://localhost/helper/chat \
   -H "Content-Type: application/json" \
   -d '{"message":"What is 7 plus 5?"}'
 ```
+
+## 9) Restore teacher/admin access
+
+Create first admin:
+
+```bash
+cd /srv/lms/compose
+docker compose exec classhub_web python manage.py createsuperuser
+```
+
+Create a staff teacher account:
+
+```bash
+cd /srv/lms/compose
+docker compose exec classhub_web python manage.py create_teacher \
+  --username teacher1 \
+  --email teacher1@example.org \
+  --password CHANGE_ME
+```
+
+Verify:
+- `https://<domain>/teach`
+- `https://<domain>/teach/lessons`

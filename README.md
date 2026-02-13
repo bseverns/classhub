@@ -4,7 +4,7 @@ A lightweight, self-hosted learning portal inspired by the needs that surfaced a
 
 This repo is intentionally *Day‑1 shippable*: it boots on a single Ubuntu server using Docker Compose and gives you:
 
-- **Class Hub** (Django): class-code student access, teacher/admin management via Django admin, class materials pages.
+- **Class Hub** (Django): class-code student access, teacher portal at `/teach`, Django admin for deep ops, class materials pages.
 - **Homework Helper** (Django): separate service behind `/helper/*` with a configurable LLM backend (Ollama by default).
 - Helper widget now lives in both the class summary and each lesson page so students can ask for hints in context.
 - **Postgres + Redis + MinIO + Caddy**: boring infrastructure you can trust.
@@ -36,7 +36,7 @@ docker compose up -d --build
 - Class Hub: `http://localhost/healthz`
 - Helper: `http://localhost/helper/healthz`
 
-4) Create a teacher/admin:
+4) Create a first admin account:
 
 ```bash
 cd compose
@@ -45,8 +45,43 @@ docker compose exec classhub_web python manage.py createsuperuser
 
 5) Visit:
 
+- Teacher portal: `http://localhost/teach`
+- Lesson tracker: `http://localhost/teach/lessons`
 - Admin: `http://localhost/admin/`
 - Student join page: `http://localhost/`
+
+## Teacher accounts
+
+For daily teaching, prefer staff (non-superuser) accounts.
+
+1. Create a staff teacher account from the running container:
+
+```bash
+cd compose
+docker compose exec classhub_web python manage.py create_teacher \
+  --username teacher1 \
+  --email teacher1@example.org \
+  --password CHANGE_ME
+```
+
+2. Change password later if needed:
+
+```bash
+cd compose
+docker compose exec classhub_web python manage.py create_teacher \
+  --username teacher1 \
+  --password NEW_PASSWORD \
+  --update
+```
+
+3. Verify access:
+- Staff teachers can use `/teach` and `/teach/lessons`.
+- Superusers can also use `/admin`.
+
+See `docs/TEACHER_PORTAL.md` for full teacher account and portal workflow details.
+Command cookbook script: `scripts/examples/teacher_accounts.sh` (dry-run by default).
+Personnel changes (onboard/offboard/update teacher details): `docs/TEACHER_PORTAL.md#changing-personnel-new-or-different-teachers`.
+Handoff runbook: `docs/TEACHER_HANDOFF_CHECKLIST.md`.
 
 ## Local development (hot reload)
 

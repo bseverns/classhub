@@ -18,8 +18,13 @@ See `scripts/bootstrap_day1.sh` for an automated starter.
 - Run production compose only (ignore dev override):
   - `docker compose -f docker-compose.yml up -d --build`
   - or remove/rename `docker-compose.override.yml` first
-- Create superuser
+- Create first superuser
+- Create at least one staff teacher account (`is_staff=True`, non-superuser preferred for daily use), e.g.:
+  - `docker compose exec classhub_web python manage.py create_teacher --username teacher1 --email teacher1@example.org --password CHANGE_ME`
 - Verify health endpoints
+- Verify teacher routes:
+  - `/teach`
+  - `/teach/lessons`
 
 ## Domain later
 If you do not have a domain yet:

@@ -26,6 +26,7 @@ from .models import Class, Module, Material, StudentIdentity, Submission, gen_cl
 
 _COURSES_DIR = Path(settings.CONTENT_ROOT) / "courses"
 _YOUTUBE_HOSTS = {"youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be", "www.youtu.be", "youtube-nocookie.com", "www.youtube-nocookie.com"}
+_COURSE_LESSON_PATH_RE = re.compile(r"^/course/(?P<course_slug>[-a-zA-Z0-9_]+)/(?P<lesson_slug>[-a-zA-Z0-9_]+)$")
 
 
 def _validate_front_matter(front_matter_text: str, source: Path) -> None:
@@ -156,6 +157,22 @@ def _safe_external_url(url: str) -> str:
     if parsed.scheme.lower() not in {"http", "https"}:
         return ""
     return url.strip()
+
+
+def _parse_course_lesson_url(url: str) -> tuple[str, str] | None:
+    """Return (course_slug, lesson_slug) when url matches /course/<course>/<lesson>."""
+    if not url:
+        return None
+    raw = (url or "").strip()
+    if not raw:
+        return None
+    parsed = urlparse(raw)
+    path = parsed.path if (parsed.scheme or parsed.netloc) else raw
+    path = (path or "").rstrip("/") or "/"
+    match = _COURSE_LESSON_PATH_RE.fullmatch(path)
+    if not match:
+        return None
+    return (match.group("course_slug"), match.group("lesson_slug"))
 
 
 def _normalize_lesson_videos(front_matter: dict) -> list[dict]:
@@ -609,11 +626,164 @@ def _normalize_order(qs, field: str = "order_index"):
             obj.save(update_fields=[field])
 
 
+def _material_submission_counts(material_ids: list[int]) -> dict[int, int]:
+    counts = {}
+    if not material_ids:
+        return counts
+    rows = (
+        Submission.objects.filter(material_id__in=material_ids)
+        .values("material_id", "student_id")
+        .distinct()
+    )
+    for row in rows:
+        material_id = int(row["material_id"])
+        counts[material_id] = counts.get(material_id, 0) + 1
+    return counts
+
+
+def _material_latest_upload_map(material_ids: list[int]) -> dict[int, timezone.datetime]:
+    latest = {}
+    if not material_ids:
+        return latest
+    rows = (
+        Submission.objects.filter(material_id__in=material_ids)
+        .values("material_id")
+        .annotate(last_uploaded_at=models.Max("uploaded_at"))
+    )
+    for row in rows:
+        latest[int(row["material_id"])] = row["last_uploaded_at"]
+    return latest
+
+
+def _build_lesson_tracker_rows(modules: list[Module], student_count: int) -> list[dict]:
+    rows: list[dict] = []
+    upload_material_ids = []
+    module_materials_map: dict[int, list[Material]] = {}
+
+    for module in modules:
+        mats = list(module.materials.all())
+        mats.sort(key=lambda m: (m.order_index, m.id))
+        module_materials_map[module.id] = mats
+        for mat in mats:
+            if mat.type == Material.TYPE_UPLOAD:
+                upload_material_ids.append(mat.id)
+
+    submission_counts = _material_submission_counts(upload_material_ids)
+    latest_upload_map = _material_latest_upload_map(upload_material_ids)
+
+    for module in modules:
+        mats = module_materials_map.get(module.id, [])
+        dropboxes = []
+        for mat in mats:
+            if mat.type != Material.TYPE_UPLOAD:
+                continue
+            submitted = submission_counts.get(mat.id, 0)
+            dropboxes.append(
+                {
+                    "id": mat.id,
+                    "title": mat.title,
+                    "submitted": submitted,
+                    "missing": max(student_count - submitted, 0),
+                    "last_uploaded_at": latest_upload_map.get(mat.id),
+                }
+            )
+
+        review_dropbox = None
+        if dropboxes:
+            # Prioritize the queue with the largest missing count.
+            review_dropbox = max(dropboxes, key=lambda d: (d["missing"], d["submitted"], -int(d["id"])))
+
+        if review_dropbox and review_dropbox["missing"] > 0:
+            review_url = f"/teach/material/{review_dropbox['id']}/submissions?show=missing"
+            review_label = f"Review missing now ({review_dropbox['missing']})"
+        elif review_dropbox:
+            review_url = f"/teach/material/{review_dropbox['id']}/submissions"
+            review_label = "Review submissions"
+        else:
+            review_url = ""
+            review_label = ""
+
+        seen_lessons = set()
+        for mat in mats:
+            if mat.type != Material.TYPE_LINK:
+                continue
+            parsed = _parse_course_lesson_url(mat.url)
+            if not parsed:
+                continue
+            lesson_key = parsed
+            if lesson_key in seen_lessons:
+                continue
+            seen_lessons.add(lesson_key)
+            course_slug, lesson_slug = parsed
+            rows.append(
+                {
+                    "module": module,
+                    "lesson_title": mat.title,
+                    "lesson_url": mat.url,
+                    "course_slug": course_slug,
+                    "lesson_slug": lesson_slug,
+                    "dropboxes": dropboxes,
+                    "review_url": review_url,
+                    "review_label": review_label,
+                }
+            )
+
+    return rows
+
+
 @staff_member_required
 def teach_home(request):
     """Teacher landing page (outside /admin)."""
     classes = Class.objects.all().order_by("name", "id")
-    return render(request, "teach_home.html", {"classes": classes})
+    recent_submissions = list(
+        Submission.objects.select_related("student", "material__module__classroom")
+        .all()[:20]
+    )
+    return render(
+        request,
+        "teach_home.html",
+        {
+            "classes": classes,
+            "recent_submissions": recent_submissions,
+        },
+    )
+
+
+@staff_member_required
+def teach_lessons(request):
+    classes = list(Class.objects.all().order_by("name", "id"))
+    try:
+        class_id = int((request.GET.get("class_id") or "0").strip())
+    except Exception:
+        class_id = 0
+    selected_class = next((c for c in classes if c.id == class_id), None)
+
+    target_classes = [selected_class] if selected_class else classes
+    class_rows = []
+    for classroom in target_classes:
+        if not classroom:
+            continue
+        student_count = classroom.students.count()
+        modules = list(classroom.modules.prefetch_related("materials").all())
+        modules.sort(key=lambda m: (m.order_index, m.id))
+        lesson_rows = _build_lesson_tracker_rows(modules, student_count)
+        class_rows.append(
+            {
+                "classroom": classroom,
+                "student_count": student_count,
+                "lesson_rows": lesson_rows,
+            }
+        )
+
+    return render(
+        request,
+        "teach_lessons.html",
+        {
+            "classes": classes,
+            "selected_class_id": selected_class.id if selected_class else 0,
+            "class_rows": class_rows,
+        },
+    )
 
 
 @staff_member_required
@@ -640,10 +810,12 @@ def teach_class_dashboard(request, class_id: int):
     if not classroom:
         return HttpResponse("Not found", status=404)
 
-    modules = classroom.modules.prefetch_related("materials").all()
+    modules = list(classroom.modules.prefetch_related("materials").all())
+    modules.sort(key=lambda m: (m.order_index, m.id))
     # normalize module order occasionally (cheap, safe)
-    _normalize_order(list(modules))
-    modules = classroom.modules.prefetch_related("materials").all()
+    _normalize_order(modules)
+    modules = list(classroom.modules.prefetch_related("materials").all())
+    modules.sort(key=lambda m: (m.order_index, m.id))
 
     # Count submissions per upload material (latest only, by student)
     upload_material_ids = []
@@ -663,6 +835,7 @@ def teach_class_dashboard(request, class_id: int):
             submission_counts[row["material_id"]] = submission_counts.get(row["material_id"], 0) + 1
 
     student_count = classroom.students.count()
+    lesson_rows = _build_lesson_tracker_rows(modules, student_count)
 
     return render(
         request,
@@ -672,6 +845,7 @@ def teach_class_dashboard(request, class_id: int):
             "modules": modules,
             "student_count": student_count,
             "submission_counts": submission_counts,
+            "lesson_rows": lesson_rows,
         },
     )
 

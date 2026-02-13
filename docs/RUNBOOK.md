@@ -59,6 +59,45 @@ HELPER_QUEUE_SLOT_TTL_SECONDS=120
 docker compose logs -f --tail=200 classhub_web
 ```
 
+## Teacher accounts
+
+Create first admin (interactive):
+
+```bash
+cd /srv/lms/compose
+docker compose exec classhub_web python manage.py createsuperuser
+```
+
+Create a staff teacher account:
+
+```bash
+cd /srv/lms/compose
+docker compose exec classhub_web python manage.py create_teacher \
+  --username teacher1 \
+  --email teacher1@example.org \
+  --password CHANGE_ME
+```
+
+Reset password:
+
+```bash
+cd /srv/lms/compose
+docker compose exec classhub_web python manage.py create_teacher \
+  --username teacher1 \
+  --password NEW_PASSWORD \
+  --update
+```
+
+Portal routes:
+- `/teach` (classes + recent submissions)
+- `/teach/lessons` (lesson tracker + missing/submitted triage)
+
+Example command script:
+- `scripts/examples/teacher_accounts.sh` (dry-run)
+- Run with `RUN=1` to execute
+- Staff transition checklist: `docs/TEACHER_HANDOFF_CHECKLIST.md`
+- Staff transition record template: `docs/TEACHER_HANDOFF_RECORD_TEMPLATE.md`
+
 ## Pre-deploy content checks
 
 ```bash
