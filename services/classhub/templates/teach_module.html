@@ -32,110 +32,113 @@
     </style>
   </head>
   <body class="glass-theme">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="shell">
-      <div class="top">
-        <div>
-          <div class="muted"><a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a> · <a href="/teach/class/{{ classroom.id }}">{{ classroom.name }}</a></div>
-          <h1>{{ module.title }}</h1>
-        </div>
-        <div class="muted">Join code <span class="pill">{{ classroom.join_code }}</span></div>
-      </div>
-
-      <div class="card">
-        <div class="row">
-          <h2 style="margin:0">Materials</h2>
-          <div class="muted">Students see these in order.</div>
+      <main id="main-content">
+        <div class="top">
+          <div>
+            <div class="muted"><a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a> · <a href="/teach/class/{{ classroom.id }}">{{ classroom.name }}</a></div>
+            <h1>{{ module.title }}</h1>
+          </div>
+          <div class="muted">Join code <span class="pill">{{ classroom.join_code }}</span></div>
         </div>
 
-        {% if materials %}
-          {% for mat in materials %}
-            <div class="mat">
-              <div class="row">
-                <div>
-                  <strong>{{ mat.title }}</strong>
-                  <div class="muted" style="font-size:13px">Type: {{ mat.type }}</div>
+        <div class="card">
+          <div class="row">
+            <h2 style="margin:0">Materials</h2>
+            <div class="muted">Students see these in order.</div>
+          </div>
+
+          {% if materials %}
+            {% for mat in materials %}
+              <div class="mat">
+                <div class="row">
+                  <div>
+                    <strong>{{ mat.title }}</strong>
+                    <div class="muted" style="font-size:13px">Type: {{ mat.type }}</div>
+                  </div>
+                  <div class="btnline">
+                    <form method="post" action="/teach/module/{{ module.id }}/move-material">
+                      {% csrf_token %}
+                      <input type="hidden" name="material_id" value="{{ mat.id }}" />
+                      <input type="hidden" name="direction" value="up" />
+                      <button type="submit" aria-label="Move material {{ mat.title }} up">↑</button>
+                    </form>
+                    <form method="post" action="/teach/module/{{ module.id }}/move-material">
+                      {% csrf_token %}
+                      <input type="hidden" name="material_id" value="{{ mat.id }}" />
+                      <input type="hidden" name="direction" value="down" />
+                      <button type="submit" aria-label="Move material {{ mat.title }} down">↓</button>
+                    </form>
+                    {% if mat.type == 'upload' %}
+                      <a href="/teach/material/{{ mat.id }}/submissions">Submissions</a>
+                    {% endif %}
+                  </div>
                 </div>
-                <div class="btnline">
-                  <form method="post" action="/teach/module/{{ module.id }}/move-material">
-                    {% csrf_token %}
-                    <input type="hidden" name="material_id" value="{{ mat.id }}" />
-                    <input type="hidden" name="direction" value="up" />
-                    <button type="submit">↑</button>
-                  </form>
-                  <form method="post" action="/teach/module/{{ module.id }}/move-material">
-                    {% csrf_token %}
-                    <input type="hidden" name="material_id" value="{{ mat.id }}" />
-                    <input type="hidden" name="direction" value="down" />
-                    <button type="submit">↓</button>
-                  </form>
-                  {% if mat.type == 'upload' %}
-                    <a href="/teach/material/{{ mat.id }}/submissions">Submissions</a>
-                  {% endif %}
+
+                {% if mat.type == 'link' and mat.url %}
+                  <div class="muted" style="margin-top:8px"><a href="{{ mat.url }}" target="_blank" rel="noopener">{{ mat.url }}</a></div>
+                {% elif mat.type == 'text' and mat.body %}
+                  <pre style="margin-top:10px">{{ mat.body|truncatechars:800 }}</pre>
+                {% elif mat.type == 'upload' %}
+                  <div class="muted" style="margin-top:8px">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
+                {% else %}
+                  <div class="muted" style="margin-top:8px">(Empty details)</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="muted" style="margin-top:12px">No materials yet.</p>
+          {% endif %}
+
+          <details>
+            <summary>Add a link</summary>
+            <form method="post" action="/teach/module/{{ module.id }}/add-material" style="margin-top:10px; max-width:760px">
+              {% csrf_token %}
+              <input type="hidden" name="type" value="link" />
+              <label for="link-title">Title</label>
+              <input id="link-title" name="title" placeholder="e.g., Open lesson" />
+              <label for="link-url" style="display:block; margin-top:10px">URL</label>
+              <input id="link-url" name="url" placeholder="https://…" />
+              <button type="submit" style="margin-top:12px">Add link</button>
+            </form>
+          </details>
+
+          <details>
+            <summary>Add a text block</summary>
+            <form method="post" action="/teach/module/{{ module.id }}/add-material" style="margin-top:10px; max-width:760px">
+              {% csrf_token %}
+              <input type="hidden" name="type" value="text" />
+              <label for="text-title">Title</label>
+              <input id="text-title" name="title" placeholder="e.g., Today at a glance" />
+              <label for="text-body" style="display:block; margin-top:10px">Body</label>
+              <textarea id="text-body" name="body" placeholder="Short instructions, reminders, links, etc."></textarea>
+              <button type="submit" style="margin-top:12px">Add text</button>
+            </form>
+          </details>
+
+          <details open>
+            <summary>Add an upload dropbox</summary>
+            <form method="post" action="/teach/module/{{ module.id }}/add-material" style="margin-top:10px; max-width:760px">
+              {% csrf_token %}
+              <input type="hidden" name="type" value="upload" />
+              <label for="upload-title">Title</label>
+              <input id="upload-title" name="title" value="Upload your project file" />
+              <div class="row" style="margin-top:10px">
+                <div style="min-width:240px; flex:1">
+                  <label for="upload-ext">Accepted extensions</label>
+                  <input id="upload-ext" name="accepted_extensions" value=".sb3" />
+                </div>
+                <div style="min-width:180px">
+                  <label for="upload-max">Max upload (MB)</label>
+                  <input id="upload-max" name="max_upload_mb" value="50" />
                 </div>
               </div>
-
-              {% if mat.type == 'link' and mat.url %}
-                <div class="muted" style="margin-top:8px"><a href="{{ mat.url }}" target="_blank" rel="noopener">{{ mat.url }}</a></div>
-              {% elif mat.type == 'text' and mat.body %}
-                <pre style="margin-top:10px">{{ mat.body|truncatechars:800 }}</pre>
-              {% elif mat.type == 'upload' %}
-                <div class="muted" style="margin-top:8px">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
-              {% else %}
-                <div class="muted" style="margin-top:8px">(Empty details)</div>
-              {% endif %}
-            </div>
-          {% endfor %}
-        {% else %}
-          <p class="muted" style="margin-top:12px">No materials yet.</p>
-        {% endif %}
-
-        <details>
-          <summary>Add a link</summary>
-          <form method="post" action="/teach/module/{{ module.id }}/add-material" style="margin-top:10px; max-width:760px">
-            {% csrf_token %}
-            <input type="hidden" name="type" value="link" />
-            <label>Title</label>
-            <input name="title" placeholder="e.g., Open lesson" />
-            <label style="display:block; margin-top:10px">URL</label>
-            <input name="url" placeholder="https://…" />
-            <button type="submit" style="margin-top:12px">Add link</button>
-          </form>
-        </details>
-
-        <details>
-          <summary>Add a text block</summary>
-          <form method="post" action="/teach/module/{{ module.id }}/add-material" style="margin-top:10px; max-width:760px">
-            {% csrf_token %}
-            <input type="hidden" name="type" value="text" />
-            <label>Title</label>
-            <input name="title" placeholder="e.g., Today at a glance" />
-            <label style="display:block; margin-top:10px">Body</label>
-            <textarea name="body" placeholder="Short instructions, reminders, links, etc."></textarea>
-            <button type="submit" style="margin-top:12px">Add text</button>
-          </form>
-        </details>
-
-        <details open>
-          <summary>Add an upload dropbox</summary>
-          <form method="post" action="/teach/module/{{ module.id }}/add-material" style="margin-top:10px; max-width:760px">
-            {% csrf_token %}
-            <input type="hidden" name="type" value="upload" />
-            <label>Title</label>
-            <input name="title" value="Upload your project file" />
-            <div class="row" style="margin-top:10px">
-              <div style="min-width:240px; flex:1">
-                <label>Accepted extensions</label>
-                <input name="accepted_extensions" value=".sb3" />
-              </div>
-              <div style="min-width:180px">
-                <label>Max upload (MB)</label>
-                <input name="max_upload_mb" value="50" />
-              </div>
-            </div>
-            <button type="submit" style="margin-top:12px">Add dropbox</button>
-          </form>
-        </details>
-      </div>
+              <button type="submit" style="margin-top:12px">Add dropbox</button>
+            </form>
+          </details>
+        </div>
+      </main>
     </div>
   </body>
 </html>

@@ -32,153 +32,156 @@
   </head>
   <body class="glass-theme">
     {% load hub_extras %}
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="shell">
-      <div class="top">
-        <div>
-          <div class="muted"><a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a> · <a href="/admin/">Admin</a></div>
-          <h1>{{ classroom.name }}</h1>
-          <div class="muted">
-            Join code <span class="pill">{{ classroom.join_code }}</span>
-            · Students {{ student_count }}
-            · Status {% if classroom.is_locked %}<span class="status-locked">Locked</span>{% else %}<span class="status-open">Open</span>{% endif %}
+      <main id="main-content">
+        <div class="top">
+          <div>
+            <div class="muted"><a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a> · <a href="/admin/">Admin</a></div>
+            <h1>{{ classroom.name }}</h1>
+            <div class="muted">
+              Join code <span class="pill">{{ classroom.join_code }}</span>
+              · Students {{ student_count }}
+              · Status {% if classroom.is_locked %}<span class="status-locked">Locked</span>{% else %}<span class="status-open">Open</span>{% endif %}
+            </div>
+          </div>
+          <div class="btnline">
+            <form method="post" action="/teach/class/{{ classroom.id }}/toggle-lock">
+              {% csrf_token %}
+              <button type="submit">{% if classroom.is_locked %}Unlock{% else %}Lock{% endif %}</button>
+            </form>
+            <form method="post" action="/teach/class/{{ classroom.id }}/rotate-code">
+              {% csrf_token %}
+              <button type="submit">Rotate code</button>
+            </form>
           </div>
         </div>
-        <div class="btnline">
-          <form method="post" action="/teach/class/{{ classroom.id }}/toggle-lock">
-            {% csrf_token %}
-            <button type="submit">{% if classroom.is_locked %}Unlock{% else %}Lock{% endif %}</button>
-          </form>
-          <form method="post" action="/teach/class/{{ classroom.id }}/rotate-code">
-            {% csrf_token %}
-            <button type="submit">Rotate code</button>
-          </form>
-        </div>
-      </div>
 
-      <div class="card">
-        <div class="row">
-          <h2 style="margin:0">Lesson Tracker</h2>
-          <div class="muted">Course/lesson links with submission coverage</div>
-        </div>
+        <div class="card">
+          <div class="row">
+            <h2 style="margin:0">Lesson Tracker</h2>
+            <div class="muted">Course/lesson links with submission coverage</div>
+          </div>
 
-        {% if lesson_rows %}
-          <table style="margin-top:10px">
-            <thead>
-              <tr>
-                <th>Module</th>
-                <th>Lesson</th>
-                <th>Dropboxes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for row in lesson_rows %}
+          {% if lesson_rows %}
+            <table style="margin-top:10px">
+              <thead>
                 <tr>
-                  <td><strong>{{ row.module.title }}</strong></td>
-                  <td>
-                    <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
-                    <div class="muted mini">{{ row.course_slug }} / {{ row.lesson_slug }}</div>
-                    {% if row.review_url %}
-                      <a class="quick" href="{{ row.review_url }}">{{ row.review_label }}</a>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if row.dropboxes %}
-                      {% for dropbox in row.dropboxes %}
-                        <div class="mini" style="margin-bottom:8px">
-                          <a href="/teach/material/{{ dropbox.id }}/submissions">{{ dropbox.title }}</a><br />
-                          <span class="muted">Submitted {{ dropbox.submitted }} / {{ student_count }} · Missing {{ dropbox.missing }}{% if dropbox.last_uploaded_at %} · Latest {{ dropbox.last_uploaded_at }}{% endif %}</span>
-                          <div class="actions">
-                            <a href="/teach/material/{{ dropbox.id }}/submissions">All</a>
-                            <a href="/teach/material/{{ dropbox.id }}/submissions?show=missing">Missing</a>
-                            <a href="/teach/material/{{ dropbox.id }}/submissions?download=zip_latest">ZIP latest</a>
-                          </div>
-                        </div>
-                      {% endfor %}
-                    {% else %}
-                      <span class="muted mini">No upload dropbox in this module.</span>
-                    {% endif %}
-                  </td>
+                  <th scope="col">Module</th>
+                  <th scope="col">Lesson</th>
+                  <th scope="col">Dropboxes</th>
                 </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <p class="muted" style="margin-top:12px">No course lesson links detected in this class yet.</p>
-        {% endif %}
-      </div>
-
-      <div class="card">
-        <div class="row">
-          <h2 style="margin:0">Module Editor</h2>
-          <div class="muted">Order matters. Keep it predictable.</div>
-        </div>
-
-        <div style="margin-top:12px; max-width:520px">
-          <form method="post" action="/teach/class/{{ classroom.id }}/add-module">
-            {% csrf_token %}
-            <label>New module title</label>
-            <input name="title" placeholder="e.g., Session 5 — Scratch Motion + Loops" />
-            <button type="submit" style="margin-top:10px">Add module</button>
-          </form>
-        </div>
-
-        {% if modules %}
-          {% for m in modules %}
-            <div class="module">
-              <div class="row">
-                <div>
-                  <strong>{{ m.title }}</strong>
-                  <div class="muted mini">{{ m.materials.all|length }} materials</div>
-                </div>
-                <div class="btnline">
-                  <form method="post" action="/teach/class/{{ classroom.id }}/move-module">
-                    {% csrf_token %}
-                    <input type="hidden" name="module_id" value="{{ m.id }}" />
-                    <input type="hidden" name="direction" value="up" />
-                    <button type="submit">↑</button>
-                  </form>
-                  <form method="post" action="/teach/class/{{ classroom.id }}/move-module">
-                    {% csrf_token %}
-                    <input type="hidden" name="module_id" value="{{ m.id }}" />
-                    <input type="hidden" name="direction" value="down" />
-                    <button type="submit">↓</button>
-                  </form>
-                  <a href="/teach/module/{{ m.id }}">Open</a>
-                </div>
-              </div>
-
-              {% if m.materials.all %}
-                {% for mat in m.materials.all %}
-                  <div class="mat">
-                    <div class="row">
-                      <div>
-                        <strong>{{ mat.title }}</strong>
-                        <div class="muted mini">Type: {{ mat.type }}</div>
-                      </div>
-                      <div class="muted mini">
-                        {% if mat.type == 'upload' %}
-                          Submitted: {{ submission_counts|get_item:mat.id|default:0 }} / {{ student_count }} · <a href="/teach/material/{{ mat.id }}/submissions">Submissions</a>
-                        {% endif %}
-                      </div>
-                    </div>
-                    {% if mat.type == 'link' and mat.url %}
-                      <div class="muted mini"><a href="{{ mat.url }}" target="_blank" rel="noopener">Open link</a></div>
-                    {% elif mat.type == 'text' and mat.body %}
-                      <pre style="margin-top:8px;">{{ mat.body|truncatechars:280 }}</pre>
-                    {% elif mat.type == 'upload' %}
-                      <div class="muted mini">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
-                    {% endif %}
-                  </div>
+              </thead>
+              <tbody>
+                {% for row in lesson_rows %}
+                  <tr>
+                    <td><strong>{{ row.module.title }}</strong></td>
+                    <td>
+                      <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
+                      <div class="muted mini">{{ row.course_slug }} / {{ row.lesson_slug }}</div>
+                      {% if row.review_url %}
+                        <a class="quick" href="{{ row.review_url }}">{{ row.review_label }}</a>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if row.dropboxes %}
+                        {% for dropbox in row.dropboxes %}
+                          <div class="mini" style="margin-bottom:8px">
+                            <a href="/teach/material/{{ dropbox.id }}/submissions">{{ dropbox.title }}</a><br />
+                            <span class="muted">Submitted {{ dropbox.submitted }} / {{ student_count }} · Missing {{ dropbox.missing }}{% if dropbox.last_uploaded_at %} · Latest {{ dropbox.last_uploaded_at }}{% endif %}</span>
+                            <div class="actions">
+                              <a href="/teach/material/{{ dropbox.id }}/submissions">All</a>
+                              <a href="/teach/material/{{ dropbox.id }}/submissions?show=missing">Missing</a>
+                              <a href="/teach/material/{{ dropbox.id }}/submissions?download=zip_latest">ZIP latest</a>
+                            </div>
+                          </div>
+                        {% endfor %}
+                      {% else %}
+                        <span class="muted mini">No upload dropbox in this module.</span>
+                      {% endif %}
+                    </td>
+                  </tr>
                 {% endfor %}
-              {% else %}
-                <div class="muted mini" style="margin-top:10px">No materials yet.</div>
-              {% endif %}
-            </div>
-          {% endfor %}
-        {% else %}
-          <p class="muted" style="margin-top:12px">No modules yet.</p>
-        {% endif %}
-      </div>
+              </tbody>
+            </table>
+          {% else %}
+            <p class="muted" style="margin-top:12px">No course lesson links detected in this class yet.</p>
+          {% endif %}
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <h2 style="margin:0">Module Editor</h2>
+            <div class="muted">Order matters. Keep it predictable.</div>
+          </div>
+
+          <div style="margin-top:12px; max-width:520px">
+            <form method="post" action="/teach/class/{{ classroom.id }}/add-module">
+              {% csrf_token %}
+              <label for="module-title">New module title</label>
+              <input id="module-title" name="title" placeholder="e.g., Session 5 — Scratch Motion + Loops" />
+              <button type="submit" style="margin-top:10px">Add module</button>
+            </form>
+          </div>
+
+          {% if modules %}
+            {% for m in modules %}
+              <div class="module">
+                <div class="row">
+                  <div>
+                    <strong>{{ m.title }}</strong>
+                    <div class="muted mini">{{ m.materials.all|length }} materials</div>
+                  </div>
+                  <div class="btnline">
+                    <form method="post" action="/teach/class/{{ classroom.id }}/move-module">
+                      {% csrf_token %}
+                      <input type="hidden" name="module_id" value="{{ m.id }}" />
+                      <input type="hidden" name="direction" value="up" />
+                      <button type="submit" aria-label="Move module {{ m.title }} up">↑</button>
+                    </form>
+                    <form method="post" action="/teach/class/{{ classroom.id }}/move-module">
+                      {% csrf_token %}
+                      <input type="hidden" name="module_id" value="{{ m.id }}" />
+                      <input type="hidden" name="direction" value="down" />
+                      <button type="submit" aria-label="Move module {{ m.title }} down">↓</button>
+                    </form>
+                    <a href="/teach/module/{{ m.id }}">Open</a>
+                  </div>
+                </div>
+
+                {% if m.materials.all %}
+                  {% for mat in m.materials.all %}
+                    <div class="mat">
+                      <div class="row">
+                        <div>
+                          <strong>{{ mat.title }}</strong>
+                          <div class="muted mini">Type: {{ mat.type }}</div>
+                        </div>
+                        <div class="muted mini">
+                          {% if mat.type == 'upload' %}
+                            Submitted: {{ submission_counts|get_item:mat.id|default:0 }} / {{ student_count }} · <a href="/teach/material/{{ mat.id }}/submissions">Submissions</a>
+                          {% endif %}
+                        </div>
+                      </div>
+                      {% if mat.type == 'link' and mat.url %}
+                        <div class="muted mini"><a href="{{ mat.url }}" target="_blank" rel="noopener">Open link</a></div>
+                      {% elif mat.type == 'text' and mat.body %}
+                        <pre style="margin-top:8px;">{{ mat.body|truncatechars:280 }}</pre>
+                      {% elif mat.type == 'upload' %}
+                        <div class="muted mini">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="muted mini" style="margin-top:10px">No materials yet.</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="muted" style="margin-top:12px">No modules yet.</p>
+          {% endif %}
+        </div>
+      </main>
     </div>
   </body>
 </html>

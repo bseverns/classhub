@@ -8,59 +8,96 @@
   <h2 style="margin:0; font-size:1.25rem;">{{ helper_title|default:"Homework Helper" }}</h2>
   <p class="helper-description">{{ helper_description|default:"Ask the helper for hints, steps, or feedback." }}</p>
 
-  <textarea class="helper-input" placeholder="Ask for help…"></textarea>
-  <button class="helper-submit">{{ helper_button_label|default:"Ask" }}</button>
-  <pre class="helper-output" aria-live="polite"></pre>
+  <label class="visually-hidden helper-label" for="helper-input-0">Question for helper</label>
+  <textarea id="helper-input-0" class="helper-input" placeholder="Ask for help…"></textarea>
+  <button class="helper-submit" type="button">{{ helper_button_label|default:"Ask" }}</button>
+  <pre class="helper-output" role="status" aria-live="polite"></pre>
 </div>
 
 <style>
   .helper-widget {
-    border: 1px solid #ddd;
-    border-radius: 14px;
+    border: 1px solid var(--line, rgba(22, 59, 80, 0.2));
+    border-radius: var(--radius, 18px);
     padding: 16px;
     margin-top: 22px;
-    background: #fff;
-    max-width: 720px;
+    background: var(--glass, rgba(255, 255, 255, 0.56));
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    box-shadow: var(--shadow, 0 20px 44px rgba(14, 42, 62, 0.16));
+    max-width: none;
   }
   .helper-widget textarea {
     width: 100%;
     min-height: 90px;
     padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
+    border-radius: var(--radius-sm, 12px);
+    border: 1px solid var(--line, rgba(22, 59, 80, 0.2));
+    background: var(--glass-strong, rgba(255, 255, 255, 0.74));
+    color: var(--ink, #143244);
     font-size: 15px;
     font-family: inherit;
+  }
+  .helper-widget textarea:focus {
+    outline: none;
+    border-color: var(--focus, #0f7c8b);
+    box-shadow: 0 0 0 3px rgba(15, 124, 139, 0.16);
   }
   .helper-widget button {
     margin-top: 10px;
     padding: 10px 14px;
-    font-size: 15px;
-    border-radius: 10px;
-    border: 1px solid #333;
-    background: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: var(--radius-sm, 12px);
+    border: 1px solid rgba(9, 31, 44, 0.24);
+    background: linear-gradient(155deg, var(--cta-bg, #12394f), var(--cta-bg-hover, #0f3042));
+    color: var(--cta-ink, #eef7fb);
     cursor: pointer;
+  }
+  .helper-widget button:hover {
+    filter: brightness(1.04);
+  }
+  .helper-widget button:disabled {
+    cursor: wait;
+    filter: grayscale(0.25);
+    opacity: 0.86;
   }
   .helper-widget pre {
     white-space: pre-wrap;
     margin-top: 12px;
-    color: #444;
+    color: #26495d;
     min-height: 40px;
+    border: 1px solid rgba(22, 59, 80, 0.14);
+    border-radius: var(--radius-sm, 12px);
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.44);
   }
   .helper-description {
-    color: #666;
+    color: var(--muted, #4e6f80);
     font-size: 14px;
     margin-top: 4px;
     margin-bottom: 12px;
+  }
+  @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+    .helper-widget {
+      background: #f6fafc;
+    }
+    .helper-widget textarea {
+      background: #f9fcfe;
+    }
   }
 </style>
 
 <script>
 (function () {
   const widgets = document.querySelectorAll(".helper-widget");
-  widgets.forEach((widget) => {
+  widgets.forEach((widget, idx) => {
+    const label = widget.querySelector(".helper-label");
     const textarea = widget.querySelector(".helper-input");
     const button = widget.querySelector(".helper-submit");
     const output = widget.querySelector(".helper-output");
+    const inputId = `helper-input-${idx}`;
+    textarea.id = inputId;
+    label.setAttribute("for", inputId);
     const context = widget.dataset.helperContext;
     const topicsData = widget.dataset.helperTopics;
     const referenceKey = widget.dataset.helperReference;
@@ -82,6 +119,8 @@
         setOutput("Type a question before asking.");
         return;
       }
+      button.disabled = true;
+      button.setAttribute("aria-busy", "true");
       setOutput("Thinking…");
       try {
         const payload = { message };
@@ -109,6 +148,9 @@
         setOutput(data.text || "(no output)");
       } catch (err) {
         setOutput("Helper error (check server logs).");
+      } finally {
+        button.disabled = false;
+        button.removeAttribute("aria-busy");
       }
     });
   });

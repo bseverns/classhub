@@ -13,59 +13,62 @@
     </style>
   </head>
   <body class="glass-theme">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="shell">
-      <div class="top">
-        <div>
-          <div class="muted"><a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a> · <a href="/teach/class/{{ classroom.id }}">{{ classroom.name }}</a> · <a href="/teach/module/{{ module.id }}">{{ module.title }}</a></div>
-          <h1>Submissions</h1>
-          <div class="muted">Material: <strong>{{ material.title }}</strong> · Accepted <span class="pill">{{ material.accepted_extensions|default:'.sb3' }}</span> · Students {{ student_count }} · Missing {{ missing }}</div>
-        </div>
-        <div class="btnline">
-          <a class="btn" href="?download=zip_latest">Download all latest (ZIP)</a>
-          <a href="/admin/hub/submission/?material__id__exact={{ material.id }}">Open in admin</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="filters muted">
-          Filter:
-          <a href="?show=all" {% if show == 'all' %}style="text-decoration-thickness:2px;"{% endif %}>All</a>
-          <a href="?show=submitted" {% if show == 'submitted' %}style="text-decoration-thickness:2px;"{% endif %}>Submitted</a>
-          <a href="?show=missing" {% if show == 'missing' %}style="text-decoration-thickness:2px;"{% endif %}>Missing</a>
+      <main id="main-content">
+        <div class="top">
+          <div>
+            <div class="muted"><a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a> · <a href="/teach/class/{{ classroom.id }}">{{ classroom.name }}</a> · <a href="/teach/module/{{ module.id }}">{{ module.title }}</a></div>
+            <h1>Submissions</h1>
+            <div class="muted">Material: <strong>{{ material.title }}</strong> · Accepted <span class="pill">{{ material.accepted_extensions|default:'.sb3' }}</span> · Students {{ student_count }} · Missing {{ missing }}</div>
+          </div>
+          <div class="btnline">
+            <a class="btn" href="?download=zip_latest">Download all latest (ZIP)</a>
+            <a href="/admin/hub/submission/?material__id__exact={{ material.id }}">Open in admin</a>
+          </div>
         </div>
 
-        <table style="margin-top:10px">
-          <thead>
-            <tr>
-              <th>Student</th>
-              <th>Latest upload</th>
-              <th>Files</th>
-              <th>Latest file</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for r in rows %}
+        <div class="card">
+          <div class="filters muted">
+            Filter:
+            <a href="?show=all" {% if show == 'all' %}style="text-decoration-thickness:2px;"{% endif %}>All</a>
+            <a href="?show=submitted" {% if show == 'submitted' %}style="text-decoration-thickness:2px;"{% endif %}>Submitted</a>
+            <a href="?show=missing" {% if show == 'missing' %}style="text-decoration-thickness:2px;"{% endif %}>Missing</a>
+          </div>
+
+          <table style="margin-top:10px">
+            <thead>
               <tr>
-                <td><strong>{{ r.student.display_name }}</strong></td>
-                {% if r.latest %}
-                  <td class="muted">{{ r.latest.uploaded_at }}</td>
-                  <td class="muted">{{ r.count }}</td>
-                  <td class="muted">{{ r.latest.original_filename|default:r.latest.file.name }}</td>
-                  <td><a href="/submission/{{ r.latest.id }}/download">Download latest</a></td>
-                {% else %}
-                  <td class="muted">—</td>
-                  <td class="muted">0</td>
-                  <td class="muted">—</td>
-                  <td class="muted">—</td>
-                {% endif %}
+                <th scope="col">Student</th>
+                <th scope="col">Latest upload</th>
+                <th scope="col">Files</th>
+                <th scope="col">Latest file</th>
+                <th scope="col"><span class="visually-hidden">Actions</span></th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {% for r in rows %}
+                <tr>
+                  <td><strong>{{ r.student.display_name }}</strong></td>
+                  {% if r.latest %}
+                    <td class="muted">{{ r.latest.uploaded_at }}</td>
+                    <td class="muted">{{ r.count }}</td>
+                    <td class="muted">{{ r.latest.original_filename|default:r.latest.file.name }}</td>
+                    <td><a href="/submission/{{ r.latest.id }}/download">Download latest</a></td>
+                  {% else %}
+                    <td class="muted">—</td>
+                    <td class="muted">0</td>
+                    <td class="muted">—</td>
+                    <td class="muted">—</td>
+                  {% endif %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
 
-        <p class="muted" style="margin-top:14px">Downloads are private: staff can download any submission; students can only download their own.</p>
-      </div>
+          <p class="muted" style="margin-top:14px">Downloads are private: staff can download any submission; students can only download their own.</p>
+        </div>
+      </main>
     </div>
   </body>
 </html>

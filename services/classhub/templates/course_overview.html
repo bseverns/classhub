@@ -4,33 +4,55 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ course.title|default:course_slug }}</title>
+    {% include "includes/glass_theme.html" %}
     <style>
-      body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width:900px; margin:40px auto; padding:0 16px;}
-      .muted{color:#666; font-size:14px;}
-      .card{border:1px solid #ddd; border-radius:14px; padding:16px; margin-top:16px;}
-      a{color:inherit;}
-      ul{padding-left:18px;}
-      li{margin:8px 0;}
+      .shell {
+        max-width: 920px;
+      }
+      .heading h1 {
+        margin: 6px 0 0 0;
+        font-size: clamp(1.85rem, 2.7vw, 2.3rem);
+      }
+      .lesson-list {
+        margin: 10px 0 0 0;
+        padding-left: 18px;
+      }
+      .lesson-list li {
+        margin: 10px 0;
+      }
+      .lesson-list a {
+        font-weight: 700;
+      }
     </style>
   </head>
-  <body>
-    <h1 style="margin:0">{{ course.title|default:course_slug }}</h1>
-    {% if course.privacy %}
-      <p class="muted">{{ course.privacy|join:" · " }}</p>
-    {% endif %}
+  <body class="glass-theme">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="shell">
+      <main id="main-content">
+        <div class="top heading">
+          <div>
+            <div class="muted"><a href="/">Join page</a> · <a href="/student">Student home</a></div>
+            <h1>{{ course.title|default:course_slug }}</h1>
+            {% if course.privacy %}
+              <p class="muted">{{ course.privacy|join:" · " }}</p>
+            {% endif %}
+          </div>
+        </div>
 
-    <div class="card">
-      <h2 style="margin:0">Lessons</h2>
-      <ul>
-        {% for l in lessons %}
-          <li>
-            <a href="/course/{{ course_slug }}/{{ l.slug }}">Session {{ l.session }}: {{ l.title }}</a>
-          </li>
-        {% endfor %}
-      </ul>
-      <p class="muted">Tip: This page is primarily for verifying links. Students usually enter via a class code and land on <code>/student</code>.</p>
+        <div class="card">
+          <h2 style="margin:0">Lessons</h2>
+          <ul class="lesson-list">
+            {% for l in lessons %}
+              <li>
+                <a href="/course/{{ course_slug }}/{{ l.slug }}">Session {{ l.session }}: {{ l.title }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+          <p class="muted">This page is mainly for direct lesson link verification. Students usually enter via class code and land on <code>/student</code>.</p>
+        </div>
+
+        <p class="muted"><a href="/">Back to join</a></p>
+      </main>
     </div>
-
-    <p class="muted"><a href="/">Back to join</a></p>
   </body>
 </html>

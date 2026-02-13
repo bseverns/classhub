@@ -38,26 +38,31 @@
     </style>
   </head>
   <body class="glass-theme">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="shell">
-      <div class="hero">
-        <h1>Join your class</h1>
-        <p class="muted">Enter the class code your teacher gives you. Pick a name your teacher will recognize.</p>
-      </div>
-
-      <div class="card">
-        <label for="code">Class code</label>
-        <input id="code" placeholder="ABCD1234" autocomplete="off" />
-
-        <label for="name">Your name</label>
-        <input id="name" placeholder="Ada" autocomplete="off" />
-
-        <div class="actions">
-          <button id="join">Join class</button>
+      <main id="main-content">
+        <div class="hero">
+          <h1>Join your class</h1>
+          <p class="muted">Enter the class code your teacher gives you. Pick a name your teacher will recognize.</p>
         </div>
-        <div id="msg" class="error" style="display:none"></div>
-      </div>
 
-      <p class="muted entry-note">Teacher/admin? Use <a href="/teach">/teach</a> (or <a href="/admin/">/admin</a>).</p>
+        <div class="card">
+          <form id="join-form" novalidate>
+            <label for="code">Class code</label>
+            <input id="code" name="class_code" placeholder="ABCD1234" autocomplete="off" required />
+
+            <label for="name">Your name</label>
+            <input id="name" name="display_name" placeholder="Ada" autocomplete="name" required />
+
+            <div class="actions">
+              <button id="join" type="submit">Join class</button>
+            </div>
+            <div id="msg" class="error" role="alert" aria-live="assertive" style="display:none"></div>
+          </form>
+        </div>
+
+        <p class="muted entry-note">Teacher/admin? Use <a href="/teach">/teach</a> (or <a href="/admin/">/admin</a>).</p>
+      </main>
     </div>
 
     <script>
@@ -80,31 +85,42 @@
 
       const csrfToken = () => getCookie('csrftoken') || '';
 
-      document.getElementById('join').addEventListener('click', async () => {
+      document.getElementById('join-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
         msg.style.display = 'none';
         const class_code = (document.getElementById('code').value || '').trim();
         const display_name = (document.getElementById('name').value || '').trim();
+        const joinBtn = document.getElementById('join');
+        joinBtn.disabled = true;
+        joinBtn.setAttribute('aria-busy', 'true');
 
-        const res = await fetch('/join', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken(),
-          },
-          credentials: 'same-origin',
-          body: JSON.stringify({ class_code, display_name })
-        });
+        try {
+          const res = await fetch('/join', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken(),
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ class_code, display_name })
+          });
 
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          const e = data.error || 'join_failed';
-          if (e === 'invalid_code') return showErr('That class code is not recognized.');
-          if (e === 'class_locked') return showErr('This class is locked right now.');
-          if (e === 'missing_fields') return showErr('Please enter a class code and your name.');
-          return showErr('Could not join. Try again.');
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            const e = data.error || 'join_failed';
+            if (e === 'invalid_code') return showErr('That class code is not recognized.');
+            if (e === 'class_locked') return showErr('This class is locked right now.');
+            if (e === 'missing_fields') return showErr('Please enter a class code and your name.');
+            return showErr('Could not join. Try again.');
+          }
+
+          window.location.href = '/student';
+        } catch (err) {
+          showErr('Network error. Please try again.');
+        } finally {
+          joinBtn.disabled = false;
+          joinBtn.removeAttribute('aria-busy');
         }
-
-        window.location.href = '/student';
       });
     </script>
   </body>

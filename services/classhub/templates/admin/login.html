@@ -44,6 +44,23 @@
     padding: 20px 16px 40px 16px;
   }
 
+  .skip-link {
+    position: absolute;
+    left: 16px;
+    top: -44px;
+    z-index: 1000;
+    padding: 8px 12px;
+    border-radius: 10px;
+    color: #fff;
+    background: #0d3f56;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .skip-link:focus {
+    top: 10px;
+  }
+
   .login-shell {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -178,6 +195,14 @@
     color: #0d5e78;
   }
 
+  a:focus-visible,
+  #login-form input[type="text"]:focus-visible,
+  #login-form input[type="password"]:focus-visible,
+  .submit-row input[type="submit"]:focus-visible {
+    outline: 3px solid #0a6379;
+    outline-offset: 2px;
+  }
+
   @media (max-width: 860px) {
     .login-shell {
       grid-template-columns: 1fr;
@@ -200,52 +225,55 @@
 {% block content_title %}{% endblock %}
 
 {% block content %}
-<div class="login-shell">
-  <section class="login-hero">
-    <h1>Teacher Sign-In</h1>
-    <p>Use your staff or admin account to access the teacher portal and classroom operations tools.</p>
-    <ul class="hero-bullets">
-      <li>Teacher portal: <code>/teach</code></li>
-      <li>Lesson tracker: <code>/teach/lessons</code></li>
-      <li>Deep ops: <code>/admin</code></li>
-    </ul>
-  </section>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<main id="main-content">
+  <div class="login-shell">
+    <section class="login-hero">
+      <h1>Teacher Sign-In</h1>
+      <p>Use your staff or admin account to access the teacher portal and classroom operations tools.</p>
+      <ul class="hero-bullets">
+        <li>Teacher portal: <code>/teach</code></li>
+        <li>Lesson tracker: <code>/teach/lessons</code></li>
+        <li>Deep ops: <code>/admin</code></li>
+      </ul>
+    </section>
 
-  <section class="login-card">
-    <h2>Account Login</h2>
-    <p class="help-text">Sign in with your Django staff/admin credentials.</p>
+    <section class="login-card">
+      <h2>Account Login</h2>
+      <p class="help-text">Sign in with your Django staff/admin credentials.</p>
 
-    {% if form.errors and not form.non_field_errors %}
-      <p class="errornote">
-        {% blocktranslate count counter=form.errors.items|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}
-      </p>
-    {% endif %}
-
-    {% if form.non_field_errors %}
-      {% for error in form.non_field_errors %}
-        <p class="errornote">{{ error }}</p>
-      {% endfor %}
-    {% endif %}
-
-    <form action="{{ app_path }}" method="post" id="login-form">
-      {% csrf_token %}
-      <div class="form-row">
-        {{ form.username.label_tag }} {{ form.username }}
-      </div>
-      <div class="form-row">
-        {{ form.password.label_tag }} {{ form.password }}
-        <input type="hidden" name="next" value="{{ next }}">
-      </div>
-      {% url 'admin_password_reset' as password_reset_url %}
-      {% if password_reset_url %}
-        <div class="password-reset-link">
-          <a href="{{ password_reset_url }}">{% translate 'Forgotten your password?' %}</a>
-        </div>
+      {% if form.errors and not form.non_field_errors %}
+        <p class="errornote" role="alert" aria-live="assertive">
+          {% blocktranslate count counter=form.errors.items|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}
+        </p>
       {% endif %}
-      <div class="submit-row">
-        <input type="submit" value="{% translate 'Log in' %}">
-      </div>
-    </form>
-  </section>
-</div>
+
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          <p class="errornote" role="alert" aria-live="assertive">{{ error }}</p>
+        {% endfor %}
+      {% endif %}
+
+      <form action="{{ app_path }}" method="post" id="login-form">
+        {% csrf_token %}
+        <div class="form-row">
+          {{ form.username.label_tag }} {{ form.username }}
+        </div>
+        <div class="form-row">
+          {{ form.password.label_tag }} {{ form.password }}
+          <input type="hidden" name="next" value="{{ next }}">
+        </div>
+        {% url 'admin_password_reset' as password_reset_url %}
+        {% if password_reset_url %}
+          <div class="password-reset-link">
+            <a href="{{ password_reset_url }}">{% translate 'Forgotten your password?' %}</a>
+          </div>
+        {% endif %}
+        <div class="submit-row">
+          <input type="submit" value="{% translate 'Log in' %}">
+        </div>
+      </form>
+    </section>
+  </div>
+</main>
 {% endblock %}
