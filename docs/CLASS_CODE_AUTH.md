@@ -6,13 +6,14 @@
 - A student joins a class by entering:
   - Class code
   - Display name
-- We create a `StudentIdentity` and store its id in the session cookie.
+- On first join, we create a `StudentIdentity`, issue a short `return_code`, and store
+  the student id in the session cookie.
+- Rejoin requires class code + display name + `return_code` to reclaim the same identity.
 
 ## Recovery
 
-If cookies are cleared, the student will appear “new” and must re-join.
-
-**Later improvement:** issue a 2-word return code on first join.
+If cookies are cleared, the student can rejoin using the same class code and their
+return code.
 
 ## Security notes
 

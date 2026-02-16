@@ -36,6 +36,11 @@ HELPER_STRICTNESS=strict
 On CPU-only servers, use the helper queue settings in `compose/.env` to cap
 concurrency and avoid timeouts.
 
+Use rate limit envs to protect shared helper capacity:
+
+- `HELPER_RATE_LIMIT_PER_MINUTE`
+- `HELPER_RATE_LIMIT_PER_IP_PER_MINUTE`
+
 ## Scope mode (lesson focus)
 
 Set `HELPER_SCOPE_MODE` in `compose/.env`:

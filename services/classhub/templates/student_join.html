@@ -54,6 +54,9 @@
             <label for="name">Your name</label>
             <input id="name" name="display_name" placeholder="Ada" autocomplete="name" required />
 
+            <label for="return_code">Return code (optional)</label>
+            <input id="return_code" name="return_code" placeholder="ABC234" autocomplete="one-time-code" />
+
             <div class="actions">
               <button id="join" type="submit">Join class</button>
             </div>
@@ -90,6 +93,7 @@
         msg.style.display = 'none';
         const class_code = (document.getElementById('code').value || '').trim();
         const display_name = (document.getElementById('name').value || '').trim();
+        const return_code = (document.getElementById('return_code').value || '').trim();
         const joinBtn = document.getElementById('join');
         joinBtn.disabled = true;
         joinBtn.setAttribute('aria-busy', 'true');
@@ -102,15 +106,17 @@
               'X-CSRFToken': csrfToken(),
             },
             credentials: 'same-origin',
-            body: JSON.stringify({ class_code, display_name })
+            body: JSON.stringify({ class_code, display_name, return_code })
           });
 
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));
             const e = data.error || 'join_failed';
             if (e === 'invalid_code') return showErr('That class code is not recognized.');
+            if (e === 'invalid_return_code') return showErr('That return code is not valid for this class.');
             if (e === 'class_locked') return showErr('This class is locked right now.');
             if (e === 'missing_fields') return showErr('Please enter a class code and your name.');
+            if (e === 'rate_limited') return showErr('Too many join attempts. Wait a minute and try again.');
             return showErr('Could not join. Try again.');
           }
 

@@ -226,7 +226,7 @@ class JoinClassTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Join Test", join_code="JOIN1234")
 
-    def test_join_reuses_existing_student_identity_same_name(self):
+    def test_join_same_name_without_return_code_creates_new_identity(self):
         payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
         r1 = self.client.post("/join", data=json.dumps(payload), content_type="application/json")
         self.assertEqual(r1.status_code, 200)
@@ -236,13 +236,10 @@ class JoinClassTests(TestCase):
         self.assertEqual(r2.status_code, 200)
         second_id = self.client.session.get("student_id")
 
-        self.assertEqual(first_id, second_id)
-        self.assertEqual(
-            StudentIdentity.objects.filter(classroom=self.classroom, display_name__iexact="Ada").count(),
-            1,
-        )
+        self.assertNotEqual(first_id, second_id)
+        self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 2)
 
-    def test_join_reuses_identity_case_insensitive_name(self):
+    def test_join_reuses_identity_when_return_code_matches(self):
         r1 = self.client.post(
             "/join",
             data=json.dumps({"class_code": self.classroom.join_code, "display_name": "Ada"}),
@@ -250,14 +247,39 @@ class JoinClassTests(TestCase):
         )
         self.assertEqual(r1.status_code, 200)
         first_id = self.client.session.get("student_id")
+        first_code = r1.json().get("return_code")
+        self.assertTrue(first_code)
 
         r2 = self.client.post(
             "/join",
-            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "ada"}),
+            data=json.dumps(
+                {
+                    "class_code": self.classroom.join_code,
+                    "display_name": "ada",
+                    "return_code": first_code,
+                }
+            ),
             content_type="application/json",
         )
         self.assertEqual(r2.status_code, 200)
         second_id = self.client.session.get("student_id")
+        self.assertTrue(r2.json().get("rejoined"))
 
         self.assertEqual(first_id, second_id)
         self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 1)
+
+    def test_join_with_invalid_return_code_is_rejected(self):
+        resp = self.client.post(
+            "/join",
+            data=json.dumps(
+                {
+                    "class_code": self.classroom.join_code,
+                    "display_name": "Ada",
+                    "return_code": "ZZZZZZ",
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json().get("error"), "invalid_return_code")
+        self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 0)

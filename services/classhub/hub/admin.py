@@ -21,9 +21,9 @@ class MaterialAdmin(admin.ModelAdmin):
 
 @admin.register(StudentIdentity)
 class StudentIdentityAdmin(admin.ModelAdmin):
-    list_display = ("display_name", "classroom", "created_at", "last_seen_at")
+    list_display = ("display_name", "return_code", "classroom", "created_at", "last_seen_at")
     list_filter = ("classroom",)
-    search_fields = ("display_name",)
+    search_fields = ("display_name", "return_code")
 
 
 @admin.register(Submission)

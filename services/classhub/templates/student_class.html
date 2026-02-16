@@ -48,6 +48,7 @@
             <div class="muted"><a href="/">Join page</a> · <a href="/student">Student home</a></div>
             <h1>{{ classroom.name }}</h1>
             <div class="muted">Signed in as <strong>{{ student.display_name }}</strong> · Code <span class="pill">{{ classroom.join_code }}</span></div>
+            <div class="muted">Your return code: <strong>{{ student.return_code }}</strong> (use it if you ever need to rejoin)</div>
           </div>
           <div>
             <a class="muted" href="/logout">Log out</a>

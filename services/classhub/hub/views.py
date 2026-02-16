@@ -1,4 +1,5 @@
 import json
+import ipaddress
 import mimetypes
 import re
 import tempfile
@@ -16,13 +17,24 @@ from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import models, transaction
 from django.db.utils import OperationalError, ProgrammingError
+from django.core.cache import cache
 
 import yaml
 import markdown as md
 import bleach
 
 from .forms import SubmissionUploadForm
-from .models import Class, LessonRelease, LessonVideo, Module, Material, StudentIdentity, Submission, gen_class_code
+from .models import (
+    Class,
+    LessonRelease,
+    LessonVideo,
+    Module,
+    Material,
+    StudentIdentity,
+    Submission,
+    gen_class_code,
+    gen_student_return_code,
+)
 
 
 # --- Repo-authored course content (markdown) ---------------------------------
@@ -398,11 +410,64 @@ def index(request):
     return render(request, "student_join.html", {})
 
 
+def _rate_limit(key: str, limit: int, window_seconds: int) -> bool:
+    """Return True when request is within limit, False when blocked."""
+    if limit <= 0:
+        return True
+    current = cache.get(key)
+    if current is None:
+        cache.set(key, 1, timeout=window_seconds)
+        return True
+    if int(current) >= limit:
+        return False
+    try:
+        cache.incr(key)
+    except Exception:
+        cache.set(key, int(current) + 1, timeout=window_seconds)
+    return True
+
+
+def _client_ip(request) -> str:
+    forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    if forwarded:
+        for part in forwarded.split(","):
+            candidate = part.strip()
+            if not candidate:
+                continue
+            try:
+                ipaddress.ip_address(candidate)
+                return candidate
+            except ValueError:
+                continue
+
+    remote = (request.META.get("REMOTE_ADDR", "") or "").strip()
+    if remote:
+        try:
+            ipaddress.ip_address(remote)
+            return remote
+        except ValueError:
+            pass
+    return "unknown"
+
+
+def _create_student_identity(classroom: Class, display_name: str) -> StudentIdentity:
+    for _ in range(20):
+        code = gen_student_return_code().upper()
+        if StudentIdentity.objects.filter(classroom=classroom, return_code=code).exists():
+            continue
+        return StudentIdentity.objects.create(
+            classroom=classroom,
+            display_name=display_name,
+            return_code=code,
+        )
+    raise RuntimeError("could_not_allocate_unique_student_return_code")
+
+
 @require_POST
 def join_class(request):
     """Join via class code + display name.
 
-    Body (JSON): {"class_code": "ABCD1234", "display_name": "Ada"}
+    Body (JSON): {"class_code": "ABCD1234", "display_name": "Ada", "return_code": "ABC234"}
 
     Stores student identity in session cookie.
     """
@@ -411,8 +476,14 @@ def join_class(request):
     except Exception:
         return JsonResponse({"error": "bad_json"}, status=400)
 
+    client_ip = _client_ip(request)
+    join_limit = int(getattr(settings, "JOIN_RATE_LIMIT_PER_MINUTE", 20))
+    if not _rate_limit(f"join:ip:{client_ip}:m", limit=join_limit, window_seconds=60):
+        return JsonResponse({"error": "rate_limited"}, status=429)
+
     code = (payload.get("class_code") or "").strip().upper()
     name = (payload.get("display_name") or "").strip()[:80]
+    return_code = (payload.get("return_code") or "").strip().upper()
 
     if not code or not name:
         return JsonResponse({"error": "missing_fields"}, status=400)
@@ -424,15 +495,25 @@ def join_class(request):
         return JsonResponse({"error": "class_locked"}, status=403)
 
     with transaction.atomic():
-        # Serialize joins per class so two same-name joins can't race into duplicates.
+        # Serialize joins per class so return-code assignment and lookup stay deterministic.
         Class.objects.select_for_update().filter(id=classroom.id).first()
-        student = (
-            StudentIdentity.objects.filter(classroom=classroom, display_name__iexact=name)
-            .order_by("id")
-            .first()
-        )
+
+        student = None
+        rejoined = False
+        if return_code:
+            student = (
+                StudentIdentity.objects.filter(classroom=classroom, return_code=return_code)
+                .order_by("id")
+                .first()
+            )
+            if student is None:
+                return JsonResponse({"error": "invalid_return_code"}, status=400)
+            if student.display_name.strip().casefold() != name.strip().casefold():
+                return JsonResponse({"error": "invalid_return_code"}, status=400)
+            rejoined = True
+
         if student is None:
-            student = StudentIdentity.objects.create(classroom=classroom, display_name=name)
+            student = _create_student_identity(classroom, name)
 
         student.last_seen_at = timezone.now()
         student.save(update_fields=["last_seen_at"])
@@ -440,7 +521,7 @@ def join_class(request):
     request.session["student_id"] = student.id
     request.session["class_id"] = classroom.id
 
-    return JsonResponse({"ok": True})
+    return JsonResponse({"ok": True, "return_code": student.return_code, "rejoined": rejoined})
 
 
 def student_home(request):
@@ -540,6 +621,7 @@ def student_home(request):
             "helper_allowed_topics": "",
         },
     )
+    get_token(request)
 
     return render(
         request,
@@ -1033,7 +1115,12 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
 
     helper_reference = lesson_meta.get("helper_reference") or manifest.get("helper_reference") or ""
     helper_widget = ""
-    if not lesson_locked:
+    can_use_helper = bool(
+        getattr(request, "student", None) is not None
+        or (request.user.is_authenticated and request.user.is_staff)
+    )
+    if not lesson_locked and can_use_helper:
+        get_token(request)
         helper_widget = render_to_string(
             "includes/helper_widget.html",
             {

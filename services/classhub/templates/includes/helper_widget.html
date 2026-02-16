@@ -89,6 +89,19 @@
 
 <script>
 (function () {
+  const getCookie = (name) => {
+    const cookies = document.cookie ? document.cookie.split("; ") : [];
+    for (const c of cookies) {
+      const idx = c.indexOf("=");
+      if (idx === -1) continue;
+      const k = c.slice(0, idx);
+      const v = c.slice(idx + 1);
+      if (k === name) return decodeURIComponent(v);
+    }
+    return "";
+  };
+  const csrfToken = () => getCookie("csrftoken") || "";
+
   const widgets = document.querySelectorAll(".helper-widget");
   widgets.forEach((widget, idx) => {
     const label = widget.querySelector(".helper-label");
@@ -138,7 +151,11 @@
         }
         const res = await fetch("/helper/chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken(),
+          },
+          credentials: "same-origin",
           body: JSON.stringify(payload),
         });
         if (!res.ok) {

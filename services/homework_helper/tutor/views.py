@@ -1,4 +1,5 @@
 import json
+import ipaddress
 import os
 import re
 import urllib.error
@@ -8,7 +9,6 @@ from pathlib import Path
 
 from django.core.cache import cache
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from .policy import build_instructions
@@ -60,6 +60,40 @@ def _rate_limit(key: str, limit: int, window_seconds: int) -> bool:
     except Exception:
         cache.set(key, int(current) + 1, timeout=window_seconds)
     return True
+
+
+def _client_ip(request) -> str:
+    forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    if forwarded:
+        for part in forwarded.split(","):
+            candidate = part.strip()
+            if not candidate:
+                continue
+            try:
+                ipaddress.ip_address(candidate)
+                return candidate
+            except ValueError:
+                continue
+
+    remote = (request.META.get("REMOTE_ADDR", "") or "").strip()
+    if remote:
+        try:
+            ipaddress.ip_address(remote)
+            return remote
+        except ValueError:
+            pass
+    return "unknown"
+
+
+def _actor_key(request) -> str:
+    if request.user.is_authenticated and request.user.is_staff:
+        return f"staff:{request.user.id}"
+
+    student_id = request.session.get("student_id")
+    class_id = request.session.get("class_id")
+    if student_id and class_id:
+        return f"student:{class_id}:{student_id}"
+    return ""
 
 
 def _ollama_chat(base_url: str, model: str, instructions: str, message: str) -> tuple[str, str]:
@@ -193,10 +227,7 @@ def healthz(request):
     return JsonResponse({"ok": True, "backend": backend})
 
 
-@csrf_exempt
 @require_POST
-
-
 def chat(request):
     """POST /helper/chat
 
@@ -210,10 +241,16 @@ def chat(request):
     - This endpoint is not yet tied to class materials (RAG planned).
     - Caddy routes /helper/* to this service.
     """
-    who = request.META.get("REMOTE_ADDR", "unknown")
+    actor = _actor_key(request)
+    if not actor:
+        return JsonResponse({"error": "unauthorized"}, status=401)
 
-    # Rate limit: 20 req/min per IP (MVP). Replace with user-id when auth exists here.
-    if not _rate_limit(f"rl:{who}:m", limit=20, window_seconds=60):
+    client_ip = _client_ip(request)
+    actor_limit = int(os.getenv("HELPER_RATE_LIMIT_PER_MINUTE", "30"))
+    ip_limit = int(os.getenv("HELPER_RATE_LIMIT_PER_IP_PER_MINUTE", "90"))
+    if not _rate_limit(f"rl:actor:{actor}:m", limit=actor_limit, window_seconds=60):
+        return JsonResponse({"error": "rate_limited"}, status=429)
+    if not _rate_limit(f"rl:ip:{client_ip}:m", limit=ip_limit, window_seconds=60):
         return JsonResponse({"error": "rate_limited"}, status=429)
 
     try:

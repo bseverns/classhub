@@ -7,6 +7,7 @@
 - Use HTTPS in production.
 - Ensure `DJANGO_DEBUG=0` in production and do not run the dev override file.
 - Rate limit join + helper endpoints.
+- Helper chat requires either a student classroom session or staff-authenticated teacher session.
 - Local LLM inference keeps student queries on your infrastructure, but logs and
   prompt storage still require care.
 

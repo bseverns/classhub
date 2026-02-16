@@ -31,7 +31,7 @@ CONTENT_COURSES_ROOT = CONTENT_ROOT / "courses"
 
 DEBUG = env.bool("DJANGO_DEBUG", default=False)
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="dev-only-change-me")
-ALLOWED_HOSTS = [h.strip() for h in env("DJANGO_ALLOWED_HOSTS", default="*").split(",") if h.strip()]
+ALLOWED_HOSTS = [h.strip() for h in env("DJANGO_ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",") if h.strip()]
 
 CSRF_TRUSTED_ORIGINS = []
 _origins = env("CSRF_TRUSTED_ORIGINS", default="")
@@ -85,6 +85,22 @@ DATABASES = {
     "default": env.db(default=f"sqlite:///{BASE_DIR/'db.sqlite3'}")
 }
 
+REDIS_URL = os.getenv("REDIS_URL", "").strip()
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "classhub-default",
+        }
+    }
+
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
@@ -112,6 +128,7 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB (larger files stream to dis
 # Request cap (MB) applies to teacher video uploads too.
 UPLOAD_REQUEST_MAX_MB = env.int("CLASSHUB_UPLOAD_MAX_MB", default=600)
 DATA_UPLOAD_MAX_MEMORY_SIZE = UPLOAD_REQUEST_MAX_MB * 1024 * 1024
+JOIN_RATE_LIMIT_PER_MINUTE = env.int("CLASSHUB_JOIN_RATE_LIMIT_PER_MINUTE", default=20)
 
 # When behind Caddy, Django should respect forwarded proto for secure cookies.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

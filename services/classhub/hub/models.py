@@ -23,6 +23,15 @@ def gen_class_code(length: int = 8) -> str:
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
+def gen_student_return_code(length: int = 6) -> str:
+    """Generate a short student return code.
+
+    This is shown to students so they can reclaim their identity after cookie loss.
+    """
+    alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
 class Class(models.Model):
     name = models.CharField(max_length=200)
     join_code = models.CharField(max_length=16, unique=True, default=gen_class_code)
@@ -118,8 +127,21 @@ class StudentIdentity(models.Model):
 
     classroom = models.ForeignKey(Class, on_delete=models.CASCADE, related_name="students")
     display_name = models.CharField(max_length=80)
+    return_code = models.CharField(max_length=12, default=gen_student_return_code)
     created_at = models.DateTimeField(auto_now_add=True)
     last_seen_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["classroom", "return_code"],
+                name="uniq_student_return_code_per_class",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["classroom", "display_name"]),
+            models.Index(fields=["classroom", "return_code"]),
+        ]
 
     def __str__(self) -> str:
         return f"{self.display_name} @ {self.classroom.join_code}"

@@ -13,6 +13,7 @@ Also included:
 
 - **Homework dropbox** for lesson file submissions (extension rules come from lesson front matter, tied to the student session cookie)
 - **Lesson video manager** with publish/draft status and bulk upload for teacher workflows
+- **Student return codes** so learners can reclaim identity after cookie loss
 
 > Philosophy: keep the system legible. Logs you can read. Deploys you can repeat. Features that don’t hide in someone else’s cloud.
 

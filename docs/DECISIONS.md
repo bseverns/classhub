@@ -1,6 +1,51 @@
 # Decisions (living)
 
-## 2026-02-16 — Rejoin by class code reuses existing student identity by display name
+## 2026-02-16 — Replace display-name auto-rejoin with explicit student return codes
+
+**Why:**
+- Reusing identity by display name enabled accidental or deliberate impersonation in class.
+- We need a low-friction way to reclaim identity after cookie loss without relying on name collisions.
+
+**Tradeoffs:**
+- Students now need a short return code to reclaim an existing identity.
+- Entering an invalid return code returns an explicit join error instead of silently creating/reusing records.
+
+**Plan:**
+- Add `StudentIdentity.return_code` (unique per class).
+- First join creates a new identity and returns the code.
+- Rejoin only reuses identity when `return_code` matches.
+
+## 2026-02-16 — Helper endpoint now requires classroom/staff session and proxy-aware limits
+
+**Why:**
+- `/helper/chat` was publicly reachable and CSRF-exempt.
+- IP-only throttling based on `REMOTE_ADDR` can collapse all users behind a proxy.
+
+**Tradeoffs:**
+- Anonymous users cannot use helper chat.
+- Rate limit keys now include both actor/session and client IP, which is stricter but safer for shared infrastructure.
+
+**Plan:**
+- Require either student session (`student_id`, `class_id`) or staff auth.
+- Keep CSRF protection enabled for helper POST requests.
+- Read client IP from `X-Forwarded-For` with validation fallback to `REMOTE_ADDR`.
+- Apply per-actor and per-IP limits.
+
+## 2026-02-16 — Align helper runtime and routing with production compose
+
+**Why:**
+- Helper container runtime port and Caddy helper route handling were inconsistent with app URLs.
+- Both Django services depend on Gunicorn in Docker CMD.
+
+**Tradeoffs:**
+- Dependency set is slightly larger (`gunicorn`, `openai` in helper; `gunicorn` in classhub).
+
+**Plan:**
+- Bind helper Gunicorn to port `8000` (matching compose reverse proxy target).
+- Use Caddy `handle /helper/*` (no path stripping).
+- Add required runtime dependencies to requirements files.
+
+## 2026-02-16 — Rejoin by class code reuses existing student identity by display name (superseded)
 
 **Why:**
 - Students who log out and rejoin with the same name were creating duplicate identities.

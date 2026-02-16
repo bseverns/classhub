@@ -63,8 +63,7 @@ OPENAI_API_KEY=...
 OPENAI_MODEL=gpt-5.2
 ```
 
-You will also need to add the `openai` dependency back to
-`services/homework_helper/requirements.txt`.
+`openai` is already included in `services/homework_helper/requirements.txt`.
 
 ## Tutor stance and strictness
 
@@ -187,6 +186,15 @@ The helper uses a small Redis-backed slot queue:
 - `HELPER_QUEUE_MAX_WAIT_SECONDS`: how long to wait for a slot (default: 10)
 - `HELPER_QUEUE_POLL_SECONDS`: polling interval (default: 0.2)
 - `HELPER_QUEUE_SLOT_TTL_SECONDS`: auto-release safety timeout (default: 120)
+
+## Access boundary
+
+`POST /helper/chat` now requires an authenticated classroom context:
+
+- student session (`student_id` + `class_id` in Django session), or
+- staff-authenticated teacher session.
+
+This prevents anonymous/public use of helper capacity. CSRF protection remains enabled.
 
 Canonical policy notes live in:
 

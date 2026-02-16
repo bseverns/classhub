@@ -6,7 +6,7 @@
   }
 
   # Homework Helper
-  handle_path /helper/* {
+  handle /helper/* {
     reverse_proxy helper_web:8000
   }
 
