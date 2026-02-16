@@ -11,6 +11,45 @@
       .filter-form label { margin: 0; align-self: center; }
       .filter-form select { width: auto; min-width: 200px; }
       .quick { margin-top: 10px; }
+      .tracker-table-wrap {
+        margin-top: 12px;
+        border: 1px solid rgba(22, 59, 80, 0.16);
+        border-radius: 14px;
+        overflow: auto;
+        background: rgba(255, 255, 255, 0.42);
+      }
+      .tracker-table-wrap table {
+        margin: 0;
+        min-width: 980px;
+      }
+      .tracker-table-wrap thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: rgba(237, 246, 251, 0.96);
+        backdrop-filter: blur(5px);
+      }
+      .tracker-table-wrap tbody td {
+        border-bottom-color: rgba(22, 59, 80, 0.12);
+      }
+      .tracker-table-wrap tbody tr:last-child td {
+        border-bottom: 0;
+      }
+      .lesson-row td {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .lesson-row:nth-child(even) td {
+        background: rgba(255, 255, 255, 0.34);
+      }
+      .module-cell {
+        min-width: 200px;
+      }
+      .lesson-cell {
+        min-width: 360px;
+      }
+      .dropbox-cell {
+        min-width: 300px;
+      }
       .dropbox {
         margin: 0 0 12px 0;
         padding: 10px;
@@ -121,116 +160,118 @@
             </div>
 
             {% if group.lesson_rows %}
-              <table style="margin-top:12px">
-                <thead>
-                  <tr>
-                    <th scope="col">Module</th>
-                    <th scope="col">Lesson</th>
-                    <th scope="col">Dropboxes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for row in group.lesson_rows %}
+              <div class="tracker-table-wrap">
+                <table>
+                  <thead>
                     <tr>
-                      <td><strong>{{ row.module.title }}</strong></td>
-                      <td>
-                        <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
-                        <div class="muted">{{ row.course_slug }} / {{ row.lesson_slug }}</div>
-                        <a class="quick" href="/teach/videos?class_id={{ group.classroom.id }}&course_slug={{ row.course_slug }}&lesson_slug={{ row.lesson_slug }}">Manage videos</a>
-                        {% if row.review_url %}
-                          <a class="quick" href="{{ row.review_url }}">{{ row.review_label }}</a>
-                        {% endif %}
-                        {% if row.teacher_material_html %}
-                          <details class="teacher-note">
-                            <summary>Teacher notes</summary>
-                            <div class="teacher-note-body">{{ row.teacher_material_html|safe }}</div>
-                          </details>
-                        {% endif %}
-                        <div class="release-box">
-                          {% with release=row.release_state %}
-                            <div class="release-status">
-                              Release:
-                              {% if release.is_locked %}
-                                <strong>Locked</strong>
-                              {% else %}
-                                <strong>Open</strong>
-                              {% endif %}
-                              {% if release.available_on %}
-                                · Date <strong>{{ release.available_on|date:"M j, Y" }}</strong>
-                              {% endif %}
-                              {% if release.has_override %}
-                                · Override active
-                              {% else %}
-                                · Content default
-                              {% endif %}
-                            </div>
-                            <div class="release-actions">
-                              <form method="post" action="/teach/lessons/release">
-                                {% csrf_token %}
-                                <input type="hidden" name="class_id" value="{{ group.classroom.id }}" />
-                                <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
-                                <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
-                                <input type="hidden" name="action" value="set_date" />
-                                <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
-                                <input type="date" name="available_on" value="{% if release.override_available_on %}{{ release.override_available_on|date:'Y-m-d' }}{% endif %}" />
-                                <button type="submit">Set date</button>
-                              </form>
-                              <form method="post" action="/teach/lessons/release">
-                                {% csrf_token %}
-                                <input type="hidden" name="class_id" value="{{ group.classroom.id }}" />
-                                <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
-                                <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
-                                <input type="hidden" name="action" value="toggle_lock" />
-                                <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
-                                <button type="submit">Toggle lock</button>
-                              </form>
-                              <form method="post" action="/teach/lessons/release">
-                                {% csrf_token %}
-                                <input type="hidden" name="class_id" value="{{ group.classroom.id }}" />
-                                <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
-                                <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
-                                <input type="hidden" name="action" value="unlock_now" />
-                                <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
-                                <button type="submit">Open now</button>
-                              </form>
-                              <form method="post" action="/teach/lessons/release">
-                                {% csrf_token %}
-                                <input type="hidden" name="class_id" value="{{ group.classroom.id }}" />
-                                <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
-                                <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
-                                <input type="hidden" name="action" value="reset_default" />
-                                <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
-                                <button type="submit">Reset default</button>
-                              </form>
-                            </div>
-                          {% endwith %}
-                        </div>
-                      </td>
-                      <td>
-                        {% if row.dropboxes %}
-                          {% for dropbox in row.dropboxes %}
-                            <div class="dropbox">
-                              <div><a href="/teach/material/{{ dropbox.id }}/submissions">{{ dropbox.title }}</a></div>
-                              <div class="muted">
-                                Submitted {{ dropbox.submitted }} / {{ group.student_count }}
-                                · Missing {{ dropbox.missing }}
-                                {% if dropbox.last_uploaded_at %}· Latest {{ dropbox.last_uploaded_at }}{% endif %}
-                              </div>
-                              <div class="actions">
-                                <a href="/teach/material/{{ dropbox.id }}/submissions">All</a>
-                                <a href="/teach/material/{{ dropbox.id }}/submissions?show=missing">Missing</a>
-                                <a href="/teach/material/{{ dropbox.id }}/submissions?download=zip_latest">ZIP latest</a>
-                              </div>
-                            </div>
-                          {% endfor %}
-                        {% else %}
-                          <span class="muted">No upload dropbox in this module.</span>
-                        {% endif %}
-                      </td>
+                      <th scope="col">Module</th>
+                      <th scope="col">Lesson</th>
+                      <th scope="col">Dropboxes</th>
                     </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {% for row in group.lesson_rows %}
+                      <tr class="lesson-row">
+                        <td class="module-cell"><strong>{{ row.module.title }}</strong></td>
+                        <td class="lesson-cell">
+                          <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
+                          <div class="muted">{{ row.course_slug }} / {{ row.lesson_slug }}</div>
+                          <a class="quick" href="/teach/videos?class_id={{ group.classroom.id }}&course_slug={{ row.course_slug }}&lesson_slug={{ row.lesson_slug }}">Manage videos</a>
+                          {% if row.review_url %}
+                            <a class="quick" href="{{ row.review_url }}">{{ row.review_label }}</a>
+                          {% endif %}
+                          {% if row.teacher_material_html %}
+                            <details class="teacher-note">
+                              <summary>Teacher notes</summary>
+                              <div class="teacher-note-body">{{ row.teacher_material_html|safe }}</div>
+                            </details>
+                          {% endif %}
+                          <div class="release-box">
+                            {% with release=row.release_state %}
+                              <div class="release-status">
+                                Release:
+                                {% if release.is_locked %}
+                                  <span class="state-pill state-pill--locked">Locked</span>
+                                {% else %}
+                                  <span class="state-pill state-pill--open">Open</span>
+                                {% endif %}
+                                {% if release.available_on %}
+                                  · Date <strong>{{ release.available_on|date:"M j, Y" }}</strong>
+                                {% endif %}
+                                {% if release.has_override %}
+                                  · Override active
+                                {% else %}
+                                  · Content default
+                                {% endif %}
+                              </div>
+                              <div class="release-actions">
+                                <form method="post" action="/teach/lessons/release">
+                                  {% csrf_token %}
+                                  <input type="hidden" name="class_id" value="{{ group.classroom.id }}" />
+                                  <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
+                                  <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
+                                  <input type="hidden" name="action" value="set_date" />
+                                  <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
+                                  <input type="date" name="available_on" value="{% if release.override_available_on %}{{ release.override_available_on|date:'Y-m-d' }}{% endif %}" />
+                                  <button type="submit">Set date</button>
+                                </form>
+                                <form method="post" action="/teach/lessons/release">
+                                  {% csrf_token %}
+                                  <input type="hidden" name="class_id" value="{{ group.classroom.id }}" />
+                                  <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
+                                  <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
+                                  <input type="hidden" name="action" value="toggle_lock" />
+                                  <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
+                                  <button type="submit">Toggle lock</button>
+                                </form>
+                                <form method="post" action="/teach/lessons/release">
+                                  {% csrf_token %}
+                                  <input type="hidden" name="class_id" value="{{ group.classroom.id }}" />
+                                  <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
+                                  <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
+                                  <input type="hidden" name="action" value="unlock_now" />
+                                  <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
+                                  <button type="submit">Open now</button>
+                                </form>
+                                <form method="post" action="/teach/lessons/release">
+                                  {% csrf_token %}
+                                  <input type="hidden" name="class_id" value="{{ group.classroom.id }}" />
+                                  <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
+                                  <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
+                                  <input type="hidden" name="action" value="reset_default" />
+                                  <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
+                                  <button type="submit">Reset default</button>
+                                </form>
+                              </div>
+                            {% endwith %}
+                          </div>
+                        </td>
+                        <td class="dropbox-cell">
+                          {% if row.dropboxes %}
+                            {% for dropbox in row.dropboxes %}
+                              <div class="dropbox">
+                                <div><a href="/teach/material/{{ dropbox.id }}/submissions">{{ dropbox.title }}</a></div>
+                                <div class="muted">
+                                  Submitted {{ dropbox.submitted }} / {{ group.student_count }}
+                                  · Missing {{ dropbox.missing }}
+                                  {% if dropbox.last_uploaded_at %}· Latest {{ dropbox.last_uploaded_at }}{% endif %}
+                                </div>
+                                <div class="actions">
+                                  <a href="/teach/material/{{ dropbox.id }}/submissions">All</a>
+                                  <a href="/teach/material/{{ dropbox.id }}/submissions?show=missing">Missing</a>
+                                  <a href="/teach/material/{{ dropbox.id }}/submissions?download=zip_latest">ZIP latest</a>
+                                </div>
+                              </div>
+                            {% endfor %}
+                          {% else %}
+                            <span class="muted">No upload dropbox in this module.</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
             {% else %}
               <p class="muted" style="margin-top:12px">No lesson links found in this class yet.</p>
             {% endif %}

@@ -1,5 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
+{% block title %}createMPLS Course Admin{% endblock %}
 
 {% block extrastyle %}
 {{ block.super }}
@@ -40,7 +41,7 @@
 
   #content {
     margin: 0 auto;
-    max-width: 940px;
+    max-width: 560px;
     padding: 20px 16px 40px 16px;
   }
 
@@ -62,13 +63,9 @@
   }
 
   .login-shell {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    align-items: stretch;
+    display: block;
   }
 
-  .login-hero,
   .login-card {
     border: 1px solid var(--line);
     border-radius: 20px;
@@ -78,38 +75,8 @@
     box-shadow: var(--shadow);
   }
 
-  .login-hero {
-    padding: 24px;
-  }
-
-  .login-hero h1 {
-    margin: 0;
-    font-family: "Sora", "Manrope", sans-serif;
-    font-size: clamp(1.9rem, 2.5vw, 2.3rem);
-    letter-spacing: -0.02em;
-    color: #0f2f42;
-  }
-
-  .login-hero p {
-    color: var(--muted);
-    font-size: 15px;
-    margin-top: 10px;
-  }
-
-  .hero-bullets {
-    margin: 18px 0 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .hero-bullets li {
-    margin: 0 0 8px 0;
-    color: #2b5268;
-    font-size: 14px;
-  }
-
   .login-card {
-    padding: 20px;
+    padding: 22px;
   }
 
   .login-card h2 {
@@ -203,14 +170,7 @@
     outline-offset: 2px;
   }
 
-  @media (max-width: 860px) {
-    .login-shell {
-      grid-template-columns: 1fr;
-    }
-  }
-
   @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
-    .login-hero,
     .login-card {
       background: #f6fafc;
     }
@@ -228,18 +188,8 @@
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <main id="main-content">
   <div class="login-shell">
-    <section class="login-hero">
-      <h1>Teacher Sign-In</h1>
-      <p>Use your staff or admin account to access the teacher portal and classroom operations tools.</p>
-      <ul class="hero-bullets">
-        <li>Teacher portal: <code>/teach</code></li>
-        <li>Lesson tracker: <code>/teach/lessons</code></li>
-        <li>Deep ops: <code>/admin</code></li>
-      </ul>
-    </section>
-
     <section class="login-card">
-      <h2>Account Login</h2>
+      <h2>createMPLS Course Admin Login</h2>
       <p class="help-text">Sign in with your Django staff/admin credentials.</p>
 
       {% if form.errors and not form.non_field_errors %}

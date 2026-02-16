@@ -3,7 +3,7 @@
 
   :root {
     --ink: #143244;
-    --muted: #33576a;
+    --muted: #294a5f;
     --line: rgba(22, 59, 80, 0.2);
     --line-strong: rgba(22, 59, 80, 0.32);
     --glass: rgba(255, 255, 255, 0.56);
@@ -28,6 +28,8 @@
     padding: 34px 16px 44px;
     color: var(--ink);
     font-family: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.52;
     background:
       radial-gradient(880px 540px at -8% -8%, #ffffff 0%, rgba(255, 255, 255, 0) 60%),
       radial-gradient(860px 480px at 112% -4%, rgba(132, 205, 224, 0.48) 0%, rgba(132, 205, 224, 0) 60%),
@@ -127,7 +129,7 @@
 
   .muted {
     color: var(--muted);
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .pill {
@@ -161,7 +163,7 @@
     display: block;
     margin-top: 10px;
     margin-bottom: 6px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.02em;
     text-transform: uppercase;
@@ -270,6 +272,7 @@
     border-bottom: 1px solid rgba(22, 59, 80, 0.15);
     text-align: left;
     vertical-align: top;
+    font-size: 15px;
   }
 
   tbody tr:hover {
@@ -277,7 +280,7 @@
   }
 
   th {
-    font-size: 13px;
+    font-size: 14px;
     color: #3b6175;
     font-weight: 700;
   }
@@ -286,6 +289,35 @@
     margin: 0;
     white-space: pre-wrap;
     color: #26495d;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .state-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(22, 59, 80, 0.24);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.62);
+    color: #133649;
+  }
+
+  .state-pill--open {
+    border-color: rgba(25, 98, 67, 0.34);
+    background: rgba(223, 248, 235, 0.8);
+    color: #1b5e3d;
+  }
+
+  .state-pill--locked {
+    border-color: rgba(133, 84, 23, 0.34);
+    background: rgba(255, 241, 221, 0.86);
+    color: #744412;
   }
 
   @media (max-width: 780px) {

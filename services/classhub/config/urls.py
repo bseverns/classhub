@@ -9,6 +9,9 @@ def _admin_superuser_only(request) -> bool:
 
 
 admin.site.has_permission = _admin_superuser_only
+admin.site.site_header = "createMPLS Course Admin"
+admin.site.site_title = "createMPLS Course Admin"
+admin.site.index_title = "createMPLS Course Admin"
 
 urlpatterns = [
     path("admin/", admin.site.urls),

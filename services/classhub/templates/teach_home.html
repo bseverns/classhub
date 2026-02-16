@@ -9,10 +9,35 @@
       .shell { max-width: 1040px; }
       .title-row h1 { margin: 0; font-size: clamp(1.9rem, 2.7vw, 2.4rem); }
       .title-row .muted { margin-top: 4px; }
-      .status-open { color: #1a7f51; font-weight: 700; }
-      .status-locked { color: #8a4e15; font-weight: 700; }
       .class-link { font-weight: 700; }
       .submit-wrap { margin-top: 12px; }
+      .table-wrap {
+        margin-top: 12px;
+        border: 1px solid rgba(22, 59, 80, 0.16);
+        border-radius: 14px;
+        overflow: auto;
+        background: rgba(255, 255, 255, 0.42);
+      }
+      .table-wrap table {
+        margin: 0;
+        min-width: 700px;
+      }
+      .table-wrap thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: rgba(237, 246, 251, 0.96);
+        backdrop-filter: blur(5px);
+      }
+      .table-wrap tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.34);
+      }
+      .table-wrap tbody td {
+        border-bottom-color: rgba(22, 59, 80, 0.12);
+      }
+      .table-wrap tbody tr:last-child td {
+        border-bottom: 0;
+      }
     </style>
   </head>
   <body class="glass-theme">
@@ -52,26 +77,34 @@
           </div>
 
           {% if classes %}
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">Class</th>
-                  <th scope="col">Join code</th>
-                  <th scope="col">Status</th>
-                  <th scope="col"><span class="visually-hidden">Actions</span></th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for c in classes %}
+            <div class="table-wrap">
+              <table>
+                <thead>
                   <tr>
-                    <td><strong>{{ c.name }}</strong></td>
-                    <td><span class="pill">{{ c.join_code }}</span></td>
-                    <td>{% if c.is_locked %}<span class="status-locked">Locked</span>{% else %}<span class="status-open">Open</span>{% endif %}</td>
-                    <td class="class-link"><a href="/teach/class/{{ c.id }}">Open</a> · <a href="/teach/lessons?class_id={{ c.id }}">Lessons</a></td>
+                    <th scope="col">Class</th>
+                    <th scope="col">Join code</th>
+                    <th scope="col">Status</th>
+                    <th scope="col"><span class="visually-hidden">Actions</span></th>
                   </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {% for c in classes %}
+                    <tr>
+                      <td><strong>{{ c.name }}</strong></td>
+                      <td><span class="pill">{{ c.join_code }}</span></td>
+                      <td>
+                        {% if c.is_locked %}
+                          <span class="state-pill state-pill--locked">Locked</span>
+                        {% else %}
+                          <span class="state-pill state-pill--open">Open</span>
+                        {% endif %}
+                      </td>
+                      <td class="class-link"><a href="/teach/class/{{ c.id }}">Open</a> · <a href="/teach/lessons?class_id={{ c.id }}">Lessons</a></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           {% else %}
             <p class="muted">No classes yet.</p>
           {% endif %}
@@ -84,28 +117,30 @@
           </div>
 
           {% if recent_submissions %}
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">When</th>
-                  <th scope="col">Student</th>
-                  <th scope="col">Class</th>
-                  <th scope="col">Material</th>
-                  <th scope="col"><span class="visually-hidden">Actions</span></th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for sub in recent_submissions %}
+            <div class="table-wrap">
+              <table>
+                <thead>
                   <tr>
-                    <td class="muted">{{ sub.uploaded_at }}</td>
-                    <td><strong>{{ sub.student.display_name }}</strong></td>
-                    <td class="muted">{{ sub.material.module.classroom.name }}</td>
-                    <td class="muted">{{ sub.material.title }}</td>
-                    <td><a href="/teach/material/{{ sub.material.id }}/submissions">Open queue</a> · <a href="/submission/{{ sub.id }}/download">Download</a></td>
+                    <th scope="col">When</th>
+                    <th scope="col">Student</th>
+                    <th scope="col">Class</th>
+                    <th scope="col">Material</th>
+                    <th scope="col"><span class="visually-hidden">Actions</span></th>
                   </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {% for sub in recent_submissions %}
+                    <tr>
+                      <td class="muted">{{ sub.uploaded_at }}</td>
+                      <td><strong>{{ sub.student.display_name }}</strong></td>
+                      <td class="muted">{{ sub.material.module.classroom.name }}</td>
+                      <td class="muted">{{ sub.material.title }}</td>
+                      <td><a href="/teach/material/{{ sub.material.id }}/submissions">Open queue</a> · <a href="/submission/{{ sub.id }}/download">Download</a></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           {% else %}
             <p class="muted">No submissions yet.</p>
           {% endif %}

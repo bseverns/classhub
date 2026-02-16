@@ -78,6 +78,13 @@
       .lesson-content {
         line-height: 1.58;
       }
+      .lesson-reading {
+        max-width: 74ch;
+        margin: 0 auto;
+      }
+      .lesson-status {
+        margin-top: 10px;
+      }
       .lesson-content h1,
       .lesson-content h2,
       .lesson-content h3 {
@@ -130,6 +137,13 @@
             {% if front_matter.makes %}
               <div class="muted">Makes: {{ front_matter.makes }}</div>
             {% endif %}
+            <div class="lesson-status">
+              {% if lesson_locked %}
+                <span class="state-pill state-pill--locked">Lesson locked</span>
+              {% else %}
+                <span class="state-pill state-pill--open">Lesson open</span>
+              {% endif %}
+            </div>
           </div>
           <div class="nav">
             <a class="btn" href="/student">Back to class</a>
@@ -145,6 +159,7 @@
         {% if lesson_locked %}
           <div class="card">
             <h2 style="margin-top:0;">Lesson schedule</h2>
+            <p><span class="state-pill state-pill--locked">Intro-only mode</span></p>
             <p class="muted">
               This lesson is in intro-only mode. Full activities and submissions unlock on
               <strong>{{ lesson_available_on|date:"M j, Y" }}</strong>.
@@ -212,6 +227,9 @@
           <div class="card">
             <h2 style="margin-top:0;">Homework dropbox</h2>
             <p class="muted" style="margin-top:8px;">
+              <span class="state-pill state-pill--open">Submissions open</span>
+            </p>
+            <p class="muted" style="margin-top:8px;">
               {% if lesson_submission.accepted_exts %}
                 Accepted: <strong>{{ lesson_submission.accepted_exts|join:", " }}</strong>
               {% else %}
@@ -240,7 +258,9 @@
         {% endif %}
 
         <div class="card lesson-content">
-          {{ lesson_html|safe }}
+          <div class="lesson-reading">
+            {{ lesson_html|safe }}
+          </div>
         </div>
 
         {% if helper_widget %}
