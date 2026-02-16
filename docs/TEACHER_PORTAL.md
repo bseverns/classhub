@@ -159,6 +159,11 @@ Operational checklist: `docs/TEACHER_HANDOFF_CHECKLIST.md`.
   - order videos for lesson playback
   - publish/unpublish videos (draft visibility)
   - remove lesson-tagged videos
+- `/teach/assets`:
+  - create reusable folder paths for reference files
+  - upload docs/images/PDFs and optionally tag by `course_slug` + `lesson_slug`
+  - publish/hide/delete assets
+  - copy markdown-ready link snippets like `[GPIO map](/lesson-asset/12/download)`
 - `/teach/class/<id>`:
   - lesson tracker for one class
   - module/material editor
@@ -198,6 +203,17 @@ Lesson behavior:
 - Opening a different heading closes the previous panel.
 - Uploaded files stream via `/lesson-video/<id>/stream` with permission checks.
 - Draft videos are hidden from students until published.
+
+## Lesson asset workflow
+
+Use `/teach/assets` when a lesson needs reference files (for example GPIO maps or printable guides).
+
+1. Create a folder path (example: `piper-kits/gpio`).
+2. Upload one or more files into that folder.
+3. Keep `Publish immediately` checked when students should access the file now.
+4. Copy the generated snippet and paste it into lesson markdown or a text material:
+   - `[GPIO map](/lesson-asset/<asset_id>/download)`
+5. Use `Hide` to remove student access without deleting the file.
 
 ## Troubleshooting
 

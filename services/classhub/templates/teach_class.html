@@ -138,7 +138,7 @@
         <div class="top">
           <div>
             <div class="muted">
-              <a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a>
+              <a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a> · <a href="/teach/assets">Lesson assets</a>
               {% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %} · <a href="/teach/logout">Log out</a>
             </div>
             <h1>{{ classroom.name }}</h1>
@@ -191,6 +191,7 @@
                         <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
                         <div class="muted mini">{{ row.course_slug }} / {{ row.lesson_slug }}</div>
                         <a class="quick" href="/teach/videos?class_id={{ classroom.id }}&course_slug={{ row.course_slug }}&lesson_slug={{ row.lesson_slug }}">Manage videos</a>
+                        <a class="quick" href="/teach/assets?folder_id=0&course_slug={{ row.course_slug }}&lesson_slug={{ row.lesson_slug }}&status=all">Manage assets</a>
                         {% if row.review_url %}
                           <a class="quick" href="{{ row.review_url }}">{{ row.review_label }}</a>
                         {% endif %}

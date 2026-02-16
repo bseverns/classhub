@@ -41,6 +41,7 @@ urlpatterns = [
     path("material/<int:material_id>/upload", views.material_upload),
     path("submission/<int:submission_id>/download", views.submission_download),
     path("lesson-video/<int:video_id>/stream", views.lesson_video_stream),
+    path("lesson-asset/<int:asset_id>/download", views.lesson_asset_download),
 
     # Repo-authored course content pages (markdown rendered to HTML).
     path("course/<slug:course_slug>", views.course_overview),
@@ -51,6 +52,7 @@ urlpatterns = [
     path("teach/logout", views.teacher_logout),
     path("teach/lessons", views.teach_lessons),
     path("teach/lessons/release", views.teach_set_lesson_release),
+    path("teach/assets", views.teach_assets),
     path("teach/create-class", views.teach_create_class),
     path("teach/class/<int:class_id>", views.teach_class_dashboard),
     path("teach/class/<int:class_id>/toggle-lock", views.teach_toggle_lock),

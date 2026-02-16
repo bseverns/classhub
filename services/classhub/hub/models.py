@@ -178,6 +178,48 @@ def _lesson_video_upload_to(instance: "LessonVideo", filename: str) -> str:
     return f"lesson_videos/{course}/{lesson}/{filename}"
 
 
+def _normalize_asset_folder_path(raw: str) -> str:
+    parts = []
+    for segment in str(raw or "").replace("\\", "/").split("/"):
+        segment = segment.strip()
+        if not segment:
+            continue
+        parts.append(_safe_path_part(segment))
+    return "/".join(parts) or "general"
+
+
+def _safe_asset_filename(raw: str) -> str:
+    value = re.sub(r"[^A-Za-z0-9._-]+", "_", (raw or "").strip())
+    value = value.strip("._")
+    return value or "asset"
+
+
+class LessonAssetFolder(models.Model):
+    """Teacher-managed folder namespace for reference assets."""
+
+    path = models.CharField(max_length=200, unique=True, default="general")
+    display_name = models.CharField(max_length=120, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["path", "id"]
+
+    def save(self, *args, **kwargs):
+        self.path = _normalize_asset_folder_path(self.path)
+        if not self.display_name:
+            self.display_name = self.path
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return self.path
+
+
+def _lesson_asset_upload_to(instance: "LessonAsset", filename: str) -> str:
+    folder_path = _normalize_asset_folder_path(getattr(instance.folder, "path", "general"))
+    return f"lesson_assets/{folder_path}/{_safe_asset_filename(filename)}"
+
+
 class LessonVideo(models.Model):
     """Teacher-managed video asset tagged to one course lesson."""
 
@@ -234,3 +276,31 @@ class LessonRelease(models.Model):
 
     def __str__(self) -> str:
         return f"{self.classroom.join_code}:{self.course_slug}/{self.lesson_slug}"
+
+
+class LessonAsset(models.Model):
+    """Teacher-managed reference file that can be linked inside lesson markdown."""
+
+    folder = models.ForeignKey(LessonAssetFolder, on_delete=models.PROTECT, related_name="assets")
+    course_slug = models.SlugField(max_length=120, blank=True, default="")
+    lesson_slug = models.SlugField(max_length=120, blank=True, default="")
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, default="")
+    original_filename = models.CharField(max_length=255, blank=True, default="")
+    file = models.FileField(upload_to=_lesson_asset_upload_to)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "id"]
+        indexes = [
+            models.Index(fields=["folder", "is_active"], name="hub_lessona_folder__764626_idx"),
+            models.Index(
+                fields=["course_slug", "lesson_slug", "is_active"],
+                name="hub_lessona_course__7a0ed8_idx",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.folder.path}: {self.title}"

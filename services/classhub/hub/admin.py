@@ -1,7 +1,17 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Class, Module, Material, StudentIdentity, Submission, LessonRelease, LessonVideo
+from .models import (
+    Class,
+    LessonAsset,
+    LessonAssetFolder,
+    LessonRelease,
+    LessonVideo,
+    Material,
+    Module,
+    StudentIdentity,
+    Submission,
+)
 
 @admin.register(Class)
 class ClassAdmin(admin.ModelAdmin):
@@ -51,3 +61,32 @@ class LessonReleaseAdmin(admin.ModelAdmin):
     list_display = ("classroom", "course_slug", "lesson_slug", "available_on", "force_locked", "updated_at")
     list_filter = ("classroom", "course_slug", "force_locked")
     search_fields = ("classroom__name", "classroom__join_code", "course_slug", "lesson_slug")
+
+
+@admin.register(LessonAssetFolder)
+class LessonAssetFolderAdmin(admin.ModelAdmin):
+    list_display = ("path", "display_name", "created_at", "updated_at")
+    search_fields = ("path", "display_name")
+    ordering = ("path", "id")
+
+
+@admin.register(LessonAsset)
+class LessonAssetAdmin(admin.ModelAdmin):
+    list_display = (
+        "title",
+        "folder",
+        "course_slug",
+        "lesson_slug",
+        "is_active",
+        "updated_at",
+        "download_link",
+    )
+    list_filter = ("is_active", "folder", "course_slug", "lesson_slug")
+    search_fields = ("title", "description", "original_filename", "folder__path", "course_slug", "lesson_slug")
+    readonly_fields = ("created_at", "updated_at")
+    autocomplete_fields = ("folder",)
+
+    def download_link(self, obj: LessonAsset):
+        return format_html('<a href="/lesson-asset/{}/download" target="_blank" rel="noopener">Download</a>', obj.id)
+
+    download_link.short_description = "Download"

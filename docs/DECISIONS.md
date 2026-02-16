@@ -1,5 +1,20 @@
 # Decisions (living)
 
+## 2026-02-16 — Add teacher-managed lesson asset library (folders + files)
+
+**Why:**
+- Teachers need to add/update classroom reference files (GPIO maps, handouts, checklists) without shell/git edits.
+- Non-programmer staff need the same assets visible in Django admin for backup operations and audits.
+
+**Tradeoffs:**
+- Lesson assets now live in the database/media store, while markdown lessons still live in git.
+- Asset links use stable app routes (`/lesson-asset/<id>/download`) rather than direct storage paths.
+
+**Plan:**
+- Add `LessonAssetFolder` and `LessonAsset` models with publish/draft status.
+- Add staff UI at `/teach/assets` for folder creation, uploads, and publish/hide/delete actions.
+- Add protected asset route `/lesson-asset/<id>/download` and expose assets in Django admin.
+
 ## 2026-02-16 — Add plain-English structure comments in core Class Hub code files
 
 **Why:**

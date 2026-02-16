@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teacher · Lesson Assets</title>
+    {% include "includes/glass_theme.html" %}
+    <style>
+      .shell { max-width: 1120px; }
+      .top h1 { margin: 6px 0 0 0; font-size: clamp(1.85rem, 2.7vw, 2.35rem); }
+      .notice {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border: 1px solid rgba(32, 125, 82, 0.35);
+        border-radius: 10px;
+        background: rgba(216, 246, 231, 0.65);
+        color: #1f5f45;
+      }
+      .error {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border: 1px solid rgba(182, 56, 56, 0.35);
+        border-radius: 10px;
+        background: rgba(255, 224, 224, 0.58);
+        color: #8f2d2d;
+      }
+      .row-wrap { margin-top: 10px; }
+      .row-wrap .row > div { min-width: 200px; flex: 1; }
+      .btnline form { display: inline-block; margin: 0 6px 0 0; }
+      .btnline button { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
+      .status-pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid rgba(22, 59, 80, 0.22);
+        background: rgba(255, 255, 255, 0.6);
+      }
+      .status-pill.live {
+        border-color: rgba(32, 125, 82, 0.45);
+        background: rgba(216, 246, 231, 0.7);
+        color: #1f5f45;
+      }
+      .status-pill.draft {
+        border-color: rgba(172, 112, 32, 0.45);
+        background: rgba(255, 241, 213, 0.75);
+        color: #8c5c19;
+      }
+      .path-chip {
+        display: inline-block;
+        border: 1px solid rgba(22, 59, 80, 0.16);
+        border-radius: 999px;
+        padding: 2px 9px;
+        background: rgba(255, 255, 255, 0.62);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+      }
+      .snippet {
+        margin-top: 6px;
+        padding: 6px 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(22, 59, 80, 0.14);
+        background: rgba(255, 255, 255, 0.58);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+        overflow-x: auto;
+      }
+      .row-draft td {
+        opacity: 0.82;
+      }
+    </style>
+  </head>
+  <body class="glass-theme">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="shell">
+      <main id="main-content">
+        <div class="top">
+          <div>
+            <div class="muted"><a href="/teach">Teacher</a> · <a href="/teach/lessons">Lesson tracker</a> · <a href="/teach/videos">Lesson videos</a>{% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %} · <a href="/teach/logout">Log out</a></div>
+            <h1>Lesson Assets</h1>
+            <div class="muted">Create folder paths and upload reference files that can be linked inside lessons.</div>
+          </div>
+        </div>
+
+        {% if notice %}
+          <div class="notice" role="status" aria-live="polite">{{ notice }}</div>
+        {% endif %}
+        {% if error %}
+          <div class="error" role="alert" aria-live="assertive">{{ error }}</div>
+        {% endif %}
+
+        <div class="card">
+          <h2 style="margin:0">Create folder</h2>
+          <form method="post" class="row row-wrap" style="max-width:940px">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_folder" />
+            <input type="hidden" name="status" value="{{ status }}" />
+            <input type="hidden" name="folder_id" value="{{ selected_folder_id }}" />
+            <input type="hidden" name="course_slug" value="{{ selected_course_slug }}" />
+            <input type="hidden" name="lesson_slug" value="{{ selected_lesson_slug }}" />
+            <div>
+              <label for="folder-path">Folder path</label>
+              <input id="folder-path" name="folder_path" placeholder="e.g., piper-kits/gpio" required />
+              <div class="muted">Use slash-separated names. The system normalizes path formatting.</div>
+            </div>
+            <div>
+              <label for="folder-name">Display name (optional)</label>
+              <input id="folder-name" name="display_name" placeholder="e.g., GPIO reference" />
+            </div>
+            <div style="align-self:end">
+              <button type="submit">Create folder</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0">Filter assets</h2>
+          <form method="get" class="row row-wrap">
+            <div>
+              <label for="folder_id">Folder</label>
+              <select id="folder_id" name="folder_id">
+                <option value="0" {% if not selected_folder_id %}selected{% endif %}>All folders</option>
+                {% for folder in folder_rows %}
+                  <option value="{{ folder.id }}" {% if folder.id == selected_folder_id %}selected{% endif %}>{{ folder.path }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label for="course_slug">Course slug (optional)</label>
+              <input id="course_slug" name="course_slug" value="{{ selected_course_slug }}" placeholder="piper_scratch_12_session" />
+            </div>
+            <div>
+              <label for="lesson_slug">Lesson slug (optional)</label>
+              <input id="lesson_slug" name="lesson_slug" value="{{ selected_lesson_slug }}" placeholder="01-welcome-private-workflow" />
+            </div>
+            <div>
+              <label for="status">Status</label>
+              <select id="status" name="status">
+                <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+                <option value="active" {% if status == 'active' %}selected{% endif %}>Published</option>
+                <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Hidden draft</option>
+              </select>
+            </div>
+            <div style="align-self:end">
+              <button type="submit">Apply filter</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0">Upload asset</h2>
+          <form method="post" enctype="multipart/form-data" style="margin-top:10px; max-width:960px">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="upload" />
+            <input type="hidden" name="status" value="{{ status }}" />
+            <div class="row">
+              <div>
+                <label for="upload-folder-id">Folder</label>
+                <select id="upload-folder-id" name="folder_id" required>
+                  <option value="">Choose folder</option>
+                  {% for folder in folder_rows %}
+                    <option value="{{ folder.id }}" {% if folder.id == selected_folder_id %}selected{% endif %}>{{ folder.path }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div>
+                <label for="asset-title">Title</label>
+                <input id="asset-title" name="title" placeholder="e.g., GPIO Pin Map" />
+              </div>
+            </div>
+
+            <label for="asset-description">Description (optional)</label>
+            <textarea id="asset-description" name="description" placeholder="What this file helps students do."></textarea>
+
+            <div class="row">
+              <div>
+                <label for="asset-course">Course slug (optional)</label>
+                <input id="asset-course" name="course_slug" value="{{ selected_course_slug }}" placeholder="piper_scratch_12_session" />
+              </div>
+              <div>
+                <label for="asset-lesson">Lesson slug (optional)</label>
+                <input id="asset-lesson" name="lesson_slug" value="{{ selected_lesson_slug }}" placeholder="01-welcome-private-workflow" />
+              </div>
+            </div>
+
+            <label for="asset-file">File</label>
+            <input id="asset-file" name="asset_file" type="file" required />
+            <div class="muted">After upload, use the generated link snippet in lesson markdown or text materials.</div>
+
+            <label style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+              <input type="checkbox" name="is_active" value="1" checked />
+              <span>Publish immediately (uncheck to keep hidden draft)</span>
+            </label>
+
+            <button type="submit" style="margin-top:12px">Upload asset</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <h2 style="margin:0">Asset library</h2>
+            <div class="muted">{{ active_count }} published · {{ inactive_count }} hidden draft</div>
+          </div>
+
+          {% if asset_rows %}
+            <table style="margin-top:10px">
+              <thead>
+                <tr>
+                  <th scope="col">Asset</th>
+                  <th scope="col">Folder</th>
+                  <th scope="col">Tags</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in asset_rows %}
+                  <tr{% if not row.is_active %} class="row-draft"{% endif %}>
+                    <td>
+                      <strong>{{ row.title }}</strong>
+                      {% if row.description %}<div class="muted">{{ row.description|truncatechars:160 }}</div>{% endif %}
+                      {% if row.original_filename %}<div class="muted">File: {{ row.original_filename }}</div>{% endif %}
+                      <div class="snippet">[{{ row.title|escape }}](/lesson-asset/{{ row.id }}/download)</div>
+                    </td>
+                    <td><span class="path-chip">{{ row.folder.path }}</span></td>
+                    <td class="muted">
+                      {% if row.course_slug %}{{ row.course_slug }}{% else %}all courses{% endif %}
+                      /
+                      {% if row.lesson_slug %}{{ row.lesson_slug }}{% else %}all lessons{% endif %}
+                    </td>
+                    <td>
+                      {% if row.is_active %}
+                        <span class="status-pill live">Published</span>
+                      {% else %}
+                        <span class="status-pill draft">Hidden draft</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="btnline">
+                        <a href="/lesson-asset/{{ row.id }}/download" target="_blank" rel="noopener">Open</a>
+                        <form method="post">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="set_active" />
+                          <input type="hidden" name="asset_id" value="{{ row.id }}" />
+                          <input type="hidden" name="folder_id" value="{{ selected_folder_id }}" />
+                          <input type="hidden" name="course_slug" value="{{ selected_course_slug }}" />
+                          <input type="hidden" name="lesson_slug" value="{{ selected_lesson_slug }}" />
+                          <input type="hidden" name="status" value="{{ status }}" />
+                          <input type="hidden" name="active" value="{% if row.is_active %}0{% else %}1{% endif %}" />
+                          <button type="submit">{% if row.is_active %}Hide{% else %}Publish{% endif %}</button>
+                        </form>
+                        <form method="post">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="delete" />
+                          <input type="hidden" name="asset_id" value="{{ row.id }}" />
+                          <input type="hidden" name="folder_id" value="{{ selected_folder_id }}" />
+                          <input type="hidden" name="course_slug" value="{{ selected_course_slug }}" />
+                          <input type="hidden" name="lesson_slug" value="{{ selected_lesson_slug }}" />
+                          <input type="hidden" name="status" value="{{ status }}" />
+                          <button type="submit">Delete</button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="muted" style="margin-top:10px">No assets match this filter yet.</p>
+          {% endif %}
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
