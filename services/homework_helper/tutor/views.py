@@ -169,8 +169,6 @@ def _actor_key(request) -> str:
         return ""
 
     return f"student:{class_id}:{student_id}"
-
-
 def _ollama_chat(base_url: str, model: str, instructions: str, message: str) -> tuple[str, str]:
     url = base_url.rstrip("/") + "/api/chat"
     temperature = float(os.getenv("OLLAMA_TEMPERATURE", "0.2"))

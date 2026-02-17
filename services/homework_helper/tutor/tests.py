@@ -48,7 +48,6 @@ class HelperChatAuthTests(TestCase):
         resp = self._post_chat({"message": "help"})
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(resp.json().get("error"), "unauthorized")
-
     @patch("tutor.views.emit_helper_chat_access_event")
     @patch("tutor.views._ollama_chat", return_value=("Try this step first.", "fake-model"))
     @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
@@ -65,7 +64,6 @@ class HelperChatAuthTests(TestCase):
     def test_student_session_exists_fails_open_when_classhub_table_unavailable(self):
         with patch("tutor.views.connection.cursor", side_effect=ProgrammingError("missing table")):
             self.assertTrue(views._student_session_exists(student_id=1, class_id=2))
-
     @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
     @patch.dict(
         "os.environ",
