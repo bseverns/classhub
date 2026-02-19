@@ -43,9 +43,12 @@ def emit_helper_chat_access_event(
                     ip_address or None,
                 ],
             )
-    except DatabaseError:
+    except DatabaseError as exc:
         # This write is explicitly best-effort; do not let missing classhub tables
         # poison the caller's transaction state during tests or local-only runs.
-        if connection.in_atomic_block and connection.needs_rollback:
-            transaction.set_rollback(False)
-        logger.exception("helper_chat_student_event_write_failed")
+        if connection.in_atomic_block:
+            try:
+                transaction.set_rollback(False)
+            except Exception:
+                pass
+        logger.warning("helper_chat_student_event_write_failed: %s", exc.__class__.__name__)
