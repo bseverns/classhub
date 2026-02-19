@@ -4,7 +4,7 @@ Validate first-introduced video order and Watch copy sync across lessons.
 
 Default checks:
 - V01 is introduced in the first video-bearing session.
-- `videos:` front matter IDs match `## Watch` section heading IDs per lesson.
+- If `## Watch` exists, `videos:` front matter IDs match Watch heading IDs.
 
 Optional strict mode checks whether V01, V02, ... are introduced in
 non-decreasing order by session number across the full course.
@@ -27,6 +27,7 @@ VIDEO_ID_RE = re.compile(r"^\s*-\s*id:\s*(V\d+)\s*$", re.M)
 WATCH_VIDEO_RE = re.compile(r"^###\s+(V\d+)\b", re.M)
 H2_RE = re.compile(r"^##\s+")
 WATCH_HEADER_RE = re.compile(r"^\s*###\s+(V\d+)\b")
+WATCH_SECTION_RE = re.compile(r"^##\s+Watch\s*$", re.M | re.I)
 
 
 def _video_num(video_id: str) -> int:
@@ -140,12 +141,14 @@ def main() -> int:
                 new_raw = (front_block + body) if front_block else body
                 path.write_text(new_raw, encoding="utf-8")
 
-        watch_videos = WATCH_VIDEO_RE.findall(body)
-        if lesson_videos != watch_videos:
-            lesson_copy_errors.append(
-                f"{path.name} front-matter videos ({', '.join(lesson_videos) or 'none'}) "
-                f"do not match Watch section ({', '.join(watch_videos) or 'none'})"
-            )
+        has_watch_section = WATCH_SECTION_RE.search(body) is not None
+        if has_watch_section:
+            watch_videos = WATCH_VIDEO_RE.findall(body)
+            if lesson_videos != watch_videos:
+                lesson_copy_errors.append(
+                    f"{path.name} front-matter videos ({', '.join(lesson_videos) or 'none'}) "
+                    f"do not match Watch section ({', '.join(watch_videos) or 'none'})"
+                )
 
         nums = [_video_num(v) for v in lesson_videos]
         if nums != sorted(nums):
