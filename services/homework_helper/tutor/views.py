@@ -21,7 +21,7 @@ from common.request_safety import (
 )
 from common.helper_scope import parse_scope_token
 
-from django.db import connection
+from django.db import connection, transaction
 from django.db.utils import OperationalError, ProgrammingError
 
 from .policy import build_instructions
@@ -150,6 +150,10 @@ def _student_session_exists(student_id: int, class_id: int) -> bool:
             )
             return cursor.fetchone() is not None
     except (OperationalError, ProgrammingError):
+        # Postgres marks the transaction as aborted after SQL errors; clear the
+        # rollback flag so this best-effort check doesn't poison the request.
+        if connection.in_atomic_block and connection.needs_rollback:
+            transaction.set_rollback(False)
         # MVP default is fail-open for local/demo setups; production can force
         # fail-closed by enabling HELPER_REQUIRE_CLASSHUB_TABLE.
         if bool(getattr(settings, "HELPER_REQUIRE_CLASSHUB_TABLE", False)):
