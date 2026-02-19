@@ -17,5 +17,9 @@ COPY classhub /app
 
 EXPOSE 8000
 
+# Build static assets once so container boot only has to migrate + start gunicorn.
+RUN DJANGO_SECRET_KEY=build-time-static-secret-key-aaaaaaaaaaaaaaaa DJANGO_DEBUG=1 \
+  python manage.py collectstatic --noinput
+
 # Day-1: run migrations on container start (fine for MVP, later do it in CI/CD)
-CMD ["bash", "-lc", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 60"]
+CMD ["bash", "-lc", "python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 60"]

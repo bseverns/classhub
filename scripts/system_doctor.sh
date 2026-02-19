@@ -188,9 +188,19 @@ fi
 echo "[doctor] 5/6 compose health"
 if [[ "${BRING_UP}" == "1" ]]; then
   if [[ "${BUILD_STACK}" == "1" ]]; then
-    run_compose up -d --build
+    if ! run_compose up -d --build; then
+      echo "[doctor] compose up failed; recent container logs:" >&2
+      run_compose ps >&2 || true
+      run_compose logs --no-color --tail=200 classhub_web helper_web classhub_postgres classhub_redis >&2 || true
+      exit 1
+    fi
   else
-    run_compose up -d
+    if ! run_compose up -d; then
+      echo "[doctor] compose up failed; recent container logs:" >&2
+      run_compose ps >&2 || true
+      run_compose logs --no-color --tail=200 classhub_web helper_web classhub_postgres classhub_redis >&2 || true
+      exit 1
+    fi
   fi
 fi
 

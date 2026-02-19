@@ -140,12 +140,14 @@ Historical implementation logs and superseded decisions are archived by month in
 - Caddy mount source must match the expected compose config file.
 - `scripts/system_doctor.sh` is the canonical one-command stack diagnostic.
 - Golden-path smoke can auto-provision fixtures via `scripts/golden_path_smoke.sh`.
+- Class Hub static assets are collected during image build; runtime boot path is migrations + gunicorn only.
 - Regression coverage is required for helper auth/admin hardening and backend retry/circuit behavior.
 
 **Why this remains active:**
 - Prevents avoidable outages from config drift.
 - Catches regressions before users encounter them.
 - Reduces operator setup friction for smoke checks that previously depended on static credentials.
+- Reduces startup-time healthcheck failures from long runtime `collectstatic` work.
 
 ## Teacher authoring templates
 
