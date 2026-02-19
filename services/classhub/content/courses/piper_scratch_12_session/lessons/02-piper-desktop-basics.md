@@ -56,6 +56,9 @@ helper_allowed_topics:
   - "shut down safely."
   - "upload .png"
   - "reboot once if frozen."
+  - "keyboard mouse not detected"
+  - "usb input troubleshooting"
+  - "storymode app does not open"
 ---
 **Mission:** Animate a character and understand frame-by-frame timing.
 
@@ -106,4 +109,3 @@ helper_allowed_topics:
 - Add an animated enemy or pet.
 - Add sound synced to animation.
 - Create a looping background animation (clouds drifting).
-

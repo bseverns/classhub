@@ -34,3 +34,9 @@ HELPER_STRICTNESS=light
 # or
 HELPER_STRICTNESS=strict
 ```
+
+## Piper Hardware Eval Notes
+
+- Include lesson-scoped prompts that mention StoryMode missions, jumper wires, breadboard rows, and shared ground.
+- Expected responses should prefer one-change-at-a-time troubleshooting and explicit retest steps.
+- For text-language requests (Python/Java/etc.) in this course context, expected behavior is to redirect back to Scratch/Piper blocks.

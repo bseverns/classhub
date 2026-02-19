@@ -53,6 +53,11 @@ helper_allowed_topics:
   - "reboot once if frozen."
   - "check downloads."
   - "upload .png or .txt"
+  - "storymode controls not working"
+  - "breadboard jumper wires"
+  - "shared ground wiring"
+  - "movement and jump inputs"
+  - "retest one control at a time"
 ---
 **Mission:** Build confidence with StoryMode controls and submit one low-stakes check-in.
 

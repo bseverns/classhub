@@ -60,6 +60,12 @@ helper_allowed_topics:
   - "upload .sb3"
   - "reboot once if frozen."
   - "check downloads"
+  - "storymode mars controls"
+  - "cheeseteroid jump control"
+  - "breadboard jumper wires"
+  - "shared ground wiring"
+  - "gpio movement inputs"
+  - "physical buttons not responding"
 ---
 **Mission:** Start from *zero*: build a simple **GPIO movement controller** in Piper StoryMode (Mars → Cheeseteroid), then connect the idea of **inputs → actions** to Scratch.
 

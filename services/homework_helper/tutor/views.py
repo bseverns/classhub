@@ -48,6 +48,29 @@ DEFAULT_TEXT_LANGUAGE_KEYWORDS = [
     "swift",
     "kotlin",
 ]
+DEFAULT_PIPER_CONTEXT_KEYWORDS = [
+    "piper",
+    "storymode",
+    "pipercode",
+    "mars",
+    "cheeseteroid",
+    "gpio",
+    "breadboard",
+]
+DEFAULT_PIPER_HARDWARE_KEYWORDS = [
+    "storymode",
+    "mars",
+    "cheeseteroid",
+    "breadboard",
+    "jumper",
+    "wire",
+    "wiring",
+    "gpio",
+    "button",
+    "buttons",
+    "physical controls",
+    "controls not working",
+]
 logger = logging.getLogger(__name__)
 
 
@@ -77,6 +100,17 @@ def _env_float(name: str, default: float) -> float:
         return float(raw)
     except Exception:
         return default
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name, "").strip().lower()
+    if not raw:
+        return default
+    if raw in {"1", "true", "yes", "on"}:
+        return True
+    if raw in {"0", "false", "no", "off"}:
+        return False
+    return default
 
 
 def _request_id(request) -> str:
@@ -356,6 +390,56 @@ def _contains_text_language(message: str, keywords: list[str]) -> bool:
     return any(keyword in lowered for keyword in keywords)
 
 
+def _contains_any_phrase(text: str, phrases: list[str]) -> bool:
+    lowered = (text or "").lower()
+    return any(phrase and phrase in lowered for phrase in phrases)
+
+
+def _is_piper_context(context_value: str, topics: list[str], reference_text: str, reference_key: str = "") -> bool:
+    context_keywords = _parse_csv_list(os.getenv("HELPER_PIPER_CONTEXT_KEYWORDS", ""))
+    keywords = context_keywords or DEFAULT_PIPER_CONTEXT_KEYWORDS
+    combined = " ".join(
+        [
+            context_value or "",
+            " ".join(topics or []),
+            reference_text or "",
+            reference_key or "",
+        ]
+    )
+    return _contains_any_phrase(combined, keywords)
+
+
+def _is_piper_hardware_question(message: str) -> bool:
+    hardware_keywords = _parse_csv_list(os.getenv("HELPER_PIPER_HARDWARE_KEYWORDS", ""))
+    keywords = hardware_keywords or DEFAULT_PIPER_HARDWARE_KEYWORDS
+    return _contains_any_phrase(message, keywords)
+
+
+def _select_piper_hardware_check(message: str) -> str:
+    lowered = (message or "").lower()
+    if any(token in lowered for token in ("jump", "cheeseteroid")):
+        return "Check only the jump input path: confirm jumper seating and shared ground for that jump control."
+    if any(token in lowered for token in ("none", "all", "every", "nothing")) and any(
+        token in lowered for token in ("button", "buttons", "control", "controls", "wire", "wiring")
+    ):
+        return "Check shared ground first, then reseat one suspect jumper wire and retest before changing anything else."
+    if any(token in lowered for token in ("left", "right", "forward", "back", "direction", "one direction")):
+        return "Compare the failing direction wire path to a known-good direction and change only one mismatch."
+    if any(token in lowered for token in ("storymode", "mars", "step", "level")):
+        return "Confirm you are on the exact StoryMode test step where controls are evaluated before rewiring."
+    return "Pick one input, verify its jumper path and shared ground, then retest only that single input."
+
+
+def _build_piper_hardware_triage_text(message: str) -> str:
+    one_check = _select_piper_hardware_check(message)
+    return (
+        "Let's triage this in one pass.\n"
+        "1) Which StoryMode mission + step are you on (Mars or Cheeseteroid), and which single input fails?\n"
+        f"2) Do this one check now: {one_check}\n"
+        "3) Retest only that same input and tell me: works now, still fails, or changed behavior."
+    )
+
+
 def _tokenize(text: str) -> set[str]:
     parts = re.split(r"[^a-z0-9]+", text.lower())
     return {p for p in parts if len(p) >= 4}
@@ -537,6 +621,30 @@ def chat(request):
                 "strictness": strictness,
                 "attempts": 0,
                 "scope_verified": scope_verified,
+            },
+            request_id=request_id,
+        )
+    if (
+        _env_bool("HELPER_PIPER_HARDWARE_TRIAGE_ENABLED", True)
+        and _is_piper_context(context_value or "", topics, reference_text, reference_key)
+        and _is_piper_hardware_question(message)
+    ):
+        _log_chat_event(
+            "info",
+            "policy_redirect_piper_hardware_triage",
+            request_id=request_id,
+            actor_type=actor_type,
+            backend=backend,
+        )
+        return _json_response(
+            {
+                "text": _build_piper_hardware_triage_text(message),
+                "model": "",
+                "backend": backend,
+                "strictness": strictness,
+                "attempts": 0,
+                "scope_verified": scope_verified,
+                "triage_mode": "piper_hardware",
             },
             request_id=request_id,
         )

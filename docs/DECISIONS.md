@@ -16,6 +16,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Teacher authoring templates](#teacher-authoring-templates)
 - [Teacher UI comfort mode](#teacher-ui-comfort-mode)
 - [Helper scope signing](#helper-scope-signing)
+- [Helper grounding for Piper hardware](#helper-grounding-for-piper-hardware)
 - [Production transport hardening](#production-transport-hardening)
 - [Content parse caching](#content-parse-caching)
 - [Admin access 2FA](#admin-access-2fa)
@@ -190,6 +191,18 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Prevents students from broadening helper scope by editing browser requests.
 - Preserves lesson-scoped helper behavior without coupling helper directly to classhub content mounts.
+
+## Helper grounding for Piper hardware
+
+**Current decision:**
+- Piper course helper references include explicit hardware troubleshooting context (breadboard/jumper/shared-ground/input-path checks), not only Scratch workflow guidance.
+- Early StoryMode lessons include hardware phrases in `helper_allowed_topics` so strict topic filtering still permits Piper control/wiring questions.
+- Helper chat uses a deterministic Piper hardware triage branch for wiring-style questions (clarify mission/step, one targeted check, retest request) before model generation.
+- `scripts/eval_helper.py` supports lightweight rule-based scoring (including Piper hardware cases) so response regressions are easier to spot in CI/local checks.
+
+**Why this remains active:**
+- The Piper course includes both Scratch work and physical control wiring; helper grounding must reflect both to be useful in class.
+- Narrow topic filtering without hardware terms can incorrectly block or under-serve valid lesson questions.
 
 ## Production transport hardening
 

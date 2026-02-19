@@ -16,17 +16,28 @@
 
 ## Help
 - Reboot once if frozen.
+- If keyboard/mouse is not responding, reseat USB and wait a few seconds.
 - Check Downloads and try again.
 - Use the help form to upload your `.sb3` or a screenshot.
-- Ask for help:** (link to LMS help form)
+- Ask for help: (link to LMS help form)
 
 ## Extend
 - Create a folder called `ScratchProjects/` on the desktop or Documents.
 - Practice reopening an app you closed.
-- Purpose:** Reduce friction so the machine feels legible and student-controlled.
+- Purpose: reduce friction so the machine feels legible and student-controlled.
 - Common snags:
-- Keyboard/mouse not detected.
-- Wi‑Fi list reveals network names—avoid showing on recordings.
+  - Keyboard/mouse not detected.
+  - Wi‑Fi list reveals network names, avoid showing on recordings.
+
+## Piper kit readiness checks
+1) Boot path is complete (desktop fully loaded, not stuck mid-boot).
+2) Input devices work (mouse movement + click, keyboard keypress).
+3) Audio/volume icon visible for StoryMode readiness.
+4) Safe shutdown path is used before unplugging or rewiring.
+
+## Vocabulary to use
+- desktop, launcher, app icon, screenshot
+- reboot, shutdown, USB input devices
 
 ## Scratch-only reminder
-- Provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.
+- For Scratch questions, provide Scratch block steps only. Do not answer in text languages like Pascal/Python/Java.

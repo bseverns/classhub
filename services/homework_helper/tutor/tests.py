@@ -103,6 +103,79 @@ class HelperChatAuthTests(TestCase):
         self.assertNotIn("student@example.org", backend_message)
         self.assertNotIn("612-555-0123", backend_message)
 
+    @patch("tutor.views._ollama_chat", return_value=("backend should not be called", "fake-model"))
+    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
+    def test_chat_uses_deterministic_piper_hardware_triage(self, chat_mock):
+        session = self.client.session
+        session["student_id"] = 101
+        session["class_id"] = 5
+        session.save()
+
+        resp = self._post_chat(
+            {
+                "message": "In StoryMode, my jump button in Cheeseteroid is not working after moving jumper wires.",
+            }
+        )
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        self.assertEqual(body.get("triage_mode"), "piper_hardware")
+        self.assertEqual(body.get("attempts"), 0)
+        text = (body.get("text") or "").lower()
+        self.assertIn("which storymode mission + step", text)
+        self.assertIn("do this one check now", text)
+        self.assertIn("retest only that same input", text)
+        self.assertEqual(chat_mock.call_count, 0)
+
+    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
+    @patch.dict(
+        "os.environ",
+        {
+            "HELPER_LLM_BACKEND": "ollama",
+            "HELPER_PIPER_HARDWARE_TRIAGE_ENABLED": "0",
+        },
+        clear=False,
+    )
+    def test_chat_can_disable_piper_hardware_triage(self, chat_mock):
+        session = self.client.session
+        session["student_id"] = 101
+        session["class_id"] = 5
+        session.save()
+
+        resp = self._post_chat(
+            {
+                "message": "My StoryMode breadboard buttons are not responding.",
+            }
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("text"), "Hint")
+        self.assertIsNone(resp.json().get("triage_mode"))
+        self.assertEqual(chat_mock.call_count, 1)
+
+    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
+    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
+    def test_chat_does_not_apply_piper_hardware_triage_outside_piper_context(self, chat_mock):
+        session = self.client.session
+        session["student_id"] = 101
+        session["class_id"] = 5
+        session.save()
+
+        token = issue_scope_token(
+            context="Lesson scope: fractions",
+            topics=["fractions"],
+            allowed_topics=["fractions"],
+            reference="fractions_reference",
+        )
+        resp = self._post_chat(
+            {
+                "message": "My breadboard button is not working.",
+                "scope_token": token,
+            }
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("text"), "Hint")
+        self.assertIsNone(resp.json().get("triage_mode"))
+        self.assertEqual(chat_mock.call_count, 1)
+
     @patch("tutor.views._student_session_exists", return_value=False)
     def test_chat_rejects_stale_student_session(self, _exists_mock):
         session = self.client.session
