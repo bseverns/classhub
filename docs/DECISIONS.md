@@ -141,6 +141,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - `scripts/system_doctor.sh` is the canonical one-command stack diagnostic.
 - Golden-path smoke can auto-provision fixtures via `scripts/golden_path_smoke.sh`.
 - Class Hub static assets are collected during image build; runtime boot path is migrations + gunicorn only.
+- Smoke checks default to `http://localhost` when `CADDYFILE_TEMPLATE=Caddyfile.local`, regardless of placeholder `SMOKE_BASE_URL` values in env examples.
 - Regression coverage is required for helper auth/admin hardening and backend retry/circuit behavior.
 
 **Why this remains active:**
@@ -148,6 +149,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Catches regressions before users encounter them.
 - Reduces operator setup friction for smoke checks that previously depended on static credentials.
 - Reduces startup-time healthcheck failures from long runtime `collectstatic` work.
+- Prevents CI from accidentally probing external placeholder domains while validating local compose stacks.
 
 ## Teacher authoring templates
 

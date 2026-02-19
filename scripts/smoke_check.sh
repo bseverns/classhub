@@ -39,8 +39,20 @@ env_file_value() {
   echo "${raw}"
 }
 
-BASE_URL="${SMOKE_BASE_URL:-$(env_file_value SMOKE_BASE_URL)}"
-BASE_URL="${BASE_URL:-$(derive_base_url)}"
+EXPLICIT_BASE_URL="${SMOKE_BASE_URL:-}"
+ENV_BASE_URL="$(env_file_value SMOKE_BASE_URL)"
+CADDYFILE_TEMPLATE="$(env_file_value CADDYFILE_TEMPLATE)"
+
+if [[ -n "${EXPLICIT_BASE_URL}" ]]; then
+  BASE_URL="${EXPLICIT_BASE_URL}"
+elif [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.local" ]]; then
+  # In local routing mode we should probe the local stack, not placeholder domains.
+  BASE_URL="http://localhost"
+elif [[ -n "${ENV_BASE_URL}" ]]; then
+  BASE_URL="${ENV_BASE_URL}"
+else
+  BASE_URL="$(derive_base_url)"
+fi
 DISPLAY_NAME="${SMOKE_DISPLAY_NAME:-$(env_file_value SMOKE_DISPLAY_NAME)}"
 DISPLAY_NAME="${DISPLAY_NAME:-Smoke Student}"
 HELPER_MESSAGE="${SMOKE_HELPER_MESSAGE:-$(env_file_value SMOKE_HELPER_MESSAGE)}"
