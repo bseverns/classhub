@@ -180,9 +180,9 @@ echo "[doctor] 3/6 migration gate"
 
 echo "[doctor] 4/6 content preflight (${COURSE_SLUG})"
 if [[ "${STRICT_CONTENT}" == "1" ]]; then
-  "${CONTENT_PREFLIGHT}" "${COURSE_SLUG}" --strict-global
+  bash "${CONTENT_PREFLIGHT}" "${COURSE_SLUG}" --strict-global
 else
-  "${CONTENT_PREFLIGHT}" "${COURSE_SLUG}"
+  bash "${CONTENT_PREFLIGHT}" "${COURSE_SLUG}"
 fi
 
 echo "[doctor] 5/6 compose health"
