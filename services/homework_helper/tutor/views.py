@@ -150,8 +150,10 @@ def _student_session_exists(student_id: int, class_id: int) -> bool:
             )
             return cursor.fetchone() is not None
     except (OperationalError, ProgrammingError):
-        # If the Class Hub table is not reachable in this helper deployment,
-        # rely on session presence as the MVP boundary.
+        # MVP default is fail-open for local/demo setups; production can force
+        # fail-closed by enabling HELPER_REQUIRE_CLASSHUB_TABLE.
+        if bool(getattr(settings, "HELPER_REQUIRE_CLASSHUB_TABLE", False)):
+            return False
         return True
 
 

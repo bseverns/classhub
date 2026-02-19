@@ -67,6 +67,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "config.middleware.SecurityHeadersMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -145,3 +146,5 @@ if not DEBUG:
 REQUEST_SAFETY_TRUST_PROXY_HEADERS = env.bool("REQUEST_SAFETY_TRUST_PROXY_HEADERS", default=True)
 REQUEST_SAFETY_XFF_INDEX = env.int("REQUEST_SAFETY_XFF_INDEX", default=0)
 ADMIN_2FA_REQUIRED = env.bool("DJANGO_ADMIN_2FA_REQUIRED", default=True)
+HELPER_REQUIRE_CLASSHUB_TABLE = env.bool("HELPER_REQUIRE_CLASSHUB_TABLE", default=False)
+CSP_REPORT_ONLY_POLICY = env("DJANGO_CSP_REPORT_ONLY_POLICY", default="").strip()

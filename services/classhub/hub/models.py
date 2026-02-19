@@ -10,6 +10,7 @@ Note: for Day-1, we keep the model tiny. As the platform grows, add:
 
 import re
 import secrets
+from pathlib import Path
 from django.conf import settings
 from django.db import models
 
@@ -111,10 +112,15 @@ def _submission_upload_to(instance: "Submission", filename: str) -> str:
 
     We keep paths boring and segregated by class + material.
     """
+    ext = Path(str(filename or "")).suffix.lower()
+    if not re.fullmatch(r"\.[a-z0-9]{1,16}", ext or ""):
+        ext = ""
+    stored_name = f"{secrets.token_hex(16)}{ext}"
+
     classroom_id = instance.material.module.classroom_id
     material_id = instance.material_id
     student_id = instance.student_id
-    return f"submissions/class_{classroom_id}/material_{material_id}/student_{student_id}/{filename}"
+    return f"submissions/class_{classroom_id}/material_{material_id}/student_{student_id}/{stored_name}"
 
 
 class Submission(models.Model):

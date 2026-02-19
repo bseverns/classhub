@@ -163,6 +163,11 @@ class HelperChatAuthTests(TestCase):
     def test_student_session_exists_fails_open_when_classhub_table_unavailable(self):
         with patch("tutor.views.connection.cursor", side_effect=ProgrammingError("missing table")):
             self.assertTrue(views._student_session_exists(student_id=1, class_id=2))
+
+    @override_settings(HELPER_REQUIRE_CLASSHUB_TABLE=True)
+    def test_student_session_exists_fails_closed_when_classhub_table_required(self):
+        with patch("tutor.views.connection.cursor", side_effect=ProgrammingError("missing table")):
+            self.assertFalse(views._student_session_exists(student_id=1, class_id=2))
     @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
     @patch.dict(
         "os.environ",
@@ -312,3 +317,11 @@ class HelperAdminAccessTests(TestCase):
 
         resp = self.client.get("/admin/")
         self.assertEqual(resp.status_code, 200)
+
+
+class HelperSecurityHeaderTests(TestCase):
+    @override_settings(CSP_REPORT_ONLY_POLICY="default-src 'self'")
+    def test_healthz_sets_csp_report_only_header_when_configured(self):
+        resp = self.client.get("/helper/healthz")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Security-Policy-Report-Only"], "default-src 'self'")

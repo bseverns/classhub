@@ -1,4 +1,5 @@
 import json
+import re
 import tempfile
 from io import StringIO
 from datetime import timedelta
@@ -812,3 +813,18 @@ class StudentEventSubmissionTests(TestCase):
         self.assertEqual(event.classroom_id, self.classroom.id)
         self.assertEqual(event.student_id, self.student.id)
         self.assertEqual(int(event.details.get("material_id") or 0), self.material.id)
+
+        submission = Submission.objects.filter(material=self.material, student=self.student).order_by("-id").first()
+        self.assertIsNotNone(submission)
+        self.assertEqual(submission.original_filename, "project.sb3")
+        stored_name = Path(submission.file.name).name
+        self.assertNotEqual(stored_name, "project.sb3")
+        self.assertTrue(re.match(r"^[a-f0-9]{32}\.sb3$", stored_name))
+
+
+class ClassHubSecurityHeaderTests(TestCase):
+    @override_settings(CSP_REPORT_ONLY_POLICY="default-src 'self'")
+    def test_healthz_sets_csp_report_only_header_when_configured(self):
+        resp = self.client.get("/healthz")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Security-Policy-Report-Only"], "default-src 'self'")

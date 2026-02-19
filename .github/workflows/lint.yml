@@ -17,3 +17,5 @@ jobs:
         run: pip install ruff==0.8.6
       - name: Ruff syntax/undefined checks
         run: ruff check --select E9,F63,F7,F82 services scripts
+      - name: Guard internal service port exposure
+        run: python scripts/check_compose_port_exposure.py

@@ -15,6 +15,7 @@
 - Rate limit join + helper endpoints.
 - Helper chat requires either a student classroom session or staff-authenticated teacher session.
 - Same-device student rejoin uses a signed, HTTP-only cookie hint; cross-device recovery still uses return code.
+- Helper student session validation defaults to fail-open if classhub tables are unavailable; set `HELPER_REQUIRE_CLASSHUB_TABLE=1` in production to fail closed.
 - Local LLM inference keeps student queries on your infrastructure, but logs and
   prompt storage still require care.
 - Postgres/Redis remain internal to Docker networking; Ollama/MinIO host ports are localhost-bound.
@@ -51,7 +52,9 @@
   - Use `python manage.py prune_submissions --older-than-days <N>` to enforce retention.
 - Event log retention is also operator-defined:
   - `python manage.py prune_student_events --older-than-days <N>`
+- Submission files are stored with server-generated randomized filenames; the original client filename remains metadata only (`original_filename`).
 
 ## Future
 - Google SSO for teachers
 - Separate DBs per service if needed
+- Roll CSP out in report-only mode first via `DJANGO_CSP_REPORT_ONLY_POLICY`

@@ -183,10 +183,12 @@ Historical implementation logs and superseded decisions are archived by month in
 - Internal services remain private by default (Postgres/Redis internal network only; Ollama/MinIO host bindings are localhost-only).
 - Caddy explicitly sets forwarded IP/proto headers before proxying to Django.
 - Caddy enforces request-body limits per upstream (`CADDY_CLASSHUB_MAX_BODY`, `CADDY_HELPER_MAX_BODY`).
+- Both Django services can emit CSP in report-only mode via `DJANGO_CSP_REPORT_ONLY_POLICY`.
 - Both Django services reject weak/default secret keys when `DJANGO_DEBUG=0`.
 - Deploy flow includes automated `.env` validation via `scripts/validate_env_secrets.sh`.
 - Security headers and HTTPS controls are enabled in production through explicit env knobs (`DJANGO_SECURE_*`).
 - UI templates use local/system font stacks only (no Google Fonts network calls).
+- CI now guards against non-localhost published ports for internal services (`scripts/check_compose_port_exposure.py`).
 
 **Why this remains active:**
 - Reduces accidental public exposure of internal services.
@@ -194,6 +196,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - Drops oversized requests at the edge before they reach Django workers.
 - Prevents unsafe production boots with placeholder secrets.
 - Removes third-party font calls from student/teacher/admin page loads.
+- Makes CSP rollout incremental without breaking inline-heavy templates.
+- Prevents accidental internal service exposure regressions during future compose edits.
 
 ## Content parse caching
 
