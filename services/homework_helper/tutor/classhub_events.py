@@ -8,11 +8,26 @@ from __future__ import annotations
 
 import json
 import logging
+from functools import lru_cache
 
 from django.db import connection, transaction
 from django.db.utils import DatabaseError
 
 logger = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=8)
+def _table_exists(table_name: str) -> bool:
+    try:
+        with connection.cursor() as cursor:
+            return table_name in set(connection.introspection.table_names(cursor))
+    except DatabaseError:
+        if connection.in_atomic_block:
+            try:
+                transaction.set_rollback(False)
+            except Exception:
+                pass
+        return False
 
 
 def emit_helper_chat_access_event(
@@ -24,6 +39,8 @@ def emit_helper_chat_access_event(
 ) -> None:
     """Best-effort append into classhub student events table."""
     if not classroom_id and not student_id:
+        return
+    if not _table_exists("hub_studentevent"):
         return
     try:
         with connection.cursor() as cursor:

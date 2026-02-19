@@ -140,8 +140,27 @@ def _reset_backend_failure_state(backend: str) -> None:
     cache.delete(_backend_circuit_key(backend))
 
 
+@lru_cache(maxsize=32)
+def _table_exists(table_name: str) -> bool:
+    """Best-effort table existence check without raising for missing tables."""
+    try:
+        with connection.cursor() as cursor:
+            return table_name in set(connection.introspection.table_names(cursor))
+    except DatabaseError:
+        if connection.in_atomic_block:
+            try:
+                transaction.set_rollback(False)
+            except Exception:
+                pass
+        return False
+
+
 def _student_session_exists(student_id: int, class_id: int) -> bool:
     """Validate student session against shared Class Hub table when available."""
+    if not _table_exists("hub_studentidentity"):
+        if bool(getattr(settings, "HELPER_REQUIRE_CLASSHUB_TABLE", False)):
+            return False
+        return True
     try:
         with connection.cursor() as cursor:
             cursor.execute(
