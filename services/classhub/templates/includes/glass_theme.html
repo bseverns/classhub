@@ -391,6 +391,75 @@
     border-radius: 50%;
     filter: saturate(110%);
   }
+
+  body.glass-theme.teacher-comfort {
+    line-height: 1.6;
+    background:
+      linear-gradient(150deg, #e4edf6 0%, #ecf4ef 50%, #f1f5fb 100%);
+  }
+
+  body.glass-theme.teacher-comfort::before,
+  body.glass-theme.teacher-comfort::after {
+    display: none;
+  }
+
+  body.glass-theme.teacher-comfort .card {
+    padding: 22px;
+    margin-top: 22px;
+    background: rgba(255, 255, 255, 0.68);
+    box-shadow: 0 14px 30px rgba(14, 42, 62, 0.13);
+  }
+
+  body.glass-theme.teacher-comfort .card:hover {
+    transform: none;
+    box-shadow: 0 14px 30px rgba(14, 42, 62, 0.13);
+  }
+
+  body.glass-theme.teacher-comfort .top,
+  body.glass-theme.teacher-comfort .row {
+    gap: 16px;
+  }
+
+  body.glass-theme.teacher-comfort .muted {
+    line-height: 1.58;
+  }
+
+  body.glass-theme.teacher-comfort .navline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    max-width: 980px;
+  }
+
+  body.glass-theme.teacher-comfort label {
+    margin-top: 12px;
+    margin-bottom: 8px;
+    text-transform: none;
+    letter-spacing: 0.01em;
+  }
+
+  body.glass-theme.teacher-comfort input,
+  body.glass-theme.teacher-comfort textarea,
+  body.glass-theme.teacher-comfort select {
+    padding: 12px 14px;
+  }
+
+  body.glass-theme.teacher-comfort button,
+  body.glass-theme.teacher-comfort .btn,
+  body.glass-theme.teacher-comfort .quick {
+    min-height: 40px;
+  }
+
+  body.glass-theme.teacher-comfort th,
+  body.glass-theme.teacher-comfort td {
+    padding: 13px 12px;
+    line-height: 1.52;
+  }
+
+  body.glass-theme.teacher-comfort .glass-bg-orbs {
+    display: none;
+  }
 </style>
 <script>
 (() => {
@@ -410,6 +479,11 @@
   const buildOrbs = () => {
     const body = document.body;
     if (!body || !body.classList.contains("glass-theme")) return;
+    if (body.classList.contains("teacher-comfort")) {
+      const existing = document.getElementById("glass-bg-orbs");
+      if (existing) existing.remove();
+      return;
+    }
 
     const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1200;
     const count = clamp(Math.round(viewportWidth / 220), 3, 8);

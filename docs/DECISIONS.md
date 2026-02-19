@@ -13,6 +13,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
 - [Deployment guardrails](#deployment-guardrails)
 - [Teacher authoring templates](#teacher-authoring-templates)
+- [Teacher UI comfort mode](#teacher-ui-comfort-mode)
 
 ## Archive Index
 
@@ -125,3 +126,14 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Teachers can author in familiar formats (Markdown or Word) while preserving deterministic ingestion.
 - Reduces onboarding friction and avoids repeated format mistakes in session-plan documents.
+
+## Teacher UI comfort mode
+
+**Current decision:**
+- Teacher pages opt into a dedicated readability mode via `body.teacher-comfort`.
+- Comfort mode increases card/table/form spacing, reduces motion emphasis, and removes decorative orb overlays.
+- Student-facing pages keep existing visual behavior.
+
+**Why this remains active:**
+- Reduces visual fatigue during long grading/planning sessions.
+- Improves scanability of dense teacher workflows without a full redesign.

@@ -10,7 +10,7 @@
       .filter-form { justify-content: flex-start; }
       .filter-form label { margin: 0; align-self: center; }
       .filter-form select { width: auto; min-width: 200px; }
-      .quick { margin-top: 10px; }
+      .quick { margin-top: 12px; margin-right: 8px; margin-bottom: 6px; }
       .tracker-table-wrap {
         margin-top: 12px;
         border: 1px solid rgba(22, 59, 80, 0.16);
@@ -51,18 +51,23 @@
         min-width: 300px;
       }
       .dropbox {
-        margin: 0 0 12px 0;
-        padding: 10px;
+        margin: 0 0 16px 0;
+        padding: 12px;
         border-radius: 12px;
         background: rgba(255, 255, 255, 0.4);
         border: 1px solid rgba(22, 59, 80, 0.12);
       }
       .dropbox:last-child { margin-bottom: 0; }
-      .actions { margin-top: 6px; }
-      .actions a { margin-right: 10px; font-size: 13px; }
-      .teacher-note {
+      .actions {
         margin-top: 10px;
-        padding: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+      }
+      .actions a { margin-right: 0; font-size: 13px; }
+      .teacher-note {
+        margin-top: 14px;
+        padding: 12px;
         border-radius: 12px;
         border: 1px solid rgba(22, 59, 80, 0.14);
         background: rgba(255, 255, 255, 0.42);
@@ -76,8 +81,8 @@
         margin-top: 8px;
       }
       .release-box {
-        margin-top: 10px;
-        padding: 10px;
+        margin-top: 14px;
+        padding: 12px;
         border-radius: 12px;
         border: 1px solid rgba(22, 59, 80, 0.14);
         background: rgba(255, 255, 255, 0.42);
@@ -88,9 +93,10 @@
       }
       .release-actions {
         display: flex;
-        gap: 8px;
+        gap: 10px;
         flex-wrap: wrap;
         align-items: center;
+        margin-top: 6px;
       }
       .release-actions form {
         margin: 0;
@@ -115,13 +121,13 @@
       }
     </style>
   </head>
-  <body class="glass-theme">
+  <body class="glass-theme teacher-comfort">
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="shell">
       <main id="main-content">
         <div class="top heading">
           <div>
-            <div class="muted">
+            <div class="muted navline">
               <a href="/teach">Teacher</a> · <a href="/teach/assets">Lesson assets</a>{% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %} · <a href="/teach/logout">Log out</a>
             </div>
             <h1>Lesson Tracker</h1>

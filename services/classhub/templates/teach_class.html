@@ -10,17 +10,17 @@
       .top h1 { margin: 6px 0 0 0; font-size: clamp(1.85rem, 2.6vw, 2.35rem); }
       .btnline form { display: inline-block; margin: 0 6px 0 0; }
       .btnline button { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
-      .quick { margin-top: 8px; }
+      .quick { margin-top: 12px; margin-right: 8px; margin-bottom: 6px; }
       .module {
         border: 1px solid rgba(22, 59, 80, 0.14);
         border-radius: 14px;
-        padding: 14px;
-        margin-top: 12px;
+        padding: 16px;
+        margin-top: 16px;
         background: rgba(255, 255, 255, 0.42);
       }
       .mat {
-        margin-top: 8px;
-        padding: 10px;
+        margin-top: 12px;
+        padding: 12px;
         border-radius: 12px;
         border: 1px solid rgba(22, 59, 80, 0.12);
         background: rgba(255, 255, 255, 0.5);
@@ -66,8 +66,8 @@
         min-width: 300px;
       }
       .dropbox {
-        margin: 0 0 12px 0;
-        padding: 10px;
+        margin: 0 0 16px 0;
+        padding: 12px;
         border-radius: 12px;
         background: rgba(255, 255, 255, 0.4);
         border: 1px solid rgba(22, 59, 80, 0.12);
@@ -76,8 +76,8 @@
         margin-bottom: 0;
       }
       .teacher-note {
-        margin-top: 10px;
-        padding: 10px;
+        margin-top: 14px;
+        padding: 12px;
         border-radius: 12px;
         border: 1px solid rgba(22, 59, 80, 0.14);
         background: rgba(255, 255, 255, 0.42);
@@ -91,8 +91,8 @@
         margin-top: 8px;
       }
       .release-box {
-        margin-top: 10px;
-        padding: 10px;
+        margin-top: 14px;
+        padding: 12px;
         border-radius: 12px;
         border: 1px solid rgba(22, 59, 80, 0.14);
         background: rgba(255, 255, 255, 0.42);
@@ -103,9 +103,10 @@
       }
       .release-actions {
         display: flex;
-        gap: 8px;
+        gap: 10px;
         flex-wrap: wrap;
         align-items: center;
+        margin-top: 6px;
       }
       .release-actions form {
         margin: 0;
@@ -130,14 +131,14 @@
       }
     </style>
   </head>
-  <body class="glass-theme">
+  <body class="glass-theme teacher-comfort">
     {% load hub_extras %}
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="shell">
       <main id="main-content">
         <div class="top">
           <div>
-            <div class="muted">
+            <div class="muted navline">
               <a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a> · <a href="/teach/assets">Lesson assets</a>
               {% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %} · <a href="/teach/logout">Log out</a>
             </div>
