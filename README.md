@@ -57,9 +57,14 @@ docker compose exec classhub_web python manage.py createsuperuser
 
 ## Docs entrypoint
 
-Start with `docs/START_HERE.md` for role-specific paths:
+Start with `docs/README.md` for the documentation contract and map.
+Then use `docs/START_HERE.md` for role-specific paths:
 - Operator
 - Teacher/staff
 - Developer
+
+For guided hands-on learning tracks, use `docs/LEARNING_PATHS.md`.
+For incident triage by symptom, use `docs/TROUBLESHOOTING.md`.
+For documentation pedagogy and maintainership standards, use `docs/TEACHING_PLAYBOOK.md`.
 
 Before opening a PR, run through `docs/MERGE_READINESS.md`.

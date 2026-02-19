@@ -4,6 +4,14 @@ This repo is optimized for **fast local iteration** with Docker Compose.
 By default, Docker Compose will load `compose/docker-compose.override.yml`
 if it exists, which enables hot reload for Django code and templates.
 
+Docs are first-class in this repo. If you change behavior, update docs in the
+same branch. Start with:
+
+- `docs/README.md` (documentation contract)
+- `docs/START_HERE.md` (navigation map)
+- `docs/TEACHING_PLAYBOOK.md` (teaching-quality writing standards)
+- `docs/MERGE_READINESS.md` (merge gate expectations)
+
 ## Hot reload (local dev)
 
 The override file:

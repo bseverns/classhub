@@ -2,6 +2,7 @@
 
 This page is operational depth for operators.
 For first-time orientation and canonical URL map, start at `docs/START_HERE.md`.
+For symptom-first triage, use `docs/TROUBLESHOOTING.md`.
 
 ## Start / stop
 

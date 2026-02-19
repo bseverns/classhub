@@ -8,6 +8,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Auth model: student access](#auth-model-student-access)
 - [Service boundary: Homework Helper separate service](#service-boundary-homework-helper-separate-service)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
+- [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
 - [Secret handling: env-only secret sources](#secret-handling-env-only-secret-sources)
 - [Request safety and helper access posture](#request-safety-and-helper-access-posture)
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
@@ -82,33 +83,34 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keeps local setup simple while preserving production-safe HTTPS behavior.
 - Reduces configuration drift during deployment.
 
+## Documentation as first-class product surface
+
+**Current decision:**
+- Documentation is treated as a core deliverable, not a trailing artifact.
+- Role-based entrypoint remains `docs/START_HERE.md`.
+- Documentation contract and standards are centralized in `docs/README.md`.
+- Guided, hands-on learning tracks are maintained in `docs/LEARNING_PATHS.md`.
+- Symptom-first operational triage is maintained in `docs/TROUBLESHOOTING.md`.
+- Documentation pedagogy and maintainer writing standards are maintained in `docs/TEACHING_PLAYBOOK.md`.
+
+**Why this remains active:**
+- This repository is both an operational system and a teaching object.
+- Maintainers need repeatable onboarding and incident handling, not tribal knowledge.
+- Shipping docs in lockstep with code reduces deployment and handoff risk.
+
 ## Secret handling: env-only secret sources
 
 **Current decision:**
 - Secrets are injected via environment (`compose/.env` or deployment environment), never committed to git.
-- `.env.example` stays non-sensitive and documents required knobs.
-
-**Why this remains active:**
-- Supports basic secret hygiene for self-hosted operations.
-- Keeps rotation/update workflow operationally simple.
-
-## Request safety and helper access posture
-
-**Current decision:**
-- Shared request-safety helpers are canonical for client IP parsing and burst/token limiting.
-- Helper chat requires either valid student classroom session context or authenticated staff context.
-## Secret handling: required env secrets
-
-**Current decision:**
 - `DJANGO_SECRET_KEY` is required in both services.
-- Secrets come from environment (`compose/.env` or deployment environment), never from committed defaults.
-- `.env.example` remains non-sensitive and documents required knobs.
+- `.env.example` stays non-sensitive and documents required knobs.
 
 **Why this remains active:**
 - Prevents insecure fallback secret boot behavior.
 - Supports basic secret hygiene for self-hosted operations.
+- Keeps rotation/update workflow operationally simple.
 
-## Helper access and rate limiting posture
+## Request safety and helper access posture
 
 **Current decision:**
 - Helper chat requires either authenticated staff context or valid student classroom session context.

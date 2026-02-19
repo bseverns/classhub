@@ -2,6 +2,7 @@
 
 This guide is for non-programmer staff who need to run, demo, or support the LMS.
 For the canonical role-based doc map and URL list, start at `docs/START_HERE.md`.
+For guided onboarding labs, use `docs/LEARNING_PATHS.md`.
 
 ## What this system is
 
