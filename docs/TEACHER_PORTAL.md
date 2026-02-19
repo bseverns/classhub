@@ -39,6 +39,13 @@ docker compose exec classhub_web python manage.py create_teacher \
   --password CHANGE_ME
 ```
 
+Or create teacher accounts from the teacher portal (`/teach`) as a superuser:
+
+- Fill in username, name, email, and a starting password.
+- Submit `Create teacher + send invite`.
+- The invite email includes a one-click `/teach/2fa/setup?token=...` link where the teacher scans a QR and confirms a 6-digit OTP code.
+- Optional checkbox: include temporary password in email (off by default).
+
 Reset a teacher password:
 
 ```bash
@@ -146,6 +153,7 @@ Operational checklist: `docs/TEACHER_HANDOFF_CHECKLIST.md`.
 - `/teach`:
   - class list
   - one-click `Copy` for class join codes
+  - superuser-only teacher onboarding card (create account + send 2FA invite email)
   - create class
   - generate authoring templates (`.md` + `.docx`) by setting:
     - `course slug`
@@ -184,6 +192,10 @@ Operational checklist: `docs/TEACHER_HANDOFF_CHECKLIST.md`.
 - `/teach/material/<id>/submissions`:
   - submitted vs missing filters
   - bulk download latest submissions as ZIP
+- `/teach/2fa/setup`:
+  - teacher self-service TOTP enrollment
+  - supports signed invite links from onboarding emails
+  - shows QR + manual secret and verifies one-time code
 
 ## Common workflow
 
@@ -230,6 +242,11 @@ Use `/teach/assets` when a lesson needs reference files (for example GPIO maps o
 5. Use `Hide` to remove student access without deleting the file.
 
 ## Troubleshooting
+
+- Invite emails not sending from `/teach`:
+  - set SMTP env values (`DJANGO_EMAIL_BACKEND`, `DJANGO_EMAIL_HOST`, `DJANGO_EMAIL_HOST_USER`, `DJANGO_EMAIL_HOST_PASSWORD`, etc.)
+  - restart `classhub_web` after env changes
+  - for local verification only, keep `DJANGO_EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend` and inspect container logs
 
 - Redirect to `/admin/login/` when opening `/teach`:
   - account is not authenticated, or

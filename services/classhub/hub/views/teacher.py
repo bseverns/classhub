@@ -1,20 +1,31 @@
 """Teacher portal endpoint callables under /teach/*."""
 
+import base64
 import re
 import tempfile
 import zipfile
+from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlencode, urlparse
 
+import qrcode
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import get_user_model
+from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.core import signing
+from django.core.mail import send_mail
+from django.core.validators import validate_email
 from django.db import IntegrityError, models
 from django.db.utils import OperationalError, ProgrammingError
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import redirect, render
+from django.utils.safestring import mark_safe
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from qrcode.image.svg import SvgPathImage
 
 from ..models import (
     Class,
@@ -47,6 +58,131 @@ _AUTHORING_TEMPLATE_SUFFIXES = {
     "public_overview_md": "public-overview-template.md",
     "public_overview_docx": "public-overview-template.docx",
 }
+_TEACHER_2FA_TOKEN_SALT = "classhub.teacher-2fa-setup"
+
+
+def _teacher_2fa_device_name() -> str:
+    configured = (getattr(settings, "TEACHER_2FA_DEVICE_NAME", "teacher-primary") or "").strip()
+    return configured or "teacher-primary"
+
+
+def _teacher_invite_max_age_seconds() -> int:
+    raw = int(getattr(settings, "TEACHER_2FA_INVITE_MAX_AGE_SECONDS", 72 * 3600) or 0)
+    return raw if raw > 0 else 72 * 3600
+
+
+def _build_teacher_setup_token(user) -> str:
+    payload = {
+        "uid": int(user.id),
+        "email": (user.email or "").strip().lower(),
+        "username": (user.get_username() or "").strip(),
+    }
+    return signing.dumps(payload, salt=_TEACHER_2FA_TOKEN_SALT)
+
+
+def _resolve_teacher_setup_user(token: str):
+    if not token:
+        return None, "Missing setup token."
+    try:
+        payload = signing.loads(
+            token,
+            salt=_TEACHER_2FA_TOKEN_SALT,
+            max_age=_teacher_invite_max_age_seconds(),
+        )
+    except signing.SignatureExpired:
+        return None, "This setup link expired. Ask an admin to send a new invite."
+    except signing.BadSignature:
+        return None, "Invalid setup link."
+
+    try:
+        user_id = int(payload.get("uid") or 0)
+    except Exception:
+        user_id = 0
+    email = (payload.get("email") or "").strip().lower()
+    username = (payload.get("username") or "").strip()
+    if not user_id or not email or not username:
+        return None, "Invalid setup link payload."
+
+    User = get_user_model()
+    user = User.objects.filter(
+        id=user_id,
+        username=username,
+        email__iexact=email,
+        is_staff=True,
+        is_active=True,
+    ).first()
+    if not user:
+        return None, "Invite is no longer valid for an active teacher account."
+    return user, ""
+
+
+def _totp_secret_base32(device: TOTPDevice) -> str:
+    return base64.b32encode(device.bin_key).decode("ascii").rstrip("=")
+
+
+def _format_base32_for_display(secret: str) -> str:
+    groups = [secret[idx : idx + 4] for idx in range(0, len(secret), 4)]
+    return " ".join(groups)
+
+
+def _totp_qr_svg(config_url: str) -> str:
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=8,
+        border=2,
+    )
+    qr.add_data(config_url)
+    qr.make(fit=True)
+    img = qr.make_image(image_factory=SvgPathImage)
+    stream = BytesIO()
+    img.save(stream)
+    return stream.getvalue().decode("utf-8")
+
+
+def _send_teacher_onboarding_email(request, *, user, setup_url: str, starting_password: str = ""):
+    app_host = request.get_host()
+    login_url = request.build_absolute_uri("/admin/login/")
+    from_email = (getattr(settings, "TEACHER_INVITE_FROM_EMAIL", "") or "").strip() or getattr(
+        settings, "DEFAULT_FROM_EMAIL", "classhub@localhost"
+    )
+    include_password = bool(starting_password)
+    lines = [
+        f"Hi {user.first_name or user.username},",
+        "",
+        "Your Class Hub teacher account is ready.",
+        "",
+        f"Username: {user.username}",
+    ]
+    if include_password:
+        lines.extend(
+            [
+                f"Temporary password: {starting_password}",
+                "",
+                "Change your password after first sign-in.",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "Finalize two-factor setup here:",
+            setup_url,
+            "",
+            "What to do:",
+            "1) Open the setup link.",
+            "2) Scan the QR code in your authenticator app.",
+            "3) Enter the 6-digit code to confirm.",
+            "",
+            f"Admin login: {login_url}",
+            f"Host: {app_host}",
+        ]
+    )
+    send_mail(
+        subject="Complete your Class Hub teacher 2FA setup",
+        message="\n".join(lines),
+        from_email=from_email,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
 
 
 def teacher_logout(request):
@@ -793,8 +929,18 @@ def teach_home(request):
     template_title = (request.GET.get("template_title") or "").strip()
     template_sessions = (request.GET.get("template_sessions") or "").strip()
     template_duration = (request.GET.get("template_duration") or "").strip()
+    teacher_username = (request.GET.get("teacher_username") or "").strip()
+    teacher_email = (request.GET.get("teacher_email") or "").strip()
+    teacher_first_name = (request.GET.get("teacher_first_name") or "").strip()
+    teacher_last_name = (request.GET.get("teacher_last_name") or "").strip()
 
     classes = Class.objects.all().order_by("name", "id")
+    User = get_user_model()
+    teacher_accounts = (
+        User.objects.filter(is_staff=True)
+        .order_by("username", "id")
+        .only("id", "username", "first_name", "last_name", "email", "is_active", "is_superuser")
+    )
     recent_submissions = list(
         Submission.objects.select_related("student", "material__module__classroom")
         .all()[:20]
@@ -828,6 +974,11 @@ def teach_home(request):
             "template_duration": template_duration or "75",
             "template_output_dir": str(output_dir),
             "template_download_rows": template_download_rows,
+            "teacher_accounts": teacher_accounts,
+            "teacher_username": teacher_username,
+            "teacher_email": teacher_email,
+            "teacher_first_name": teacher_first_name,
+            "teacher_last_name": teacher_last_name,
         },
     )
 
@@ -1126,6 +1277,183 @@ def teach_create_class(request):
         metadata={"join_code": classroom.join_code},
     )
     return redirect("/teach")
+
+
+@staff_member_required
+@require_POST
+def teach_create_teacher(request):
+    if not request.user.is_superuser:
+        return redirect(_with_notice("/teach", error="Only superusers can create teacher accounts."))
+
+    username = (request.POST.get("username") or "").strip()
+    email = (request.POST.get("email") or "").strip()
+    password = (request.POST.get("password") or "").strip()
+    first_name = (request.POST.get("first_name") or "").strip()[:150]
+    last_name = (request.POST.get("last_name") or "").strip()[:150]
+    include_password_in_email = (request.POST.get("email_include_password") or "").strip() == "1"
+
+    form_values = {
+        "teacher_username": username,
+        "teacher_email": email,
+        "teacher_first_name": first_name,
+        "teacher_last_name": last_name,
+    }
+
+    if not username:
+        return redirect(_with_notice("/teach", error="Teacher username is required.", extra=form_values))
+    if not email:
+        return redirect(_with_notice("/teach", error="Teacher email is required.", extra=form_values))
+    if not password:
+        return redirect(_with_notice("/teach", error="Starting password is required.", extra=form_values))
+    try:
+        validate_email(email)
+    except Exception:
+        return redirect(_with_notice("/teach", error="Enter a valid teacher email address.", extra=form_values))
+
+    User = get_user_model()
+    if User.objects.filter(username=username).exists():
+        return redirect(_with_notice("/teach", error="That username already exists.", extra=form_values))
+
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        password=password,
+        first_name=first_name,
+        last_name=last_name,
+    )
+    user.is_staff = True
+    user.is_superuser = False
+    user.is_active = True
+    user.save(update_fields=["is_staff", "is_superuser", "is_active"])
+
+    token = _build_teacher_setup_token(user)
+    setup_url = request.build_absolute_uri(f"/teach/2fa/setup?{urlencode({'token': token})}")
+    email_error = ""
+    try:
+        _send_teacher_onboarding_email(
+            request,
+            user=user,
+            setup_url=setup_url,
+            starting_password=password if include_password_in_email else "",
+        )
+    except Exception as exc:
+        email_error = str(exc)
+
+    _audit(
+        request,
+        action="teacher_account.create",
+        target_type="User",
+        target_id=str(user.id),
+        summary=f"Created teacher account {user.username}",
+        metadata={
+            "username": user.username,
+            "email": user.email,
+            "email_sent": not bool(email_error),
+            "invite_includes_password": include_password_in_email,
+            "setup_url_host": urlparse(setup_url).netloc,
+        },
+    )
+
+    if email_error:
+        notice = f"Teacher account '{user.username}' created."
+        error = f"Invite email failed: {email_error}"
+        return redirect(_with_notice("/teach", notice=notice, error=error))
+
+    notice = f"Teacher account '{user.username}' created and invite email sent."
+    return redirect(_with_notice("/teach", notice=notice))
+
+
+def _resolve_teacher_setup_context(request):
+    token = (request.GET.get("token") or request.POST.get("token") or "").strip()
+    if token:
+        user, err = _resolve_teacher_setup_user(token)
+        if err:
+            return None, token, err
+        if not request.user.is_authenticated or request.user.pk != user.pk:
+            user.backend = "django.contrib.auth.backends.ModelBackend"
+            auth_login(request, user)
+        return user, token, ""
+
+    current = getattr(request, "user", None)
+    if current and current.is_authenticated and current.is_staff and current.is_active:
+        return current, "", ""
+
+    return None, "", "Sign in first, or open a valid setup link from your invite email."
+
+
+def teach_teacher_2fa_setup(request):
+    user, token, setup_error = _resolve_teacher_setup_context(request)
+    if user is None:
+        login_url = "/admin/login/?next=/teach/2fa/setup"
+        if token:
+            return render(
+                request,
+                "teach_setup_otp.html",
+                {
+                    "error": setup_error,
+                    "token": token,
+                    "otp_ready": False,
+                    "already_configured": False,
+                    "setup_user": None,
+                },
+                status=400,
+            )
+        return redirect(login_url)
+
+    device_name = _teacher_2fa_device_name()
+    device = TOTPDevice.objects.filter(user=user, name=device_name).first()
+    if device is None:
+        device = TOTPDevice.objects.create(user=user, name=device_name, confirmed=False)
+
+    notice = ""
+    error = setup_error
+    if request.method == "POST":
+        otp_token = re.sub(r"\s+", "", (request.POST.get("otp_token") or "").strip())
+        if device.confirmed:
+            notice = "2FA is already configured for this account."
+        elif not otp_token.isdigit() or len(otp_token) != int(device.digits or 6):
+            error = f"Enter the {int(device.digits or 6)}-digit code from your authenticator app."
+        elif not device.verify_token(otp_token):
+            error = "Invalid code. Check your authenticator app and try again."
+        else:
+            device.confirmed = True
+            device.save(update_fields=["confirmed"])
+            _audit(
+                request,
+                action="teacher_2fa.enroll",
+                target_type="User",
+                target_id=str(user.id),
+                summary=f"Completed teacher 2FA enrollment for {user.username}",
+                metadata={"device_name": device.name},
+            )
+            return redirect(_with_notice("/teach", notice="2FA setup complete."))
+
+    already_configured = bool(device.confirmed)
+    qr_svg = ""
+    manual_secret = ""
+    config_url = ""
+    if not already_configured:
+        config_url = getattr(device, "config_url", "")
+        if config_url:
+            qr_svg = _totp_qr_svg(config_url)
+        manual_secret = _format_base32_for_display(_totp_secret_base32(device))
+
+    return render(
+        request,
+        "teach_setup_otp.html",
+        {
+            "setup_user": user,
+            "token": token,
+            "notice": notice,
+            "error": error,
+            "otp_ready": bool(config_url),
+            "already_configured": already_configured,
+            "config_url": config_url,
+            "manual_secret": manual_secret,
+            "qr_svg": mark_safe(qr_svg) if qr_svg else "",
+            "digits": int(device.digits or 6),
+        },
+    )
 
 
 @staff_member_required
@@ -1603,8 +1931,10 @@ def teach_material_submissions(request, material_id: int):
 __all__ = [
     "teacher_logout",
     "teach_home",
+    "teach_teacher_2fa_setup",
     "teach_generate_authoring_templates",
     "teach_download_authoring_template",
+    "teach_create_teacher",
     "teach_lessons",
     "teach_set_lesson_release",
     "teach_create_class",

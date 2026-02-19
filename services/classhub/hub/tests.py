@@ -6,10 +6,12 @@ from pathlib import Path
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.core import mail, signing
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import Client, TestCase, override_settings
+from django_otp.oath import totp
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django.utils import timezone
 
@@ -243,6 +245,118 @@ class TeacherPortalTests(TestCase):
         student_resp = student_client.get("/student")
         self.assertEqual(student_resp.status_code, 302)
         self.assertEqual(student_resp["Location"], "/")
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_superuser_can_create_teacher_and_send_invite(self):
+        self.client.force_login(self.staff)
+        resp = self.client.post(
+            "/teach/create-teacher",
+            {
+                "username": "teacher2",
+                "email": "teacher2@example.org",
+                "first_name": "Terry",
+                "last_name": "Teacher",
+                "password": "StartPw123!",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+
+        user = get_user_model().objects.get(username="teacher2")
+        self.assertTrue(user.is_staff)
+        self.assertFalse(user.is_superuser)
+        self.assertEqual(user.email, "teacher2@example.org")
+        self.assertEqual(len(mail.outbox), 1)
+        msg = mail.outbox[0]
+        self.assertEqual(msg.to, ["teacher2@example.org"])
+        self.assertIn("/teach/2fa/setup?token=", msg.body)
+        self.assertNotIn("Temporary password:", msg.body)
+
+        event = AuditEvent.objects.filter(action="teacher_account.create", target_id=str(user.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_non_superuser_staff_cannot_create_teacher_account(self):
+        non_super_staff = get_user_model().objects.create_user(
+            username="assistant",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        self.client.force_login(non_super_staff)
+
+        resp = self.client.post(
+            "/teach/create-teacher",
+            {
+                "username": "blocked",
+                "email": "blocked@example.org",
+                "password": "StartPw123!",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?error=", resp["Location"])
+        self.assertFalse(get_user_model().objects.filter(username="blocked").exists())
+
+
+class Teacher2FASetupTests(TestCase):
+    def setUp(self):
+        self.teacher = get_user_model().objects.create_user(
+            username="teacher_otp",
+            password="pw12345",
+            email="teacher_otp@example.org",
+            is_staff=True,
+            is_superuser=False,
+        )
+
+    def _invite_token(self):
+        return signing.dumps(
+            {
+                "uid": self.teacher.id,
+                "email": self.teacher.email,
+                "username": self.teacher.username,
+            },
+            salt="classhub.teacher-2fa-setup",
+        )
+
+    def test_invite_link_renders_qr_setup_page(self):
+        token = self._invite_token()
+        resp = self.client.get(f"/teach/2fa/setup?token={token}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Scan QR Code")
+        self.assertContains(resp, "Authenticator code")
+        self.assertTrue(TOTPDevice.objects.filter(user=self.teacher, name="teacher-primary").exists())
+
+    def test_invite_link_can_confirm_totp_device(self):
+        token = self._invite_token()
+        self.client.get(f"/teach/2fa/setup?token={token}")
+        device = TOTPDevice.objects.get(user=self.teacher, name="teacher-primary")
+        otp_value = totp(
+            device.bin_key,
+            step=device.step,
+            t0=device.t0,
+            digits=device.digits,
+            drift=device.drift,
+        )
+        resp = self.client.post(
+            "/teach/2fa/setup",
+            {
+                "token": token,
+                "otp_token": f"{otp_value:0{int(device.digits)}d}",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+
+        device.refresh_from_db()
+        self.assertTrue(device.confirmed)
+        event = AuditEvent.objects.filter(action="teacher_2fa.enroll", target_id=str(self.teacher.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.teacher.id)
+
+    def test_invalid_invite_link_returns_400(self):
+        resp = self.client.get("/teach/2fa/setup?token=bad-token")
+        self.assertEqual(resp.status_code, 400)
+        self.assertContains(resp, "Invalid setup link")
 
 
 class Admin2FATests(TestCase):

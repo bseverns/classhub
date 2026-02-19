@@ -72,6 +72,26 @@ _origins = env("CSRF_TRUSTED_ORIGINS", default="")
 if _origins:
     CSRF_TRUSTED_ORIGINS = [o.strip() for o in _origins.split(",") if o.strip()]
 
+EMAIL_BACKEND = env(
+    "DJANGO_EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
+).strip() or "django.core.mail.backends.console.EmailBackend"
+EMAIL_HOST = env("DJANGO_EMAIL_HOST", default="").strip()
+EMAIL_PORT = env.int("DJANGO_EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("DJANGO_EMAIL_HOST_USER", default="").strip()
+EMAIL_HOST_PASSWORD = env("DJANGO_EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env.bool("DJANGO_EMAIL_USE_TLS", default=True)
+EMAIL_USE_SSL = env.bool("DJANGO_EMAIL_USE_SSL", default=False)
+EMAIL_TIMEOUT = env.int("DJANGO_EMAIL_TIMEOUT_SECONDS", default=10)
+DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="classhub@localhost").strip() or "classhub@localhost"
+TEACHER_INVITE_FROM_EMAIL = (
+    env("TEACHER_INVITE_FROM_EMAIL", default=DEFAULT_FROM_EMAIL).strip() or DEFAULT_FROM_EMAIL
+)
+TEACHER_2FA_INVITE_MAX_AGE_SECONDS = env.int("TEACHER_2FA_INVITE_MAX_AGE_SECONDS", default=72 * 3600)
+TEACHER_2FA_DEVICE_NAME = (
+    env("TEACHER_2FA_DEVICE_NAME", default="teacher-primary").strip() or "teacher-primary"
+)
+
 INSTALLED_APPS = [
     "config.apps.ClassHubAdminConfig",
     "django.contrib.auth",

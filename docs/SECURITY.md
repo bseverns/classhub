@@ -27,6 +27,8 @@
 - Markdown image rendering stays disabled by default; if enabled, explicitly restrict remote hosts via `CLASSHUB_MARKDOWN_ALLOWED_IMAGE_HOSTS`.
 - Bootstrap an admin OTP device before locking down production:
   - `docker compose exec classhub_web python manage.py bootstrap_admin_otp --username <admin_username> --with-static-backup`
+- Teacher onboarding can email signed `/teach/2fa/setup` links; keep invite TTL short (`TEACHER_2FA_INVITE_MAX_AGE_SECONDS`) and configure SMTP with TLS.
+- If using the "include temporary password in email" option during teacher creation, treat that as lower-security convenience and rotate immediately after first login.
 - Teacher/staff mutations in `/teach/*` now emit immutable `AuditEvent` rows for
   incident review and operational accountability.
 - Student-facing activity telemetry now emits append-only `StudentEvent` rows for:

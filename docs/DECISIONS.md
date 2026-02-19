@@ -18,6 +18,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Production transport hardening](#production-transport-hardening)
 - [Content parse caching](#content-parse-caching)
 - [Admin access 2FA](#admin-access-2fa)
+- [Teacher onboarding invites + 2FA](#teacher-onboarding-invites--2fa)
 
 ## Archive Index
 
@@ -46,6 +47,18 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces risk from password reuse/phishing against admin accounts.
 - Preserves clear separation: teacher workflow in `/teach`, hardened ops workflow in `/admin`.
+
+## Teacher onboarding invites + 2FA
+
+**Current decision:**
+- Superusers can create teacher staff accounts from `/teach` and trigger invite emails.
+- Invite email carries a signed, expiring link to `/teach/2fa/setup`.
+- `/teach/2fa/setup` provisions and confirms teacher TOTP devices via QR + manual secret fallback.
+- SMTP remains environment-configured; local default is console backend for safe non-production testing.
+
+**Why this remains active:**
+- Removes CLI-only OTP provisioning friction during teacher onboarding.
+- Keeps enrollment self-service while preserving short-lived, signed invite boundaries.
 
 ## Service boundary: Homework Helper separate service
 
