@@ -123,6 +123,64 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Ada")
         self.assertContains(resp, "Generate Course Authoring Templates")
 
+    def test_teach_home_shows_since_yesterday_digest(self):
+        classroom, upload = self._build_lesson_with_submission()
+        student = StudentIdentity.objects.filter(classroom=classroom, display_name="Ada").first()
+        StudentIdentity.objects.create(classroom=classroom, display_name="Ben")
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=student,
+            event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+            source="test",
+            details={},
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "What Changed Since Yesterday")
+        self.assertContains(resp, "End-of-Class Closeout")
+        self.assertContains(resp, "1 / 2")
+        self.assertContains(resp, f"/teach/class/{classroom.id}/export-submissions-today")
+        self.assertContains(resp, f"/teach/class/{classroom.id}/lock")
+        self.assertContains(resp, f"/teach/material/{upload.id}/submissions")
+
+    def test_teach_closeout_lock_endpoint_sets_class_locked(self):
+        classroom, _upload = self._build_lesson_with_submission()
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(f"/teach/class/{classroom.id}/lock")
+        self.assertEqual(resp.status_code, 302)
+        classroom.refresh_from_db()
+        self.assertTrue(classroom.is_locked)
+        self.assertIn("/teach?notice=", resp["Location"])
+
+        event = AuditEvent.objects.filter(action="class.lock").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.classroom_id, classroom.id)
+
+    def test_teach_closeout_export_only_includes_today_submissions(self):
+        classroom, upload = self._build_lesson_with_submission()
+        student = StudentIdentity.objects.filter(classroom=classroom, display_name="Ada").first()
+        old_submission = Submission.objects.create(
+            material=upload,
+            student=student,
+            original_filename="old_project.sb3",
+            file=SimpleUploadedFile("old_project.sb3", b"old"),
+        )
+        Submission.objects.filter(id=old_submission.id).update(uploaded_at=timezone.now() - timedelta(days=2))
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}/export-submissions-today")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("attachment;", resp["Content-Disposition"])
+
+        zip_bytes = b"".join(resp.streaming_content)
+        with zipfile.ZipFile(BytesIO(zip_bytes), "r") as archive:
+            names = archive.namelist()
+        self.assertEqual(len(names), 1)
+        self.assertIn("project.sb3", names[0])
+
     def test_teach_class_join_card_renders_printable_details(self):
         classroom = Class.objects.create(name="Period 2", join_code="JOIN7788")
         _force_login_staff_verified(self.client, self.staff)
@@ -648,6 +706,21 @@ class LessonReleaseTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "intro-only mode")
         self.assertNotContains(resp, "Homework dropbox")
+
+    def test_student_home_shows_preview_link_for_locked_lesson(self):
+        LessonRelease.objects.create(
+            classroom=self.classroom,
+            course_slug="piper_scratch_12_session",
+            lesson_slug="s01-welcome-private-workflow",
+            available_on=timezone.localdate() + timedelta(days=2),
+        )
+        self._login_student()
+
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Full lesson locked")
+        self.assertContains(resp, "Preview intro-only page")
+        self.assertNotContains(resp, "Open lesson", status_code=200)
 
     def test_student_upload_is_blocked_before_release(self):
         locked_until = timezone.localdate() + timedelta(days=2)

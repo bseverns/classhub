@@ -16,6 +16,10 @@
   <textarea id="helper-input-0" class="helper-input" placeholder="Ask for help…"></textarea>
   <button class="helper-submit" type="button">{{ helper_button_label|default:"Ask" }}</button>
   <pre class="helper-output" role="status" aria-live="polite"></pre>
+  <div class="helper-citations" hidden>
+    <div class="helper-citations-title">Lesson references used</div>
+    <ul class="helper-citations-list"></ul>
+  </div>
 </div>
 
 <style>
@@ -80,6 +84,29 @@
     font-size: 14px;
     margin-top: 4px;
     margin-bottom: 12px;
+  }
+  .helper-citations {
+    margin-top: 10px;
+    border-top: 1px solid rgba(22, 59, 80, 0.14);
+    padding-top: 10px;
+  }
+  .helper-citations-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--muted, #4e6f80);
+    margin-bottom: 6px;
+  }
+  .helper-citations-list {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 6px;
+  }
+  .helper-citations-list li {
+    font-size: 12px;
+    color: #33596e;
   }
   .helper-quick-wrap {
     margin-bottom: 12px;
@@ -236,6 +263,8 @@
     const textarea = widget.querySelector(".helper-input");
     const button = widget.querySelector(".helper-submit");
     const output = widget.querySelector(".helper-output");
+    const citationWrap = widget.querySelector(".helper-citations");
+    const citationList = widget.querySelector(".helper-citations-list");
     const quickWrap = widget.querySelector(".helper-quick-wrap");
     const quickActions = widget.querySelector(".helper-quick-actions");
     const inputId = `helper-input-${idx}`;
@@ -249,6 +278,28 @@
     const setOutput = (txt) => {
       output.textContent = txt;
     };
+    const renderCitations = (rows) => {
+      if (!citationWrap || !citationList) return;
+      const citations = Array.isArray(rows) ? rows : [];
+      citationList.innerHTML = "";
+      if (!citations.length) {
+        citationWrap.hidden = true;
+        return;
+      }
+      citations.forEach((row) => {
+        const li = document.createElement("li");
+        const refId = row && row.id ? String(row.id) : "";
+        const text = row && row.text ? String(row.text) : "";
+        const source = row && row.source ? String(row.source) : "";
+        const parts = [];
+        if (refId) parts.push(`[${refId}]`);
+        if (source) parts.push(`${source}:`);
+        parts.push(text);
+        li.textContent = parts.join(" ");
+        citationList.appendChild(li);
+      });
+      citationWrap.hidden = false;
+    };
 
     const setQuickActionsBusy = (disabled) => {
       if (!quickActions) return;
@@ -261,6 +312,7 @@
       const message = (rawMessage || "").trim();
       if (!message) {
         setOutput("Type a question before asking.");
+        renderCitations([]);
         return;
       }
       textarea.value = message;
@@ -287,8 +339,10 @@
         }
         const data = await res.json();
         setOutput(data.text || "(no output)");
+        renderCitations(data.citations || []);
       } catch (err) {
         setOutput("Helper error (check server logs).");
+        renderCitations([]);
       } finally {
         button.disabled = false;
         button.removeAttribute("aria-busy");

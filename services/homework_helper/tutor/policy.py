@@ -20,6 +20,7 @@ def build_instructions(
     scope_mode: str = SCOPE_SOFT,
     allowed_topics: list[str] | None = None,
     reference_text: str = "",
+    reference_citations: str = "",
 ) -> str:
     """Return the tutor stance string based on strictness + lesson scope."""
     base = (
@@ -68,6 +69,14 @@ def build_instructions(
         base += (
             " Use the following reference facts as ground truth for this course. "
             + reference_text.strip()
+            + " "
+        )
+    if reference_citations:
+        base += (
+            "Ground your answer in the lesson excerpts below when relevant. "
+            "Quote short phrases and cite the excerpt id in brackets (example: [L1]). "
+            "If the excerpts do not cover the question, say that briefly. "
+            + reference_citations.strip()
             + " "
         )
 

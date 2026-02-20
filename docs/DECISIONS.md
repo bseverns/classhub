@@ -17,6 +17,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Teacher UI comfort mode](#teacher-ui-comfort-mode)
 - [Helper scope signing](#helper-scope-signing)
 - [Helper grounding for Piper hardware](#helper-grounding-for-piper-hardware)
+- [Helper lesson citations](#helper-lesson-citations)
 - [Production transport hardening](#production-transport-hardening)
 - [Content parse caching](#content-parse-caching)
 - [Admin access 2FA](#admin-access-2fa)
@@ -26,6 +27,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Upload content validation](#upload-content-validation)
 - [Deployment timezone by environment](#deployment-timezone-by-environment)
 - [Migration execution at deploy time](#migration-execution-at-deploy-time)
+- [Teacher daily digest + closeout workflow](#teacher-daily-digest--closeout-workflow)
 
 ## Archive Index
 
@@ -264,6 +266,17 @@ Historical implementation logs and superseded decisions are archived by month in
 - The Piper course includes both Scratch work and physical control wiring; helper grounding must reflect both to be useful in class.
 - Narrow topic filtering without hardware terms can incorrectly block or under-serve valid lesson questions.
 
+## Helper lesson citations
+
+**Current decision:**
+- Helper now retrieves short lesson excerpts from the signed lesson reference file and includes up to 3 citations in each `/helper/chat` response.
+- Prompt policy tells the model to ground responses in those excerpts and cite bracket ids (for example `[L1]`) when relevant.
+- Student helper widget renders returned citations under the answer so grounding is visible to the learner.
+
+**Why this remains active:**
+- Makes helper output more inspectable and less likely to drift away from lesson intent.
+- Gives teachers/students quick traceability from advice back to lesson material.
+
 ## Production transport hardening
 
 **Current decision:**
@@ -332,3 +345,14 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Most readers need task guidance, not full architecture context.
 - Progressive disclosure lowers cognitive load for teachers and staff while preserving deep technical docs for operators/developers.
+
+## Teacher daily digest + closeout workflow
+
+**Current decision:**
+- `/teach` includes a per-class "since yesterday" digest (new students, uploads, helper usage, first-upload gaps, latest submission timestamp).
+- `/teach` includes collapsed closeout actions per class: lock class, export today's submissions zip, print join card.
+- Closeout export is local-day scoped (deployment timezone aware), with audit events for lock/export actions.
+
+**Why this remains active:**
+- Gives teachers a fast day-over-day signal without opening each class.
+- Standardizes end-of-class operations into one predictable flow.

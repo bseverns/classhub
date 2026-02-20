@@ -1,5 +1,7 @@
 import json
+import tempfile
 import urllib.error
+from pathlib import Path
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
@@ -242,6 +244,48 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(build_kwargs["context"], "Signed context")
         self.assertEqual(build_kwargs["topics"], ["signed topic"])
         self.assertEqual(build_kwargs["allowed_topics"], ["signed allowed"])
+
+    @patch("tutor.views._ollama_chat", return_value=("Grounded hint", "fake-model"))
+    @patch("tutor.views.build_instructions", return_value="system instructions")
+    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
+    def test_chat_includes_reference_citations_in_prompt_and_response(self, build_instructions_mock, _chat_mock):
+        session = self.client.session
+        session["student_id"] = 101
+        session["class_id"] = 5
+        session.save()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            ref_path = Path(temp_dir) / "piper_scratch.md"
+            ref_path.write_text(
+                "\n".join(
+                    [
+                        "# Session 1",
+                        "Check jumper seating before changing code.",
+                        "",
+                        "Use one-wire changes, then retest the same control.",
+                        "",
+                        "Shared ground must stay connected for controls to respond.",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            with patch.dict(
+                "os.environ",
+                {"HELPER_REFERENCE_DIR": temp_dir},
+                clear=False,
+            ):
+                resp = self._post_chat({"message": "My jump button does not respond in StoryMode."})
+
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        citations = body.get("citations") or []
+        self.assertTrue(citations)
+        self.assertEqual(citations[0].get("id"), "L1")
+        self.assertEqual(citations[0].get("source"), "piper_scratch")
+        self.assertTrue(citations[0].get("text"))
+
+        build_kwargs = build_instructions_mock.call_args.kwargs
+        self.assertIn("Lesson excerpts:", build_kwargs.get("reference_citations", ""))
 
     @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
     @patch("tutor.views.build_instructions", return_value="system instructions")

@@ -82,6 +82,34 @@
         font-size: 13px;
         color: #42697d;
       }
+      .closeout-list {
+        margin-top: 12px;
+        display: grid;
+        gap: 10px;
+      }
+      .closeout-item {
+        border: 1px solid rgba(22, 59, 80, 0.14);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.44);
+        padding: 10px 12px;
+      }
+      .closeout-item summary {
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .closeout-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .closeout-actions form {
+        margin: 0;
+      }
+      .closeout-actions .mini {
+        padding: 7px 10px;
+        font-size: 13px;
+      }
     </style>
   </head>
   <body class="glass-theme teacher-comfort">
@@ -289,6 +317,81 @@
                   {% endfor %}
                 </tbody>
               </table>
+            </div>
+          {% else %}
+            <p class="muted">No classes yet.</p>
+          {% endif %}
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <h2 style="margin:0">What Changed Since Yesterday</h2>
+            <div class="muted">Window started {{ digest_since|date:"M j, g:i A" }}</div>
+          </div>
+
+          {% if class_digest_rows %}
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Class</th>
+                    <th scope="col">New students</th>
+                    <th scope="col">Uploads</th>
+                    <th scope="col">Helper chats</th>
+                    <th scope="col">Need first upload</th>
+                    <th scope="col">Last upload</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in class_digest_rows %}
+                    <tr>
+                      <td><strong>{{ row.classroom.name }}</strong></td>
+                      <td>{{ row.new_students_since }}</td>
+                      <td>{{ row.submission_total_since }}</td>
+                      <td>{{ row.helper_access_total_since }}</td>
+                      <td>{{ row.students_without_submissions }} / {{ row.student_total }}</td>
+                      <td class="muted">
+                        {% if row.last_submission_at %}
+                          {{ row.last_submission_at|date:"M j, g:i A" }}
+                        {% else %}
+                          No uploads yet
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="muted">No classes yet.</p>
+          {% endif %}
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <h2 style="margin:0">End-of-Class Closeout</h2>
+            <div class="muted">Keep this collapsed until you need actions.</div>
+          </div>
+          {% if class_digest_rows %}
+            <div class="closeout-list">
+              {% for row in class_digest_rows %}
+                <details class="closeout-item">
+                  <summary>{{ row.classroom.name }} · {{ row.student_total }} students</summary>
+                  <div class="muted" style="margin-top:8px;">
+                    {{ row.students_without_submissions }} still need a first upload.
+                  </div>
+                  <div class="closeout-actions">
+                    <form method="post" action="/teach/class/{{ row.classroom.id }}/lock">
+                      {% csrf_token %}
+                      <button class="mini" type="submit">
+                        {% if row.classroom.is_locked %}Class already locked{% else %}Lock class{% endif %}
+                      </button>
+                    </form>
+                    <a class="button mini" href="/teach/class/{{ row.classroom.id }}/export-submissions-today">Export today's submissions</a>
+                    <a class="button mini" href="/teach/class/{{ row.classroom.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
+                  </div>
+                </details>
+              {% endfor %}
             </div>
           {% else %}
             <p class="muted">No classes yet.</p>

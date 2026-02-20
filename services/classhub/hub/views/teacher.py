@@ -4,6 +4,7 @@ import base64
 import re
 import tempfile
 import zipfile
+from datetime import datetime, time as dt_time, timedelta
 from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlencode, urlparse
@@ -35,6 +36,7 @@ from ..models import (
     LessonVideo,
     Material,
     Module,
+    StudentEvent,
     StudentIdentity,
     Submission,
     gen_class_code,
@@ -249,6 +251,98 @@ def _material_latest_upload_map(material_ids: list[int]) -> dict[int, timezone.d
     for row in rows:
         latest[int(row["material_id"])] = row["last_uploaded_at"]
     return latest
+
+
+def _build_class_digest_rows(classes: list[Class], *, since: timezone.datetime) -> list[dict]:
+    class_ids = [int(c.id) for c in classes if c and c.id]
+    if not class_ids:
+        return []
+
+    student_totals: dict[int, int] = {}
+    for row in (
+        StudentIdentity.objects.filter(classroom_id__in=class_ids)
+        .values("classroom_id")
+        .annotate(total=models.Count("id"))
+    ):
+        student_totals[int(row["classroom_id"])] = int(row["total"] or 0)
+
+    students_with_submissions: dict[int, int] = {}
+    for row in (
+        Submission.objects.filter(student__classroom_id__in=class_ids)
+        .values("student__classroom_id")
+        .annotate(total=models.Count("student_id", distinct=True))
+    ):
+        students_with_submissions[int(row["student__classroom_id"])] = int(row["total"] or 0)
+
+    submission_totals_since: dict[int, int] = {}
+    for row in (
+        Submission.objects.filter(
+            material__module__classroom_id__in=class_ids,
+            uploaded_at__gte=since,
+        )
+        .values("material__module__classroom_id")
+        .annotate(total=models.Count("id"))
+    ):
+        submission_totals_since[int(row["material__module__classroom_id"])] = int(row["total"] or 0)
+
+    helper_events_since: dict[int, int] = {}
+    for row in (
+        StudentEvent.objects.filter(
+            classroom_id__in=class_ids,
+            event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+            created_at__gte=since,
+        )
+        .values("classroom_id")
+        .annotate(total=models.Count("id"))
+    ):
+        helper_events_since[int(row["classroom_id"])] = int(row["total"] or 0)
+
+    new_students_since: dict[int, int] = {}
+    for row in (
+        StudentIdentity.objects.filter(
+            classroom_id__in=class_ids,
+            created_at__gte=since,
+        )
+        .values("classroom_id")
+        .annotate(total=models.Count("id"))
+    ):
+        new_students_since[int(row["classroom_id"])] = int(row["total"] or 0)
+
+    last_submission_at: dict[int, timezone.datetime] = {}
+    for row in (
+        Submission.objects.filter(material__module__classroom_id__in=class_ids)
+        .values("material__module__classroom_id")
+        .annotate(last_uploaded_at=models.Max("uploaded_at"))
+    ):
+        class_id = int(row["material__module__classroom_id"])
+        last_submission_at[class_id] = row["last_uploaded_at"]
+
+    rows: list[dict] = []
+    for classroom in classes:
+        classroom_id = int(classroom.id)
+        student_total = int(student_totals.get(classroom_id, 0))
+        with_submissions = int(students_with_submissions.get(classroom_id, 0))
+        students_without_submissions = max(student_total - with_submissions, 0)
+        rows.append(
+            {
+                "classroom": classroom,
+                "student_total": student_total,
+                "new_students_since": int(new_students_since.get(classroom_id, 0)),
+                "submission_total_since": int(submission_totals_since.get(classroom_id, 0)),
+                "helper_access_total_since": int(helper_events_since.get(classroom_id, 0)),
+                "students_without_submissions": students_without_submissions,
+                "last_submission_at": last_submission_at.get(classroom_id),
+            }
+        )
+    return rows
+
+
+def _local_day_window() -> tuple[timezone.datetime, timezone.datetime]:
+    today = timezone.localdate()
+    zone = timezone.get_current_timezone()
+    start = timezone.make_aware(datetime.combine(today, dt_time.min), zone)
+    end = start + timedelta(days=1)
+    return start, end
 
 
 def _build_lesson_tracker_rows(request, classroom_id: int, modules: list[Module], student_count: int) -> list[dict]:
@@ -983,7 +1077,9 @@ def teach_home(request):
     teacher_first_name = (request.GET.get("teacher_first_name") or "").strip()
     teacher_last_name = (request.GET.get("teacher_last_name") or "").strip()
 
-    classes = Class.objects.all().order_by("name", "id")
+    classes = list(Class.objects.all().order_by("name", "id"))
+    digest_since = timezone.now() - timedelta(days=1)
+    class_digest_rows = _build_class_digest_rows(classes, since=digest_since)
     User = get_user_model()
     teacher_accounts = (
         User.objects.filter(is_staff=True)
@@ -1014,6 +1110,8 @@ def teach_home(request):
         "teach_home.html",
         {
             "classes": classes,
+            "class_digest_rows": class_digest_rows,
+            "digest_since": digest_since,
             "recent_submissions": recent_submissions,
             "notice": notice,
             "error": error,
@@ -1759,6 +1857,91 @@ def teach_toggle_lock(request, class_id: int):
 
 @staff_member_required
 @require_POST
+def teach_lock_class(request, class_id: int):
+    classroom = Class.objects.filter(id=class_id).first()
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+
+    if not classroom.is_locked:
+        classroom.is_locked = True
+        classroom.save(update_fields=["is_locked"])
+
+    _audit(
+        request,
+        action="class.lock",
+        classroom=classroom,
+        target_type="Class",
+        target_id=str(classroom.id),
+        summary=f"Locked class {classroom.name}",
+        metadata={"is_locked": classroom.is_locked},
+    )
+    return redirect(_with_notice("/teach", notice=f"Locked class {classroom.name}."))
+
+
+@staff_member_required
+def teach_export_class_submissions_today(request, class_id: int):
+    classroom = Class.objects.filter(id=class_id).first()
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+
+    day_start, day_end = _local_day_window()
+    rows = list(
+        Submission.objects.filter(
+            student__classroom=classroom,
+            uploaded_at__gte=day_start,
+            uploaded_at__lt=day_end,
+        )
+        .select_related("student", "material")
+        .order_by("student__display_name", "material__title", "uploaded_at", "id")
+    )
+
+    tmp = tempfile.NamedTemporaryFile(prefix="classhub_closeout_", suffix=".zip", delete=False)
+    tmp_path = tmp.name
+    tmp.close()
+
+    file_count = 0
+    used_paths: set[str] = set()
+    with zipfile.ZipFile(tmp_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for sub in rows:
+            try:
+                source_path = sub.file.path
+            except Exception:
+                continue
+            student_name = safe_filename(sub.student.display_name)
+            material_name = safe_filename(sub.material.title)
+            original = safe_filename(sub.original_filename or Path(sub.file.name).name)
+            stamp = timezone.localtime(sub.uploaded_at).strftime("%H%M%S")
+            candidate = f"{student_name}/{material_name}/{stamp}_{original}"
+            if candidate in used_paths:
+                candidate = f"{student_name}/{material_name}/{stamp}_{sub.id}_{original}"
+            used_paths.add(candidate)
+            try:
+                archive.write(source_path, arcname=candidate)
+            except Exception:
+                continue
+            file_count += 1
+
+    _audit(
+        request,
+        action="class.export_submissions_today",
+        classroom=classroom,
+        target_type="Class",
+        target_id=str(classroom.id),
+        summary=f"Exported today's submissions for {classroom.name}",
+        metadata={
+            "day_start": day_start.isoformat(),
+            "day_end": day_end.isoformat(),
+            "file_count": file_count,
+        },
+    )
+
+    day_label = timezone.localdate().strftime("%Y%m%d")
+    filename = f"{safe_filename(classroom.name)}_submissions_{day_label}.zip"
+    return FileResponse(open(tmp_path, "rb"), as_attachment=True, filename=filename)
+
+
+@staff_member_required
+@require_POST
 def teach_rotate_code(request, class_id: int):
     classroom = Class.objects.filter(id=class_id).first()
     if not classroom:
@@ -2058,6 +2241,8 @@ __all__ = [
     "teach_rename_student",
     "teach_reset_roster",
     "teach_toggle_lock",
+    "teach_lock_class",
+    "teach_export_class_submissions_today",
     "teach_rotate_code",
     "teach_add_module",
     "teach_move_module",

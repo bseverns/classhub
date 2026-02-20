@@ -51,6 +51,8 @@ urlpatterns = [
     path("teach/class/<int:class_id>/rename-student", views.teach_rename_student),
     path("teach/class/<int:class_id>/reset-roster", views.teach_reset_roster),
     path("teach/class/<int:class_id>/toggle-lock", views.teach_toggle_lock),
+    path("teach/class/<int:class_id>/lock", views.teach_lock_class),
+    path("teach/class/<int:class_id>/export-submissions-today", views.teach_export_class_submissions_today),
     path("teach/class/<int:class_id>/rotate-code", views.teach_rotate_code),
     path("teach/class/<int:class_id>/add-module", views.teach_add_module),
     path("teach/class/<int:class_id>/move-module", views.teach_move_module),

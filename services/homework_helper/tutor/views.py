@@ -445,6 +445,108 @@ def _tokenize(text: str) -> set[str]:
     return {p for p in parts if len(p) >= 4}
 
 
+def _clean_reference_line(line: str) -> str:
+    value = (line or "").strip()
+    if not value:
+        return ""
+    value = re.sub(r"^#{1,6}\s*", "", value)
+    value = re.sub(r"^[-*]\s+", "", value)
+    value = re.sub(r"^\d+\.\s+", "", value)
+    value = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", value)
+    value = value.replace("`", "")
+    return re.sub(r"\s+", " ", value).strip()
+
+
+@lru_cache(maxsize=4)
+def _load_reference_chunks(path_str: str) -> tuple[str, ...]:
+    if not path_str:
+        return tuple()
+    path = Path(path_str)
+    if not path.exists():
+        return tuple()
+    text = path.read_text(encoding="utf-8")
+    if not text.strip():
+        return tuple()
+
+    blocks: list[str] = []
+    current: list[str] = []
+    for raw in text.splitlines():
+        cleaned = _clean_reference_line(raw)
+        if not cleaned:
+            if current:
+                blocks.append(" ".join(current))
+                current = []
+            continue
+        current.append(cleaned)
+    if current:
+        blocks.append(" ".join(current))
+
+    chunks: list[str] = []
+    for block in blocks:
+        part = re.sub(r"\s+", " ", block).strip()
+        if len(part) < 24:
+            continue
+        while len(part) > 420:
+            split_at = part.rfind(". ", 80, 420)
+            if split_at < 0:
+                split_at = 420
+            chunk = part[: split_at + 1].strip()
+            if chunk:
+                chunks.append(chunk)
+            part = part[split_at + 1 :].strip()
+        if part:
+            chunks.append(part)
+    return tuple(chunks)
+
+
+def _build_reference_citations(
+    *,
+    message: str,
+    context: str,
+    topics: list[str],
+    reference_chunks: tuple[str, ...],
+    source_label: str,
+    max_items: int = 3,
+) -> list[dict]:
+    if not reference_chunks:
+        return []
+    query_tokens = _tokenize(" ".join([message, context, " ".join(topics)]))
+    ranked: list[tuple[int, int, str]] = []
+    for idx, chunk in enumerate(reference_chunks):
+        chunk_tokens = _tokenize(chunk)
+        overlap = len(query_tokens & chunk_tokens) if query_tokens else 0
+        if overlap <= 0:
+            continue
+        score = overlap * 100 - min(idx, 40)
+        ranked.append((score, idx, chunk))
+
+    if not ranked:
+        selected = list(reference_chunks[:max_items])
+    else:
+        ranked.sort(key=lambda row: (-row[0], row[1]))
+        selected = [row[2] for row in ranked[:max_items]]
+
+    citations: list[dict] = []
+    for idx, chunk in enumerate(selected, start=1):
+        citations.append(
+            {
+                "id": f"L{idx}",
+                "source": source_label,
+                "text": chunk,
+            }
+        )
+    return citations
+
+
+def _format_reference_citations_for_prompt(citations: list[dict]) -> str:
+    if not citations:
+        return ""
+    lines = []
+    for citation in citations:
+        lines.append(f"[{citation['id']}] {citation['text']}")
+    return "Lesson excerpts:\n" + "\n".join(lines)
+
+
 def _allowed_topic_overlap(message: str, allowed_topics: list[str]) -> bool:
     if not allowed_topics:
         return True
@@ -605,6 +707,17 @@ def chat(request):
     if resolved:
         reference_file = resolved
     reference_text = _load_reference_text(reference_file)
+    reference_chunks = _load_reference_chunks(reference_file)
+    reference_source = reference_key or (Path(reference_file).stem if reference_file else "")
+    citations = _build_reference_citations(
+        message=message,
+        context=context_value or "",
+        topics=topics,
+        reference_chunks=reference_chunks,
+        source_label=reference_source,
+        max_items=max(_env_int("HELPER_REFERENCE_MAX_CITATIONS", 3), 1),
+    )
+    reference_citations = _format_reference_citations_for_prompt(citations)
     env_keywords = _parse_csv_list(os.getenv("HELPER_TEXT_LANGUAGE_KEYWORDS", ""))
     lang_keywords = env_keywords or DEFAULT_TEXT_LANGUAGE_KEYWORDS
     if _contains_text_language(message, lang_keywords) and _is_scratch_context(context_value or "", topics, reference_text):
@@ -621,6 +734,7 @@ def chat(request):
                 "strictness": strictness,
                 "attempts": 0,
                 "scope_verified": scope_verified,
+                "citations": citations,
             },
             request_id=request_id,
         )
@@ -645,6 +759,7 @@ def chat(request):
                 "attempts": 0,
                 "scope_verified": scope_verified,
                 "triage_mode": "piper_hardware",
+                "citations": citations,
             },
             request_id=request_id,
         )
@@ -664,6 +779,7 @@ def chat(request):
                     "strictness": strictness,
                     "attempts": 0,
                     "scope_verified": scope_verified,
+                    "citations": citations,
                 },
                 request_id=request_id,
             )
@@ -674,6 +790,7 @@ def chat(request):
         scope_mode=scope_mode,
         allowed_topics=allowed_topics,
         reference_text=reference_text,
+        reference_citations=reference_citations,
     )
 
     if _backend_circuit_is_open(backend):
@@ -762,6 +879,7 @@ def chat(request):
             "total_ms": total_ms,
             "truncated": truncated,
             "scope_verified": scope_verified,
+            "citations": citations,
         },
         request_id=request_id,
     )
