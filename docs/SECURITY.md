@@ -1,78 +1,121 @@
-# Security notes (MVP)
+# Security
 
-- Student accounts are pseudonymous (class-code + display name).
-- Teacher/admin uses Django auth (password).
-- Django admin requires OTP-based 2FA for superusers by default (`DJANGO_ADMIN_2FA_REQUIRED=1`).
-- Prefer staff (non-superuser) teacher accounts for daily use; keep superusers for ops.
-- Keep `DJANGO_SECRET_KEY` secret.
-- In production (`DJANGO_DEBUG=0`), use a strong non-default `DJANGO_SECRET_KEY` (32+ chars).
-- Use HTTPS in production.
-- Ensure `DJANGO_DEBUG=0` in production and do not run the dev override file.
-- For domain/TLS deployments, enable secure redirects and HSTS via:
-  - `DJANGO_SECURE_SSL_REDIRECT=1`
-  - `DJANGO_SECURE_HSTS_SECONDS` (recommended `>=31536000` once verified)
-  - `DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=1` only if all subdomains are HTTPS-ready
-- Rate limit join + helper endpoints.
-- Helper chat requires either a student classroom session or staff-authenticated teacher session.
-- Student helper requests require signed `scope_token` metadata.
-- Unsigned `context/topics/reference/allowed_topics` payload fields are ignored by helper.
-- Set `HELPER_REQUIRE_SCOPE_TOKEN_FOR_STAFF=1` if you also want staff helper access to require signed scope tokens.
-- Same-device student rejoin uses a signed, HTTP-only cookie hint; cross-device recovery still uses return code.
-- Helper student session validation defaults to fail-open if classhub tables are unavailable; set `HELPER_REQUIRE_CLASSHUB_TABLE=1` in production to fail closed.
-- Local LLM inference keeps student queries on your infrastructure, but logs and
-  prompt storage still require care.
-- Postgres/Redis remain internal to Docker networking; Ollama/MinIO host ports are localhost-bound.
-- Proxy request-body limits are enforced in Caddy (`CADDY_CLASSHUB_MAX_BODY`, `CADDY_HELPER_MAX_BODY`).
-- `REQUEST_SAFETY_TRUST_PROXY_HEADERS` defaults to `0` (safe-by-default). Set it to `1` only when a trusted first-hop proxy (for example Caddy) overwrites `X-Forwarded-*` headers.
-- Run `bash scripts/validate_env_secrets.sh` before production deploys.
-- CI security gates run in GitHub Actions via `.github/workflows/security.yml` (secret scan + dependency audit).
-- Optional malware scanning is available for student uploads:
-  - `CLASSHUB_UPLOAD_SCAN_ENABLED=1`
-  - `CLASSHUB_UPLOAD_SCAN_COMMAND` (for example `clamscan --no-summary --stdout`)
-  - `CLASSHUB_UPLOAD_SCAN_FAIL_CLOSED=1` to block uploads on scanner errors/timeouts.
-- Markdown image rendering stays disabled by default; if enabled, explicitly restrict remote hosts via `CLASSHUB_MARKDOWN_ALLOWED_IMAGE_HOSTS`.
-- Bootstrap an admin OTP device before locking down production:
-  - `docker compose exec classhub_web python manage.py bootstrap_admin_otp --username <admin_username> --with-static-backup`
-- Teacher onboarding can email signed `/teach/2fa/setup` links; keep invite TTL short (`TEACHER_2FA_INVITE_MAX_AGE_SECONDS`) and configure SMTP with TLS.
-- If using the "include temporary password in email" option during teacher creation, treat that as lower-security convenience and rotate immediately after first login.
-- Teacher/staff mutations in `/teach/*` now emit immutable `AuditEvent` rows for
-  incident review and operational accountability.
-- Student-facing activity telemetry now emits append-only `StudentEvent` rows for:
-  - class join / rejoin mode
-  - submission upload metadata
-  - helper chat access metadata
+This page is the practical security baseline for this project.
 
-`StudentEvent` privacy boundary:
-- Metadata only (IDs, mode, status/timing/request IDs).
+If you only do three things before production:
+
+1. set strong secrets and `DJANGO_DEBUG=0`
+2. require TLS and 2FA for admin users
+3. run `bash scripts/validate_env_secrets.sh`
+
+## Security posture at a glance
+
+| Area | Current posture |
+|---|---|
+| Student identity | Pseudonymous (`class code + display name`) |
+| Teacher/admin auth | Django auth; admin OTP required by default |
+| Transport | Caddy at edge; HTTPS expected in production |
+| Service exposure | Postgres/Redis internal-only; Ollama/MinIO localhost-bound on host |
+| Helper scope protection | Student helper calls require signed `scope_token` |
+| Upload access | Not public `/media`; downloads are permission-checked views |
+| Auditing | Staff mutations logged as immutable `AuditEvent` rows |
+
+## Day-1 production checklist
+
+1. Set `DJANGO_DEBUG=0`.
+2. Set a strong `DJANGO_SECRET_KEY` (non-default, 32+ chars).
+3. Enable HTTPS behavior for domain deployments:
+   - `DJANGO_SECURE_SSL_REDIRECT=1`
+   - `DJANGO_SECURE_HSTS_SECONDS` (recommend `>=31536000` after verification)
+   - `DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=1` only when all subdomains are HTTPS-ready
+4. Keep `DJANGO_ADMIN_2FA_REQUIRED=1`.
+5. Validate secrets and guardrails:
+   - `bash scripts/validate_env_secrets.sh`
+6. Confirm edge request size limits are set:
+   - `CADDY_CLASSHUB_MAX_BODY`
+   - `CADDY_HELPER_MAX_BODY`
+
+## Authentication and authorization boundaries
+
+- Students do not have passwords in MVP.
+- Teachers should be `is_staff=True`, `is_superuser=False` for daily use.
+- Superusers should be limited to operational tasks.
+- Helper chat requires either:
+  - valid student classroom session, or
+  - authenticated staff session.
+- Student helper requests must include a valid signed scope token.
+- Staff can also be forced to require signed scope tokens:
+  - `HELPER_REQUIRE_SCOPE_TOKEN_FOR_STAFF=1`
+
+Admin 2FA bootstrap command:
+
+```bash
+docker compose exec classhub_web python manage.py bootstrap_admin_otp --username <admin_username> --with-static-backup
+```
+
+## Network and proxy trust model
+
+- Caddy is the public edge.
+- Postgres and Redis are not published on host ports.
+- Ollama and MinIO are bound to `127.0.0.1` on the host for local/admin access.
+- Proxy header trust is explicit opt-in:
+  - `REQUEST_SAFETY_TRUST_PROXY_HEADERS=0` by default
+  - set to `1` only when your first-hop proxy is trusted and rewrites `X-Forwarded-*`.
+
+## Data handling and retention
+
+### Student submissions
+
+- Stored under `data/classhub_uploads/`.
+- Not served as public static media.
+- Access is permission-checked (`/submission/<id>/download`).
+- Files use randomized server-side names; original filename is metadata only.
+
+Retention commands:
+
+```bash
+python manage.py prune_submissions --older-than-days <N>
+python manage.py prune_student_events --older-than-days <N>
+```
+
+### Event logging
+
+- `AuditEvent` logs staff actions in `/teach/*`.
+- `StudentEvent` stores metadata (status/request IDs/timing) only.
 - No raw helper prompt text and no file contents are stored in `StudentEvent.details`.
 
-## Student submissions (uploads)
+## Helper-specific controls
 
-- Uploads are stored on the server under `data/classhub_uploads/`.
-- Uploads are **not** served as public `/media/*` URLs.
-  - Students download only their own files via `/submission/<id>/download`.
-  - Staff/admin can download any submission.
-- Decide on a retention policy (e.g. delete uploads after N days) if you are working
-  in higher-risk environments.
-  - Use `python manage.py prune_submissions --older-than-days <N>` to enforce retention.
-- Event log retention is also operator-defined:
-  - `python manage.py prune_student_events --older-than-days <N>`
-- Submission files are stored with server-generated randomized filenames; the original client filename remains metadata only (`original_filename`).
+- Unsigned helper scope fields (`context/topics/allowed_topics/reference`) are ignored.
+- Student helper session-table checks are configurable:
+  - default: fail-open when classhub tables are unavailable
+  - production hardening option: `HELPER_REQUIRE_CLASSHUB_TABLE=1` (fail-closed)
+- Local LLM (`Ollama`) keeps inference on your infrastructure, but logs and prompt handling still require governance.
 
-## Future
-- Google SSO for teachers
-- Separate DBs per service if needed
+## Upload malware scanning (optional)
 
-## CSP rollout
+Enable command-based scanning (for example ClamAV):
 
-Use `DJANGO_CSP_REPORT_ONLY_POLICY` to stage policy rollout safely.
+- `CLASSHUB_UPLOAD_SCAN_ENABLED=1`
+- `CLASSHUB_UPLOAD_SCAN_COMMAND` (example: `clamscan --no-summary --stdout`)
+- `CLASSHUB_UPLOAD_SCAN_FAIL_CLOSED=1` to block uploads on scanner errors/timeouts
+
+## Content security policy rollout
+
+Use `DJANGO_CSP_REPORT_ONLY_POLICY` first, then enforce later.
 
 Suggested rollout:
-1. Start with a permissive report-only baseline.
-2. Check browser console + report destinations for violations.
+
+1. Start in report-only mode.
+2. Review violations.
 3. Tighten directives iteratively.
-4. Move to enforced CSP only after classroom pages are clean.
+4. Enforce only after classroom pages are clean.
 
 Starter example:
 
 `DJANGO_CSP_REPORT_ONLY_POLICY=default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'`
+
+## Future hardening candidates
+
+- Google SSO for teacher accounts.
+- Separate databases per service if isolation requirements increase.

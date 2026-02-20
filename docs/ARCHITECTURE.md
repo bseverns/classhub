@@ -1,46 +1,66 @@
 # Architecture
 
-This repo runs a small, self-hosted learning system on one Ubuntu box.
+This system is a small self-hosted LMS stack with a split web surface:
 
-## High level routing
+- `Class Hub` (main LMS)
+- `Homework Helper` (AI tutor under `/helper/*`)
 
-- Caddy terminates HTTP/HTTPS and routes:
-  - `/helper/*` → Homework Helper Django service
-  - everything else → Class Hub Django service
-
-## Data services
-
-- Postgres: primary database
-- Redis: caching + rate limiting + job queues (later)
-- MinIO: S3-compatible file storage for uploads
-
-## Code + content packaging
-
-- Production images bake in Django code, templates, and repo-authored curriculum.
-- Containers run migrations and `collectstatic` on startup, then serve via Gunicorn.
-- Local dev uses a Compose override that bind-mounts source and uses `runserver`
-  for hot reload (see `docs/DEVELOPMENT.md`).
-
-## Why two Django services?
-
-We intentionally split the Homework Helper away from the Class Hub:
-
-- A helper outage shouldn’t take down class materials.
-- Security boundaries are cleaner (rate limits, logs, prompt policies).
-- Later, you can scale the helper independently.
-
-## Mermaid diagram
+## Runtime topology (current)
 
 ```mermaid
-graph TD
-  U[Users] -->|HTTPS| C[Caddy]
-  C -->|/helper/*| H[Homework Helper (Django)]
-  C -->|/*| W[Class Hub (Django)]
+flowchart TD
+  U[Students / Teachers / Admins] -->|HTTP/HTTPS| C[Caddy]
+  C -->|/helper/*| H[Homework Helper Django]
+  C -->|everything else| W[Class Hub Django]
+
   W --> P[(Postgres)]
-  W --> R[(Redis)]
-  W --> M[(MinIO)]
   H --> P
-  H --> R
-  H --> L[Local LLM (Ollama)]
-  H -. optional .-> O[OpenAI API]
+  W --> R[(Redis db0)]
+  H --> R[(Redis db1)]
+
+  W --> F[(Local upload volume<br/>/uploads)]
+  H --> O[Ollama]
+  H -. optional .-> A[OpenAI Responses API]
+
+  M[(MinIO)] -. reserved / optional .- W
 ```
+
+## What routes where
+
+- Caddy handles edge traffic.
+- `/helper/*` goes to Homework Helper.
+- All other paths go to Class Hub.
+
+This means helper outages are less likely to take down core LMS pages.
+
+## Data boundaries
+
+### Class Hub
+
+- Owns classroom, student, module/material, submission, and teacher portal flows.
+- Uses Postgres + Redis.
+- Stores uploads on local mounted storage (`/uploads`), not public media routes.
+
+### Homework Helper
+
+- Owns helper chat policy, prompt shaping, and model backends.
+- Uses Postgres + Redis for auth/session/rate-limit integration.
+- Uses Ollama by default; OpenAI is optional by environment config.
+
+## Why two Django services
+
+1. Availability isolation: core classroom flows can remain usable when AI degrades.
+2. Security boundaries: helper policy/rate-limit logic is isolated from core LMS pages.
+3. Operational flexibility: helper can evolve independently (model/backend changes).
+
+## Deployment model
+
+- Production images bake service code and curriculum content from repo.
+- Gunicorn serves Django in containers.
+- Local dev uses compose override + bind mounts for fast iteration.
+
+See:
+
+- `docs/DEVELOPMENT.md` for local workflow
+- `docs/RUNBOOK.md` for operations
+- `compose/docker-compose.yml` for source-of-truth wiring

@@ -1,56 +1,55 @@
 # Troubleshooting Guide
 
-This page is symptom-first. Start with what you see, then follow the shortest
-path to isolate and resolve.
+Use this page when something is broken right now.
 
-Use this method in sequence:
-1. Reproduce once.
-2. Capture one log window around the failure.
-3. Classify failure type:
-  - routing
-  - auth/session
-  - dependency/service
-  - data/schema
-4. Apply the smallest reversible fix first.
+Flow:
 
-Fastest full-stack baseline check:
+1. confirm failure once
+2. capture logs
+3. classify symptom
+4. apply smallest reversible fix
+
+## 3-minute baseline
 
 ```bash
+cd /srv/lms/app
 bash scripts/system_doctor.sh --smoke-mode basic
 ```
 
-## Fast triage checklist
+If this fails early, fix the first failing step before changing anything else.
 
-1. Confirm container health:
+## Fast triage commands
+
 ```bash
 cd /srv/lms/app/compose
 docker compose ps
-```
-2. Confirm app health endpoints:
-```bash
 curl -I http://localhost/healthz
 curl -I http://localhost/helper/healthz
-```
-3. Tail logs for the failing service:
-```bash
-docker compose logs --tail=200 classhub_web
-docker compose logs --tail=200 helper_web
-docker compose logs --tail=200 caddy
+docker compose logs --tail=200 classhub_web helper_web caddy
 ```
 
-Interpretation shortcut:
-- health endpoint failure + healthy DB/Redis usually indicates app boot/import issue.
-- only helper failing usually indicates model backend, helper config, or helper-specific DB access.
-- only classhub failing usually indicates migrations, content parsing, or auth-related changes.
+## Symptom index
+
+| Symptom | Check first | Most likely area |
+|---|---|---|
+| Site not loading over HTTPS | Caddy logs + `.env` domain/template | Edge routing/TLS |
+| `/helper/chat` failing (502 / `ollama_error`) | `helper_web` logs + Ollama tags | Helper backend/model |
+| Teacher login smoke fails | smoke credentials + login response path | Auth/config mismatch |
+| Container unhealthy/restarting | service logs + DB auth | Boot/runtime dependency |
+| Helper returns policy redirect unexpectedly | topic filter mode + scope context | Policy config |
+| Admin blocked by OTP | admin device enrollment | Auth hardening |
+| Content missing after reset/rebuild | class/module records | Data reset/reseed |
 
 ## Symptom: site does not load over HTTPS
 
 Common causes:
-- wrong Caddyfile template mounted
+
+- wrong Caddy template mounted
 - wrong `DOMAIN`
-- DNS or ACME certificate issuance failure
+- ACME/DNS mismatch
 
 Checks:
+
 ```bash
 cd /srv/lms/app/compose
 docker inspect classhub_caddy --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
@@ -58,19 +57,76 @@ docker compose logs --tail=200 caddy
 grep -E '^(CADDYFILE_TEMPLATE|DOMAIN)=' .env
 ```
 
-What to look for:
-- mount should point to intended template (`Caddyfile.domain` for production)
-- caddy logs should reference your real domain (not placeholder domains)
-- ACME errors like rejected identifiers indicate wrong domain value
+Look for:
 
-## Symptom: helper or classhub container is unhealthy/restarting
+- expected template (`Caddyfile.domain` for public TLS)
+- correct domain in logs and `.env`
+- ACME identifier/certificate errors
+
+## Symptom: `/helper/chat` fails with 502 or `ollama_error`
 
 Common causes:
-- DB auth mismatch
-- migration/import-time error
-- route import failure
+
+- Ollama not ready
+- model not pulled
+- `OLLAMA_BASE_URL` mismatch
+- helper timeout too strict
 
 Checks:
+
+```bash
+cd /srv/lms/app/compose
+docker compose logs --tail=200 helper_web
+docker compose logs --tail=200 classhub_ollama
+curl http://localhost:11434/api/tags
+docker compose exec -T helper_web env | grep -E '^(OLLAMA_BASE_URL|OLLAMA_MODEL|OLLAMA_TIMEOUT_SECONDS|HELPER_LLM_BACKEND)='
+```
+
+Fix pattern:
+
+```bash
+cd /srv/lms/app/compose
+docker compose exec ollama ollama pull llama3.2:1b
+docker compose up -d helper_web
+```
+
+If using non-compose Ollama, ensure `OLLAMA_BASE_URL` points to a host reachable from containers.
+
+## Symptom: smoke says teacher login failed
+
+Example failure signal: `teacher login returned 200`.
+
+Common causes:
+
+- smoke credentials not present or stale
+- login route returns form again instead of redirect/session success
+- CSRF/host/cookie settings drift
+
+Checks:
+
+```bash
+cd /srv/lms/app/compose
+grep -E '^(SMOKE_|DJANGO_ALLOWED_HOSTS|CSRF_TRUSTED_ORIGINS)=' .env
+docker compose logs --tail=200 classhub_web
+```
+
+Then re-run strict smoke:
+
+```bash
+cd /srv/lms/app
+bash scripts/smoke_check.sh --strict
+```
+
+## Symptom: helper or classhub container unhealthy/restarting
+
+Common causes:
+
+- DB credential mismatch
+- migration/import-time failure
+- route/view symbol mismatch after partial deploy
+
+Checks:
+
 ```bash
 cd /srv/lms/app/compose
 docker compose ps -a
@@ -78,48 +134,42 @@ docker compose logs --tail=200 helper_web
 docker compose logs --tail=200 classhub_web
 ```
 
-What to look for:
-- `password authentication failed` means env credentials mismatch
-- `AttributeError` on URL/view symbol usually means partial deploy or stale code
+Look for:
 
-## Symptom: helper tests fail with transaction-aborted DB errors
+- `password authentication failed`
+- migration errors
+- import/attribute errors
+
+## Symptom: helper tests fail with `current transaction is aborted`
 
 Common cause:
-- helper best-effort classhub table access executed in test DB without classhub tables
 
-Status:
-- helper now has table-existence guards for:
-  - `hub_studentidentity`
-  - `hub_studentevent`
+- helper best-effort classhub table access in environments missing classhub tables
 
-If this reappears:
-1. Confirm helper image includes latest code:
+Recovery:
+
 ```bash
 cd /srv/lms/app/compose
 docker compose up -d --build helper_web
-```
-2. Re-run:
-```bash
 docker compose exec -T helper_web python manage.py test tutor.tests.HelperChatAuthTests
 docker compose exec -T helper_web python manage.py test tutor.tests
 ```
 
-Interpretation notes:
-- `helper_chat_student_event_write_failed` log lines are expected in environments
-  where classhub event tables do not exist.
-- the hard failure is not the warning log itself; the hard failure is any
-  subsequent request/test raising `current transaction is aborted`.
-- if transaction-aborted persists, inspect code paths that catch `DatabaseError`
-  but do not fully reset transaction rollback state.
+Interpretation:
+
+- warning logs about missing classhub tables can be expected
+- hard failure is persistent transaction-aborted state on later queries
 
 ## Symptom: teacher invite email fails
 
 Common causes:
+
 - SMTP host typo
-- DNS resolution failure in container
-- tenant SMTP auth disabled (Office 365 default in many orgs)
+- DNS failure in container
+- provider SMTP AUTH policy restrictions
 
 Checks:
+
 ```bash
 cd /srv/lms/app/compose
 grep -nE '^(DJANGO_EMAIL_|TEACHER_INVITE_FROM_EMAIL)=' .env
@@ -132,38 +182,45 @@ print("DNS:", socket.gethostbyname(host))
 PY
 ```
 
-Office 365 notes:
-- host should be `smtp.office365.com`
-- typical port/TLS: `587` + `DJANGO_EMAIL_USE_TLS=1`
-- tenant may require enabling SMTP AUTH per mailbox/tenant policy
+Office 365 baseline:
 
-## Symptom: helper returns policy redirect instead of model answer
+- host `smtp.office365.com`
+- port `587`
+- `DJANGO_EMAIL_USE_TLS=1`
+
+## Symptom: helper returns policy redirect instead of answer
 
 Common cause:
-- strict topic filter is active and prompt is out of scope
+
+- strict topic filtering and prompt outside allowed scope
 
 Check:
+
 ```bash
 cd /srv/lms/app/compose
 docker compose exec -T helper_web env | grep -E '^HELPER_TOPIC_FILTER_MODE='
 ```
 
 Behavior:
-- `HELPER_TOPIC_FILTER_MODE=strict` can intentionally short-circuit backend calls.
-- for tests or less strict classroom operation, use `soft`.
+
+- `strict` intentionally short-circuits out-of-scope prompts
+- `soft` is less restrictive
 
 ## Symptom: admin login blocked by OTP requirement
 
 Cause:
-- admin 2FA enforced and no device enrolled for that account
+
+- admin 2FA enforced with no enrolled device
 
 Fix:
+
 ```bash
 cd /srv/lms/app/compose
 docker compose exec classhub_web python manage.py bootstrap_admin_otp --username <admin_username> --with-static-backup
 ```
 
 If no superuser exists:
+
 ```bash
 docker compose exec classhub_web python manage.py createsuperuser
 ```
@@ -171,9 +228,11 @@ docker compose exec classhub_web python manage.py createsuperuser
 ## Symptom: class content disappeared after rebuild/reset
 
 Cause:
+
 - DB or volume reset removed class/module/material records
 
 Recovery:
+
 ```bash
 cd /srv/lms/app
 scripts/rebuild_coursepack.sh --course-slug piper_scratch_12_session --create-class
@@ -184,17 +243,18 @@ Then verify in `/teach` and `/student`.
 ## Symptom: CI dependency security job fails (`pip-audit`)
 
 Cause:
-- pinned dependency below fixed advisory range
+
+- pinned package below a fixed advisory version
 
 Fix pattern:
-1. bump dependency in service requirements file
-2. rebuild and run `manage.py check`/tests
-3. re-run CI
 
-Example:
-- upgrading Django from `5.0.8` to a fixed `5.2.x` release resolves known CVEs.
+1. bump dependency pin
+2. rebuild services
+3. rerun service tests
+4. rerun CI/security workflow
 
-Verification pattern after dependency bump:
+Verification pattern:
+
 ```bash
 cd /srv/lms/app/compose
 docker compose up -d --build classhub_web helper_web
@@ -202,27 +262,18 @@ docker compose exec -T classhub_web python manage.py test hub.tests hub.tests_se
 docker compose exec -T helper_web python manage.py test tutor.tests
 ```
 
-## When to escalate
+## Escalation criteria
 
-Escalate to full incident workflow when:
-- health checks fail after restart + config verification
+Escalate to full incident workflow (`docs/DISASTER_RECOVERY.md`) when:
+
+- health checks fail after restart and config verification
 - migrations fail in production
 - repeated auth failures with no config drift
-- data integrity issues (missing submissions/classes without intended prune/reset)
+- data integrity concerns (missing submissions/classes unexpectedly)
 
-Use:
-- `docs/RUNBOOK.md`
-- `docs/DISASTER_RECOVERY.md`
+## Anti-patterns to avoid
 
-## Troubleshooting anti-patterns
-
-Avoid these during incident response:
-
-1. Rebuilding all services before collecting logs:
-  - destroys first-failure evidence.
-2. Applying multiple config changes at once:
-  - makes root cause attribution impossible.
-3. Ignoring warning logs without classification:
-  - some warnings are benign, others predict failure on next request.
-4. Skipping health endpoint checks:
-  - increases time-to-isolate by mixing user-path and platform-path failures.
+1. Rebuilding everything before capturing first-failure logs.
+2. Making multiple config changes at once.
+3. Ignoring warning logs without classification.
+4. Skipping health endpoint checks.

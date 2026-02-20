@@ -262,3 +262,15 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces visual load in day-to-day teaching workflows while preserving full control paths.
 - Makes the class dashboard easier to scan during live instruction.
+
+## Progressive docs layering for non-developers
+
+**Current decision:**
+- Introduce a dedicated non-developer entry page: `docs/NON_DEVELOPER_GUIDE.md`.
+- Keep `docs/START_HERE.md` short and role-based with minimal links per audience.
+- Keep `docs/README.md` as a concise docs index (not a wall of policy text).
+- Keep deep ops docs (`docs/RUNBOOK.md`, `docs/TROUBLESHOOTING.md`) in quick-action-first format with command blocks and symptom indexing.
+
+**Why this remains active:**
+- Most readers need task guidance, not full architecture context.
+- Progressive disclosure lowers cognitive load for teachers and staff while preserving deep technical docs for operators/developers.

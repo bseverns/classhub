@@ -14,8 +14,8 @@ For guided onboarding labs, use `docs/LEARNING_PATHS.md`.
 
 ## Where to go
 
-Use canonical route list in `docs/START_HERE.md#canonical-url-map`.
-Use role-based docs list in `docs/START_HERE.md#pick-your-role`.
+Use common route list in `docs/START_HERE.md#common-urls`.
+Use role-based docs list in `docs/START_HERE.md#fast-path-by-role`.
 
 ## Why the system is split this way
 
