@@ -1895,13 +1895,11 @@ def teach_export_class_submissions_today(request, class_id: int):
         .order_by("student__display_name", "material__title", "uploaded_at", "id")
     )
 
-    tmp = tempfile.NamedTemporaryFile(prefix="classhub_closeout_", suffix=".zip", delete=False)
-    tmp_path = tmp.name
-    tmp.close()
+    tmp = tempfile.TemporaryFile(mode="w+b")
 
     file_count = 0
     used_paths: set[str] = set()
-    with zipfile.ZipFile(tmp_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+    with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for sub in rows:
             try:
                 source_path = sub.file.path
@@ -1920,6 +1918,14 @@ def teach_export_class_submissions_today(request, class_id: int):
             except Exception:
                 continue
             file_count += 1
+        if file_count == 0:
+            archive.writestr(
+                "README.txt",
+                (
+                    "No submission files were available for this class today.\n"
+                    "This can happen when there were no uploads or file sources were unavailable.\n"
+                ),
+            )
 
     _audit(
         request,
@@ -1937,7 +1943,8 @@ def teach_export_class_submissions_today(request, class_id: int):
 
     day_label = timezone.localdate().strftime("%Y%m%d")
     filename = f"{safe_filename(classroom.name)}_submissions_{day_label}.zip"
-    return FileResponse(open(tmp_path, "rb"), as_attachment=True, filename=filename)
+    tmp.seek(0)
+    return FileResponse(tmp, as_attachment=True, filename=filename)
 
 
 @staff_member_required
@@ -2167,11 +2174,9 @@ def teach_material_submissions(request, material_id: int):
     show = (request.GET.get("show") or "all").strip()
 
     if request.GET.get("download") == "zip_latest":
-        tmp = tempfile.NamedTemporaryFile(prefix="classhub_latest_", suffix=".zip", delete=False)
-        tmp_path = tmp.name
-        tmp.close()
+        tmp = tempfile.TemporaryFile(mode="w+b")
 
-        with zipfile.ZipFile(tmp_path, "w", compression=zipfile.ZIP_DEFLATED) as z:
+        with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as z:
             for st in students:
                 s = latest_by_student.get(st.id)
                 if not s:
@@ -2189,7 +2194,8 @@ def teach_material_submissions(request, material_id: int):
                     continue
 
         download_name = f"{safe_filename(classroom.name)}_material_{material.id}_latest.zip"
-        return FileResponse(open(tmp_path, "rb"), as_attachment=True, filename=download_name)
+        tmp.seek(0)
+        return FileResponse(tmp, as_attachment=True, filename=download_name)
 
     rows = []
     missing = 0

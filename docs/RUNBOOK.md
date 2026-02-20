@@ -238,6 +238,21 @@ Recommended restore drill:
 2. Confirm both Django services migrate and boot.
 3. Run `bash scripts/system_doctor.sh --smoke-mode basic`.
 
+## Release artifact packaging
+
+Create a shareable source zip without local machine clutter (`.venv`, `.git`, macOS metadata, caches):
+
+```bash
+cd /srv/lms/app
+bash scripts/make_release_zip.sh
+```
+
+Optional output path:
+
+```bash
+bash scripts/make_release_zip.sh /srv/lms/releases/classhub_release.zip
+```
+
 ## Retention operations
 
 ### Submission retention
@@ -296,6 +311,38 @@ Optional default (`compose/.env`):
 
 ```dotenv
 CLASSHUB_STUDENT_EVENT_RETENTION_DAYS=180
+```
+
+### Orphan upload scavenger (legacy cleanup)
+
+Report orphaned upload files (files on disk with no matching DB row):
+
+```bash
+cd /srv/lms/app/compose
+docker compose exec classhub_web python manage.py scavenge_orphan_uploads
+```
+
+Delete orphans (use after reviewing report output):
+
+```bash
+cd /srv/lms/app/compose
+docker compose exec classhub_web python manage.py scavenge_orphan_uploads --delete
+```
+
+### Legacy temp ZIP cleanup (one-time)
+
+Older builds could leave export zips in `/tmp`.
+
+Inspect:
+
+```bash
+ls -lh /tmp/classhub_closeout_*.zip /tmp/classhub_latest_*.zip 2>/dev/null || true
+```
+
+Delete:
+
+```bash
+rm -f /tmp/classhub_closeout_*.zip /tmp/classhub_latest_*.zip
 ```
 
 ## Escalate when

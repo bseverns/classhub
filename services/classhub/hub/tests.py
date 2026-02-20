@@ -25,6 +25,7 @@ from .models import (
     Class,
     LessonAsset,
     LessonAssetFolder,
+    LessonVideo,
     LessonRelease,
     Material,
     Module,
@@ -181,6 +182,21 @@ class TeacherPortalTests(TestCase):
             names = archive.namelist()
         self.assertEqual(len(names), 1)
         self.assertIn("project.sb3", names[0])
+
+    def test_teach_closeout_export_empty_zip_contains_readme(self):
+        classroom = Class.objects.create(name="Period Empty", join_code="EMT12345")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}/export-submissions-today")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("attachment;", resp["Content-Disposition"])
+
+        zip_bytes = b"".join(resp.streaming_content)
+        with zipfile.ZipFile(BytesIO(zip_bytes), "r") as archive:
+            names = archive.namelist()
+            self.assertEqual(names, ["README.txt"])
+            readme = archive.read("README.txt").decode("utf-8")
+        self.assertIn("No submission files were available", readme)
 
     def test_teach_class_join_card_renders_printable_details(self):
         classroom = Class.objects.create(name="Period 2", join_code="JOIN7788")
@@ -1006,6 +1022,59 @@ class StudentEventRetentionCommandTests(TestCase):
         self.assertEqual(int(rows[0]["id"]), self.old.id)
 
 
+class OrphanUploadScavengerCommandTests(TestCase):
+    def _build_submission(self):
+        classroom = Class.objects.create(name="Orphan Class", join_code="ORP12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        material = Material.objects.create(
+            module=module,
+            title="Upload",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        Submission.objects.create(
+            material=material,
+            student=student,
+            original_filename="project.sb3",
+            file=SimpleUploadedFile("project.sb3", b"dummy"),
+        )
+
+    def test_scavenger_report_only_does_not_delete(self):
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                self._build_submission()
+                orphan = Path(media_root) / "submissions/orphan.tmp"
+                orphan.parent.mkdir(parents=True, exist_ok=True)
+                orphan.write_bytes(b"orphan")
+                self.assertTrue(orphan.exists())
+
+                out = StringIO()
+                call_command("scavenge_orphan_uploads", stdout=out)
+                output = out.getvalue()
+
+                self.assertIn("Orphan files: 1", output)
+                self.assertTrue(orphan.exists())
+
+    def test_scavenger_delete_removes_orphan(self):
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                self._build_submission()
+                orphan = Path(media_root) / "lesson_assets/orphan.pdf"
+                orphan.parent.mkdir(parents=True, exist_ok=True)
+                orphan.write_bytes(b"orphan")
+                self.assertTrue(orphan.exists())
+
+                out = StringIO()
+                call_command("scavenge_orphan_uploads", delete=True, stdout=out)
+                output = out.getvalue()
+
+                self.assertIn("Deleted orphan files: 1", output)
+                self.assertFalse(orphan.exists())
+
+
 class StudentEventSubmissionTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Uploads Class", join_code="UPL12345")
@@ -1062,6 +1131,86 @@ class StudentEventSubmissionTests(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertContains(resp, "does not match .sb3", status_code=400)
         self.assertEqual(Submission.objects.filter(material=self.material, student=self.student).count(), 0)
+
+
+class FileCleanupSignalTests(TestCase):
+    def _build_submission(self):
+        classroom = Class.objects.create(name="Cleanup Class", join_code="CLN12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        material = Material.objects.create(
+            module=module,
+            title="Upload your project",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        submission = Submission.objects.create(
+            material=material,
+            student=student,
+            original_filename="project.sb3",
+            file=SimpleUploadedFile("project.sb3", b"dummy"),
+        )
+        return student, submission
+
+    def test_submission_file_deleted_on_student_cascade_delete(self):
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                student, submission = self._build_submission()
+                file_path = Path(submission.file.path)
+                self.assertTrue(file_path.exists())
+
+                student.delete()
+
+                self.assertFalse(Submission.objects.filter(id=submission.id).exists())
+                self.assertFalse(file_path.exists())
+
+    def test_submission_file_replaced_deletes_old_file(self):
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                _student, submission = self._build_submission()
+                old_path = Path(submission.file.path)
+                self.assertTrue(old_path.exists())
+
+                submission.file = SimpleUploadedFile("project_new.sb3", b"new")
+                submission.original_filename = "project_new.sb3"
+                submission.save()
+
+                new_path = Path(submission.file.path)
+                self.assertTrue(new_path.exists())
+                self.assertFalse(old_path.exists())
+
+    def test_lesson_asset_delete_removes_file(self):
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                folder = LessonAssetFolder.objects.create(path="general", display_name="General")
+                asset = LessonAsset.objects.create(
+                    folder=folder,
+                    title="Worksheet",
+                    original_filename="worksheet.pdf",
+                    file=SimpleUploadedFile("worksheet.pdf", b"%PDF-1.4"),
+                )
+                file_path = Path(asset.file.path)
+                self.assertTrue(file_path.exists())
+
+                asset.delete()
+                self.assertFalse(file_path.exists())
+
+    def test_lesson_video_delete_removes_file(self):
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                video = LessonVideo.objects.create(
+                    course_slug="piper_scratch_12_session",
+                    lesson_slug="01-welcome-private-workflow",
+                    title="Welcome video",
+                    video_file=SimpleUploadedFile("welcome.mp4", b"\x00\x00\x00\x18ftypmp42"),
+                )
+                file_path = Path(video.video_file.path)
+                self.assertTrue(file_path.exists())
+
+                video.delete()
+                self.assertFalse(file_path.exists())
 
 
 class StudentPortfolioExportTests(TestCase):

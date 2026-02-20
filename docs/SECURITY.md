@@ -75,6 +75,7 @@ docker compose exec classhub_web python manage.py bootstrap_admin_otp --username
 - Access is permission-checked (`/submission/<id>/download`).
 - Files use randomized server-side names; original filename is metadata only.
 - Upload checks now include lightweight content validation (for example `.sb3` must be a valid zip with `project.json`).
+- File cleanup signals remove stored files on row delete/cascade delete and file replacement.
 
 ### Lesson assets
 
@@ -88,6 +89,7 @@ Retention commands:
 python manage.py prune_submissions --older-than-days <N>
 python manage.py prune_student_events --older-than-days <N>
 python manage.py prune_student_events --older-than-days <N> --export-csv /path/to/student_events_before_prune.csv
+python manage.py scavenge_orphan_uploads
 ```
 
 ### Event logging

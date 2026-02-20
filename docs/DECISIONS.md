@@ -191,11 +191,14 @@ Historical implementation logs and superseded decisions are archived by month in
 - Student join/rejoin/upload/helper-access metadata emits append-only `StudentEvent` records.
 - Retention is operator-managed using prune commands.
 - Student event prune supports optional CSV snapshot export before deletion (`prune_student_events --export-csv <path>`).
+- File-backed upload models use delete/replacement cleanup signals to prevent orphan file accumulation.
+- Orphan file scavenger is available for legacy cleanup (`scavenge_orphan_uploads`, report-first).
 
 **Why this remains active:**
 - Preserves incident traceability and accountability.
 - Keeps privacy boundaries explicit by storing metadata rather than raw helper prompt/file content in event logs.
 - Supports audit handoff and offline review before destructive retention actions.
+- Keeps upload storage bounded and predictable after roster resets, asset/video deletes, and file replacements.
 
 ## Deployment guardrails
 
