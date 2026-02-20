@@ -128,7 +128,6 @@ class TeacherPortalTests(TestCase):
     def test_teach_home_shows_since_yesterday_digest(self):
         classroom, upload = self._build_lesson_with_submission()
         student = StudentIdentity.objects.filter(classroom=classroom, display_name="Ada").first()
-        StudentIdentity.objects.create(classroom=classroom, display_name="Ben")
         StudentEvent.objects.create(
             classroom=classroom,
             student=student,
