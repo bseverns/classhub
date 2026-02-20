@@ -69,6 +69,22 @@ def _cache_incr(store, key: str, *, request_id: str):
         return None, False
 
 
+def _coerce_int(value, *, key: str, request_id: str, default: int = 0) -> int:
+    try:
+        return int(value)
+    except Exception as exc:
+        _log_cache_warning(op="coerce_int", key=key, request_id=request_id, exc=exc)
+        return default
+
+
+def _coerce_float(value, *, key: str, request_id: str, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except Exception as exc:
+        _log_cache_warning(op="coerce_float", key=key, request_id=request_id, exc=exc)
+        return default
+
+
 def parse_client_ip(
     meta: Mapping[str, str],
     *,
@@ -145,14 +161,12 @@ def fixed_window_allow(
     if current is None:
         _cache_set(store, key, 1, timeout=window, request_id=request_id)
         return True
-    if int(current) >= limit:
+    current_int = _coerce_int(current, key=key, request_id=request_id, default=0)
+    if current_int >= limit:
         return False
     _, incr_ok = _cache_incr(store, key, request_id=request_id)
     if not incr_ok:
-        try:
-            next_value = int(current) + 1
-        except Exception:
-            next_value = 1
+        next_value = current_int + 1
         _cache_set(store, key, next_value, timeout=window, request_id=request_id)
     return True
 
@@ -177,9 +191,17 @@ def token_bucket_allow(
     if not ok:
         # Fail-open: allow requests when limiter state cannot be read.
         return True
+    if not isinstance(state, dict):
+        _log_cache_warning(
+            op="state_type",
+            key=key,
+            request_id=request_id,
+            exc=ValueError("invalid_state_type"),
+        )
+        state = {}
     state = state or {"tokens": float(capacity), "last": now}
-    tokens = float(state.get("tokens", capacity))
-    last = float(state.get("last", now))
+    tokens = _coerce_float(state.get("tokens", capacity), key=key, request_id=request_id, default=float(capacity))
+    last = _coerce_float(state.get("last", now), key=key, request_id=request_id, default=now)
 
     elapsed = max(now - last, 0.0)
     tokens = min(float(capacity), tokens + (elapsed * float(refill_per_second)))

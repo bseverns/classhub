@@ -207,6 +207,17 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "JOIN7788")
         self.assertContains(resp, "/?class_code=JOIN7788")
 
+    def test_teach_class_masks_return_codes_by_default(self):
+        classroom = Class.objects.create(name="Period Roster", join_code="MASK1234")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "••••••")
+        self.assertNotContains(resp, f">{student.return_code}<", html=False)
+        self.assertContains(resp, "Show")
+
     @patch("hub.views.teacher.generate_authoring_templates")
     def test_teach_home_can_generate_authoring_templates(self, mock_generate):
         mock_generate.return_value.output_paths = [
@@ -738,6 +749,15 @@ class LessonReleaseTests(TestCase):
         self.assertContains(resp, "Preview intro-only page")
         self.assertNotContains(resp, "Open lesson", status_code=200)
 
+    def test_student_home_masks_return_code_by_default(self):
+        self._login_student()
+
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "••••••")
+        self.assertNotContains(resp, f">{self.student.return_code}<", html=False)
+        self.assertContains(resp, "Copy return code")
+
     def test_student_upload_is_blocked_before_release(self):
         locked_until = timezone.localdate() + timedelta(days=2)
         LessonRelease.objects.create(
@@ -890,6 +910,18 @@ class JoinClassTests(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.json().get("error"), "invalid_return_code")
         self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 0)
+
+    def test_join_event_details_do_not_store_display_name_or_class_code(self):
+        payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
+        resp = self.client.post("/join", data=json.dumps(payload), content_type="application/json")
+        self.assertEqual(resp.status_code, 200)
+
+        event = StudentEvent.objects.order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.event_type, StudentEvent.EVENT_CLASS_JOIN)
+        self.assertNotIn("display_name", event.details)
+        self.assertNotIn("class_code", event.details)
+        self.assertEqual(event.details.get("join_mode"), "new")
 
 
 class TeacherAuditTests(TestCase):
@@ -1130,6 +1162,53 @@ class StudentEventSubmissionTests(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertContains(resp, "does not match .sb3", status_code=400)
         self.assertEqual(Submission.objects.filter(material=self.material, student=self.student).count(), 0)
+
+
+class SubmissionDownloadHardeningTests(TestCase):
+    def setUp(self):
+        self.classroom = Class.objects.create(name="Download Class", join_code="DL123456")
+        self.module = Module.objects.create(classroom=self.classroom, title="Session 1", order_index=0)
+        self.material = Material.objects.create(
+            module=self.module,
+            title="Upload",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+        self.submission = Submission.objects.create(
+            material=self.material,
+            student=self.student,
+            original_filename="../bad\r\nname<script>.sb3",
+            file=SimpleUploadedFile("project.sb3", _sample_sb3_bytes()),
+        )
+
+    def _login_student(self):
+        session = self.client.session
+        session["student_id"] = self.student.id
+        session["class_id"] = self.classroom.id
+        session.save()
+
+    def test_submission_download_sets_hardening_headers(self):
+        self._login_student()
+        resp = self.client.get(f"/submission/{self.submission.id}/download")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["X-Content-Type-Options"], "nosniff")
+        self.assertEqual(resp["Content-Security-Policy"], "default-src 'none'; sandbox")
+        self.assertEqual(resp["Referrer-Policy"], "no-referrer")
+        self.assertEqual(resp["Content-Type"], "application/octet-stream")
+        self.assertIn("attachment;", resp["Content-Disposition"])
+
+    def test_submission_download_uses_safe_content_disposition_filename(self):
+        self._login_student()
+        resp = self.client.get(f"/submission/{self.submission.id}/download")
+        self.assertEqual(resp.status_code, 200)
+        disposition = resp["Content-Disposition"]
+        self.assertIn("bad_name_script_.sb3", disposition)
+        self.assertNotIn("/", disposition)
+        self.assertNotIn("\\", disposition)
+        self.assertNotRegex(disposition, r"[\r\n]")
 
 
 class FileCleanupSignalTests(TestCase):

@@ -65,6 +65,13 @@
         border-radius: 9px;
         font-size: 12px;
       }
+      .secret-code {
+        display: inline-block;
+        min-width: 8ch;
+        text-align: center;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        letter-spacing: 0.08em;
+      }
       .copy-status {
         margin-top: 8px;
         min-height: 18px;
@@ -86,8 +93,27 @@
               <button type="button" class="inline-copy" data-copy-value="{{ classroom.join_code }}">Copy class code</button>
             </div>
             <div class="muted">
-              Your return code: <strong>{{ student.return_code }}</strong>
-              <button type="button" class="inline-copy" data-copy-value="{{ student.return_code }}">Copy return code</button>
+              Your return code:
+              <span
+                id="student-return-code"
+                class="pill secret-code"
+                data-secret-code="{{ student.return_code|b64encode }}"
+                data-shown="0"
+              >••••••</span>
+              <button
+                type="button"
+                class="inline-copy"
+                data-secret-target="student-return-code"
+                aria-controls="student-return-code"
+                aria-pressed="false"
+                aria-label="Show return code"
+              >Show</button>
+              <button
+                type="button"
+                class="inline-copy"
+                data-copy-secret-target="student-return-code"
+                aria-label="Copy return code"
+              >Copy return code</button>
               (use it if you ever need to rejoin)
             </div>
             <div id="copy-status" class="muted copy-status" role="status" aria-live="polite"></div>
@@ -188,11 +214,60 @@
     <script>
       (function () {
         const status = document.getElementById("copy-status");
-        const buttons = document.querySelectorAll("[data-copy-value]");
-        if (!status || !buttons.length) return;
-        buttons.forEach((btn) => {
+        const copyButtons = document.querySelectorAll("[data-copy-value], [data-copy-secret-target]");
+        const toggleButtons = document.querySelectorAll("[data-secret-target]");
+        const decodeSecret = (el) => {
+          if (!el) return "";
+          const encoded = el.getAttribute("data-secret-code") || "";
+          if (!encoded) return "";
+          try {
+            return atob(encoded);
+          } catch (_err) {
+            return "";
+          }
+        };
+        const maskFor = (value) => "•".repeat(Math.max(value.length, 6));
+        const setMasked = (el) => {
+          const plain = decodeSecret(el);
+          el.textContent = maskFor(plain);
+          el.setAttribute("data-shown", "0");
+        };
+        const setShown = (el) => {
+          const plain = decodeSecret(el);
+          el.textContent = plain || maskFor("");
+          el.setAttribute("data-shown", "1");
+        };
+
+        toggleButtons.forEach((btn) => {
+          const target = document.getElementById(btn.getAttribute("data-secret-target") || "");
+          if (!target) return;
+          setMasked(target);
+          btn.addEventListener("click", () => {
+            const shown = target.getAttribute("data-shown") === "1";
+            if (shown) {
+              setMasked(target);
+              btn.textContent = "Show";
+              btn.setAttribute("aria-pressed", "false");
+              btn.setAttribute("aria-label", "Show return code");
+              if (status) status.textContent = "Return code hidden.";
+            } else {
+              setShown(target);
+              btn.textContent = "Hide";
+              btn.setAttribute("aria-pressed", "true");
+              btn.setAttribute("aria-label", "Hide return code");
+              if (status) status.textContent = "Return code shown.";
+            }
+          });
+        });
+
+        if (!status || !copyButtons.length) return;
+        copyButtons.forEach((btn) => {
           btn.addEventListener("click", async () => {
-            const value = btn.getAttribute("data-copy-value") || "";
+            let value = btn.getAttribute("data-copy-value") || "";
+            if (!value) {
+              const target = document.getElementById(btn.getAttribute("data-copy-secret-target") || "");
+              value = decodeSecret(target);
+            }
             if (!value) return;
             try {
               if (navigator.clipboard && navigator.clipboard.writeText) {

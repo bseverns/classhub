@@ -417,3 +417,23 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Moves retention from manual cleanup to reliable routine operations.
 - Surfaces cleanup failures early and keeps uploads/event tables bounded over time.
+
+## Defensive hardening pass (downloads, return codes, rate limits)
+
+**Current decision:**
+- Submission downloads now force safer browser behavior:
+  - sanitized attachment filename
+  - `Content-Type: application/octet-stream`
+  - `X-Content-Type-Options: nosniff`
+  - `Content-Security-Policy: default-src 'none'; sandbox`
+  - `Referrer-Policy: no-referrer`
+- Return codes are masked by default in student and teacher pages, with explicit `Show/Hide` and `Copy` controls.
+- Student event payloads are reduced to low-sensitivity metadata (for example, join mode and file extension), avoiding display-name/class-code duplication.
+- Cache-backed limiter helpers now tolerate corrupt cache state without raising request-path errors (fail-open with warning logs including request id).
+- Release archives now run a reusable artifact lint check (`scripts/lint_release_artifact.py`) and exclude local/runtime secrets and state (`compose/.env` + local backup variants, `data/`, `.deploy/`).
+
+**Why this remains active:**
+- Reduces content-sniffing and filename abuse risk on download endpoints.
+- Limits shoulder-surfing exposure for return codes during classroom use.
+- Preserves classroom availability during transient cache issues.
+- Keeps release bundles safer and reproducible across local and CI workflows.

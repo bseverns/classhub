@@ -72,6 +72,20 @@ class _FailingCache:
         raise RuntimeError("cache down")
 
 
+class _CorruptCache:
+    def __init__(self, value):
+        self.value = value
+
+    def get(self, key):
+        return self.value
+
+    def set(self, key, value, timeout=None):
+        self.value = value
+
+    def incr(self, key):
+        raise RuntimeError("cache incr down")
+
+
 class RequestSafetyRateLimitResilienceTests(SimpleTestCase):
     def test_fixed_window_allow_fails_open_when_cache_backend_errors(self):
         allowed = fixed_window_allow(
@@ -82,6 +96,16 @@ class RequestSafetyRateLimitResilienceTests(SimpleTestCase):
             request_id="req-cache-down",
         )
         self.assertTrue(allowed)
+        with self.assertLogs("common.request_safety", level="WARNING") as logs:
+            allowed = fixed_window_allow(
+                "rl:test:key",
+                limit=1,
+                window_seconds=60,
+                cache_backend=_FailingCache(),
+                request_id="req-cache-down",
+            )
+        self.assertTrue(allowed)
+        self.assertTrue(any("request_id=req-cache-down" in line for line in logs.output))
 
     def test_token_bucket_allow_fails_open_when_cache_backend_errors(self):
         allowed = token_bucket_allow(
@@ -92,6 +116,32 @@ class RequestSafetyRateLimitResilienceTests(SimpleTestCase):
             request_id="req-cache-down",
         )
         self.assertTrue(allowed)
+
+    def test_fixed_window_allow_tolerates_corrupt_cache_state(self):
+        cache_backend = _CorruptCache("not-an-int")
+        with self.assertLogs("common.request_safety", level="WARNING") as logs:
+            allowed = fixed_window_allow(
+                "rl:test:key",
+                limit=3,
+                window_seconds=60,
+                cache_backend=cache_backend,
+                request_id="req-corrupt-int",
+            )
+        self.assertTrue(allowed)
+        self.assertTrue(any("coerce_int" in line for line in logs.output))
+
+    def test_token_bucket_allow_tolerates_corrupt_cache_state(self):
+        cache_backend = _CorruptCache({"tokens": "bad", "last": "bad"})
+        with self.assertLogs("common.request_safety", level="WARNING") as logs:
+            allowed = token_bucket_allow(
+                "tb:test:key",
+                capacity=10,
+                refill_per_second=1.0,
+                cache_backend=cache_backend,
+                request_id="req-corrupt-float",
+            )
+        self.assertTrue(allowed)
+        self.assertTrue(any("coerce_float" in line for line in logs.output))
 
 
 class ReleaseStateServiceTests(SimpleTestCase):

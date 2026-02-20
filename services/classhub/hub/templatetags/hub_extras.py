@@ -1,3 +1,5 @@
+import base64
+
 from django import template
 
 register = template.Library()
@@ -45,3 +47,9 @@ def lesson_topics(front_matter: dict) -> str:
         parts.append(f"Session: {session}")
 
     return " | ".join(parts)
+
+
+@register.filter
+def b64encode(value: str) -> str:
+    raw = str(value or "")
+    return base64.b64encode(raw.encode("utf-8")).decode("ascii")

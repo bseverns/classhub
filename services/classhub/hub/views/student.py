@@ -235,10 +235,7 @@ def join_class(request):
         classroom=classroom,
         student=student,
         source="classhub.join_class",
-        details={
-            "class_code": classroom.join_code,
-            "display_name": student.display_name,
-        },
+        details={"join_mode": join_mode},
         ip_address=client_ip,
     )
     return response
@@ -565,7 +562,7 @@ def material_upload(request, material_id: int):
                         details={
                             "material_id": material.id,
                             "submission_id": submission.id,
-                            "original_filename": name[:255],
+                            "file_ext": (Path(name).suffix or "").lower()[:16],
                             "size_bytes": int(getattr(f, "size", 0) or 0),
                             "scan_status": scan_result.status if scan_result else "skipped",
                         },
@@ -618,8 +615,18 @@ def submission_download(request, submission_id: int):
         if s.student_id != request.student.id:
             return HttpResponse("Forbidden", status=403)
 
-    filename = s.original_filename or Path(s.file.name).name
-    return FileResponse(s.file.open("rb"), as_attachment=True, filename=filename)
+    raw_filename = s.original_filename or Path(s.file.name).name or "submission"
+    filename = safe_filename(raw_filename)[:255] or "submission"
+    response = FileResponse(
+        s.file.open("rb"),
+        as_attachment=True,
+        filename=filename,
+        content_type="application/octet-stream",
+    )
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Content-Security-Policy"] = "default-src 'none'; sandbox"
+    response["Referrer-Policy"] = "no-referrer"
+    return response
 
 
 def student_logout(request):

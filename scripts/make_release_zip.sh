@@ -21,15 +21,26 @@ cd "${ROOT_DIR}"
 zip -r "${OUT_ABS}" . \
   -x ".git/*" \
   -x ".venv/*" \
+  -x ".deploy/*" \
+  -x "data/*" \
   -x "media/*" \
   -x "*/media/*" \
   -x "staticfiles/*" \
   -x "*/staticfiles/*" \
+  -x "compose/.env" \
+  -x "compose/.env.bak*" \
+  -x "compose/.env.backup*" \
+  -x "compose/.env.local" \
+  -x "compose/.env.local.*" \
+  -x "compose/.env.*.bak*" \
+  -x "compose/docker-compose.override.yml.disabled" \
   -x "__MACOSX/*" \
   -x "*/__pycache__/*" \
   -x "*.pyc" \
   -x ".DS_Store" \
   -x "*/.DS_Store" \
   -x "dist/*"
+
+python3 "${ROOT_DIR}/scripts/lint_release_artifact.py" "${OUT_ABS}"
 
 echo "Release zip created: ${OUT_ABS}"

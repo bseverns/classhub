@@ -101,6 +101,20 @@ cd /srv/lms/app
 bash scripts/golden_path_smoke.sh
 ```
 
+## Public domain deployment notes
+
+When running behind Caddy on a real domain, use these defaults to avoid false rate-limit identity and upload mismatches:
+
+- Proxy/IP trust:
+  - Set `REQUEST_SAFETY_TRUST_PROXY_HEADERS=1` so Django rate limiting sees client IPs forwarded by Caddy.
+  - Keep `REQUEST_SAFETY_XFF_INDEX=0` when Caddy is the first trusted hop.
+- Upload size alignment:
+  - Set `CADDY_CLASSHUB_MAX_BODY` slightly above `CLASSHUB_UPLOAD_MAX_MB` (for example, `650MB` vs `600`).
+  - `CLASSHUB_UPLOAD_MAX_MB` controls Django request body cap for class uploads.
+- Retention timer:
+  - Enable the `classhub-retention.timer` unit so submission/event cleanup runs automatically.
+  - Timer setup commands are in [Automate retention + orphan cleanup](#automate-retention--orphan-cleanup).
+
 ## Health and logs
 
 ### Health checks
@@ -251,6 +265,12 @@ Optional output path:
 
 ```bash
 bash scripts/make_release_zip.sh /srv/lms/releases/classhub_release.zip
+```
+
+Validate the generated archive explicitly:
+
+```bash
+python3 scripts/lint_release_artifact.py /srv/lms/releases/classhub_release.zip
 ```
 
 Release packaging policy and verification details:
