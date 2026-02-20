@@ -21,5 +21,5 @@ EXPOSE 8000
 RUN DJANGO_SECRET_KEY=build-time-static-secret-key-aaaaaaaaaaaaaaaa DJANGO_DEBUG=1 \
   python manage.py collectstatic --noinput
 
-# Day-1: run migrations on container start (fine for MVP, later do it in CI/CD)
-CMD ["bash", "-lc", "python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 60"]
+# Default keeps Day-1 behavior; set RUN_MIGRATIONS_ON_START=0 once migrations are moved to deploy step.
+CMD ["bash", "-lc", "if [ \"${RUN_MIGRATIONS_ON_START:-1}\" = \"1\" ]; then python manage.py migrate --noinput; fi; exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 60"]

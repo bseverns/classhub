@@ -10,6 +10,22 @@ from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 from ..models import LessonAsset, LessonVideo
 from ..services.content_links import safe_filename, video_mime_type
 
+_INLINE_ASSET_MIME_PREFIXES = (
+    "image/",
+    "audio/",
+    "video/",
+)
+_INLINE_ASSET_MIME_TYPES = {
+    "application/pdf",
+}
+
+
+def _asset_allows_inline(content_type: str) -> bool:
+    normalized = (content_type or "").strip().lower()
+    if normalized in _INLINE_ASSET_MIME_TYPES:
+        return True
+    return any(normalized.startswith(prefix) for prefix in _INLINE_ASSET_MIME_PREFIXES)
+
 
 def _request_can_view_lesson_video(request) -> bool:
     if request.user.is_authenticated and request.user.is_staff:
@@ -150,7 +166,18 @@ def lesson_asset_download(request, asset_id: int):
 
     filename = safe_filename((asset.original_filename or file_path.name or "asset").strip()[:255])
     content_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
-    return FileResponse(open(file_path, "rb"), as_attachment=False, filename=filename, content_type=content_type)
+    inline_allowed = _asset_allows_inline(content_type)
+    response = FileResponse(
+        open(file_path, "rb"),
+        as_attachment=not inline_allowed,
+        filename=filename,
+        content_type=content_type,
+    )
+    response["X-Content-Type-Options"] = "nosniff"
+    if inline_allowed:
+        # Defense-in-depth in case a dangerous type slips through MIME guessing.
+        response["Content-Security-Policy"] = "sandbox"
+    return response
 
 
 __all__ = [

@@ -1471,27 +1471,32 @@ def teach_create_teacher(request):
 
 
 def _resolve_teacher_setup_context(request):
+    requested_next = (request.GET.get("next") or request.POST.get("next") or "").strip()
+    safe_next = requested_next if requested_next.startswith("/teach") and not requested_next.startswith("//") else ""
     token = (request.GET.get("token") or request.POST.get("token") or "").strip()
     if token:
         user, err = _resolve_teacher_setup_user(token)
         if err:
-            return None, token, err
+            return None, token, err, safe_next
         if not request.user.is_authenticated or request.user.pk != user.pk:
             user.backend = "django.contrib.auth.backends.ModelBackend"
             auth_login(request, user)
-        return user, token, ""
+        return user, token, "", safe_next
 
     current = getattr(request, "user", None)
     if current and current.is_authenticated and current.is_staff and current.is_active:
-        return current, "", ""
+        return current, "", "", safe_next
 
-    return None, "", "Sign in first, or open a valid setup link from your invite email."
+    return None, "", "Sign in first, or open a valid setup link from your invite email.", safe_next
 
 
 def teach_teacher_2fa_setup(request):
-    user, token, setup_error = _resolve_teacher_setup_context(request)
+    user, token, setup_error, safe_next = _resolve_teacher_setup_context(request)
     if user is None:
-        login_url = "/admin/login/?next=/teach/2fa/setup"
+        login_next = "/teach/2fa/setup"
+        if safe_next:
+            login_next = f"{login_next}?{urlencode({'next': safe_next})}"
+        login_url = f"/admin/login/?{urlencode({'next': login_next})}"
         if token:
             return render(
                 request,
@@ -1502,6 +1507,7 @@ def teach_teacher_2fa_setup(request):
                     "otp_ready": False,
                     "already_configured": False,
                     "setup_user": None,
+                    "next_path": safe_next,
                 },
                 status=400,
             )
@@ -1533,7 +1539,8 @@ def teach_teacher_2fa_setup(request):
                 summary=f"Completed teacher 2FA enrollment for {user.username}",
                 metadata={"device_name": device.name},
             )
-            return redirect(_with_notice("/teach", notice="2FA setup complete."))
+            redirect_to = safe_next if safe_next.startswith("/teach") else "/teach"
+            return redirect(_with_notice(redirect_to, notice="2FA setup complete."))
 
     already_configured = bool(device.confirmed)
     qr_svg = ""
@@ -1559,6 +1566,7 @@ def teach_teacher_2fa_setup(request):
             "manual_secret": manual_secret,
             "qr_svg": mark_safe(qr_svg) if qr_svg else "",
             "digits": int(device.digits or 6),
+            "next_path": safe_next,
         },
     )
 

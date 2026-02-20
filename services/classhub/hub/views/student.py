@@ -30,6 +30,7 @@ from ..services.content_links import parse_course_lesson_url
 from ..services.markdown_content import load_lesson_markdown
 from ..services.release_state import lesson_release_override_map, lesson_release_state
 from ..services.upload_scan import scan_uploaded_file
+from ..services.upload_validation import validate_upload_content
 from ..services.upload_policy import parse_extensions
 from common.request_safety import client_ip_from_request, fixed_window_allow
 
@@ -420,9 +421,23 @@ def material_upload(request, material_id: int):
             elif getattr(f, "size", 0) and f.size > max_bytes:
                 error = f"File too large. Max size: {material.max_upload_mb}MB"
             else:
-                scan_result = scan_uploaded_file(f)
+                content_error = validate_upload_content(f, ext)
+                if content_error:
+                    error = content_error
+                    response_status = 400
+                    logger.info(
+                        "upload_rejected_content_mismatch material_id=%s student_id=%s ext=%s",
+                        material.id,
+                        request.student.id,
+                        ext,
+                    )
+                    scan_result = None
+                else:
+                    scan_result = scan_uploaded_file(f)
                 fail_closed = bool(getattr(settings, "CLASSHUB_UPLOAD_SCAN_FAIL_CLOSED", False))
-                if scan_result.status == "infected":
+                if error:
+                    pass
+                elif scan_result.status == "infected":
                     logger.warning(
                         "upload_blocked_malware material_id=%s student_id=%s message=%s",
                         material.id,
@@ -458,7 +473,7 @@ def material_upload(request, material_id: int):
                             "submission_id": submission.id,
                             "original_filename": name[:255],
                             "size_bytes": int(getattr(f, "size", 0) or 0),
-                            "scan_status": scan_result.status,
+                            "scan_status": scan_result.status if scan_result else "skipped",
                         },
                         ip_address=client_ip_from_request(
                             request,

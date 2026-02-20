@@ -68,6 +68,10 @@ echo "[deploy] running migration gate"
 echo "[deploy] launching production compose (docker-compose.yml only)"
 run_compose up -d --build
 
+echo "[deploy] applying runtime migrations"
+run_compose exec -T classhub_web python manage.py migrate --noinput
+run_compose exec -T helper_web python manage.py migrate --noinput
+
 template_from_env="$(env_file_value CADDYFILE_TEMPLATE)"
 template_from_env="${template_from_env:-Caddyfile.local}"
 EXPECTED_CADDYFILE="${ROOT_DIR}/compose/${template_from_env}"

@@ -210,6 +210,10 @@ wait_for_container_state classhub_web healthy
 wait_for_container_state helper_web healthy
 wait_for_container_state classhub_caddy running
 
+echo "[doctor] applying runtime migrations"
+run_compose exec -T classhub_web python manage.py migrate --noinput
+run_compose exec -T helper_web python manage.py migrate --noinput
+
 echo "[doctor] 6/6 smoke checks (${SMOKE_MODE})"
 if [[ "${SMOKE_MODE}" == "golden" ]]; then
   GOLDEN_ARGS=(

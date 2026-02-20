@@ -184,9 +184,14 @@ if [[ -n "${TEACHER_SESSION_KEY}" || ( -n "${TEACHER_USERNAME}" && -n "${TEACHER
       fail "teacher login returned ${login_code}: $(cat "${TMP_LOGIN}")"
     fi
 
-    code="$(curl "${CURL_FLAGS[@]}" -o "${TMP_TEACH}" -w "%{http_code}" -c "${COOKIE_JAR}" -b "${COOKIE_JAR}" "${BASE_URL}/teach")"
-    [[ "${code}" == "200" ]] || fail "/teach returned ${code} after login attempt (login status ${login_code}): $(cat "${TMP_LOGIN}")"
-    echo "[smoke] teacher login + /teach OK"
+    code="$(curl "${CURL_FLAGS[@]}" -D "${TMP_HEADERS}" -o "${TMP_TEACH}" -w "%{http_code}" -c "${COOKIE_JAR}" -b "${COOKIE_JAR}" "${BASE_URL}/teach")"
+    if [[ "${code}" == "200" ]]; then
+      echo "[smoke] teacher login + /teach OK"
+    elif [[ ( "${code}" == "302" || "${code}" == "303" ) && "$(grep -i '^Location:' "${TMP_HEADERS}" | tail -n1)" == *"/teach/2fa/setup"* ]]; then
+      echo "[smoke] teacher login OK (2FA setup required for /teach)"
+    else
+      fail "/teach returned ${code} after login attempt (login status ${login_code}): $(cat "${TMP_LOGIN}")"
+    fi
   fi
 fi
 

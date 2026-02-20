@@ -55,6 +55,7 @@ What this deploy command enforces:
 
 - environment and secret validation
 - migration gate for both Django services
+- runtime `manage.py migrate --noinput` for both Django services
 - compose launch via `compose/docker-compose.yml` only
 - Caddy template mount sanity checks
 - smoke checks (`/healthz`, `/helper/healthz`, join, helper chat, teacher login)
@@ -130,6 +131,18 @@ Helper logs include structured events like `success`, `queue_busy`, and `backend
 cd /srv/lms/app
 bash scripts/migration_gate.sh
 ```
+
+`migration_gate.sh` checks that migration files are committed. It does not apply DB migrations.
+
+### Apply runtime migrations
+
+```bash
+cd /srv/lms/app/compose
+docker compose exec -T classhub_web python manage.py migrate --noinput
+docker compose exec -T helper_web python manage.py migrate --noinput
+```
+
+If your deployment pipeline always runs the commands above, set `RUN_MIGRATIONS_ON_START=0` in `compose/.env` to avoid boot-time migration races.
 
 ### Content preflight
 

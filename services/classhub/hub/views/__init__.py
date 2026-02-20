@@ -7,8 +7,8 @@ New code should import endpoints from submodules by concern:
 - hub.views.media
 """
 
-# Keep legacy internals importable for downstream callers during migration.
-from ._legacy import *  # noqa: F401,F403
+# Keep legacy module importable without polluting the active endpoint surface.
+from . import _legacy as legacy  # noqa: F401
 
 # Export concern-based endpoint modules last so they are the active callables.
 from .content import *  # noqa: F401,F403

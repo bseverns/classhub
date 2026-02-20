@@ -1,3 +1,5 @@
+import zipfile
+from io import BytesIO
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -23,6 +25,14 @@ from .services.upload_policy import (
     parse_extensions,
 )
 from .services.upload_scan import scan_uploaded_file
+from .services.upload_validation import validate_upload_content
+
+
+def _sample_sb3_upload() -> SimpleUploadedFile:
+    buf = BytesIO()
+    with zipfile.ZipFile(buf, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("project.json", '{"targets":[],"meta":{"semver":"3.0.0"}}')
+    return SimpleUploadedFile("project.sb3", buf.getvalue())
 
 
 class UploadPolicyServiceTests(SimpleTestCase):
@@ -145,6 +155,17 @@ class UploadScanServiceTests(SimpleTestCase):
             run_mock.return_value.stderr = ""
             result = scan_uploaded_file(upload)
         self.assertEqual(result.status, "infected")
+
+
+class UploadValidationServiceTests(SimpleTestCase):
+    def test_validate_upload_content_accepts_valid_sb3_archive(self):
+        error = validate_upload_content(_sample_sb3_upload(), ".sb3")
+        self.assertEqual(error, "")
+
+    def test_validate_upload_content_rejects_non_zip_sb3(self):
+        upload = SimpleUploadedFile("project.sb3", b"not-a-zip")
+        error = validate_upload_content(upload, ".sb3")
+        self.assertIn("does not match .sb3", error)
 
 
 class ContentLinksServiceTests(SimpleTestCase):

@@ -1,8 +1,9 @@
 import json
 import re
 import tempfile
-from io import StringIO
+import zipfile
 from datetime import timedelta
+from io import BytesIO, StringIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -18,8 +19,43 @@ from django.utils import timezone
 
 from common.helper_scope import parse_scope_token
 
-from .models import AuditEvent, Class, LessonRelease, Material, Module, StudentEvent, StudentIdentity, Submission
+from .models import (
+    AuditEvent,
+    Class,
+    LessonAsset,
+    LessonAssetFolder,
+    LessonRelease,
+    Material,
+    Module,
+    StudentEvent,
+    StudentIdentity,
+    Submission,
+)
 from .services.upload_scan import ScanResult
+
+
+def _sample_sb3_bytes() -> bytes:
+    """Build a tiny valid Scratch archive for upload-path tests."""
+    buf = BytesIO()
+    with zipfile.ZipFile(buf, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("project.json", '{"targets":[],"meta":{"semver":"3.0.0"}}')
+    return buf.getvalue()
+
+
+def _force_login_staff_verified(client: Client, user) -> None:
+    """Authenticate and mark OTP as verified for /teach tests."""
+    client.force_login(user)
+    device, _ = TOTPDevice.objects.get_or_create(
+        user=user,
+        name="teacher-primary",
+        defaults={"confirmed": True},
+    )
+    if not device.confirmed:
+        device.confirmed = True
+        device.save(update_fields=["confirmed"])
+    session = client.session
+    session["otp_device_id"] = device.persistent_id
+    session.save()
 
 
 class TeacherPortalTests(TestCase):
@@ -66,7 +102,7 @@ class TeacherPortalTests(TestCase):
 
     def test_teach_lessons_shows_submission_progress(self):
         classroom, upload = self._build_lesson_with_submission()
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get(f"/teach/lessons?class_id={classroom.id}")
         self.assertEqual(resp.status_code, 200)
@@ -79,7 +115,7 @@ class TeacherPortalTests(TestCase):
 
     def test_teach_home_shows_recent_submissions(self):
         self._build_lesson_with_submission()
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get("/teach")
         self.assertEqual(resp.status_code, 200)
@@ -89,7 +125,7 @@ class TeacherPortalTests(TestCase):
 
     def test_teach_class_join_card_renders_printable_details(self):
         classroom = Class.objects.create(name="Period 2", join_code="JOIN7788")
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get(f"/teach/class/{classroom.id}/join-card")
         self.assertEqual(resp.status_code, 200)
@@ -105,7 +141,7 @@ class TeacherPortalTests(TestCase):
             Path("/uploads/authoring_templates/sample-public-overview-template.md"),
             Path("/uploads/authoring_templates/sample-public-overview-template.docx"),
         ]
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.post(
             "/teach/generate-authoring-templates",
@@ -135,7 +171,7 @@ class TeacherPortalTests(TestCase):
 
     @patch("hub.views.teacher.generate_authoring_templates")
     def test_teach_home_template_generator_rejects_invalid_slug(self, mock_generate):
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
         resp = self.client.post(
             "/teach/generate-authoring-templates",
             {
@@ -150,7 +186,7 @@ class TeacherPortalTests(TestCase):
         mock_generate.assert_not_called()
 
     def test_teach_home_shows_template_download_links_for_selected_slug(self):
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
         with tempfile.TemporaryDirectory() as temp_dir:
             template_dir = Path(temp_dir)
             (template_dir / "sample_slug-teacher-plan-template.md").write_text("hello", encoding="utf-8")
@@ -162,7 +198,7 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "sample_slug-teacher-plan-template.docx (not generated yet)")
 
     def test_staff_can_download_generated_authoring_template(self):
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
         with tempfile.TemporaryDirectory() as temp_dir:
             template_dir = Path(temp_dir)
             expected_path = template_dir / "sample_slug-teacher-plan-template.md"
@@ -181,7 +217,7 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(event.actor_user_id, self.staff.id)
 
     def test_teacher_logout_ends_staff_session(self):
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
         resp = self.client.get("/teach/logout")
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["Location"], "/admin/login/")
@@ -194,7 +230,7 @@ class TeacherPortalTests(TestCase):
     def test_teacher_can_rename_student(self):
         classroom = Class.objects.create(name="Period Rename", join_code="REN12345")
         student = StudentIdentity.objects.create(classroom=classroom, display_name="Ari")
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.post(
             f"/teach/class/{classroom.id}/rename-student",
@@ -232,7 +268,7 @@ class TeacherPortalTests(TestCase):
         session["class_epoch"] = old_epoch
         session.save()
 
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
         resp = self.client.post(
             f"/teach/class/{classroom.id}/reset-roster",
             {"rotate_code": "1"},
@@ -251,7 +287,7 @@ class TeacherPortalTests(TestCase):
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_superuser_can_create_teacher_and_send_invite(self):
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
         resp = self.client.post(
             "/teach/create-teacher",
             {
@@ -286,7 +322,7 @@ class TeacherPortalTests(TestCase):
             is_staff=True,
             is_superuser=False,
         )
-        self.client.force_login(non_super_staff)
+        _force_login_staff_verified(self.client, non_super_staff)
 
         resp = self.client.post(
             "/teach/create-teacher",
@@ -360,6 +396,30 @@ class Teacher2FASetupTests(TestCase):
         resp = self.client.get("/teach/2fa/setup?token=bad-token")
         self.assertEqual(resp.status_code, 400)
         self.assertContains(resp, "Invalid setup link", status_code=400)
+
+
+class TeacherOTPEnforcementTests(TestCase):
+    def setUp(self):
+        self.teacher = get_user_model().objects.create_user(
+            username="teacher_gate",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+
+    @override_settings(TEACHER_2FA_REQUIRED=True)
+    def test_unverified_staff_redirects_to_teacher_2fa_setup(self):
+        self.client.force_login(self.teacher)
+        resp = self.client.get("/teach/lessons")
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/2fa/setup", resp["Location"])
+        self.assertIn("next=%2Fteach%2Flessons", resp["Location"])
+
+    @override_settings(TEACHER_2FA_REQUIRED=True)
+    def test_verified_staff_can_access_teacher_routes(self):
+        _force_login_staff_verified(self.client, self.teacher)
+        resp = self.client.get("/teach/lessons")
+        self.assertEqual(resp.status_code, 200)
 
 
 class Admin2FATests(TestCase):
@@ -495,7 +555,7 @@ class LessonReleaseTests(TestCase):
         session.save()
 
     def test_teacher_can_set_release_date_from_interface(self):
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
         target_date = timezone.localdate() + timedelta(days=3)
 
         resp = self.client.post(
@@ -520,7 +580,7 @@ class LessonReleaseTests(TestCase):
         self.assertFalse(row.force_locked)
 
     def test_teacher_can_set_helper_scope_from_interface(self):
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.post(
             "/teach/lessons/release",
@@ -601,7 +661,7 @@ class LessonReleaseTests(TestCase):
 
         resp = self.client.post(
             f"/material/{self.upload.id}/upload",
-            {"file": SimpleUploadedFile("project.sb3", b"dummy")},
+            {"file": SimpleUploadedFile("project.sb3", _sample_sb3_bytes())},
         )
         self.assertEqual(resp.status_code, 403)
         self.assertContains(resp, locked_until.isoformat(), status_code=403)
@@ -615,7 +675,7 @@ class LessonReleaseTests(TestCase):
         self._login_student()
         resp = self.client.post(
             f"/material/{self.upload.id}/upload",
-            {"file": SimpleUploadedFile("project.sb3", b"dummy")},
+            {"file": SimpleUploadedFile("project.sb3", _sample_sb3_bytes())},
         )
         self.assertEqual(resp.status_code, 503)
         self.assertContains(resp, "scanner unavailable", status_code=503)
@@ -627,7 +687,7 @@ class LessonReleaseTests(TestCase):
         self._login_student()
         resp = self.client.post(
             f"/material/{self.upload.id}/upload",
-            {"file": SimpleUploadedFile("project.sb3", b"dummy")},
+            {"file": SimpleUploadedFile("project.sb3", _sample_sb3_bytes())},
         )
         self.assertEqual(resp.status_code, 400)
         self.assertContains(resp, "Upload blocked by malware scan", status_code=400)
@@ -754,7 +814,7 @@ class TeacherAuditTests(TestCase):
         self.classroom = Class.objects.create(name="Audit Class", join_code="AUD12345")
 
     def test_teach_toggle_lock_creates_audit_event(self):
-        self.client.force_login(self.staff)
+        _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.post(f"/teach/class/{self.classroom.id}/toggle-lock")
         self.assertEqual(resp.status_code, 302)
@@ -860,7 +920,7 @@ class StudentEventSubmissionTests(TestCase):
         resp = self.client.post(
             f"/material/{self.material.id}/upload",
             {
-                "file": SimpleUploadedFile("project.sb3", b"dummy"),
+                "file": SimpleUploadedFile("project.sb3", _sample_sb3_bytes()),
                 "note": "done",
             },
         )
@@ -878,6 +938,62 @@ class StudentEventSubmissionTests(TestCase):
         stored_name = Path(submission.file.name).name
         self.assertNotEqual(stored_name, "project.sb3")
         self.assertTrue(re.match(r"^[a-f0-9]{32}\.sb3$", stored_name))
+
+    def test_material_upload_rejects_invalid_sb3_content(self):
+        self._login_student()
+        resp = self.client.post(
+            f"/material/{self.material.id}/upload",
+            {
+                "file": SimpleUploadedFile("project.sb3", b"not-a-zip"),
+                "note": "bad",
+            },
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertContains(resp, "does not match .sb3", status_code=400)
+        self.assertEqual(Submission.objects.filter(material=self.material, student=self.student).count(), 0)
+
+
+class LessonAssetDownloadTests(TestCase):
+    def setUp(self):
+        self.classroom = Class.objects.create(name="Asset Class", join_code="AST12345")
+        self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+        self.folder = LessonAssetFolder.objects.create(path="general", display_name="General")
+
+    def _login_student(self):
+        session = self.client.session
+        session["student_id"] = self.student.id
+        session["class_id"] = self.classroom.id
+        session.save()
+
+    def test_html_asset_forces_download_attachment(self):
+        asset = LessonAsset.objects.create(
+            folder=self.folder,
+            title="Unsafe HTML",
+            original_filename="demo.html",
+            file=SimpleUploadedFile("demo.html", b"<html><script>alert(1)</script></html>"),
+        )
+        self._login_student()
+
+        resp = self.client.get(f"/lesson-asset/{asset.id}/download")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("attachment;", resp["Content-Disposition"])
+        self.assertEqual(resp["X-Content-Type-Options"], "nosniff")
+        self.assertNotIn("Content-Security-Policy", resp)
+
+    def test_image_asset_allows_inline_with_sandbox_header(self):
+        asset = LessonAsset.objects.create(
+            folder=self.folder,
+            title="Diagram",
+            original_filename="diagram.png",
+            file=SimpleUploadedFile("diagram.png", b"\x89PNG\r\n\x1a\n\x00\x00\x00\x00"),
+        )
+        self._login_student()
+
+        resp = self.client.get(f"/lesson-asset/{asset.id}/download")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("inline;", resp["Content-Disposition"])
+        self.assertEqual(resp["X-Content-Type-Options"], "nosniff")
+        self.assertEqual(resp["Content-Security-Policy"], "sandbox")
 
 
 class ClassHubSecurityHeaderTests(TestCase):

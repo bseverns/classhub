@@ -225,6 +225,19 @@ If no superuser exists:
 docker compose exec classhub_web python manage.py createsuperuser
 ```
 
+## Symptom: `/teach` redirects to `/teach/2fa/setup`
+
+Cause:
+
+- staff account is authenticated but not OTP-verified
+- `DJANGO_TEACHER_2FA_REQUIRED=1` is enabled (default)
+
+Fix:
+
+1. Complete setup at `/teach/2fa/setup` for that account.
+2. If the account has no device yet, enroll one with the QR/manual secret flow.
+3. If this is temporary bootstrap only, set `DJANGO_TEACHER_2FA_REQUIRED=0`, restart, then re-enable after enrollment.
+
 ## Symptom: class content disappeared after rebuild/reset
 
 Cause:

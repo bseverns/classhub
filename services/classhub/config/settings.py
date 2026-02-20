@@ -114,6 +114,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django_otp.middleware.OTPMiddleware",
+    "config.middleware.TeacherOTPRequiredMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # StudentSessionMiddleware relies on sessions.
@@ -163,7 +164,7 @@ else:
     }
 
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
+TIME_ZONE = env("DJANGO_TIME_ZONE", default="America/Chicago").strip() or "America/Chicago"
 USE_I18N = True
 USE_TZ = True
 
@@ -226,6 +227,7 @@ CLASSHUB_MARKDOWN_ALLOWED_IMAGE_HOSTS = [
 REQUEST_SAFETY_TRUST_PROXY_HEADERS = env.bool("REQUEST_SAFETY_TRUST_PROXY_HEADERS", default=False)
 REQUEST_SAFETY_XFF_INDEX = env.int("REQUEST_SAFETY_XFF_INDEX", default=0)
 ADMIN_2FA_REQUIRED = env.bool("DJANGO_ADMIN_2FA_REQUIRED", default=True)
+TEACHER_2FA_REQUIRED = env.bool("DJANGO_TEACHER_2FA_REQUIRED", default=True)
 CSP_REPORT_ONLY_POLICY = env("DJANGO_CSP_REPORT_ONLY_POLICY", default="").strip()
 
 # When behind Caddy, Django should respect forwarded proto for secure cookies.

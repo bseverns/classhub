@@ -21,6 +21,11 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Content parse caching](#content-parse-caching)
 - [Admin access 2FA](#admin-access-2fa)
 - [Teacher onboarding invites + 2FA](#teacher-onboarding-invites--2fa)
+- [Teacher route 2FA enforcement](#teacher-route-2fa-enforcement)
+- [Lesson asset delivery hardening](#lesson-asset-delivery-hardening)
+- [Upload content validation](#upload-content-validation)
+- [Deployment timezone by environment](#deployment-timezone-by-environment)
+- [Migration execution at deploy time](#migration-execution-at-deploy-time)
 
 ## Archive Index
 
@@ -61,6 +66,59 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Removes CLI-only OTP provisioning friction during teacher onboarding.
 - Keeps enrollment self-service while preserving short-lived, signed invite boundaries.
+
+## Teacher route 2FA enforcement
+
+**Current decision:**
+- `/teach/*` now requires OTP-verified staff sessions by default (`DJANGO_TEACHER_2FA_REQUIRED=1`).
+- `/teach/2fa/setup` and `/teach/logout` stay exempt so enrollment/recovery remains reachable.
+- Middleware redirects unverified staff to `/teach/2fa/setup?next=<requested_teach_path>`.
+
+**Why this remains active:**
+- Teacher routes can rotate join codes, manage rosters, and access submissions; password-only is insufficient.
+- Keeps teacher onboarding usable while enforcing stronger session posture on operational pages.
+
+## Lesson asset delivery hardening
+
+**Current decision:**
+- Lesson assets are served as attachments by default.
+- Inline rendering is restricted to allow-listed media/PDF MIME types only.
+- Asset responses include `X-Content-Type-Options: nosniff`; inline responses include CSP sandbox.
+
+**Why this remains active:**
+- Reduces stored-XSS risk from HTML/script-like teacher uploads served on the LMS origin.
+- Preserves inline behavior for expected classroom media types.
+
+## Upload content validation
+
+**Current decision:**
+- Extension checks remain, but uploads now include lightweight content checks before storage.
+- `.sb3` uploads must be valid zip archives and include `project.json`.
+- Magic-byte checks reject obvious extension/content mismatches for common file types.
+
+**Why this remains active:**
+- Reduces support churn from corrupted/mislabeled files.
+- Adds cheap safety checks without introducing heavyweight scanning dependencies.
+
+## Deployment timezone by environment
+
+**Current decision:**
+- Both services read `DJANGO_TIME_ZONE` (default `America/Chicago`) instead of hardcoding UTC.
+- Operators set local classroom timezone in `compose/.env` (for example `America/Chicago`).
+
+**Why this remains active:**
+- Release-date gating uses `timezone.localdate()`, so deployment timezone must match classroom expectations.
+- Prevents off-by-one-day release behavior around local midnight.
+
+## Migration execution at deploy time
+
+**Current decision:**
+- Deploy/doctor/golden scripts explicitly run `manage.py migrate --noinput` for both services.
+- Container boot keeps a compatibility toggle (`RUN_MIGRATIONS_ON_START`, default `1`) during rollout.
+
+**Why this remains active:**
+- Explicit migration steps are safer for multi-instance deployment workflows.
+- The boot toggle preserves Day-1 simplicity while operators migrate to deploy-step migrations.
 
 ## Service boundary: Homework Helper separate service
 
@@ -141,7 +199,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Caddy mount source must match the expected compose config file.
 - `scripts/system_doctor.sh` is the canonical one-command stack diagnostic.
 - Golden-path smoke can auto-provision fixtures via `scripts/golden_path_smoke.sh`.
-- Class Hub static assets are collected during image build; runtime boot path is migrations + gunicorn only.
+- Class Hub static assets are collected during image build; runtime migration-at-boot is toggleable (`RUN_MIGRATIONS_ON_START`) while deploy scripts run explicit migrations.
 - Smoke checks default to `http://localhost` when `CADDYFILE_TEMPLATE=Caddyfile.local`, regardless of placeholder `SMOKE_BASE_URL` values in env examples.
 - CI doctor smoke uses `HELPER_LLM_BACKEND=mock` to keep `/helper/chat` deterministic without runtime model pull dependencies.
 - Golden smoke issues a server-side staff session key for `/teach` checks so admin-login form changes (OTP/superuser prompts) do not create false negatives.

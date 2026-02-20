@@ -165,6 +165,10 @@ if [[ "${BRING_UP}" == "1" ]]; then
   wait_for_container_state classhub_caddy running
 fi
 
+echo "[golden-smoke] applying migrations"
+run_compose exec -T classhub_web python manage.py migrate --noinput
+run_compose exec -T helper_web python manage.py migrate --noinput
+
 echo "[golden-smoke] upserting course/class fixtures"
 run_compose exec -T classhub_web \
   python manage.py import_coursepack \
@@ -219,7 +223,7 @@ TEACHER_SESSION_KEY="$(
     -e SMOKE_TEACHER_USERNAME="${TEACHER_USERNAME}" \
     classhub_web \
     python manage.py shell -c \
-    "import os; from django.contrib.auth import BACKEND_SESSION_KEY, HASH_SESSION_KEY, SESSION_KEY, get_user_model; from django.contrib.sessions.backends.db import SessionStore; User = get_user_model(); user = User.objects.get(username=os.environ['SMOKE_TEACHER_USERNAME']); session = SessionStore(); session[SESSION_KEY] = str(user.pk); session[BACKEND_SESSION_KEY] = 'django.contrib.auth.backends.ModelBackend'; session[HASH_SESSION_KEY] = user.get_session_auth_hash(); session.save(); print(session.session_key)"
+    "import os; from django.contrib.auth import BACKEND_SESSION_KEY, HASH_SESSION_KEY, SESSION_KEY, get_user_model; from django.contrib.sessions.backends.db import SessionStore; from django_otp.plugins.otp_totp.models import TOTPDevice; User = get_user_model(); user = User.objects.get(username=os.environ['SMOKE_TEACHER_USERNAME']); device, _ = TOTPDevice.objects.get_or_create(user=user, name='teacher-primary', defaults={'confirmed': True}); device.confirmed = True; device.save(update_fields=['confirmed']); session = SessionStore(); session[SESSION_KEY] = str(user.pk); session[BACKEND_SESSION_KEY] = 'django.contrib.auth.backends.ModelBackend'; session[HASH_SESSION_KEY] = user.get_session_auth_hash(); session['otp_device_id'] = device.persistent_id; session.save(); print(session.session_key)"
 )"
 TEACHER_SESSION_KEY="$(echo "${TEACHER_SESSION_KEY}" | tr -d '\r' | tail -n1)"
 if [[ -z "${TEACHER_SESSION_KEY}" ]]; then

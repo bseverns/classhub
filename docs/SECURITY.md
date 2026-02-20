@@ -5,7 +5,7 @@ This page is the practical security baseline for this project.
 If you only do three things before production:
 
 1. set strong secrets and `DJANGO_DEBUG=0`
-2. require TLS and 2FA for admin users
+2. require TLS and 2FA for admin + teacher users
 3. run `bash scripts/validate_env_secrets.sh`
 
 ## Security posture at a glance
@@ -13,7 +13,7 @@ If you only do three things before production:
 | Area | Current posture |
 |---|---|
 | Student identity | Pseudonymous (`class code + display name`) |
-| Teacher/admin auth | Django auth; admin OTP required by default |
+| Teacher/admin auth | Django auth; OTP required by default for `/admin` and `/teach` |
 | Transport | Caddy at edge; HTTPS expected in production |
 | Service exposure | Postgres/Redis internal-only; Ollama/MinIO localhost-bound on host |
 | Helper scope protection | Student helper calls require signed `scope_token` |
@@ -29,9 +29,12 @@ If you only do three things before production:
    - `DJANGO_SECURE_HSTS_SECONDS` (recommend `>=31536000` after verification)
    - `DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=1` only when all subdomains are HTTPS-ready
 4. Keep `DJANGO_ADMIN_2FA_REQUIRED=1`.
-5. Validate secrets and guardrails:
+5. Keep `DJANGO_TEACHER_2FA_REQUIRED=1`.
+6. Set deployment timezone (for lesson release dates):
+   - `DJANGO_TIME_ZONE=America/Chicago` (or your local timezone)
+7. Validate secrets and guardrails:
    - `bash scripts/validate_env_secrets.sh`
-6. Confirm edge request size limits are set:
+8. Confirm edge request size limits are set:
    - `CADDY_CLASSHUB_MAX_BODY`
    - `CADDY_HELPER_MAX_BODY`
 
@@ -39,6 +42,7 @@ If you only do three things before production:
 
 - Students do not have passwords in MVP.
 - Teachers should be `is_staff=True`, `is_superuser=False` for daily use.
+- `/teach/*` requires OTP-verified staff session when `DJANGO_TEACHER_2FA_REQUIRED=1`.
 - Superusers should be limited to operational tasks.
 - Helper chat requires either:
   - valid student classroom session, or
@@ -70,6 +74,13 @@ docker compose exec classhub_web python manage.py bootstrap_admin_otp --username
 - Not served as public static media.
 - Access is permission-checked (`/submission/<id>/download`).
 - Files use randomized server-side names; original filename is metadata only.
+- Upload checks now include lightweight content validation (for example `.sb3` must be a valid zip with `project.json`).
+
+### Lesson assets
+
+- Lesson assets are permission-checked (`/lesson-asset/<id>/download`).
+- Unsafe file types (for example `.html`) are forced to download, not inline render.
+- Inline rendering is restricted to allow-listed media/PDF types and includes `X-Content-Type-Options: nosniff`.
 
 Retention commands:
 
@@ -119,3 +130,4 @@ Starter example:
 
 - Google SSO for teacher accounts.
 - Separate databases per service if isolation requirements increase.
+- Move to `RUN_MIGRATIONS_ON_START=0` everywhere once your deployment path always runs explicit migration steps.

@@ -102,7 +102,7 @@ DATABASES = {
 }
 
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
+TIME_ZONE = env("DJANGO_TIME_ZONE", default="America/Chicago").strip() or "America/Chicago"
 USE_I18N = True
 USE_TZ = True
 

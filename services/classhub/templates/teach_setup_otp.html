@@ -71,7 +71,7 @@
           {% if already_configured %}
             <h2 style="margin:0 0 10px 0">2FA already configured</h2>
             <p class="muted">This account already has a confirmed authenticator device.</p>
-            <p><a href="/teach">Back to teacher portal</a></p>
+            <p><a href="{{ next_path|default:'/teach' }}">Back to teacher portal</a></p>
           {% elif otp_ready %}
             <h2 style="margin:0 0 10px 0">Scan QR Code</h2>
             <p class="muted">Use Google Authenticator, 1Password, Authy, or another TOTP app.</p>
@@ -88,6 +88,9 @@
               {% csrf_token %}
               {% if token %}
                 <input type="hidden" name="token" value="{{ token }}" />
+              {% endif %}
+              {% if next_path %}
+                <input type="hidden" name="next" value="{{ next_path }}" />
               {% endif %}
               <label for="otp-token">Authenticator code</label>
               <input id="otp-token" name="otp_token" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" required />
