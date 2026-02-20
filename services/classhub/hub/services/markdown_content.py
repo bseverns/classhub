@@ -11,10 +11,16 @@ import markdown as md
 import yaml
 from django.conf import settings
 
+from .content_links import build_asset_url
+
 _COURSES_DIR = Path(settings.CONTENT_ROOT) / "courses"
 _HEADING_LEVEL2_RE = re.compile(r"^##\s+(.+?)\s*$")
 _IMG_TAG_RE = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
 _IMG_SRC_RE = re.compile(r"""\bsrc\s*=\s*(?:"([^"]*)"|'([^']*)')""", re.IGNORECASE)
+_MEDIA_LINK_ATTR_RE = re.compile(
+    r"""(?P<prefix>\b(?:href|src)\s*=\s*)(?P<quote>["'])(?P<path>/lesson-(?:asset|video)/[^"']+)(?P=quote)""",
+    re.IGNORECASE,
+)
 _LEGACY_TEACHER_DETAILS_RE = re.compile(r"(?is)<details>\s*<summary>.*?teacher.*?</summary>.*?</details>")
 _TEACHER_SECTION_PREFIXES = (
     "teacher prep",
@@ -274,6 +280,10 @@ def render_markdown_to_safe_html(markdown_text: str) -> str:
             return tag if _img_src_allowed(src) else ""
 
         cleaned = _IMG_TAG_RE.sub(_enforce_img_src, cleaned)
+    cleaned = _MEDIA_LINK_ATTR_RE.sub(
+        lambda match: f"{match.group('prefix')}{match.group('quote')}{build_asset_url(match.group('path'))}{match.group('quote')}",
+        cleaned,
+    )
     return cleaned
 
 

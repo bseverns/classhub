@@ -213,7 +213,7 @@
                     </td>
                     <td class="muted">
                       {% if row.video_file %}
-                        Uploaded file · <a href="/lesson-video/{{ row.id }}/stream" target="_blank" rel="noopener">Preview stream</a>
+                        Uploaded file · <a href="{{ row.stream_url }}" target="_blank" rel="noopener">Preview stream</a>
                       {% elif row.source_url %}
                         <a href="{{ row.source_url }}" target="_blank" rel="noopener">Open URL</a>
                       {% else %}

@@ -58,6 +58,13 @@ Use `.env` as the single selector (no ad-hoc file renames):
   - `CADDYFILE_TEMPLATE=Caddyfile.domain`
   - set real `DOMAIN=...`
   - point DNS A/AAAA record to server
+- Domain/TLS + separate asset host:
+  - `CADDYFILE_TEMPLATE=Caddyfile.domain.assets`
+  - set `DOMAIN=...` and `ASSET_DOMAIN=...`
+  - set `CLASSHUB_ASSET_BASE_URL=https://$ASSET_DOMAIN`
+  - if using sibling subdomains, set:
+    - `DJANGO_SESSION_COOKIE_DOMAIN=.yourdomain.tld`
+    - `DJANGO_CSRF_COOKIE_DOMAIN=.yourdomain.tld`
 
 Then deploy/reload:
 
@@ -106,6 +113,18 @@ curl -I https://$DOMAIN/
 ```
 
 Expected behavior: HTTPS endpoints return `200`; HTTP redirects to HTTPS (`301`/`308`).
+
+Asset-domain mode expectations (`CADDYFILE_TEMPLATE=Caddyfile.domain.assets`):
+
+```bash
+cd compose
+docker compose ps
+curl -i https://$DOMAIN/healthz
+curl -i https://$ASSET_DOMAIN/healthz
+curl -I https://$ASSET_DOMAIN/lesson-video/1/stream
+```
+
+Expected behavior: both hosts answer health checks; asset host serves only `/lesson-asset/*` and `/lesson-video/*`.
 
 Service exposure defaults:
 - Postgres/Redis are internal-only on Docker networking.

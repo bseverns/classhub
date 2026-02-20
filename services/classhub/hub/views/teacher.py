@@ -41,7 +41,7 @@ from ..models import (
     Submission,
     gen_class_code,
 )
-from ..services.content_links import parse_course_lesson_url, safe_filename
+from ..services.content_links import build_asset_url, parse_course_lesson_url, safe_filename
 from ..services.markdown_content import load_lesson_markdown, load_teacher_material_html
 from ..services.authoring_templates import generate_authoring_templates
 from ..services.audit import log_audit_event
@@ -824,6 +824,8 @@ def teach_videos(request):
         LessonVideo.objects.filter(course_slug=selected_course_slug, lesson_slug=selected_lesson_slug)
         .order_by("order_index", "id")
     ) if selected_course_slug and selected_lesson_slug else []
+    for row in lesson_video_rows:
+        row.stream_url = build_asset_url(f"/lesson-video/{row.id}/stream")
     published_count = sum(1 for row in lesson_video_rows if row.is_active)
     draft_count = max(len(lesson_video_rows) - published_count, 0)
 
@@ -1041,6 +1043,8 @@ def teach_assets(request):
     elif status == "inactive":
         asset_qs = asset_qs.filter(is_active=False)
     asset_rows = list(asset_qs.order_by("folder__path", "-updated_at", "id"))
+    for row in asset_rows:
+        row.download_url = build_asset_url(f"/lesson-asset/{row.id}/download")
 
     active_count = sum(1 for row in asset_rows if row.is_active)
     inactive_count = max(len(asset_rows) - active_count, 0)

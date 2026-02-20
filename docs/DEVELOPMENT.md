@@ -130,6 +130,8 @@ bash scripts/deploy_with_smoke.sh
 ```
 
 That path intentionally uses only `compose/docker-compose.yml` and adds smoke checks.
+If you are using a dedicated asset host, set `CADDYFILE_TEMPLATE=Caddyfile.domain.assets`
+and configure `ASSET_DOMAIN` + `CLASSHUB_ASSET_BASE_URL` in `compose/.env`.
 
 For one-command local confidence before pushing:
 

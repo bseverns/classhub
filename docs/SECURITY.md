@@ -32,9 +32,12 @@ If you only do three things before production:
 5. Keep `DJANGO_TEACHER_2FA_REQUIRED=1`.
 6. Set deployment timezone (for lesson release dates):
    - `DJANGO_TIME_ZONE=America/Chicago` (or your local timezone)
-7. Validate secrets and guardrails:
+7. If using separate asset subdomain under same parent domain, set cookie domains:
+   - `DJANGO_SESSION_COOKIE_DOMAIN=.yourdomain.tld`
+   - `DJANGO_CSRF_COOKIE_DOMAIN=.yourdomain.tld`
+8. Validate secrets and guardrails:
    - `bash scripts/validate_env_secrets.sh`
-8. Confirm edge request size limits are set:
+9. Confirm edge request size limits are set:
    - `CADDY_CLASSHUB_MAX_BODY`
    - `CADDY_HELPER_MAX_BODY`
 
@@ -82,6 +85,7 @@ docker compose exec classhub_web python manage.py bootstrap_admin_otp --username
 - Lesson assets are permission-checked (`/lesson-asset/<id>/download`).
 - Unsafe file types (for example `.html`) are forced to download, not inline render.
 - Inline rendering is restricted to allow-listed media/PDF types and includes `X-Content-Type-Options: nosniff`.
+- Optional: set `CLASSHUB_ASSET_BASE_URL` to serve lesson asset/video links from a separate origin.
 
 Retention commands:
 
@@ -90,6 +94,12 @@ python manage.py prune_submissions --older-than-days <N>
 python manage.py prune_student_events --older-than-days <N>
 python manage.py prune_student_events --older-than-days <N> --export-csv /path/to/student_events_before_prune.csv
 python manage.py scavenge_orphan_uploads
+```
+
+Scheduled maintenance entrypoint:
+
+```bash
+bash scripts/retention_maintenance.sh --compose-mode prod
 ```
 
 ### Event logging

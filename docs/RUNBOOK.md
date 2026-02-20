@@ -345,6 +345,41 @@ Delete:
 rm -f /tmp/classhub_closeout_*.zip /tmp/classhub_latest_*.zip
 ```
 
+### Automate retention + orphan cleanup
+
+Run once manually:
+
+```bash
+cd /srv/lms/app
+bash scripts/retention_maintenance.sh --compose-mode prod
+```
+
+Optional webhook alerts (for unattended runs):
+
+```bash
+export RETENTION_ALERT_WEBHOOK_URL="https://hooks.example.org/classhub"
+bash scripts/retention_maintenance.sh --compose-mode prod --alert-on-success
+```
+
+Systemd timer (recommended):
+
+```bash
+sudo cp /srv/lms/app/ops/systemd/classhub-retention.service /etc/systemd/system/
+sudo cp /srv/lms/app/ops/systemd/classhub-retention.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now classhub-retention.timer
+sudo systemctl status classhub-retention.timer
+```
+
+Before enabling, edit `/etc/systemd/system/classhub-retention.service` if your app path or runtime user differs from `/srv/lms/app`.
+
+Review last run:
+
+```bash
+systemctl list-timers | grep classhub-retention
+journalctl -u classhub-retention.service -n 200 --no-pager
+```
+
 ## Escalate when
 
 Move to incident workflow (`docs/TROUBLESHOOTING.md`, then `docs/DISASTER_RECOVERY.md`) when any of these are true:

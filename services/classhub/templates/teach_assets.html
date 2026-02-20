@@ -220,7 +220,7 @@
                       <strong>{{ row.title }}</strong>
                       {% if row.description %}<div class="muted">{{ row.description|truncatechars:160 }}</div>{% endif %}
                       {% if row.original_filename %}<div class="muted">File: {{ row.original_filename }}</div>{% endif %}
-                      <div class="snippet">[{{ row.title|escape }}](/lesson-asset/{{ row.id }}/download)</div>
+                      <div class="snippet">[{{ row.title|escape }}]({{ row.download_url }})</div>
                     </td>
                     <td><span class="path-chip">{{ row.folder.path }}</span></td>
                     <td class="muted">
@@ -237,7 +237,7 @@
                     </td>
                     <td>
                       <div class="btnline">
-                        <a href="/lesson-asset/{{ row.id }}/download" target="_blank" rel="noopener">Open</a>
+                        <a href="{{ row.download_url }}" target="_blank" rel="noopener">Open</a>
                         <form method="post">
                           {% csrf_token %}
                           <input type="hidden" name="action" value="set_active" />

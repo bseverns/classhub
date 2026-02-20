@@ -9,6 +9,7 @@ from common.helper_scope import issue_scope_token
 
 from ..models import LessonVideo, Material, Module, Submission
 from ..services.content_links import (
+    build_asset_url,
     courses_dir,
     extract_youtube_id,
     is_probably_video_url,
@@ -153,7 +154,7 @@ def _normalize_stored_lesson_videos(course_slug: str, lesson_slug: str) -> list[
     for row in rows:
         url = (row.source_url or "").strip()
         if row.video_file:
-            media_url = f"/lesson-video/{row.id}/stream"
+            media_url = build_asset_url(f"/lesson-video/{row.id}/stream")
             media_type = video_mime_type(row.video_file.name)
             source_type = "native"
             embed_url = ""

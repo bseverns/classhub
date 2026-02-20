@@ -59,7 +59,7 @@ grep -E '^(CADDYFILE_TEMPLATE|DOMAIN)=' .env
 
 Look for:
 
-- expected template (`Caddyfile.domain` for public TLS)
+- expected template (`Caddyfile.domain` or `Caddyfile.domain.assets` for public TLS)
 - correct domain in logs and `.env`
 - ACME identifier/certificate errors
 

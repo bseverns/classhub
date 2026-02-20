@@ -11,6 +11,7 @@ from .services.markdown_content import (
     split_lesson_markdown_for_audiences,
 )
 from .services.content_links import (
+    build_asset_url,
     normalize_lesson_videos,
     parse_course_lesson_url,
     safe_filename,
@@ -120,6 +121,18 @@ class MarkdownContentServiceTests(SimpleTestCase):
         self.assertIn("<img", html)
         self.assertIn('src="/lesson-asset/12/download"', html)
 
+    @override_settings(
+        CLASSHUB_MARKDOWN_ALLOW_IMAGES=True,
+        CLASSHUB_MARKDOWN_ALLOWED_IMAGE_HOSTS=[],
+        CLASSHUB_ASSET_BASE_URL="https://assets.example.org",
+    )
+    def test_render_markdown_rewrites_relative_media_urls_to_asset_origin(self):
+        html = render_markdown_to_safe_html(
+            "![diagram](/lesson-asset/12/download)\n\n[Watch](/lesson-video/4/stream)"
+        )
+        self.assertIn('src="https://assets.example.org/lesson-asset/12/download"', html)
+        self.assertIn('href="https://assets.example.org/lesson-video/4/stream"', html)
+
 
 class UploadScanServiceTests(SimpleTestCase):
     @override_settings(CLASSHUB_UPLOAD_SCAN_ENABLED=False)
@@ -198,3 +211,14 @@ class ContentLinksServiceTests(SimpleTestCase):
 
     def test_safe_filename_strips_unsafe_characters(self):
         self.assertEqual(safe_filename("../../Ada Lovelace?.png"), "Ada_Lovelace_.png")
+
+    @override_settings(CLASSHUB_ASSET_BASE_URL="")
+    def test_build_asset_url_uses_relative_path_without_base_url(self):
+        self.assertEqual(build_asset_url("/lesson-asset/8/download"), "/lesson-asset/8/download")
+
+    @override_settings(CLASSHUB_ASSET_BASE_URL="https://assets.example.org/")
+    def test_build_asset_url_prefixes_configured_asset_origin(self):
+        self.assertEqual(
+            build_asset_url("/lesson-video/3/stream"),
+            "https://assets.example.org/lesson-video/3/stream",
+        )

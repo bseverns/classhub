@@ -1,0 +1,58 @@
+{$DOMAIN} {
+  encode gzip
+
+  handle_path /healthz {
+    respond "ok" 200
+  }
+
+  # Homework Helper
+  handle /helper/* {
+    request_body {
+      max_size {$CADDY_HELPER_MAX_BODY:1MB}
+    }
+    reverse_proxy helper_web:8000 {
+      header_up X-Forwarded-For {remote_host}
+      header_up X-Real-IP {remote_host}
+      header_up X-Forwarded-Proto {scheme}
+      header_up X-Forwarded-Host {host}
+    }
+  }
+
+  # Class Hub
+  handle {
+    request_body {
+      max_size {$CADDY_CLASSHUB_MAX_BODY:650MB}
+    }
+    reverse_proxy classhub_web:8000 {
+      header_up X-Forwarded-For {remote_host}
+      header_up X-Real-IP {remote_host}
+      header_up X-Forwarded-Proto {scheme}
+      header_up X-Forwarded-Host {host}
+    }
+  }
+}
+
+{$ASSET_DOMAIN} {
+  encode gzip
+
+  handle_path /healthz {
+    respond "ok" 200
+  }
+
+  @asset_routes path /lesson-asset/* /lesson-video/*
+  handle @asset_routes {
+    request_body {
+      max_size {$CADDY_CLASSHUB_MAX_BODY:650MB}
+    }
+    reverse_proxy classhub_web:8000 {
+      header_up X-Forwarded-For {remote_host}
+      header_up X-Real-IP {remote_host}
+      header_up X-Forwarded-Proto {scheme}
+      header_up X-Forwarded-Host {host}
+    }
+  }
+
+  handle {
+    respond "not found" 404
+  }
+}

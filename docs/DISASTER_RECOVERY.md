@@ -61,6 +61,7 @@ OpenAI (optional):
 
 - No domain yet: use `compose/Caddyfile.local` and HTTP.
 - Domain available: use `compose/Caddyfile.domain` and TLS.
+- Domain + dedicated asset host: use `compose/Caddyfile.domain.assets`.
 
 Copy to `compose/Caddyfile`:
 

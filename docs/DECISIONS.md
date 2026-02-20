@@ -24,11 +24,13 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Teacher onboarding invites + 2FA](#teacher-onboarding-invites--2fa)
 - [Teacher route 2FA enforcement](#teacher-route-2fa-enforcement)
 - [Lesson asset delivery hardening](#lesson-asset-delivery-hardening)
+- [Optional separate asset origin](#optional-separate-asset-origin)
 - [Upload content validation](#upload-content-validation)
 - [Deployment timezone by environment](#deployment-timezone-by-environment)
 - [Migration execution at deploy time](#migration-execution-at-deploy-time)
 - [Teacher daily digest + closeout workflow](#teacher-daily-digest--closeout-workflow)
 - [Student portfolio export](#student-portfolio-export)
+- [Automated retention maintenance](#automated-retention-maintenance)
 
 ## Archive Index
 
@@ -92,6 +94,17 @@ Historical implementation logs and superseded decisions are archived by month in
 - Reduces stored-XSS risk from HTML/script-like teacher uploads served on the LMS origin.
 - Preserves inline behavior for expected classroom media types.
 
+## Optional separate asset origin
+
+**Current decision:**
+- Set `CLASSHUB_ASSET_BASE_URL` to rewrite lesson media URLs (`/lesson-asset/*`, `/lesson-video/*`) to a separate origin.
+- Markdown-rendered lesson links and teacher asset/video copy links both use this rewrite when configured.
+- Leave `CLASSHUB_ASSET_BASE_URL` empty for same-origin behavior.
+
+**Why this remains active:**
+- Gives operators an incremental path to isolate uploaded media origin without changing teacher authoring flow.
+- Keeps local/day-1 deployments simple while enabling stricter production hosting topologies.
+
 ## Upload content validation
 
 **Current decision:**
@@ -139,6 +152,7 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Unknown/no domain: use `compose/Caddyfile.local`.
 - Known domain: use `compose/Caddyfile.domain` with Caddy-managed TLS.
+- Optional separate asset host: use `compose/Caddyfile.domain.assets` + `ASSET_DOMAIN`.
 - Template selection is explicit via `CADDYFILE_TEMPLATE` in `compose/.env`.
 
 **Why this remains active:**
@@ -375,3 +389,17 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Gives students a take-home artifact without requiring full accounts.
 - Supports portability and parent/mentor sharing while preserving class privacy boundaries.
+
+## Automated retention maintenance
+
+**Current decision:**
+- Use `scripts/retention_maintenance.sh` as the single scheduled task entrypoint for:
+  - `prune_submissions`
+  - `prune_student_events` (with optional CSV export-before-delete)
+  - `scavenge_orphan_uploads` (report/delete/off modes)
+- Optional webhook notifications report failures (and optional success) for unattended runs.
+- Provide reference systemd units in `ops/systemd/` for daily execution.
+
+**Why this remains active:**
+- Moves retention from manual cleanup to reliable routine operations.
+- Surfaces cleanup failures early and keeps uploads/event tables bounded over time.

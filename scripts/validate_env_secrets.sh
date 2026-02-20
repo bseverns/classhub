@@ -125,17 +125,27 @@ if [[ "${HELPER_LLM_BACKEND,,}" == "openai" ]]; then
 fi
 
 CADDYFILE_TEMPLATE="$(env_file_value CADDYFILE_TEMPLATE)"
-if [[ "${CADDYFILE_TEMPLATE}" != "Caddyfile.local" && "${CADDYFILE_TEMPLATE}" != "Caddyfile.domain" ]]; then
-  fail "CADDYFILE_TEMPLATE must be Caddyfile.local or Caddyfile.domain"
+if [[ "${CADDYFILE_TEMPLATE}" != "Caddyfile.local" && "${CADDYFILE_TEMPLATE}" != "Caddyfile.domain" && "${CADDYFILE_TEMPLATE}" != "Caddyfile.domain.assets" ]]; then
+  fail "CADDYFILE_TEMPLATE must be Caddyfile.local, Caddyfile.domain, or Caddyfile.domain.assets"
 fi
 
-if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.domain" ]]; then
+if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.domain" || "${CADDYFILE_TEMPLATE}" == "Caddyfile.domain.assets" ]]; then
   DOMAIN_VAL="$(env_file_value DOMAIN)"
   if [[ -z "${DOMAIN_VAL}" ]]; then
-    fail "DOMAIN is required when using Caddyfile.domain"
+    fail "DOMAIN is required when using Caddyfile.domain or Caddyfile.domain.assets"
   fi
   if contains_icase "${DOMAIN_VAL}" "example.org" || contains_icase "${DOMAIN_VAL}" "example.com"; then
     fail "DOMAIN appears to be a placeholder: ${DOMAIN_VAL}"
+  fi
+fi
+
+if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.domain.assets" ]]; then
+  ASSET_DOMAIN_VAL="$(env_file_value ASSET_DOMAIN)"
+  if [[ -z "${ASSET_DOMAIN_VAL}" ]]; then
+    fail "ASSET_DOMAIN is required when using Caddyfile.domain.assets"
+  fi
+  if contains_icase "${ASSET_DOMAIN_VAL}" "example.org" || contains_icase "${ASSET_DOMAIN_VAL}" "example.com"; then
+    fail "ASSET_DOMAIN appears to be a placeholder: ${ASSET_DOMAIN_VAL}"
   fi
 fi
 

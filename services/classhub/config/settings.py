@@ -222,6 +222,9 @@ _image_hosts_raw = env("CLASSHUB_MARKDOWN_ALLOWED_IMAGE_HOSTS", default="")
 CLASSHUB_MARKDOWN_ALLOWED_IMAGE_HOSTS = [
     h.strip().lower() for h in _image_hosts_raw.split(",") if h.strip()
 ]
+# Optional absolute origin used when rendering lesson asset/video links.
+# Example: https://assets.creatempls.org
+CLASSHUB_ASSET_BASE_URL = env("CLASSHUB_ASSET_BASE_URL", default="").strip().rstrip("/")
 # Shared request-safety controls for proxy-aware client IP extraction.
 # Safe-by-default: only trust forwarded headers when explicitly enabled.
 REQUEST_SAFETY_TRUST_PROXY_HEADERS = env.bool("REQUEST_SAFETY_TRUST_PROXY_HEADERS", default=False)
@@ -235,6 +238,8 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # In production (DEBUG=False), session + CSRF cookies should only travel over HTTPS.
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_DOMAIN = env("DJANGO_SESSION_COOKIE_DOMAIN", default="").strip() or None
+CSRF_COOKIE_DOMAIN = env("DJANGO_CSRF_COOKIE_DOMAIN", default="").strip() or None
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=False)

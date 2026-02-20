@@ -1,0 +1,19 @@
+[Unit]
+Description=ClassHub retention and orphan cleanup
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+# Run as a user that can execute docker compose on this host.
+WorkingDirectory=/srv/lms/app
+EnvironmentFile=/srv/lms/app/compose/.env
+ExecStart=/usr/bin/env bash /srv/lms/app/scripts/retention_maintenance.sh --compose-mode prod
+
+# Lower priority so live traffic wins under contention.
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+[Install]
+WantedBy=multi-user.target

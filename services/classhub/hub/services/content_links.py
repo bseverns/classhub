@@ -72,6 +72,26 @@ def safe_external_url(url: str) -> str:
     return url.strip()
 
 
+def asset_base_url() -> str:
+    raw = str(getattr(settings, "CLASSHUB_ASSET_BASE_URL", "") or "").strip()
+    return raw.rstrip("/")
+
+
+def build_asset_url(url_or_path: str) -> str:
+    raw = (url_or_path or "").strip()
+    if not raw:
+        return ""
+    parsed = urlparse(raw)
+    if parsed.scheme.lower() in {"http", "https"}:
+        return raw
+
+    path = raw if raw.startswith("/") else f"/{raw}"
+    base = asset_base_url()
+    if not base:
+        return path
+    return f"{base}{path}"
+
+
 def is_probably_video_url(url: str) -> bool:
     if not url:
         return False
