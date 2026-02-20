@@ -10,21 +10,24 @@ from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 from ..models import LessonAsset, LessonVideo
 from ..services.content_links import safe_filename, video_mime_type
 
-_INLINE_ASSET_MIME_PREFIXES = (
-    "image/",
-    "audio/",
-    "video/",
-)
 _INLINE_ASSET_MIME_TYPES = {
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "image/webp",
+    "audio/mpeg",
+    "audio/wav",
+    "audio/ogg",
+    "video/mp4",
+    "video/webm",
+    "video/ogg",
     "application/pdf",
 }
 
 
 def _asset_allows_inline(content_type: str) -> bool:
     normalized = (content_type or "").strip().lower()
-    if normalized in _INLINE_ASSET_MIME_TYPES:
-        return True
-    return any(normalized.startswith(prefix) for prefix in _INLINE_ASSET_MIME_PREFIXES)
+    return normalized in _INLINE_ASSET_MIME_TYPES
 
 
 def _request_can_view_lesson_video(request) -> bool:
@@ -175,8 +178,8 @@ def lesson_asset_download(request, asset_id: int):
     )
     response["X-Content-Type-Options"] = "nosniff"
     if inline_allowed:
-        # Defense-in-depth in case a dangerous type slips through MIME guessing.
-        response["Content-Security-Policy"] = "sandbox"
+        # Defense-in-depth for any inline-rendered asset responses.
+        response["Content-Security-Policy"] = "sandbox; default-src 'none'"
     return response
 
 

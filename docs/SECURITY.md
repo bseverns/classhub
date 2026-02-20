@@ -87,6 +87,7 @@ Retention commands:
 ```bash
 python manage.py prune_submissions --older-than-days <N>
 python manage.py prune_student_events --older-than-days <N>
+python manage.py prune_student_events --older-than-days <N> --export-csv /path/to/student_events_before_prune.csv
 ```
 
 ### Event logging

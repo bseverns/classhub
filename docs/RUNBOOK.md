@@ -271,11 +271,25 @@ cd /srv/lms/app/compose
 docker compose exec classhub_web python manage.py prune_student_events --older-than-days 180 --dry-run
 ```
 
+Dry run with CSV export snapshot:
+
+```bash
+cd /srv/lms/app/compose
+docker compose exec classhub_web python manage.py prune_student_events --older-than-days 180 --dry-run --export-csv /tmp/student_events_older_than_180d.csv
+```
+
 Apply:
 
 ```bash
 cd /srv/lms/app/compose
 docker compose exec classhub_web python manage.py prune_student_events --older-than-days 180
+```
+
+Apply with export-before-delete snapshot:
+
+```bash
+cd /srv/lms/app/compose
+docker compose exec classhub_web python manage.py prune_student_events --older-than-days 180 --export-csv /srv/lms/backups/student_events_before_prune_$(date +%Y%m%d).csv
 ```
 
 Optional default (`compose/.env`):

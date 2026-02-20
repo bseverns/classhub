@@ -28,6 +28,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Deployment timezone by environment](#deployment-timezone-by-environment)
 - [Migration execution at deploy time](#migration-execution-at-deploy-time)
 - [Teacher daily digest + closeout workflow](#teacher-daily-digest--closeout-workflow)
+- [Student portfolio export](#student-portfolio-export)
 
 ## Archive Index
 
@@ -189,10 +190,12 @@ Historical implementation logs and superseded decisions are archived by month in
 - Teacher/staff mutations emit append-only `AuditEvent` records.
 - Student join/rejoin/upload/helper-access metadata emits append-only `StudentEvent` records.
 - Retention is operator-managed using prune commands.
+- Student event prune supports optional CSV snapshot export before deletion (`prune_student_events --export-csv <path>`).
 
 **Why this remains active:**
 - Preserves incident traceability and accountability.
 - Keeps privacy boundaries explicit by storing metadata rather than raw helper prompt/file content in event logs.
+- Supports audit handoff and offline review before destructive retention actions.
 
 ## Deployment guardrails
 
@@ -356,3 +359,16 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Gives teachers a fast day-over-day signal without opening each class.
 - Standardizes end-of-class operations into one predictable flow.
+
+## Student portfolio export
+
+**Current decision:**
+- Students can download a personal portfolio ZIP from `/student/portfolio-export`.
+- The ZIP contains:
+  - `index.html` (offline summary with timestamps, lesson/module labels, notes),
+  - `files/...` entries for that student's own submissions only.
+- Export filenames are sanitized and scoped to the current authenticated student session.
+
+**Why this remains active:**
+- Gives students a take-home artifact without requiring full accounts.
+- Supports portability and parent/mentor sharing while preserving class privacy boundaries.

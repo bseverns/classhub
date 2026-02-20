@@ -23,6 +23,7 @@ urlpatterns = [
     path("", views.index),
     path("join", views.join_class),
     path("student", views.student_home),
+    path("student/portfolio-export", views.student_portfolio_export),
     path("logout", views.student_logout),
 
     # Student upload + shared download/stream routes.

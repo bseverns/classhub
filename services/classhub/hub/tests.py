@@ -1,3 +1,4 @@
+import csv
 import json
 import re
 import tempfile
@@ -967,6 +968,43 @@ class StudentEventRetentionCommandTests(TestCase):
         self.assertNotIn(self.old.id, ids)
         self.assertIn(self.new.id, ids)
 
+    def test_prune_student_events_can_export_csv_dry_run(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out = Path(tmpdir) / "student_events.csv"
+            call_command(
+                "prune_student_events",
+                older_than_days=90,
+                dry_run=True,
+                export_csv=str(out),
+            )
+            self.assertTrue(out.exists())
+            with out.open("r", encoding="utf-8", newline="") as fh:
+                rows = list(csv.DictReader(fh))
+
+        self.assertEqual(StudentEvent.objects.count(), 2)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(int(rows[0]["id"]), self.old.id)
+        self.assertEqual(rows[0]["event_type"], StudentEvent.EVENT_CLASS_JOIN)
+        self.assertEqual(rows[0]["student_display_name"], "Ada")
+
+    def test_prune_student_events_can_export_csv_before_delete(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out = Path(tmpdir) / "student_events.csv"
+            call_command(
+                "prune_student_events",
+                older_than_days=90,
+                export_csv=str(out),
+            )
+            self.assertTrue(out.exists())
+            with out.open("r", encoding="utf-8", newline="") as fh:
+                rows = list(csv.DictReader(fh))
+
+        ids = set(StudentEvent.objects.values_list("id", flat=True))
+        self.assertNotIn(self.old.id, ids)
+        self.assertIn(self.new.id, ids)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(int(rows[0]["id"]), self.old.id)
+
 
 class StudentEventSubmissionTests(TestCase):
     def setUp(self):
@@ -1026,6 +1064,69 @@ class StudentEventSubmissionTests(TestCase):
         self.assertEqual(Submission.objects.filter(material=self.material, student=self.student).count(), 0)
 
 
+class StudentPortfolioExportTests(TestCase):
+    def setUp(self):
+        self.classroom = Class.objects.create(name="Portfolio Class", join_code="PORT1234")
+        self.module = Module.objects.create(classroom=self.classroom, title="Session 1", order_index=0)
+        self.upload = Material.objects.create(
+            module=self.module,
+            title="Upload your project",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+        self.other_student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ben")
+
+    def _login_student(self):
+        session = self.client.session
+        session["student_id"] = self.student.id
+        session["class_id"] = self.classroom.id
+        session.save()
+
+    def test_portfolio_export_requires_student_session(self):
+        resp = self.client.get("/student/portfolio-export")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/")
+
+    def test_portfolio_export_contains_student_files_and_index(self):
+        Submission.objects.create(
+            material=self.upload,
+            student=self.student,
+            original_filename="ada_project.sb3",
+            file=SimpleUploadedFile("ada_project.sb3", b"ada-bytes"),
+            note="My first build",
+        )
+        Submission.objects.create(
+            material=self.upload,
+            student=self.other_student,
+            original_filename="ben_project.sb3",
+            file=SimpleUploadedFile("ben_project.sb3", b"ben-bytes"),
+            note="Other student file",
+        )
+        self._login_student()
+
+        resp = self.client.get("/student/portfolio-export")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("attachment;", resp["Content-Disposition"])
+        self.assertIn("portfolio", resp["Content-Disposition"])
+
+        archive_bytes = b"".join(resp.streaming_content)
+        with zipfile.ZipFile(BytesIO(archive_bytes), "r") as archive:
+            names = archive.namelist()
+            self.assertIn("index.html", names)
+            file_entries = [name for name in names if name.startswith("files/")]
+            self.assertEqual(len(file_entries), 1)
+            self.assertIn("ada_project.sb3", file_entries[0])
+            self.assertNotIn("ben_project.sb3", file_entries[0])
+            index_html = archive.read("index.html").decode("utf-8")
+
+        self.assertIn("Ada Portfolio Export", index_html)
+        self.assertIn("ada_project.sb3", index_html)
+        self.assertNotIn("ben_project.sb3", index_html)
+
+
 class LessonAssetDownloadTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Asset Class", join_code="AST12345")
@@ -1066,7 +1167,22 @@ class LessonAssetDownloadTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn("inline;", resp["Content-Disposition"])
         self.assertEqual(resp["X-Content-Type-Options"], "nosniff")
-        self.assertEqual(resp["Content-Security-Policy"], "sandbox")
+        self.assertEqual(resp["Content-Security-Policy"], "sandbox; default-src 'none'")
+
+    def test_svg_asset_forces_download_attachment(self):
+        asset = LessonAsset.objects.create(
+            folder=self.folder,
+            title="Unsafe SVG",
+            original_filename="diagram.svg",
+            file=SimpleUploadedFile("diagram.svg", b"<svg xmlns='http://www.w3.org/2000/svg'></svg>"),
+        )
+        self._login_student()
+
+        resp = self.client.get(f"/lesson-asset/{asset.id}/download")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("attachment;", resp["Content-Disposition"])
+        self.assertEqual(resp["X-Content-Type-Options"], "nosniff")
+        self.assertNotIn("Content-Security-Policy", resp)
 
 
 class ClassHubSecurityHeaderTests(TestCase):

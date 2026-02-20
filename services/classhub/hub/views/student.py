@@ -2,6 +2,8 @@
 
 import json
 import logging
+import tempfile
+import zipfile
 from pathlib import Path
 
 from django.conf import settings
@@ -27,6 +29,7 @@ from ..models import (
     gen_student_return_code,
 )
 from ..services.content_links import parse_course_lesson_url
+from ..services.content_links import safe_filename
 from ..services.markdown_content import load_lesson_markdown
 from ..services.release_state import lesson_release_override_map, lesson_release_state
 from ..services.upload_scan import scan_uploaded_file
@@ -352,6 +355,91 @@ def student_home(request):
     )
 
 
+def student_portfolio_export(request):
+    """Download this student's submissions as an offline portfolio ZIP.
+
+    Archive contents:
+    - index.html summary page
+    - files/<module>/<material>/<timestamp>_<submission_id>_<original_filename>
+    """
+    if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
+        return redirect("/")
+
+    student = request.student
+    classroom = request.classroom
+    submissions = list(
+        Submission.objects.filter(student=student, material__module__classroom=classroom)
+        .select_related("material__module")
+        .order_by("uploaded_at", "id")
+    )
+
+    tmp = tempfile.TemporaryFile(mode="w+b")
+
+    generated_at = timezone.localtime(timezone.now())
+    rows: list[dict] = []
+    used_archive_paths: set[str] = set()
+
+    with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for sub in submissions:
+            local_uploaded_at = timezone.localtime(sub.uploaded_at)
+            module_label = safe_filename(sub.material.module.title or "module")
+            material_label = safe_filename(sub.material.title or "material")
+            original = safe_filename(sub.original_filename or Path(sub.file.name).name or "submission")
+            timestamp = local_uploaded_at.strftime("%Y%m%d_%H%M%S")
+            archive_path = f"files/{module_label}/{material_label}/{timestamp}_{sub.id}_{original}"
+            if archive_path in used_archive_paths:
+                archive_path = f"files/{module_label}/{material_label}/{timestamp}_{sub.id}_dup_{original}"
+            used_archive_paths.add(archive_path)
+
+            included = False
+            status = "ok"
+            try:
+                source_path = sub.file.path
+                archive.write(source_path, arcname=archive_path)
+                included = True
+            except Exception:
+                try:
+                    with sub.file.open("rb") as fh:
+                        archive.writestr(archive_path, fh.read())
+                    included = True
+                except Exception:
+                    status = "missing"
+
+            rows.append(
+                {
+                    "submission_id": sub.id,
+                    "module_title": sub.material.module.title,
+                    "material_title": sub.material.title,
+                    "uploaded_at": local_uploaded_at,
+                    "original_filename": sub.original_filename or Path(sub.file.name).name,
+                    "note": sub.note or "",
+                    "archive_path": archive_path,
+                    "included": included,
+                    "status": status,
+                }
+            )
+
+        index_html = render_to_string(
+            "student_portfolio_index.html",
+            {
+                "student": student,
+                "classroom": classroom,
+                "generated_at": generated_at,
+                "rows": rows,
+                "submission_count": len(rows),
+                "included_count": sum(1 for row in rows if row["included"]),
+            },
+        )
+        archive.writestr("index.html", index_html.encode("utf-8"))
+
+    student_name = safe_filename(student.display_name or "student")
+    class_name = safe_filename(classroom.name or "classroom")
+    stamp = generated_at.strftime("%Y%m%d")
+    filename = f"{class_name}_{student_name}_portfolio_{stamp}.zip"
+    tmp.seek(0)
+    return FileResponse(tmp, as_attachment=True, filename=filename)
+
+
 def material_upload(request, material_id: int):
     """Student upload page for a Material of type=upload."""
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
@@ -538,6 +626,7 @@ __all__ = [
     "index",
     "join_class",
     "student_home",
+    "student_portfolio_export",
     "material_upload",
     "submission_download",
     "student_logout",
