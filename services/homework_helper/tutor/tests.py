@@ -160,7 +160,14 @@ class HelperChatAuthTests(TestCase):
         self.assertNotIn("612-555-0123", backend_message)
 
     @patch("tutor.views._ollama_chat", return_value=("backend should not be called", "fake-model"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
+    @patch.dict(
+        "os.environ",
+        {
+            "HELPER_LLM_BACKEND": "ollama",
+            "HELPER_REFERENCE_DIR": "/tmp/classhub-missing-reference",
+        },
+        clear=False,
+    )
     def test_chat_uses_deterministic_piper_hardware_triage(self, chat_mock):
         session = self.client.session
         session["student_id"] = 101

@@ -1484,7 +1484,10 @@ class StudentDataControlsTests(TestCase):
         resp = self.client.post("/student/end-session")
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["Location"], "/")
-        self.assertIn("classhub_student_hint=", resp.get("Set-Cookie", ""))
+        hint_cookie = resp.cookies.get("classhub_student_hint")
+        self.assertIsNotNone(hint_cookie)
+        self.assertEqual(hint_cookie.value, "")
+        self.assertEqual(hint_cookie["max-age"], "0")
         self.assertNotIn("student_id", self.client.session)
         self.assertNotIn("class_id", self.client.session)
 

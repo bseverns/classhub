@@ -72,9 +72,15 @@ def _helper_backend_label() -> str:
 
 
 def _clear_device_hint_cookie(response) -> None:
-    response.delete_cookie(
+    response.set_cookie(
         getattr(settings, "DEVICE_REJOIN_COOKIE_NAME", "classhub_student_hint"),
+        "",
+        max_age=0,
+        expires="Thu, 01 Jan 1970 00:00:00 GMT",
+        path="/",
+        httponly=True,
         samesite="Lax",
+        secure=not settings.DEBUG,
     )
 
 
