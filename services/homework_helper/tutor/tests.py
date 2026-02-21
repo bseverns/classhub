@@ -110,6 +110,32 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp.json().get("text"), "Mock hint: start with one sprite and one motion block.")
         self.assertEqual(resp.json().get("model"), "mock-tutor-v1")
 
+    @override_settings(HELPER_REMOTE_MODE_ACKNOWLEDGED=False)
+    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "openai"}, clear=False)
+    def test_chat_blocks_openai_until_remote_mode_is_acknowledged(self):
+        session = self.client.session
+        session["student_id"] = 101
+        session["class_id"] = 5
+        session.save()
+
+        resp = self._post_chat({"message": "How do I move a sprite?"})
+        self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.json().get("error"), "remote_backend_not_acknowledged")
+
+    @override_settings(HELPER_REMOTE_MODE_ACKNOWLEDGED=True)
+    @patch("tutor.views._openai_chat", return_value=("Use one small step first.", "gpt-test"))
+    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "openai"}, clear=False)
+    def test_chat_allows_openai_when_remote_mode_is_acknowledged(self, _openai_mock):
+        session = self.client.session
+        session["student_id"] = 101
+        session["class_id"] = 5
+        session.save()
+
+        resp = self._post_chat({"message": "How do I move a sprite?"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("text"), "Use one small step first.")
+        self.assertEqual(resp.json().get("backend"), "openai")
+
     @patch("tutor.views._ollama_chat", return_value=("Try this step first.", "fake-model"))
     @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
     def test_chat_redacts_message_before_backend_call(self, chat_mock):

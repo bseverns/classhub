@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Data</title>
+    {% include "includes/glass_theme.html" %}
+    <style>
+      .shell {
+        max-width: 960px;
+      }
+      .top h1 {
+        margin: 6px 0 0 0;
+        font-size: clamp(1.85rem, 2.7vw, 2.3rem);
+      }
+      .notice {
+        border: 1px solid rgba(36, 128, 66, 0.25);
+        background: rgba(224, 248, 229, 0.75);
+        color: #215a2f;
+        border-radius: 12px;
+        padding: 10px;
+        margin-top: 12px;
+      }
+      .privacy-note {
+        margin-top: 12px;
+        border: 1px solid rgba(22, 59, 80, 0.14);
+        border-radius: 12px;
+        padding: 11px;
+        background: rgba(255, 255, 255, 0.45);
+      }
+      .privacy-note p {
+        margin: 0 0 6px 0;
+      }
+      .privacy-note p:last-child {
+        margin-bottom: 0;
+      }
+      .actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .actions form {
+        margin: 0;
+      }
+      .danger {
+        background: linear-gradient(155deg, #7d2020, #631717);
+      }
+    </style>
+  </head>
+  <body class="glass-theme">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="shell">
+      <main id="main-content">
+        <div class="top">
+          <div class="muted"><a href="/student">Back to class</a> · <a href="/logout">Log out</a></div>
+          <h1>My Data</h1>
+          <div class="muted">Signed in as <strong>{{ student.display_name }}</strong> · {{ classroom.name }}</div>
+        </div>
+
+        {% if notice %}
+          <p class="notice" role="status" aria-live="polite">{{ notice }}</p>
+        {% endif %}
+
+        <div class="card">
+          <h2 style="margin:0">Privacy at a glance</h2>
+          <div class="privacy-note">
+            <p class="muted">Stored data: your display name, submissions, and class event timestamps.</p>
+            <p class="muted">Storage location: this server only.</p>
+            <p class="muted">
+              Retention:
+              {% if submission_retention_days %}
+                submissions are kept up to {{ submission_retention_days }} day{{ submission_retention_days|pluralize }} unless deleted sooner.
+              {% else %}
+                submissions stay until a teacher or admin removes them.
+              {% endif %}
+            </p>
+            <p class="muted">No tracking. No ads. No data broker sharing.</p>
+          </div>
+          <div class="actions">
+            <a href="/student/portfolio-export">Download my work</a>
+            <form method="post" action="/student/delete-work" onsubmit="return confirm('Delete all of your submissions now?');">
+              {% csrf_token %}
+              <button type="submit" class="danger">Delete my work now</button>
+            </form>
+            <form method="post" action="/student/end-session">
+              {% csrf_token %}
+              <button type="submit">End my session on this device</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0">My submissions</h2>
+          {% if submissions %}
+            <table style="margin-top:10px">
+              <thead>
+                <tr>
+                  <th scope="col">When</th>
+                  <th scope="col">Module</th>
+                  <th scope="col">Material</th>
+                  <th scope="col">File</th>
+                  <th scope="col">Download</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for s in submissions %}
+                  <tr>
+                    <td class="muted">{{ s.uploaded_at }}</td>
+                    <td>{{ s.material.module.title }}</td>
+                    <td>{{ s.material.title }}</td>
+                    <td>{{ s.original_filename }}</td>
+                    <td><a href="/submission/{{ s.id }}/download">Download</a></td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="muted" style="margin-top:10px">No submissions stored yet.</p>
+          {% endif %}
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

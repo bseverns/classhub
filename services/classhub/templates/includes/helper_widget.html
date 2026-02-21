@@ -5,8 +5,24 @@
   data-helper-context="{{ helper_context|default:'' }}"
   data-helper-topics="{{ helper_topics|default:'' }}"
 >
-  <h2 style="margin:0; font-size:1.25rem;">{{ helper_title|default:"Homework Helper" }}</h2>
+  <div class="helper-title-row">
+    <h2 style="margin:0; font-size:1.25rem;">{{ helper_title|default:"Homework Helper" }}</h2>
+    <span class="helper-backend-badge">{{ helper_backend_label|default:"Local model (Ollama)" }}</span>
+  </div>
   <p class="helper-description">{{ helper_description|default:"Ask the helper for hints, steps, or feedback." }}</p>
+  <div class="helper-privacy">
+    <p class="muted helper-privacy-line">Stored: helper access timestamps and lesson-scope metadata only (not ads/tracking profiles).</p>
+    <p class="muted helper-privacy-line">Storage location: this server.</p>
+    <p class="muted helper-privacy-line">
+      Retention:
+      {% if student_event_retention_days %}
+        helper access events are kept up to {{ student_event_retention_days }} day{{ student_event_retention_days|pluralize }}.
+      {% else %}
+        helper access events stay until admin retention cleanup is run.
+      {% endif %}
+    </p>
+    <p class="muted helper-privacy-line">Delete now: <a href="{{ helper_delete_url|default:'/student/my-data' }}">My Data</a>. No tracking. No ads. No data broker sharing.</p>
+  </div>
   <div class="helper-quick-wrap">
     <div class="helper-quick-title">Quick asks (tap to send):</div>
     <div class="helper-quick-actions" role="group" aria-label="Quick helper prompts"></div>
@@ -84,6 +100,36 @@
     font-size: 14px;
     margin-top: 4px;
     margin-bottom: 12px;
+  }
+  .helper-title-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .helper-backend-badge {
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid rgba(22, 59, 80, 0.2);
+    border-radius: 999px;
+    padding: 4px 10px;
+    color: #1d475e;
+    background: rgba(255, 255, 255, 0.72);
+  }
+  .helper-privacy {
+    margin-top: -4px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(22, 59, 80, 0.14);
+    border-radius: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.42);
+  }
+  .helper-privacy-line {
+    margin: 0 0 6px 0;
+    font-size: 12px;
+  }
+  .helper-privacy-line:last-child {
+    margin-bottom: 0;
   }
   .helper-citations {
     margin-top: 10px;

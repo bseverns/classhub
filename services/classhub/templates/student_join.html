@@ -35,6 +35,19 @@
       .entry-note {
         margin-top: 16px;
       }
+      .privacy-note {
+        margin-top: 14px;
+        border: 1px solid rgba(22, 59, 80, 0.14);
+        border-radius: 12px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.45);
+      }
+      .privacy-note p {
+        margin: 0 0 6px 0;
+      }
+      .privacy-note p:last-child {
+        margin-bottom: 0;
+      }
     </style>
   </head>
   <body class="glass-theme">
@@ -63,6 +76,21 @@
             </div>
             <div id="msg" class="error" role="alert" aria-live="assertive" style="display:none"></div>
           </form>
+
+          <div class="privacy-note" aria-live="polite">
+            <p class="muted"><strong>Privacy at a glance:</strong> we store your display name, class submissions, and event timestamps needed to run class.</p>
+            <p class="muted">Storage location: this school-managed server only.</p>
+            <p class="muted">
+              Retention:
+              {% if submission_retention_days %}
+                submissions are kept up to {{ submission_retention_days }} day{{ submission_retention_days|pluralize }} unless deleted sooner.
+              {% else %}
+                submissions stay until a teacher or admin removes them.
+              {% endif %}
+            </p>
+            <p class="muted">Delete now: after joining, open <a href="/student/my-data">My Data</a> to delete your work or end this device session.</p>
+            <p class="muted">No tracking. No ads. No data broker sharing.</p>
+          </div>
         </div>
 
         <p class="muted entry-note">Teacher/admin? Use <a href="/teach">/teach</a> (or <a href="/admin/">/admin</a>).</p>

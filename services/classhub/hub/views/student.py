@@ -5,6 +5,7 @@ import logging
 import tempfile
 import zipfile
 from pathlib import Path
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.core import signing
@@ -47,6 +48,37 @@ def _json_no_store_response(payload: dict, *, status: int = 200, private: bool =
     return response
 
 
+def _retention_days(setting_name: str, default: int) -> int:
+    value = int(getattr(settings, setting_name, default) or default)
+    return value if value > 0 else 0
+
+
+def _privacy_meta_context() -> dict:
+    return {
+        "submission_retention_days": _retention_days("CLASSHUB_SUBMISSION_RETENTION_DAYS", 90),
+        "student_event_retention_days": _retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180),
+    }
+
+
+def _helper_backend_label() -> str:
+    backend = (getattr(settings, "HELPER_LLM_BACKEND", "ollama") or "ollama").strip().lower()
+    if backend == "openai":
+        return "Remote model (OpenAI)"
+    if backend == "ollama":
+        return "Local model (Ollama)"
+    if backend == "mock":
+        return "Mock model (Test mode)"
+    return "Model backend (Unknown)"
+
+
+def _clear_device_hint_cookie(response) -> None:
+    response.delete_cookie(
+        getattr(settings, "DEVICE_REJOIN_COOKIE_NAME", "classhub_student_hint"),
+        samesite="Lax",
+        secure=not settings.DEBUG,
+    )
+
+
 def _emit_student_event(
     *,
     event_type: str,
@@ -85,7 +117,15 @@ def index(request):
     if getattr(request, "student", None) is not None:
         return redirect("/student")
     get_token(request)
-    return render(request, "student_join.html", {})
+    response = render(
+        request,
+        "student_join.html",
+        {
+            **_privacy_meta_context(),
+        },
+    )
+    apply_no_store(response, private=True, pragma=True)
+    return response
 
 
 def _create_student_identity(classroom: Class, display_name: str) -> StudentIdentity:
@@ -332,6 +372,7 @@ def student_home(request):
                 submissions_by_material[s.material_id] = {"count": 0, "last": s.uploaded_at, "last_id": s.id}
             submissions_by_material[s.material_id]["count"] += 1
 
+    privacy_meta = _privacy_meta_context()
     helper_widget = render_to_string(
         "includes/helper_widget.html",
         {
@@ -341,6 +382,9 @@ def student_home(request):
             "helper_topics": "Classroom overview",
             "helper_reference": "",
             "helper_allowed_topics": "",
+            "helper_backend_label": _helper_backend_label(),
+            "helper_delete_url": "/student/my-data",
+            **privacy_meta,
             "helper_scope_token": issue_scope_token(
                 context=f"Classroom summary: {classroom.name}",
                 topics=["Classroom overview"],
@@ -361,9 +405,10 @@ def student_home(request):
             "submissions_by_material": submissions_by_material,
             "material_access": material_access,
             "helper_widget": helper_widget,
+            **privacy_meta,
         },
     )
-    response["Cache-Control"] = "private, no-store"
+    apply_no_store(response, private=True, pragma=True)
     return response
 
 
@@ -457,6 +502,60 @@ def student_portfolio_export(request):
     )
     apply_download_safety(response)
     apply_no_store(response, private=True, pragma=True)
+    return response
+
+
+def student_my_data(request):
+    if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
+        return redirect("/")
+
+    submissions = (
+        Submission.objects.filter(student=request.student, material__module__classroom=request.classroom)
+        .select_related("material__module")
+        .order_by("-uploaded_at", "-id")
+    )
+    notice = (request.GET.get("notice") or "").strip()
+    response = render(
+        request,
+        "student_my_data.html",
+        {
+            "student": request.student,
+            "classroom": request.classroom,
+            "submissions": submissions,
+            "notice": notice,
+            **_privacy_meta_context(),
+        },
+    )
+    apply_no_store(response, private=True, pragma=True)
+    return response
+
+
+@require_POST
+def student_delete_work(request):
+    if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
+        return redirect("/")
+
+    submissions_qs = Submission.objects.filter(
+        student=request.student,
+        material__module__classroom=request.classroom,
+    )
+    deleted_submissions = submissions_qs.count()
+    submissions_qs.delete()
+
+    deleted_events, _details = StudentEvent.objects.filter(
+        student=request.student,
+        event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
+    ).delete()
+
+    notice = f"Deleted {deleted_submissions} submission(s) and {deleted_events} upload event record(s)."
+    return redirect("/student/my-data?" + urlencode({"notice": notice}))
+
+
+@require_POST
+def student_end_session(request):
+    request.session.flush()
+    response = redirect("/")
+    _clear_device_hint_cookie(response)
     return response
 
 
@@ -592,7 +691,7 @@ def material_upload(request, material_id: int):
                     return redirect(f"/material/{material.id}/upload")
     submissions = Submission.objects.filter(material=material, student=request.student).all()
 
-    return render(
+    response = render(
         request,
         "material_upload.html",
         {
@@ -605,9 +704,12 @@ def material_upload(request, material_id: int):
             "submissions": submissions,
             "upload_locked": bool(release_state.get("is_locked")),
             "upload_available_on": release_state.get("available_on"),
+            **_privacy_meta_context(),
         },
         status=response_status,
     )
+    apply_no_store(response, private=True, pragma=True)
+    return response
 
 
 def submission_download(request, submission_id: int):
@@ -647,7 +749,9 @@ def submission_download(request, submission_id: int):
 
 def student_logout(request):
     request.session.flush()
-    return redirect("/")
+    response = redirect("/")
+    _clear_device_hint_cookie(response)
+    return response
 
 
 __all__ = [
@@ -656,6 +760,9 @@ __all__ = [
     "join_class",
     "student_home",
     "student_portfolio_export",
+    "student_my_data",
+    "student_delete_work",
+    "student_end_session",
     "material_upload",
     "submission_download",
     "student_logout",

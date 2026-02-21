@@ -43,5 +43,6 @@ If this page is useful, you should be able to answer: who this is for, what it d
 
 ## Ops and security links
 - `docs/SECURITY.md`
+- `docs/PRIVACY-ADDENDUM.md`
 - `docs/DAY1_DEPLOY_CHECKLIST.md`
 - `docs/RUNBOOK.md`

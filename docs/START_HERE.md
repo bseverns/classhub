@@ -46,6 +46,7 @@ flowchart TD
 ### Operations
 - `docs/DAY1_DEPLOY_CHECKLIST.md`
 - `docs/SECURITY.md` (public-domain posture and reporting)
+- `docs/PRIVACY-ADDENDUM.md` (field-level data lifecycle + deletion controls)
 - `docs/SECURITY_BASELINE.md` (edge vs app ownership)
 - `docs/RUNBOOK.md`
 - `docs/TROUBLESHOOTING.md`

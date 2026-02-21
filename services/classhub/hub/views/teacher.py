@@ -1810,6 +1810,56 @@ def teach_rename_student(request, class_id: int):
 
 @staff_member_required
 @require_POST
+def teach_delete_student_data(request, class_id: int):
+    classroom = Class.objects.filter(id=class_id).first()
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+
+    try:
+        student_id = int((request.POST.get("student_id") or "0").strip())
+    except Exception:
+        student_id = 0
+    confirmed = (request.POST.get("confirm_delete") or "").strip() == "1"
+
+    if not student_id:
+        return redirect(_with_notice(f"/teach/class/{classroom.id}", error="Invalid student selection."))
+    if not confirmed:
+        return redirect(_with_notice(f"/teach/class/{classroom.id}", error="Confirm deletion before continuing."))
+
+    student = StudentIdentity.objects.filter(id=student_id, classroom=classroom).first()
+    if student is None:
+        return redirect(_with_notice(f"/teach/class/{classroom.id}", error="Student not found in this class."))
+
+    submission_count = Submission.objects.filter(student=student).count()
+    student_event_count = StudentEvent.objects.filter(student=student).count()
+    StudentEvent.objects.filter(student=student).delete()
+    student.delete()
+
+    classroom.session_epoch = int(getattr(classroom, "session_epoch", 1) or 1) + 1
+    classroom.save(update_fields=["session_epoch"])
+    _audit(
+        request,
+        action="student.delete_data",
+        classroom=classroom,
+        target_type="StudentIdentity",
+        target_id=str(student_id),
+        summary=f"Deleted student data for student_id={student_id}",
+        metadata={
+            "student_id": student_id,
+            "submissions_deleted": submission_count,
+            "student_events_deleted": student_event_count,
+            "session_epoch": classroom.session_epoch,
+        },
+    )
+    notice = (
+        f"Deleted student data for student #{student_id}: "
+        f"{submission_count} submission(s), {student_event_count} event record(s)."
+    )
+    return redirect(_with_notice(f"/teach/class/{classroom.id}", notice=notice))
+
+
+@staff_member_required
+@require_POST
 def teach_reset_roster(request, class_id: int):
     classroom = Class.objects.filter(id=class_id).first()
     if not classroom:
@@ -2285,6 +2335,7 @@ __all__ = [
     "teach_class_dashboard",
     "teach_class_join_card",
     "teach_rename_student",
+    "teach_delete_student_data",
     "teach_reset_roster",
     "teach_toggle_lock",
     "teach_lock_class",

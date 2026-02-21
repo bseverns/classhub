@@ -228,6 +228,9 @@ JOIN_RATE_LIMIT_PER_MINUTE = env.int("CLASSHUB_JOIN_RATE_LIMIT_PER_MINUTE", defa
 # Cookie used for same-device student rejoin hints.
 DEVICE_REJOIN_COOKIE_NAME = env("CLASSHUB_DEVICE_REJOIN_COOKIE_NAME", default="classhub_student_hint")
 DEVICE_REJOIN_MAX_AGE_DAYS = env.int("CLASSHUB_DEVICE_REJOIN_MAX_AGE_DAYS", default=30)
+# Retention defaults shown in learner-facing privacy microcopy.
+CLASSHUB_SUBMISSION_RETENTION_DAYS = env.int("CLASSHUB_SUBMISSION_RETENTION_DAYS", default=0)
+CLASSHUB_STUDENT_EVENT_RETENTION_DAYS = env.int("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", default=0)
 # Optional upload malware scanning (command-based, e.g., clamscan).
 CLASSHUB_UPLOAD_SCAN_ENABLED = env.bool("CLASSHUB_UPLOAD_SCAN_ENABLED", default=False)
 CLASSHUB_UPLOAD_SCAN_COMMAND = env(
@@ -251,6 +254,7 @@ CLASSHUB_ASSET_BASE_URL = env("CLASSHUB_ASSET_BASE_URL", default="").strip().rst
 REQUEST_SAFETY_TRUST_PROXY_HEADERS = env.bool("REQUEST_SAFETY_TRUST_PROXY_HEADERS", default=False)
 REQUEST_SAFETY_XFF_INDEX = env.int("REQUEST_SAFETY_XFF_INDEX", default=0)
 CLASSHUB_INTERNAL_EVENTS_TOKEN = env("CLASSHUB_INTERNAL_EVENTS_TOKEN", default="").strip()
+HELPER_LLM_BACKEND = (env("HELPER_LLM_BACKEND", default="ollama").strip() or "ollama").lower()
 ADMIN_2FA_REQUIRED = env.bool("DJANGO_ADMIN_2FA_REQUIRED", default=True)
 TEACHER_2FA_REQUIRED = env.bool("DJANGO_TEACHER_2FA_REQUIRED", default=True)
 CSP_POLICY = env(

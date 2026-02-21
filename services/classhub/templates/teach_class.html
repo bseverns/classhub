@@ -178,6 +178,24 @@
       .rename-row input {
         min-width: 180px;
       }
+      .delete-row {
+        margin-top: 8px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .delete-row label {
+        font-size: 12px;
+        color: #5a3131;
+        text-transform: none;
+        letter-spacing: normal;
+      }
+      .danger-inline {
+        padding: 6px 10px;
+        border-radius: 9px;
+        background: linear-gradient(155deg, #7d2020, #631717);
+      }
       .danger-zone {
         margin-top: 14px;
         border: 1px solid rgba(182, 56, 56, 0.35);
@@ -340,6 +358,15 @@
                               <input type="hidden" name="student_id" value="{{ st.id }}" />
                               <input name="display_name" value="{{ st.display_name }}" maxlength="80" />
                               <button type="submit">Rename</button>
+                            </form>
+                            <form method="post" action="/teach/class/{{ classroom.id }}/delete-student-data" class="delete-row" onsubmit="return confirm('Delete all stored data for this student now?');">
+                              {% csrf_token %}
+                              <input type="hidden" name="student_id" value="{{ st.id }}" />
+                              <label style="display:flex; gap:6px; align-items:center;">
+                                <input type="checkbox" name="confirm_delete" value="1" style="width:auto; margin:0;" required />
+                                Confirm delete
+                              </label>
+                              <button type="submit" class="danger-inline">Delete student data</button>
                             </form>
                           </td>
                         </tr>

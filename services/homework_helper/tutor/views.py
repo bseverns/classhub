@@ -702,6 +702,16 @@ def chat(request):
     backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
     strictness = (os.getenv("HELPER_STRICTNESS", "light") or "light").lower()
     scope_mode = (os.getenv("HELPER_SCOPE_MODE", "soft") or "soft").lower()
+    if backend == "openai" and not bool(getattr(settings, "HELPER_REMOTE_MODE_ACKNOWLEDGED", False)):
+        _log_chat_event(
+            "warning",
+            "remote_backend_not_acknowledged",
+            request_id=request_id,
+            actor_type=actor_type,
+            backend=backend,
+        )
+        return _json_response({"error": "remote_backend_not_acknowledged"}, status=503, request_id=request_id)
+
     reference_dir = os.getenv("HELPER_REFERENCE_DIR", "/app/tutor/reference").strip()
     reference_map_raw = os.getenv("HELPER_REFERENCE_MAP", "").strip()
     reference_file = os.getenv("HELPER_REFERENCE_FILE", "").strip()

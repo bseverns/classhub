@@ -466,3 +466,27 @@ Historical implementation logs and superseded decisions are archived by month in
 - Lowers clickjacking/browser-capability exposure with stable default headers.
 - Adds defense-in-depth for public `/admin` discovery pressure.
 - Gives operators a predictable, low-chaos incident posture without code edits.
+
+## Privacy control-surface pass (consent microcopy + self-service deletion)
+
+**Current decision:**
+- Add plain-language privacy microcopy directly on join, upload, and helper UI surfaces:
+  - what is stored,
+  - where it is stored,
+  - retention framing,
+  - where to delete now.
+- Add student self-service control surface at `/student/my-data` with:
+  - view submissions,
+  - portfolio export,
+  - delete submissions now,
+  - end session on this device.
+- Add teacher per-student data deletion control from class roster, with explicit confirmation and session invalidation.
+- Add explicit helper backend visibility in UI (`Local model (Ollama)` vs `Remote model (OpenAI)` badge).
+- Make remote helper mode (`openai`) require explicit operator acknowledgment (`HELPER_REMOTE_MODE_ACKNOWLEDGED=1`) before chat is allowed.
+- Add project-level `docs/PRIVACY-ADDENDUM.md` as field-level source of truth for lifecycle and deletion paths.
+
+**Why this remains active:**
+- Makes the privacy bargain visible in-product, not only in repository docs.
+- Keeps deletion a control surface instead of an operator ticket.
+- Prevents accidental/silent enablement of remote helper mode.
+- Gives operators and reviewers a concrete, auditable privacy checklist.

@@ -24,6 +24,9 @@ urlpatterns = [
     path("", views.index),
     path("join", views.join_class),
     path("student", views.student_home),
+    path("student/my-data", views.student_my_data),
+    path("student/delete-work", views.student_delete_work),
+    path("student/end-session", views.student_end_session),
     path("student/portfolio-export", views.student_portfolio_export),
     path("logout", views.student_logout),
 
@@ -51,6 +54,7 @@ urlpatterns = [
     path("teach/class/<int:class_id>", views.teach_class_dashboard),
     path("teach/class/<int:class_id>/join-card", views.teach_class_join_card),
     path("teach/class/<int:class_id>/rename-student", views.teach_rename_student),
+    path("teach/class/<int:class_id>/delete-student-data", views.teach_delete_student_data),
     path("teach/class/<int:class_id>/reset-roster", views.teach_reset_roster),
     path("teach/class/<int:class_id>/toggle-lock", views.teach_toggle_lock),
     path("teach/class/<int:class_id>/lock", views.teach_lock_class),

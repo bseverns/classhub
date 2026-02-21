@@ -1,5 +1,6 @@
 """Course/markdown rendering endpoint callables."""
 
+from django.conf import settings
 from django.db.utils import OperationalError, ProgrammingError
 from django.http import HttpResponse
 from django.middleware.csrf import get_token
@@ -24,6 +25,22 @@ from ..services.markdown_content import (
 )
 from ..services.release_state import lesson_release_override_map, lesson_release_state
 from ..services.upload_policy import front_matter_submission
+
+
+def _helper_backend_label() -> str:
+    backend = (getattr(settings, "HELPER_LLM_BACKEND", "ollama") or "ollama").strip().lower()
+    if backend == "openai":
+        return "Remote model (OpenAI)"
+    if backend == "ollama":
+        return "Local model (Ollama)"
+    if backend == "mock":
+        return "Mock model (Test mode)"
+    return "Model backend (Unknown)"
+
+
+def _retention_days(setting_name: str, default: int) -> int:
+    value = int(getattr(settings, setting_name, default) or default)
+    return value if value > 0 else 0
 
 
 def course_overview(request, course_slug: str):
@@ -292,6 +309,7 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
     )
     if not lesson_locked and can_use_helper:
         get_token(request)
+        helper_delete_url = "/student/my-data" if getattr(request, "student", None) is not None else "/teach"
         helper_widget = render_to_string(
             "includes/helper_widget.html",
             {
@@ -301,6 +319,9 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
                 "helper_topics": " | ".join(helper_topics),
                 "helper_reference": helper_reference,
                 "helper_allowed_topics": " | ".join(helper_allowed_topics),
+                "helper_backend_label": _helper_backend_label(),
+                "helper_delete_url": helper_delete_url,
+                "student_event_retention_days": _retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180),
                 "helper_scope_token": helper_scope_token,
             },
         )

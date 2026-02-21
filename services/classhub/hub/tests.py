@@ -221,6 +221,45 @@ class TeacherPortalTests(TestCase):
         self.assertNotContains(resp, f">{student.return_code}<", html=False)
         self.assertContains(resp, "Show")
 
+    def test_teach_delete_student_data_removes_student_submissions_and_events(self):
+        classroom = Class.objects.create(name="Delete Data Class", join_code="DEL12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        upload = Material.objects.create(
+            module=module,
+            title="Upload",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        Submission.objects.create(
+            material=upload,
+            student=student,
+            original_filename="project.sb3",
+            file=SimpleUploadedFile("project.sb3", _sample_sb3_bytes()),
+        )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=student,
+            event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
+            source="test",
+            details={"submission_id": 1},
+        )
+        _force_login_staff_verified(self.client, self.staff)
+        start_epoch = classroom.session_epoch
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/delete-student-data",
+            {"student_id": str(student.id), "confirm_delete": "1"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        classroom.refresh_from_db()
+        self.assertEqual(classroom.session_epoch, start_epoch + 1)
+        self.assertFalse(StudentIdentity.objects.filter(id=student.id).exists())
+        self.assertEqual(Submission.objects.filter(student_id=student.id).count(), 0)
+        self.assertEqual(StudentEvent.objects.filter(student_id=student.id).count(), 0)
+
     @patch("hub.views.teacher.generate_authoring_templates")
     def test_teach_home_can_generate_authoring_templates(self, mock_generate):
         mock_generate.return_value.output_paths = [
@@ -1376,6 +1415,78 @@ class StudentPortfolioExportTests(TestCase):
         self.assertNotIn("/", disposition)
         self.assertNotIn("\\", disposition)
         self.assertNotRegex(disposition, r"[\r\n]")
+
+
+class StudentDataControlsTests(TestCase):
+    def setUp(self):
+        self.classroom = Class.objects.create(name="Data Controls Class", join_code="DATA1234")
+        self.module = Module.objects.create(classroom=self.classroom, title="Session 1", order_index=0)
+        self.upload = Material.objects.create(
+            module=self.module,
+            title="Upload your project",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+
+    def _login_student(self):
+        session = self.client.session
+        session["student_id"] = self.student.id
+        session["class_id"] = self.classroom.id
+        session.save()
+
+    def test_student_my_data_page_shows_submissions_and_no_store(self):
+        Submission.objects.create(
+            material=self.upload,
+            student=self.student,
+            original_filename="portfolio.sb3",
+            file=SimpleUploadedFile("portfolio.sb3", b"demo"),
+        )
+        self._login_student()
+
+        resp = self.client.get("/student/my-data")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+        self.assertContains(resp, "My submissions")
+        self.assertContains(resp, "portfolio.sb3")
+
+    def test_student_delete_work_now_clears_submissions_and_upload_events(self):
+        Submission.objects.create(
+            material=self.upload,
+            student=self.student,
+            original_filename="project.sb3",
+            file=SimpleUploadedFile("project.sb3", b"demo"),
+        )
+        StudentEvent.objects.create(
+            classroom=self.classroom,
+            student=self.student,
+            event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
+            source="classhub.material_upload",
+            details={"submission_id": 1},
+        )
+        self._login_student()
+
+        resp = self.client.post("/student/delete-work")
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp["Location"].startswith("/student/my-data?notice="))
+        self.assertEqual(Submission.objects.filter(student=self.student).count(), 0)
+        self.assertEqual(
+            StudentEvent.objects.filter(student=self.student, event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD).count(),
+            0,
+        )
+
+    def test_student_end_session_flushes_session_and_hint_cookie(self):
+        self._login_student()
+        self.client.cookies["classhub_student_hint"] = "signed-token"
+
+        resp = self.client.post("/student/end-session")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/")
+        self.assertIn("classhub_student_hint=", resp.get("Set-Cookie", ""))
+        self.assertNotIn("student_id", self.client.session)
+        self.assertNotIn("class_id", self.client.session)
 
 
 class LessonAssetDownloadTests(TestCase):

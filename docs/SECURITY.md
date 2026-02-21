@@ -109,6 +109,8 @@ These controls are additive to Django auth + OTP.
 
 ## Data handling and retention
 
+Field-level lifecycle details (exact fields, TTL knobs, deletion controls): `docs/PRIVACY-ADDENDUM.md`.
+
 ### Student submissions
 
 - Stored under `data/classhub_uploads/`.

@@ -76,6 +76,18 @@
         margin-top: 8px;
         min-height: 18px;
       }
+      .my-data-actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .my-data-actions form {
+        margin: 0;
+      }
+      .danger-inline {
+        background: linear-gradient(155deg, #7d2020, #631717);
+      }
     </style>
   </head>
   <body class="glass-theme">
@@ -85,7 +97,7 @@
       <main id="main-content">
         <div class="top">
           <div>
-            <div class="muted"><a href="/">Join page</a> · <a href="/student">Student home</a> · <a href="/student/portfolio-export">Export my portfolio</a></div>
+            <div class="muted"><a href="/">Join page</a> · <a href="/student">Student home</a> · <a href="/student/my-data">My Data</a> · <a href="/student/portfolio-export">Export my portfolio</a></div>
             <h1>{{ classroom.name }}</h1>
             <div class="muted">
               Signed in as <strong>{{ student.display_name }}</strong>
@@ -128,6 +140,23 @@
           <p class="muted"><span class="state-pill state-pill--done">Done for now</span> means your upload is saved and visible.</p>
           <p class="muted"><span class="state-pill state-pill--open">Open</span> means you can work/submit now.</p>
           <p class="muted"><span class="state-pill state-pill--locked">Locked</span> means wait until the listed date.</p>
+        </div>
+
+        <div class="card done-guide">
+          <h2>My Data</h2>
+          <p class="muted">Manage your class data on this device in one place.</p>
+          <div class="my-data-actions">
+            <a href="/student/my-data">Show my submissions</a>
+            <a href="/student/portfolio-export">Download my work</a>
+            <form method="post" action="/student/delete-work" onsubmit="return confirm('Delete all of your submissions now?');">
+              {% csrf_token %}
+              <button type="submit" class="danger-inline">Delete my work now</button>
+            </form>
+            <form method="post" action="/student/end-session">
+              {% csrf_token %}
+              <button type="submit">End my session on this device</button>
+            </form>
+          </div>
         </div>
 
         {% if modules %}

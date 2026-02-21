@@ -6,7 +6,7 @@ The helper service is a Django app that exposes:
 - `POST /helper/chat`
 
 By default, the helper is wired to a local LLM server (Ollama) for self-hosted reliability and predictable costs.
-OpenAI is supported as a production-ready backend via the **Responses API** and can be enabled with env switches.
+OpenAI remains an explicit development/future path via the **Responses API** and must be intentionally acknowledged before use.
 
 ```mermaid
 flowchart TD
@@ -28,6 +28,7 @@ Set the backend in `compose/.env`:
 
 ```bash
 HELPER_LLM_BACKEND=ollama   # or "openai" or "mock" (CI/test only)
+HELPER_REMOTE_MODE_ACKNOWLEDGED=0
 HELPER_MOCK_RESPONSE_TEXT=
 HELPER_STRICTNESS=light     # or "strict"
 HELPER_SCOPE_MODE=strict    # or "soft"
@@ -75,16 +76,21 @@ Larger models may be too slow or may not fit in memory.
 If you run Ollama outside of Compose, set `OLLAMA_BASE_URL` to the host address
 that containers can reach.
 
-### OpenAI (optional)
+### OpenAI (optional, explicit opt-in)
 
 If you want to re-enable OpenAI later:
 
 ```
 HELPER_LLM_BACKEND=openai
+HELPER_REMOTE_MODE_ACKNOWLEDGED=1
 OPENAI_API_KEY=...
 OPENAI_MODEL=gpt-5.2
 OPENAI_MAX_OUTPUT_TOKENS=400
 ```
+
+Safety behavior:
+- If `HELPER_LLM_BACKEND=openai` and `HELPER_REMOTE_MODE_ACKNOWLEDGED!=1`, `/helper/chat` returns `remote_backend_not_acknowledged`.
+- This prevents remote mode from becoming a silent default.
 
 `openai` is already included in `services/homework_helper/requirements.txt`.
 
