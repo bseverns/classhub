@@ -120,6 +120,29 @@ Field-level lifecycle details (exact fields, TTL knobs, deletion controls): `doc
 - Upload checks now include lightweight content validation (for example `.sb3` must be a valid zip with `project.json`).
 - File cleanup signals remove stored files on row delete/cascade delete and file replacement.
 
+#### Upload flow (Map D2)
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant MW as Middleware
+  participant V as student.material_upload
+  participant UV as upload_validation
+  participant FS as MEDIA storage
+  participant DB as Postgres
+  participant R as Redis/cache
+
+  B->>MW: POST /material/<id>/upload (file)
+  MW->>V: request (mode/headers/session)
+  V->>R: rate limits (fail-open for student continuity)
+  V->>UV: validate size + allowlist + magic bytes + scan hook
+  UV-->>V: ok / reject
+  V->>FS: save file bytes
+  V->>DB: create Submission (metadata)
+  V->>DB: StudentEvent (ext + size only)
+  V->>B: 200/redirect + user-visible message
+```
+
 ### Lesson assets
 
 - Lesson assets are permission-checked (`/lesson-asset/<id>/download`).

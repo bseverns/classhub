@@ -1114,7 +1114,7 @@ def teach_home(request):
                 }
             )
 
-    return render(
+    response = render(
         request,
         "teach_home.html",
         {
@@ -1138,6 +1138,8 @@ def teach_home(request):
             "teacher_invite_active": teacher_invite_active,
         },
     )
+    apply_no_store(response, private=True, pragma=True)
+    return response
 
 
 @staff_member_required
@@ -1607,6 +1609,37 @@ def _resolve_teacher_setup_context(request):
 
 
 def teach_teacher_2fa_setup(request):
+    requested_next = (request.GET.get("next") or request.POST.get("next") or "").strip()
+    safe_next = requested_next if requested_next.startswith("/teach") and not requested_next.startswith("//") else ""
+    invite_token = (request.GET.get("token") or "").strip()
+    if invite_token:
+        invite_user, invite_error = _resolve_teacher_setup_user(invite_token)
+        if invite_error:
+            response = render(
+                request,
+                "teach_setup_otp.html",
+                {
+                    "error": invite_error,
+                    "token": invite_token,
+                    "otp_ready": False,
+                    "already_configured": False,
+                    "setup_user": None,
+                    "next_path": safe_next,
+                },
+                status=400,
+            )
+            apply_no_store(response, private=True, pragma=True)
+            return response
+        if not request.user.is_authenticated or request.user.pk != invite_user.pk:
+            invite_user.backend = "django.contrib.auth.backends.ModelBackend"
+            auth_login(request, invite_user)
+        redirect_to = "/teach/2fa/setup"
+        if safe_next:
+            redirect_to = f"{redirect_to}?{urlencode({'next': safe_next})}"
+        response = redirect(redirect_to)
+        apply_no_store(response, private=True, pragma=True)
+        return response
+
     user, token, setup_error, safe_next = _resolve_teacher_setup_context(request)
     if user is None:
         login_next = "/teach/2fa/setup"
@@ -1614,7 +1647,7 @@ def teach_teacher_2fa_setup(request):
             login_next = f"{login_next}?{urlencode({'next': safe_next})}"
         login_url = f"/admin/login/?{urlencode({'next': login_next})}"
         if token:
-            return render(
+            response = render(
                 request,
                 "teach_setup_otp.html",
                 {
@@ -1627,7 +1660,11 @@ def teach_teacher_2fa_setup(request):
                 },
                 status=400,
             )
-        return redirect(login_url)
+            apply_no_store(response, private=True, pragma=True)
+            return response
+        response = redirect(login_url)
+        apply_no_store(response, private=True, pragma=True)
+        return response
 
     device_name = _teacher_2fa_device_name()
     device = TOTPDevice.objects.filter(user=user, name=device_name).first()
@@ -1668,7 +1705,7 @@ def teach_teacher_2fa_setup(request):
             qr_svg = _totp_qr_svg(config_url)
         manual_secret = _format_base32_for_display(_totp_secret_base32(device))
 
-    return render(
+    response = render(
         request,
         "teach_setup_otp.html",
         {
@@ -1685,6 +1722,8 @@ def teach_teacher_2fa_setup(request):
             "next_path": safe_next,
         },
     )
+    apply_no_store(response, private=True, pragma=True)
+    return response
 
 
 @staff_member_required

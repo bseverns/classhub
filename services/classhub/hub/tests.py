@@ -487,14 +487,22 @@ class Teacher2FASetupTests(TestCase):
     def test_invite_link_renders_qr_setup_page(self):
         token = self._invite_token()
         resp = self.client.get(f"/teach/2fa/setup?token={token}")
-        self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Scan QR Code")
-        self.assertContains(resp, "Authenticator code")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+        self.assertNotIn("token=", resp["Location"])
+
+        follow = self.client.get(resp["Location"])
+        self.assertEqual(follow.status_code, 200)
+        self.assertEqual(follow["Cache-Control"], "private, no-store")
+        self.assertContains(follow, "Scan QR Code")
+        self.assertContains(follow, "Authenticator code")
         self.assertTrue(TOTPDevice.objects.filter(user=self.teacher, name="teacher-primary").exists())
 
     def test_invite_link_can_confirm_totp_device(self):
         token = self._invite_token()
-        self.client.get(f"/teach/2fa/setup?token={token}")
+        resp = self.client.get(f"/teach/2fa/setup?token={token}")
+        self.assertEqual(resp.status_code, 302)
+        self.client.get(resp["Location"])
         device = TOTPDevice.objects.get(user=self.teacher, name="teacher-primary")
         otp_value = totp(
             device.bin_key,
@@ -506,7 +514,6 @@ class Teacher2FASetupTests(TestCase):
         resp = self.client.post(
             "/teach/2fa/setup",
             {
-                "token": token,
                 "otp_token": f"{otp_value:0{int(device.digits)}d}",
             },
         )
@@ -519,9 +526,16 @@ class Teacher2FASetupTests(TestCase):
         self.assertIsNotNone(event)
         self.assertEqual(event.actor_user_id, self.teacher.id)
 
+    def test_invite_link_redirects_to_tokenless_url_preserving_next(self):
+        token = self._invite_token()
+        resp = self.client.get(f"/teach/2fa/setup?token={token}&next=/teach/lessons")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/teach/2fa/setup?next=%2Fteach%2Flessons")
+
     def test_invalid_invite_link_returns_400(self):
         resp = self.client.get("/teach/2fa/setup?token=bad-token")
         self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
         self.assertContains(resp, "Invalid setup link", status_code=400)
 
 

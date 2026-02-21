@@ -88,6 +88,12 @@ class SecurityHeaderDriftTests(TestCase):
         self.assertEqual(student_resp["Cache-Control"], "private, no-store")
 
         _force_login_staff_verified(self.client, self.staff)
+        teacher_home_resp = self.client.get("/teach")
+        self.assertEqual(teacher_home_resp.status_code, 200)
+        self.assertEqual(teacher_home_resp["Cache-Control"], "private, no-store")
+        teacher_setup_resp = self.client.get("/teach/2fa/setup")
+        self.assertEqual(teacher_setup_resp.status_code, 200)
+        self.assertEqual(teacher_setup_resp["Cache-Control"], "private, no-store")
         teacher_resp = self.client.get(f"/teach/class/{self.classroom.id}")
         self.assertEqual(teacher_resp.status_code, 200)
         self.assertEqual(teacher_resp["Cache-Control"], "private, no-store")

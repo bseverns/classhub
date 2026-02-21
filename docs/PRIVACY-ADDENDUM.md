@@ -12,6 +12,55 @@ This addendum lists exactly what ClassHub stores, where it lives, how long it is
 ## Verification signal
 A student can open `/student/my-data` and perform download/delete/end-session without filing a ticket.
 
+## Student data lifecycle and controls (Map B)
+
+```mermaid
+flowchart LR
+  subgraph J["Student journey"]
+    J1[Join class<br/>class code + display name]
+    J2[View lesson content]
+    J3[Optional: ask helper]
+    J4[Upload submission]
+    J5[My Data page<br/>show • download • delete • end session]
+  end
+
+  subgraph D["Data stores"]
+    D1[(Postgres)<br/>students • classes • submissions metadata • student events]
+    D2[(File storage / MEDIA)<br/>submissions • portfolio zips]
+    D3[(Redis/cache)<br/>rate limits • queues • session helpers]
+  end
+
+  subgraph P["Policies / protections"]
+    P1[No-store caching<br/>sensitive pages + exports]
+    P2[Safe downloads<br/>attachment + nosniff + sandbox CSP]
+    P3[Event minimization<br/>no names/codes/filenames]
+    P4[IP coarsening<br/>truncate mode]
+    P5[Retention maintenance<br/>report -> delete]
+  end
+
+  J1 -->|creates/updates| D1
+  J2 -->|reads| D1
+  J3 -->|rate-limit + session checks| D3
+  J3 -. optional .-> H[Helper service]
+  H -->|best-effort safe event| D1
+
+  J4 -->|file bytes| D2
+  J4 -->|metadata| D1
+
+  J5 -->|list submissions| D1
+  J5 -->|download zip| D2
+  J5 -->|delete now| D1
+  J5 -->|delete now| D2
+
+  P1 -.-> J1
+  P1 -.-> J5
+  P2 -.-> J5
+  P3 -.-> D1
+  P4 -.-> D1
+  P5 -.-> D1
+  P5 -.-> D2
+```
+
 ## Data Categories (Exact Fields)
 - Student identity: `StudentIdentity.display_name`, `StudentIdentity.return_code`, `StudentIdentity.created_at`, `StudentIdentity.last_seen_at`, class link.
 - Student submissions: `Submission.original_filename`, `Submission.file`, `Submission.note`, `Submission.uploaded_at`, material/student links.

@@ -64,6 +64,8 @@ class HelperChatAuthTests(TestCase):
 
         resp = self._post_chat({"message": "How do I move a sprite?"})
         self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Cache-Control"], "no-store")
+        self.assertEqual(resp["Pragma"], "no-cache")
         self.assertEqual(resp.json().get("text"), "Try this step first.")
 
     @override_settings(

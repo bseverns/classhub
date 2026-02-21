@@ -259,6 +259,26 @@ backend failures, successful calls) for easier operational tracing.
 
 This prevents anonymous/public use of helper capacity. CSRF protection remains enabled.
 
+## End-to-end helper flow (Map D3)
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant MW as Middleware
+  participant H as Helper chat endpoint
+  participant RS as request_safety
+  participant LLM as LLM backend (local preferred)
+  participant CH as ClassHub internal events
+
+  B->>MW: POST /helper/chat (message, scope token)
+  MW->>H: request
+  H->>RS: rate limit + concurrency gate
+  H->>LLM: bounded prompt (scope-enforced)
+  LLM-->>H: response
+  H-->>B: JSON response (request_id, no-store)
+  H->>CH: best-effort POST /internal/events/helper-chat-access
+```
+
 Canonical policy notes live in:
 
 - `services/homework_helper/tutor/fixtures/policy_prompts.md`

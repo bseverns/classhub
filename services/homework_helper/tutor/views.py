@@ -125,6 +125,8 @@ def _json_response(payload: dict, *, request_id: str, status: int = 200) -> Json
     body.setdefault("request_id", request_id)
     resp = JsonResponse(body, status=status)
     resp["X-Request-ID"] = request_id
+    resp["Cache-Control"] = "no-store"
+    resp["Pragma"] = "no-cache"
     return resp
 
 

@@ -22,3 +22,22 @@ return code.
 - Class codes should be rotatable.
 - Joining can be locked per class.
 - `/join` should be rate-limited to discourage brute force.
+
+## Join flow (Map D1)
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant MW as Middleware
+  participant V as student.join_class
+  participant DB as Postgres
+  participant R as Redis/cache
+
+  B->>MW: POST /join (class_code, display_name)
+  MW->>V: request (site mode + session guardrails)
+  V->>R: rate limit check (fail-open on cache issues)
+  V->>DB: lookup Class by join code
+  V->>DB: create/update StudentIdentity + session binding
+  V->>DB: write StudentEvent (details minimized)
+  V->>B: JSON (return_code) + Cache-Control: no-store
+```
