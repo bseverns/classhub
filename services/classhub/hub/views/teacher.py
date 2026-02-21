@@ -1,6 +1,8 @@
 """Teacher portal endpoint callables under /teach/*."""
 
 import base64
+import hashlib
+import logging
 import re
 import tempfile
 import zipfile
@@ -15,6 +17,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.core.cache import cache
 from django.core import signing
 from django.core.mail import send_mail
 from django.core.validators import validate_email
@@ -63,6 +66,8 @@ _AUTHORING_TEMPLATE_SUFFIXES = {
     "public_overview_docx": "public-overview-template.docx",
 }
 _TEACHER_2FA_TOKEN_SALT = "classhub.teacher-2fa-setup"
+_TEACHER_2FA_TOKEN_USED_CACHE_PREFIX = "classhub:teacher-2fa:used:"
+logger = logging.getLogger(__name__)
 
 
 def _teacher_2fa_device_name() -> str:
@@ -71,8 +76,13 @@ def _teacher_2fa_device_name() -> str:
 
 
 def _teacher_invite_max_age_seconds() -> int:
-    raw = int(getattr(settings, "TEACHER_2FA_INVITE_MAX_AGE_SECONDS", 72 * 3600) or 0)
-    return raw if raw > 0 else 72 * 3600
+    raw = int(getattr(settings, "TEACHER_2FA_INVITE_MAX_AGE_SECONDS", 24 * 3600) or 0)
+    return raw if raw > 0 else 24 * 3600
+
+
+def _teacher_setup_token_cache_key(token: str) -> str:
+    digest = hashlib.sha256((token or "").encode("utf-8")).hexdigest()
+    return f"{_TEACHER_2FA_TOKEN_USED_CACHE_PREFIX}{digest}"
 
 
 def _build_teacher_setup_token(user) -> str:
@@ -84,9 +94,16 @@ def _build_teacher_setup_token(user) -> str:
     return signing.dumps(payload, salt=_TEACHER_2FA_TOKEN_SALT)
 
 
-def _resolve_teacher_setup_user(token: str):
+def _resolve_teacher_setup_user(token: str, *, consume: bool = False):
     if not token:
         return None, "Missing setup token."
+    cache_key = _teacher_setup_token_cache_key(token)
+    if not consume:
+        try:
+            if cache.get(cache_key):
+                return None, "This setup link was already used. Ask an admin for a new invite."
+        except Exception:
+            logger.warning("teacher_setup_token_cache_check_failed")
     try:
         payload = signing.loads(
             token,
@@ -117,6 +134,14 @@ def _resolve_teacher_setup_user(token: str):
     ).first()
     if not user:
         return None, "Invite is no longer valid for an active teacher account."
+    if consume:
+        try:
+            cache_claimed = bool(cache.add(cache_key, "1", timeout=_teacher_invite_max_age_seconds()))
+        except Exception:
+            logger.warning("teacher_setup_token_cache_mark_failed")
+            cache_claimed = True
+        if not cache_claimed:
+            return None, "This setup link was already used. Ask an admin for a new invite."
     return user, ""
 
 
@@ -1613,7 +1638,7 @@ def teach_teacher_2fa_setup(request):
     safe_next = requested_next if requested_next.startswith("/teach") and not requested_next.startswith("//") else ""
     invite_token = (request.GET.get("token") or "").strip()
     if invite_token:
-        invite_user, invite_error = _resolve_teacher_setup_user(invite_token)
+        invite_user, invite_error = _resolve_teacher_setup_user(invite_token, consume=True)
         if invite_error:
             response = render(
                 request,

@@ -204,6 +204,7 @@ Operational checklist: `docs/TEACHER_HANDOFF_CHECKLIST.md`.
 - `/teach/2fa/setup`:
   - teacher self-service TOTP enrollment
   - supports signed invite links from onboarding emails
+  - invite links are one-time use and expire after `TEACHER_2FA_INVITE_MAX_AGE_SECONDS` (default 24h)
   - shows QR + manual secret and verifies one-time code
 
 ## Common workflow
@@ -230,6 +231,7 @@ Use `/teach/videos` to tag media directly to `course_slug + lesson_slug`.
 
 Large file note:
 - Upload request size is controlled by `CLASSHUB_UPLOAD_MAX_MB` (default `600`) in compose env.
+- Upload request timeout is controlled by `CLASSHUB_GUNICORN_TIMEOUT_SECONDS` (default `1200`).
 - After changing `.env`, restart `classhub_web` to apply.
 
 Lesson behavior:

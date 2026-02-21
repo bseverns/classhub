@@ -122,6 +122,7 @@ When running behind Caddy on a real domain, use these defaults to avoid false ra
 - Upload size alignment:
   - Set `CADDY_CLASSHUB_MAX_BODY` slightly above `CLASSHUB_UPLOAD_MAX_MB` (for example, `650MB` vs `600`).
   - `CLASSHUB_UPLOAD_MAX_MB` controls Django request body cap for class uploads.
+  - Keep `CLASSHUB_GUNICORN_TIMEOUT_SECONDS` high enough for large uploads on classroom Wi-Fi (default `1200` seconds).
 - Retention timer:
   - Enable the `classhub-retention.timer` unit so submission/event cleanup runs automatically.
   - Timer setup commands are in [Automate retention + orphan cleanup](#automate-retention--orphan-cleanup).

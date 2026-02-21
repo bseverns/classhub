@@ -128,6 +128,18 @@ bash scripts/repo_hygiene_check.sh
 
 This fails if blocked runtime/local artifacts are tracked (for example `.venv/`, `__pycache__/`, `.env`, `*.sqlite3`, `media/`, `staticfiles/`).
 
+## Lint and editor baseline
+
+Run Ruff from repo root:
+
+```bash
+ruff check services scripts
+```
+
+Repo formatting defaults are defined in:
+- `pyproject.toml` (Ruff baseline)
+- `.editorconfig` (line endings/indent/newline defaults)
+
 - `python manage.py migrate`
 - `python manage.py collectstatic --noinput`
 - Gunicorn server

@@ -532,6 +532,15 @@ class Teacher2FASetupTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["Location"], "/teach/2fa/setup?next=%2Fteach%2Flessons")
 
+    def test_invite_link_is_one_time_use(self):
+        token = self._invite_token()
+        first = self.client.get(f"/teach/2fa/setup?token={token}")
+        self.assertEqual(first.status_code, 302)
+
+        second = self.client.get(f"/teach/2fa/setup?token={token}")
+        self.assertEqual(second.status_code, 400)
+        self.assertContains(second, "already used", status_code=400)
+
     def test_invalid_invite_link_returns_400(self):
         resp = self.client.get("/teach/2fa/setup?token=bad-token")
         self.assertEqual(resp.status_code, 400)

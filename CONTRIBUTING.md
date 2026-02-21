@@ -35,6 +35,7 @@ Run from repo root:
 
 ```bash
 bash scripts/repo_hygiene_check.sh
+ruff check services scripts
 bash scripts/make_release_zip.sh /tmp/classhub_release_ci.zip
 python3 scripts/lint_release_artifact.py /tmp/classhub_release_ci.zip
 ```

@@ -155,6 +155,16 @@ Historical implementation logs and superseded decisions are archived by month in
 - Explicit migration steps are safer for multi-instance deployment workflows.
 - The boot toggle preserves Day-1 simplicity while operators migrate to deploy-step migrations.
 
+## Large upload reliability timeout
+
+**Current decision:**
+- Class Hub Gunicorn timeout is configurable via `CLASSHUB_GUNICORN_TIMEOUT_SECONDS` (default `1200`).
+- Upload body limits remain controlled separately by `CLASSHUB_UPLOAD_MAX_MB` and `CADDY_CLASSHUB_MAX_BODY`.
+
+**Why this remains active:**
+- Classroom upload reliability is dominated by slow/shared Wi-Fi conditions.
+- A low app worker timeout causes avoidable upload failures even when body limits are configured correctly.
+
 ## Service boundary: Homework Helper separate service
 
 **Current decision:**
@@ -255,6 +265,28 @@ Historical implementation logs and superseded decisions are archived by month in
 - Prevents CI from accidentally probing external placeholder domains while validating local compose stacks.
 - Prevents CI flakes when local model servers are reachable but model weights are not yet loaded.
 - Keeps strict smoke focused on route authorization outcomes instead of brittle intermediate login form internals.
+
+## Teacher invite token hardening
+
+**Current decision:**
+- Teacher 2FA setup invite links are one-time use.
+- Invite links are consumed when first opened and immediately redirected to a tokenless setup URL.
+- Default invite TTL is 24 hours (`TEACHER_2FA_INVITE_MAX_AGE_SECONDS=86400`).
+
+**Why this remains active:**
+- Reduces bearer-token exposure via browser history, screenshots, and accidental link reuse.
+- Preserves simple onboarding while adding practical replay resistance.
+
+## Lint/editor baseline
+
+**Current decision:**
+- Repo-level lint baseline is defined in `pyproject.toml` (Ruff).
+- Editor defaults are defined in `.editorconfig`.
+- CI lint runs `ruff check services scripts` against that shared baseline.
+
+**Why this remains active:**
+- Keeps code-style drift low across contributors and machines.
+- Prevents silent mismatch between local lint runs and CI behavior.
 
 ## Teacher authoring templates
 
