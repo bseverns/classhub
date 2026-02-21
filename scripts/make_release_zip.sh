@@ -16,6 +16,7 @@ fi
 
 mkdir -p "$(dirname "${OUT_PATH}")"
 OUT_ABS="$(cd "$(dirname "${OUT_PATH}")" && pwd)/$(basename "${OUT_PATH}")"
+rm -f "${OUT_ABS}"
 
 cd "${ROOT_DIR}"
 zip -r "${OUT_ABS}" . \

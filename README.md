@@ -26,6 +26,7 @@ Then open:
 
 - Security posture: `docs/SECURITY.md`
 - Day-1 deploy checklist: `docs/DAY1_DEPLOY_CHECKLIST.md`
+- Release packaging policy: `docs/RELEASING.md` (use `scripts/make_release_zip.sh` only)
 
 ## Contributing + press
 

@@ -10,10 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build release zip
+      - name: Repo hygiene guard (tracked files)
+        run: bash scripts/repo_hygiene_check.sh
+      - name: Build canonical release zip
         run: bash scripts/make_release_zip.sh /tmp/classhub_release_ci.zip
       - name: Validate release zip excludes runtime/local artifacts
-        run: python3 scripts/lint_release_artifact.py /tmp/classhub_release_ci.zip
+        run: bash scripts/repo_hygiene_check.sh /tmp/classhub_release_ci.zip
 
   classhub-tests:
     runs-on: ubuntu-latest
