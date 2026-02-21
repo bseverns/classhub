@@ -448,6 +448,7 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Public-domain hardening pass (CSP enforcement, proxy armor, degradation modes)
 
 **Current decision:**
+- Security header and cache ownership is documented in one place: `docs/SECURITY_BASELINE.md`.
 - Class Hub and Helper now support enforced CSP via `DJANGO_CSP_POLICY` while still emitting report-only CSP via `DJANGO_CSP_REPORT_ONLY_POLICY`.
 - Security headers are attached consistently by middleware (`Permissions-Policy`, `Referrer-Policy`, `X-Frame-Options`, plus CSP headers).
 - Caddy templates now support optional teacher/admin edge armor:

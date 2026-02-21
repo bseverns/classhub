@@ -118,6 +118,16 @@ docker compose up -d --build
 
 The production container entrypoint already runs:
 
+## Repo hygiene check
+
+Quick guardrail before pushing:
+
+```bash
+bash scripts/repo_hygiene_check.sh
+```
+
+This fails if blocked runtime/local artifacts are tracked (for example `.venv/`, `__pycache__/`, `.env`, `*.sqlite3`, `media/`, `staticfiles/`).
+
 - `python manage.py migrate`
 - `python manage.py collectstatic --noinput`
 - Gunicorn server

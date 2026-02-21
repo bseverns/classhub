@@ -28,6 +28,7 @@ from ..models import (
     Submission,
     gen_student_return_code,
 )
+from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
 from ..services.content_links import parse_course_lesson_url
 from ..services.filenames import safe_filename
 from ..services.markdown_content import load_lesson_markdown
@@ -42,8 +43,7 @@ logger = logging.getLogger(__name__)
 
 def _json_no_store_response(payload: dict, *, status: int = 200, private: bool = False) -> JsonResponse:
     response = JsonResponse(payload, status=status)
-    response["Cache-Control"] = "private, no-store" if private else "no-store"
-    response["Pragma"] = "no-cache"
+    apply_no_store(response, private=private, pragma=True)
     return response
 
 
@@ -447,7 +447,7 @@ def student_portfolio_export(request):
     student_name = safe_filename(student.display_name or "student")
     class_name = safe_filename(classroom.name or "classroom")
     stamp = generated_at.strftime("%Y%m%d")
-    filename = f"{class_name}_{student_name}_portfolio_{stamp}.zip"
+    filename = safe_attachment_filename(f"{class_name}_{student_name}_portfolio_{stamp}.zip")
     tmp.seek(0)
     response = FileResponse(
         tmp,
@@ -455,9 +455,8 @@ def student_portfolio_export(request):
         filename=filename,
         content_type="application/zip",
     )
-    response["Cache-Control"] = "private, no-store"
-    response["Pragma"] = "no-cache"
-    response["X-Content-Type-Options"] = "nosniff"
+    apply_download_safety(response)
+    apply_no_store(response, private=True, pragma=True)
     return response
 
 
@@ -634,17 +633,15 @@ def submission_download(request, submission_id: int):
             return HttpResponse("Forbidden", status=403)
 
     raw_filename = s.original_filename or Path(s.file.name).name or "submission"
-    filename = safe_filename(raw_filename)[:255] or "submission"
+    filename = safe_attachment_filename(raw_filename, fallback="submission")
     response = FileResponse(
         s.file.open("rb"),
         as_attachment=True,
         filename=filename,
         content_type="application/octet-stream",
     )
-    response["X-Content-Type-Options"] = "nosniff"
-    response["Content-Security-Policy"] = "default-src 'none'; sandbox"
-    response["Referrer-Policy"] = "no-referrer"
-    response["Cache-Control"] = "private, no-store"
+    apply_download_safety(response)
+    apply_no_store(response, private=True, pragma=True)
     return response
 
 

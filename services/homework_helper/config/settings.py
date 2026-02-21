@@ -151,14 +151,14 @@ SECURITY_REFERRER_POLICY = (
     env("DJANGO_SECURE_REFERRER_POLICY", default="strict-origin-when-cross-origin").strip()
     or "strict-origin-when-cross-origin"
 )
+X_FRAME_OPTIONS = (env("DJANGO_X_FRAME_OPTIONS", default="SAMEORIGIN").strip() or "SAMEORIGIN").upper()
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=False)
-    SECURE_HSTS_SECONDS = env.int("DJANGO_SECURE_HSTS_SECONDS", default=3600)
+    SECURE_HSTS_SECONDS = env.int("DJANGO_SECURE_HSTS_SECONDS", default=0)
     SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False)
     SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=False)
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = "DENY"
     SECURE_REFERRER_POLICY = SECURITY_REFERRER_POLICY
 
 # Shared request-safety controls for proxy-aware client IP extraction.

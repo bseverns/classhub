@@ -1,6 +1,7 @@
 # Security
 
 This page is the practical security baseline for this project.
+Canonical ownership map for edge vs app headers: `docs/SECURITY_BASELINE.md`.
 
 If you only do three things before production:
 
@@ -41,8 +42,7 @@ flowchart LR
 2. Set a strong `DJANGO_SECRET_KEY` (non-default, 32+ chars).
 3. Enable HTTPS behavior for domain deployments:
    - `DJANGO_SECURE_SSL_REDIRECT=1`
-   - `DJANGO_SECURE_HSTS_SECONDS` (recommend `>=31536000` after verification)
-   - `DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=1` only when all subdomains are HTTPS-ready
+   - `CADDY_HSTS_MAX_AGE` (edge-owned HSTS; recommend `>=31536000` after verification)
 4. Keep `DJANGO_ADMIN_2FA_REQUIRED=1`.
 5. Keep `DJANGO_TEACHER_2FA_REQUIRED=1`.
 6. Set deployment timezone (for lesson release dates):

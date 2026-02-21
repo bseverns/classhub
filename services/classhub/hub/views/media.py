@@ -7,9 +7,9 @@ from pathlib import Path
 from django.db.utils import OperationalError, ProgrammingError
 from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 
+from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
 from ..models import LessonAsset, LessonVideo
 from ..services.content_links import video_mime_type
-from ..services.filenames import safe_filename
 
 _INLINE_ASSET_MIME_TYPES = {
     "image/png",
@@ -168,7 +168,7 @@ def lesson_asset_download(request, asset_id: int):
     if not file_path.exists():
         return HttpResponse("Not found", status=404)
 
-    filename = safe_filename((asset.original_filename or file_path.name or "asset").strip()[:255])
+    filename = safe_attachment_filename(asset.original_filename or file_path.name or "asset", fallback="asset")
     content_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
     inline_allowed = _asset_allows_inline(content_type)
     response = FileResponse(
@@ -177,10 +177,15 @@ def lesson_asset_download(request, asset_id: int):
         filename=filename,
         content_type=content_type,
     )
-    response["X-Content-Type-Options"] = "nosniff"
     if inline_allowed:
         # Defense-in-depth for any inline-rendered asset responses.
         response["Content-Security-Policy"] = "sandbox; default-src 'none'"
+        response["X-Content-Type-Options"] = "nosniff"
+        response["Cache-Control"] = "private, max-age=60"
+        response["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    else:
+        apply_download_safety(response)
+        apply_no_store(response, private=True, pragma=True)
     return response
 
 

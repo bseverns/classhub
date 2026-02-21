@@ -269,6 +269,7 @@ SECURITY_REFERRER_POLICY = (
     env("DJANGO_SECURE_REFERRER_POLICY", default="strict-origin-when-cross-origin").strip()
     or "strict-origin-when-cross-origin"
 )
+X_FRAME_OPTIONS = (env("DJANGO_X_FRAME_OPTIONS", default="SAMEORIGIN").strip() or "SAMEORIGIN").upper()
 SITE_MODE = env("CLASSHUB_SITE_MODE", default="normal").strip().lower()
 if SITE_MODE in {"readonly", "read_only"}:
     SITE_MODE = "read-only"
@@ -288,9 +289,8 @@ CSRF_COOKIE_DOMAIN = env("DJANGO_CSRF_COOKIE_DOMAIN", default="").strip() or Non
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=False)
-    SECURE_HSTS_SECONDS = env.int("DJANGO_SECURE_HSTS_SECONDS", default=3600)
+    SECURE_HSTS_SECONDS = env.int("DJANGO_SECURE_HSTS_SECONDS", default=0)
     SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False)
     SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=False)
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = "DENY"
     SECURE_REFERRER_POLICY = SECURITY_REFERRER_POLICY

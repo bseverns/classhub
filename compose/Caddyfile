@@ -1,13 +1,6 @@
 :80 {
   encode gzip
 
-  header {
-    X-Content-Type-Options "nosniff"
-    Referrer-Policy "{$CADDY_REFERRER_POLICY:strict-origin-when-cross-origin}"
-    Permissions-Policy "{$CADDY_PERMISSIONS_POLICY:accelerometer=(), autoplay=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()}"
-    X-Frame-Options "{$CADDY_X_FRAME_OPTIONS:DENY}"
-  }
-
   @staff_not_allowlisted {
     path /admin* /teach*
     not remote_ip {$CADDY_STAFF_IP_ALLOWLIST_V4:0.0.0.0/0} {$CADDY_STAFF_IP_ALLOWLIST_V6:::/0}

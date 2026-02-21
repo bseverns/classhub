@@ -41,6 +41,7 @@ from ..models import (
     Submission,
     gen_class_code,
 )
+from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
 from ..services.content_links import build_asset_url, parse_course_lesson_url
 from ..services.filenames import safe_filename
 from ..services.markdown_content import load_lesson_markdown, load_teacher_material_html
@@ -1232,7 +1233,15 @@ def teach_download_authoring_template(request):
         summary=f"Downloaded authoring template {candidate.name}",
         metadata={"slug": slug, "kind": kind, "path": str(candidate)},
     )
-    return FileResponse(candidate.open("rb"), as_attachment=True, filename=candidate.name)
+    response = FileResponse(
+        candidate.open("rb"),
+        as_attachment=True,
+        filename=safe_attachment_filename(candidate.name),
+        content_type="application/octet-stream",
+    )
+    apply_download_safety(response)
+    apply_no_store(response, private=True, pragma=True)
+    return response
 
 
 @staff_member_required
@@ -1756,8 +1765,7 @@ def teach_class_join_card(request, class_id: int):
             "prefilled_join_url": request.build_absolute_uri(f"/?{query}"),
         },
     )
-    response["Cache-Control"] = "private, no-store"
-    response["Pragma"] = "no-cache"
+    apply_no_store(response, private=True, pragma=True)
     return response
 
 
@@ -1956,9 +1964,17 @@ def teach_export_class_submissions_today(request, class_id: int):
     )
 
     day_label = timezone.localdate().strftime("%Y%m%d")
-    filename = f"{safe_filename(classroom.name)}_submissions_{day_label}.zip"
+    filename = safe_attachment_filename(f"{safe_filename(classroom.name)}_submissions_{day_label}.zip")
     tmp.seek(0)
-    return FileResponse(tmp, as_attachment=True, filename=filename)
+    response = FileResponse(
+        tmp,
+        as_attachment=True,
+        filename=filename,
+        content_type="application/zip",
+    )
+    apply_download_safety(response)
+    apply_no_store(response, private=True, pragma=True)
+    return response
 
 
 @staff_member_required
@@ -2207,9 +2223,19 @@ def teach_material_submissions(request, material_id: int):
                 except Exception:
                     continue
 
-        download_name = f"{safe_filename(classroom.name)}_material_{material.id}_latest.zip"
+        download_name = safe_attachment_filename(
+            f"{safe_filename(classroom.name)}_material_{material.id}_latest.zip"
+        )
         tmp.seek(0)
-        return FileResponse(tmp, as_attachment=True, filename=download_name)
+        response = FileResponse(
+            tmp,
+            as_attachment=True,
+            filename=download_name,
+            content_type="application/zip",
+        )
+        apply_download_safety(response)
+        apply_no_store(response, private=True, pragma=True)
+        return response
 
     rows = []
     missing = 0

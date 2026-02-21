@@ -2,10 +2,7 @@
   encode gzip
 
   header {
-    X-Content-Type-Options "nosniff"
-    Referrer-Policy "{$CADDY_REFERRER_POLICY:strict-origin-when-cross-origin}"
-    Permissions-Policy "{$CADDY_PERMISSIONS_POLICY:accelerometer=(), autoplay=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()}"
-    X-Frame-Options "{$CADDY_X_FRAME_OPTIONS:DENY}"
+    Strict-Transport-Security "max-age={$CADDY_HSTS_MAX_AGE:31536000}"
   }
 
   @staff_not_allowlisted {
