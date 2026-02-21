@@ -526,6 +526,42 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp.json().get("error"), "backend_unavailable")
         self.assertEqual(chat_mock.call_count, 0)
 
+    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
+    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
+    def test_chat_fails_open_when_circuit_cache_read_errors(self, chat_mock):
+        session = self.client.session
+        session["student_id"] = 101
+        session["class_id"] = 5
+        session.save()
+
+        original_get = cache.get
+
+        def flaky_get(key, *args, **kwargs):
+            if key == "helper:circuit_open:ollama":
+                raise RuntimeError("cache-down")
+            return original_get(key, *args, **kwargs)
+
+        with patch.object(cache, "get", side_effect=flaky_get):
+            resp = self._post_chat({"message": "hello"})
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("text"), "Hint")
+        self.assertEqual(chat_mock.call_count, 1)
+
+    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
+    @patch("tutor.views.acquire_slot", side_effect=RuntimeError("cache-down"))
+    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
+    def test_chat_fails_open_when_queue_backend_errors(self, _acquire_slot_mock, chat_mock):
+        session = self.client.session
+        session["student_id"] = 101
+        session["class_id"] = 5
+        session.save()
+
+        resp = self._post_chat({"message": "queue check"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("text"), "Hint")
+        self.assertEqual(chat_mock.call_count, 1)
+
     @patch("tutor.views._ollama_chat", return_value=("A" * 300, "fake-model"))
     @patch.dict(
         "os.environ",

@@ -150,30 +150,72 @@ def _backend_failure_counter_key(backend: str) -> str:
 
 
 def _backend_circuit_is_open(backend: str) -> bool:
-    return bool(cache.get(_backend_circuit_key(backend)))
+    try:
+        return bool(cache.get(_backend_circuit_key(backend)))
+    except Exception as exc:
+        logger.warning(
+            "helper_backend_circuit_check_failed backend=%s error=%s",
+            backend,
+            exc.__class__.__name__,
+        )
+        # Fail-open: a cache outage should not hard-fail classroom help traffic.
+        return False
 
 
 def _record_backend_failure(backend: str) -> None:
     threshold = max(_env_int("HELPER_CIRCUIT_BREAKER_FAILURES", 5), 1)
     ttl = max(_env_int("HELPER_CIRCUIT_BREAKER_TTL_SECONDS", 30), 1)
     key = _backend_failure_counter_key(backend)
-    current = cache.get(key)
+    try:
+        current = cache.get(key)
+    except Exception as exc:
+        logger.warning(
+            "helper_backend_circuit_record_failed backend=%s op=get error=%s",
+            backend,
+            exc.__class__.__name__,
+        )
+        return
     if current is None:
-        cache.set(key, 1, timeout=ttl)
+        try:
+            cache.set(key, 1, timeout=ttl)
+        except Exception as exc:
+            logger.warning(
+                "helper_backend_circuit_record_failed backend=%s op=set error=%s",
+                backend,
+                exc.__class__.__name__,
+            )
         count = 1
     else:
         try:
             count = int(cache.incr(key))
-        except Exception:
+        except Exception as exc:
+            logger.warning(
+                "helper_backend_circuit_record_failed backend=%s op=incr error=%s",
+                backend,
+                exc.__class__.__name__,
+            )
             count = int(current) + 1
-            cache.set(key, count, timeout=ttl)
+            try:
+                cache.set(key, count, timeout=ttl)
+            except Exception:
+                return
     if count >= threshold:
-        cache.set(_backend_circuit_key(backend), 1, timeout=ttl)
+        try:
+            cache.set(_backend_circuit_key(backend), 1, timeout=ttl)
+        except Exception:
+            return
 
 
 def _reset_backend_failure_state(backend: str) -> None:
-    cache.delete(_backend_failure_counter_key(backend))
-    cache.delete(_backend_circuit_key(backend))
+    try:
+        cache.delete(_backend_failure_counter_key(backend))
+        cache.delete(_backend_circuit_key(backend))
+    except Exception as exc:
+        logger.warning(
+            "helper_backend_circuit_reset_failed backend=%s error=%s",
+            backend,
+            exc.__class__.__name__,
+        )
 
 
 @lru_cache(maxsize=32)
@@ -836,18 +878,42 @@ def chat(request):
     poll = _env_float("HELPER_QUEUE_POLL_SECONDS", 0.2)
     ttl = _env_int("HELPER_QUEUE_SLOT_TTL_SECONDS", 120)
     queue_started_at = time.monotonic()
-    slot_key, token = acquire_slot(max_concurrency, max_wait, poll, ttl)
-    queue_wait_ms = int((time.monotonic() - queue_started_at) * 1000)
-    if not slot_key:
+    slot_key, token = None, None
+    queue_error = False
+    try:
+        slot_key, token = acquire_slot(max_concurrency, max_wait, poll, ttl)
+    except Exception as exc:
+        queue_error = True
         _log_chat_event(
             "warning",
-            "queue_busy",
+            "queue_unavailable",
             request_id=request_id,
             actor_type=actor_type,
             backend=backend,
-            queue_wait_ms=queue_wait_ms,
+            error_type=exc.__class__.__name__,
         )
-        return _json_response({"error": "busy"}, status=503, request_id=request_id)
+    queue_wait_ms = int((time.monotonic() - queue_started_at) * 1000)
+    if max_concurrency > 0 and slot_key is None:
+        if queue_error:
+            # Queue backend unavailable. Fail-open for classroom continuity.
+            _log_chat_event(
+                "warning",
+                "queue_fail_open",
+                request_id=request_id,
+                actor_type=actor_type,
+                backend=backend,
+                queue_wait_ms=queue_wait_ms,
+            )
+        else:
+            _log_chat_event(
+                "warning",
+                "queue_busy",
+                request_id=request_id,
+                actor_type=actor_type,
+                backend=backend,
+                queue_wait_ms=queue_wait_ms,
+            )
+            return _json_response({"error": "busy"}, status=503, request_id=request_id)
 
     attempts_used = 0
     model_used = ""
