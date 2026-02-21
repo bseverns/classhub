@@ -92,16 +92,10 @@
           </form>
 
           <div class="privacy-note" aria-live="polite">
-            <p class="muted"><strong>Privacy at a glance:</strong><br />we store your display name, class submissions, and event timestamps needed to run class.</p>
+            <p class="muted"><strong>Privacy at a glance:</strong></p>
+            <p class="muted">We store your display name, class submissions, and event timestamps needed to run class.</p>
             <p class="muted">Storage location: this server is hosted by createMPLS, a nonprofit educational group.</p>
-            <p class="muted">
-              Retention:
-              {% if submission_retention_days %}
-                submissions are kept up to {{ submission_retention_days }} day{{ submission_retention_days|pluralize }} unless deleted sooner.
-              {% else %}
-                submissions stay until a teacher or admin removes them.
-              {% endif %}
-            </p>
+            <p class="muted">Retention: submissions are kept up to 14 days unless deleted sooner.</p>
             <p class="muted">Delete now: after joining, open <a href="/student/my-data">My Data</a> to delete your work or end this device session.</p>
             <p class="muted">No tracking. No ads. No data broker sharing.</p>
           </div>
