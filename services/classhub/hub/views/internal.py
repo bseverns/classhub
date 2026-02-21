@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import secrets
 
 from django.conf import settings
@@ -14,6 +15,16 @@ from django.views.decorators.http import require_POST
 from ..models import StudentEvent
 
 logger = logging.getLogger(__name__)
+
+_ALLOWED_HELPER_EVENT_DETAIL_KEYS = {
+    "request_id",
+    "actor_type",
+    "backend",
+    "scope_verified",
+    "attempts",
+    "truncated",
+}
+_SAFE_TOKEN_RE = re.compile(r"^[a-z0-9_-]+$")
 
 
 def _internal_events_token() -> str:
@@ -28,6 +39,45 @@ def _request_token(request) -> str:
     if auth.lower().startswith("bearer "):
         return auth[7:].strip()
     return ""
+
+
+def _sanitize_helper_event_details(details: dict) -> dict:
+    clean: dict = {}
+    dropped = 0
+    for key, value in details.items():
+        if key not in _ALLOWED_HELPER_EVENT_DETAIL_KEYS:
+            dropped += 1
+            continue
+        if key == "request_id":
+            request_id = str(value or "").strip()[:80]
+            if request_id:
+                clean[key] = request_id
+            continue
+        if key in {"actor_type", "backend"}:
+            token = str(value or "").strip().lower()[:32]
+            if token and _SAFE_TOKEN_RE.fullmatch(token):
+                clean[key] = token
+            else:
+                dropped += 1
+            continue
+        if key in {"scope_verified", "truncated"}:
+            clean[key] = bool(value)
+            continue
+        if key == "attempts":
+            try:
+                attempts = int(value)
+            except Exception:
+                dropped += 1
+                continue
+            if attempts >= 0:
+                clean[key] = attempts
+            else:
+                dropped += 1
+            continue
+
+    if dropped:
+        logger.debug("internal_helper_event_details_dropped count=%s", dropped)
+    return clean
 
 
 @csrf_exempt
@@ -60,6 +110,7 @@ def internal_helper_chat_access_event(request):
     details = payload.get("details") or {}
     if not isinstance(details, dict):
         return JsonResponse({"error": "invalid_details"}, status=400)
+    details = _sanitize_helper_event_details(details)
 
     if classroom_id <= 0 and student_id <= 0:
         return JsonResponse({"ok": True, "skipped": "no_actor"})

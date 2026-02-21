@@ -21,9 +21,12 @@ def _events_token() -> str:
     return str(getattr(settings, "CLASSHUB_INTERNAL_EVENTS_TOKEN", "") or "").strip()
 
 
-def _events_timeout_seconds() -> int:
-    raw = int(getattr(settings, "CLASSHUB_INTERNAL_EVENTS_TIMEOUT_SECONDS", 3) or 0)
-    return raw if raw > 0 else 3
+def _events_timeout_seconds() -> float:
+    try:
+        raw = float(getattr(settings, "CLASSHUB_INTERNAL_EVENTS_TIMEOUT_SECONDS", 0.35) or 0)
+    except Exception:
+        raw = 0.35
+    return raw if raw > 0 else 0.35
 
 
 @lru_cache(maxsize=4)

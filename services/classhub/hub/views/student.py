@@ -40,6 +40,13 @@ from common.request_safety import client_ip_from_request, fixed_window_allow
 logger = logging.getLogger(__name__)
 
 
+def _json_no_store_response(payload: dict, *, status: int = 200, private: bool = False) -> JsonResponse:
+    response = JsonResponse(payload, status=status)
+    response["Cache-Control"] = "private, no-store" if private else "no-store"
+    response["Pragma"] = "no-cache"
+    return response
+
+
 def _emit_student_event(
     *,
     event_type: str,
@@ -158,7 +165,7 @@ def join_class(request):
     try:
         payload = json.loads(request.body.decode("utf-8"))
     except Exception:
-        return JsonResponse({"error": "bad_json"}, status=400)
+        return _json_no_store_response({"error": "bad_json"}, status=400)
 
     client_ip = client_ip_from_request(
         request,
@@ -173,20 +180,20 @@ def join_class(request):
         window_seconds=60,
         request_id=request_id,
     ):
-        return JsonResponse({"error": "rate_limited"}, status=429)
+        return _json_no_store_response({"error": "rate_limited"}, status=429)
 
     code = (payload.get("class_code") or "").strip().upper()
     name = (payload.get("display_name") or "").strip()[:80]
     return_code = (payload.get("return_code") or "").strip().upper()
 
     if not code or not name:
-        return JsonResponse({"error": "missing_fields"}, status=400)
+        return _json_no_store_response({"error": "missing_fields"}, status=400)
 
     classroom = Class.objects.filter(join_code=code).first()
     if not classroom:
-        return JsonResponse({"error": "invalid_code"}, status=404)
+        return _json_no_store_response({"error": "invalid_code"}, status=404)
     if classroom.is_locked:
-        return JsonResponse({"error": "class_locked"}, status=403)
+        return _json_no_store_response({"error": "class_locked"}, status=403)
 
     with transaction.atomic():
         Class.objects.select_for_update().filter(id=classroom.id).first()
@@ -201,9 +208,9 @@ def join_class(request):
                 .first()
             )
             if student is None:
-                return JsonResponse({"error": "invalid_return_code"}, status=400)
+                return _json_no_store_response({"error": "invalid_return_code"}, status=400)
             if student.display_name.strip().casefold() != name.strip().casefold():
-                return JsonResponse({"error": "invalid_return_code"}, status=400)
+                return _json_no_store_response({"error": "invalid_return_code"}, status=400)
             rejoined = True
             join_mode = "return_code"
         else:
@@ -222,7 +229,7 @@ def join_class(request):
     request.session["class_id"] = classroom.id
     request.session["class_epoch"] = int(getattr(classroom, "session_epoch", 1) or 1)
 
-    response = JsonResponse({"ok": True, "return_code": student.return_code, "rejoined": rejoined})
+    response = _json_no_store_response({"ok": True, "return_code": student.return_code, "rejoined": rejoined})
     _apply_device_hint_cookie(response, classroom, student)
     if join_mode == "return_code":
         event_type = StudentEvent.EVENT_REJOIN_RETURN_CODE
@@ -442,7 +449,16 @@ def student_portfolio_export(request):
     stamp = generated_at.strftime("%Y%m%d")
     filename = f"{class_name}_{student_name}_portfolio_{stamp}.zip"
     tmp.seek(0)
-    return FileResponse(tmp, as_attachment=True, filename=filename)
+    response = FileResponse(
+        tmp,
+        as_attachment=True,
+        filename=filename,
+        content_type="application/zip",
+    )
+    response["Cache-Control"] = "private, no-store"
+    response["Pragma"] = "no-cache"
+    response["X-Content-Type-Options"] = "nosniff"
+    return response
 
 
 def material_upload(request, material_id: int):

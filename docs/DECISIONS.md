@@ -429,10 +429,15 @@ Historical implementation logs and superseded decisions are archived by month in
   - `Referrer-Policy: no-referrer`
 - Return codes are masked by default in student and teacher pages, with explicit `Show/Hide` and `Copy` controls.
 - Return-code pages and submission downloads set `Cache-Control: private, no-store` to reduce shared-device/back-button exposure.
+- `join_class` responses now emit `Cache-Control: no-store` (+ `Pragma: no-cache`) because they carry student return codes in JSON.
+- `student_portfolio_export` now emits `Cache-Control: private, no-store` and `X-Content-Type-Options: nosniff`.
 - Student event payloads are reduced to low-sensitivity metadata (for example, join mode and file extension), avoiding display-name/class-code duplication.
+- Internal helper chat access events now enforce a strict details allowlist before persistence, silently dropping unknown keys.
+- Helper -> ClassHub internal event forwarding now uses an ultra-short timeout by default (0.35s), stays best-effort, and logs only request-id/error metadata.
 - Cache-backed limiter helpers now tolerate corrupt cache state without raising request-path errors (fail-open with warning logs including request id).
 - Release archives now run a reusable artifact lint check (`scripts/lint_release_artifact.py`) and exclude local/runtime secrets and state (`compose/.env` + local backup variants, `data/`, `.deploy/`).
 - `safe_filename` now lives in a dedicated filename service module (`hub/services/filenames.py`) and is imported where needed.
+- TODO: If we need stronger return-code secrecy, move reveal-from-DOM to an authenticated fetch endpoint (`/student/return-code`) in a follow-up pass; deferred to avoid broad template/JS churn in this defensive sprint.
 
 **Why this remains active:**
 - Reduces content-sniffing and filename abuse risk on download endpoints.

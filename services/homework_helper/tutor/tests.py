@@ -1,5 +1,6 @@
 import json
 import tempfile
+import time
 import urllib.error
 from types import SimpleNamespace
 from pathlib import Path
@@ -64,6 +65,31 @@ class HelperChatAuthTests(TestCase):
         resp = self._post_chat({"message": "How do I move a sprite?"})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get("text"), "Try this step first.")
+
+    @override_settings(
+        CLASSHUB_INTERNAL_EVENTS_URL="http://classhub_web:8000/internal/events/helper-chat-access",
+        CLASSHUB_INTERNAL_EVENTS_TOKEN="token-123",
+        CLASSHUB_INTERNAL_EVENTS_TIMEOUT_SECONDS=0.02,
+    )
+    @patch("tutor.views._ollama_chat", return_value=("Try this step first.", "fake-model"))
+    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
+    def test_chat_stays_fast_when_event_forwarding_is_slow_or_unreachable(self, _chat_mock):
+        session = self.client.session
+        session["student_id"] = 101
+        session["class_id"] = 5
+        session.save()
+
+        def _slow_unreachable(_req, timeout=None):
+            time.sleep(float(timeout or 0))
+            raise urllib.error.URLError("down")
+
+        with patch("tutor.classhub_events.urllib.request.urlopen", side_effect=_slow_unreachable):
+            started = time.monotonic()
+            resp = self._post_chat({"message": "How do I move a sprite?"})
+            elapsed = time.monotonic() - started
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertLess(elapsed, 0.5)
 
     @patch.dict(
         "os.environ",
@@ -470,6 +496,24 @@ class ClassHubEventForwardingTests(TestCase):
     @override_settings(
         CLASSHUB_INTERNAL_EVENTS_URL="http://classhub_web:8000/internal/events/helper-chat-access",
         CLASSHUB_INTERNAL_EVENTS_TOKEN="token-123",
+        CLASSHUB_INTERNAL_EVENTS_TIMEOUT_SECONDS=0.35,
+    )
+    def test_emit_helper_chat_access_event_uses_short_default_timeout(self):
+        with patch("tutor.classhub_events.urllib.request.urlopen") as urlopen_mock:
+            response = SimpleNamespace(status=200)
+            urlopen_mock.return_value.__enter__.return_value = response
+            classhub_events.emit_helper_chat_access_event(
+                classroom_id=5,
+                student_id=101,
+                ip_address="127.0.0.1",
+                details={"request_id": "req-1"},
+            )
+
+        self.assertEqual(urlopen_mock.call_args.kwargs.get("timeout"), 0.35)
+
+    @override_settings(
+        CLASSHUB_INTERNAL_EVENTS_URL="http://classhub_web:8000/internal/events/helper-chat-access",
+        CLASSHUB_INTERNAL_EVENTS_TOKEN="token-123",
         CLASSHUB_INTERNAL_EVENTS_TIMEOUT_SECONDS=3,
     )
     def test_emit_helper_chat_access_event_posts_to_internal_endpoint(self):
@@ -526,6 +570,34 @@ class ClassHubEventForwardingTests(TestCase):
                 details={"request_id": "req-1"},
             )
         self.assertTrue(urlopen_mock.called)
+
+    @override_settings(
+        CLASSHUB_INTERNAL_EVENTS_URL="http://classhub_web:8000/internal/events/helper-chat-access",
+        CLASSHUB_INTERNAL_EVENTS_TOKEN="token-123",
+        CLASSHUB_INTERNAL_EVENTS_TIMEOUT_SECONDS=0.35,
+    )
+    def test_emit_helper_chat_access_event_logs_request_id_without_payload(self):
+        with (
+            patch("tutor.classhub_events.urllib.request.urlopen", side_effect=urllib.error.URLError("down")),
+            self.assertLogs("tutor.classhub_events", level="WARNING") as logs,
+        ):
+            classhub_events.emit_helper_chat_access_event(
+                classroom_id=5,
+                student_id=101,
+                ip_address="127.0.0.1",
+                details={
+                    "request_id": "req-safe-1",
+                    "display_name": "Ada",
+                    "class_code": "JOIN1234",
+                    "prompt": "my name is Ada",
+                },
+            )
+
+        output = " ".join(logs.output)
+        self.assertIn("req-safe-1", output)
+        self.assertNotIn("display_name", output)
+        self.assertNotIn("class_code", output)
+        self.assertNotIn("my name is Ada", output)
 
 
 class HelperAdminAccessTests(TestCase):

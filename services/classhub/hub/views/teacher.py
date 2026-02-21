@@ -1747,7 +1747,7 @@ def teach_class_join_card(request, class_id: int):
         return HttpResponse("Not found", status=404)
 
     query = urlencode({"class_code": classroom.join_code})
-    return render(
+    response = render(
         request,
         "teach_join_card.html",
         {
@@ -1756,6 +1756,9 @@ def teach_class_join_card(request, class_id: int):
             "prefilled_join_url": request.build_absolute_uri(f"/?{query}"),
         },
     )
+    response["Cache-Control"] = "private, no-store"
+    response["Pragma"] = "no-cache"
+    return response
 
 
 @staff_member_required

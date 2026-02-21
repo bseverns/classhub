@@ -204,6 +204,7 @@ class TeacherPortalTests(TestCase):
 
         resp = self.client.get(f"/teach/class/{classroom.id}/join-card")
         self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
         self.assertContains(resp, "Student Join Card")
         self.assertContains(resp, "JOIN7788")
         self.assertContains(resp, "/?class_code=JOIN7788")
@@ -814,6 +815,8 @@ class JoinClassTests(TestCase):
         payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
         r1 = self.client.post("/join", data=json.dumps(payload), content_type="application/json")
         self.assertEqual(r1.status_code, 200)
+        self.assertEqual(r1["Cache-Control"], "no-store")
+        self.assertEqual(r1["Pragma"], "no-cache")
         first_id = self.client.session.get("student_id")
         first_event = StudentEvent.objects.order_by("-id").first()
         self.assertIsNotNone(first_event)
@@ -1340,6 +1343,8 @@ class StudentPortfolioExportTests(TestCase):
 
         resp = self.client.get("/student/portfolio-export")
         self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+        self.assertEqual(resp["X-Content-Type-Options"], "nosniff")
         self.assertIn("attachment;", resp["Content-Disposition"])
         self.assertIn("portfolio", resp["Content-Disposition"])
 
@@ -1356,6 +1361,21 @@ class StudentPortfolioExportTests(TestCase):
         self.assertIn("Ada Portfolio Export", index_html)
         self.assertIn("ada_project.sb3", index_html)
         self.assertNotIn("ben_project.sb3", index_html)
+
+    def test_portfolio_export_content_disposition_uses_safe_filename(self):
+        self.classroom.name = "Portfolio/Class"
+        self.classroom.save(update_fields=["name"])
+        self.student.display_name = "Ada\r\n../Lovelace"
+        self.student.save(update_fields=["display_name"])
+        self._login_student()
+
+        resp = self.client.get("/student/portfolio-export")
+        self.assertEqual(resp.status_code, 200)
+        disposition = resp["Content-Disposition"]
+        self.assertIn("attachment;", disposition)
+        self.assertNotIn("/", disposition)
+        self.assertNotIn("\\", disposition)
+        self.assertNotRegex(disposition, r"[\r\n]")
 
 
 class LessonAssetDownloadTests(TestCase):
@@ -1539,6 +1559,50 @@ class InternalHelperEventEndpointTests(TestCase):
         self.assertEqual(event.student_id, self.student.id)
         self.assertEqual(event.source, "homework_helper.chat")
         self.assertEqual(event.details.get("request_id"), "req-123")
+        self.assertEqual(event.details.get("actor_type"), "student")
+
+    @override_settings(CLASSHUB_INTERNAL_EVENTS_TOKEN="expected-token")
+    def test_internal_event_endpoint_drops_unallowlisted_details(self):
+        payload = {
+            "classroom_id": self.classroom.id,
+            "student_id": self.student.id,
+            "details": {
+                "request_id": "req-789",
+                "actor_type": "student",
+                "backend": "ollama",
+                "attempts": 2,
+                "scope_verified": True,
+                "truncated": False,
+                "display_name": "Ada",
+                "class_code": "JOIN1234",
+                "prompt": "my name is Ada",
+                "filename": "secret.txt",
+            },
+        }
+        resp = self.client.post(
+            self.url,
+            data=json.dumps(payload),
+            content_type="application/json",
+            HTTP_X_CLASSHUB_INTERNAL_TOKEN="expected-token",
+        )
+        self.assertEqual(resp.status_code, 200)
+        event = StudentEvent.objects.filter(event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS).order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(
+            event.details,
+            {
+                "request_id": "req-789",
+                "actor_type": "student",
+                "backend": "ollama",
+                "attempts": 2,
+                "scope_verified": True,
+                "truncated": False,
+            },
+        )
+        self.assertNotIn("display_name", event.details)
+        self.assertNotIn("class_code", event.details)
+        self.assertNotIn("prompt", event.details)
+        self.assertNotIn("filename", event.details)
 
     @override_settings(CLASSHUB_INTERNAL_EVENTS_TOKEN="expected-token")
     def test_internal_event_endpoint_skips_when_payload_has_no_actor(self):
