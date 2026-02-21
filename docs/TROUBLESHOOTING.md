@@ -38,6 +38,7 @@ If this fails early, fix the first failing step before changing anything else.
 cd /srv/lms/app/compose
 docker compose ps
 curl -I http://localhost/healthz
+curl -I http://localhost/upstream-healthz
 curl -I http://localhost/helper/healthz
 docker compose logs --tail=200 classhub_web helper_web caddy
 ```

@@ -149,11 +149,11 @@ Historical implementation logs and superseded decisions are archived by month in
 
 **Current decision:**
 - Deploy/doctor/golden scripts explicitly run `manage.py migrate --noinput` for both services.
-- Container boot keeps a compatibility toggle (`RUN_MIGRATIONS_ON_START`, default `1`) during rollout.
+- Production defaults set `RUN_MIGRATIONS_ON_START=0`; local/dev can opt into boot-time migrations explicitly.
 
 **Why this remains active:**
 - Explicit migration steps are safer for multi-instance deployment workflows.
-- The boot toggle preserves Day-1 simplicity while operators migrate to deploy-step migrations.
+- Prevents migration races when multiple app containers start concurrently.
 
 ## Large upload reliability timeout
 
@@ -251,7 +251,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - Caddy mount source must match the expected compose config file.
 - `scripts/system_doctor.sh` is the canonical one-command stack diagnostic.
 - Golden-path smoke can auto-provision fixtures via `scripts/golden_path_smoke.sh`.
-- Class Hub static assets are collected during image build; runtime migration-at-boot is toggleable (`RUN_MIGRATIONS_ON_START`) while deploy scripts run explicit migrations.
+- Class Hub static assets are collected during image build; runtime migrations stay disabled in production (`RUN_MIGRATIONS_ON_START=0`) while deploy scripts run explicit migrations.
+- Edge health remains `/healthz` and upstream app health is exposed at `/upstream-healthz` for monitoring clarity.
 - Smoke checks default to `http://localhost` when `CADDYFILE_TEMPLATE=Caddyfile.local`, regardless of placeholder `SMOKE_BASE_URL` values in env examples.
 - CI doctor smoke uses `HELPER_LLM_BACKEND=mock` to keep `/helper/chat` deterministic without runtime model pull dependencies.
 - Golden smoke issues a server-side staff session key for `/teach` checks so admin-login form changes (OTP/superuser prompts) do not create false negatives.
@@ -265,6 +266,18 @@ Historical implementation logs and superseded decisions are archived by month in
 - Prevents CI from accidentally probing external placeholder domains while validating local compose stacks.
 - Prevents CI flakes when local model servers are reachable but model weights are not yet loaded.
 - Keeps strict smoke focused on route authorization outcomes instead of brittle intermediate login form internals.
+
+## Retention defaults are nonzero
+
+**Current decision:**
+- `compose/.env.example` sets:
+  - `CLASSHUB_SUBMISSION_RETENTION_DAYS=90`
+  - `CLASSHUB_STUDENT_EVENT_RETENTION_DAYS=180`
+- Operators can still set either value to `0` as an explicit opt-out.
+
+**Why this remains active:**
+- Avoids accidental “indefinite forever” storage when pilots become long-running deployments.
+- Keeps privacy defaults aligned with documented retention posture.
 
 ## Teacher invite token hardening
 

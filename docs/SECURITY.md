@@ -235,4 +235,4 @@ Optional operator message override:
 
 - Google SSO for teacher accounts.
 - Separate databases per service if isolation requirements increase.
-- Move to `RUN_MIGRATIONS_ON_START=0` everywhere once your deployment path always runs explicit migration steps.
+- Keep `RUN_MIGRATIONS_ON_START=0` in production so migrations run only through explicit deploy steps.

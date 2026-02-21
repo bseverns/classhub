@@ -119,6 +119,8 @@ number_or_default() {
 
 DJANGO_DEBUG="$(env_file_value DJANGO_DEBUG)"
 DJANGO_DEBUG="${DJANGO_DEBUG:-0}"
+RUN_MIGRATIONS_ON_START="$(env_file_value RUN_MIGRATIONS_ON_START)"
+RUN_MIGRATIONS_ON_START="${RUN_MIGRATIONS_ON_START:-1}"
 
 require_nonempty "POSTGRES_DB"
 require_nonempty "POSTGRES_USER"
@@ -134,10 +136,17 @@ if [[ "${DJANGO_DEBUG}" == "0" ]]; then
   if [[ "${ADMIN_2FA_REQUIRED}" != "1" ]]; then
     fail "DJANGO_ADMIN_2FA_REQUIRED must be 1 when DJANGO_DEBUG=0"
   fi
+  if [[ "${RUN_MIGRATIONS_ON_START}" != "0" ]]; then
+    fail "RUN_MIGRATIONS_ON_START must be 0 when DJANGO_DEBUG=0 (deploy scripts run migrations explicitly)"
+  fi
 else
   if [[ -z "$(env_file_value DJANGO_SECRET_KEY)" ]]; then
     fail "DJANGO_SECRET_KEY is required even in debug mode"
   fi
+fi
+
+if [[ "${RUN_MIGRATIONS_ON_START}" != "0" && "${RUN_MIGRATIONS_ON_START}" != "1" ]]; then
+  fail "RUN_MIGRATIONS_ON_START must be 0 or 1"
 fi
 
 HELPER_LLM_BACKEND="$(env_file_value HELPER_LLM_BACKEND)"

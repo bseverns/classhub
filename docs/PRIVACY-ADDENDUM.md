@@ -75,9 +75,9 @@ flowchart LR
 - Backups (if enabled): operator-defined backup locations for Postgres/uploads/MinIO.
 
 ## Retention Defaults and Tuning
-- Submission retention default: `CLASSHUB_SUBMISSION_RETENTION_DAYS`.
+- Submission retention default: `CLASSHUB_SUBMISSION_RETENTION_DAYS=90`.
   - `0` means no automatic age-based deletion.
-- Student event retention default: `CLASSHUB_STUDENT_EVENT_RETENTION_DAYS`.
+- Student event retention default: `CLASSHUB_STUDENT_EVENT_RETENTION_DAYS=180`.
   - `0` means no automatic age-based deletion.
 - Student event IP precision default: `CLASSHUB_STUDENT_EVENT_IP_MODE=truncate`.
   - `truncate`: IPv4 `/24`, IPv6 `/56` network address only.

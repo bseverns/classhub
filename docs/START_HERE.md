@@ -70,7 +70,8 @@ flowchart TD
 - Student class view: `/student`
 - Teacher portal: `/teach`
 - Admin login: `/admin/login/`
-- Class Hub health: `/healthz`
+- Edge health: `/healthz`
+- Class Hub upstream health: `/upstream-healthz`
 - Helper health: `/helper/healthz`
 
 ## Common commands

@@ -27,6 +27,10 @@
     respond "ok" 200
   }
 
+  handle_path /upstream-healthz {
+    reverse_proxy classhub_web:8000
+  }
+
   # Homework Helper
   handle /helper/* {
     request_body {

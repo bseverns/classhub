@@ -52,6 +52,7 @@ Verify:
 ```bash
 docker compose ps
 curl -fsS http://localhost/healthz
+curl -fsS http://localhost/upstream-healthz
 curl -fsS http://localhost/helper/healthz
 ```
 
@@ -165,6 +166,7 @@ Optional status message shown to users on blocked routes:
 cd /srv/lms/app/compose
 docker compose ps
 curl -I http://localhost/healthz
+curl -I http://localhost/upstream-healthz
 curl -I http://localhost/helper/healthz
 ```
 
@@ -198,7 +200,7 @@ docker compose exec -T classhub_web python manage.py migrate --noinput
 docker compose exec -T helper_web python manage.py migrate --noinput
 ```
 
-If your deployment pipeline always runs the commands above, set `RUN_MIGRATIONS_ON_START=0` in `compose/.env` to avoid boot-time migration races.
+`RUN_MIGRATIONS_ON_START=0` is the production default to avoid boot-time migration races; keep it `1` only for local/dev workflows where container boot should self-migrate.
 
 ### Content preflight
 

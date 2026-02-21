@@ -106,6 +106,7 @@ Local mode expectations (`CADDYFILE_TEMPLATE=Caddyfile.local`):
 cd compose
 docker compose ps
 curl -i http://localhost/healthz
+curl -i http://localhost/upstream-healthz
 curl -i http://localhost/helper/healthz
 curl -I http://localhost/
 ```
@@ -118,6 +119,7 @@ Domain mode expectations (`CADDYFILE_TEMPLATE=Caddyfile.domain`):
 cd compose
 docker compose ps
 curl -i https://$DOMAIN/healthz
+curl -i https://$DOMAIN/upstream-healthz
 curl -i https://$DOMAIN/helper/healthz
 curl -I http://$DOMAIN/
 curl -I https://$DOMAIN/
@@ -131,7 +133,9 @@ Asset-domain mode expectations (`CADDYFILE_TEMPLATE=Caddyfile.domain.assets`):
 cd compose
 docker compose ps
 curl -i https://$DOMAIN/healthz
+curl -i https://$DOMAIN/upstream-healthz
 curl -i https://$ASSET_DOMAIN/healthz
+curl -i https://$ASSET_DOMAIN/upstream-healthz
 curl -I https://$ASSET_DOMAIN/lesson-video/1/stream
 ```
 
