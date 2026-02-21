@@ -32,11 +32,29 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Teacher daily digest + closeout workflow](#teacher-daily-digest--closeout-workflow)
 - [Student portfolio export](#student-portfolio-export)
 - [Automated retention maintenance](#automated-retention-maintenance)
+- [Release verdict: 2026-02-21 hardening/polish push](#release-verdict-2026-02-21-hardeningpolish-push)
 
 ## Archive Index
 
 - `docs/decisions/archive/2026-02.md`
 - `docs/decisions/archive/2026-01.md`
+
+## Release verdict: 2026-02-21 hardening/polish push
+
+**Current decision:**
+- Treat the 2026-02-21 hardening/polish push as deploy-ready.
+- Keep `/teach` strict-smoke credential/session setup as an operational prerequisite, not a code blocker.
+- Keep the observed server timeout in this validation window classified as expected/non-regression until new evidence shows user-facing impact.
+
+**Verification evidence (server run):**
+- `classhub` targeted tests passed: `hub.tests.StudentDataControlsTests` + `hub.tests.TeacherPortalTests` (22 tests, OK).
+- `helper` targeted tests passed: `tutor.tests.HelperChatAuthTests` (27 tests, OK).
+- Smoke checks passed for `/healthz`, `/helper/healthz`, `/join`, and `/helper/chat`.
+- Remaining strict-smoke failure was `/teach` login path using static credentials, consistent with OTP/session setup mismatch rather than application regression.
+
+**Why this remains active:**
+- Keeps the release record honest about what is truly green vs what is environment configuration debt.
+- Preserves an auditable boundary between product regressions and operator prerequisites.
 
 ## Auth model: student access
 

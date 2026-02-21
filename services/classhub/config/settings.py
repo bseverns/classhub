@@ -176,7 +176,7 @@ _DEFAULT_CSP_POLICY = (
     "frame-ancestors 'self'; "
     "img-src 'self' data: https:; "
     "media-src 'self' https:; "
-    "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; "
+    "frame-src 'self' https://www.youtube-nocookie.com; "
     "style-src 'self' 'unsafe-inline'; "
     "script-src 'self' 'unsafe-inline'; "
     "connect-src 'self' https:;"
@@ -231,6 +231,19 @@ DEVICE_REJOIN_MAX_AGE_DAYS = env.int("CLASSHUB_DEVICE_REJOIN_MAX_AGE_DAYS", defa
 # Retention defaults shown in learner-facing privacy microcopy.
 CLASSHUB_SUBMISSION_RETENTION_DAYS = env.int("CLASSHUB_SUBMISSION_RETENTION_DAYS", default=0)
 CLASSHUB_STUDENT_EVENT_RETENTION_DAYS = env.int("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", default=0)
+# Portfolio zip filename policy:
+# - "generic" (default): portfolio_YYYYMMDD.zip
+# - "descriptive": <class>_<student>_portfolio_YYYYMMDD.zip
+CLASSHUB_PORTFOLIO_FILENAME_MODE = (
+    env("CLASSHUB_PORTFOLIO_FILENAME_MODE", default="generic").strip().lower() or "generic"
+)
+# StudentEvent IP precision policy:
+# - "truncate" (default): IPv4 /24, IPv6 /56
+# - "full": store full client IP
+# - "none": do not store IP on StudentEvent
+CLASSHUB_STUDENT_EVENT_IP_MODE = (
+    env("CLASSHUB_STUDENT_EVENT_IP_MODE", default="truncate").strip().lower() or "truncate"
+)
 # Optional upload malware scanning (command-based, e.g., clamscan).
 CLASSHUB_UPLOAD_SCAN_ENABLED = env.bool("CLASSHUB_UPLOAD_SCAN_ENABLED", default=False)
 CLASSHUB_UPLOAD_SCAN_COMMAND = env(

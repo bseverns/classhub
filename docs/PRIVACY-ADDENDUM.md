@@ -15,7 +15,7 @@ A student can open `/student/my-data` and perform download/delete/end-session wi
 ## Data Categories (Exact Fields)
 - Student identity: `StudentIdentity.display_name`, `StudentIdentity.return_code`, `StudentIdentity.created_at`, `StudentIdentity.last_seen_at`, class link.
 - Student submissions: `Submission.original_filename`, `Submission.file`, `Submission.note`, `Submission.uploaded_at`, material/student links.
-- Student events (metadata-only): `StudentEvent.event_type`, `StudentEvent.source`, `StudentEvent.details`, `StudentEvent.ip_address`, `StudentEvent.created_at`, optional classroom/student links.
+- Student events (metadata-only): `StudentEvent.event_type`, `StudentEvent.source`, `StudentEvent.details`, minimized `StudentEvent.ip_address`, `StudentEvent.created_at`, optional classroom/student links.
 - Teacher/admin accounts: Django auth user fields (`username`, `email`, password hash, staff/superuser flags, auth/session metadata).
 
 ## Storage Locations
@@ -30,6 +30,13 @@ A student can open `/student/my-data` and perform download/delete/end-session wi
   - `0` means no automatic age-based deletion.
 - Student event retention default: `CLASSHUB_STUDENT_EVENT_RETENTION_DAYS`.
   - `0` means no automatic age-based deletion.
+- Student event IP precision default: `CLASSHUB_STUDENT_EVENT_IP_MODE=truncate`.
+  - `truncate`: IPv4 `/24`, IPv6 `/56` network address only.
+  - `full`: store full client IP.
+  - `none`: do not store IP on student events.
+- Portfolio export download filename default: `CLASSHUB_PORTFOLIO_FILENAME_MODE=generic`.
+  - `generic`: `portfolio_YYYYMMDD.zip`.
+  - `descriptive`: `<class>_<student>_portfolio_YYYYMMDD.zip`.
 - Retention maintenance entrypoint: `scripts/retention_maintenance.sh`.
 - Backups should be pruned with the same policy window used for live data.
 

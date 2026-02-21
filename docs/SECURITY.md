@@ -192,7 +192,7 @@ Rollout strategy:
 
 Embed notes:
 
-- YouTube embeds require `frame-src https://www.youtube.com https://www.youtube-nocookie.com`.
+- YouTube embeds use privacy-enhanced `youtube-nocookie.com`; keep `frame-src https://www.youtube-nocookie.com`.
 - Separate asset origins require matching updates in `img-src`, `media-src`, and `connect-src`.
 
 ## Site degradation modes

@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from ..models import StudentEvent
+from ..services.ip_privacy import minimize_student_event_ip
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +107,7 @@ def internal_helper_chat_access_event(request):
     except Exception:
         student_id = 0
 
-    ip_address = (payload.get("ip_address") or "").strip()
+    ip_address = minimize_student_event_ip((payload.get("ip_address") or "").strip())
     details = payload.get("details") or {}
     if not isinstance(details, dict):
         return JsonResponse({"error": "invalid_details"}, status=400)

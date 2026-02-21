@@ -22,6 +22,7 @@ from .services.content_links import (
     parse_course_lesson_url,
 )
 from .services.filenames import safe_filename
+from .services.ip_privacy import minimize_student_event_ip
 from .services.release_state import (
     lesson_available_on,
     lesson_release_state,
@@ -295,6 +296,7 @@ class ContentLinksServiceTests(SimpleTestCase):
             }
         )
         self.assertEqual(videos[0]["source_type"], "youtube")
+        self.assertEqual(videos[0]["embed_url"], "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ")
         self.assertEqual(videos[1]["source_type"], "native")
         self.assertEqual(videos[2]["source_type"], "link")
 
@@ -359,3 +361,19 @@ class StudentSessionMiddlewareTests(TestCase):
         self.assertIsNotNone(request.classroom)
         self.assertEqual(request.student.id, self.student.id)
         self.assertEqual(request.classroom.id, self.classroom.id)
+
+
+class IPPrivacyServiceTests(SimpleTestCase):
+    def test_minimize_student_event_ip_truncates_ipv4_by_default(self):
+        self.assertEqual(minimize_student_event_ip("203.0.113.25"), "203.0.113.0")
+
+    def test_minimize_student_event_ip_truncates_ipv6_by_default(self):
+        self.assertEqual(minimize_student_event_ip("2001:db8:abcd:1234:5678:90ab:cdef:1234"), "2001:db8:abcd:1200::")
+
+    @override_settings(CLASSHUB_STUDENT_EVENT_IP_MODE="full")
+    def test_minimize_student_event_ip_can_keep_full_value(self):
+        self.assertEqual(minimize_student_event_ip("203.0.113.25"), "203.0.113.25")
+
+    @override_settings(CLASSHUB_STUDENT_EVENT_IP_MODE="none")
+    def test_minimize_student_event_ip_can_disable_storage(self):
+        self.assertEqual(minimize_student_event_ip("203.0.113.25"), "")

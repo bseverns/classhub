@@ -32,6 +32,7 @@ from ..models import (
 from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
 from ..services.content_links import parse_course_lesson_url
 from ..services.filenames import safe_filename
+from ..services.ip_privacy import minimize_student_event_ip
 from ..services.markdown_content import load_lesson_markdown
 from ..services.release_state import lesson_release_override_map, lesson_release_state
 from ..services.upload_scan import scan_uploaded_file
@@ -100,7 +101,7 @@ def _emit_student_event(
             event_type=event_type,
             source=source,
             details=details or {},
-            ip_address=(ip_address or None),
+            ip_address=(minimize_student_event_ip(ip_address) or None),
         )
     except Exception:
         logger.exception("student_event_write_failed type=%s", event_type)
@@ -494,10 +495,14 @@ def student_portfolio_export(request):
         )
         archive.writestr("index.html", index_html.encode("utf-8"))
 
-    student_name = safe_filename(student.display_name or "student")
-    class_name = safe_filename(classroom.name or "classroom")
     stamp = generated_at.strftime("%Y%m%d")
-    filename = safe_attachment_filename(f"{class_name}_{student_name}_portfolio_{stamp}.zip")
+    filename_mode = str(getattr(settings, "CLASSHUB_PORTFOLIO_FILENAME_MODE", "generic") or "generic").strip().lower()
+    if filename_mode == "descriptive":
+        student_name = safe_filename(student.display_name or "student")
+        class_name = safe_filename(classroom.name or "classroom")
+        filename = safe_attachment_filename(f"{class_name}_{student_name}_portfolio_{stamp}.zip")
+    else:
+        filename = safe_attachment_filename(f"portfolio_{stamp}.zip")
     tmp.seek(0)
     response = FileResponse(
         tmp,

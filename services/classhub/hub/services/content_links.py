@@ -65,6 +65,13 @@ def extract_youtube_id(url: str) -> str:
     return ""
 
 
+def youtube_embed_url(youtube_id: str) -> str:
+    video_id = str(youtube_id or "").strip()
+    if not re.fullmatch(r"[A-Za-z0-9_-]{6,20}", video_id):
+        return ""
+    return f"https://www.youtube-nocookie.com/embed/{video_id}"
+
+
 def safe_external_url(url: str) -> str:
     if not url:
         return ""
@@ -144,7 +151,7 @@ def normalize_lesson_videos(front_matter: dict) -> list[dict]:
             youtube_id = extract_youtube_id(url)
         if youtube_id and not url:
             url = f"https://www.youtube.com/watch?v={youtube_id}"
-        embed_url = f"https://www.youtube.com/embed/{youtube_id}" if youtube_id else ""
+        embed_url = youtube_embed_url(youtube_id)
         source_type = "youtube" if youtube_id else ("native" if is_probably_video_url(url) else "link")
         media_url = url if source_type == "native" else ""
         media_type = video_mime_type(url) if media_url else ""

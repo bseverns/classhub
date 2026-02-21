@@ -15,6 +15,7 @@ from ..services.content_links import (
     extract_youtube_id,
     is_probably_video_url,
     normalize_lesson_videos,
+    youtube_embed_url,
     video_mime_type,
 )
 from ..services.markdown_content import (
@@ -179,7 +180,7 @@ def _normalize_stored_lesson_videos(course_slug: str, lesson_slug: str) -> list[
             youtube_id = extract_youtube_id(url)
             if youtube_id:
                 source_type = "youtube"
-                embed_url = f"https://www.youtube.com/embed/{youtube_id}"
+                embed_url = youtube_embed_url(youtube_id)
                 media_url = ""
                 media_type = ""
             elif is_probably_video_url(url):

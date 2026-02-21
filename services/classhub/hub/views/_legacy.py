@@ -389,7 +389,7 @@ def _normalize_lesson_videos(front_matter: dict) -> list[dict]:
             youtube_id = _extract_youtube_id(url)
         if youtube_id and not url:
             url = f"https://www.youtube.com/watch?v={youtube_id}"
-        embed_url = f"https://www.youtube.com/embed/{youtube_id}" if youtube_id else ""
+        embed_url = f"https://www.youtube-nocookie.com/embed/{youtube_id}" if youtube_id else ""
         source_type = "youtube" if youtube_id else ("native" if _is_probably_video_url(url) else "link")
         media_url = url if source_type == "native" else ""
         media_type = _video_mime_type(url) if media_url else ""
@@ -1306,7 +1306,7 @@ def _normalize_stored_lesson_videos(course_slug: str, lesson_slug: str) -> list[
             youtube_id = _extract_youtube_id(url)
             if youtube_id:
                 source_type = "youtube"
-                embed_url = f"https://www.youtube.com/embed/{youtube_id}"
+                embed_url = f"https://www.youtube-nocookie.com/embed/{youtube_id}"
                 media_url = ""
                 media_type = ""
             elif _is_probably_video_url(url):

@@ -860,6 +860,7 @@ class JoinClassTests(TestCase):
         first_event = StudentEvent.objects.order_by("-id").first()
         self.assertIsNotNone(first_event)
         self.assertEqual(first_event.event_type, StudentEvent.EVENT_CLASS_JOIN)
+        self.assertEqual(first_event.ip_address, "127.0.0.0")
 
         # Simulate different machine/browser (no prior device cookie).
         other = Client()
@@ -1385,7 +1386,9 @@ class StudentPortfolioExportTests(TestCase):
         self.assertEqual(resp["Cache-Control"], "private, no-store")
         self.assertEqual(resp["X-Content-Type-Options"], "nosniff")
         self.assertIn("attachment;", resp["Content-Disposition"])
-        self.assertIn("portfolio", resp["Content-Disposition"])
+        self.assertIn("portfolio_", resp["Content-Disposition"])
+        self.assertNotIn("Portfolio_Class", resp["Content-Disposition"])
+        self.assertNotIn("Ada", resp["Content-Disposition"])
 
         archive_bytes = b"".join(resp.streaming_content)
         with zipfile.ZipFile(BytesIO(archive_bytes), "r") as archive:
@@ -1401,7 +1404,7 @@ class StudentPortfolioExportTests(TestCase):
         self.assertIn("ada_project.sb3", index_html)
         self.assertNotIn("ben_project.sb3", index_html)
 
-    def test_portfolio_export_content_disposition_uses_safe_filename(self):
+    def test_portfolio_export_content_disposition_defaults_to_generic_filename(self):
         self.classroom.name = "Portfolio/Class"
         self.classroom.save(update_fields=["name"])
         self.student.display_name = "Ada\r\n../Lovelace"
@@ -1415,6 +1418,26 @@ class StudentPortfolioExportTests(TestCase):
         self.assertNotIn("/", disposition)
         self.assertNotIn("\\", disposition)
         self.assertNotRegex(disposition, r"[\r\n]")
+        self.assertIn("portfolio_", disposition)
+        self.assertNotIn("Portfolio", disposition)
+        self.assertNotIn("Lovelace", disposition)
+
+    @override_settings(CLASSHUB_PORTFOLIO_FILENAME_MODE="descriptive")
+    def test_portfolio_export_can_use_descriptive_filename_mode(self):
+        self.classroom.name = "Portfolio/Class"
+        self.classroom.save(update_fields=["name"])
+        self.student.display_name = "Ada\r\n../Lovelace"
+        self.student.save(update_fields=["display_name"])
+        self._login_student()
+
+        resp = self.client.get("/student/portfolio-export")
+        self.assertEqual(resp.status_code, 200)
+        disposition = resp["Content-Disposition"]
+        self.assertIn("attachment;", disposition)
+        self.assertNotIn("/", disposition)
+        self.assertNotIn("\\", disposition)
+        self.assertNotRegex(disposition, r"[\r\n]")
+        self.assertIn("Portfolio_Class_Ada", disposition)
 
 
 class StudentDataControlsTests(TestCase):
@@ -1672,8 +1695,28 @@ class InternalHelperEventEndpointTests(TestCase):
         self.assertEqual(event.classroom_id, self.classroom.id)
         self.assertEqual(event.student_id, self.student.id)
         self.assertEqual(event.source, "homework_helper.chat")
+        self.assertEqual(event.ip_address, "127.0.0.0")
         self.assertEqual(event.details.get("request_id"), "req-123")
         self.assertEqual(event.details.get("actor_type"), "student")
+
+    @override_settings(CLASSHUB_INTERNAL_EVENTS_TOKEN="expected-token", CLASSHUB_STUDENT_EVENT_IP_MODE="full")
+    def test_internal_event_endpoint_can_store_full_ip_when_enabled(self):
+        payload = {
+            "classroom_id": self.classroom.id,
+            "student_id": self.student.id,
+            "ip_address": "127.0.0.1",
+            "details": {"request_id": "req-full", "actor_type": "student"},
+        }
+        resp = self.client.post(
+            self.url,
+            data=json.dumps(payload),
+            content_type="application/json",
+            HTTP_X_CLASSHUB_INTERNAL_TOKEN="expected-token",
+        )
+        self.assertEqual(resp.status_code, 200)
+        event = StudentEvent.objects.filter(event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS).order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.ip_address, "127.0.0.1")
 
     @override_settings(CLASSHUB_INTERNAL_EVENTS_TOKEN="expected-token")
     def test_internal_event_endpoint_drops_unallowlisted_details(self):
