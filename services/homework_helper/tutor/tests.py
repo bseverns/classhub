@@ -349,6 +349,26 @@ class HelperChatAuthTests(TestCase):
         self.assertIn("Lesson excerpts:", build_kwargs.get("reference_citations", ""))
 
     @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
+    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
+    def test_chat_handles_directory_reference_file_without_500(self, chat_mock):
+        session = self.client.session
+        session["student_id"] = 101
+        session["class_id"] = 5
+        session.save()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with patch.dict(
+                "os.environ",
+                {"HELPER_REFERENCE_FILE": temp_dir},
+                clear=False,
+            ):
+                resp = self._post_chat({"message": "How do I move a sprite?"})
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("text"), "Hint")
+        self.assertEqual(chat_mock.call_count, 1)
+
+    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
     @patch("tutor.views.build_instructions", return_value="system instructions")
     @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
     def test_staff_unsigned_scope_fields_are_ignored(self, build_instructions_mock, _chat_mock):

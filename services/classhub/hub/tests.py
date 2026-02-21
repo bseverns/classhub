@@ -1487,7 +1487,7 @@ class StudentDataControlsTests(TestCase):
         hint_cookie = resp.cookies.get("classhub_student_hint")
         self.assertIsNotNone(hint_cookie)
         self.assertEqual(hint_cookie.value, "")
-        self.assertEqual(hint_cookie["max-age"], "0")
+        self.assertEqual(str(hint_cookie["max-age"]), "0")
         self.assertNotIn("student_id", self.client.session)
         self.assertNotIn("class_id", self.client.session)
 

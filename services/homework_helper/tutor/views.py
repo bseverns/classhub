@@ -464,7 +464,15 @@ def _load_reference_chunks(path_str: str) -> tuple[str, ...]:
     path = Path(path_str)
     if not path.exists():
         return tuple()
-    text = path.read_text(encoding="utf-8")
+    try:
+        text = path.read_text(encoding="utf-8")
+    except Exception as exc:
+        logger.warning(
+            "reference_chunks_load_failed path=%s error=%s",
+            path_str,
+            exc.__class__.__name__,
+        )
+        return tuple()
     if not text.strip():
         return tuple()
 
@@ -566,7 +574,15 @@ def _load_reference_text(path_str: str) -> str:
     path = Path(path_str)
     if not path.exists():
         return ""
-    text = path.read_text(encoding="utf-8").strip()
+    try:
+        text = path.read_text(encoding="utf-8").strip()
+    except Exception as exc:
+        logger.warning(
+            "reference_text_load_failed path=%s error=%s",
+            path_str,
+            exc.__class__.__name__,
+        )
+        return ""
     if not text:
         return ""
     # Keep it compact for the system prompt.
