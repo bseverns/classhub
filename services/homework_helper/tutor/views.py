@@ -714,10 +714,13 @@ def chat(request):
 
     reference_dir = os.getenv("HELPER_REFERENCE_DIR", "/app/tutor/reference").strip()
     reference_map_raw = os.getenv("HELPER_REFERENCE_MAP", "").strip()
-    reference_file = os.getenv("HELPER_REFERENCE_FILE", "").strip()
-    resolved = _resolve_reference_file(reference_key, reference_dir, reference_map_raw)
-    if resolved:
-        reference_file = resolved
+    default_reference_file = os.getenv("HELPER_REFERENCE_FILE", "").strip()
+    if reference_key:
+        # When scope includes an explicit reference key, only use a resolved file
+        # for that key (never silently fall back to global default reference).
+        reference_file = _resolve_reference_file(reference_key, reference_dir, reference_map_raw)
+    else:
+        reference_file = default_reference_file
     reference_text = _load_reference_text(reference_file)
     reference_chunks = _load_reference_chunks(reference_file)
     reference_source = reference_key or (Path(reference_file).stem if reference_file else "")
@@ -754,6 +757,7 @@ def chat(request):
         _env_bool("HELPER_PIPER_HARDWARE_TRIAGE_ENABLED", True)
         and _is_piper_context(context_value or "", topics, reference_text, reference_key)
         and _is_piper_hardware_question(message)
+        and not citations
     ):
         _log_chat_event(
             "info",

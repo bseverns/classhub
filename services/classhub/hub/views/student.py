@@ -75,7 +75,6 @@ def _clear_device_hint_cookie(response) -> None:
     response.delete_cookie(
         getattr(settings, "DEVICE_REJOIN_COOKIE_NAME", "classhub_student_hint"),
         samesite="Lax",
-        secure=not settings.DEBUG,
     )
 
 
