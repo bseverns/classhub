@@ -23,6 +23,8 @@ zip -r "${OUT_ABS}" . \
   -x ".venv/*" \
   -x ".deploy/*" \
   -x "data/*" \
+  -x "compose/data/" \
+  -x "compose/data/*" \
   -x "media/*" \
   -x "*/media/*" \
   -x "staticfiles/*" \

@@ -23,6 +23,12 @@ else
   COMPOSE_ARGS=(-f "${COMPOSE_DIR}/docker-compose.yml" -f "${COMPOSE_DIR}/docker-compose.override.yml")
 fi
 
+if ! docker compose "${COMPOSE_ARGS[@]}" ps --services --filter status=running | grep -qx "${SERVICE}"; then
+  echo "[demo] ${SERVICE} is not running. Start the stack first, then retry." >&2
+  echo "[demo] example: docker compose ${COMPOSE_ARGS[*]} up -d --build ${SERVICE}" >&2
+  exit 1
+fi
+
 echo "[demo] syncing demo coursepack into services/classhub/content/courses"
 rm -rf "${DST_DIR}"
 mkdir -p "$(dirname "${DST_DIR}")"
@@ -32,6 +38,22 @@ if [[ -f "${SRC_REF}" ]]; then
   echo "[demo] syncing demo helper reference"
   mkdir -p "$(dirname "${DST_REF}")"
   cp "${SRC_REF}" "${DST_REF}"
+fi
+
+echo "[demo] syncing demo coursepack into running classhub container"
+docker compose "${COMPOSE_ARGS[@]}" exec -T "${SERVICE}" \
+  sh -lc "mkdir -p /app/content/courses && rm -rf /app/content/courses/${COURSE_SLUG}"
+docker compose "${COMPOSE_ARGS[@]}" cp "${SRC_DIR}" "${SERVICE}:/app/content/courses/"
+
+if [[ -f "${SRC_REF}" ]]; then
+  echo "[demo] syncing demo helper reference into running helper container (best-effort)"
+  if docker compose "${COMPOSE_ARGS[@]}" ps --services --filter status=running | grep -qx "helper_web"; then
+    docker compose "${COMPOSE_ARGS[@]}" exec -T helper_web \
+      sh -lc "mkdir -p /app/tutor/reference"
+    docker compose "${COMPOSE_ARGS[@]}" cp "${SRC_REF}" "helper_web:/app/tutor/reference/${COURSE_SLUG}.md"
+  else
+    echo "[demo] helper_web is not running; skipped container reference sync"
+  fi
 fi
 
 echo "[demo] importing coursepack into class database"
