@@ -1,6 +1,14 @@
 :80 {
   encode gzip
 
+  header {
+    X-Robots-Tag "noindex, nofollow, noarchive"
+  }
+
+  handle_path /robots.txt {
+    respond "User-agent: *\nDisallow: /\n" 200
+  }
+
   @staff_not_allowlisted {
     path /admin* /teach*
     not remote_ip {$CADDY_STAFF_IP_ALLOWLIST_V4:0.0.0.0/0} {$CADDY_STAFF_IP_ALLOWLIST_V6:::/0}

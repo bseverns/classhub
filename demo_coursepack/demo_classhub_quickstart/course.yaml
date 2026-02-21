@@ -1,0 +1,20 @@
+slug: demo_classhub_quickstart
+title: "Class Hub Demo Quickstart (2 Sessions)"
+sessions: 2
+default_duration_minutes: 45
+needs:
+  - "A browser"
+  - "Local Class Hub stack"
+privacy:
+  - "Use display names only in demo sessions."
+  - "Do not use real student names in shared screenshots."
+helper_reference: demo_classhub_quickstart
+lessons:
+  - session: 1
+    slug: s01-join-and-first-artifact
+    title: "Join, Open Lesson, Save First Artifact"
+    file: lessons/01-join-and-first-artifact.md
+  - session: 2
+    slug: s02-upload-and-reflect
+    title: "Upload and Reflect (Private by Default)"
+    file: lessons/02-upload-and-reflect.md

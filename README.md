@@ -1,5 +1,37 @@
 # Self-Hosted Class Hub + Homework Helper (Django)
 
+Class Hub is a classroom-first, self-hosted micro-LMS with a separate Homework Helper service.
+
+- Public overview: `docs/PUBLIC_OVERVIEW.md`
+- Start here (canonical docs landing page): `docs/START_HERE.md`
+
+## Try it locally in 10 minutes
+
+See: `docs/TRY_IT_LOCAL.md`
+
+Quick path:
+
+```bash
+cp compose/.env.example compose/.env
+cd compose && docker compose up -d --build
+cd ..
+bash scripts/load_demo_coursepack.sh
+```
+
+Then open:
+- Student join: `http://localhost/`
+- Teacher login: `http://localhost/admin/login/`
+
+## Security + deployment links
+
+- Security posture: `docs/SECURITY.md`
+- Day-1 deploy checklist: `docs/DAY1_DEPLOY_CHECKLIST.md`
+
+## Contributing + press
+
+- Contributing guide: `CONTRIBUTING.md`
+- Press kit: `press/README.md`
+
 A lightweight, self-hosted LMS focused on reliable classroom operations.
 
 Mission:

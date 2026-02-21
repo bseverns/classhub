@@ -1,37 +1,67 @@
 # Start Here
 
-Use this page to pick one path. Do not read everything.
+## Summary
+This is the canonical docs landing page. Use it to pick the shortest path for your role.
+
+Evaluating whether this fits your org? Start with `docs/PUBLIC_OVERVIEW.md`.
+
+## What to do now
+1. Pick your role from the table below.
+2. Open only the listed starting pages.
+3. Use the common URLs/commands section once the stack is running.
+
+## Verification signal
+You should be able to pick a role path in under 30 seconds and identify the exact next doc to open.
 
 ```mermaid
 flowchart TD
   A[Start Here] --> B{Your role}
-  B -->|Teacher/Staff| C[NON_DEVELOPER_GUIDE]
-  C --> D[TEACHER_PORTAL]
-  B -->|Operator/Admin| E[DAY1_DEPLOY_CHECKLIST]
-  E --> F[RUNBOOK]
-  B -->|Developer| G[DEVELOPMENT]
-  G --> H[ARCHITECTURE]
-  H --> I[DECISIONS + OPENAI_HELPER]
+  B -->|Evaluator| C[PUBLIC_OVERVIEW]
+  C --> D[TRY_IT_LOCAL]
+  B -->|Teacher/Staff| E[NON_DEVELOPER_GUIDE]
+  E --> F[TEACHER_PORTAL]
+  B -->|Operator/Admin| G[DAY1_DEPLOY_CHECKLIST]
+  G --> H[SECURITY + RUNBOOK]
+  B -->|Developer| I[DEVELOPMENT]
+  I --> J[ARCHITECTURE + DECISIONS]
 ```
 
-## Fast path by role
+## Quick picks (by role)
 
-### I am a teacher or school staff member (non-developer)
-1. `docs/NON_DEVELOPER_GUIDE.md`
-2. `docs/TEACHER_PORTAL.md`
-3. `docs/TROUBLESHOOTING.md` (only when needed)
+| Role | Start here | Then read |
+|---|---|---|
+| Evaluator / decision-maker | `docs/PUBLIC_OVERVIEW.md` | `docs/TRY_IT_LOCAL.md`, `docs/SECURITY.md` |
+| Teacher / school staff | `docs/NON_DEVELOPER_GUIDE.md` | `docs/TEACHER_PORTAL.md` |
+| Operator / admin | `docs/DAY1_DEPLOY_CHECKLIST.md` | `docs/SECURITY.md`, `docs/RUNBOOK.md`, `docs/TROUBLESHOOTING.md` |
+| Developer | `docs/DEVELOPMENT.md` | `docs/ARCHITECTURE.md`, `docs/DECISIONS.md` |
 
-### I run the server (operator/admin)
-1. `docs/DAY1_DEPLOY_CHECKLIST.md`
-2. `docs/RUNBOOK.md`
-3. `docs/TROUBLESHOOTING.md`
-4. `docs/DISASTER_RECOVERY.md`
+## Core docs map
 
-### I build features (developer)
-1. `docs/DEVELOPMENT.md`
-2. `docs/ARCHITECTURE.md`
-3. `docs/DECISIONS.md`
-4. `docs/OPENAI_HELPER.md`
+### Classroom use
+- `docs/NON_DEVELOPER_GUIDE.md`
+- `docs/TEACHER_PORTAL.md`
+- `docs/COURSE_AUTHORING.md`
+- `docs/TEACHER_HANDOFF_CHECKLIST.md`
+
+### Operations
+- `docs/DAY1_DEPLOY_CHECKLIST.md`
+- `docs/SECURITY.md` (public-domain posture and reporting)
+- `docs/SECURITY_BASELINE.md` (edge vs app ownership)
+- `docs/RUNBOOK.md`
+- `docs/TROUBLESHOOTING.md`
+- `docs/DISASTER_RECOVERY.md`
+
+### Engineering
+- `docs/DEVELOPMENT.md`
+- `docs/ARCHITECTURE.md`
+- `docs/OPENAI_HELPER.md`
+- `docs/HELPER_POLICY.md`
+- `docs/REQUEST_SAFETY.md`
+- `docs/HELPER_EVALS.md`
+
+### Design rationale
+- `docs/DECISIONS.md`
+- `docs/decisions/archive/`
 
 ## Common URLs
 
@@ -44,14 +74,14 @@ flowchart TD
 
 ## Common commands
 
+- Local demo path: `docs/TRY_IT_LOCAL.md`
 - Full health check: `bash scripts/system_doctor.sh`
 - Guardrailed deploy: `bash scripts/deploy_with_smoke.sh`
-- Local quickstart: `README.md#quickstart-local`
 
-## If you're overwhelmed
+## If you are overwhelmed
 
-Read only one page next:
-
-- Teachers/staff: `docs/NON_DEVELOPER_GUIDE.md`
-- Operators: `docs/RUNBOOK.md`
-- Developers: `docs/DEVELOPMENT.md`
+Read one page only:
+- Evaluator: `docs/PUBLIC_OVERVIEW.md`
+- Teacher/staff: `docs/NON_DEVELOPER_GUIDE.md`
+- Operator: `docs/RUNBOOK.md`
+- Developer: `docs/DEVELOPMENT.md`

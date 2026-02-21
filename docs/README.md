@@ -1,54 +1,62 @@
 # Documentation Index
 
-This docs folder is organized so people can read only what they need.
+## Summary
+This page is a compact map. `docs/START_HERE.md` is the canonical landing page.
 
-If you are not a developer, start with `docs/NON_DEVELOPER_GUIDE.md`.
+## What to do now
+1. Open `docs/START_HERE.md` first.
+2. Use the role table below only if you need a quick link from this page.
+3. Keep docs edits plain-language and verification-first.
+
+## Verification signal
+A new reader should be able to find their role path without opening more than one extra page.
 
 ## Quick picks (by role)
 
 | Role | Start here | Then read |
 |---|---|---|
+| Evaluator / decision-maker | `docs/PUBLIC_OVERVIEW.md` | `docs/TRY_IT_LOCAL.md`, `docs/SECURITY.md` |
 | Teacher / school staff | `docs/NON_DEVELOPER_GUIDE.md` | `docs/TEACHER_PORTAL.md` |
-| Operator / admin | `docs/DAY1_DEPLOY_CHECKLIST.md` | `docs/RUNBOOK.md`, `docs/TROUBLESHOOTING.md` |
+| Operator / admin | `docs/DAY1_DEPLOY_CHECKLIST.md` | `docs/SECURITY.md`, `docs/RUNBOOK.md`, `docs/TROUBLESHOOTING.md` |
 | Developer | `docs/DEVELOPMENT.md` | `docs/ARCHITECTURE.md`, `docs/DECISIONS.md` |
 
 ## Core docs map
 
 ### Classroom use
-- `docs/NON_DEVELOPER_GUIDE.md`: plain-language day-to-day use.
-- `docs/TEACHER_PORTAL.md`: teacher UI workflows.
-- `docs/COURSE_AUTHORING.md`: curriculum content updates.
-- `docs/TEACHER_HANDOFF_CHECKLIST.md`: staffing transitions.
+- `docs/NON_DEVELOPER_GUIDE.md`
+- `docs/TEACHER_PORTAL.md`
+- `docs/COURSE_AUTHORING.md`
+- `docs/TEACHER_HANDOFF_CHECKLIST.md`
 
 ### Operations
-- `docs/DAY1_DEPLOY_CHECKLIST.md`: first production deployment.
-- `docs/RUNBOOK.md`: routine maintenance and commands.
-- `docs/RELEASING.md`: release archive packaging + verification.
-- `docs/TROUBLESHOOTING.md`: symptom-first incident recovery.
-- `docs/DISASTER_RECOVERY.md`: restore/rebuild flow.
-- `docs/SECURITY.md`: security and privacy controls.
+- `docs/DAY1_DEPLOY_CHECKLIST.md`
+- `docs/SECURITY.md`
+- `docs/SECURITY_BASELINE.md`
+- `docs/RUNBOOK.md`
+- `docs/RELEASING.md`
+- `docs/TROUBLESHOOTING.md`
+- `docs/DISASTER_RECOVERY.md`
 
 ### Engineering
-- `docs/DEVELOPMENT.md`: local development workflow.
-- `docs/ARCHITECTURE.md`: service boundaries and routing.
-- `docs/OPENAI_HELPER.md`: helper backend behavior.
-- `docs/HELPER_POLICY.md`: tutor stance and anti-cheating policy.
-- `docs/REQUEST_SAFETY.md`: IP/rate-limit safety helpers.
-- `docs/HELPER_EVALS.md`: helper evaluation harness.
+- `docs/DEVELOPMENT.md`
+- `docs/ARCHITECTURE.md`
+- `docs/OPENAI_HELPER.md`
+- `docs/HELPER_POLICY.md`
+- `docs/REQUEST_SAFETY.md`
+- `docs/HELPER_EVALS.md`
+
+### Public sharing
+- `docs/PUBLIC_OVERVIEW.md`
+- `docs/TRY_IT_LOCAL.md`
+- `press/README.md`
 
 ### Design rationale
-- `docs/DECISIONS.md`: active design decisions and tradeoffs.
-- `docs/decisions/archive/`: historical decision logs.
+- `docs/DECISIONS.md`
+- `docs/decisions/archive/`
 
-## Keep docs approachable
-
-When editing docs:
-
-1. Put a plain-language summary at the top.
-2. Lead with "what to do now" before deep explanation.
-3. Link from `docs/START_HERE.md` when adding a new major page.
-4. Include one verification signal for operational instructions.
-
-## Start page
-
-For role-based entry and canonical URLs/commands, use `docs/START_HERE.md`.
+## Editing rules (short)
+When adding or changing docs:
+1. Start with a plain-language summary.
+2. Add a "what to do now" section.
+3. Add one verification signal.
+4. Link from `docs/START_HERE.md` for major new pages.

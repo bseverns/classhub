@@ -3,6 +3,14 @@
 This page is the practical security baseline for this project.
 Canonical ownership map for edge vs app headers: `docs/SECURITY_BASELINE.md`.
 
+## Reporting security issues
+
+For private vulnerability reports, contact: `security@your-org.example`.
+
+- Do not include exploit details in public issues.
+- Include reproduction steps, affected version/commit, and impact.
+- Expect an initial acknowledgement within 3 business days.
+
 If you only do three things before production:
 
 1. set strong secrets and `DJANGO_DEBUG=0`

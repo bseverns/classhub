@@ -27,7 +27,7 @@ flowchart TD
 - Keep admin 2FA enforcement enabled: `DJANGO_ADMIN_2FA_REQUIRED=1`
 - For domain/TLS mode, set:
   - `DJANGO_SECURE_SSL_REDIRECT=1`
-  - `DJANGO_SECURE_HSTS_SECONDS=31536000` (after initial validation)
+  - `CADDY_HSTS_MAX_AGE=31536000` (after initial validation)
 - Confirm proxy body limits for your workload:
   - `CADDY_CLASSHUB_MAX_BODY` (uploads; default `650MB`)
   - `CADDY_HELPER_MAX_BODY` (helper API; default `1MB`)
