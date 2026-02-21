@@ -84,7 +84,7 @@ Common causes:
 - Ollama not ready
 - model not pulled
 - `OLLAMA_BASE_URL` mismatch
-- helper timeout too strict
+- helper worker timeout too strict for retry budget
 
 Checks:
 
@@ -93,7 +93,7 @@ cd /srv/lms/app/compose
 docker compose logs --tail=200 helper_web
 docker compose logs --tail=200 classhub_ollama
 curl http://localhost:11434/api/tags
-docker compose exec -T helper_web env | grep -E '^(OLLAMA_BASE_URL|OLLAMA_MODEL|OLLAMA_TIMEOUT_SECONDS|HELPER_LLM_BACKEND)='
+docker compose exec -T helper_web env | grep -E '^(OLLAMA_BASE_URL|OLLAMA_MODEL|OLLAMA_TIMEOUT_SECONDS|HELPER_LLM_BACKEND|HELPER_GUNICORN_TIMEOUT_SECONDS|HELPER_BACKEND_MAX_ATTEMPTS|HELPER_QUEUE_MAX_WAIT_SECONDS|HELPER_BACKOFF_SECONDS)='
 ```
 
 Fix pattern:
@@ -101,6 +101,11 @@ Fix pattern:
 ```bash
 cd /srv/lms/app/compose
 docker compose exec ollama ollama pull llama3.2:1b
+# Keep helper timeout above queue+retry budget (env-check enforces this).
+# Fast safe defaults for deploy smoke:
+# HELPER_GUNICORN_TIMEOUT_SECONDS=180
+# OLLAMA_TIMEOUT_SECONDS=20
+# HELPER_BACKEND_MAX_ATTEMPTS=1
 docker compose up -d helper_web
 ```
 

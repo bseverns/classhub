@@ -97,6 +97,26 @@ require_strong_secret() {
   fi
 }
 
+int_or_default() {
+  local raw="$1"
+  local fallback="$2"
+  if [[ "${raw}" =~ ^[0-9]+$ ]]; then
+    echo "${raw}"
+    return 0
+  fi
+  echo "${fallback}"
+}
+
+number_or_default() {
+  local raw="$1"
+  local fallback="$2"
+  if [[ "${raw}" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+    echo "${raw}"
+    return 0
+  fi
+  echo "${fallback}"
+}
+
 DJANGO_DEBUG="$(env_file_value DJANGO_DEBUG)"
 DJANGO_DEBUG="${DJANGO_DEBUG:-0}"
 
@@ -123,6 +143,44 @@ fi
 HELPER_LLM_BACKEND="$(env_file_value HELPER_LLM_BACKEND)"
 if [[ "${HELPER_LLM_BACKEND,,}" == "openai" ]]; then
   require_strong_secret "OPENAI_API_KEY" 20
+fi
+
+HELPER_GUNICORN_TIMEOUT_SECONDS="$(number_or_default "$(env_file_value HELPER_GUNICORN_TIMEOUT_SECONDS)" "180")"
+HELPER_BACKEND_MAX_ATTEMPTS="$(int_or_default "$(env_file_value HELPER_BACKEND_MAX_ATTEMPTS)" "2")"
+if [[ "${HELPER_BACKEND_MAX_ATTEMPTS}" -lt 1 ]]; then
+  HELPER_BACKEND_MAX_ATTEMPTS=1
+fi
+OLLAMA_TIMEOUT_SECONDS="$(number_or_default "$(env_file_value OLLAMA_TIMEOUT_SECONDS)" "30")"
+HELPER_QUEUE_MAX_WAIT_SECONDS="$(number_or_default "$(env_file_value HELPER_QUEUE_MAX_WAIT_SECONDS)" "10")"
+HELPER_BACKOFF_SECONDS="$(number_or_default "$(env_file_value HELPER_BACKOFF_SECONDS)" "0.4")"
+
+if [[ "${HELPER_LLM_BACKEND,,}" == "ollama" ]]; then
+  # Worst-case helper request budget:
+  # queue wait + retries * ollama timeout + exponential backoff + safety margin.
+  helper_backoff_total="0"
+  helper_backoff_step="${HELPER_BACKOFF_SECONDS}"
+  for ((i=1; i<HELPER_BACKEND_MAX_ATTEMPTS; i++)); do
+    helper_backoff_total="$(
+      awk -v total="${helper_backoff_total}" -v step="${helper_backoff_step}" 'BEGIN { printf "%.6f", total + step }'
+    )"
+    helper_backoff_step="$(
+      awk -v step="${helper_backoff_step}" 'BEGIN { printf "%.6f", step * 2 }'
+    )"
+  done
+
+  helper_required_timeout="$(
+    awk -v queue="${HELPER_QUEUE_MAX_WAIT_SECONDS}" \
+        -v tries="${HELPER_BACKEND_MAX_ATTEMPTS}" \
+        -v call_timeout="${OLLAMA_TIMEOUT_SECONDS}" \
+        -v backoff="${helper_backoff_total}" \
+        'BEGIN { printf "%.6f", queue + (tries * call_timeout) + backoff + 5 }'
+  )"
+
+  if awk -v gunicorn_timeout="${HELPER_GUNICORN_TIMEOUT_SECONDS}" -v required="${helper_required_timeout}" \
+      'BEGIN { exit !(gunicorn_timeout < required) }'
+  then
+    fail "HELPER_GUNICORN_TIMEOUT_SECONDS (${HELPER_GUNICORN_TIMEOUT_SECONDS}) is too low for current Ollama retry budget (~${helper_required_timeout}s required; check HELPER_BACKEND_MAX_ATTEMPTS, OLLAMA_TIMEOUT_SECONDS, HELPER_QUEUE_MAX_WAIT_SECONDS, HELPER_BACKOFF_SECONDS)"
+  fi
 fi
 
 CADDYFILE_TEMPLATE="$(env_file_value CADDYFILE_TEMPLATE)"

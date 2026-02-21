@@ -540,3 +540,21 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keeps deletion a control surface instead of an operator ticket.
 - Prevents accidental/silent enablement of remote helper mode.
 - Gives operators and reviewers a concrete, auditable privacy checklist.
+
+## Helper timeout budget guardrail (prevent `/helper/chat` worker timeouts)
+
+**Current decision:**
+- Make helper Gunicorn runtime timeout configurable:
+  - `HELPER_GUNICORN_TIMEOUT_SECONDS` (default `180`)
+  - `HELPER_GUNICORN_WORKERS` (default `2`)
+- Add deploy-time env validation math in `scripts/validate_env_secrets.sh` for Ollama mode:
+  - compute worst-case helper request budget as:
+    - `HELPER_QUEUE_MAX_WAIT_SECONDS`
+    - `+ HELPER_BACKEND_MAX_ATTEMPTS * OLLAMA_TIMEOUT_SECONDS`
+    - `+ exponential HELPER_BACKOFF_SECONDS`
+    - `+ safety margin`
+  - fail fast when `HELPER_GUNICORN_TIMEOUT_SECONDS` is below this budget.
+
+**Why this remains active:**
+- Prevents intermittent `/helper/chat` 500s caused by Gunicorn worker timeout while waiting on backend model responses.
+- Converts a runtime failure into an early deploy-time config check.
