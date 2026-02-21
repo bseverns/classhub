@@ -16,32 +16,32 @@ A student can open `/student/my-data` and perform download/delete/end-session wi
 
 ```mermaid
 flowchart LR
-  subgraph J["Student journey"]
-    J1[Join class<br/>class code + display name]
-    J2[View lesson content]
-    J3[Optional: ask helper]
-    J4[Upload submission]
-    J5[My Data page<br/>show • download • delete • end session]
+  subgraph J["Student Journey"]
+    J1["Join class (class code + display name)"]
+    J2["View lesson content"]
+    J3["Ask helper (optional)"]
+    J4["Upload submission"]
+    J5["My Data: show, download, delete, end session"]
   end
 
-  subgraph D["Data stores"]
-    D1[(Postgres)<br/>students • classes • submissions metadata • student events]
-    D2[(File storage / MEDIA)<br/>submissions • portfolio zips]
-    D3[(Redis/cache)<br/>rate limits • queues • session helpers]
+  subgraph D["Data Stores"]
+    D1["Postgres: students, classes, submissions metadata, student events"]
+    D2["File storage: submissions and portfolio zips"]
+    D3["Redis cache: rate limits, queue state, session helpers"]
   end
 
-  subgraph P["Policies / protections"]
-    P1[No-store caching<br/>sensitive pages + exports]
-    P2[Safe downloads<br/>attachment + nosniff + sandbox CSP]
-    P3[Event minimization<br/>no names/codes/filenames]
-    P4[IP coarsening<br/>truncate mode]
-    P5[Retention maintenance<br/>report -> delete]
+  subgraph P["Policies and Protections"]
+    P1["No-store caching on sensitive pages and exports"]
+    P2["Safe downloads: attachment, nosniff, sandbox CSP"]
+    P3["Event minimization: no names, codes, filenames"]
+    P4["IP coarsening in truncate mode"]
+    P5["Retention maintenance: report then delete"]
   end
 
   J1 -->|creates/updates| D1
   J2 -->|reads| D1
-  J3 -->|rate-limit + session checks| D3
-  J3 -. optional .-> H[Helper service]
+  J3 -->|rate-limit and session checks| D3
+  J3 -. optional .-> H["Helper service"]
   H -->|best-effort safe event| D1
 
   J4 -->|file bytes| D2

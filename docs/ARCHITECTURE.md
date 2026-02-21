@@ -29,45 +29,45 @@ flowchart TD
 
 ```mermaid
 flowchart TB
-  subgraph Z0["Internet / Browsers"]
-    S[Student Browser]
-    T[Teacher Browser]
-    A[Admin / Operator Browser]
+  subgraph Z0["Internet and Browsers"]
+    S["Student browser"]
+    T["Teacher browser"]
+    A["Admin browser"]
   end
 
-  subgraph Z1["Edge / Reverse Proxy (Caddy)"]
-    C[Caddy<br/>TLS • routing • body limits<br/>security headers (optional)]
+  subgraph Z1["Edge Proxy (Caddy)"]
+    C["Caddy: TLS, routing, request limits"]
   end
 
-  subgraph Z2["Application Network (Docker / host LAN)"]
-    CH[ClassHub (Django)<br/>classhub_web<br/>student + teacher UI]
-    HH[Homework Helper (Django)<br/>helper_web<br/>hint engine + policies]
-    R[(Redis / cache)<br/>rate limits • sessions • throttles]
-    PG[(Postgres)<br/>core data store]
-    FS[(File storage / MEDIA)<br/>submissions • exports]
+  subgraph Z2["Application Network"]
+    CH["ClassHub (Django)"]
+    HH["Homework Helper (Django)"]
+    R["Redis cache"]
+    PG["Postgres database"]
+    FS["File storage (/uploads)"]
   end
 
   subgraph Z3["Optional External Services"]
-    YT[YouTube-nocookie embeds]
-    REM[Remote LLM provider<br/>(only if enabled)]
+    YT["YouTube-nocookie embeds"]
+    REM["Remote LLM provider (optional)"]
   end
 
   S -->|HTTPS| C
   T -->|HTTPS| C
   A -->|HTTPS| C
 
-  C -->|/ + /teach + media/download routes| CH
+  C -->|/, /teach, downloads| CH
   C -->|/helper/*| HH
 
-  CH <-->|cache calls| R
-  CH <-->|SQL| PG
-  CH <-->|read/write| FS
+  CH <--> R
+  CH <--> PG
+  CH <--> FS
 
-  HH <-->|cache calls| R
-  HH -->|best-effort internal event POST (token-gated)| CH
+  HH <--> R
+  HH -->|metadata event POST| CH
 
-  CH -.->|embeds| YT
-  HH -. optional .->|prompt/response| REM
+  CH -.-> YT
+  HH -. optional .-> REM
 ```
 
 ## What routes where

@@ -5,6 +5,27 @@ Class Hub is a classroom-first, self-hosted micro-LMS with a separate Homework H
 - Public overview: `docs/PUBLIC_OVERVIEW.md`
 - Start here (canonical docs landing page): `docs/START_HERE.md`
 
+## You Are Here (System Map)
+
+```mermaid
+flowchart LR
+  You["You (browser or operator terminal)"]
+  Edge["Front door: Caddy routes traffic"]
+  Hub["ClassHub app (student and teacher flows)"]
+  Helper["Homework Helper app (/helper/*)"]
+  Data["Data layer: Postgres, Redis, upload storage"]
+  Model["Model runtime: Ollama local or OpenAI optional"]
+  Docs["Docs map: START_HERE, RUNBOOK, TROUBLESHOOTING"]
+
+  You --> Edge
+  Edge --> Hub
+  Edge --> Helper
+  Hub --> Data
+  Helper --> Data
+  Helper --> Model
+  You --> Docs
+```
+
 ## Try it locally in 10 minutes
 
 See: `docs/TRY_IT_LOCAL.md`
