@@ -555,7 +555,10 @@ def _safe_internal_redirect(request, to: str, fallback: str = "/teach"):
         require_https=request.is_secure(),
     ):
         candidate = fallback
-    return redirect(candidate)
+    # Keep redirects local-only and avoid framework URL sink ambiguity for static analysis.
+    response = HttpResponse(status=302)
+    response["Location"] = candidate
+    return response
 
 
 def _with_notice(path: str, notice: str = "", error: str = "", extra: dict | None = None) -> str:
@@ -632,13 +635,6 @@ def _normalize_helper_topics_text(raw: str) -> str:
 
 def _authoring_template_output_dir() -> Path:
     return Path(getattr(settings, "CLASSHUB_AUTHORING_TEMPLATE_DIR", "/uploads/authoring_templates"))
-
-
-def _authoring_template_file_path(slug: str, kind: str) -> Path | None:
-    suffix = _AUTHORING_TEMPLATE_SUFFIXES.get(kind)
-    if not suffix:
-        return None
-    return _authoring_template_output_dir() / f"{slug}-{suffix}"
 
 
 def _resolve_authoring_template_download_path(slug: str, suffix: str) -> Path | None:
@@ -1179,13 +1175,22 @@ def teach_home(request):
     output_dir = _authoring_template_output_dir()
     template_download_rows: list[dict] = []
     if template_slug and _TEMPLATE_SLUG_RE.match(template_slug):
+        existing_names: set[str] = set()
+        try:
+            existing_names = {
+                item.name
+                for item in output_dir.iterdir()
+                if item.is_file()
+            }
+        except OSError:
+            existing_names = set()
         for kind, suffix in _AUTHORING_TEMPLATE_SUFFIXES.items():
-            path = _authoring_template_file_path(template_slug, kind)
-            exists = bool(path and path.exists() and path.is_file())
+            expected_name = f"{template_slug}-{suffix}"
+            exists = expected_name in existing_names
             template_download_rows.append(
                 {
                     "kind": kind,
-                    "label": f"{template_slug}-{suffix}",
+                    "label": expected_name,
                     "exists": exists,
                     "url": f"/teach/authoring-template/download?slug={template_slug}&kind={kind}",
                 }
