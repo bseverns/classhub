@@ -1,0 +1,3607 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/RUNBOOK/">
+      
+      
+        <link rel="prev" href="../DAY1_DEPLOY_CHECKLIST/">
+      
+      
+        <link rel="next" href="../TROUBLESHOOTING/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>Runbook - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#runbook" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Runbook
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../START_HERE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Role Paths
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Role Paths
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Evaluator / Decision-maker
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Evaluator / Decision-maker
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PUBLIC_OVERVIEW/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Public Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TRY_IT_LOCAL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Try It Local
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SECURITY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Teacher / Staff
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Teacher / Staff
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Non-Developer Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TEACHER_PORTAL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Teacher Portal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COURSE_AUTHORING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Course Authoring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TEACHER_HANDOFF_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Teacher Handoff Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TEACHER_HANDOFF_RECORD_TEMPLATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Teacher Handoff Record Template
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Operator / Admin
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Operator / Admin
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DAY1_DEPLOY_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Day 1 Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Runbook
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Runbook
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#working-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working directories
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#60-second-quick-command-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      60-second quick command set
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standard-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Standard operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standard operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-stop-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start / stop stack
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#guardrailed-deploy-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Guardrailed deploy (recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-stack-self-check-doctor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Full stack self-check (doctor)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smoke-checks-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Smoke checks only
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-domain-deployment-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Public domain deployment notes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#incident-degradation-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Incident degradation modes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#health-and-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health and logs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Health and logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#health-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health checks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tail-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tail logs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-and-content-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration and content gates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration and content gates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#migration-gate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration gate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apply-runtime-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Apply runtime migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#content-preflight" class="md-nav__link">
+    <span class="md-ellipsis">
+      Content preflight
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-backend-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper backend operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper backend operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ollama-model-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ollama model setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helper-queue-tuning-cpu-focused" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper queue tuning (CPU-focused)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-and-edge-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security and edge limits
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security and edge limits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#envsecret-gate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Env/secret gate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caddy-request-size-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caddy request size limits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teacheradmin-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher/admin operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Teacher/admin operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#teacher-account-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher account workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin-otp-bootstrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Admin OTP bootstrap
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backups-and-recovery-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backups and recovery hooks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-artifact-packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Release artifact packaging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retention-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retention operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Retention operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#submission-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      Submission retention
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#student-event-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      Student event retention
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orphan-upload-scavenger-legacy-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Orphan upload scavenger (legacy cleanup)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#legacy-temp-zip-cleanup-one-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Legacy temp ZIP cleanup (one-time)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-event-ingest-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper event ingest check
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper event ingest check">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automate-retention-orphan-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automate retention + orphan cleanup
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#escalate-when" class="md-nav__link">
+    <span class="md-ellipsis">
+      Escalate when
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Developer
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Developer
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DECISIONS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Decisions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Operations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DAY1_DEPLOY_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Day 1 Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Runbook
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Runbook
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#working-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working directories
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#60-second-quick-command-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      60-second quick command set
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standard-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Standard operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standard operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-stop-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start / stop stack
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#guardrailed-deploy-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Guardrailed deploy (recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-stack-self-check-doctor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Full stack self-check (doctor)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smoke-checks-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Smoke checks only
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-domain-deployment-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Public domain deployment notes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#incident-degradation-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Incident degradation modes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#health-and-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health and logs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Health and logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#health-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health checks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tail-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tail logs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-and-content-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration and content gates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration and content gates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#migration-gate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration gate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apply-runtime-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Apply runtime migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#content-preflight" class="md-nav__link">
+    <span class="md-ellipsis">
+      Content preflight
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-backend-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper backend operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper backend operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ollama-model-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ollama model setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helper-queue-tuning-cpu-focused" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper queue tuning (CPU-focused)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-and-edge-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security and edge limits
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security and edge limits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#envsecret-gate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Env/secret gate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caddy-request-size-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caddy request size limits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teacheradmin-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher/admin operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Teacher/admin operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#teacher-account-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher account workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin-otp-bootstrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Admin OTP bootstrap
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backups-and-recovery-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backups and recovery hooks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-artifact-packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Release artifact packaging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retention-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retention operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Retention operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#submission-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      Submission retention
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#student-event-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      Student event retention
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orphan-upload-scavenger-legacy-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Orphan upload scavenger (legacy cleanup)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#legacy-temp-zip-cleanup-one-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Legacy temp ZIP cleanup (one-time)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-event-ingest-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper event ingest check
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper event ingest check">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automate-retention-orphan-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automate retention + orphan cleanup
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#escalate-when" class="md-nav__link">
+    <span class="md-ellipsis">
+      Escalate when
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RELEASING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Releasing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Security & Privacy
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SECURITY_BASELINE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Security Baseline
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SECURITY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PRIVACY-ADDENDUM/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Privacy Addendum
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HELPER_POLICY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Policy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Recovery
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Recovery
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DISASTER_RECOVERY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Disaster Recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Engineering
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OPENAI_HELPER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Internals
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REQUEST_SAFETY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Request Safety
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HELPER_EVALS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Evals
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DECISIONS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Decisions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING_DOCS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs Maintenance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MERGE_READINESS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Merge Readiness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BOOTSTRAP_SERVER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bootstrap Server
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Teaching & Curriculum
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Teaching & Curriculum
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TEACHER_PORTAL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Teacher Portal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COURSE_AUTHORING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Course Authoring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TEACHER_HANDOFF_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Teacher Handoff Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TEACHER_HANDOFF_RECORD_TEMPLATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Teacher Handoff Record Template
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TEACHING_PLAYBOOK/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Teaching Playbook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LEARNING_PATHS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Learning Paths
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PILOT_PLAYBOOK/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pilot Playbook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WHAT_WHERE_WHY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    What, Where, Why
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CLASS_CODE_AUTH/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Class Code Auth
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Decision Archive
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Decision Archive
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../decisions/archive/2026-02/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2026-02
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../decisions/archive/2026-01/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2026-01
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Public Overview Template Example
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/course_authoring/example_slug-teacher-plan-template/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Teacher Plan Template Example
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#working-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working directories
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#60-second-quick-command-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      60-second quick command set
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standard-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Standard operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standard operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-stop-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start / stop stack
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#guardrailed-deploy-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Guardrailed deploy (recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-stack-self-check-doctor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Full stack self-check (doctor)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smoke-checks-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Smoke checks only
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-domain-deployment-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Public domain deployment notes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#incident-degradation-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Incident degradation modes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#health-and-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health and logs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Health and logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#health-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health checks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tail-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tail logs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-and-content-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration and content gates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration and content gates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#migration-gate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration gate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apply-runtime-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Apply runtime migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#content-preflight" class="md-nav__link">
+    <span class="md-ellipsis">
+      Content preflight
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-backend-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper backend operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper backend operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ollama-model-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ollama model setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helper-queue-tuning-cpu-focused" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper queue tuning (CPU-focused)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-and-edge-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security and edge limits
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security and edge limits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#envsecret-gate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Env/secret gate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caddy-request-size-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caddy request size limits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teacheradmin-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher/admin operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Teacher/admin operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#teacher-account-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher account workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin-otp-bootstrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Admin OTP bootstrap
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backups-and-recovery-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backups and recovery hooks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-artifact-packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Release artifact packaging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retention-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retention operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Retention operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#submission-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      Submission retention
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#student-event-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      Student event retention
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orphan-upload-scavenger-legacy-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Orphan upload scavenger (legacy cleanup)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#legacy-temp-zip-cleanup-one-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Legacy temp ZIP cleanup (one-time)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-event-ingest-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper event ingest check
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper event ingest check">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automate-retention-orphan-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automate retention + orphan cleanup
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#escalate-when" class="md-nav__link">
+    <span class="md-ellipsis">
+      Escalate when
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="runbook">Runbook<a class="headerlink" href="#runbook" title="Permanent link">&para;</a></h1>
+<p>This is the operator playbook for running the stack safely in production.</p>
+<p>If you are new, start with <a href="../START_HERE/">START_HERE.md</a> and <a href="../DAY1_DEPLOY_CHECKLIST/">DAY1_DEPLOY_CHECKLIST.md</a> first.</p>
+<pre class="mermaid"><code>flowchart TD
+  A[Deploy/Operate] --&gt; B[validate_env_secrets]
+  B --&gt; C[migration_gate]
+  C --&gt; D[deploy_with_smoke]
+  D --&gt; E{Smoke pass?}
+  E --&gt;|Yes| F[Record good state]
+  E --&gt;|No| G[Rollback hook / triage]
+  G --&gt; H[system_doctor + logs]</code></pre>
+<h2 id="working-directories">Working directories<a class="headerlink" href="#working-directories" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Repo root (server): <code>/srv/lms/app</code></li>
+<li>Compose folder: <code>/srv/lms/app/compose</code></li>
+</ul>
+<p>Use repo root unless a section explicitly says otherwise.</p>
+<h2 id="60-second-quick-command-set">60-second quick command set<a class="headerlink" href="#60-second-quick-command-set" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/system_doctor.sh
+
+<span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>ps
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>classhub_web<span class="w"> </span>helper_web<span class="w"> </span>caddy
+</code></pre></div>
+<p>If <code>system_doctor</code> passes, the platform is usually in good shape.</p>
+<h2 id="standard-operations">Standard operations<a class="headerlink" href="#standard-operations" title="Permanent link">&para;</a></h2>
+<h3 id="start-stop-stack">Start / stop stack<a class="headerlink" href="#start-stop-stack" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+<span class="c1"># Start</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<span class="c1"># Stop</span>
+docker<span class="w"> </span>compose<span class="w"> </span>down
+</code></pre></div>
+<p>Verify:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>ps
+curl<span class="w"> </span>-fsS<span class="w"> </span>http://localhost/healthz
+curl<span class="w"> </span>-fsS<span class="w"> </span>http://localhost/upstream-healthz
+curl<span class="w"> </span>-fsS<span class="w"> </span>http://localhost/helper/healthz
+</code></pre></div>
+<h3 id="guardrailed-deploy-recommended">Guardrailed deploy (recommended)<a class="headerlink" href="#guardrailed-deploy-recommended" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/deploy_with_smoke.sh
+</code></pre></div>
+<p>What this deploy command enforces:</p>
+<ul>
+<li>environment and secret validation</li>
+<li>migration gate for both Django services</li>
+<li>runtime <code>manage.py migrate --noinput</code> for both Django services</li>
+<li>compose launch via <code>compose/docker-compose.yml</code> only</li>
+<li>Caddy template mount sanity checks</li>
+<li>smoke checks (<code>/healthz</code>, <code>/helper/healthz</code>, join, helper chat, teacher login)</li>
+</ul>
+<p>Optional rollback hook:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+<span class="nv">ROLLBACK_CMD</span><span class="o">=</span><span class="s1">&#39;echo &quot;replace with your rollback command&quot;&#39;</span><span class="w"> </span>bash<span class="w"> </span>scripts/deploy_with_smoke.sh
+</code></pre></div>
+<h3 id="full-stack-self-check-doctor">Full stack self-check (doctor)<a class="headerlink" href="#full-stack-self-check-doctor" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/system_doctor.sh
+</code></pre></div>
+<p>Useful variants:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Strict smoke using existing SMOKE_* env values</span>
+bash<span class="w"> </span>scripts/system_doctor.sh<span class="w"> </span>--smoke-mode<span class="w"> </span>strict
+
+<span class="c1"># Fast baseline smoke</span>
+bash<span class="w"> </span>scripts/system_doctor.sh<span class="w"> </span>--smoke-mode<span class="w"> </span>basic
+
+<span class="c1"># Infra/content checks only</span>
+bash<span class="w"> </span>scripts/system_doctor.sh<span class="w"> </span>--smoke-mode<span class="w"> </span>off
+</code></pre></div>
+<h3 id="smoke-checks-only">Smoke checks only<a class="headerlink" href="#smoke-checks-only" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/smoke_check.sh<span class="w"> </span>--strict
+</code></pre></div>
+<p>Golden-path smoke (auto fixture bootstrap):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/golden_path_smoke.sh
+</code></pre></div>
+<h2 id="public-domain-deployment-notes">Public domain deployment notes<a class="headerlink" href="#public-domain-deployment-notes" title="Permanent link">&para;</a></h2>
+<p>When running behind Caddy on a real domain, use these defaults to avoid false rate-limit identity and upload mismatches:</p>
+<ul>
+<li>Proxy/IP trust:</li>
+<li>Set <code>REQUEST_SAFETY_TRUST_PROXY_HEADERS=1</code> so Django rate limiting sees client IPs forwarded by Caddy.</li>
+<li>Keep <code>REQUEST_SAFETY_XFF_INDEX=0</code> when Caddy is the first trusted hop.</li>
+<li>Upload size alignment:</li>
+<li>Set <code>CADDY_CLASSHUB_MAX_BODY</code> slightly above <code>CLASSHUB_UPLOAD_MAX_MB</code> (for example, <code>650MB</code> vs <code>600</code>).</li>
+<li><code>CLASSHUB_UPLOAD_MAX_MB</code> controls Django request body cap for class uploads.</li>
+<li>Keep <code>CLASSHUB_GUNICORN_TIMEOUT_SECONDS</code> high enough for large uploads on classroom Wi-Fi (default <code>1200</code> seconds).</li>
+<li>Keep <code>HELPER_GUNICORN_TIMEOUT_SECONDS</code> above helper queue/retry budget (<code>HELPER_QUEUE_MAX_WAIT_SECONDS</code>, <code>HELPER_BACKEND_MAX_ATTEMPTS</code>, <code>OLLAMA_TIMEOUT_SECONDS</code>, <code>HELPER_BACKOFF_SECONDS</code>); <code>scripts/validate_env_secrets.sh</code> now blocks unsafe combinations.</li>
+<li>Retention timer:</li>
+<li>Enable the <code>classhub-retention.timer</code> unit so submission/event cleanup runs automatically.</li>
+<li>Timer setup commands are in <a href="#automate-retention-orphan-cleanup">Automate retention + orphan cleanup</a>.</li>
+<li>Teacher/admin proxy armor:</li>
+<li>Optional IP allowlist for <code>/admin*</code> + <code>/teach*</code>:<ul>
+<li><code>CADDY_STAFF_IP_ALLOWLIST_V4</code></li>
+<li><code>CADDY_STAFF_IP_ALLOWLIST_V6</code></li>
+</ul>
+</li>
+<li>Optional extra basic-auth gate for <code>/admin*</code>:<ul>
+<li><code>CADDY_ADMIN_BASIC_AUTH_ENABLED=1</code></li>
+<li><code>CADDY_ADMIN_BASIC_AUTH_USER</code></li>
+<li><code>CADDY_ADMIN_BASIC_AUTH_HASH</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="incident-degradation-modes">Incident degradation modes<a class="headerlink" href="#incident-degradation-modes" title="Permanent link">&para;</a></h2>
+<p>Use <code>CLASSHUB_SITE_MODE</code> in <code>compose/.env</code>, then redeploy:</p>
+<ul>
+<li><code>normal</code></li>
+<li><code>read-only</code></li>
+<li><code>join-only</code></li>
+<li><code>maintenance</code></li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+sed<span class="w"> </span>-i.bak<span class="w"> </span><span class="s1">&#39;s/^CLASSHUB_SITE_MODE=.*/CLASSHUB_SITE_MODE=join-only/&#39;</span><span class="w"> </span>compose/.env
+bash<span class="w"> </span>scripts/deploy_with_smoke.sh
+</code></pre></div>
+<p>Optional status message shown to users on blocked routes:</p>
+<ul>
+<li><code>CLASSHUB_SITE_MODE_MESSAGE</code></li>
+</ul>
+<h2 id="health-and-logs">Health and logs<a class="headerlink" href="#health-and-logs" title="Permanent link">&para;</a></h2>
+<h3 id="health-checks">Health checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>ps
+curl<span class="w"> </span>-I<span class="w"> </span>http://localhost/healthz
+curl<span class="w"> </span>-I<span class="w"> </span>http://localhost/upstream-healthz
+curl<span class="w"> </span>-I<span class="w"> </span>http://localhost/helper/healthz
+</code></pre></div>
+<h3 id="tail-logs">Tail logs<a class="headerlink" href="#tail-logs" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>classhub_web
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>helper_web
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>caddy
+</code></pre></div>
+<p>Helper logs include structured events like <code>success</code>, <code>queue_busy</code>, and <code>backend_transport_error</code> with <code>request_id</code>.</p>
+<h2 id="migration-and-content-gates">Migration and content gates<a class="headerlink" href="#migration-and-content-gates" title="Permanent link">&para;</a></h2>
+<h3 id="migration-gate-only">Migration gate only<a class="headerlink" href="#migration-gate-only" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/migration_gate.sh
+</code></pre></div>
+<p><code>migration_gate.sh</code> checks that migration files are committed. It does not apply DB migrations.</p>
+<h3 id="apply-runtime-migrations">Apply runtime migrations<a class="headerlink" href="#apply-runtime-migrations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>--noinput
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>helper_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>--noinput
+</code></pre></div>
+<p><code>RUN_MIGRATIONS_ON_START=0</code> is the production default to avoid boot-time migration races; keep it <code>1</code> only for local/dev workflows where container boot should self-migrate.</p>
+<h3 id="content-preflight">Content preflight<a class="headerlink" href="#content-preflight" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/content_preflight.sh<span class="w"> </span>piper_scratch_12_session
+</code></pre></div>
+<p>Strict global sequence checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/content_preflight.sh<span class="w"> </span>piper_scratch_12_session<span class="w"> </span>--strict-global
+</code></pre></div>
+<h2 id="helper-backend-operations">Helper backend operations<a class="headerlink" href="#helper-backend-operations" title="Permanent link">&para;</a></h2>
+<h3 id="ollama-model-setup">Ollama model setup<a class="headerlink" href="#ollama-model-setup" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>ollama<span class="w"> </span>ollama<span class="w"> </span>pull<span class="w"> </span>llama3.2:1b
+curl<span class="w"> </span>http://localhost:11434/api/tags
+</code></pre></div>
+<p>Note: Ollama is host-bound at <code>127.0.0.1:11434</code> by default.</p>
+<h3 id="helper-queue-tuning-cpu-focused">Helper queue tuning (CPU-focused)<a class="headerlink" href="#helper-queue-tuning-cpu-focused" title="Permanent link">&para;</a></h3>
+<p>Set in <code>compose/.env</code>:</p>
+<div class="highlight"><pre><span></span><code>HELPER_MAX_CONCURRENCY=2
+HELPER_QUEUE_MAX_WAIT_SECONDS=10
+HELPER_QUEUE_POLL_SECONDS=0.2
+HELPER_QUEUE_SLOT_TTL_SECONDS=120
+</code></pre></div>
+<h2 id="security-and-edge-limits">Security and edge limits<a class="headerlink" href="#security-and-edge-limits" title="Permanent link">&para;</a></h2>
+<h3 id="envsecret-gate-only">Env/secret gate only<a class="headerlink" href="#envsecret-gate-only" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/validate_env_secrets.sh
+</code></pre></div>
+<h3 id="caddy-request-size-limits">Caddy request size limits<a class="headerlink" href="#caddy-request-size-limits" title="Permanent link">&para;</a></h3>
+<p>Set in <code>compose/.env</code>:</p>
+<div class="highlight"><pre><span></span><code>CADDY_CLASSHUB_MAX_BODY=650MB
+CADDY_HELPER_MAX_BODY=1MB
+</code></pre></div>
+<h2 id="teacheradmin-operations">Teacher/admin operations<a class="headerlink" href="#teacheradmin-operations" title="Permanent link">&para;</a></h2>
+<h3 id="teacher-account-workflow">Teacher account workflow<a class="headerlink" href="#teacher-account-workflow" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="../TEACHER_PORTAL/">TEACHER_PORTAL.md</a></li>
+<li><a href="../TEACHER_HANDOFF_CHECKLIST/">TEACHER_HANDOFF_CHECKLIST.md</a></li>
+<li><a href="../TEACHER_HANDOFF_RECORD_TEMPLATE/">TEACHER_HANDOFF_RECORD_TEMPLATE.md</a></li>
+</ul>
+<p>Helper script:</p>
+<ul>
+<li><code>scripts/examples/teacher_accounts.sh</code> (dry-run by default; set <code>RUN=1</code> to execute)</li>
+</ul>
+<h3 id="admin-otp-bootstrap">Admin OTP bootstrap<a class="headerlink" href="#admin-otp-bootstrap" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>bootstrap_admin_otp<span class="w"> </span>--username<span class="w"> </span>&lt;admin_username&gt;<span class="w"> </span>--with-static-backup
+</code></pre></div>
+<p>Use <code>--rotate</code> to replace an existing device name.</p>
+<h2 id="backups-and-recovery-hooks">Backups and recovery hooks<a class="headerlink" href="#backups-and-recovery-hooks" title="Permanent link">&para;</a></h2>
+<p>Backup scripts:</p>
+<ul>
+<li><code>scripts/backup_postgres.sh</code></li>
+<li><code>scripts/backup_minio.sh</code></li>
+<li><code>scripts/backup_uploads.sh</code></li>
+</ul>
+<p>Disaster recovery guide:</p>
+<ul>
+<li><a href="../DISASTER_RECOVERY/">DISASTER_RECOVERY.md</a></li>
+</ul>
+<p>Recommended restore drill:</p>
+<ol>
+<li>Restore Postgres dump into a temporary DB.</li>
+<li>Confirm both Django services migrate and boot.</li>
+<li>Run <code>bash scripts/system_doctor.sh --smoke-mode basic</code>.</li>
+</ol>
+<h2 id="release-artifact-packaging">Release artifact packaging<a class="headerlink" href="#release-artifact-packaging" title="Permanent link">&para;</a></h2>
+<p>Create a shareable source zip without local machine clutter (<code>.venv</code>, <code>.git</code>, macOS metadata, caches):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/make_release_zip.sh
+</code></pre></div>
+<p>Optional output path:</p>
+<div class="highlight"><pre><span></span><code>bash<span class="w"> </span>scripts/make_release_zip.sh<span class="w"> </span>/srv/lms/releases/classhub_release.zip
+</code></pre></div>
+<p>Validate the generated archive explicitly:</p>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>scripts/lint_release_artifact.py<span class="w"> </span>/srv/lms/releases/classhub_release.zip
+</code></pre></div>
+<p>Release packaging policy and verification details:</p>
+<ul>
+<li><a href="../RELEASING/">RELEASING.md</a></li>
+</ul>
+<h2 id="retention-operations">Retention operations<a class="headerlink" href="#retention-operations" title="Permanent link">&para;</a></h2>
+<h3 id="submission-retention">Submission retention<a class="headerlink" href="#submission-retention" title="Permanent link">&para;</a></h3>
+<p>Dry run:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_submissions<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">90</span><span class="w"> </span>--dry-run
+</code></pre></div>
+<p>Apply:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_submissions<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">90</span>
+</code></pre></div>
+<p>Optional default (<code>compose/.env</code>):</p>
+<div class="highlight"><pre><span></span><code>CLASSHUB_SUBMISSION_RETENTION_DAYS=90
+</code></pre></div>
+<h3 id="student-event-retention">Student event retention<a class="headerlink" href="#student-event-retention" title="Permanent link">&para;</a></h3>
+<p>Dry run:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_student_events<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">180</span><span class="w"> </span>--dry-run
+</code></pre></div>
+<p>Dry run with CSV export snapshot:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_student_events<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">180</span><span class="w"> </span>--dry-run<span class="w"> </span>--export-csv<span class="w"> </span>/tmp/student_events_older_than_180d.csv
+</code></pre></div>
+<p>Apply:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_student_events<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">180</span>
+</code></pre></div>
+<p>Apply with export-before-delete snapshot:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_student_events<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">180</span><span class="w"> </span>--export-csv<span class="w"> </span>/srv/lms/backups/student_events_before_prune_<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>.csv
+</code></pre></div>
+<p>Optional default (<code>compose/.env</code>):</p>
+<div class="highlight"><pre><span></span><code>CLASSHUB_STUDENT_EVENT_RETENTION_DAYS=180
+</code></pre></div>
+<h3 id="orphan-upload-scavenger-legacy-cleanup">Orphan upload scavenger (legacy cleanup)<a class="headerlink" href="#orphan-upload-scavenger-legacy-cleanup" title="Permanent link">&para;</a></h3>
+<p>Report orphaned upload files (files on disk with no matching DB row):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>scavenge_orphan_uploads
+</code></pre></div>
+<p>Delete orphans (use after reviewing report output):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>scavenge_orphan_uploads<span class="w"> </span>--delete
+</code></pre></div>
+<h3 id="legacy-temp-zip-cleanup-one-time">Legacy temp ZIP cleanup (one-time)<a class="headerlink" href="#legacy-temp-zip-cleanup-one-time" title="Permanent link">&para;</a></h3>
+<p>Older builds could leave export zips in <code>/tmp</code>.</p>
+<p>Inspect:</p>
+<div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-lh<span class="w"> </span>/tmp/classhub_closeout_*.zip<span class="w"> </span>/tmp/classhub_latest_*.zip<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+</code></pre></div>
+<p>Delete:</p>
+<div class="highlight"><pre><span></span><code>rm<span class="w"> </span>-f<span class="w"> </span>/tmp/classhub_closeout_*.zip<span class="w"> </span>/tmp/classhub_latest_*.zip
+</code></pre></div>
+<h2 id="helper-event-ingest-check">Helper event ingest check<a class="headerlink" href="#helper-event-ingest-check" title="Permanent link">&para;</a></h2>
+<p>Helper chat telemetry now forwards through an authenticated internal Class Hub endpoint.</p>
+<p>Required env:</p>
+<ul>
+<li><code>CLASSHUB_INTERNAL_EVENTS_URL</code></li>
+<li><code>CLASSHUB_INTERNAL_EVENTS_TOKEN</code></li>
+</ul>
+<p>Quick validation:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/validate_env_secrets.sh
+bash<span class="w"> </span>scripts/system_doctor.sh<span class="w"> </span>--smoke-mode<span class="w"> </span>golden
+</code></pre></div>
+<h3 id="automate-retention-orphan-cleanup">Automate retention + orphan cleanup<a class="headerlink" href="#automate-retention-orphan-cleanup" title="Permanent link">&para;</a></h3>
+<p>Run once manually:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/retention_maintenance.sh<span class="w"> </span>--compose-mode<span class="w"> </span>prod
+</code></pre></div>
+<p>Optional webhook alerts (for unattended runs):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">RETENTION_ALERT_WEBHOOK_URL</span><span class="o">=</span><span class="s2">&quot;https://hooks.example.org/classhub&quot;</span>
+bash<span class="w"> </span>scripts/retention_maintenance.sh<span class="w"> </span>--compose-mode<span class="w"> </span>prod<span class="w"> </span>--alert-on-success
+</code></pre></div>
+<p>Systemd timer (recommended):</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>cp<span class="w"> </span>/srv/lms/app/ops/systemd/classhub-retention.service<span class="w"> </span>/etc/systemd/system/
+sudo<span class="w"> </span>cp<span class="w"> </span>/srv/lms/app/ops/systemd/classhub-retention.timer<span class="w"> </span>/etc/systemd/system/
+sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>classhub-retention.timer
+sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>classhub-retention.timer
+</code></pre></div>
+<p>Before enabling, edit <code>/etc/systemd/system/classhub-retention.service</code> if your app path or runtime user differs from <code>/srv/lms/app</code>.</p>
+<p>Review last run:</p>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>list-timers<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>classhub-retention
+journalctl<span class="w"> </span>-u<span class="w"> </span>classhub-retention.service<span class="w"> </span>-n<span class="w"> </span><span class="m">200</span><span class="w"> </span>--no-pager
+</code></pre></div>
+<h2 id="escalate-when">Escalate when<a class="headerlink" href="#escalate-when" title="Permanent link">&para;</a></h2>
+<p>Move to incident workflow (<a href="../TROUBLESHOOTING/">TROUBLESHOOTING.md</a>, then <a href="../DISASTER_RECOVERY/">DISASTER_RECOVERY.md</a>) when any of these are true:</p>
+<ul>
+<li>health checks still fail after config verification</li>
+<li>migrations fail in production</li>
+<li>repeated auth failures without expected config drift</li>
+<li>data integrity issues (missing classes/submissions without intended prune/reset)</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+      
+        <script src="../javascripts/mermaid-init.js"></script>
+      
+    
+  </body>
+</html>
