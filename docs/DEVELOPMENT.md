@@ -136,6 +136,17 @@ Run Ruff from repo root:
 ruff check services scripts
 ```
 
+Run Bandit with the same config/scope as CI:
+
+```bash
+pip install bandit==1.8.3
+bash scripts/run_bandit.sh
+```
+
+Optional modes:
+- `bash scripts/run_bandit.sh report /tmp/bandit-report.json`
+- `bash scripts/run_bandit.sh gate`
+
 Repo formatting defaults are defined in:
 - `pyproject.toml` (Ruff baseline)
 - `.editorconfig` (line endings/indent/newline defaults)

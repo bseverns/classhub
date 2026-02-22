@@ -38,8 +38,10 @@ jobs:
           python-version: "3.12"
       - name: Install Bandit
         run: pip install bandit==1.8.3
-      - name: Bandit high-confidence high-severity scan
-        run: |
-          bandit -r services/classhub services/homework_helper \
-            -x "*/migrations/*,*/tests.py,*/tests_services.py" \
-            -lll -iii
+      - name: Bandit scan + gate
+        run: bash scripts/run_bandit.sh all bandit-report.json
+      - name: Upload Bandit report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-report.json

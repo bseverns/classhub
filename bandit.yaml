@@ -1,0 +1,6 @@
+exclude_dirs:
+  - services/classhub/hub/migrations
+  - services/homework_helper/config/migrations
+
+# Keep runtime-focused scanning in CI. Test files and legacy compatibility
+# modules are excluded via workflow CLI filters to keep findings actionable.
