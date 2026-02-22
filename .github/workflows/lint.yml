@@ -15,8 +15,10 @@ jobs:
           python-version: "3.12"
       - name: Install ruff
         run: pip install ruff==0.8.6
-      - name: Ruff syntax/undefined checks
-        run: ruff check services scripts
+      - name: Ruff blocking gate (syntax/undefined)
+        run: ruff check services scripts --select E9,F63,F7,F82
+      - name: Ruff advisory coverage (E,F,I,B,UP)
+        run: ruff check services scripts --select E,F,I,B,UP --statistics --exit-zero
       - name: Repo hygiene guard
         run: bash scripts/repo_hygiene_check.sh
       - name: Guard internal service port exposure

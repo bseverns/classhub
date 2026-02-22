@@ -165,6 +165,18 @@ Run Ruff from repo root:
 ruff check services scripts
 ```
 
+Match CI blocking gate:
+
+```bash
+ruff check services scripts --select E9,F63,F7,F82
+```
+
+Match CI advisory coverage sweep:
+
+```bash
+ruff check services scripts --select E,F,I,B,UP --statistics
+```
+
 Run Bandit with the same config/scope as CI:
 
 ```bash

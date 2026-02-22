@@ -331,11 +331,11 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Repo-level lint baseline is defined in `pyproject.toml` (Ruff).
 - Editor defaults are defined in `.editorconfig`.
-- CI lint runs `ruff check services scripts` against that shared baseline.
+- CI lint keeps a blocking syntax/undefined gate and also runs a broader Ruff advisory pass (`E,F,I,B,UP`) to track cleanup progress.
 
 **Why this remains active:**
 - Keeps code-style drift low across contributors and machines.
-- Prevents silent mismatch between local lint runs and CI behavior.
+- Expands lint coverage without creating sudden merge friction during ratcheting.
 
 ## Teacher authoring templates
 
