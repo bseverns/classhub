@@ -1,0 +1,32 @@
+site_name: ClassHub Docs
+site_url: https://bseverns.github.io/ClassHub/
+repo_url: https://github.com/bseverns/ClassHub
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Start Here: START_HERE.md
+  - Deploy:
+      - Day 1 Checklist: DAY1_DEPLOY_CHECKLIST.md
+      - Runbook: RUNBOOK.md
+      - Troubleshooting: TROUBLESHOOTING.md
+  - Security & Privacy:
+      - Security Baseline: SECURITY_BASELINE.md
+      - Security: SECURITY.md
+      - Privacy Addendum: PRIVACY-ADDENDUM.md
+      - Helper Policy: HELPER_POLICY.md
+  - Recovery: DISASTER_RECOVERY.md
