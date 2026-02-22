@@ -2282,30 +2282,35 @@ If you are teaching tomorrow, do <a href="../NON_DEVELOPER_GUIDE/">NON_DEVELOPER
 <hr />
 <h2 id="pilot-config-profile-recommended-defaults">Pilot config profile (recommended defaults)<a class="headerlink" href="#pilot-config-profile-recommended-defaults" title="Permanent link">&para;</a></h2>
 <p>These are deltas for <code>compose/.env</code>. Keep your secrets and host values intact.</p>
-<p>```dotenv</p>
-<h1 id="keep-the-site-usable-under-classroom-conditions">Keep the site usable under classroom conditions.<a class="headerlink" href="#keep-the-site-usable-under-classroom-conditions" title="Permanent link">&para;</a></h1>
-<p>CLASSHUB_SITE_MODE=normal</p>
-<h1 id="student-privacy-posture-pilot-safe-defaults">Student privacy posture (pilot-safe defaults).<a class="headerlink" href="#student-privacy-posture-pilot-safe-defaults" title="Permanent link">&para;</a></h1>
-<p>CLASSHUB_PORTFOLIO_FILENAME_MODE=generic
+<div class="highlight"><pre><span></span><code># Keep the site usable under classroom conditions.
+CLASSHUB_SITE_MODE=normal
+
+# Student privacy posture (pilot-safe defaults).
+CLASSHUB_PORTFOLIO_FILENAME_MODE=generic
 CLASSHUB_STUDENT_EVENT_IP_MODE=truncate
 CLASSHUB_STUDENT_EVENT_RETENTION_DAYS=180
-CLASSHUB_SUBMISSION_RETENTION_DAYS=90</p>
-<h1 id="keep-uploads-within-expected-classroom-reality">Keep uploads within expected classroom reality.<a class="headerlink" href="#keep-uploads-within-expected-classroom-reality" title="Permanent link">&para;</a></h1>
-<p>CLASSHUB_UPLOAD_MAX_MB=200
-CADDY_CLASSHUB_MAX_BODY=220MB</p>
-<h1 id="helper-stays-local-for-this-pilot">Helper stays local for this pilot.<a class="headerlink" href="#helper-stays-local-for-this-pilot" title="Permanent link">&para;</a></h1>
-<p>HELPER_LLM_BACKEND=ollama
+CLASSHUB_SUBMISSION_RETENTION_DAYS=90
+
+# Keep uploads within expected classroom reality.
+CLASSHUB_UPLOAD_MAX_MB=200
+CADDY_CLASSHUB_MAX_BODY=220MB
+
+# Helper stays local for this pilot.
+HELPER_LLM_BACKEND=ollama
 HELPER_REMOTE_MODE_ACKNOWLEDGED=0
 HELPER_STRICTNESS=light
 HELPER_SCOPE_MODE=strict
 HELPER_TOPIC_FILTER_MODE=strict
-HELPER_MAX_CONCURRENCY=2</p>
-<h1 id="join-rate-limit-protect-against-accidental-hammering-refresh-storms">Join rate limit (protect against accidental hammering / refresh storms).<a class="headerlink" href="#join-rate-limit-protect-against-accidental-hammering-refresh-storms" title="Permanent link">&para;</a></h1>
-<p>CLASSHUB_JOIN_RATE_LIMIT_PER_MINUTE=20</p>
-<h1 id="retention-maintenance-script-defaults-safe-starting-point">Retention maintenance script defaults (safe starting point).<a class="headerlink" href="#retention-maintenance-script-defaults-safe-starting-point" title="Permanent link">&para;</a></h1>
-<p>RETENTION_SUBMISSION_DAYS=90
+HELPER_MAX_CONCURRENCY=2
+
+# Join rate limit (protect against accidental hammering / refresh storms).
+CLASSHUB_JOIN_RATE_LIMIT_PER_MINUTE=20
+
+# Retention maintenance script defaults (safe starting point).
+RETENTION_SUBMISSION_DAYS=90
 RETENTION_EVENT_DAYS=180
-RETENTION_SCAVENGE_MODE=report</p>
+RETENTION_SCAVENGE_MODE=report
+</code></pre></div>
 
 
 

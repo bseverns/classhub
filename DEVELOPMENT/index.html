@@ -824,6 +824,39 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#extension-map-where-to-change-what" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extension map (where to change what)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extension map (where to change what)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-to-do-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do now
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification signal
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#hot-reload-local-dev" class="md-nav__link">
     <span class="md-ellipsis">
       Hot reload (local dev)
@@ -1460,6 +1493,39 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#extension-map-where-to-change-what" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extension map (where to change what)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extension map (where to change what)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-to-do-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do now
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification signal
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#hot-reload-local-dev" class="md-nav__link">
@@ -2281,6 +2347,39 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#extension-map-where-to-change-what" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extension map (where to change what)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extension map (where to change what)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-to-do-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do now
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification signal
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#hot-reload-local-dev" class="md-nav__link">
     <span class="md-ellipsis">
       Hot reload (local dev)
@@ -2399,6 +2498,86 @@ same branch. Start with:</p>
 <li><a href="../TEACHING_PLAYBOOK/">TEACHING_PLAYBOOK.md</a> (teaching-quality writing standards)</li>
 <li><a href="../MERGE_READINESS/">MERGE_READINESS.md</a> (merge gate expectations)</li>
 </ul>
+<h2 id="extension-map-where-to-change-what">Extension map (where to change what)<a class="headerlink" href="#extension-map-where-to-change-what" title="Permanent link">&para;</a></h2>
+<p>Use this map to pick the right seam before you start coding.</p>
+<h3 id="what-to-do-now">What to do now<a class="headerlink" href="#what-to-do-now" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Pick the lane below that matches your change.</li>
+<li>Edit only the primary files first, then run the lane tests.</li>
+<li>Update the linked docs page in the same branch.</li>
+</ol>
+<h3 id="verification-signal">Verification signal<a class="headerlink" href="#verification-signal" title="Permanent link">&para;</a></h3>
+<p>You can point to one lane, one focused test command, and one docs update for your PR.</p>
+<table>
+<thead>
+<tr>
+<th>Change type</th>
+<th>Primary edit locations</th>
+<th>Tests to run first</th>
+<th>Docs to update</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Student join/session behavior</td>
+<td><code>services/classhub/hub/views/student.py</code>, <code>services/classhub/hub/middleware.py</code>, <code>services/classhub/hub/models.py</code></td>
+<td><code>python manage.py test hub.tests.JoinClassTests hub.tests_services.StudentSessionMiddlewareTests hub.tests.StudentDataControlsTests</code></td>
+<td><code>docs/CLASS_CODE_AUTH.md</code>, <code>docs/PRIVACY-ADDENDUM.md</code>, <code>docs/DECISIONS.md</code></td>
+</tr>
+<tr>
+<td>Teacher flows, OTP, roster, teaching UI</td>
+<td><code>services/classhub/hub/views/teacher.py</code>, <code>services/classhub/config/middleware.py</code>, <code>services/classhub/hub/forms.py</code></td>
+<td><code>python manage.py test hub.tests.TeacherPortalTests hub.tests.Teacher2FASetupTests</code></td>
+<td><code>docs/TEACHER_PORTAL.md</code>, <code>docs/SECURITY.md</code>, <code>docs/DECISIONS.md</code></td>
+</tr>
+<tr>
+<td>Upload validation, scanning, and downloads</td>
+<td><code>services/classhub/hub/services/upload_policy.py</code>, <code>services/classhub/hub/services/upload_validation.py</code>, <code>services/classhub/hub/services/upload_scan.py</code>, <code>services/classhub/hub/views/media.py</code></td>
+<td><code>python manage.py test hub.tests_services.UploadValidationServiceTests hub.tests_services.UploadScanServiceTests hub.tests.SubmissionDownloadHardeningTests</code></td>
+<td><code>docs/SECURITY.md</code>, <code>docs/PRIVACY-ADDENDUM.md</code>, <code>docs/RUNBOOK.md</code></td>
+</tr>
+<tr>
+<td>Markdown/content rendering and embed behavior</td>
+<td><code>services/classhub/hub/services/markdown_content.py</code>, <code>services/classhub/hub/services/content_links.py</code>, <code>services/classhub/hub/views/content.py</code>, templates under <code>services/classhub/templates/</code></td>
+<td><code>python manage.py test hub.tests_services.MarkdownContentServiceTests hub.tests_services.ContentLinksServiceTests</code></td>
+<td><code>docs/COURSE_AUTHORING.md</code>, <code>docs/DEVELOPMENT.md</code>, <code>docs/DECISIONS.md</code></td>
+</tr>
+<tr>
+<td>Helper policy, response behavior, backend routing</td>
+<td><code>services/homework_helper/tutor/policy.py</code>, <code>services/homework_helper/tutor/views.py</code>, <code>services/homework_helper/tutor/fixtures/policy_prompts.md</code></td>
+<td><code>python manage.py test tutor.tests.HelperChatAuthTests</code></td>
+<td><code>docs/HELPER_POLICY.md</code>, <code>docs/OPENAI_HELPER.md</code>, <code>docs/DECISIONS.md</code></td>
+</tr>
+<tr>
+<td>Shared rate limiting / request safety / IP behavior</td>
+<td><code>services/common/request_safety/__init__.py</code>, <code>services/common/helper_scope.py</code>, integration points in classhub/helper views</td>
+<td><code>python manage.py test hub.tests_services.RequestSafetyRateLimitResilienceTests tutor.tests.HelperChatAuthTests</code></td>
+<td><code>docs/REQUEST_SAFETY.md</code>, <code>docs/SECURITY_BASELINE.md</code>, <code>docs/DECISIONS.md</code></td>
+</tr>
+<tr>
+<td>New model fields or retention behavior</td>
+<td><code>services/classhub/hub/models.py</code>, migrations in <code>services/classhub/hub/migrations/</code>, retention commands in <code>services/classhub/hub/management/commands/</code></td>
+<td><code>python manage.py test hub.tests.StudentEventRetentionCommandTests hub.tests.SubmissionRetentionCommandTests hub.tests.StudentDataControlsTests</code></td>
+<td><code>docs/PRIVACY-ADDENDUM.md</code>, <code>docs/RUNBOOK.md</code>, <code>docs/DISASTER_RECOVERY.md</code></td>
+</tr>
+<tr>
+<td>Security headers / cache policy / browser hardening</td>
+<td><code>services/classhub/config/settings.py</code>, <code>services/classhub/config/middleware.py</code>, <code>services/homework_helper/config/settings.py</code>, <code>services/homework_helper/config/middleware.py</code>, <code>services/classhub/hub/http/headers.py</code></td>
+<td><code>python manage.py test hub.tests_security_headers.SecurityHeaderDriftTests hub.tests.ClassHubSecurityHeaderTests tutor.tests.HelperSecurityHeaderTests</code></td>
+<td><code>docs/SECURITY.md</code>, <code>docs/SECURITY_BASELINE.md</code>, <code>docs/DECISIONS.md</code></td>
+</tr>
+<tr>
+<td>Internal helper event ingest contract</td>
+<td><code>services/classhub/hub/views/internal.py</code>, <code>services/homework_helper/tutor/views.py</code> (<code>helper-chat</code> forwarder)</td>
+<td><code>python manage.py test hub.tests.InternalHelperEventEndpointTests tutor.tests.ClassHubEventForwardingTests</code></td>
+<td><code>docs/OPENAI_HELPER.md</code>, <code>docs/HELPER_EVALS.md</code>, <code>docs/DECISIONS.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>Notes:
+- Avoid adding new behavior to <code>services/classhub/hub/views/_legacy.py</code>; keep new work in <code>student.py</code>, <code>teacher.py</code>, <code>content.py</code>, <code>media.py</code>, or <code>internal.py</code>.
+- If you change data models, include migrations in the same PR and run <code>bash scripts/migration_gate.sh</code> before push.
+- After lane tests pass, run <code>bash scripts/system_doctor.sh --smoke-mode golden</code> before opening a PR.</p>
 <h2 id="hot-reload-local-dev">Hot reload (local dev)<a class="headerlink" href="#hot-reload-local-dev" title="Permanent link">&para;</a></h2>
 <p>The override file:</p>
 <ul>
@@ -2472,6 +2651,13 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 <p>Run Ruff from repo root:</p>
 <div class="highlight"><pre><span></span><code>ruff<span class="w"> </span>check<span class="w"> </span>services<span class="w"> </span>scripts
 </code></pre></div>
+<p>Run Bandit with the same config/scope as CI:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">bandit</span><span class="o">==</span><span class="m">1</span>.8.3
+bash<span class="w"> </span>scripts/run_bandit.sh
+</code></pre></div>
+<p>Optional modes:
+- <code>bash scripts/run_bandit.sh report /tmp/bandit-report.json</code>
+- <code>bash scripts/run_bandit.sh gate</code></p>
 <p>Repo formatting defaults are defined in:
 - <code>pyproject.toml</code> (Ruff baseline)
 - <code>.editorconfig</code> (line endings/indent/newline defaults)</p>
