@@ -10,10 +10,11 @@ import bleach
 import markdown as md
 import yaml
 from django.conf import settings
+from django.utils._os import safe_join
 
 from .content_links import build_asset_url
 
-_COURSES_DIR = Path(settings.CONTENT_ROOT) / "courses"
+_COURSE_SLUG_RE = re.compile(r"^[A-Za-z0-9_-]+$")
 _HEADING_LEVEL2_RE = re.compile(r"^##\s+(.+?)\s*$")
 _IMG_TAG_RE = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
 _IMG_SRC_RE = re.compile(r"""\bsrc\s*=\s*(?:"([^"]*)"|'([^']*)')""", re.IGNORECASE)
@@ -78,9 +79,31 @@ def validate_front_matter(front_matter_text: str, source: Path) -> None:
             )
 
 
+def _courses_dir() -> Path:
+    return (Path(settings.CONTENT_ROOT) / "courses").resolve()
+
+
+def _safe_course_file_path(course_slug: str, rel_path: str) -> Path | None:
+    slug = (course_slug or "").strip()
+    rel = (rel_path or "").strip()
+    if not _COURSE_SLUG_RE.fullmatch(slug):
+        return None
+    if not rel:
+        return None
+    base_dir = _courses_dir()
+    try:
+        joined = safe_join(str(base_dir), slug, rel)
+    except Exception:
+        return None
+    candidate = Path(joined).resolve()
+    if not candidate.is_relative_to(base_dir):
+        return None
+    return candidate
+
+
 def load_course_manifest(course_slug: str) -> dict:
-    manifest_path = _COURSES_DIR / course_slug / "course.yaml"
-    if not manifest_path.exists():
+    manifest_path = _safe_course_file_path(course_slug, "course.yaml")
+    if manifest_path is None or not manifest_path.exists():
         return {}
     mtime_ns = manifest_path.stat().st_mtime_ns
     return copy.deepcopy(_load_manifest_cached(str(manifest_path), mtime_ns))
@@ -90,15 +113,15 @@ def load_lesson_markdown(course_slug: str, lesson_slug: str) -> tuple[dict, str,
     """Return (front_matter, markdown_body, lesson_meta)."""
     manifest = load_course_manifest(course_slug)
     lessons = manifest.get("lessons") or []
-    match = next((l for l in lessons if (l.get("slug") == lesson_slug)), None)
+    match = next((l for l in lessons if isinstance(l, dict) and (l.get("slug") == lesson_slug)), None)
     if not match:
         return {}, "", {}
 
-    rel = match.get("file")
+    rel = str(match.get("file") or "").strip()
     if not rel:
         return {}, "", match
-    lesson_path = (_COURSES_DIR / course_slug / rel).resolve()
-    if not lesson_path.exists():
+    lesson_path = _safe_course_file_path(course_slug, rel)
+    if lesson_path is None or not lesson_path.exists():
         return {}, "", match
 
     mtime_ns = lesson_path.stat().st_mtime_ns

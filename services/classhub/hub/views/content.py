@@ -1,5 +1,7 @@
 """Course/markdown rendering endpoint callables."""
 
+import logging
+
 from django.conf import settings
 from django.db.utils import OperationalError, ProgrammingError
 from django.http import HttpResponse
@@ -26,6 +28,8 @@ from ..services.markdown_content import (
 )
 from ..services.release_state import lesson_release_override_map, lesson_release_state
 from ..services.upload_policy import front_matter_submission
+
+logger = logging.getLogger(__name__)
 
 
 def _helper_backend_label() -> str:
@@ -218,8 +222,14 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
 
     try:
         fm, body_md, lesson_meta = load_lesson_markdown(course_slug, lesson_slug)
-    except ValueError as exc:
-        return HttpResponse(f"Invalid lesson metadata: {exc}", status=500)
+    except ValueError:
+        logger.warning(
+            "lesson_metadata_invalid course_slug=%s lesson_slug=%s",
+            course_slug,
+            lesson_slug,
+            exc_info=True,
+        )
+        return HttpResponse("Lesson metadata invalid.", status=500)
     if not body_md:
         return HttpResponse("Lesson not found", status=404)
 

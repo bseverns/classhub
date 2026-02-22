@@ -1,5 +1,7 @@
 import zipfile
+import tempfile
 from io import BytesIO
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -13,6 +15,8 @@ from common.request_safety import fixed_window_allow, token_bucket_allow
 from .middleware import StudentSessionMiddleware
 from .models import Class, StudentIdentity
 from .services.markdown_content import (
+    load_course_manifest,
+    load_lesson_markdown,
     render_markdown_to_safe_html,
     split_lesson_markdown_for_audiences,
 )
@@ -222,6 +226,30 @@ class MarkdownContentServiceTests(SimpleTestCase):
         )
         self.assertIn('src="https://assets.example.org/lesson-asset/12/download"', html)
         self.assertIn('href="https://assets.example.org/lesson-video/4/stream"', html)
+
+    @override_settings(CONTENT_ROOT="/tmp/does-not-exist")
+    def test_load_course_manifest_rejects_invalid_course_slug(self):
+        self.assertEqual(load_course_manifest("../bad"), {})
+
+    def test_load_lesson_markdown_blocks_manifest_path_traversal(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            content_root = Path(tmpdir) / "content"
+            course_dir = content_root / "courses" / "demo"
+            course_dir.mkdir(parents=True, exist_ok=True)
+            outside = content_root / "outside.md"
+            outside.write_text("# outside\n", encoding="utf-8")
+            (course_dir / "course.yaml").write_text(
+                "lessons:\n"
+                "  - slug: lesson-1\n"
+                "    file: ../outside.md\n",
+                encoding="utf-8",
+            )
+            with override_settings(CONTENT_ROOT=str(content_root)):
+                fm, body, meta = load_lesson_markdown("demo", "lesson-1")
+
+        self.assertEqual(fm, {})
+        self.assertEqual(body, "")
+        self.assertEqual(meta.get("slug"), "lesson-1")
 
 
 class UploadScanServiceTests(SimpleTestCase):

@@ -13,6 +13,9 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Request safety and helper access posture](#request-safety-and-helper-access-posture)
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
 - [Deployment guardrails](#deployment-guardrails)
+- [Redirect target validation](#redirect-target-validation)
+- [Lesson file path containment](#lesson-file-path-containment)
+- [Error-response redaction](#error-response-redaction)
 - [Teacher authoring templates](#teacher-authoring-templates)
 - [Teacher UI comfort mode](#teacher-ui-comfort-mode)
 - [Helper scope signing](#helper-scope-signing)
@@ -266,6 +269,39 @@ Historical implementation logs and superseded decisions are archived by month in
 - Prevents CI from accidentally probing external placeholder domains while validating local compose stacks.
 - Prevents CI flakes when local model servers are reachable but model weights are not yet loaded.
 - Keeps strict smoke focused on route authorization outcomes instead of brittle intermediate login form internals.
+
+## Redirect target validation
+
+**Current decision:**
+- Dynamic redirects in teacher/admin workflows must pass through a same-origin internal redirect guard.
+- Redirect targets are constrained to local paths (`/teach`, `/admin`, `/material`, etc.), with scheme/host and `//` checks.
+- Legacy teacher routes use the same redirect guard to avoid drift.
+
+**Why this remains active:**
+- Prevents open-redirect regressions when request-derived query values are used to build redirect URLs.
+- Keeps redirect behavior explicit and reviewable for CodeQL and manual security review.
+
+## Lesson file path containment
+
+**Current decision:**
+- Course manifest and lesson file reads are resolved through a safe path join rooted at `CONTENT_ROOT/courses`.
+- Course slugs are validated before path resolution.
+- Lesson `file` values from manifest metadata are treated as untrusted and must remain inside the courses root.
+
+**Why this remains active:**
+- Prevents path traversal from malformed or compromised lesson metadata.
+- Preserves predictable content loading boundaries for self-hosted operators.
+
+## Error-response redaction
+
+**Current decision:**
+- User-facing lesson metadata errors return a generic 500 message.
+- Detailed exception context is logged server-side for maintainers.
+- Legacy lesson rendering path follows the same redaction behavior.
+
+**Why this remains active:**
+- Prevents exception internals from leaking through HTTP responses.
+- Preserves operator debugging signal without exposing stack/metadata details to end users.
 
 ## Retention defaults are nonzero
 

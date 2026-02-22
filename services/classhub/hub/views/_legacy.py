@@ -20,6 +20,7 @@ from urllib.parse import parse_qs, urlencode, urlparse
 from django.http import FileResponse, HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.middleware.csrf import get_token
@@ -867,6 +868,44 @@ def _safe_teacher_return_path(raw: str, fallback: str) -> str:
     return (raw or "").strip() or fallback
 
 
+def _teach_class_path(class_id: int | str) -> str:
+    try:
+        parsed_id = int(class_id)
+    except Exception:
+        return "/teach"
+    if parsed_id <= 0:
+        return "/teach"
+    return f"/teach/class/{parsed_id}"
+
+
+def _teach_module_path(module_id: int | str) -> str:
+    try:
+        parsed_id = int(module_id)
+    except Exception:
+        return "/teach"
+    if parsed_id <= 0:
+        return "/teach"
+    return f"/teach/module/{parsed_id}"
+
+
+def _safe_internal_redirect(request, to: str, fallback: str = "/teach"):
+    candidate = (to or "").strip() or fallback
+    if candidate.startswith("//"):
+        candidate = fallback
+    parsed = urlparse(candidate)
+    if parsed.scheme or parsed.netloc:
+        candidate = fallback
+    if not candidate.startswith("/"):
+        candidate = fallback
+    if not url_has_allowed_host_and_scheme(
+        candidate,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        candidate = fallback
+    return redirect(candidate)
+
+
 def _with_notice(path: str, notice: str = "", error: str = "") -> str:
     params = {}
     if notice:
@@ -1048,7 +1087,11 @@ def material_upload(request, material_id: int):
                     file=f,
                     note=note,
                 )
-                return redirect(f"/material/{material.id}/upload")
+                return _safe_internal_redirect(
+                    request,
+                    f"/material/{material.id}/upload",
+                    fallback="/student",
+                )
     submissions = Submission.objects.filter(material=material, student=request.student).all()
 
     return render(
@@ -1141,8 +1184,8 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
 
     try:
         fm, body_md, lesson_meta = _load_lesson_markdown(course_slug, lesson_slug)
-    except ValueError as exc:
-        return HttpResponse(f"Invalid lesson metadata: {exc}", status=500)
+    except ValueError:
+        return HttpResponse("Lesson metadata invalid.", status=500)
     if not body_md:
         return HttpResponse("Lesson not found", status=404)
 
@@ -1849,7 +1892,7 @@ def teach_videos(request):
 
         if not error:
             query = _lesson_video_redirect_params(selected_course_slug, selected_lesson_slug, class_id, notice)
-            return redirect(f"/teach/videos?{query}")
+            return _safe_internal_redirect(request, f"/teach/videos?{query}", fallback="/teach/videos")
 
     lesson_video_rows = list(
         LessonVideo.objects.filter(course_slug=selected_course_slug, lesson_slug=selected_lesson_slug)
@@ -2019,7 +2062,7 @@ def teach_assets(request):
                 status=status,
                 notice=notice,
             )
-            return redirect(f"/teach/assets?{query}")
+            return _safe_internal_redirect(request, f"/teach/assets?{query}", fallback="/teach/assets")
 
     asset_qs = LessonAsset.objects.select_related("folder").all()
     if selected_folder_id:
@@ -2129,19 +2172,27 @@ def teach_set_lesson_release(request):
 
     classroom = Class.objects.filter(id=class_id).first()
     if not classroom:
-        return redirect(_with_notice(return_to, error="Class not found."))
+        return _safe_internal_redirect(request, _with_notice(return_to, error="Class not found."), fallback=return_to)
 
     course_slug = (request.POST.get("course_slug") or "").strip()
     lesson_slug = (request.POST.get("lesson_slug") or "").strip()
     if not course_slug or not lesson_slug:
-        return redirect(_with_notice(return_to, error="Missing course or lesson slug."))
+        return _safe_internal_redirect(
+            request,
+            _with_notice(return_to, error="Missing course or lesson slug."),
+            fallback=return_to,
+        )
 
     action = (request.POST.get("action") or "").strip()
     try:
         LessonRelease.objects.only("id").first()
     except (OperationalError, ProgrammingError) as exc:
         if "hub_lessonrelease" in str(exc).lower():
-            return redirect(_with_notice(return_to, error="Lesson release table is missing. Run `python manage.py migrate`."))
+            return _safe_internal_redirect(
+                request,
+                _with_notice(return_to, error="Lesson release table is missing. Run `python manage.py migrate`."),
+                fallback=return_to,
+            )
         raise
 
     release = LessonRelease.objects.filter(
@@ -2154,7 +2205,11 @@ def teach_set_lesson_release(request):
         raw_date = (request.POST.get("available_on") or "").strip()
         parsed_date = _parse_release_date(raw_date)
         if parsed_date is None:
-            return redirect(_with_notice(return_to, error="Enter a valid date (YYYY-MM-DD)."))
+            return _safe_internal_redirect(
+                request,
+                _with_notice(return_to, error="Enter a valid date (YYYY-MM-DD)."),
+                fallback=return_to,
+            )
         if release is None:
             release = LessonRelease(
                 classroom=classroom,
@@ -2164,7 +2219,11 @@ def teach_set_lesson_release(request):
         release.available_on = parsed_date
         release.force_locked = False
         release.save()
-        return redirect(_with_notice(return_to, notice=f"Release date set to {parsed_date.isoformat()}."))
+        return _safe_internal_redirect(
+            request,
+            _with_notice(return_to, notice=f"Release date set to {parsed_date.isoformat()}."),
+            fallback=return_to,
+        )
 
     if action == "toggle_lock":
         if release is None:
@@ -2174,12 +2233,24 @@ def teach_set_lesson_release(request):
                 lesson_slug=lesson_slug,
                 force_locked=True,
             )
-            return redirect(_with_notice(return_to, notice="Lesson locked."))
+            return _safe_internal_redirect(
+                request,
+                _with_notice(return_to, notice="Lesson locked."),
+                fallback=return_to,
+            )
         release.force_locked = not release.force_locked
         release.save(update_fields=["force_locked", "updated_at"])
         if release.force_locked:
-            return redirect(_with_notice(return_to, notice="Lesson locked."))
-        return redirect(_with_notice(return_to, notice="Lesson lock removed."))
+            return _safe_internal_redirect(
+                request,
+                _with_notice(return_to, notice="Lesson locked."),
+                fallback=return_to,
+            )
+        return _safe_internal_redirect(
+            request,
+            _with_notice(return_to, notice="Lesson lock removed."),
+            fallback=return_to,
+        )
 
     if action == "unlock_now":
         if release is None:
@@ -2191,7 +2262,11 @@ def teach_set_lesson_release(request):
         release.available_on = None
         release.force_locked = False
         release.save()
-        return redirect(_with_notice(return_to, notice="Lesson opened now for this class."))
+        return _safe_internal_redirect(
+            request,
+            _with_notice(return_to, notice="Lesson opened now for this class."),
+            fallback=return_to,
+        )
 
     if action == "reset_default":
         LessonRelease.objects.filter(
@@ -2199,9 +2274,17 @@ def teach_set_lesson_release(request):
             course_slug=course_slug,
             lesson_slug=lesson_slug,
         ).delete()
-        return redirect(_with_notice(return_to, notice="Lesson release reset to content default."))
+        return _safe_internal_redirect(
+            request,
+            _with_notice(return_to, notice="Lesson release reset to content default."),
+            fallback=return_to,
+        )
 
-    return redirect(_with_notice(return_to, error="Unknown release action."))
+    return _safe_internal_redirect(
+        request,
+        _with_notice(return_to, error="Unknown release action."),
+        fallback=return_to,
+    )
 
 
 @staff_member_required
@@ -2209,7 +2292,7 @@ def teach_set_lesson_release(request):
 def teach_create_class(request):
     name = (request.POST.get("name") or "").strip()[:200]
     if not name:
-        return redirect("/teach")
+        return _safe_internal_redirect(request, "/teach", fallback="/teach")
 
     # join_code must be unique; retry a few times in the unlikely collision case.
     join_code = gen_class_code()
@@ -2219,7 +2302,7 @@ def teach_create_class(request):
         join_code = gen_class_code()
 
     Class.objects.create(name=name, join_code=join_code)
-    return redirect("/teach")
+    return _safe_internal_redirect(request, "/teach", fallback="/teach")
 
 
 @staff_member_required
@@ -2280,7 +2363,7 @@ def teach_toggle_lock(request, class_id: int):
         return HttpResponse("Not found", status=404)
     classroom.is_locked = not classroom.is_locked
     classroom.save(update_fields=["is_locked"])
-    return redirect(f"/teach/class/{classroom.id}")
+    return _safe_internal_redirect(request, _teach_class_path(classroom.id), fallback="/teach")
 
 
 @staff_member_required
@@ -2299,7 +2382,7 @@ def teach_rotate_code(request, class_id: int):
 
     classroom.join_code = join_code
     classroom.save(update_fields=["join_code"])
-    return redirect(f"/teach/class/{classroom.id}")
+    return _safe_internal_redirect(request, _teach_class_path(classroom.id), fallback="/teach")
 
 
 @staff_member_required
@@ -2311,13 +2394,13 @@ def teach_add_module(request, class_id: int):
 
     title = (request.POST.get("title") or "").strip()[:200]
     if not title:
-        return redirect(f"/teach/class/{class_id}")
+        return _safe_internal_redirect(request, _teach_class_path(classroom.id), fallback="/teach")
 
     max_idx = classroom.modules.aggregate(models.Max("order_index")).get("order_index__max")
     order_index = int(max_idx) + 1 if max_idx is not None else 0
 
     mod = Module.objects.create(classroom=classroom, title=title, order_index=order_index)
-    return redirect(f"/teach/module/{mod.id}")
+    return _safe_internal_redirect(request, _teach_module_path(mod.id), fallback=_teach_class_path(classroom.id))
 
 
 @staff_member_required
@@ -2335,7 +2418,7 @@ def teach_move_module(request, class_id: int):
 
     idx = next((i for i, m in enumerate(modules) if m.id == module_id), None)
     if idx is None:
-        return redirect(f"/teach/class/{class_id}")
+        return _safe_internal_redirect(request, _teach_class_path(classroom.id), fallback="/teach")
 
     if direction == "up" and idx > 0:
         modules[idx - 1], modules[idx] = modules[idx], modules[idx - 1]
@@ -2347,7 +2430,7 @@ def teach_move_module(request, class_id: int):
             m.order_index = i
             m.save(update_fields=["order_index"])
 
-    return redirect(f"/teach/class/{class_id}")
+    return _safe_internal_redirect(request, _teach_class_path(classroom.id), fallback="/teach")
 
 
 @staff_member_required
@@ -2382,7 +2465,7 @@ def teach_add_material(request, module_id: int):
     mtype = (request.POST.get("type") or Material.TYPE_LINK).strip()
     title = (request.POST.get("title") or "").strip()[:200]
     if not title:
-        return redirect(f"/teach/module/{module_id}")
+        return _safe_internal_redirect(request, _teach_module_path(module.id), fallback=_teach_class_path(module.classroom_id))
 
     max_idx = module.materials.aggregate(models.Max("order_index")).get("order_index__max")
     order_index = int(max_idx) + 1 if max_idx is not None else 0
@@ -2403,7 +2486,7 @@ def teach_add_material(request, module_id: int):
             mat.max_upload_mb = 50
         mat.save(update_fields=["accepted_extensions", "max_upload_mb"])
 
-    return redirect(f"/teach/module/{module_id}")
+    return _safe_internal_redirect(request, _teach_module_path(module.id), fallback=_teach_class_path(module.classroom_id))
 
 
 @staff_member_required
@@ -2421,7 +2504,7 @@ def teach_move_material(request, module_id: int):
 
     idx = next((i for i, m in enumerate(mats) if m.id == material_id), None)
     if idx is None:
-        return redirect(f"/teach/module/{module_id}")
+        return _safe_internal_redirect(request, _teach_module_path(module.id), fallback=_teach_class_path(module.classroom_id))
 
     if direction == "up" and idx > 0:
         mats[idx - 1], mats[idx] = mats[idx], mats[idx - 1]
@@ -2433,7 +2516,7 @@ def teach_move_material(request, module_id: int):
             m.order_index = i
             m.save(update_fields=["order_index"])
 
-    return redirect(f"/teach/module/{module_id}")
+    return _safe_internal_redirect(request, _teach_module_path(module.id), fallback=_teach_class_path(module.classroom_id))
 
 
 def _safe_filename(s: str) -> str:

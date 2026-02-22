@@ -107,6 +107,13 @@ Optional Caddy controls for `/admin*` and `/teach*`:
 
 These controls are additive to Django auth + OTP.
 
+## Redirect and path hardening
+
+- Dynamic teacher/admin redirects are guarded as local, same-origin paths before redirect responses are returned.
+- Lesson/course file resolution is rooted under `CONTENT_ROOT/courses` with safe path join + containment checks.
+- Manifest lesson `file` values are treated as untrusted metadata and rejected when they escape the content root.
+- Lesson metadata parse failures return a generic 500 response; detailed exception context is logged server-side.
+
 ## Data handling and retention
 
 Field-level lifecycle details (exact fields, TTL knobs, deletion controls): [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md).

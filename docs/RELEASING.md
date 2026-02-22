@@ -82,6 +82,14 @@ Use this as the standard release appendix/checklist.
 ### Content and XSS safety
 - Markdown rendering is sanitized (Bleach allowlist) before display.
 - Images are optional and gated by config; external hosts may be allowlisted.
+- Lesson metadata parse failures return generic user-facing errors; detailed exceptions stay server-side.
+
+### Security hardening notes (include when applicable)
+Add these bullets to the release summary when shipped:
+- Redirect hardening: dynamic teacher/admin redirects now pass through same-origin internal redirect validation.
+- Path containment: lesson/template file resolution is rooted with safe path join and boundary checks.
+- Error redaction: exception details are removed from end-user HTTP responses for lesson metadata failures.
+- Verification: CodeQL alerts for `py/url-redirection`, `py/path_injection`, and `py/stack-trace-exposure` were re-run and reviewed.
 
 ### Uploads and file safety
 - Upload limits are enforced at both layers:

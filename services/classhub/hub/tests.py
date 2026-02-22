@@ -343,6 +343,18 @@ class TeacherPortalTests(TestCase):
         self.assertIsNotNone(event)
         self.assertEqual(event.actor_user_id, self.staff.id)
 
+    def test_staff_download_authoring_template_rejects_invalid_kind(self):
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.get("/teach/authoring-template/download?slug=sample_slug&kind=unknown_kind")
+        self.assertEqual(resp.status_code, 400)
+        self.assertContains(resp, "Invalid template kind.")
+
+    def test_staff_download_authoring_template_rejects_traversal_slug(self):
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.get("/teach/authoring-template/download?slug=..%2Fetc%2Fpasswd&kind=teacher_plan_md")
+        self.assertEqual(resp.status_code, 400)
+        self.assertContains(resp, "Invalid template slug.")
+
     def test_teacher_logout_ends_staff_session(self):
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.get("/teach/logout")
@@ -823,6 +835,14 @@ class LessonReleaseTests(TestCase):
         self.assertContains(resp, "••••••")
         self.assertNotContains(resp, f">{self.student.return_code}<", html=False)
         self.assertContains(resp, "Copy return code")
+
+    @patch("hub.views.content.load_course_manifest", return_value={"title": "Demo", "lessons": [{"slug": "demo-lesson"}]})
+    @patch("hub.views.content.load_lesson_markdown", side_effect=ValueError("secret details should not leak"))
+    def test_course_lesson_does_not_expose_metadata_exception_details(self, _mock_lesson, _mock_manifest):
+        resp = self.client.get("/course/demo-course/demo-lesson")
+        self.assertEqual(resp.status_code, 500)
+        self.assertContains(resp, "Lesson metadata invalid.", status_code=500)
+        self.assertNotContains(resp, "secret details should not leak", status_code=500)
 
     def test_student_upload_is_blocked_before_release(self):
         locked_until = timezone.localdate() + timedelta(days=2)
