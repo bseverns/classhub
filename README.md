@@ -1,5 +1,10 @@
 # Self-Hosted Class Hub + Homework Helper (Django)
 
+[![test-suite](https://github.com/bseverns/ClassHub/actions/workflows/test-suite.yml/badge.svg)](https://github.com/bseverns/ClassHub/actions/workflows/test-suite.yml)
+[![security](https://github.com/bseverns/ClassHub/actions/workflows/security.yml/badge.svg)](https://github.com/bseverns/ClassHub/actions/workflows/security.yml)
+[![docs](https://github.com/bseverns/ClassHub/actions/workflows/docs.yml/badge.svg)](https://github.com/bseverns/ClassHub/actions/workflows/docs.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Class Hub is a classroom-first, self-hosted micro-LMS with a separate Homework Helper service.
 
 - Public overview: `docs/PUBLIC_OVERVIEW.md`
@@ -52,6 +57,7 @@ Then open:
 ## Contributing + press
 
 - Contributing guide: `CONTRIBUTING.md`
+- Changelog: `CHANGELOG.md`
 - Press kit: `press/README.md`
 
 A lightweight, self-hosted LMS focused on reliable classroom operations.

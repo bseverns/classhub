@@ -119,6 +119,16 @@ _DEFAULT_CSP_POLICY = (
     "script-src 'self' 'unsafe-inline'; "
     "connect-src 'self' https:;"
 )
+_DEFAULT_CSP_REPORT_ONLY_POLICY = (
+    "default-src 'self'; "
+    "base-uri 'self'; "
+    "object-src 'none'; "
+    "frame-ancestors 'self'; "
+    "img-src 'self' data: https:; "
+    "style-src 'self'; "
+    "script-src 'self'; "
+    "connect-src 'self' https:;"
+)
 _DEFAULT_PERMISSIONS_POLICY = (
     "accelerometer=(), autoplay=(), camera=(), clipboard-read=(), "
     "clipboard-write=(self), display-capture=(), encrypted-media=(), "
@@ -181,7 +191,7 @@ CSP_POLICY = env(
 ).strip()
 CSP_REPORT_ONLY_POLICY = env(
     "DJANGO_CSP_REPORT_ONLY_POLICY",
-    default=("" if DEBUG else _DEFAULT_CSP_POLICY),
+    default=("" if DEBUG else _DEFAULT_CSP_REPORT_ONLY_POLICY),
 ).strip()
 PERMISSIONS_POLICY = env(
     "DJANGO_PERMISSIONS_POLICY",

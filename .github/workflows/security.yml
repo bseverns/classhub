@@ -28,3 +28,18 @@ jobs:
         run: pip-audit -r services/classhub/requirements.txt --progress-spinner off
       - name: Audit helper dependencies
         run: pip-audit -r services/homework_helper/requirements.txt --progress-spinner off
+
+  sast-bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Bandit
+        run: pip install bandit==1.8.3
+      - name: Bandit high-confidence high-severity scan
+        run: |
+          bandit -r services/classhub services/homework_helper \
+            -x "*/migrations/*,*/tests.py,*/tests_services.py" \
+            -lll -iii
