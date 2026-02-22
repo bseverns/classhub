@@ -120,9 +120,9 @@ Verification signal: a fresh run creates a new empty DB before you load the demo
   - `X-Robots-Tag: noindex, nofollow, noarchive`
   - `robots.txt` with `Disallow: /`
 - If you run an internet-facing demo, apply operator controls from:
-  - `docs/SECURITY.md`
-  - `docs/DAY1_DEPLOY_CHECKLIST.md`
-  - `docs/START_HERE.md`
+  - [SECURITY.md](SECURITY.md)
+  - [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
+  - [START_HERE.md](START_HERE.md)
 
 Quick check:
 
@@ -131,4 +131,4 @@ curl -I http://localhost/ | grep -i x-robots-tag
 curl -s http://localhost/robots.txt
 ```
 
-If you hit startup issues, use `docs/TROUBLESHOOTING.md`.
+If you hit startup issues, use [TROUBLESHOOTING.md](TROUBLESHOOTING.md).

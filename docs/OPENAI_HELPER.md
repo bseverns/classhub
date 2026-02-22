@@ -282,7 +282,7 @@ sequenceDiagram
 Canonical policy notes live in:
 
 - `services/homework_helper/tutor/fixtures/policy_prompts.md`
-- `docs/HELPER_POLICY.md`
+- [HELPER_POLICY.md](HELPER_POLICY.md)
 
 ## RAG (planned)
 
@@ -291,4 +291,4 @@ Phase 2 will retrieve relevant snippets from class materials and include citatio
 ## Evals (recommended)
 
 - `services/homework_helper/tutor/fixtures/eval_prompts.jsonl`
-- `docs/HELPER_EVALS.md`
+- [HELPER_EVALS.md](HELPER_EVALS.md)

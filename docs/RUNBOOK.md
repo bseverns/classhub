@@ -2,7 +2,7 @@
 
 This is the operator playbook for running the stack safely in production.
 
-If you are new, start with `docs/START_HERE.md` and `docs/DAY1_DEPLOY_CHECKLIST.md` first.
+If you are new, start with [START_HERE.md](START_HERE.md) and [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) first.
 
 ```mermaid
 flowchart TD
@@ -261,9 +261,9 @@ CADDY_HELPER_MAX_BODY=1MB
 
 ### Teacher account workflow
 
-- `docs/TEACHER_PORTAL.md`
-- `docs/TEACHER_HANDOFF_CHECKLIST.md`
-- `docs/TEACHER_HANDOFF_RECORD_TEMPLATE.md`
+- [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
+- [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.md)
+- [TEACHER_HANDOFF_RECORD_TEMPLATE.md](TEACHER_HANDOFF_RECORD_TEMPLATE.md)
 
 Helper script:
 
@@ -288,7 +288,7 @@ Backup scripts:
 
 Disaster recovery guide:
 
-- `docs/DISASTER_RECOVERY.md`
+- [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 
 Recommended restore drill:
 
@@ -319,7 +319,7 @@ python3 scripts/lint_release_artifact.py /srv/lms/releases/classhub_release.zip
 
 Release packaging policy and verification details:
 
-- `docs/RELEASING.md`
+- [RELEASING.md](RELEASING.md)
 
 ## Retention operations
 
@@ -467,7 +467,7 @@ journalctl -u classhub-retention.service -n 200 --no-pager
 
 ## Escalate when
 
-Move to incident workflow (`docs/TROUBLESHOOTING.md`, then `docs/DISASTER_RECOVERY.md`) when any of these are true:
+Move to incident workflow ([TROUBLESHOOTING.md](TROUBLESHOOTING.md), then [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)) when any of these are true:
 
 - health checks still fail after config verification
 - migrations fail in production

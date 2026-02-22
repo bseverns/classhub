@@ -297,7 +297,7 @@ docker compose exec -T helper_web python manage.py test tutor.tests
 
 ## Escalation criteria
 
-Escalate to full incident workflow (`docs/DISASTER_RECOVERY.md`) when:
+Escalate to full incident workflow ([DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)) when:
 
 - health checks fail after restart and config verification
 - migrations fail in production

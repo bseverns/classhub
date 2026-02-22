@@ -17,10 +17,10 @@ flowchart LR
   F --> G[Open PR]
 ```
 
-- `docs/README.md` (documentation contract)
-- `docs/START_HERE.md` (navigation map)
-- `docs/TEACHING_PLAYBOOK.md` (teaching-quality writing standards)
-- `docs/MERGE_READINESS.md` (merge gate expectations)
+- [index.md](index.md) (documentation contract)
+- [START_HERE.md](START_HERE.md) (navigation map)
+- [TEACHING_PLAYBOOK.md](TEACHING_PLAYBOOK.md) (teaching-quality writing standards)
+- [MERGE_READINESS.md](MERGE_READINESS.md) (merge gate expectations)
 
 ## Hot reload (local dev)
 

@@ -1,8 +1,8 @@
 # Class Hub + Helper: What / Where / Why (Plain-Language Guide)
 
 This guide is for non-programmer staff who need to run, demo, or support the LMS.
-For the canonical role-based doc map and URL list, start at `docs/START_HERE.md`.
-For guided onboarding labs, use `docs/LEARNING_PATHS.md`.
+For the canonical role-based doc map and URL list, start at [START_HERE.md](START_HERE.md).
+For guided onboarding labs, use [LEARNING_PATHS.md](LEARNING_PATHS.md).
 
 ## What this system is
 
@@ -25,8 +25,8 @@ flowchart TD
 
 ## Where to go
 
-Use common route list in `docs/START_HERE.md#common-urls`.
-Use role-based docs list in `docs/START_HERE.md#fast-path-by-role`.
+Use common route list in [START_HERE.md#common-urls](START_HERE.md#common-urls).
+Use role-based docs list in [START_HERE.md#quick-picks-by-role](START_HERE.md#quick-picks-by-role).
 
 ## Why the system is split this way
 
@@ -43,7 +43,7 @@ Use role-based docs list in `docs/START_HERE.md#fast-path-by-role`.
 4. Confirm helper responds inside lesson/class page.
 5. Confirm teacher can see submissions queue.
 
-Detailed operator run steps: `docs/RUNBOOK.md`
+Detailed operator run steps: [RUNBOOK.md](RUNBOOK.md)
 
 ## If something is wrong
 
@@ -60,6 +60,6 @@ Detailed operator run steps: `docs/RUNBOOK.md`
 
 ## What to read next
 
-- Role-specific paths: `docs/START_HERE.md`
-- Teacher workflow details: `docs/TEACHER_PORTAL.md`
-- Operations depth: `docs/RUNBOOK.md`
+- Role-specific paths: [START_HERE.md](START_HERE.md)
+- Teacher workflow details: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
+- Operations depth: [RUNBOOK.md](RUNBOOK.md)

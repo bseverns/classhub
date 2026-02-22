@@ -9,8 +9,8 @@ It exists to:
 - keep student data minimal and deletable
 - generate a shareable story others can replicate
 
-If you are deploying for the first time, do `docs/DAY1_DEPLOY_CHECKLIST.md` first.
-If you are teaching tomorrow, do `docs/NON_DEVELOPER_GUIDE.md` + `docs/TEACHER_PORTAL.md`.
+If you are deploying for the first time, do [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) first.
+If you are teaching tomorrow, do [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md) + [TEACHER_PORTAL.md](TEACHER_PORTAL.md).
 
 ## What to do now
 1. Copy the “Pilot config profile” section into `compose/.env` as deltas (do not overwrite secrets).

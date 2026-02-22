@@ -36,8 +36,8 @@ Historical implementation logs and superseded decisions are archived by month in
 
 ## Archive Index
 
-- `docs/decisions/archive/2026-02.md`
-- `docs/decisions/archive/2026-01.md`
+- [decisions/archive/2026-02.md](decisions/archive/2026-02.md)
+- [decisions/archive/2026-01.md](decisions/archive/2026-01.md)
 
 ## Release verdict: 2026-02-21 hardening/polish push
 
@@ -192,11 +192,11 @@ Historical implementation logs and superseded decisions are archived by month in
 
 **Current decision:**
 - Documentation is treated as a core deliverable, not a trailing artifact.
-- Role-based entrypoint remains `docs/START_HERE.md`.
-- Documentation contract and standards are centralized in `docs/README.md`.
-- Guided, hands-on learning tracks are maintained in `docs/LEARNING_PATHS.md`.
-- Symptom-first operational triage is maintained in `docs/TROUBLESHOOTING.md`.
-- Documentation pedagogy and maintainer writing standards are maintained in `docs/TEACHING_PLAYBOOK.md`.
+- Role-based entrypoint remains [START_HERE.md](START_HERE.md).
+- Documentation contract and standards are centralized in [index.md](index.md).
+- Guided, hands-on learning tracks are maintained in [LEARNING_PATHS.md](LEARNING_PATHS.md).
+- Symptom-first operational triage is maintained in [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+- Documentation pedagogy and maintainer writing standards are maintained in [TEACHING_PLAYBOOK.md](TEACHING_PLAYBOOK.md).
 
 **Why this remains active:**
 - This repository is both an operational system and a teaching object.
@@ -434,10 +434,10 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Progressive docs layering for non-developers
 
 **Current decision:**
-- Introduce a dedicated non-developer entry page: `docs/NON_DEVELOPER_GUIDE.md`.
-- Keep `docs/START_HERE.md` short and role-based with minimal links per audience.
-- Keep `docs/README.md` as a concise docs index (not a wall of policy text).
-- Keep deep ops docs (`docs/RUNBOOK.md`, `docs/TROUBLESHOOTING.md`) in quick-action-first format with command blocks and symptom indexing.
+- Introduce a dedicated non-developer entry page: [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md).
+- Keep [START_HERE.md](START_HERE.md) short and role-based with minimal links per audience.
+- Keep [index.md](index.md) as a concise docs index (not a wall of policy text).
+- Keep deep ops docs ([RUNBOOK.md](RUNBOOK.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md)) in quick-action-first format with command blocks and symptom indexing.
 
 **Why this remains active:**
 - Most readers need task guidance, not full architecture context.
@@ -511,7 +511,7 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Public-domain hardening pass (CSP enforcement, proxy armor, degradation modes)
 
 **Current decision:**
-- Security header and cache ownership is documented in one place: `docs/SECURITY_BASELINE.md`.
+- Security header and cache ownership is documented in one place: [SECURITY_BASELINE.md](SECURITY_BASELINE.md).
 - Class Hub and Helper now support enforced CSP via `DJANGO_CSP_POLICY` while still emitting report-only CSP via `DJANGO_CSP_REPORT_ONLY_POLICY`.
 - Security headers are attached consistently by middleware (`Permissions-Policy`, `Referrer-Policy`, `X-Frame-Options`, plus CSP headers).
 - Caddy templates now support optional teacher/admin edge armor:
@@ -546,7 +546,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Add teacher per-student data deletion control from class roster, with explicit confirmation and session invalidation.
 - Add explicit helper backend visibility in UI (`Local model (Ollama)` vs `Remote model (OpenAI)` badge).
 - Make remote helper mode (`openai`) require explicit operator acknowledgment (`HELPER_REMOTE_MODE_ACKNOWLEDGED=1`) before chat is allowed.
-- Add project-level `docs/PRIVACY-ADDENDUM.md` as field-level source of truth for lifecycle and deletion paths.
+- Add project-level [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md) as field-level source of truth for lifecycle and deletion paths.
 
 **Why this remains active:**
 - Makes the privacy bargain visible in-product, not only in repository docs.

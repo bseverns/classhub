@@ -86,6 +86,6 @@ docker compose exec classhub_web python manage.py create_teacher \
 
 ## Quick links
 
-- Teacher account guide: `docs/TEACHER_PORTAL.md`
+- Teacher account guide: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - Command cookbook script: `scripts/examples/teacher_accounts.sh`
-- Handoff record template: `docs/TEACHER_HANDOFF_RECORD_TEMPLATE.md`
+- Handoff record template: [TEACHER_HANDOFF_RECORD_TEMPLATE.md](TEACHER_HANDOFF_RECORD_TEMPLATE.md)

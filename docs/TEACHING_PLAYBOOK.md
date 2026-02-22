@@ -47,11 +47,11 @@ For each non-trivial feature, ship a documentation packet:
   - most likely break and first recovery action.
 
 Where each part should live:
-- architecture note: `docs/ARCHITECTURE.md` or `docs/WHAT_WHERE_WHY.md`
-- decision note: `docs/DECISIONS.md`
-- operator procedure: `docs/RUNBOOK.md` or `docs/TROUBLESHOOTING.md`
-- verification: `docs/MERGE_READINESS.md` and test commands in context docs
-- failure mode: `docs/TROUBLESHOOTING.md`
+- architecture note: [ARCHITECTURE.md](ARCHITECTURE.md) or [WHAT_WHERE_WHY.md](WHAT_WHERE_WHY.md)
+- decision note: [DECISIONS.md](DECISIONS.md)
+- operator procedure: [RUNBOOK.md](RUNBOOK.md) or [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- verification: [MERGE_READINESS.md](MERGE_READINESS.md) and test commands in context docs
+- failure mode: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ## Writing style contract
 
@@ -95,7 +95,7 @@ Failure mode and recovery:
 - symptom: repeated `current transaction is aborted` during helper tests.
 - first action: validate helper event writes are best-effort and do not poison
   transaction state; then rerun helper test suite.
-- reference: `docs/TROUBLESHOOTING.md`.
+- reference: [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ## Example packet: Dependency security upgrades
 
@@ -134,7 +134,7 @@ Recovery pattern:
 4. Hidden failure cases:
   - no mention of likely breakpoints.
 5. Orphan docs:
-  - page not linked from `docs/START_HERE.md` or `docs/README.md`.
+  - page not linked from [START_HERE.md](START_HERE.md) or [index.md](index.md).
 
 ## Maintainer review ritual
 
@@ -145,13 +145,13 @@ Before merging:
 3. Confirm one "what", one "why", one "how", and one "verify" statement exists.
 4. Ensure at least one failure mode is documented for each new operational flow.
 5. Link the change from a navigational page:
-  - `docs/START_HERE.md` for pathing
-  - `docs/README.md` for policy/contract
+  - [START_HERE.md](START_HERE.md) for pathing
+  - [index.md](index.md) for policy/contract
 
 ## Change log discipline
 
 If the change modifies behavior or operational posture:
 
-1. add/update entry in `docs/DECISIONS.md`.
+1. add/update entry in [DECISIONS.md](DECISIONS.md).
 2. archive superseded details in `docs/decisions/archive/` when needed.
 3. keep active decisions concise and linked to the deeper procedure docs.

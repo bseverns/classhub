@@ -19,11 +19,11 @@ Time budget:
 - 60 to 90 minutes
 
 Read in order:
-1. `docs/START_HERE.md`
-2. `docs/DAY1_DEPLOY_CHECKLIST.md`
-3. `docs/RUNBOOK.md`
-4. `docs/TROUBLESHOOTING.md`
-5. `docs/SECURITY.md`
+1. [START_HERE.md](START_HERE.md)
+2. [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
+3. [RUNBOOK.md](RUNBOOK.md)
+4. [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+5. [SECURITY.md](SECURITY.md)
 
 Hands-on lab:
 
@@ -70,11 +70,11 @@ Time budget:
 - 75 to 120 minutes
 
 Read in order:
-1. `docs/WHAT_WHERE_WHY.md`
-2. `docs/ARCHITECTURE.md`
-3. `docs/CLASS_CODE_AUTH.md`
-4. `docs/REQUEST_SAFETY.md`
-5. `docs/DECISIONS.md`
+1. [WHAT_WHERE_WHY.md](WHAT_WHERE_WHY.md)
+2. [ARCHITECTURE.md](ARCHITECTURE.md)
+3. [CLASS_CODE_AUTH.md](CLASS_CODE_AUTH.md)
+4. [REQUEST_SAFETY.md](REQUEST_SAFETY.md)
+5. [DECISIONS.md](DECISIONS.md)
 
 Hands-on lab:
 
@@ -116,11 +116,11 @@ Time budget:
 - 60 to 90 minutes
 
 Read in order:
-1. `docs/HELPER_POLICY.md`
-2. `docs/OPENAI_HELPER.md`
-3. `docs/REQUEST_SAFETY.md`
-4. `docs/SECURITY.md`
-5. `docs/HELPER_EVALS.md`
+1. [HELPER_POLICY.md](HELPER_POLICY.md)
+2. [OPENAI_HELPER.md](OPENAI_HELPER.md)
+3. [REQUEST_SAFETY.md](REQUEST_SAFETY.md)
+4. [SECURITY.md](SECURITY.md)
+5. [HELPER_EVALS.md](HELPER_EVALS.md)
 
 Key invariants to internalize:
 - students require signed scope tokens
@@ -168,10 +168,10 @@ Time budget:
 - 60 to 100 minutes
 
 Read in order:
-1. `docs/TEACHER_PORTAL.md`
-2. `docs/COURSE_AUTHORING.md`
-3. `docs/TEACHER_HANDOFF_CHECKLIST.md`
-4. `docs/TEACHER_HANDOFF_RECORD_TEMPLATE.md`
+1. [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
+2. [COURSE_AUTHORING.md](COURSE_AUTHORING.md)
+3. [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.md)
+4. [TEACHER_HANDOFF_RECORD_TEMPLATE.md](TEACHER_HANDOFF_RECORD_TEMPLATE.md)
 
 Hands-on lab:
 
@@ -212,10 +212,10 @@ Time budget:
 - 45 to 75 minutes
 
 Read in order:
-1. `docs/DEVELOPMENT.md`
-2. `docs/MERGE_READINESS.md`
-3. `docs/SECURITY.md`
-4. `docs/DECISIONS.md`
+1. [DEVELOPMENT.md](DEVELOPMENT.md)
+2. [MERGE_READINESS.md](MERGE_READINESS.md)
+3. [SECURITY.md](SECURITY.md)
+4. [DECISIONS.md](DECISIONS.md)
 
 Hands-on lab:
 

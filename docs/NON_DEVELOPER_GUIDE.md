@@ -2,7 +2,7 @@
 
 If you are not writing code, start here.
 
-You do not need to read every docs file. For normal classroom use, this page plus `docs/TEACHER_PORTAL.md` is enough.
+You do not need to read every docs file. For normal classroom use, this page plus [TEACHER_PORTAL.md](TEACHER_PORTAL.md) is enough.
 
 ```mermaid
 flowchart LR
@@ -26,7 +26,7 @@ flowchart LR
 4. Open one lesson and test the Helper once.
 5. Confirm submission inbox is visible for your upload lesson.
 
-If any step fails, use `docs/TROUBLESHOOTING.md`.
+If any step fails, use [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ## During class: what to do
 
@@ -36,7 +36,7 @@ If any step fails, use `docs/TROUBLESHOOTING.md`.
 4. Use `Helper tuning` in that lesson row if you want to narrow helper focus.
 5. Review missing submissions from the dropbox links.
 
-Deep walkthrough: `docs/TEACHER_PORTAL.md`
+Deep walkthrough: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 
 ## End of class: quick closeout
 
@@ -50,7 +50,7 @@ Deep walkthrough: `docs/TEACHER_PORTAL.md`
 - "Students cannot join":
   check class code and whether class is locked.
 - "Helper is not responding":
-  check `/helper/healthz` and follow `docs/TROUBLESHOOTING.md`.
+  check `/helper/healthz` and follow [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 - "Teacher page looks empty":
   sections are collapsed by default; open `Lesson Tracker` and `Roster`.
 - "Uploads are failing":
@@ -58,7 +58,7 @@ Deep walkthrough: `docs/TEACHER_PORTAL.md`
 
 ## Read only what you need next
 
-- Teacher workflow and screen-by-screen guide: `docs/TEACHER_PORTAL.md`
-- Day-1 setup (operators/admins): `docs/DAY1_DEPLOY_CHECKLIST.md`
-- Incident recovery: `docs/TROUBLESHOOTING.md`
-- Security and privacy boundaries (policy level): `docs/SECURITY.md`
+- Teacher workflow and screen-by-screen guide: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
+- Day-1 setup (operators/admins): [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
+- Incident recovery: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- Security and privacy boundaries (policy level): [SECURITY.md](SECURITY.md)

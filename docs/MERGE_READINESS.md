@@ -47,7 +47,7 @@ If any command fails because of local environment constraints, note that explici
 ## 4) Docs + decision hygiene
 
 - Updated docs for behavior changes (not just code).
-- Added or amended `docs/DECISIONS.md` when making a design/policy tradeoff.
+- Added or amended [DECISIONS.md](DECISIONS.md) when making a design/policy tradeoff.
 - Kept language operator-usable and teacher-readable.
 
 No docs update for behavior change = incomplete branch.

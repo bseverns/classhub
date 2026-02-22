@@ -3,7 +3,7 @@
 ## Summary
 This is the canonical docs landing page. Use it to pick the shortest path for your role.
 
-Evaluating whether this fits your org? Start with `docs/PUBLIC_OVERVIEW.md`.
+Evaluating whether this fits your org? Start with [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md).
 
 ## What to do now
 1. Pick your role from the table below.
@@ -30,39 +30,39 @@ flowchart TD
 
 | Role | Start here | Then read |
 |---|---|---|
-| Evaluator / decision-maker | `docs/PUBLIC_OVERVIEW.md` | `docs/TRY_IT_LOCAL.md`, `docs/SECURITY.md` |
-| Teacher / school staff | `docs/NON_DEVELOPER_GUIDE.md` | `docs/TEACHER_PORTAL.md` |
-| Operator / admin | `docs/DAY1_DEPLOY_CHECKLIST.md` | `docs/SECURITY.md`, `docs/RUNBOOK.md`, `docs/TROUBLESHOOTING.md` |
-| Developer | `docs/DEVELOPMENT.md` | `docs/ARCHITECTURE.md`, `docs/DECISIONS.md` |
+| Evaluator / decision-maker | [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md) | [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md), [SECURITY.md](SECURITY.md) |
+| Teacher / school staff | [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md) | [TEACHER_PORTAL.md](TEACHER_PORTAL.md) |
+| Operator / admin | [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) | [SECURITY.md](SECURITY.md), [RUNBOOK.md](RUNBOOK.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
+| Developer | [DEVELOPMENT.md](DEVELOPMENT.md) | [ARCHITECTURE.md](ARCHITECTURE.md), [DECISIONS.md](DECISIONS.md) |
 
 ## Core docs map
 
 ### Classroom use
-- `docs/NON_DEVELOPER_GUIDE.md`
-- `docs/TEACHER_PORTAL.md`
-- `docs/COURSE_AUTHORING.md`
-- `docs/TEACHER_HANDOFF_CHECKLIST.md`
+- [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md)
+- [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
+- [COURSE_AUTHORING.md](COURSE_AUTHORING.md)
+- [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.md)
 
 ### Operations
-- `docs/DAY1_DEPLOY_CHECKLIST.md`
-- `docs/SECURITY.md` (public-domain posture and reporting)
-- `docs/PRIVACY-ADDENDUM.md` (field-level data lifecycle + deletion controls)
-- `docs/SECURITY_BASELINE.md` (edge vs app ownership)
-- `docs/RUNBOOK.md`
-- `docs/TROUBLESHOOTING.md`
-- `docs/DISASTER_RECOVERY.md`
+- [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
+- [SECURITY.md](SECURITY.md) (public-domain posture and reporting)
+- [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md) (field-level data lifecycle + deletion controls)
+- [SECURITY_BASELINE.md](SECURITY_BASELINE.md) (edge vs app ownership)
+- [RUNBOOK.md](RUNBOOK.md)
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 
 ### Engineering
-- `docs/DEVELOPMENT.md`
-- `docs/ARCHITECTURE.md`
-- `docs/OPENAI_HELPER.md`
-- `docs/HELPER_POLICY.md`
-- `docs/REQUEST_SAFETY.md`
-- `docs/HELPER_EVALS.md`
+- [DEVELOPMENT.md](DEVELOPMENT.md)
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [OPENAI_HELPER.md](OPENAI_HELPER.md)
+- [HELPER_POLICY.md](HELPER_POLICY.md)
+- [REQUEST_SAFETY.md](REQUEST_SAFETY.md)
+- [HELPER_EVALS.md](HELPER_EVALS.md)
 
 ### Design rationale
-- `docs/DECISIONS.md`
-- `docs/decisions/archive/`
+- [DECISIONS.md](DECISIONS.md)
+- [decisions/archive/2026-02.md](decisions/archive/2026-02.md)
 
 ## Common URLs
 
@@ -76,14 +76,14 @@ flowchart TD
 
 ## Common commands
 
-- Local demo path: `docs/TRY_IT_LOCAL.md`
+- Local demo path: [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md)
 - Full health check: `bash scripts/system_doctor.sh`
 - Guardrailed deploy: `bash scripts/deploy_with_smoke.sh`
 
 ## If you are overwhelmed
 
 Read one page only:
-- Evaluator: `docs/PUBLIC_OVERVIEW.md`
-- Teacher/staff: `docs/NON_DEVELOPER_GUIDE.md`
-- Operator: `docs/RUNBOOK.md`
-- Developer: `docs/DEVELOPMENT.md`
+- Evaluator: [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md)
+- Teacher/staff: [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md)
+- Operator: [RUNBOOK.md](RUNBOOK.md)
+- Developer: [DEVELOPMENT.md](DEVELOPMENT.md)

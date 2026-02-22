@@ -62,7 +62,7 @@ Use this as the standard release appendix/checklist.
 - Health checks:
   - `/healthz` = edge/proxy health
   - `/upstream-healthz` = ClassHub upstream health
-- Backups: Postgres + uploaded media (and MinIO if enabled). See `docs/DISASTER_RECOVERY.md`.
+- Backups: Postgres + uploaded media (and MinIO if enabled). See [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md).
 
 ### Access controls
 - Staff surfaces require OTP when enabled:

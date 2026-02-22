@@ -1,5 +1,5 @@
 site_name: ClassHub Docs
-site_url: https://bseverns.github.io/ClassHub/
+site_url: https://bseverns.github.io/classhub/
 repo_url: https://github.com/bseverns/ClassHub
 edit_uri: edit/main/docs/
 
@@ -8,26 +8,99 @@ theme:
   features:
     - navigation.sections
     - navigation.expand
+    - navigation.indexes
     - content.code.copy
     - search.suggest
     - search.highlight
 
+plugins:
+  - search
+
 markdown_extensions:
   - admonition
+  - tables
   - toc:
       permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+extra_javascript:
+  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+  - javascripts/mermaid-init.js
+
 exclude_docs: README.md
 
 nav:
   - Home: index.md
   - Start Here: START_HERE.md
-  - Deploy:
+
+  - Role Paths:
+      - Evaluator / Decision-maker:
+          - Public Overview: PUBLIC_OVERVIEW.md
+          - Try It Local: TRY_IT_LOCAL.md
+          - Security: SECURITY.md
+      - Teacher / Staff:
+          - Non-Developer Guide: NON_DEVELOPER_GUIDE.md
+          - Teacher Portal: TEACHER_PORTAL.md
+          - Course Authoring: COURSE_AUTHORING.md
+          - Teacher Handoff Checklist: TEACHER_HANDOFF_CHECKLIST.md
+          - Teacher Handoff Record Template: TEACHER_HANDOFF_RECORD_TEMPLATE.md
+      - Operator / Admin:
+          - Day 1 Checklist: DAY1_DEPLOY_CHECKLIST.md
+          - Runbook: RUNBOOK.md
+          - Troubleshooting: TROUBLESHOOTING.md
+      - Developer:
+          - Development: DEVELOPMENT.md
+          - Architecture: ARCHITECTURE.md
+          - Decisions: DECISIONS.md
+
+  - Operations:
       - Day 1 Checklist: DAY1_DEPLOY_CHECKLIST.md
       - Runbook: RUNBOOK.md
       - Troubleshooting: TROUBLESHOOTING.md
+      - Releasing: RELEASING.md
+
   - Security & Privacy:
       - Security Baseline: SECURITY_BASELINE.md
       - Security: SECURITY.md
       - Privacy Addendum: PRIVACY-ADDENDUM.md
       - Helper Policy: HELPER_POLICY.md
-  - Recovery: DISASTER_RECOVERY.md
+
+  - Recovery:
+      - Disaster Recovery: DISASTER_RECOVERY.md
+
+  - Engineering:
+      - Development: DEVELOPMENT.md
+      - Architecture: ARCHITECTURE.md
+      - Helper Internals: OPENAI_HELPER.md
+      - Request Safety: REQUEST_SAFETY.md
+      - Helper Evals: HELPER_EVALS.md
+      - Decisions: DECISIONS.md
+      - Docs Maintenance: CONTRIBUTING_DOCS.md
+      - Merge Readiness: MERGE_READINESS.md
+      - Bootstrap Server: BOOTSTRAP_SERVER.md
+
+  - Teaching & Curriculum:
+      - Teacher Portal: TEACHER_PORTAL.md
+      - Course Authoring: COURSE_AUTHORING.md
+      - Teacher Handoff Checklist: TEACHER_HANDOFF_CHECKLIST.md
+      - Teacher Handoff Record Template: TEACHER_HANDOFF_RECORD_TEMPLATE.md
+      - Teaching Playbook: TEACHING_PLAYBOOK.md
+      - Learning Paths: LEARNING_PATHS.md
+      - Pilot Playbook: PILOT_PLAYBOOK.md
+
+  - Reference:
+      - What, Where, Why: WHAT_WHERE_WHY.md
+      - Class Code Auth: CLASS_CODE_AUTH.md
+
+  - Decision Archive:
+      - 2026-02: decisions/archive/2026-02.md
+      - 2026-01: decisions/archive/2026-01.md
+
+  - Examples:
+      - Public Overview Template Example: examples/course_authoring/example_slug-public-overview-template.md
+      - Teacher Plan Template Example: examples/course_authoring/example_slug-teacher-plan-template.md

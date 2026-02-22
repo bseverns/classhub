@@ -114,8 +114,8 @@ flowchart LR
 
 See:
 
-- `docs/DEVELOPMENT.md` for local workflow
-- `docs/RUNBOOK.md` for operations
+- [DEVELOPMENT.md](DEVELOPMENT.md) for local workflow
+- [RUNBOOK.md](RUNBOOK.md) for operations
 - `compose/docker-compose.yml` for source-of-truth wiring
 
 ## ClassHub module graph (Map C)

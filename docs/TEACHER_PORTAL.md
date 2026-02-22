@@ -155,7 +155,7 @@ docker compose exec classhub_web python manage.py create_teacher \
 If login username should change, create a new account with the new username and
 disable the old account after handoff.
 
-Operational checklist: `docs/TEACHER_HANDOFF_CHECKLIST.md`.
+Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.md).
 
 ## Teacher portal routes
 

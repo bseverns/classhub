@@ -1,7 +1,7 @@
 # Security
 
 This page is the practical security baseline for this project.
-Canonical ownership map for edge vs app headers: `docs/SECURITY_BASELINE.md`.
+Canonical ownership map for edge vs app headers: [SECURITY_BASELINE.md](SECURITY_BASELINE.md).
 
 ## Reporting security issues
 
@@ -109,7 +109,7 @@ These controls are additive to Django auth + OTP.
 
 ## Data handling and retention
 
-Field-level lifecycle details (exact fields, TTL knobs, deletion controls): `docs/PRIVACY-ADDENDUM.md`.
+Field-level lifecycle details (exact fields, TTL knobs, deletion controls): [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md).
 
 ### Student submissions
 
