@@ -22,6 +22,35 @@ flowchart LR
 - [TEACHING_PLAYBOOK.md](TEACHING_PLAYBOOK.md) (teaching-quality writing standards)
 - [MERGE_READINESS.md](MERGE_READINESS.md) (merge gate expectations)
 
+## Extension map (where to change what)
+
+Use this map to pick the right seam before you start coding.
+
+### What to do now
+1. Pick the lane below that matches your change.
+2. Edit only the primary files first, then run the lane tests.
+3. Update the linked docs page in the same branch.
+
+### Verification signal
+You can point to one lane, one focused test command, and one docs update for your PR.
+
+| Change type | Primary edit locations | Tests to run first | Docs to update |
+|---|---|---|---|
+| Student join/session behavior | `services/classhub/hub/views/student.py`, `services/classhub/hub/middleware.py`, `services/classhub/hub/models.py` | `python manage.py test hub.tests.JoinClassTests hub.tests_services.StudentSessionMiddlewareTests hub.tests.StudentDataControlsTests` | `docs/CLASS_CODE_AUTH.md`, `docs/PRIVACY-ADDENDUM.md`, `docs/DECISIONS.md` |
+| Teacher flows, OTP, roster, teaching UI | `services/classhub/hub/views/teacher.py`, `services/classhub/config/middleware.py`, `services/classhub/hub/forms.py` | `python manage.py test hub.tests.TeacherPortalTests hub.tests.Teacher2FASetupTests` | `docs/TEACHER_PORTAL.md`, `docs/SECURITY.md`, `docs/DECISIONS.md` |
+| Upload validation, scanning, and downloads | `services/classhub/hub/services/upload_policy.py`, `services/classhub/hub/services/upload_validation.py`, `services/classhub/hub/services/upload_scan.py`, `services/classhub/hub/views/media.py` | `python manage.py test hub.tests_services.UploadValidationServiceTests hub.tests_services.UploadScanServiceTests hub.tests.SubmissionDownloadHardeningTests` | `docs/SECURITY.md`, `docs/PRIVACY-ADDENDUM.md`, `docs/RUNBOOK.md` |
+| Markdown/content rendering and embed behavior | `services/classhub/hub/services/markdown_content.py`, `services/classhub/hub/services/content_links.py`, `services/classhub/hub/views/content.py`, templates under `services/classhub/templates/` | `python manage.py test hub.tests_services.MarkdownContentServiceTests hub.tests_services.ContentLinksServiceTests` | `docs/COURSE_AUTHORING.md`, `docs/DEVELOPMENT.md`, `docs/DECISIONS.md` |
+| Helper policy, response behavior, backend routing | `services/homework_helper/tutor/policy.py`, `services/homework_helper/tutor/views.py`, `services/homework_helper/tutor/fixtures/policy_prompts.md` | `python manage.py test tutor.tests.HelperChatAuthTests` | `docs/HELPER_POLICY.md`, `docs/OPENAI_HELPER.md`, `docs/DECISIONS.md` |
+| Shared rate limiting / request safety / IP behavior | `services/common/request_safety/__init__.py`, `services/common/helper_scope.py`, integration points in classhub/helper views | `python manage.py test hub.tests_services.RequestSafetyRateLimitResilienceTests tutor.tests.HelperChatAuthTests` | `docs/REQUEST_SAFETY.md`, `docs/SECURITY_BASELINE.md`, `docs/DECISIONS.md` |
+| New model fields or retention behavior | `services/classhub/hub/models.py`, migrations in `services/classhub/hub/migrations/`, retention commands in `services/classhub/hub/management/commands/` | `python manage.py test hub.tests.StudentEventRetentionCommandTests hub.tests.SubmissionRetentionCommandTests hub.tests.StudentDataControlsTests` | `docs/PRIVACY-ADDENDUM.md`, `docs/RUNBOOK.md`, `docs/DISASTER_RECOVERY.md` |
+| Security headers / cache policy / browser hardening | `services/classhub/config/settings.py`, `services/classhub/config/middleware.py`, `services/homework_helper/config/settings.py`, `services/homework_helper/config/middleware.py`, `services/classhub/hub/http/headers.py` | `python manage.py test hub.tests_security_headers.SecurityHeaderDriftTests hub.tests.ClassHubSecurityHeaderTests tutor.tests.HelperSecurityHeaderTests` | `docs/SECURITY.md`, `docs/SECURITY_BASELINE.md`, `docs/DECISIONS.md` |
+| Internal helper event ingest contract | `services/classhub/hub/views/internal.py`, `services/homework_helper/tutor/views.py` (`helper-chat` forwarder) | `python manage.py test hub.tests.InternalHelperEventEndpointTests tutor.tests.ClassHubEventForwardingTests` | `docs/OPENAI_HELPER.md`, `docs/HELPER_EVALS.md`, `docs/DECISIONS.md` |
+
+Notes:
+- Avoid adding new behavior to `services/classhub/hub/views/_legacy.py`; keep new work in `student.py`, `teacher.py`, `content.py`, `media.py`, or `internal.py`.
+- If you change data models, include migrations in the same PR and run `bash scripts/migration_gate.sh` before push.
+- After lane tests pass, run `bash scripts/system_doctor.sh --smoke-mode golden` before opening a PR.
+
 ## Hot reload (local dev)
 
 The override file:
