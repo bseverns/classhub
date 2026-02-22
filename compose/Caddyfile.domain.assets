@@ -5,6 +5,9 @@
     Strict-Transport-Security "max-age={$CADDY_HSTS_MAX_AGE:31536000}"
   }
 
+  @staff_public_unacknowledged expression `{env.CADDY_ALLOW_PUBLIC_STAFF_ROUTES} != "1" && "{env.CADDY_STAFF_IP_ALLOWLIST_V4}" == "0.0.0.0/0" && "{env.CADDY_STAFF_IP_ALLOWLIST_V6}" == "::/0"`
+  respond @staff_public_unacknowledged "configure CADDY_STAFF_IP_ALLOWLIST_* or explicitly set CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1" 503
+
   @staff_not_allowlisted {
     path /admin* /teach*
     not remote_ip {$CADDY_STAFF_IP_ALLOWLIST_V4:0.0.0.0/0} {$CADDY_STAFF_IP_ALLOWLIST_V6:::/0}
@@ -42,7 +45,7 @@
   # Class Hub
   handle {
     request_body {
-      max_size {$CADDY_CLASSHUB_MAX_BODY:650MB}
+      max_size {$CADDY_CLASSHUB_MAX_BODY:220MB}
     }
     reverse_proxy classhub_web:8000
   }
@@ -65,7 +68,7 @@
   @asset_routes path /lesson-asset/* /lesson-video/*
   handle @asset_routes {
     request_body {
-      max_size {$CADDY_CLASSHUB_MAX_BODY:650MB}
+      max_size {$CADDY_CLASSHUB_MAX_BODY:220MB}
     }
     reverse_proxy classhub_web:8000
   }

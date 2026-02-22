@@ -22,15 +22,19 @@ flowchart TD
 - Put backups off-server
 
 ## Run
-- Copy `compose/.env.example` → `compose/.env`
+- Copy the mode-appropriate env example:
+  - local/day-1: `compose/.env.example.local` → `compose/.env`
+  - domain/TLS: `compose/.env.example.domain` → `compose/.env`
 - Set a strong `DJANGO_SECRET_KEY` (do not keep placeholder/default values)
 - Keep admin 2FA enforcement enabled: `DJANGO_ADMIN_2FA_REQUIRED=1`
 - For domain/TLS mode, set:
   - `DJANGO_SECURE_SSL_REDIRECT=1`
   - `CADDY_HSTS_MAX_AGE=31536000` (after initial validation)
+  - `REQUEST_SAFETY_TRUST_PROXY_HEADERS=1`
 - Confirm proxy body limits for your workload:
-  - `CADDY_CLASSHUB_MAX_BODY` (uploads; default `650MB`)
+  - `CADDY_CLASSHUB_MAX_BODY` (uploads; default `220MB`)
   - `CADDY_HELPER_MAX_BODY` (helper API; default `1MB`)
+  - `CLASSHUB_UPLOAD_MAX_MB` (default `200`)
 - Configure LLM backend (default is Ollama; ensure it is running)
 - Configure smoke-check credentials in `compose/.env` (for strict mode):
   - `SMOKE_BASE_URL`

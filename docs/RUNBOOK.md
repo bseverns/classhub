@@ -121,7 +121,7 @@ When running behind Caddy on a real domain, use these defaults to avoid false ra
   - Set `REQUEST_SAFETY_TRUST_PROXY_HEADERS=1` so Django rate limiting sees client IPs forwarded by Caddy.
   - Keep `REQUEST_SAFETY_XFF_INDEX=0` when Caddy is the first trusted hop.
 - Upload size alignment:
-  - Set `CADDY_CLASSHUB_MAX_BODY` slightly above `CLASSHUB_UPLOAD_MAX_MB` (for example, `650MB` vs `600`).
+  - Set `CADDY_CLASSHUB_MAX_BODY` slightly above `CLASSHUB_UPLOAD_MAX_MB` (for example, `220MB` vs `200`).
   - `CLASSHUB_UPLOAD_MAX_MB` controls Django request body cap for class uploads.
   - Keep `CLASSHUB_GUNICORN_TIMEOUT_SECONDS` high enough for large uploads on classroom Wi-Fi (default `1200` seconds).
   - Keep `HELPER_GUNICORN_TIMEOUT_SECONDS` above helper queue/retry budget (`HELPER_QUEUE_MAX_WAIT_SECONDS`, `HELPER_BACKEND_MAX_ATTEMPTS`, `OLLAMA_TIMEOUT_SECONDS`, `HELPER_BACKOFF_SECONDS`); `scripts/validate_env_secrets.sh` now blocks unsafe combinations.
@@ -129,13 +129,15 @@ When running behind Caddy on a real domain, use these defaults to avoid false ra
   - Enable the `classhub-retention.timer` unit so submission/event cleanup runs automatically.
   - Timer setup commands are in [Automate retention + orphan cleanup](#automate-retention-and-orphan-cleanup).
 - Teacher/admin proxy armor:
-  - Optional IP allowlist for `/admin*` + `/teach*`:
+  - Preferred: set IP allowlist for `/admin*` + `/teach*`:
     - `CADDY_STAFF_IP_ALLOWLIST_V4`
     - `CADDY_STAFF_IP_ALLOWLIST_V6`
   - Optional extra basic-auth gate for `/admin*`:
     - `CADDY_ADMIN_BASIC_AUTH_ENABLED=1`
     - `CADDY_ADMIN_BASIC_AUTH_USER`
     - `CADDY_ADMIN_BASIC_AUTH_HASH`
+  - If you intentionally leave allowlists open, set explicit acknowledgement:
+    - `CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1`
 
 ## Incident degradation modes
 
@@ -253,8 +255,9 @@ bash scripts/validate_env_secrets.sh
 Set in `compose/.env`:
 
 ```dotenv
-CADDY_CLASSHUB_MAX_BODY=650MB
+CADDY_CLASSHUB_MAX_BODY=220MB
 CADDY_HELPER_MAX_BODY=1MB
+CLASSHUB_UPLOAD_MAX_MB=200
 ```
 
 ## Teacher/admin operations

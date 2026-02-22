@@ -230,7 +230,7 @@ Use `/teach/videos` to tag media directly to `course_slug + lesson_slug`.
 6. Use `Bulk upload files` when adding many lesson clips at once (titles auto-generate from filenames).
 
 Large file note:
-- Upload request size is controlled by `CLASSHUB_UPLOAD_MAX_MB` (default `600`) in compose env.
+- Upload request size is controlled by `CLASSHUB_UPLOAD_MAX_MB` (default `200`) in compose env.
 - Upload request timeout is controlled by `CLASSHUB_GUNICORN_TIMEOUT_SECONDS` (default `1200`).
 - After changing `.env`, restart `classhub_web` to apply.
 

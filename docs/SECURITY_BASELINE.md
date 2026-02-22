@@ -4,11 +4,12 @@ This is the single source of truth for edge-vs-app security ownership.
 
 ## Edge-Owned (Caddy)
 - Request body size limits:
-  - `CADDY_CLASSHUB_MAX_BODY` (default `650MB`)
+  - `CADDY_CLASSHUB_MAX_BODY` (default `220MB`)
   - `CADDY_HELPER_MAX_BODY` (default `1MB`)
 - Route armor for `/admin*` and `/teach*`:
   - IP allowlists: `CADDY_STAFF_IP_ALLOWLIST_V4`, `CADDY_STAFF_IP_ALLOWLIST_V6`
   - Optional basic auth gate for `/admin*`: `CADDY_ADMIN_BASIC_AUTH_*`
+  - Explicit acknowledgement toggle for open staff routes: `CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1`
 - TLS redirect/termination (domain templates) and HSTS:
   - `Strict-Transport-Security: max-age=${CADDY_HSTS_MAX_AGE}` (default `31536000`)
 - Compression (`encode gzip`)

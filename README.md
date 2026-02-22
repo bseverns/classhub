@@ -38,7 +38,7 @@ See: `docs/TRY_IT_LOCAL.md`
 Quick path:
 
 ```bash
-cp compose/.env.example compose/.env
+cp compose/.env.example.local compose/.env
 cd compose && docker compose up -d --build
 cd ..
 bash scripts/load_demo_coursepack.sh
@@ -75,7 +75,7 @@ Mission:
 - `Caddy`: reverse proxy and TLS termination.
 - `Postgres`: primary data store.
 - `Redis`: cache/rate-limit/queue state.
-- `MinIO`: object storage for uploads/assets.
+- `MinIO`: optional backup/ops component (uploads are served from Django-managed filesystem storage by default).
 
 Detailed architecture: `docs/ARCHITECTURE.md`
 
@@ -88,7 +88,11 @@ Service notebooks:
 1. Configure environment:
 
 ```bash
-cp compose/.env.example compose/.env
+# local/day-1
+cp compose/.env.example.local compose/.env
+
+# domain/TLS
+cp compose/.env.example.domain compose/.env
 ```
 
 2. Set routing template in `compose/.env`:

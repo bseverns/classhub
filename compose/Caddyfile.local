@@ -46,7 +46,7 @@
   # Class Hub
   handle {
     request_body {
-      max_size {$CADDY_CLASSHUB_MAX_BODY:650MB}
+      max_size {$CADDY_CLASSHUB_MAX_BODY:220MB}
     }
     reverse_proxy classhub_web:8000
   }

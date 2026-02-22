@@ -36,6 +36,8 @@ compose/.env.backup*
 compose/.env.*.bak*
 compose/.env.*
 !compose/.env.example
+!compose/.env.example.local
+!compose/.env.example.domain
 compose/docker-compose.override.yml.disabled
 
 # OS/editor noise

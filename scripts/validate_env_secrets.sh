@@ -233,6 +233,28 @@ if [[ "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" == "1" ]]; then
   fi
 fi
 
+CADDY_ALLOW_PUBLIC_STAFF_ROUTES="$(env_file_value CADDY_ALLOW_PUBLIC_STAFF_ROUTES)"
+CADDY_ALLOW_PUBLIC_STAFF_ROUTES="${CADDY_ALLOW_PUBLIC_STAFF_ROUTES:-0}"
+if [[ "${CADDY_ALLOW_PUBLIC_STAFF_ROUTES}" != "0" && "${CADDY_ALLOW_PUBLIC_STAFF_ROUTES}" != "1" ]]; then
+  fail "CADDY_ALLOW_PUBLIC_STAFF_ROUTES must be 0 or 1"
+fi
+
+if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.domain" || "${CADDYFILE_TEMPLATE}" == "Caddyfile.domain.assets" ]]; then
+  STAFF_V4="$(env_file_value CADDY_STAFF_IP_ALLOWLIST_V4)"
+  STAFF_V6="$(env_file_value CADDY_STAFF_IP_ALLOWLIST_V6)"
+  STAFF_V4="${STAFF_V4:-0.0.0.0/0}"
+  STAFF_V6="${STAFF_V6:-::/0}"
+
+  if [[ "${STAFF_V4}" == "0.0.0.0/0" && "${STAFF_V6}" == "::/0" ]]; then
+    if [[ "${CADDY_ALLOW_PUBLIC_STAFF_ROUTES}" != "1" ]]; then
+      fail "Domain mode with open staff allowlists requires CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1 acknowledgement"
+    fi
+    if [[ "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" != "1" ]]; then
+      fail "When CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1, set CADDY_ADMIN_BASIC_AUTH_ENABLED=1"
+    fi
+  fi
+fi
+
 SITE_MODE_VAL="$(env_file_value CLASSHUB_SITE_MODE)"
 SITE_MODE_VAL="${SITE_MODE_VAL:-normal}"
 case "${SITE_MODE_VAL}" in

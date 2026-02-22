@@ -91,19 +91,21 @@ docker compose exec classhub_web python manage.py bootstrap_admin_otp --username
 - Postgres and Redis are not published on host ports.
 - Ollama and MinIO are bound to `127.0.0.1` on the host for local/admin access.
 - Proxy header trust is explicit opt-in:
-  - `REQUEST_SAFETY_TRUST_PROXY_HEADERS=0` by default
-  - set to `1` only when your first-hop proxy is trusted and rewrites `X-Forwarded-*`.
+  - local preset: `REQUEST_SAFETY_TRUST_PROXY_HEADERS=0`
+  - domain preset (behind Caddy first hop): `REQUEST_SAFETY_TRUST_PROXY_HEADERS=1`
 
 ## Proxy armor for teacher/admin routes
 
 Optional Caddy controls for `/admin*` and `/teach*`:
 
 - IP allowlist:
-  - `CADDY_STAFF_IP_ALLOWLIST_V4` / `CADDY_STAFF_IP_ALLOWLIST_V6` (defaults allow all)
+  - `CADDY_STAFF_IP_ALLOWLIST_V4` / `CADDY_STAFF_IP_ALLOWLIST_V6` (set real operator IP ranges in domain mode)
 - Extra `/admin*` basic-auth gate:
   - `CADDY_ADMIN_BASIC_AUTH_ENABLED=1`
   - `CADDY_ADMIN_BASIC_AUTH_USER`
   - `CADDY_ADMIN_BASIC_AUTH_HASH` (bcrypt hash)
+- Open staff-route acknowledgement (required if allowlists are intentionally open in domain mode):
+  - `CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1`
 
 These controls are additive to Django auth + OTP.
 

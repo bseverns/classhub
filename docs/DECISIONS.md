@@ -211,7 +211,7 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Secrets are injected via environment (`compose/.env` or deployment environment), never committed to git.
 - `DJANGO_SECRET_KEY` is required in both services.
-- `.env.example` stays non-sensitive and documents required knobs.
+- Mode-specific env examples (`.env.example.local`, `.env.example.domain`) stay non-sensitive and document required knobs.
 
 **Why this remains active:**
 - Prevents insecure fallback secret boot behavior.
@@ -306,7 +306,7 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Retention defaults are nonzero
 
 **Current decision:**
-- `compose/.env.example` sets:
+- `compose/.env.example.local` and `compose/.env.example.domain` both set:
   - `CLASSHUB_SUBMISSION_RETENTION_DAYS=90`
   - `CLASSHUB_STUDENT_EVENT_RETENTION_DAYS=180`
 - Operators can still set either value to `0` as an explicit opt-out.
@@ -414,7 +414,7 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Internal services remain private by default (Postgres/Redis internal network only; Ollama/MinIO host bindings are localhost-only).
 - Caddy uses default reverse-proxy forwarded headers for Django client IP/proto awareness.
-- Proxy-header trust is explicit opt-in (`REQUEST_SAFETY_TRUST_PROXY_HEADERS=0` by default).
+- Proxy-header trust is mode-aware (`0` in local preset, `1` in domain preset behind Caddy first hop).
 - Caddy enforces request-body limits per upstream (`CADDY_CLASSHUB_MAX_BODY`, `CADDY_HELPER_MAX_BODY`).
 - Class Hub and Helper emit enforced + report-only CSP baselines by default in production; `DJANGO_CSP_POLICY` and `DJANGO_CSP_REPORT_ONLY_POLICY` can override/tune them.
 - Both Django services reject weak/default secret keys when `DJANGO_DEBUG=0`.
@@ -553,6 +553,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Caddy templates now support optional teacher/admin edge armor:
   - IP allowlist for `/admin*` and `/teach*` via `CADDY_STAFF_IP_ALLOWLIST_V4`/`CADDY_STAFF_IP_ALLOWLIST_V6`
   - optional extra basic-auth gate for `/admin*` via `CADDY_ADMIN_BASIC_AUTH_*`
+  - explicit acknowledgement required to keep open staff-route allowlists in domain mode: `CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1`
 - Added a single operator-controlled degradation switch: `CLASSHUB_SITE_MODE` with modes:
   - `normal`
   - `read-only`

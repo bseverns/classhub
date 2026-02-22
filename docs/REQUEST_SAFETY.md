@@ -54,10 +54,10 @@ in `common.request_safety`.
 
 ## Proxy note
 
-Keep `REQUEST_SAFETY_TRUST_PROXY_HEADERS=0` unless your immediate upstream proxy
-is trusted and overwrites `X-Forwarded-*` headers.
+Local preset keeps `REQUEST_SAFETY_TRUST_PROXY_HEADERS=0`.
+Domain preset (`compose/.env.example.domain`) sets it to `1` because Caddy is the trusted first hop.
 
 The compose Caddy configs set `X-Forwarded-For`, `X-Real-IP`, and
 `X-Forwarded-Proto` from the immediate connection values before proxying to
-Django. When Caddy is your first hop, set `REQUEST_SAFETY_TRUST_PROXY_HEADERS=1`
+Django. When Caddy is your first hop, keep `REQUEST_SAFETY_TRUST_PROXY_HEADERS=1`
 for deterministic rate-limit IP parsing.

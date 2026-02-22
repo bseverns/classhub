@@ -32,7 +32,7 @@ Use role-based docs list in [START_HERE.md#quick-picks-by-role](START_HERE.md#qu
 
 - Helper is a separate service so LMS pages stay available if AI has issues.
 - Caddy routes `/helper/*` to helper and everything else to class hub.
-- Postgres stores core records, Redis handles limits/queues, MinIO stores files.
+- Postgres stores core records, Redis handles limits/queues, and files are stored on Django-managed filesystem storage (MinIO is optional for backup/ops workflows).
 - This design keeps operations simpler and failure boundaries clearer.
 
 ## Day-of-class quick checklist

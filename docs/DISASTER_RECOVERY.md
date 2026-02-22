@@ -30,7 +30,7 @@ cd /srv/lms
 Copy the example and fill in secrets:
 
 ```bash
-cp compose/.env.example compose/.env
+cp compose/.env.example.domain compose/.env
 ```
 
 Important settings to restore (from your password manager/backups):

@@ -49,7 +49,11 @@ def _is_forbidden(path: str) -> bool:
     normalized = str(posix).lstrip("./")
     if normalized in BLOCKED_EXACT:
         return True
-    if normalized.startswith("compose/.env.") and normalized != "compose/.env.example":
+    if normalized.startswith("compose/.env.") and normalized not in {
+        "compose/.env.example",
+        "compose/.env.example.local",
+        "compose/.env.example.domain",
+    }:
         return True
     if any(normalized.startswith(prefix) for prefix in BLOCKED_PREFIXES):
         return True

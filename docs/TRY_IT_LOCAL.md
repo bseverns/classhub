@@ -29,7 +29,7 @@ Expected: both commands print versions without errors.
 
 ```bash
 cd /srv/lms/app  # or your repo root
-cp compose/.env.example compose/.env
+cp compose/.env.example.local compose/.env
 sed -i.bak 's/^CADDYFILE_TEMPLATE=.*/CADDYFILE_TEMPLATE=Caddyfile.local/' compose/.env
 sed -i.bak 's/^HELPER_LLM_BACKEND=.*/HELPER_LLM_BACKEND=mock/' compose/.env
 ```
