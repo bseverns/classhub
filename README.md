@@ -123,7 +123,7 @@ bash scripts/system_doctor.sh
 
 ## Docs entrypoint
 
-Start with `docs/README.md` for the documentation contract and map.
+Start with `docs/DOCS_MAP.md` for the documentation contract and map.
 Then use `docs/START_HERE.md` for role-specific paths:
 - Operator
 - Teacher/staff

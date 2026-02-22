@@ -36,6 +36,7 @@ exclude_docs: README.md
 
 nav:
   - Home: index.md
+  - Docs Map: DOCS_MAP.md
   - Start Here: START_HERE.md
 
   - Role Paths:

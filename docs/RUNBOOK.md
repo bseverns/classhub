@@ -127,7 +127,7 @@ When running behind Caddy on a real domain, use these defaults to avoid false ra
   - Keep `HELPER_GUNICORN_TIMEOUT_SECONDS` above helper queue/retry budget (`HELPER_QUEUE_MAX_WAIT_SECONDS`, `HELPER_BACKEND_MAX_ATTEMPTS`, `OLLAMA_TIMEOUT_SECONDS`, `HELPER_BACKOFF_SECONDS`); `scripts/validate_env_secrets.sh` now blocks unsafe combinations.
 - Retention timer:
   - Enable the `classhub-retention.timer` unit so submission/event cleanup runs automatically.
-  - Timer setup commands are in [Automate retention + orphan cleanup](#automate-retention-orphan-cleanup).
+  - Timer setup commands are in [Automate retention + orphan cleanup](#automate-retention-and-orphan-cleanup).
 - Teacher/admin proxy armor:
   - Optional IP allowlist for `/admin*` + `/teach*`:
     - `CADDY_STAFF_IP_ALLOWLIST_V4`
@@ -430,7 +430,7 @@ bash scripts/validate_env_secrets.sh
 bash scripts/system_doctor.sh --smoke-mode golden
 ```
 
-### Automate retention + orphan cleanup
+### Automate retention and orphan cleanup
 
 Run once manually:
 

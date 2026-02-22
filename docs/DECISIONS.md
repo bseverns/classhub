@@ -25,14 +25,14 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Production transport hardening](#production-transport-hardening)
 - [Content parse caching](#content-parse-caching)
 - [Admin access 2FA](#admin-access-2fa)
-- [Teacher onboarding invites + 2FA](#teacher-onboarding-invites-2fa)
+- [Teacher onboarding invites + 2FA](#teacher-onboarding-invites-and-2fa)
 - [Teacher route 2FA enforcement](#teacher-route-2fa-enforcement)
 - [Lesson asset delivery hardening](#lesson-asset-delivery-hardening)
 - [Optional separate asset origin](#optional-separate-asset-origin)
 - [Upload content validation](#upload-content-validation)
 - [Deployment timezone by environment](#deployment-timezone-by-environment)
 - [Migration execution at deploy time](#migration-execution-at-deploy-time)
-- [Teacher daily digest + closeout workflow](#teacher-daily-digest-closeout-workflow)
+- [Teacher daily digest + closeout workflow](#teacher-daily-digest-and-closeout-workflow)
 - [Student portfolio export](#student-portfolio-export)
 - [Automated retention maintenance](#automated-retention-maintenance)
 - [Release verdict: 2026-02-21 hardening/polish push](#release-verdict-2026-02-21-hardeningpolish-push)
@@ -82,7 +82,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Reduces risk from password reuse/phishing against admin accounts.
 - Preserves clear separation: teacher workflow in `/teach`, hardened ops workflow in `/admin`.
 
-## Teacher onboarding invites + 2FA
+## Teacher onboarding invites and 2FA
 
 **Current decision:**
 - Superusers can create teacher staff accounts from `/teach` and trigger invite emails.
@@ -479,7 +479,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Most readers need task guidance, not full architecture context.
 - Progressive disclosure lowers cognitive load for teachers and staff while preserving deep technical docs for operators/developers.
 
-## Teacher daily digest + closeout workflow
+## Teacher daily digest and closeout workflow
 
 **Current decision:**
 - `/teach` includes a per-class "since yesterday" digest (new students, uploads, helper usage, first-upload gaps, latest submission timestamp).
