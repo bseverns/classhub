@@ -27,6 +27,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Admin access 2FA](#admin-access-2fa)
 - [Teacher onboarding invites + 2FA](#teacher-onboarding-invites-and-2fa)
 - [Teacher route 2FA enforcement](#teacher-route-2fa-enforcement)
+- [Staff auth POST throttling](#staff-auth-post-throttling)
 - [Lesson asset delivery hardening](#lesson-asset-delivery-hardening)
 - [Optional separate asset origin](#optional-separate-asset-origin)
 - [Upload content validation](#upload-content-validation)
@@ -104,6 +105,22 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Teacher routes can rotate join codes, manage rosters, and access submissions; password-only is insufficient.
 - Keeps teacher onboarding usable while enforcing stronger session posture on operational pages.
+
+## Staff auth POST throttling
+
+**Current decision:**
+- Cache-backed fixed-window throttling is enforced on:
+  - `POST /admin/login/`
+  - `POST /teach/2fa/setup`
+- Limits are environment-tunable:
+  - `CLASSHUB_AUTH_RATE_LIMIT_WINDOW_SECONDS`
+  - `CLASSHUB_ADMIN_LOGIN_RATE_LIMIT_PER_MINUTE`
+  - `CLASSHUB_TEACHER_2FA_RATE_LIMIT_PER_MINUTE`
+- Throttled responses return HTTP `429` with `Retry-After` and `no-store` caching.
+
+**Why this remains active:**
+- Adds explicit brute-force/backoff protection to staff authentication surfaces.
+- Uses shared request-safety cache primitives so behavior remains consistent with existing rate-limit controls.
 
 ## Lesson asset delivery hardening
 

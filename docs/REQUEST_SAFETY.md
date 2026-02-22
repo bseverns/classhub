@@ -44,10 +44,17 @@ Set once in `compose/.env` (applies to both services):
 
 Class Hub:
 - `CLASSHUB_JOIN_RATE_LIMIT_PER_MINUTE`
+- `CLASSHUB_AUTH_RATE_LIMIT_WINDOW_SECONDS`
+- `CLASSHUB_ADMIN_LOGIN_RATE_LIMIT_PER_MINUTE`
+- `CLASSHUB_TEACHER_2FA_RATE_LIMIT_PER_MINUTE`
 
 Homework Helper:
 - `HELPER_RATE_LIMIT_PER_MINUTE`
 - `HELPER_RATE_LIMIT_PER_IP_PER_MINUTE`
+
+Auth endpoints protected by Class Hub throttles:
+- `POST /admin/login/`
+- `POST /teach/2fa/setup`
 
 Keep service limits separate, but keep parsing + limiter mechanics centralized
 in `common.request_safety`.

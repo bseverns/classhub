@@ -577,6 +577,25 @@ class Teacher2FASetupTests(TestCase):
         self.assertEqual(resp["Cache-Control"], "private, no-store")
         self.assertContains(resp, "Invalid setup link", status_code=400)
 
+    @override_settings(
+        CLASSHUB_TEACHER_2FA_RATE_LIMIT_PER_MINUTE=1,
+        CLASSHUB_AUTH_RATE_LIMIT_WINDOW_SECONDS=60,
+    )
+    def test_teacher_2fa_setup_post_is_rate_limited(self):
+        token = self._invite_token()
+        resp = self.client.get(f"/teach/2fa/setup?token={token}")
+        self.assertEqual(resp.status_code, 302)
+        self.client.get(resp["Location"])
+
+        first = self.client.post("/teach/2fa/setup", {"otp_token": "000000"})
+        self.assertEqual(first.status_code, 200)
+
+        second = self.client.post("/teach/2fa/setup", {"otp_token": "000000"})
+        self.assertEqual(second.status_code, 429)
+        self.assertEqual(second["Retry-After"], "60")
+        self.assertEqual(second["Cache-Control"], "no-store")
+        self.assertContains(second, "Too many 2FA verification attempts", status_code=429)
+
 
 class TeacherOTPEnforcementTests(TestCase):
     def setUp(self):
@@ -621,6 +640,26 @@ class Admin2FATests(TestCase):
         self.client.force_login(self.superuser)
         resp = self.client.get("/admin/")
         self.assertEqual(resp.status_code, 200)
+
+    @override_settings(
+        CLASSHUB_ADMIN_LOGIN_RATE_LIMIT_PER_MINUTE=1,
+        CLASSHUB_AUTH_RATE_LIMIT_WINDOW_SECONDS=60,
+    )
+    def test_admin_login_post_is_rate_limited(self):
+        first = self.client.post(
+            "/admin/login/",
+            {"username": "admin", "password": "wrong", "otp_token": "123456"},
+        )
+        self.assertNotEqual(first.status_code, 429)
+
+        second = self.client.post(
+            "/admin/login/",
+            {"username": "admin", "password": "wrong", "otp_token": "123456"},
+        )
+        self.assertEqual(second.status_code, 429)
+        self.assertEqual(second["Retry-After"], "60")
+        self.assertEqual(second["Cache-Control"], "no-store")
+        self.assertContains(second, "Too many admin login attempts", status_code=429)
 
 
 class CreateTeacherCommandTests(TestCase):

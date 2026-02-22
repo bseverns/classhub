@@ -114,6 +114,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django_otp.middleware.OTPMiddleware",
+    "config.middleware.AuthRateLimitMiddleware",
     "config.middleware.TeacherOTPRequiredMiddleware",
     "config.middleware.SiteModeMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -278,6 +279,10 @@ CLASSHUB_ASSET_BASE_URL = env("CLASSHUB_ASSET_BASE_URL", default="").strip().rst
 # Safe-by-default: only trust forwarded headers when explicitly enabled.
 REQUEST_SAFETY_TRUST_PROXY_HEADERS = env.bool("REQUEST_SAFETY_TRUST_PROXY_HEADERS", default=False)
 REQUEST_SAFETY_XFF_INDEX = env.int("REQUEST_SAFETY_XFF_INDEX", default=0)
+CLASSHUB_AUTH_RATE_LIMIT_WINDOW_SECONDS = env.int("CLASSHUB_AUTH_RATE_LIMIT_WINDOW_SECONDS", default=60)
+# Set to 0 to disable these endpoint-specific auth throttles.
+CLASSHUB_ADMIN_LOGIN_RATE_LIMIT_PER_MINUTE = env.int("CLASSHUB_ADMIN_LOGIN_RATE_LIMIT_PER_MINUTE", default=20)
+CLASSHUB_TEACHER_2FA_RATE_LIMIT_PER_MINUTE = env.int("CLASSHUB_TEACHER_2FA_RATE_LIMIT_PER_MINUTE", default=10)
 CLASSHUB_INTERNAL_EVENTS_TOKEN = env("CLASSHUB_INTERNAL_EVENTS_TOKEN", default="").strip()
 HELPER_LLM_BACKEND = (env("HELPER_LLM_BACKEND", default="ollama").strip() or "ollama").lower()
 ADMIN_2FA_REQUIRED = env.bool("DJANGO_ADMIN_2FA_REQUIRED", default=True)

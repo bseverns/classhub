@@ -1,7 +1,12 @@
+import logging
+import re
 from urllib.parse import urlencode
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from common.request_safety import build_staff_actor_key, client_ip_from_request, fixed_window_allow
+
+logger = logging.getLogger(__name__)
 
 
 class SecurityHeadersMiddleware:
@@ -70,6 +75,87 @@ class TeacherOTPRequiredMiddleware:
         if params:
             destination = f"{destination}?{params}"
         return HttpResponseRedirect(destination)
+
+
+class AuthRateLimitMiddleware:
+    """Throttle sensitive staff-auth POST endpoints."""
+
+    _ADMIN_LOGIN_PATH = "/admin/login/"
+    _TEACHER_SETUP_PATH = "/teach/2fa/setup"
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    @staticmethod
+    def _key_part(raw: str, *, fallback: str = "unknown") -> str:
+        value = (raw or "").strip().lower()
+        if not value:
+            return fallback
+        return re.sub(r"[^a-z0-9_.@+-]", "_", value)[:96] or fallback
+
+    @staticmethod
+    def _rate_limited_response(*, path: str, window_seconds: int):
+        if path == "/admin/login/":
+            message = "Too many admin login attempts. Wait a minute and try again."
+        else:
+            message = "Too many 2FA verification attempts. Wait a minute and try again."
+        response = HttpResponse(message, status=429, content_type="text/plain; charset=utf-8")
+        response["Retry-After"] = str(max(int(window_seconds), 1))
+        response["Cache-Control"] = "no-store"
+        response["Pragma"] = "no-cache"
+        return response
+
+    def __call__(self, request):
+        if (request.method or "").upper() != "POST":
+            return self.get_response(request)
+
+        path = request.path or ""
+        if path not in {self._ADMIN_LOGIN_PATH, self._TEACHER_SETUP_PATH}:
+            return self.get_response(request)
+
+        window_seconds = max(int(getattr(settings, "CLASSHUB_AUTH_RATE_LIMIT_WINDOW_SECONDS", 60) or 60), 1)
+        if path == self._ADMIN_LOGIN_PATH:
+            limit = int(getattr(settings, "CLASSHUB_ADMIN_LOGIN_RATE_LIMIT_PER_MINUTE", 20) or 0)
+            namespace = "admin_login"
+        else:
+            limit = int(getattr(settings, "CLASSHUB_TEACHER_2FA_RATE_LIMIT_PER_MINUTE", 10) or 0)
+            namespace = "teacher_2fa_setup"
+        if limit <= 0:
+            return self.get_response(request)
+
+        request_id = (request.headers.get("X-Request-ID") or request.META.get("HTTP_X_REQUEST_ID") or "").strip()
+        client_ip = client_ip_from_request(
+            request,
+            trust_proxy_headers=getattr(settings, "REQUEST_SAFETY_TRUST_PROXY_HEADERS", False),
+            xff_index=getattr(settings, "REQUEST_SAFETY_XFF_INDEX", 0),
+        )
+        keys = [f"auth_rate:{namespace}:ip:{client_ip}"]
+        if path == self._ADMIN_LOGIN_PATH:
+            username = self._key_part(request.POST.get("username") or "", fallback="")
+            if username:
+                keys.append(f"auth_rate:{namespace}:username:{username}")
+        else:
+            actor = build_staff_actor_key(request, prefix="staff")
+            if actor:
+                keys.append(f"auth_rate:{namespace}:actor:{actor}")
+
+        for key in keys:
+            if fixed_window_allow(
+                key,
+                limit=limit,
+                window_seconds=window_seconds,
+                request_id=request_id,
+            ):
+                continue
+            logger.warning(
+                "auth_rate_limited request_id=%s path=%s key=%s",
+                request_id or "unknown",
+                path,
+                key,
+            )
+            return self._rate_limited_response(path=path, window_seconds=window_seconds)
+
+        return self.get_response(request)
 
 
 class SiteModeMiddleware:
