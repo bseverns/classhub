@@ -18,31 +18,16 @@ mkdir -p "$(dirname "${OUT_PATH}")"
 OUT_ABS="$(cd "$(dirname "${OUT_PATH}")" && pwd)/$(basename "${OUT_PATH}")"
 rm -f "${OUT_ABS}"
 
+if ! git -C "${ROOT_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "make_release_zip.sh must run from a git working tree." >&2
+  exit 1
+fi
+
 cd "${ROOT_DIR}"
-zip -r "${OUT_ABS}" . \
-  -x ".git/*" \
-  -x ".venv/*" \
-  -x ".deploy/*" \
-  -x "data/*" \
-  -x "compose/data/" \
-  -x "compose/data/*" \
-  -x "media/*" \
-  -x "*/media/*" \
-  -x "staticfiles/*" \
-  -x "*/staticfiles/*" \
-  -x "compose/.env" \
-  -x "compose/.env.bak*" \
-  -x "compose/.env.backup*" \
-  -x "compose/.env.local" \
-  -x "compose/.env.local.*" \
-  -x "compose/.env.*.bak*" \
-  -x "compose/docker-compose.override.yml.disabled" \
-  -x "__MACOSX/*" \
-  -x "*/__pycache__/*" \
-  -x "*.pyc" \
-  -x ".DS_Store" \
-  -x "*/.DS_Store" \
-  -x "dist/*"
+file_list="$(mktemp)"
+trap 'rm -f "${file_list}"' EXIT
+git -C "${ROOT_DIR}" ls-files > "${file_list}"
+zip -q -@ "${OUT_ABS}" < "${file_list}"
 
 python3 "${ROOT_DIR}/scripts/lint_release_artifact.py" "${OUT_ABS}"
 

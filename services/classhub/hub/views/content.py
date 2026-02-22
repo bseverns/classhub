@@ -44,7 +44,11 @@ def _helper_backend_label() -> str:
 
 
 def _retention_days(setting_name: str, default: int) -> int:
-    value = int(getattr(settings, setting_name, default) or default)
+    raw = getattr(settings, setting_name, default)
+    try:
+        value = int(raw)
+    except Exception:
+        value = int(default)
     return value if value > 0 else 0
 
 

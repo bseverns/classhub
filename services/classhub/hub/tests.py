@@ -13,7 +13,7 @@ from django.core import mail, signing
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import Client, TestCase, override_settings
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django_otp.oath import totp
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django.utils import timezone
@@ -58,6 +58,24 @@ def _force_login_staff_verified(client: Client, user) -> None:
     session = client.session
     session["otp_device_id"] = device.persistent_id
     session.save()
+
+
+class RetentionSettingParsingTests(SimpleTestCase):
+    @override_settings(CLASSHUB_SUBMISSION_RETENTION_DAYS=0, CLASSHUB_STUDENT_EVENT_RETENTION_DAYS=0)
+    def test_retention_days_preserves_explicit_zero(self):
+        from .views.content import _retention_days as content_retention_days
+        from .views.student import _retention_days as student_retention_days
+
+        self.assertEqual(student_retention_days("CLASSHUB_SUBMISSION_RETENTION_DAYS", 90), 0)
+        self.assertEqual(content_retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180), 0)
+
+    @override_settings(CLASSHUB_SUBMISSION_RETENTION_DAYS="bad", CLASSHUB_STUDENT_EVENT_RETENTION_DAYS="bad")
+    def test_retention_days_falls_back_to_default_on_invalid_values(self):
+        from .views.content import _retention_days as content_retention_days
+        from .views.student import _retention_days as student_retention_days
+
+        self.assertEqual(student_retention_days("CLASSHUB_SUBMISSION_RETENTION_DAYS", 90), 90)
+        self.assertEqual(content_retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180), 180)
 
 
 class TeacherPortalTests(TestCase):

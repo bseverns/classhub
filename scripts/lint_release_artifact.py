@@ -12,12 +12,14 @@ from zipfile import ZipFile
 BLOCKED_PARTS = {
     ".git",
     ".venv",
+    ".venv_docs",
     "__pycache__",
     "__MACOSX",
     "media",
     "staticfiles",
     "data",
     ".deploy",
+    "site",
 }
 
 BLOCKED_EXACT = {

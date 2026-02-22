@@ -5,7 +5,7 @@ Canonical ownership map for edge vs app headers: [SECURITY_BASELINE.md](SECURITY
 
 ## Reporting security issues
 
-For private vulnerability reports, contact: `security@your-org.example`.
+For private vulnerability reports, use GitHub private vulnerability reporting for this repository (Security tab).
 
 - Do not include exploit details in public issues.
 - Include reproduction steps, affected version/commit, and impact.
