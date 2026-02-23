@@ -282,6 +282,7 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Deploy path uses migration gate + smoke checks + deterministic compose invocation.
 - Caddy mount source must match the expected compose config file.
+- Domain-template Caddy CEL expressions must use unquoted `{env.*}` placeholders inside `expression` matchers.
 - `scripts/system_doctor.sh` is the canonical one-command stack diagnostic.
 - Golden-path smoke can auto-provision fixtures via `scripts/golden_path_smoke.sh`.
 - Class Hub static assets are collected during image build; runtime migrations stay disabled in production (`RUN_MIGRATIONS_ON_START=0`) while deploy scripts run explicit migrations.
@@ -293,6 +294,7 @@ Historical implementation logs and superseded decisions are archived by month in
 
 **Why this remains active:**
 - Prevents avoidable outages from config drift.
+- Prevents Caddy crash-loop on startup caused by invalid CEL expression rendering.
 - Catches regressions before users encounter them.
 - Reduces operator setup friction for smoke checks that previously depended on static credentials.
 - Reduces startup-time healthcheck failures from long runtime `collectstatic` work.
