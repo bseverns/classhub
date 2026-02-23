@@ -9,6 +9,7 @@ Class Hub is a classroom-first, self-hosted micro-LMS with a separate Homework H
 
 - Public overview: `docs/PUBLIC_OVERVIEW.md`
 - Start here (canonical docs landing page): `docs/START_HERE.md`
+- Evaluating for your org? Start with [Public Overview](docs/PUBLIC_OVERVIEW.md) and [Try It Local](docs/TRY_IT_LOCAL.md).
 
 ## You Are Here (System Map)
 
@@ -48,6 +49,16 @@ Then open:
 - Student join: `http://localhost/`
 - Teacher login: `http://localhost/admin/login/`
 
+## Pilot in a box
+
+- Time to deploy: local in minutes; domain pilot usually one focused setup session.
+- Week 1 success: students join, submit work, and teachers run review/closeout without manual triage.
+- Deliberate non-goals: no gradebook, no surveillance analytics, no ad-tech integrations.
+- Data posture: student controls are explicit (`/student/my-data` export/delete/end-session).
+- Reliability check: smoke validates health + join + helper + teacher paths.
+- Measure without surveillance: onboarding time, submissions per session, teacher minutes saved.
+- Playbook: [docs/PILOT_PLAYBOOK.md](docs/PILOT_PLAYBOOK.md).
+
 ## Security + deployment links
 
 - Security posture: `docs/SECURITY.md`
@@ -58,7 +69,7 @@ Then open:
 
 - Contributing guide: `CONTRIBUTING.md`
 - Changelog: `CHANGELOG.md`
-- Press kit: `press/README.md`
+- Press kit: [press/README.md](press/README.md)
 
 A lightweight, self-hosted LMS focused on reliable classroom operations.
 
