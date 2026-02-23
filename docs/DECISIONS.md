@@ -651,3 +651,12 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Prevents browser-native auth popups from blocking teacher login and OTP setup.
 - Preserves defense-in-depth on the rest of the admin surface when edge basic auth is enabled.
+
+## Smoke guardrail for admin login edge-auth regressions
+
+**Current decision:**
+- `scripts/smoke_check.sh` now explicitly checks `GET /admin/login/` before teacher/session checks.
+- Smoke fails when the route responds with `401` and `WWW-Authenticate: Basic`, with a targeted error directing operators to exempt `/admin/login*` from edge basic-auth.
+
+**Why this remains active:**
+- Prevents golden/strict smoke from passing when Caddy is still showing browser auth popups and blocking Django OTP login.
