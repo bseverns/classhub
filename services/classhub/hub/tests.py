@@ -1032,7 +1032,7 @@ class JoinClassTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Join Test", join_code="JOIN1234")
 
-    def test_join_same_name_without_return_code_creates_new_identity(self):
+    def test_join_same_name_without_return_code_reuses_existing_identity(self):
         payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
         r1 = self.client.post("/join", data=json.dumps(payload), content_type="application/json")
         self.assertEqual(r1.status_code, 200)
@@ -1050,8 +1050,13 @@ class JoinClassTests(TestCase):
         self.assertEqual(r2.status_code, 200)
         second_id = other.session.get("student_id")
 
-        self.assertNotEqual(first_id, second_id)
-        self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 2)
+        self.assertEqual(first_id, second_id)
+        self.assertTrue(r2.json().get("rejoined"))
+        self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 1)
+        second_event = StudentEvent.objects.order_by("-id").first()
+        self.assertIsNotNone(second_event)
+        self.assertEqual(second_event.event_type, StudentEvent.EVENT_REJOIN_DEVICE_HINT)
+        self.assertEqual(second_event.details.get("join_mode"), "name_match")
 
     def test_join_same_device_without_return_code_reuses_identity(self):
         payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
@@ -1090,6 +1095,24 @@ class JoinClassTests(TestCase):
         self.assertNotEqual(first_id, second_id)
         self.assertFalse(r2.json().get("rejoined"))
         self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 2)
+
+    def test_join_name_match_avoids_new_row_when_duplicates_already_exist(self):
+        oldest = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+        StudentIdentity.objects.create(classroom=self.classroom, display_name="ADA")
+
+        other = Client()
+        resp = other.post(
+            "/join",
+            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "ada"}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json().get("rejoined"))
+        self.assertEqual(other.session.get("student_id"), oldest.id)
+        self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom, display_name__iexact="ada").count(), 2)
+        event = StudentEvent.objects.order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.details.get("join_mode"), "name_match")
 
     def test_join_reuses_identity_when_return_code_matches(self):
         r1 = self.client.post(

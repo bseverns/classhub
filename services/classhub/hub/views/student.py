@@ -190,6 +190,22 @@ def _load_device_hint_student(request, classroom: Class, display_name: str) -> S
     return student
 
 
+def _load_name_match_student(classroom: Class, display_name: str) -> StudentIdentity | None:
+    """Fallback rejoin by class + display-name match.
+
+    This intentionally prefers the oldest matching identity to keep behavior
+    deterministic when duplicate rows already exist.
+    """
+    normalized = (display_name or "").strip()
+    if not normalized:
+        return None
+    return (
+        StudentIdentity.objects.filter(classroom=classroom, display_name__iexact=normalized)
+        .order_by("id")
+        .first()
+    )
+
+
 def _apply_device_hint_cookie(response: JsonResponse, classroom: Class, student: StudentIdentity) -> None:
     payload = {"class_id": classroom.id, "student_id": student.id}
     signed = signing.dumps(payload, salt="classhub.student-device-hint")
@@ -210,7 +226,9 @@ def join_class(request):
     Body (JSON): {"class_code": "ABCD1234", "display_name": "Ada", "return_code": "ABC234"}
 
     Stores student identity in session cookie.
-    If return_code is omitted, we may rejoin via signed same-device cookie hint.
+    If return_code is omitted, rejoin attempts proceed in this order:
+    1) signed same-device cookie hint
+    2) class + display-name fallback match
     """
     try:
         payload = json.loads(request.body.decode("utf-8"))
@@ -268,6 +286,11 @@ def join_class(request):
             if student is not None:
                 rejoined = True
                 join_mode = "device_hint"
+            else:
+                student = _load_name_match_student(classroom, name)
+                if student is not None:
+                    rejoined = True
+                    join_mode = "name_match"
 
         if student is None:
             student = _create_student_identity(classroom, name)
@@ -283,7 +306,7 @@ def join_class(request):
     _apply_device_hint_cookie(response, classroom, student)
     if join_mode == "return_code":
         event_type = StudentEvent.EVENT_REJOIN_RETURN_CODE
-    elif join_mode == "device_hint":
+    elif join_mode in {"device_hint", "name_match"}:
         event_type = StudentEvent.EVENT_REJOIN_DEVICE_HINT
     else:
         event_type = StudentEvent.EVENT_CLASS_JOIN

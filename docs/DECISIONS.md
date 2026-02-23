@@ -675,3 +675,15 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Students who rejoin with class code (without return code) can create duplicate roster entries in legitimate classroom usage.
 - Gives teachers a low-friction correction path without manual database edits or admin-only intervention.
+
+## Name-match fallback on student join (reduce duplicate roster growth)
+
+**Current decision:**
+- For `POST /join` without `return_code`, rejoin resolution now uses:
+  1) signed same-device hint, then
+  2) class + display-name match (`display_name__iexact`) selecting the oldest matching identity.
+- If a name-match identity is reused, `rejoined=true` is returned and event details record `join_mode=name_match`.
+
+**Why this remains active:**
+- Prevents repeated same-name joins (for example smoke/rehearsal cycles or classroom cookie churn) from creating unbounded duplicate student rows.
+- Keeps behavior deterministic when duplicate-name rows already exist.

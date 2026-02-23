@@ -10,7 +10,9 @@
   the student id in the session cookie.
 - Rejoin from the same browser/device can reclaim identity automatically when class code
   + display name match a valid signed device hint cookie.
-- Rejoin from a different browser/device requires class code + display name + `return_code`.
+- If no return code is provided and no device hint is available, join now falls back to
+  class + display-name matching and reuses the oldest matching identity.
+- Rejoin from a different browser/device is strongest with class code + display name + `return_code`.
 
 ## Recovery
 
