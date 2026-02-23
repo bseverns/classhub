@@ -43,6 +43,7 @@ class TeacherOTPRequiredMiddleware:
     """Require OTP-verified staff sessions for /teach routes."""
 
     _EXEMPT_PREFIXES = (
+        "/teach/login",
         "/teach/2fa/setup",
         "/teach/logout",
     )
@@ -81,6 +82,7 @@ class AuthRateLimitMiddleware:
     """Throttle sensitive staff-auth POST endpoints."""
 
     _ADMIN_LOGIN_PATH = "/admin/login/"
+    _TEACHER_LOGIN_PATH = "/teach/login"
     _TEACHER_SETUP_PATH = "/teach/2fa/setup"
 
     def __init__(self, get_response):
@@ -97,6 +99,8 @@ class AuthRateLimitMiddleware:
     def _rate_limited_response(*, path: str, window_seconds: int):
         if path == "/admin/login/":
             message = "Too many admin login attempts. Wait a minute and try again."
+        elif path == "/teach/login":
+            message = "Too many teacher login attempts. Wait a minute and try again."
         else:
             message = "Too many 2FA verification attempts. Wait a minute and try again."
         response = HttpResponse(message, status=429, content_type="text/plain; charset=utf-8")
@@ -110,13 +114,16 @@ class AuthRateLimitMiddleware:
             return self.get_response(request)
 
         path = request.path or ""
-        if path not in {self._ADMIN_LOGIN_PATH, self._TEACHER_SETUP_PATH}:
+        if path not in {self._ADMIN_LOGIN_PATH, self._TEACHER_LOGIN_PATH, self._TEACHER_SETUP_PATH}:
             return self.get_response(request)
 
         window_seconds = max(int(getattr(settings, "CLASSHUB_AUTH_RATE_LIMIT_WINDOW_SECONDS", 60) or 60), 1)
         if path == self._ADMIN_LOGIN_PATH:
             limit = int(getattr(settings, "CLASSHUB_ADMIN_LOGIN_RATE_LIMIT_PER_MINUTE", 20) or 0)
             namespace = "admin_login"
+        elif path == self._TEACHER_LOGIN_PATH:
+            limit = int(getattr(settings, "CLASSHUB_TEACHER_LOGIN_RATE_LIMIT_PER_MINUTE", 20) or 0)
+            namespace = "teacher_login"
         else:
             limit = int(getattr(settings, "CLASSHUB_TEACHER_2FA_RATE_LIMIT_PER_MINUTE", 10) or 0)
             namespace = "teacher_2fa_setup"

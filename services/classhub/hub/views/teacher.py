@@ -17,6 +17,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.contrib.auth.forms import AuthenticationForm
 from django.core.cache import cache
 from django.core import signing
 from django.core.mail import send_mail
@@ -172,7 +173,7 @@ def _totp_qr_svg(config_url: str) -> str:
 
 def _send_teacher_onboarding_email(request, *, user, setup_url: str, starting_password: str = ""):
     app_host = request.get_host()
-    login_url = request.build_absolute_uri("/admin/login/")
+    login_url = request.build_absolute_uri("/teach/login")
     from_email = (getattr(settings, "TEACHER_INVITE_FROM_EMAIL", "") or "").strip() or getattr(
         settings, "DEFAULT_FROM_EMAIL", "classhub@localhost"
     )
@@ -203,7 +204,7 @@ def _send_teacher_onboarding_email(request, *, user, setup_url: str, starting_pa
             "2) Scan the QR code in your authenticator app.",
             "3) Enter the 6-digit code to confirm.",
             "",
-            f"Admin login: {login_url}",
+            f"Teacher login: {login_url}",
             f"Host: {app_host}",
         ]
     )
@@ -216,12 +217,63 @@ def _send_teacher_onboarding_email(request, *, user, setup_url: str, starting_pa
     )
 
 
+def teach_login(request):
+    next_raw = (request.GET.get("next") or request.POST.get("next") or "/teach").strip()
+    next_path = _safe_teacher_return_path(next_raw, "/teach")
+
+    user = getattr(request, "user", None)
+    if user and user.is_authenticated:
+        if user.is_staff and user.is_active:
+            if getattr(settings, "TEACHER_2FA_REQUIRED", True):
+                is_verified_attr = getattr(user, "is_verified", None)
+                is_verified = bool(is_verified_attr() if callable(is_verified_attr) else is_verified_attr)
+                if not is_verified:
+                    return _safe_internal_redirect(request, "/teach/2fa/setup", fallback="/teach/2fa/setup")
+            return _safe_internal_redirect(request, next_path, fallback="/teach")
+        auth_logout(request)
+        request.session.flush()
+
+    error = ""
+    form = AuthenticationForm(request, data=request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            authenticated_user = form.get_user()
+            if not authenticated_user.is_active or not authenticated_user.is_staff:
+                auth_logout(request)
+                request.session.flush()
+                error = "This account does not have teacher access."
+            else:
+                auth_login(request, authenticated_user)
+                if getattr(settings, "TEACHER_2FA_REQUIRED", True):
+                    is_verified_attr = getattr(authenticated_user, "is_verified", None)
+                    is_verified = bool(is_verified_attr() if callable(is_verified_attr) else is_verified_attr)
+                    if not is_verified:
+                        return _safe_internal_redirect(
+                            request,
+                            _with_notice("/teach/2fa/setup", notice="Finish 2FA setup to continue."),
+                            fallback="/teach/2fa/setup",
+                        )
+                return _safe_internal_redirect(request, next_path, fallback="/teach")
+
+    response = render(
+        request,
+        "teach_login.html",
+        {
+            "form": form,
+            "next_path": next_path,
+            "error": error,
+        },
+    )
+    apply_no_store(response, private=True, pragma=True)
+    return response
+
+
 def teacher_logout(request):
     # Teacher/admin auth uses Django auth session, so call auth_logout first.
     auth_logout(request)
     # Also flush generic session keys to keep student and staff states cleanly separate.
     request.session.flush()
-    return redirect("/admin/login/")
+    return redirect("/teach/login")
 
 
 def _title_from_video_filename(filename: str) -> str:
