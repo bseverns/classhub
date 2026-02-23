@@ -10,6 +10,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
 - [Secret handling: env-only secret sources](#secret-handling-env-only-secret-sources)
+- [Compose env dollar escaping](#compose-env-dollar-escaping)
 - [Request safety and helper access posture](#request-safety-and-helper-access-posture)
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
 - [Deployment guardrails](#deployment-guardrails)
@@ -234,6 +235,18 @@ Historical implementation logs and superseded decisions are archived by month in
 - Prevents insecure fallback secret boot behavior.
 - Supports basic secret hygiene for self-hosted operations.
 - Keeps rotation/update workflow operationally simple.
+
+## Compose env dollar escaping
+
+**Current decision:**
+- Values in `compose/.env` that include `$` must be Compose-safe:
+  - either wrap the value in single quotes
+  - or escape each `$` as `$$`
+- `scripts/validate_env_secrets.sh` enforces this for `CADDY_ADMIN_BASIC_AUTH_HASH` to prevent interpolation drift and noisy deploy warnings.
+
+**Why this remains active:**
+- Docker Compose treats bare `$...` as interpolation, which can silently mutate secrets and spam warnings during deploy.
+- Bcrypt hashes (`$2...`) are common in Caddy basic-auth setup and need explicit handling.
 
 ## Request safety and helper access posture
 

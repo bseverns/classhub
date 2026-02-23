@@ -54,6 +54,7 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 | Helper returns policy redirect unexpectedly | topic filter mode + scope context | Policy config |
 | Admin blocked by OTP | admin device enrollment | Auth hardening |
 | Content missing after reset/rebuild | class/module records | Data reset/reseed |
+| Deploy shows `The "<token>" variable is not set` warnings | `compose/.env` secrets with `$` | Docker Compose interpolation |
 
 ## Symptom: site does not load over HTTPS
 
@@ -77,6 +78,33 @@ Look for:
 - expected template (`Caddyfile.domain` or `Caddyfile.domain.assets` for public TLS)
 - correct domain in logs and `.env`
 - ACME identifier/certificate errors
+
+## Symptom: deploy logs repeated `The "<token>" variable is not set` warnings
+
+Example signal:
+
+```text
+WARN[0000] The "BA1VKkxkjyEBba" variable is not set. Defaulting to a blank string.
+```
+
+Common cause:
+
+- a secret in `compose/.env` contains an unescaped `$` (most often `CADDY_ADMIN_BASIC_AUTH_HASH` bcrypt value)
+
+Fix:
+
+- wrap the value in single quotes, for example:
+  - `CADDY_ADMIN_BASIC_AUTH_HASH='$2a$14$...'`
+- or escape dollars as `$$`:
+  - `CADDY_ADMIN_BASIC_AUTH_HASH=$$2a$$14$$...`
+
+Then re-run:
+
+```bash
+cd /srv/lms/app
+bash scripts/validate_env_secrets.sh
+bash scripts/deploy_with_smoke.sh
+```
 
 ## Symptom: `/helper/chat` fails with 502 or `ollama_error`
 

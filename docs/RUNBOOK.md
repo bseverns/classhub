@@ -136,6 +136,7 @@ When running behind Caddy on a real domain, use these defaults to avoid false ra
     - `CADDY_ADMIN_BASIC_AUTH_ENABLED=1`
     - `CADDY_ADMIN_BASIC_AUTH_USER`
     - `CADDY_ADMIN_BASIC_AUTH_HASH`
+    - If the bcrypt hash includes `$` (it will), quote it in `compose/.env` or escape as `$$` to avoid Compose interpolation warnings.
   - If you intentionally leave allowlists open, set explicit acknowledgement:
     - `CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1`
 

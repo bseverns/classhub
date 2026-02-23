@@ -20,6 +20,13 @@ env_file_value() {
   echo "${raw}"
 }
 
+env_file_raw_value() {
+  local key="$1"
+  local raw
+  raw="$(grep -E "^${key}=" "${ENV_FILE}" | tail -n1 | cut -d= -f2- || true)"
+  echo "${raw}"
+}
+
 fail() {
   echo "[env-check] FAIL: $*" >&2
   exit 1
@@ -94,6 +101,27 @@ require_strong_secret() {
   fi
   if is_unsafe_secret "${val}"; then
     fail "${key} looks like a placeholder/default value"
+  fi
+}
+
+require_compose_safe_dollars() {
+  local key="$1"
+  local raw
+  raw="$(env_file_raw_value "${key}")"
+  if [[ -z "${raw}" ]]; then
+    return 0
+  fi
+
+  # Docker Compose treats unescaped "$" as interpolation. Allow either:
+  # - a single-quoted value (literal)
+  # - escaped dollars "$$"
+  if [[ "${raw}" == \'*\' ]]; then
+    return 0
+  fi
+
+  local reduced="${raw//\$\$/}"
+  if [[ "${reduced}" == *'$'* ]]; then
+    fail "${key} contains unescaped '$'. Use single quotes around the value or escape each '$' as '$$' in compose/.env"
   fi
 }
 
@@ -222,13 +250,16 @@ CADDY_ADMIN_BASIC_AUTH_ENABLED="${CADDY_ADMIN_BASIC_AUTH_ENABLED:-0}"
 if [[ "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" != "0" && "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" != "1" ]]; then
   fail "CADDY_ADMIN_BASIC_AUTH_ENABLED must be 0 or 1"
 fi
+require_compose_safe_dollars "CADDY_ADMIN_BASIC_AUTH_HASH"
 if [[ "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" == "1" ]]; then
   require_nonempty "CADDY_ADMIN_BASIC_AUTH_USER"
   require_nonempty "CADDY_ADMIN_BASIC_AUTH_HASH"
   if contains_icase "$(env_file_value CADDY_ADMIN_BASIC_AUTH_USER)" "disabled-admin"; then
     fail "CADDY_ADMIN_BASIC_AUTH_USER must be changed from default when basic auth is enabled"
   fi
-  if [[ "$(env_file_value CADDY_ADMIN_BASIC_AUTH_HASH)" != \$2* ]]; then
+  CADDY_ADMIN_BASIC_AUTH_HASH_VAL="$(env_file_value CADDY_ADMIN_BASIC_AUTH_HASH)"
+  CADDY_ADMIN_BASIC_AUTH_HASH_VAL="${CADDY_ADMIN_BASIC_AUTH_HASH_VAL//\$\$/\$}"
+  if [[ "${CADDY_ADMIN_BASIC_AUTH_HASH_VAL}" != \$2* ]]; then
     fail "CADDY_ADMIN_BASIC_AUTH_HASH should be a bcrypt hash (starts with '$2')"
   fi
 fi

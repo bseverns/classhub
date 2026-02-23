@@ -96,7 +96,14 @@ require_field_if_strict() {
 
 http_code() {
   local url="$1"
-  curl "${CURL_FLAGS[@]}" -o /dev/null -w "%{http_code}" "$url"
+  local code
+  if ! code="$(curl "${CURL_FLAGS[@]}" -o /dev/null -w "%{http_code}" "$url")"; then
+    if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.local" ]]; then
+      fail "unable to reach ${url} (expected local routing; verify Caddy is listening on http://localhost)"
+    fi
+    fail "unable to reach ${url} (verify DOMAIN/SMOKE_BASE_URL, DNS, open ports 80/443, and classhub_caddy status)"
+  fi
+  echo "${code}"
 }
 
 echo "[smoke] base url: ${BASE_URL}"

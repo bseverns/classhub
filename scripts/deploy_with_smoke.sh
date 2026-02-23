@@ -99,6 +99,15 @@ fi
 
 echo "[deploy] caddy mount guardrail OK"
 
+CADDY_RUNNING="$(docker inspect classhub_caddy --format '{{.State.Running}}' 2>/dev/null || true)"
+if [[ "${CADDY_RUNNING}" != "true" ]]; then
+  echo "[deploy] classhub_caddy is not running (state=${CADDY_RUNNING:-unknown})" >&2
+  rollback_if_configured
+  exit 1
+fi
+
+echo "[deploy] caddy runtime guardrail OK"
+
 SMOKE_MODE="${DEPLOY_SMOKE_MODE:-strict}"
 if [[ "${SMOKE_MODE}" == "golden" ]]; then
   set +e
