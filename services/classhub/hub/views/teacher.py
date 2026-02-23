@@ -21,7 +21,7 @@ from django.core.cache import cache
 from django.core import signing
 from django.core.mail import send_mail
 from django.core.validators import validate_email
-from django.db import IntegrityError, models
+from django.db import IntegrityError, models, transaction
 from django.db.utils import OperationalError, ProgrammingError
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import redirect, render
@@ -2065,6 +2065,112 @@ def teach_rename_student(request, class_id: int):
 
 @staff_member_required
 @require_POST
+def teach_merge_students(request, class_id: int):
+    classroom = Class.objects.filter(id=class_id).first()
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+
+    try:
+        source_student_id = int((request.POST.get("source_student_id") or "0").strip())
+    except Exception:
+        source_student_id = 0
+    try:
+        target_student_id = int((request.POST.get("target_student_id") or "0").strip())
+    except Exception:
+        target_student_id = 0
+    confirmed = (request.POST.get("confirm_merge") or "").strip() == "1"
+
+    if not source_student_id or not target_student_id:
+        return _safe_internal_redirect(
+            request,
+            _with_notice(_teach_class_path(classroom.id), error="Select both source and destination students."),
+            fallback=_teach_class_path(classroom.id),
+        )
+    if source_student_id == target_student_id:
+        return _safe_internal_redirect(
+            request,
+            _with_notice(_teach_class_path(classroom.id), error="Source and destination must be different students."),
+            fallback=_teach_class_path(classroom.id),
+        )
+    if not confirmed:
+        return _safe_internal_redirect(
+            request,
+            _with_notice(_teach_class_path(classroom.id), error="Confirm merge before continuing."),
+            fallback=_teach_class_path(classroom.id),
+        )
+
+    with transaction.atomic():
+        source = StudentIdentity.objects.select_for_update().filter(
+            id=source_student_id,
+            classroom=classroom,
+        ).first()
+        target = StudentIdentity.objects.select_for_update().filter(
+            id=target_student_id,
+            classroom=classroom,
+        ).first()
+
+        if source is None:
+            return _safe_internal_redirect(
+                request,
+                _with_notice(_teach_class_path(classroom.id), error="Source student not found in this class."),
+                fallback=_teach_class_path(classroom.id),
+            )
+        if target is None:
+            return _safe_internal_redirect(
+                request,
+                _with_notice(_teach_class_path(classroom.id), error="Destination student not found in this class."),
+                fallback=_teach_class_path(classroom.id),
+            )
+
+        moved_submissions = Submission.objects.filter(student=source).update(student=target)
+        moved_events = StudentEvent.objects.filter(student=source).update(student=target)
+
+        update_target_fields: list[str] = []
+        source_last_seen = source.last_seen_at
+        target_last_seen = target.last_seen_at
+        if source_last_seen and (target_last_seen is None or source_last_seen > target_last_seen):
+            target.last_seen_at = source_last_seen
+            update_target_fields.append("last_seen_at")
+        if update_target_fields:
+            target.save(update_fields=update_target_fields)
+
+        source_name = source.display_name
+        source_code = source.return_code
+        target_name = target.display_name
+        target_code = target.return_code
+        source.delete()
+
+    _audit(
+        request,
+        action="student.merge",
+        classroom=classroom,
+        target_type="StudentIdentity",
+        target_id=str(target_student_id),
+        summary=f"Merged student {source_name} into {target_name}",
+        metadata={
+            "source_student_id": source_student_id,
+            "target_student_id": target_student_id,
+            "source_display_name": source_name,
+            "target_display_name": target_name,
+            "source_return_code": source_code,
+            "target_return_code": target_code,
+            "submissions_moved": moved_submissions,
+            "events_moved": moved_events,
+        },
+    )
+    notice = (
+        f"Merged {source_name} into {target_name}. "
+        f"Moved {moved_submissions} submission(s) and {moved_events} event record(s)."
+    )
+    return _safe_internal_redirect(
+        request,
+        _with_notice(_teach_class_path(classroom.id), notice=notice),
+        fallback=_teach_class_path(classroom.id),
+    )
+
+
+@staff_member_required
+@require_POST
 def teach_delete_student_data(request, class_id: int):
     classroom = Class.objects.filter(id=class_id).first()
     if not classroom:
@@ -2614,6 +2720,7 @@ __all__ = [
     "teach_class_dashboard",
     "teach_class_join_card",
     "teach_rename_student",
+    "teach_merge_students",
     "teach_delete_student_data",
     "teach_reset_roster",
     "teach_toggle_lock",

@@ -196,6 +196,26 @@
         border-radius: 9px;
         background: linear-gradient(155deg, #7d2020, #631717);
       }
+      .merge-zone {
+        margin-top: 14px;
+        border: 1px solid rgba(22, 59, 80, 0.16);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.46);
+        padding: 12px;
+      }
+      .merge-zone .merge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: end;
+      }
+      .merge-zone .merge-row > label {
+        margin: 0;
+        min-width: 180px;
+      }
+      .merge-zone select {
+        min-width: 220px;
+      }
       .danger-zone {
         margin-top: 14px;
         border: 1px solid rgba(182, 56, 56, 0.35);
@@ -311,7 +331,7 @@
           <details class="section-toggle">
             <summary>
               <span class="section-title">Roster</span>
-              <span class="section-subtitle">Rename students quickly. Reset roster between drop-in cohorts.</span>
+              <span class="section-subtitle">Rename or merge duplicate students quickly. Reset roster between drop-in cohorts.</span>
             </summary>
             <div class="section-body">
               {% if students %}
@@ -376,6 +396,48 @@
                 </div>
               {% else %}
                 <p class="muted" style="margin-top:12px">No students in roster yet.</p>
+              {% endif %}
+
+              {% if students|length > 1 %}
+                <div class="merge-zone">
+                  <strong>Merge student records</strong>
+                  <p class="muted mini" style="margin:6px 0 10px 0;">
+                    Use this when the same student appears twice after rejoining with class code.
+                    The source student is removed, and submissions/events are moved to the destination student.
+                  </p>
+                  <form
+                    method="post"
+                    action="/teach/class/{{ classroom.id }}/merge-students"
+                    onsubmit="return confirm('Merge selected student records? This cannot be undone.');"
+                  >
+                    {% csrf_token %}
+                    <div class="merge-row">
+                      <label>
+                        Source student
+                        <select name="source_student_id" required>
+                          <option value="">Select source</option>
+                          {% for st in students %}
+                            <option value="{{ st.id }}">{{ st.display_name }} (#{{ st.id }})</option>
+                          {% endfor %}
+                        </select>
+                      </label>
+                      <label>
+                        Destination student
+                        <select name="target_student_id" required>
+                          <option value="">Select destination</option>
+                          {% for st in students %}
+                            <option value="{{ st.id }}">{{ st.display_name }} (#{{ st.id }})</option>
+                          {% endfor %}
+                        </select>
+                      </label>
+                      <label style="display:flex; gap:6px; align-items:center; min-width:auto;">
+                        <input type="checkbox" name="confirm_merge" value="1" style="width:auto; margin:0;" required />
+                        Confirm merge
+                      </label>
+                      <button type="submit">Merge students</button>
+                    </div>
+                  </form>
+                </div>
               {% endif %}
 
               <div class="danger-zone">

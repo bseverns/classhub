@@ -397,6 +397,88 @@ class TeacherPortalTests(TestCase):
         student.refresh_from_db()
         self.assertEqual(student.display_name, "Aria")
 
+    def test_teacher_can_merge_students(self):
+        classroom = Class.objects.create(name="Period Merge", join_code="MRG12345")
+        module = Module.objects.create(classroom=classroom, title="Session", order_index=0)
+        upload = Material.objects.create(
+            module=module,
+            title="Upload",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        source = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        target = StudentIdentity.objects.create(classroom=classroom, display_name="Ada W")
+        Submission.objects.create(
+            material=upload,
+            student=source,
+            original_filename="project.sb3",
+            file=SimpleUploadedFile("project.sb3", _sample_sb3_bytes()),
+        )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=source,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/merge-students",
+            {
+                "source_student_id": str(source.id),
+                "target_student_id": str(target.id),
+                "confirm_merge": "1",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertFalse(StudentIdentity.objects.filter(id=source.id).exists())
+        self.assertTrue(StudentIdentity.objects.filter(id=target.id).exists())
+        self.assertEqual(Submission.objects.filter(student=target).count(), 1)
+        self.assertEqual(StudentEvent.objects.filter(student=target, event_type=StudentEvent.EVENT_CLASS_JOIN).count(), 1)
+
+        event = AuditEvent.objects.filter(action="student.merge").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.classroom_id, classroom.id)
+        self.assertEqual(event.target_id, str(target.id))
+
+    def test_teacher_merge_students_requires_confirmation(self):
+        classroom = Class.objects.create(name="Period Merge Confirm", join_code="MGC12345")
+        source = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        target = StudentIdentity.objects.create(classroom=classroom, display_name="Ada W")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/merge-students",
+            {
+                "source_student_id": str(source.id),
+                "target_student_id": str(target.id),
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(StudentIdentity.objects.filter(id=source.id).exists())
+        self.assertTrue(StudentIdentity.objects.filter(id=target.id).exists())
+        self.assertEqual(AuditEvent.objects.filter(action="student.merge").count(), 0)
+
+    def test_teacher_merge_students_rejects_same_source_and_target(self):
+        classroom = Class.objects.create(name="Period Merge Same", join_code="MGS12345")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/merge-students",
+            {
+                "source_student_id": str(student.id),
+                "target_student_id": str(student.id),
+                "confirm_merge": "1",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(StudentIdentity.objects.filter(id=student.id).exists())
+        self.assertEqual(AuditEvent.objects.filter(action="student.merge").count(), 0)
+
     def test_teacher_can_reset_roster_and_rotate_code(self):
         classroom = Class.objects.create(name="Period Reset", join_code="RST12345")
         module = Module.objects.create(classroom=classroom, title="Session", order_index=0)

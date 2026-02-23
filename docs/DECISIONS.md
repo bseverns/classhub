@@ -660,3 +660,18 @@ Historical implementation logs and superseded decisions are archived by month in
 
 **Why this remains active:**
 - Prevents golden/strict smoke from passing when Caddy is still showing browser auth popups and blocking Django OTP login.
+
+## Teacher-side student identity merge for duplicate rejoins
+
+**Current decision:**
+- Add a teacher roster action at `POST /teach/class/<id>/merge-students`.
+- Teachers choose a source student and destination student in the same class, confirm merge, then:
+  - move `Submission` rows from source -> destination,
+  - move `StudentEvent` rows from source -> destination,
+  - delete the source student identity.
+- Keep destination identity (including return code) as the canonical record after merge.
+- Record merge actions in audit logs as `student.merge` with moved row counts.
+
+**Why this remains active:**
+- Students who rejoin with class code (without return code) can create duplicate roster entries in legitimate classroom usage.
+- Gives teachers a low-friction correction path without manual database edits or admin-only intervention.
