@@ -273,6 +273,26 @@ If no superuser exists:
 docker compose exec classhub_web python manage.py createsuperuser
 ```
 
+## Symptom: browser shows a username/password popup before `/admin/login/`
+
+Cause:
+
+- Caddy `/admin*` basic auth is enabled and intercepting the login route, so Django OTP login is never reached
+
+Checks:
+
+```bash
+cd /srv/lms/app/compose
+grep -E '^(CADDY_ADMIN_BASIC_AUTH_ENABLED|CADDY_ADMIN_BASIC_AUTH_USER)=' .env
+docker compose logs --tail=120 caddy
+```
+
+Fix:
+
+1. Deploy the updated Caddy template that exempts `/admin/login*` from edge basic auth.
+2. Restart Caddy (`docker compose up -d caddy`).
+3. Re-test `https://<domain>/admin/login/` and confirm Django login (with OTP) appears instead of browser auth modal.
+
 ## Symptom: `/teach` redirects to `/teach/2fa/setup`
 
 Cause:

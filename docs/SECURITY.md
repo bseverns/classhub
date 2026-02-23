@@ -104,6 +104,7 @@ Optional Caddy controls for `/admin*` and `/teach*`:
   - `CADDY_ADMIN_BASIC_AUTH_ENABLED=1`
   - `CADDY_ADMIN_BASIC_AUTH_USER`
   - `CADDY_ADMIN_BASIC_AUTH_HASH` (bcrypt hash)
+  - `/admin/login*` is intentionally excluded so Django login + OTP can render.
 - Open staff-route acknowledgement (required if allowlists are intentionally open in domain mode):
   - `CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1`
 

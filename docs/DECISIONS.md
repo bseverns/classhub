@@ -640,3 +640,14 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Prevents intermittent `/helper/chat` 500s caused by Gunicorn worker timeout while waiting on backend model responses.
 - Converts a runtime failure into an early deploy-time config check.
+
+## Caddy basic-auth compatibility with teacher OTP login
+
+**Current decision:**
+- Keep the optional Caddy basic-auth gate for `/admin*`, but explicitly bypass `/admin/login*`.
+- Apply this matcher behavior consistently in `compose/Caddyfile.local`, `compose/Caddyfile.domain`, `compose/Caddyfile.domain.assets`, and `compose/Caddyfile`.
+- Document that `/admin/login*` is Django-owned so staff can complete username/password + OTP before entering `/teach`.
+
+**Why this remains active:**
+- Prevents browser-native auth popups from blocking teacher login and OTP setup.
+- Preserves defense-in-depth on the rest of the admin surface when edge basic auth is enabled.
