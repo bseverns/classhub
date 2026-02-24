@@ -27,10 +27,12 @@ from django.db.utils import DatabaseError
 from .policy import build_instructions
 from .queueing import acquire_slot, release_slot
 from .classhub_events import emit_helper_chat_access_event
+from .engine import backends as engine_backends
+from .engine import circuit as engine_circuit
+from .engine import reference as engine_reference
 
 EMAIL_RE = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
 PHONE_RE = re.compile(r"\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b")
-SAFE_REF_KEY_RE = re.compile(r"^[a-z0-9_-]+$")
 DEFAULT_TEXT_LANGUAGE_KEYWORDS = [
     "pascal",
     "python",
@@ -142,80 +144,39 @@ def _log_chat_event(level: str, event: str, *, request_id: str, **fields):
 
 
 def _backend_circuit_key(backend: str) -> str:
-    return f"helper:circuit_open:{backend}"
+    return engine_circuit.backend_circuit_key(backend)
 
 
 def _backend_failure_counter_key(backend: str) -> str:
-    return f"helper:circuit_failures:{backend}"
+    return engine_circuit.backend_failure_counter_key(backend)
 
 
 def _backend_circuit_is_open(backend: str) -> bool:
-    try:
-        return bool(cache.get(_backend_circuit_key(backend)))
-    except Exception as exc:
-        logger.warning(
-            "helper_backend_circuit_check_failed backend=%s error=%s",
-            backend,
-            exc.__class__.__name__,
-        )
-        # Fail-open: a cache outage should not hard-fail classroom help traffic.
-        return False
+    return engine_circuit.backend_circuit_is_open(
+        cache_backend=cache,
+        backend=backend,
+        logger=logger,
+    )
 
 
 def _record_backend_failure(backend: str) -> None:
     threshold = max(_env_int("HELPER_CIRCUIT_BREAKER_FAILURES", 5), 1)
     ttl = max(_env_int("HELPER_CIRCUIT_BREAKER_TTL_SECONDS", 30), 1)
-    key = _backend_failure_counter_key(backend)
-    try:
-        current = cache.get(key)
-    except Exception as exc:
-        logger.warning(
-            "helper_backend_circuit_record_failed backend=%s op=get error=%s",
-            backend,
-            exc.__class__.__name__,
-        )
-        return
-    if current is None:
-        try:
-            cache.set(key, 1, timeout=ttl)
-        except Exception as exc:
-            logger.warning(
-                "helper_backend_circuit_record_failed backend=%s op=set error=%s",
-                backend,
-                exc.__class__.__name__,
-            )
-        count = 1
-    else:
-        try:
-            count = int(cache.incr(key))
-        except Exception as exc:
-            logger.warning(
-                "helper_backend_circuit_record_failed backend=%s op=incr error=%s",
-                backend,
-                exc.__class__.__name__,
-            )
-            count = int(current) + 1
-            try:
-                cache.set(key, count, timeout=ttl)
-            except Exception:
-                return
-    if count >= threshold:
-        try:
-            cache.set(_backend_circuit_key(backend), 1, timeout=ttl)
-        except Exception:
-            return
+    engine_circuit.record_backend_failure(
+        cache_backend=cache,
+        backend=backend,
+        threshold=threshold,
+        ttl=ttl,
+        logger=logger,
+    )
 
 
 def _reset_backend_failure_state(backend: str) -> None:
-    try:
-        cache.delete(_backend_failure_counter_key(backend))
-        cache.delete(_backend_circuit_key(backend))
-    except Exception as exc:
-        logger.warning(
-            "helper_backend_circuit_reset_failed backend=%s error=%s",
-            backend,
-            exc.__class__.__name__,
-        )
+    engine_circuit.reset_backend_failure_state(
+        cache_backend=cache,
+        backend=backend,
+        logger=logger,
+    )
 
 
 @lru_cache(maxsize=32)
@@ -350,69 +311,56 @@ def _truncate_response_text(text: str) -> tuple[str, bool]:
 
 
 def _is_retryable_backend_error(exc: Exception) -> bool:
-    if isinstance(exc, RuntimeError) and str(exc) in {"openai_not_installed", "unknown_backend"}:
-        return False
-    if isinstance(exc, (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError)):
-        return True
-    return exc.__class__.__name__ in {
-        "APIConnectionError",
-        "APITimeoutError",
-        "RateLimitError",
-        "InternalServerError",
-    }
+    return engine_backends.is_retryable_backend_error(exc)
 
 
 def _invoke_backend(backend: str, instructions: str, message: str) -> tuple[str, str]:
-    if backend == "ollama":
-        model = os.getenv("OLLAMA_MODEL", "llama3.2:1b")
-        base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
-        return _ollama_chat(base_url, model, instructions, message)
-    if backend == "openai":
-        model = os.getenv("OPENAI_MODEL", "gpt-5.2")
-        return _openai_chat(model, instructions, message)
-    if backend == "mock":
-        return _mock_chat()
-    raise RuntimeError("unknown_backend")
+    registry = {
+        "ollama": engine_backends.CallableBackend(
+            chat_fn=lambda system_instructions, user_message: _ollama_chat(
+                os.getenv("OLLAMA_BASE_URL", "http://ollama:11434"),
+                os.getenv("OLLAMA_MODEL", "llama3.2:1b"),
+                system_instructions,
+                user_message,
+            )
+        ),
+        "openai": engine_backends.CallableBackend(
+            chat_fn=lambda system_instructions, user_message: _openai_chat(
+                os.getenv("OPENAI_MODEL", "gpt-5.2"),
+                system_instructions,
+                user_message,
+            )
+        ),
+        "mock": engine_backends.CallableBackend(
+            chat_fn=lambda _system_instructions, _user_message: _mock_chat()
+        ),
+    }
+    return engine_backends.invoke_backend(
+        backend,
+        instructions=instructions,
+        message=message,
+        registry=registry,
+    )
 
 
 def _call_backend_with_retries(backend: str, instructions: str, message: str) -> tuple[str, str, int]:
-    max_attempts = max(_env_int("HELPER_BACKEND_MAX_ATTEMPTS", 2), 1)
-    base_backoff = max(_env_float("HELPER_BACKOFF_SECONDS", 0.4), 0.0)
-
-    last_exc: Exception | None = None
-    for attempt in range(1, max_attempts + 1):
-        try:
-            text, model_used = _invoke_backend(backend, instructions, message)
-            return text, model_used, attempt
-        except Exception as exc:
-            last_exc = exc
-            if attempt >= max_attempts or not _is_retryable_backend_error(exc):
-                raise
-            sleep_seconds = base_backoff * (2 ** (attempt - 1))
-            if sleep_seconds > 0:
-                time.sleep(sleep_seconds)
-
-    raise last_exc or RuntimeError("backend_error")
+    return engine_backends.call_backend_with_retries(
+        backend,
+        instructions=instructions,
+        message=message,
+        invoke_backend_fn=lambda backend_name, system_instructions, user_message: _invoke_backend(
+            backend_name,
+            system_instructions,
+            user_message,
+        ),
+        max_attempts=max(_env_int("HELPER_BACKEND_MAX_ATTEMPTS", 2), 1),
+        base_backoff=max(_env_float("HELPER_BACKOFF_SECONDS", 0.4), 0.0),
+        sleeper=time.sleep,
+    )
 
 
 def _resolve_reference_file(reference_key: str | None, reference_dir: str, reference_map_raw: str) -> str:
-    if not reference_key:
-        return ""
-    # Prefer explicit allowlist map when provided.
-    if reference_map_raw:
-        try:
-            reference_map = json.loads(reference_map_raw)
-            rel = reference_map.get(reference_key)
-            if rel:
-                return str(Path(reference_dir) / rel)
-        except Exception:
-            pass
-    # Safe fallback: allow direct lookup by slug in reference_dir.
-    if SAFE_REF_KEY_RE.match(reference_key):
-        candidate = Path(reference_dir) / f"{reference_key}.md"
-        if candidate.exists():
-            return str(candidate)
-    return ""
+    return engine_reference.resolve_reference_file(reference_key, reference_dir, reference_map_raw)
 
 
 def _is_scratch_context(context_value: str, topics: list[str], reference_text: str) -> bool:
@@ -490,65 +438,12 @@ def _tokenize(text: str) -> set[str]:
 
 
 def _clean_reference_line(line: str) -> str:
-    value = (line or "").strip()
-    if not value:
-        return ""
-    value = re.sub(r"^#{1,6}\s*", "", value)
-    value = re.sub(r"^[-*]\s+", "", value)
-    value = re.sub(r"^\d+\.\s+", "", value)
-    value = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", value)
-    value = value.replace("`", "")
-    return re.sub(r"\s+", " ", value).strip()
+    return engine_reference.clean_reference_line(line)
 
 
 @lru_cache(maxsize=4)
 def _load_reference_chunks(path_str: str) -> tuple[str, ...]:
-    if not path_str:
-        return tuple()
-    path = Path(path_str)
-    if not path.exists():
-        return tuple()
-    try:
-        text = path.read_text(encoding="utf-8")
-    except Exception as exc:
-        logger.warning(
-            "reference_chunks_load_failed path=%s error=%s",
-            path_str,
-            exc.__class__.__name__,
-        )
-        return tuple()
-    if not text.strip():
-        return tuple()
-
-    blocks: list[str] = []
-    current: list[str] = []
-    for raw in text.splitlines():
-        cleaned = _clean_reference_line(raw)
-        if not cleaned:
-            if current:
-                blocks.append(" ".join(current))
-                current = []
-            continue
-        current.append(cleaned)
-    if current:
-        blocks.append(" ".join(current))
-
-    chunks: list[str] = []
-    for block in blocks:
-        part = re.sub(r"\s+", " ", block).strip()
-        if len(part) < 24:
-            continue
-        while len(part) > 420:
-            split_at = part.rfind(". ", 80, 420)
-            if split_at < 0:
-                split_at = 420
-            chunk = part[: split_at + 1].strip()
-            if chunk:
-                chunks.append(chunk)
-            part = part[split_at + 1 :].strip()
-        if part:
-            chunks.append(part)
-    return tuple(chunks)
+    return engine_reference.load_reference_chunks(path_str, logger=logger)
 
 
 def _build_reference_citations(
@@ -560,43 +455,18 @@ def _build_reference_citations(
     source_label: str,
     max_items: int = 3,
 ) -> list[dict]:
-    if not reference_chunks:
-        return []
-    query_tokens = _tokenize(" ".join([message, context, " ".join(topics)]))
-    ranked: list[tuple[int, int, str]] = []
-    for idx, chunk in enumerate(reference_chunks):
-        chunk_tokens = _tokenize(chunk)
-        overlap = len(query_tokens & chunk_tokens) if query_tokens else 0
-        if overlap <= 0:
-            continue
-        score = overlap * 100 - min(idx, 40)
-        ranked.append((score, idx, chunk))
-
-    if not ranked:
-        selected = list(reference_chunks[:max_items])
-    else:
-        ranked.sort(key=lambda row: (-row[0], row[1]))
-        selected = [row[2] for row in ranked[:max_items]]
-
-    citations: list[dict] = []
-    for idx, chunk in enumerate(selected, start=1):
-        citations.append(
-            {
-                "id": f"L{idx}",
-                "source": source_label,
-                "text": chunk,
-            }
-        )
-    return citations
+    return engine_reference.build_reference_citations(
+        message=message,
+        context=context,
+        topics=topics,
+        reference_chunks=reference_chunks,
+        source_label=source_label,
+        max_items=max_items,
+    )
 
 
 def _format_reference_citations_for_prompt(citations: list[dict]) -> str:
-    if not citations:
-        return ""
-    lines = []
-    for citation in citations:
-        lines.append(f"[{citation['id']}] {citation['text']}")
-    return "Lesson excerpts:\n" + "\n".join(lines)
+    return engine_reference.format_reference_citations_for_prompt(citations)
 
 
 def _allowed_topic_overlap(message: str, allowed_topics: list[str]) -> bool:
@@ -613,25 +483,7 @@ def _allowed_topic_overlap(message: str, allowed_topics: list[str]) -> bool:
 
 @lru_cache(maxsize=4)
 def _load_reference_text(path_str: str) -> str:
-    if not path_str:
-        return ""
-    path = Path(path_str)
-    if not path.exists():
-        return ""
-    try:
-        text = path.read_text(encoding="utf-8").strip()
-    except Exception as exc:
-        logger.warning(
-            "reference_text_load_failed path=%s error=%s",
-            path_str,
-            exc.__class__.__name__,
-        )
-        return ""
-    if not text:
-        return ""
-    # Keep it compact for the system prompt.
-    lines = [line.strip() for line in text.splitlines() if line.strip() and not line.strip().startswith("#")]
-    return " ".join(lines)
+    return engine_reference.load_reference_text(path_str, logger=logger)
 
 
 @require_GET

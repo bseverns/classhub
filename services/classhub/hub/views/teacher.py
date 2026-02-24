@@ -88,6 +88,11 @@ def _teacher_2fa_device_name() -> str:
     return configured or "teacher-primary"
 
 
+def _product_name() -> str:
+    configured = (getattr(settings, "CLASSHUB_PRODUCT_NAME", "Class Hub") or "").strip()
+    return configured or "Class Hub"
+
+
 def _teacher_invite_max_age_seconds() -> int:
     raw = int(getattr(settings, "TEACHER_2FA_INVITE_MAX_AGE_SECONDS", 24 * 3600) or 0)
     return raw if raw > 0 else 24 * 3600
@@ -184,6 +189,7 @@ def _totp_qr_svg(config_url: str) -> str:
 def _send_teacher_onboarding_email(request, *, user, setup_url: str, starting_password: str = ""):
     app_host = request.get_host()
     login_url = request.build_absolute_uri("/teach/login")
+    product_name = _product_name()
     from_email = (getattr(settings, "TEACHER_INVITE_FROM_EMAIL", "") or "").strip() or getattr(
         settings, "DEFAULT_FROM_EMAIL", "classhub@localhost"
     )
@@ -191,7 +197,7 @@ def _send_teacher_onboarding_email(request, *, user, setup_url: str, starting_pa
     lines = [
         f"Hi {user.first_name or user.username},",
         "",
-        "Your Class Hub teacher account is ready.",
+        f"Your {product_name} teacher account is ready.",
         "",
         f"Username: {user.username}",
     ]
@@ -219,7 +225,7 @@ def _send_teacher_onboarding_email(request, *, user, setup_url: str, starting_pa
         ]
     )
     send_mail(
-        subject="Complete your Class Hub teacher 2FA setup",
+        subject=f"Complete your {product_name} teacher 2FA setup",
         message="\n".join(lines),
         from_email=from_email,
         recipient_list=[user.email],

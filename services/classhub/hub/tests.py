@@ -524,7 +524,10 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(student_resp.status_code, 302)
         self.assertEqual(student_resp["Location"], "/")
 
-    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        CLASSHUB_PRODUCT_NAME="Pilot Classroom Hub",
+    )
     def test_superuser_can_create_teacher_and_send_invite(self):
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.post(
@@ -547,6 +550,8 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
         self.assertEqual(msg.to, ["teacher2@example.org"])
+        self.assertEqual(msg.subject, "Complete your Pilot Classroom Hub teacher 2FA setup")
+        self.assertIn("Your Pilot Classroom Hub teacher account is ready.", msg.body)
         self.assertIn("/teach/2fa/setup?token=", msg.body)
         self.assertNotIn("Temporary password:", msg.body)
 
@@ -1718,6 +1723,40 @@ class StudentDataControlsTests(TestCase):
         self.assertEqual(str(hint_cookie["max-age"]), "0")
         self.assertNotIn("student_id", self.client.session)
         self.assertNotIn("class_id", self.client.session)
+
+
+class OperatorProfileTemplateTests(TestCase):
+    def setUp(self):
+        self.classroom = Class.objects.create(name="Operator Profile Class", join_code="OPR12345")
+        self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+
+    def _login_student(self):
+        session = self.client.session
+        session["student_id"] = self.student.id
+        session["class_id"] = self.classroom.id
+        session.save()
+
+    @override_settings(
+        CLASSHUB_PRODUCT_NAME="Northside Learning Hub",
+        CLASSHUB_STORAGE_LOCATION_TEXT="this server is hosted by Northside Public Schools.",
+        CLASSHUB_PRIVACY_PROMISE_TEXT="No surveillance analytics. No ad-tech. No data broker sharing.",
+        CLASSHUB_ADMIN_LABEL="Northside School Admin",
+    )
+    def test_join_and_my_data_use_operator_profile_text(self):
+        join_resp = self.client.get("/")
+        self.assertEqual(join_resp.status_code, 200)
+        self.assertContains(join_resp, "this server is hosted by Northside Public Schools.")
+        self.assertContains(join_resp, "No surveillance analytics. No ad-tech. No data broker sharing.")
+
+        self._login_student()
+        my_data_resp = self.client.get("/student/my-data")
+        self.assertEqual(my_data_resp.status_code, 200)
+        self.assertContains(my_data_resp, "this server is hosted by Northside Public Schools.")
+        self.assertContains(my_data_resp, "No surveillance analytics. No ad-tech. No data broker sharing.")
+
+        admin_login_resp = self.client.get("/admin/login/")
+        self.assertEqual(admin_login_resp.status_code, 200)
+        self.assertContains(admin_login_resp, "Northside School Admin Login")
 
 
 class LessonAssetDownloadTests(TestCase):

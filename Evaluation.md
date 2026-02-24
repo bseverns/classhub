@@ -1,7 +1,7 @@
 # Self-Hosted ClassHub — Evaluation, Autopsy, and Improvement Tracker
 
 > **Baseline reference:** `de7c528` (release artifact: `dist/classhub_release_20260221_175135_de7c528.zip`)  
-> **Last updated:** 2026-02-23  
+> **Last updated:** 2026-02-24  
 > **Primary maintainer:** Ben  
 
 This file is intentionally **two things at once**:
@@ -53,7 +53,7 @@ This file is intentionally **two things at once**:
 
 ## 1. Sprint plan
 
-> Sprint start: **2026-02-24** (tomorrow).  
+> Sprint start: **2026-02-24** (today).  
 > Suggested cadence: treat this as a **two-week** sprint window and adjust dates as needed.
 
 ### Sprint 01 goal (recommended)
@@ -62,9 +62,9 @@ This file is intentionally **two things at once**:
 
 Scope target:
 - ✅ Operator profile (white-label without template edits)
-- ✅ Helper modularization seam (backend interface + engine modules)
-- ✅ Edge hardening for internal endpoints
-- ✅ Non-root containers (foundation for least-privilege Compose)
+- 🟨 Helper modularization seam (backend interface + engine modules)
+- ⬜ Edge hardening for internal endpoints
+- ⬜ Non-root containers (foundation for least-privilege Compose)
 
 Stretch:
 - Pin `:latest` images + CI guard
@@ -77,11 +77,11 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
 
 ### Core “Next 10 commits” (ranked)
 
-1. ⬜ **feat(config): add operator profile + remove hard-coded operator strings**  
+1. ✅ **feat(config): add operator profile + remove hard-coded operator strings**  
    **Impact:** forks/deploys feel native; values messaging becomes configurable.  
    **Accept:** join + My Data pages reflect env-only changes.
 
-2. ⬜ **refactor(helper): split `tutor/views.py` into engine modules + backend interface**  
+2. 🟨 **refactor(helper): split `tutor/views.py` into engine modules + backend interface**  
    **Impact:** makes streaming/new backends/policy evolution safe.  
    **Accept:** all existing helper tests pass; new unit tests cover engine/backends.
 
@@ -145,6 +145,9 @@ A change is “done” when it meets **all** of these:
 Add one short entry per merged PR.
 
 - **2026-02-23** — Converted Evaluation.md into a tracker; backlog ranked; Sprint 01 drafted.
+- **2026-02-24** — Completed Sprint #1 commit (operator profile + template/admin de-hardcoding + docs/tests updates).
+- **2026-02-24** — Started Sprint #2 helper seam refactor (`tutor/views.py` extraction into engine/backend modules).
+- **2026-02-24** — Landed helper engine seam (`tutor/engine/backends.py`, `circuit.py`, `reference.py`) with compatibility wrappers in `tutor/views.py`; pending full Django test run in a provisioned env.
 
 ---
 

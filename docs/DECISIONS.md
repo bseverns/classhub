@@ -7,9 +7,11 @@ Historical implementation logs and superseded decisions are archived by month in
 
 - [Auth model: student access](#auth-model-student-access)
 - [Service boundary: Homework Helper separate service](#service-boundary-homework-helper-separate-service)
+- [Helper engine modularization seam](#helper-engine-modularization-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
 - [Secret handling: env-only secret sources](#secret-handling-env-only-secret-sources)
+- [Operator profile white-labeling](#operator-profile-white-labeling)
 - [Compose env dollar escaping](#compose-env-dollar-escaping)
 - [Request safety and helper access posture](#request-safety-and-helper-access-posture)
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
@@ -197,6 +199,17 @@ Historical implementation logs and superseded decisions are archived by month in
 - Protects classroom materials from helper outages.
 - Preserves independent scaling and policy controls as helper traffic grows.
 
+## Helper engine modularization seam
+
+**Current decision:**
+- Keep `/helper/chat` as the single HTTP endpoint in `tutor/views.py`, but move backend/runtime internals into `tutor/engine/*`.
+- Introduce an explicit backend interface contract (`BackendInterface`) plus callable adapters in `tutor/engine/backends.py`.
+- Keep `tutor.views` helper function names stable as compatibility wrappers during extraction.
+
+**Why this remains active:**
+- Reduces change risk by preserving endpoint behavior and test patch targets while creating a clean seam for future streaming/new providers.
+- Makes backend retry/circuit/reference code independently testable without expanding view-layer complexity.
+
 ## Routing mode: local vs domain Caddy configs
 
 **Current decision:**
@@ -235,6 +248,24 @@ Historical implementation logs and superseded decisions are archived by month in
 - Prevents insecure fallback secret boot behavior.
 - Supports basic secret hygiene for self-hosted operations.
 - Keeps rotation/update workflow operationally simple.
+
+## Operator profile white-labeling
+
+**Current decision:**
+- Operator identity text is environment-configured, not template-edited.
+- Class Hub reads the operator profile from:
+  - `CLASSHUB_PRODUCT_NAME`
+  - `CLASSHUB_OPERATOR_NAME`
+  - `CLASSHUB_OPERATOR_DESCRIPTOR`
+  - `CLASSHUB_STORAGE_LOCATION_TEXT` (optional explicit override)
+  - `CLASSHUB_PRIVACY_PROMISE_TEXT`
+  - `CLASSHUB_ADMIN_LABEL`
+- Templates consume this profile through a global context processor so join/privacy/admin surfaces stay consistent.
+
+**Why this remains active:**
+- Makes forks/deploys feel native without patching HTML files.
+- Reduces accidental branding/privacy copy drift across join, helper, upload, and admin pages.
+- Keeps white-label changes auditable in deployment config instead of code diffs.
 
 ## Compose env dollar escaping
 

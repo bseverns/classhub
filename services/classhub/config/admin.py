@@ -2,11 +2,25 @@ from django.conf import settings
 from django_otp.admin import OTPAdminSite
 
 
+def _admin_label() -> str:
+    configured = (getattr(settings, "CLASSHUB_ADMIN_LABEL", "") or "").strip()
+    return configured or "Class Hub Admin"
+
+
 class ClassHubAdminSite(OTPAdminSite):
-    site_header = "createMPLS Course Admin"
-    site_title = "createMPLS Course Admin"
-    index_title = "createMPLS Course Admin"
     enable_nav_sidebar = False
+
+    @property
+    def site_header(self) -> str:
+        return _admin_label()
+
+    @property
+    def site_title(self) -> str:
+        return _admin_label()
+
+    @property
+    def index_title(self) -> str:
+        return _admin_label()
 
     def has_permission(self, request) -> bool:
         user = getattr(request, "user", None)

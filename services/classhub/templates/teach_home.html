@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Teacher · Class Hub</title>
+    <title>Teacher · {{ operator_profile.product_name|default:"Class Hub" }}</title>
     {% include "includes/glass_theme.html" %}
     <style>
       .shell { max-width: 1040px; }

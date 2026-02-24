@@ -12,7 +12,7 @@
   <p class="helper-description">{{ helper_description|default:"Ask the helper for hints, steps, or feedback." }}</p>
   <div class="helper-privacy">
     <p class="muted helper-privacy-line">Stored: helper access timestamps and lesson-scope metadata only (not ads/tracking profiles).</p>
-    <p class="muted helper-privacy-line">Storage location: this server is hosted by createMPLS, a nonprofit educational group.</p>
+    <p class="muted helper-privacy-line">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
     <p class="muted helper-privacy-line">
       Retention:
       {% if student_event_retention_days %}
@@ -21,7 +21,7 @@
         helper access events stay until admin retention cleanup is run.
       {% endif %}
     </p>
-    <p class="muted helper-privacy-line">Delete now: <a href="{{ helper_delete_url|default:'/student/my-data' }}">My Data</a>. No tracking. No ads. No data broker sharing.</p>
+    <p class="muted helper-privacy-line">Delete now: <a href="{{ helper_delete_url|default:'/student/my-data' }}">My Data</a>. {{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
   </div>
   <div class="helper-quick-wrap">
     <div class="helper-quick-title">Quick asks (tap to send):</div>

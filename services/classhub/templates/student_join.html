@@ -94,7 +94,7 @@
           <div class="privacy-note" aria-live="polite">
             <p class="muted"><strong>Privacy at a glance:</strong></p>
             <p class="muted">We store your display name, class submissions, and event timestamps needed to run class.</p>
-            <p class="muted">Storage location: this server is hosted by createMPLS, a nonprofit educational group.</p>
+            <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
             <p class="muted">
               Retention:
               {% if submission_retention_days %}
@@ -104,7 +104,7 @@
               {% endif %}
             </p>
             <p class="muted">Delete now: after joining, open <a href="/student/my-data">My Data</a> to delete your work or end this device session.</p>
-            <p class="muted">No tracking. No ads. No data broker sharing.</p>
+            <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
           </div>
         </div>
 

@@ -80,7 +80,7 @@
           <h2 style="margin:0">Privacy at a glance</h2>
           <div class="privacy-note">
             <p class="muted">Stored data: your display name, submissions, and class event timestamps.</p>
-            <p class="muted">Storage location: this server is hosted by createMPLS, a nonprofit educational group.</p>
+            <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
             <p class="muted">
               Retention:
               {% if submission_retention_days %}
@@ -89,7 +89,7 @@
                 submissions stay until a teacher or admin removes them.
               {% endif %}
             </p>
-            <p class="muted">No tracking. No ads. No data broker sharing.</p>
+            <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
           </div>
           <div class="actions">
             <a href="/student/portfolio-export">Download my work</a>

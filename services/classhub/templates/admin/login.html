@@ -1,6 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
-{% block title %}createMPLS Course Admin{% endblock %}
+{% block title %}{{ site_header|default:operator_profile.admin_label }}{% endblock %}
 
 {% block extrastyle %}
 {{ block.super }}
@@ -204,7 +204,7 @@
 <main id="main-content">
   <div class="login-shell">
     <section class="login-card">
-      <h2>createMPLS Course Admin Login</h2>
+      <h2>{{ site_header|default:operator_profile.admin_label }} Login</h2>
       <p class="help-text">Sign in with your superuser credentials and 2FA token.</p>
 
       {% if form.errors and not form.non_field_errors %}

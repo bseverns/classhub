@@ -136,6 +136,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "config.context_processors.operator_profile",
             ]
         },
     }
@@ -169,6 +170,37 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = env("DJANGO_TIME_ZONE", default="America/Chicago").strip() or "America/Chicago"
 USE_I18N = True
 USE_TZ = True
+
+CLASSHUB_PRODUCT_NAME = (env("CLASSHUB_PRODUCT_NAME", default="Class Hub").strip() or "Class Hub")
+CLASSHUB_OPERATOR_NAME = (env("CLASSHUB_OPERATOR_NAME", default="createMPLS").strip() or "createMPLS")
+CLASSHUB_OPERATOR_DESCRIPTOR = (
+    env("CLASSHUB_OPERATOR_DESCRIPTOR", default="a nonprofit educational group").strip()
+    or "a nonprofit educational group"
+)
+_default_storage_location_text = f"this server is hosted by {CLASSHUB_OPERATOR_NAME}, {CLASSHUB_OPERATOR_DESCRIPTOR}."
+CLASSHUB_STORAGE_LOCATION_TEXT = (
+    env("CLASSHUB_STORAGE_LOCATION_TEXT", default=_default_storage_location_text).strip()
+    or _default_storage_location_text
+)
+CLASSHUB_PRIVACY_PROMISE_TEXT = (
+    env(
+        "CLASSHUB_PRIVACY_PROMISE_TEXT",
+        default="No tracking. No ads. No data broker sharing.",
+    ).strip()
+    or "No tracking. No ads. No data broker sharing."
+)
+CLASSHUB_ADMIN_LABEL = (
+    env("CLASSHUB_ADMIN_LABEL", default=f"{CLASSHUB_OPERATOR_NAME} Course Admin").strip()
+    or f"{CLASSHUB_OPERATOR_NAME} Course Admin"
+)
+CLASSHUB_OPERATOR_PROFILE = {
+    "product_name": CLASSHUB_PRODUCT_NAME,
+    "operator_name": CLASSHUB_OPERATOR_NAME,
+    "operator_descriptor": CLASSHUB_OPERATOR_DESCRIPTOR,
+    "storage_location_text": CLASSHUB_STORAGE_LOCATION_TEXT,
+    "privacy_promise_text": CLASSHUB_PRIVACY_PROMISE_TEXT,
+    "admin_label": CLASSHUB_ADMIN_LABEL,
+}
 
 _DEFAULT_CSP_POLICY = (
     "default-src 'self'; "

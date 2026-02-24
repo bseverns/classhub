@@ -187,12 +187,13 @@ class SiteModeMiddleware:
         override = (getattr(settings, "SITE_MODE_MESSAGE", "") or "").strip()
         if override:
             return override
+        product_name = (getattr(settings, "CLASSHUB_PRODUCT_NAME", "Class Hub") or "Class Hub").strip() or "Class Hub"
         if mode == "read-only":
-            return "Class Hub is in read-only mode. Uploads and write actions are temporarily disabled."
+            return f"{product_name} is in read-only mode. Uploads and write actions are temporarily disabled."
         if mode == "join-only":
-            return "Class Hub is in join-only mode. Class entry is available; teaching and upload actions are paused."
+            return f"{product_name} is in join-only mode. Class entry is available; teaching and upload actions are paused."
         if mode == "maintenance":
-            return "Class Hub is in maintenance mode. Please try again shortly."
+            return f"{product_name} is in maintenance mode. Please try again shortly."
         return ""
 
     @staticmethod
