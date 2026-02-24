@@ -12,7 +12,7 @@ from django.core import signing
 from django.core.signing import BadSignature, SignatureExpired
 from django.db import transaction
 from django.http import FileResponse, HttpResponse, JsonResponse
-from django.middleware.csrf import get_token
+from django.middleware.csrf import get_token, rotate_token
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -298,9 +298,12 @@ def join_class(request):
         student.last_seen_at = timezone.now()
         student.save(update_fields=["last_seen_at"])
 
+    # Rotate identifiers on join to reduce session fixation blast radius.
+    request.session.cycle_key()
     request.session["student_id"] = student.id
     request.session["class_id"] = classroom.id
     request.session["class_epoch"] = int(getattr(classroom, "session_epoch", 1) or 1)
+    rotate_token(request)
 
     response = _json_no_store_response({"ok": True, "return_code": student.return_code, "rejoined": rejoined})
     _apply_device_hint_cookie(response, classroom, student)

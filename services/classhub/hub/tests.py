@@ -1179,6 +1179,46 @@ class JoinClassTests(TestCase):
         self.assertNotIn("class_code", event.details)
         self.assertEqual(event.details.get("join_mode"), "new")
 
+    def test_join_rotates_session_key_and_csrf_token(self):
+        # Seed an existing session + CSRF token before join.
+        self.client.get("/")
+        session = self.client.session
+        session["prejoin_marker"] = "keep"
+        session.save()
+        before_session_key = session.session_key
+        before_csrf = self.client.cookies["csrftoken"].value
+
+        payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
+        resp = self.client.post("/join", data=json.dumps(payload), content_type="application/json")
+        self.assertEqual(resp.status_code, 200)
+
+        after_session = self.client.session
+        after_session_key = after_session.session_key
+        after_csrf = self.client.cookies["csrftoken"].value
+
+        self.assertNotEqual(before_session_key, after_session_key)
+        self.assertNotEqual(before_csrf, after_csrf)
+        self.assertEqual(after_session.get("prejoin_marker"), "keep")
+        self.assertIsNotNone(after_session.get("student_id"))
+        self.assertEqual(after_session.get("class_id"), self.classroom.id)
+
+    def test_join_enforces_csrf_for_cross_site_posts(self):
+        payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
+        strict_client = Client(enforce_csrf_checks=True)
+
+        denied = strict_client.post("/join", data=json.dumps(payload), content_type="application/json")
+        self.assertEqual(denied.status_code, 403)
+
+        strict_client.get("/")
+        csrf_token = strict_client.cookies["csrftoken"].value
+        allowed = strict_client.post(
+            "/join",
+            data=json.dumps(payload),
+            content_type="application/json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        self.assertEqual(allowed.status_code, 200)
+
 
 class TeacherAuditTests(TestCase):
     def setUp(self):
