@@ -1,62 +1,62 @@
 :80 {
-  encode gzip
+	encode gzip
 
-  header {
-    X-Robots-Tag "noindex, nofollow, noarchive"
-  }
+	header {
+		X-Robots-Tag "noindex, nofollow, noarchive"
+	}
 
-  handle_path /robots.txt {
-    respond "User-agent: *\nDisallow: /\n" 200
-  }
+	handle_path /robots.txt {
+		respond "User-agent: *\nDisallow: /\n" 200
+	}
 
-  @staff_not_allowlisted {
-    path /admin* /teach*
-    not remote_ip {$CADDY_STAFF_IP_ALLOWLIST_V4:0.0.0.0/0} {$CADDY_STAFF_IP_ALLOWLIST_V6:::/0}
-  }
-  respond @staff_not_allowlisted "forbidden" 403
+	@staff_not_allowlisted {
+		path /admin* /teach*
+		not remote_ip {$CADDY_STAFF_IP_ALLOWLIST_V4:0.0.0.0/0} {$CADDY_STAFF_IP_ALLOWLIST_V6:::/0}
+	}
+	respond @staff_not_allowlisted "forbidden" 403
 
-  @admin_routes path /admin*
-  @admin_login path /admin/login*
-  @admin_basic_auth_enabled expression `{env.CADDY_ADMIN_BASIC_AUTH_ENABLED} == "1"`
-  handle @admin_routes {
-    handle @admin_login {
-      reverse_proxy classhub_web:8000
-    }
-    handle @admin_basic_auth_enabled {
-      basic_auth {
-        {$CADDY_ADMIN_BASIC_AUTH_USER:disabled-admin} {$CADDY_ADMIN_BASIC_AUTH_HASH:$2a$14$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG}
-      }
-      reverse_proxy classhub_web:8000
-    }
-    reverse_proxy classhub_web:8000
-  }
+	@admin_routes path /admin*
+	@admin_login path /admin/login*
+	@admin_basic_auth_enabled expression `{env.CADDY_ADMIN_BASIC_AUTH_ENABLED} == "1"`
+	handle @admin_routes {
+		handle @admin_login {
+			reverse_proxy classhub_web:8000
+		}
+		handle @admin_basic_auth_enabled {
+			basic_auth {
+				{$CADDY_ADMIN_BASIC_AUTH_USER:disabled-admin} {$CADDY_ADMIN_BASIC_AUTH_HASH:$2a$14$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG}
+			}
+			reverse_proxy classhub_web:8000
+		}
+		reverse_proxy classhub_web:8000
+	}
 
-  route {
-    handle_path /healthz {
-      respond "ok" 200
-    }
+	route {
+		handle_path /healthz {
+			respond "ok" 200
+		}
 
-    handle_path /upstream-healthz {
-      reverse_proxy classhub_web:8000
-    }
+		handle_path /upstream-healthz {
+			reverse_proxy classhub_web:8000
+		}
 
-    @internal_routes path /internal /internal/*
-    respond @internal_routes "not found" 404
+		@internal_routes path /internal /internal/*
+		respond @internal_routes "not found" 404
 
-    # Homework Helper
-    handle /helper/* {
-      request_body {
-        max_size {$CADDY_HELPER_MAX_BODY:1MB}
-      }
-      reverse_proxy helper_web:8000
-    }
+		# Homework Helper
+		handle /helper/* {
+			request_body {
+				max_size {$CADDY_HELPER_MAX_BODY:1MB}
+			}
+			reverse_proxy helper_web:8000
+		}
 
-    # Class Hub
-    handle {
-      request_body {
-        max_size {$CADDY_CLASSHUB_MAX_BODY:220MB}
-      }
-      reverse_proxy classhub_web:8000
-    }
-  }
+		# Class Hub
+		handle {
+			request_body {
+				max_size {$CADDY_CLASSHUB_MAX_BODY:220MB}
+			}
+			reverse_proxy classhub_web:8000
+		}
+	}
 }
