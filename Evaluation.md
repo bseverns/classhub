@@ -1,4 +1,154 @@
-# Self-Hosted ClassHub — Full Evaluation & Autopsy
+# Self-Hosted ClassHub — Evaluation, Autopsy, and Improvement Tracker
+
+> **Baseline reference:** `de7c528` (release artifact: `dist/classhub_release_20260221_175135_de7c528.zip`)  
+> **Last updated:** 2026-02-23  
+> **Primary maintainer:** Ben  
+
+This file is intentionally **two things at once**:
+
+1. A **snapshot autopsy** of the current system (so decisions stay grounded).
+2. A **living tracker** that turns the autopsy into a build plan (so the work stays finite).
+
+---
+
+## Table of contents
+
+- [0. Tracker dashboard](#0-tracker-dashboard)
+- [1. Sprint plan](#1-sprint-plan)
+- [2. Ranked improvement backlog](#2-ranked-improvement-backlog)
+- [3. Definition of done](#3-definition-of-done)
+- [4. Progress log](#4-progress-log)
+- [5. Full evaluation snapshot](#5-full-evaluation-snapshot)
+
+---
+
+## 0. Tracker dashboard
+
+### Values guardrails (do not regress)
+
+- **Dignity over data:** no surveillance analytics; no ad-tech; no dark patterns.
+- **Local-first by default:** minimal third-party calls; predictable deployment.
+- **Student agency:** export/delete/end-session remain first-class.
+- **Operator clarity:** “boring ops” with rehearsable backups + smoke tests.
+
+### Current posture scorecard (baseline)
+
+| Dimension | Rating | What it means in practice | Next tightening move |
+|---|---:|---|---|
+| Code quality | B | Strong services + tests; view modules are still heavy | Split helper + teacher modules; delete `_legacy.py` |
+| Extensibility | C+ | Great inside the current envelope; hard outside it | Operator profile + helper backend interface |
+| Security | A | Defense in depth is real | CSP migration path; edge block `/internal/*`; non-root containers |
+| Ops | A | Doctor/smoke/retention exist and are usable | Integrate restore rehearsal into one ritual |
+| User value | B+ | High trust + low friction | Better teacher closeout + clearer failure messaging |
+
+### Top risks (baseline)
+
+1. **Inline scripts + permissive CSP** increase XSS blast radius.
+2. **Long “gravity well” modules** (`teacher.py`, `_legacy.py`, `tutor/views.py`) slow safe iteration.
+3. **Shared Postgres coupling** ties deploy/migration timing across services.
+4. **Synchronous heavy operations** (uploads + LLM calls) rely on long Gunicorn timeouts.
+5. **Fork friction** due to operator identity text embedded in templates.
+
+---
+
+## 1. Sprint plan
+
+> Sprint start: **2026-02-24** (tomorrow).  
+> Suggested cadence: treat this as a **two-week** sprint window and adjust dates as needed.
+
+### Sprint 01 goal (recommended)
+
+**Make the project effortlessly forkable + reduce the biggest security/maintenance multipliers.**
+
+Scope target:
+- ✅ Operator profile (white-label without template edits)
+- ✅ Helper modularization seam (backend interface + engine modules)
+- ✅ Edge hardening for internal endpoints
+- ✅ Non-root containers (foundation for least-privilege Compose)
+
+Stretch:
+- Pin `:latest` images + CI guard
+
+---
+
+## 2. Ranked improvement backlog
+
+Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
+
+### Core “Next 10 commits” (ranked)
+
+1. ⬜ **feat(config): add operator profile + remove hard-coded operator strings**  
+   **Impact:** forks/deploys feel native; values messaging becomes configurable.  
+   **Accept:** join + My Data pages reflect env-only changes.
+
+2. ⬜ **refactor(helper): split `tutor/views.py` into engine modules + backend interface**  
+   **Impact:** makes streaming/new backends/policy evolution safe.  
+   **Accept:** all existing helper tests pass; new unit tests cover engine/backends.
+
+3. ⬜ **security(edge): block `/internal/*` at Caddy (keep helper → classhub_web direct)**  
+   **Impact:** shrinks public attack surface and curiosity traffic.  
+   **Accept:** browser gets 404; helper internal events still succeed.
+
+4. ⬜ **chore(docker): run services as non-root user; tighten filesystem defaults**  
+   **Impact:** real hardening with low behavior risk.  
+   **Accept:** compose boots; uploads still work.
+
+5. ⬜ **security(compose): least-privilege flags (no-new-privileges, cap_drop, tmpfs)**  
+   **Impact:** reduces container breakout blast radius.  
+   **Accept:** compose stable; smoke scripts pass.
+
+6. ⬜ **chore(compose): pin MinIO/Ollama tags; add CI guard against `:latest`**  
+   **Impact:** reproducibility + fewer “class-day surprises.”  
+   **Accept:** CI fails if `:latest` appears.
+
+7. ⬜ **security(csp): add CSP modes (relaxed/report-only/strict) + tests**  
+   **Impact:** gives operators a safe migration path toward strict CSP.  
+   **Accept:** header tests verify mode switching.
+
+8. ⬜ **refactor(frontend): move `glass_theme` inline CSS/JS into static assets**  
+   **Impact:** unlocks strict CSP; improves caching.  
+   **Accept:** UI unchanged; no console errors.
+
+9. ⬜ **refactor(frontend): move `helper_widget` inline CSS/JS into static assets**  
+   **Impact:** reduces XSS multiplier on the model-facing surface.  
+   **Accept:** helper works; citations render.
+
+10. ⬜ **feat(content): validate `course.yaml` + lesson files in preflight + CI**  
+   **Impact:** authoring errors fail fast before deploy.  
+   **Accept:** malformed coursepacks fail CI with actionable messages.
+
+### “Evaluation deltas” follow-on (commits 11–15)
+
+11. ⬜ **chore(code): delete `hub/views/_legacy.py` + remove imports/exports**  
+12. ⬜ **refactor(teach): split `teacher.py` into submodules (auth/roster/content/videos/closeout)**  
+13. ⬜ **security(session): harden join transition invariants (CSRF/session rotation + tests)**  
+14. ⬜ **security(keys): add `DEVICE_HINT_SIGNING_KEY` separate from `SECRET_KEY`**  
+15. ⬜ **ops(backup): unify backup + restore into one rehearsable workflow**
+
+---
+
+## 3. Definition of done
+
+A change is “done” when it meets **all** of these:
+
+- ✅ `pytest` passes (including security header tests)
+- ✅ `ruff check` passes
+- ✅ CI security gates pass (Bandit, pip-audit, gitleaks, CodeQL where applicable)
+- ✅ `bash scripts/golden_path_smoke.sh` passes on a clean compose deploy
+- ✅ Docs updated **in the same PR** when behavior/ops changes
+- ✅ No new third‑party calls added without explicit opt-in + documentation
+
+---
+
+## 4. Progress log
+
+Add one short entry per merged PR.
+
+- **2026-02-23** — Converted Evaluation.md into a tracker; backlog ranked; Sprint 01 drafted.
+
+---
+
+## 5. Full evaluation snapshot
 
 ## Executive Summary
 
