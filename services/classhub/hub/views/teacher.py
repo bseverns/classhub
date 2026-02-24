@@ -1929,27 +1929,40 @@ def teach_teacher_2fa_setup(request):
     error = setup_error
     if request.method == "POST":
         otp_token = re.sub(r"\s+", "", (request.POST.get("otp_token") or "").strip())
-        if device.confirmed:
-            notice = "2FA is already configured for this account."
-        elif not otp_token.isdigit() or len(otp_token) != int(device.digits or 6):
+        if not otp_token.isdigit() or len(otp_token) != int(device.digits or 6):
             error = f"Enter the {int(device.digits or 6)}-digit code from your authenticator app."
         elif not device.verify_token(otp_token):
             error = "Invalid code. Check your authenticator app and try again."
         else:
-            device.confirmed = True
-            device.save(update_fields=["confirmed"])
-            _audit(
-                request,
-                action="teacher_2fa.enroll",
-                target_type="User",
-                target_id=str(user.id),
-                summary=f"Completed teacher 2FA enrollment for {user.username}",
-                metadata={"device_name": device.name},
-            )
+            from django_otp import login as otp_login
+            otp_login(request, device)
+            
+            was_confirmed = device.confirmed
+            if not was_confirmed:
+                device.confirmed = True
+                device.save(update_fields=["confirmed"])
+                _audit(
+                    request,
+                    action="teacher_2fa.enroll",
+                    target_type="User",
+                    target_id=str(user.id),
+                    summary=f"Completed teacher 2FA enrollment for {user.username}",
+                    metadata={"device_name": device.name},
+                )
+            else:
+                _audit(
+                    request,
+                    action="teacher_2fa.verify",
+                    target_type="User",
+                    target_id=str(user.id),
+                    summary=f"Verified 2FA for {user.username}",
+                    metadata={"device_name": device.name},
+                )
             redirect_to = safe_next if safe_next.startswith("/teach") else "/teach"
+            notice_text = "2FA verified." if was_confirmed else "2FA setup complete."
             return _safe_internal_redirect(
                 request,
-                _with_notice(redirect_to, notice="2FA setup complete."),
+                _with_notice(redirect_to, notice=notice_text),
                 fallback="/teach",
             )
 
