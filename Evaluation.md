@@ -151,6 +151,7 @@ Add one short entry per merged PR.
 - **2026-02-24** — Continued Sprint #2 cleanup by extracting policy heuristics into `tutor/engine/heuristics.py` and adding focused engine unit tests.
 - **2026-02-24** — Reduced `tutor/views.py` to a thin endpoint delegating to `tutor/engine/service.py`; extracted auth/runtime helpers into `tutor/engine/auth.py` + `runtime.py`.
 - **2026-02-24** — Completed optional helper seam cleanup: moved backend provider implementations into `tutor/engine/backends.py`, trimmed dead compatibility wrappers from `tutor/views.py`, and added engine tests for provider parsing/defaults.
+- **2026-02-24** — Refined helper test base to run `/helper/chat` through the real stack with mock backend defaults; fault-injection now patches engine backends instead of view shims for most cases.
 - **2026-02-24** — Completed Sprint #3 edge hardening: Caddy now blocks `/internal/*` with 404 and smoke checks assert the block.
 - **2026-02-24** — Started Sprint #4 container hardening: Django service images now run as non-root with configurable `APP_UID`/`APP_GID`, plus deploy/bootstrap docs for bind-mounted upload permissions.
 

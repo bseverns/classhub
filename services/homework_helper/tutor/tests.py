@@ -19,9 +19,17 @@ from . import views
 class HelperChatAuthTests(TestCase):
     def setUp(self):
         cache.clear()
-        self._topic_filter_patch = patch.dict("os.environ", {"HELPER_TOPIC_FILTER_MODE": "soft"}, clear=False)
-        self._topic_filter_patch.start()
-        self.addCleanup(self._topic_filter_patch.stop)
+        self._default_env_patch = patch.dict(
+            "os.environ",
+            {
+                "HELPER_LLM_BACKEND": "mock",
+                "HELPER_MOCK_RESPONSE_TEXT": "Hint",
+                "HELPER_TOPIC_FILTER_MODE": "soft",
+            },
+            clear=False,
+        )
+        self._default_env_patch.start()
+        self.addCleanup(self._default_env_patch.stop)
 
     def _scope_token(self) -> str:
         return issue_scope_token(
@@ -41,6 +49,12 @@ class HelperChatAuthTests(TestCase):
             content_type="application/json",
         )
 
+    def _set_student_session(self):
+        session = self.client.session
+        session["student_id"] = 101
+        session["class_id"] = 5
+        session.save()
+
     def test_chat_requires_class_or_staff_session(self):
         resp = self._post_chat({"message": "help"})
         self.assertEqual(resp.status_code, 401)
@@ -54,32 +68,22 @@ class HelperChatAuthTests(TestCase):
         self.assertNotIn("student@example.org", redacted)
         self.assertNotIn("612-555-0123", redacted)
 
-    @patch("tutor.views._ollama_chat", return_value=("Try this step first.", "fake-model"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_chat_allows_student_session(self, _chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_allows_student_session(self):
+        self._set_student_session()
 
         resp = self._post_chat({"message": "How do I move a sprite?"})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["Cache-Control"], "no-store")
         self.assertEqual(resp["Pragma"], "no-cache")
-        self.assertEqual(resp.json().get("text"), "Try this step first.")
+        self.assertEqual(resp.json().get("text"), "Hint")
 
     @override_settings(
         CLASSHUB_INTERNAL_EVENTS_URL="http://classhub_web:8000/internal/events/helper-chat-access",
         CLASSHUB_INTERNAL_EVENTS_TOKEN="token-123",
         CLASSHUB_INTERNAL_EVENTS_TIMEOUT_SECONDS=0.02,
     )
-    @patch("tutor.views._ollama_chat", return_value=("Try this step first.", "fake-model"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_chat_stays_fast_when_event_forwarding_is_slow_or_unreachable(self, _chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_stays_fast_when_event_forwarding_is_slow_or_unreachable(self):
+        self._set_student_session()
 
         def _slow_unreachable(_req, timeout=None):
             time.sleep(float(timeout or 0))
@@ -93,58 +97,42 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertLess(elapsed, 0.5)
 
-    @patch.dict(
-        "os.environ",
-        {
-            "HELPER_LLM_BACKEND": "mock",
-            "HELPER_MOCK_RESPONSE_TEXT": "Mock hint: start with one sprite and one motion block.",
-        },
-        clear=False,
-    )
     def test_chat_supports_mock_backend(self):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+        self._set_student_session()
 
-        resp = self._post_chat({"message": "How do I move a sprite?"})
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json().get("text"), "Mock hint: start with one sprite and one motion block.")
-        self.assertEqual(resp.json().get("model"), "mock-tutor-v1")
+        with patch.dict(
+            "os.environ",
+            {"HELPER_MOCK_RESPONSE_TEXT": "Mock hint: start with one sprite and one motion block."},
+            clear=False,
+        ):
+            resp = self._post_chat({"message": "How do I move a sprite?"})
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.json().get("text"), "Mock hint: start with one sprite and one motion block.")
+            self.assertEqual(resp.json().get("model"), "mock-tutor-v1")
 
     @override_settings(HELPER_REMOTE_MODE_ACKNOWLEDGED=False)
     @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "openai"}, clear=False)
     def test_chat_blocks_openai_until_remote_mode_is_acknowledged(self):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+        self._set_student_session()
 
         resp = self._post_chat({"message": "How do I move a sprite?"})
         self.assertEqual(resp.status_code, 503)
         self.assertEqual(resp.json().get("error"), "remote_backend_not_acknowledged")
 
     @override_settings(HELPER_REMOTE_MODE_ACKNOWLEDGED=True)
-    @patch("tutor.views._openai_chat", return_value=("Use one small step first.", "gpt-test"))
+    @patch("tutor.engine.backends.openai_chat", return_value=("Use one small step first.", "gpt-test"))
     @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "openai"}, clear=False)
     def test_chat_allows_openai_when_remote_mode_is_acknowledged(self, _openai_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+        self._set_student_session()
 
         resp = self._post_chat({"message": "How do I move a sprite?"})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get("text"), "Use one small step first.")
         self.assertEqual(resp.json().get("backend"), "openai")
 
-    @patch("tutor.views._ollama_chat", return_value=("Try this step first.", "fake-model"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_chat_redacts_message_before_backend_call(self, chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    @patch("tutor.engine.backends.invoke_backend", return_value=("Try this step first.", "fake-model"))
+    def test_chat_redacts_message_before_backend_call(self, invoke_backend_mock):
+        self._set_student_session()
 
         resp = self._post_chat(
             {
@@ -155,31 +143,18 @@ class HelperChatAuthTests(TestCase):
             }
         )
         self.assertEqual(resp.status_code, 200)
-        backend_message = str(chat_mock.call_args[0][3])
+        backend_message = str(invoke_backend_mock.call_args.kwargs["message"])
         self.assertIn("[REDACTED_EMAIL]", backend_message)
         self.assertIn("[REDACTED_PHONE]", backend_message)
         self.assertNotIn("student@example.org", backend_message)
         self.assertNotIn("612-555-0123", backend_message)
 
-    @patch("tutor.views._ollama_chat", return_value=("backend should not be called", "fake-model"))
-    @patch.dict(
-        "os.environ",
-        {
-            "HELPER_LLM_BACKEND": "ollama",
-            "HELPER_REFERENCE_DIR": "/tmp/classhub-missing-reference",
-        },
-        clear=False,
-    )
-    def test_chat_uses_deterministic_piper_hardware_triage(self, chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    @patch.dict("os.environ", {"HELPER_REFERENCE_DIR": "/tmp/classhub-missing-reference"}, clear=False)
+    def test_chat_uses_deterministic_piper_hardware_triage(self):
+        self._set_student_session()
 
         resp = self._post_chat(
-            {
-                "message": "In StoryMode, my jump button in Cheeseteroid is not working after moving jumper wires.",
-            }
+            {"message": "In StoryMode, my jump button in Cheeseteroid is not working after moving jumper wires."}
         )
         self.assertEqual(resp.status_code, 200)
         body = resp.json()
@@ -189,22 +164,10 @@ class HelperChatAuthTests(TestCase):
         self.assertIn("which storymode mission + step", text)
         self.assertIn("do this one check now", text)
         self.assertIn("retest only that same input", text)
-        self.assertEqual(chat_mock.call_count, 0)
 
-    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
-    @patch.dict(
-        "os.environ",
-        {
-            "HELPER_LLM_BACKEND": "ollama",
-            "HELPER_PIPER_HARDWARE_TRIAGE_ENABLED": "0",
-        },
-        clear=False,
-    )
-    def test_chat_can_disable_piper_hardware_triage(self, chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    @patch.dict("os.environ", {"HELPER_PIPER_HARDWARE_TRIAGE_ENABLED": "0"}, clear=False)
+    def test_chat_can_disable_piper_hardware_triage(self):
+        self._set_student_session()
 
         resp = self._post_chat(
             {
@@ -214,15 +177,9 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get("text"), "Hint")
         self.assertIsNone(resp.json().get("triage_mode"))
-        self.assertEqual(chat_mock.call_count, 1)
 
-    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_chat_does_not_apply_piper_hardware_triage_outside_piper_context(self, chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_does_not_apply_piper_hardware_triage_outside_piper_context(self):
+        self._set_student_session()
 
         token = issue_scope_token(
             context="Lesson scope: fractions",
@@ -239,51 +196,32 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get("text"), "Hint")
         self.assertIsNone(resp.json().get("triage_mode"))
-        self.assertEqual(chat_mock.call_count, 1)
 
-    @patch("tutor.views._student_session_exists", return_value=False)
+    @patch("tutor.views.engine_auth.student_session_exists", return_value=False)
     def test_chat_rejects_stale_student_session(self, _exists_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+        self._set_student_session()
 
         resp = self._post_chat({"message": "help"})
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(resp.json().get("error"), "unauthorized")
 
-    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_chat_requires_scope_token_for_student_sessions(self, _chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_requires_scope_token_for_student_sessions(self):
+        self._set_student_session()
 
         resp = self._post_chat({"message": "How do I move a sprite?"}, include_scope=False)
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.json().get("error"), "missing_scope_token")
 
-    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_chat_rejects_invalid_scope_token(self, _chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_rejects_invalid_scope_token(self):
+        self._set_student_session()
 
         resp = self._post_chat({"message": "How do I move a sprite?", "scope_token": "not-real-token"})
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.json().get("error"), "invalid_scope_token")
 
-    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
     @patch("tutor.views.build_instructions", return_value="system instructions")
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_scope_token_overrides_tampered_client_scope(self, build_instructions_mock, _chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_scope_token_overrides_tampered_client_scope(self, build_instructions_mock):
+        self._set_student_session()
 
         token = issue_scope_token(
             context="Signed context",
@@ -308,14 +246,9 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(build_kwargs["topics"], ["signed topic"])
         self.assertEqual(build_kwargs["allowed_topics"], ["signed allowed"])
 
-    @patch("tutor.views._ollama_chat", return_value=("Grounded hint", "fake-model"))
     @patch("tutor.views.build_instructions", return_value="system instructions")
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_chat_includes_reference_citations_in_prompt_and_response(self, build_instructions_mock, _chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_includes_reference_citations_in_prompt_and_response(self, build_instructions_mock):
+        self._set_student_session()
 
         with tempfile.TemporaryDirectory() as temp_dir:
             ref_path = Path(temp_dir) / "piper_scratch.md"
@@ -350,13 +283,8 @@ class HelperChatAuthTests(TestCase):
         build_kwargs = build_instructions_mock.call_args.kwargs
         self.assertIn("Lesson excerpts:", build_kwargs.get("reference_citations", ""))
 
-    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_chat_handles_directory_reference_file_without_500(self, chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_handles_directory_reference_file_without_500(self):
+        self._set_student_session()
 
         with tempfile.TemporaryDirectory() as temp_dir:
             with patch.dict(
@@ -368,12 +296,9 @@ class HelperChatAuthTests(TestCase):
 
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get("text"), "Hint")
-        self.assertEqual(chat_mock.call_count, 1)
 
-    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
     @patch("tutor.views.build_instructions", return_value="system instructions")
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_staff_unsigned_scope_fields_are_ignored(self, build_instructions_mock, _chat_mock):
+    def test_staff_unsigned_scope_fields_are_ignored(self, build_instructions_mock):
         staff = get_user_model().objects.create_user(
             username="teacher1",
             password="pw12345",
@@ -400,9 +325,7 @@ class HelperChatAuthTests(TestCase):
 
 
     @override_settings(HELPER_REQUIRE_SCOPE_TOKEN_FOR_STAFF=True)
-    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_staff_can_be_forced_to_require_scope_token(self, _chat_mock):
+    def test_staff_can_be_forced_to_require_scope_token(self):
         staff = get_user_model().objects.create_user(
             username="teacher2",
             password="pw12345",
@@ -415,13 +338,8 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp.json().get("error"), "missing_scope_token")
 
     @patch("tutor.views.emit_helper_chat_access_event")
-    @patch("tutor.views._ollama_chat", return_value=("Try this step first.", "fake-model"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_chat_emits_helper_access_event_hook(self, _chat_mock, event_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_emits_helper_access_event_hook(self, event_mock):
+        self._set_student_session()
 
         resp = self._post_chat({"message": "How do I move a sprite?"})
         self.assertEqual(resp.status_code, 200)
@@ -435,21 +353,17 @@ class HelperChatAuthTests(TestCase):
     def test_student_session_exists_fails_closed_when_classhub_table_required(self):
         with patch("tutor.views.connection.cursor", side_effect=ProgrammingError("missing table")):
             self.assertFalse(views._student_session_exists(student_id=1, class_id=2))
-    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
+
     @patch.dict(
         "os.environ",
         {
-            "HELPER_LLM_BACKEND": "ollama",
             "HELPER_RATE_LIMIT_PER_MINUTE": "1",
             "HELPER_RATE_LIMIT_PER_IP_PER_MINUTE": "10",
         },
         clear=False,
     )
-    def test_chat_rate_limits_per_actor(self, _chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_rate_limits_per_actor(self):
+        self._set_student_session()
 
         first = self._post_chat({"message": "first"})
         second = self._post_chat({"message": "second"})
@@ -468,13 +382,10 @@ class HelperChatAuthTests(TestCase):
         clear=False,
     )
     def test_chat_retries_backend_then_succeeds(self, _sleep_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+        self._set_student_session()
 
         with patch(
-            "tutor.views._ollama_chat",
+            "tutor.engine.backends.ollama_chat",
             side_effect=[urllib.error.URLError("temp"), ("Recovered", "fake-model")],
         ) as chat_mock:
             resp = self._post_chat({"message": "retry please"})
@@ -496,13 +407,10 @@ class HelperChatAuthTests(TestCase):
         clear=False,
     )
     def test_chat_returns_502_after_retry_exhausted(self, _sleep_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+        self._set_student_session()
 
         with patch(
-            "tutor.views._ollama_chat",
+            "tutor.engine.backends.ollama_chat",
             side_effect=urllib.error.URLError("still down"),
         ) as chat_mock:
             resp = self._post_chat({"message": "retry fail"})
@@ -513,26 +421,18 @@ class HelperChatAuthTests(TestCase):
 
     @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
     def test_chat_returns_503_when_backend_circuit_open(self):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+        self._set_student_session()
 
         cache.set("helper:circuit_open:ollama", 1, timeout=30)
-        with patch("tutor.views._ollama_chat") as chat_mock:
+        with patch("tutor.engine.backends.ollama_chat") as chat_mock:
             resp = self._post_chat({"message": "hello"})
 
         self.assertEqual(resp.status_code, 503)
         self.assertEqual(resp.json().get("error"), "backend_unavailable")
         self.assertEqual(chat_mock.call_count, 0)
 
-    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_chat_fails_open_when_circuit_cache_read_errors(self, chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_fails_open_when_circuit_cache_read_errors(self):
+        self._set_student_session()
 
         original_get = cache.get
 
@@ -546,36 +446,25 @@ class HelperChatAuthTests(TestCase):
 
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get("text"), "Hint")
-        self.assertEqual(chat_mock.call_count, 1)
 
-    @patch("tutor.views._ollama_chat", return_value=("Hint", "fake-model"))
     @patch("tutor.views.acquire_slot", side_effect=RuntimeError("cache-down"))
-    @patch.dict("os.environ", {"HELPER_LLM_BACKEND": "ollama"}, clear=False)
-    def test_chat_fails_open_when_queue_backend_errors(self, _acquire_slot_mock, chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_fails_open_when_queue_backend_errors(self, _acquire_slot_mock):
+        self._set_student_session()
 
         resp = self._post_chat({"message": "queue check"})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get("text"), "Hint")
-        self.assertEqual(chat_mock.call_count, 1)
 
-    @patch("tutor.views._ollama_chat", return_value=("A" * 300, "fake-model"))
     @patch.dict(
         "os.environ",
         {
-            "HELPER_LLM_BACKEND": "ollama",
+            "HELPER_MOCK_RESPONSE_TEXT": "A" * 300,
             "HELPER_RESPONSE_MAX_CHARS": "220",
         },
         clear=False,
     )
-    def test_chat_truncates_response_text(self, _chat_mock):
-        session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
-        session.save()
+    def test_chat_truncates_response_text(self):
+        self._set_student_session()
 
         resp = self._post_chat({"message": "truncate"})
         self.assertEqual(resp.status_code, 200)

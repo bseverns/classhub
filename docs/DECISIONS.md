@@ -210,10 +210,12 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keep policy heuristics in dedicated engine modules (`tutor/engine/heuristics.py`, `reference.py`, `circuit.py`) and call them through thin view wrappers.
 - Keep auth/session boundary checks and runtime request plumbing in engine modules (`tutor/engine/auth.py`, `runtime.py`) and call them via wrapper functions in `tutor/views.py`.
 - Keep `tutor.views` helper function names stable as compatibility wrappers during extraction.
+- Helper endpoint tests default to the real `/helper/chat` path with `HELPER_LLM_BACKEND=mock`; fault-injection tests patch engine-level seams (`tutor.engine.backends.*`) instead of view wrappers.
 
 **Why this remains active:**
 - Reduces change risk by preserving endpoint behavior and test patch targets while creating a clean seam for future streaming/new providers.
 - Makes backend retry/circuit/reference code independently testable without expanding view-layer complexity.
+- Keeps tests focused on runtime behavior while reducing brittle coupling to temporary view compatibility shims.
 
 ## Routing mode: local vs domain Caddy configs
 
