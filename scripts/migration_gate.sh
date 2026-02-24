@@ -6,6 +6,7 @@ COMPOSE_FILE="${ROOT_DIR}/compose/docker-compose.yml"
 COMPOSE_OVERRIDE="${ROOT_DIR}/compose/docker-compose.override.yml"
 ENV_FILE="${ROOT_DIR}/compose/.env"
 COMPOSE_MODE="${COMPOSE_MODE:-prod}" # prod or dev
+BUILD_IMAGES="${MIGRATION_GATE_BUILD_IMAGES:-1}" # 1 to build service images before checks
 
 usage() {
   cat <<'EOF'
@@ -62,6 +63,11 @@ fi
 run_compose() {
   docker compose "${COMPOSE_ARGS[@]}" "$@"
 }
+
+if [[ "${BUILD_IMAGES}" == "1" ]]; then
+  echo "[migration-gate] building classhub/helper images from current source"
+  run_compose build classhub_web helper_web
+fi
 
 echo "[migration-gate] checking classhub migrations are committed"
 run_compose run --rm --no-deps classhub_web python manage.py makemigrations --check --dry-run
