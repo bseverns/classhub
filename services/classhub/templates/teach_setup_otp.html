@@ -114,8 +114,13 @@
           <input id="otp-token" name="otp_token" inputmode="numeric" autocomplete="one-time-code" placeholder="123456"
             required autofocus />
           <div class="submit-wrap">
-            <button type="submit">{% if already_configured %}Verify Session{% else %}Verify and enable 2FA{% endif
-              %}</button>
+            <button type="submit">
+              {% if already_configured %}
+              Verify Session
+              {% else %}
+              Verify and enable 2FA
+              {% endif %}
+            </button>
           </div>
         </form>
         {% endif %}
