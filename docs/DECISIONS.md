@@ -472,12 +472,14 @@ Historical implementation logs and superseded decisions are archived by month in
 
 **Current decision:**
 - Caddy blocks public access to `/internal/*` with `404` across all routing templates.
+- Internal-path edge blocking is inside ordered `route` blocks so `/internal/*` rejection is evaluated before catch-all proxy handlers.
 - Helper internal telemetry continues to target `classhub_web` directly via `CLASSHUB_INTERNAL_EVENTS_URL`, bypassing Caddy.
 - Smoke checks assert edge behavior by expecting `404` on `/internal/events/helper-chat-access`.
 
 **Why this remains active:**
 - Shrinks public attack surface and discovery traffic on internal-only endpoints.
 - Preserves helper event forwarding reliability without exposing internal routes to browsers.
+- Prevents matcher-order drift from leaking internal endpoints to upstream app routing.
 
 ## Helper grounding for Piper hardware
 

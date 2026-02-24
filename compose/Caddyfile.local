@@ -31,32 +31,32 @@
     reverse_proxy classhub_web:8000
   }
 
-  handle_path /healthz {
-    respond "ok" 200
-  }
-
-  handle_path /upstream-healthz {
-    reverse_proxy classhub_web:8000
-  }
-
-  @internal_routes path /internal /internal/*
-  handle @internal_routes {
-    respond "not found" 404
-  }
-
-  # Homework Helper
-  handle /helper/* {
-    request_body {
-      max_size {$CADDY_HELPER_MAX_BODY:1MB}
+  route {
+    handle_path /healthz {
+      respond "ok" 200
     }
-    reverse_proxy helper_web:8000
-  }
 
-  # Class Hub
-  handle {
-    request_body {
-      max_size {$CADDY_CLASSHUB_MAX_BODY:220MB}
+    handle_path /upstream-healthz {
+      reverse_proxy classhub_web:8000
     }
-    reverse_proxy classhub_web:8000
+
+    @internal_routes path /internal /internal/*
+    respond @internal_routes "not found" 404
+
+    # Homework Helper
+    handle /helper/* {
+      request_body {
+        max_size {$CADDY_HELPER_MAX_BODY:1MB}
+      }
+      reverse_proxy helper_web:8000
+    }
+
+    # Class Hub
+    handle {
+      request_body {
+        max_size {$CADDY_CLASSHUB_MAX_BODY:220MB}
+      }
+      reverse_proxy classhub_web:8000
+    }
   }
 }
