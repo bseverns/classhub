@@ -400,8 +400,8 @@ Historical implementation logs and superseded decisions are archived by month in
 
 **Current decision:**
 - Move shared `glass_theme` presentation assets out of inline template blocks into:
-  - `services/classhub/static/css/glass_theme.css`
-  - `services/classhub/static/js/glass_theme.js`
+  - `services/classhub/hub/static/css/glass_theme.css`
+  - `services/classhub/hub/static/js/glass_theme.js`
 - Keep `services/classhub/templates/includes/glass_theme.html` as a thin include that only emits static `<link>` and `<script src>` tags.
 - Preserve existing class names/behavior so consuming templates remain unchanged.
 
