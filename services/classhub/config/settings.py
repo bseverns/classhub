@@ -65,6 +65,19 @@ def _secret_key_looks_unsafe(secret: str) -> bool:
 if not DEBUG and _secret_key_looks_unsafe(SECRET_KEY):
     raise RuntimeError("DJANGO_SECRET_KEY must be a strong non-default value when DJANGO_DEBUG=0")
 
+DEVICE_HINT_SIGNING_KEY = env("DEVICE_HINT_SIGNING_KEY", default="").strip()
+if not DEVICE_HINT_SIGNING_KEY:
+    if DEBUG:
+        # Local/dev fallback keeps onboarding simple while production requires
+        # explicit key separation for device hint cookies.
+        DEVICE_HINT_SIGNING_KEY = SECRET_KEY
+    else:
+        raise RuntimeError("DEVICE_HINT_SIGNING_KEY is required when DJANGO_DEBUG=0")
+if not DEBUG and _secret_key_looks_unsafe(DEVICE_HINT_SIGNING_KEY):
+    raise RuntimeError("DEVICE_HINT_SIGNING_KEY must be a strong non-default value when DJANGO_DEBUG=0")
+if not DEBUG and DEVICE_HINT_SIGNING_KEY == SECRET_KEY:
+    raise RuntimeError("DEVICE_HINT_SIGNING_KEY must differ from DJANGO_SECRET_KEY when DJANGO_DEBUG=0")
+
 ALLOWED_HOSTS = [h.strip() for h in env("DJANGO_ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",") if h.strip()]
 
 # Use when serving via domain + HTTPS so Django accepts browser CSRF tokens

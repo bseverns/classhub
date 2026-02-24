@@ -24,6 +24,8 @@ return code.
 - Class codes should be rotatable.
 - Joining can be locked per class.
 - `/join` should be rate-limited to discourage brute force.
+- Same-device hint cookies should be signed with a dedicated `DEVICE_HINT_SIGNING_KEY`
+  separate from `DJANGO_SECRET_KEY` in production.
 
 ## Join flow (Map D1)
 

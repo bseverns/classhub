@@ -48,22 +48,23 @@ flowchart LR
 
 1. Set `DJANGO_DEBUG=0`.
 2. Set a strong `DJANGO_SECRET_KEY` (non-default, 32+ chars).
-3. Enable HTTPS behavior for domain deployments:
+3. Set a strong `DEVICE_HINT_SIGNING_KEY` (32+ chars) and keep it different from `DJANGO_SECRET_KEY` in production.
+4. Enable HTTPS behavior for domain deployments:
    - `DJANGO_SECURE_SSL_REDIRECT=1`
    - `CADDY_HSTS_MAX_AGE` (edge-owned HSTS; recommend `>=31536000` after verification)
-4. Keep `DJANGO_ADMIN_2FA_REQUIRED=1`.
-5. Keep `DJANGO_TEACHER_2FA_REQUIRED=1`.
-6. Set deployment timezone (for lesson release dates):
+5. Keep `DJANGO_ADMIN_2FA_REQUIRED=1`.
+6. Keep `DJANGO_TEACHER_2FA_REQUIRED=1`.
+7. Set deployment timezone (for lesson release dates):
    - `DJANGO_TIME_ZONE=America/Chicago` (or your local timezone)
-7. If using separate asset subdomain under same parent domain, set cookie domains:
+8. If using separate asset subdomain under same parent domain, set cookie domains:
    - `DJANGO_SESSION_COOKIE_DOMAIN=.yourdomain.tld`
    - `DJANGO_CSRF_COOKIE_DOMAIN=.yourdomain.tld`
-8. Validate secrets and guardrails:
+9. Validate secrets and guardrails:
    - `bash scripts/validate_env_secrets.sh`
-9. Confirm edge request size limits are set:
+10. Confirm edge request size limits are set:
    - `CADDY_CLASSHUB_MAX_BODY`
    - `CADDY_HELPER_MAX_BODY`
-10. Set a strong cross-service event token:
+11. Set a strong cross-service event token:
    - `CLASSHUB_INTERNAL_EVENTS_TOKEN`
 
 ## Authentication and authorization boundaries

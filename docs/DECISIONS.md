@@ -255,10 +255,12 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Secrets are injected via environment (`compose/.env` or deployment environment), never committed to git.
 - `DJANGO_SECRET_KEY` is required in both services.
+- Class Hub device-hint cookies are signed with a dedicated `DEVICE_HINT_SIGNING_KEY` (separate from `DJANGO_SECRET_KEY` in production).
 - Mode-specific env examples (`.env.example.local`, `.env.example.domain`) stay non-sensitive and document required knobs.
 
 **Why this remains active:**
 - Prevents insecure fallback secret boot behavior.
+- Reduces blast radius if one signing key leaks (device-hint cookie signatures stay independently rotatable).
 - Supports basic secret hygiene for self-hosted operations.
 - Keeps rotation/update workflow operationally simple.
 

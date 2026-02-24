@@ -1037,6 +1037,57 @@ class JoinClassTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Join Test", join_code="JOIN1234")
 
+    @override_settings(
+        SECRET_KEY="primary-secret-key-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        DEVICE_HINT_SIGNING_KEY="device-hint-key-bbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    )
+    def test_join_prefers_device_hint_cookie_with_dedicated_key(self):
+        oldest = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+        hinted = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+        self.assertLess(oldest.id, hinted.id)
+
+        self.client.cookies["classhub_student_hint"] = signing.dumps(
+            {"class_id": self.classroom.id, "student_id": hinted.id},
+            key="device-hint-key-bbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            salt="classhub.student-device-hint",
+        )
+        resp = self.client.post(
+            "/join",
+            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "Ada"}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(self.client.session.get("student_id"), hinted.id)
+        event = StudentEvent.objects.order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.details.get("join_mode"), "device_hint")
+
+    @override_settings(
+        SECRET_KEY="primary-secret-key-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        DEVICE_HINT_SIGNING_KEY="device-hint-key-bbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    )
+    def test_join_ignores_device_hint_cookie_signed_with_wrong_key(self):
+        oldest = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+        hinted = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+        self.assertLess(oldest.id, hinted.id)
+
+        # Cookie uses the main Django secret (wrong key for device hint signing).
+        self.client.cookies["classhub_student_hint"] = signing.dumps(
+            {"class_id": self.classroom.id, "student_id": hinted.id},
+            key="primary-secret-key-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            salt="classhub.student-device-hint",
+        )
+        resp = self.client.post(
+            "/join",
+            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "Ada"}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(self.client.session.get("student_id"), oldest.id)
+        event = StudentEvent.objects.order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.details.get("join_mode"), "name_match")
+
     def test_join_same_name_without_return_code_reuses_existing_identity(self):
         payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
         r1 = self.client.post("/join", data=json.dumps(payload), content_type="application/json")

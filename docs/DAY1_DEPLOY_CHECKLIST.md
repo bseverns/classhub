@@ -27,6 +27,7 @@ flowchart TD
   - local/day-1: `compose/.env.example.local` → `compose/.env`
   - domain/TLS: `compose/.env.example.domain` → `compose/.env`
 - Set a strong `DJANGO_SECRET_KEY` (do not keep placeholder/default values)
+- Set a separate strong `DEVICE_HINT_SIGNING_KEY` (do not reuse `DJANGO_SECRET_KEY`)
 - Set non-root container ids to match your deploy user (recommended):
   - `APP_UID=$(id -u <deploy-user>)`
   - `APP_GID=$(id -g <deploy-user>)`

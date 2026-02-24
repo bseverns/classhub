@@ -42,6 +42,12 @@ from common.request_safety import client_ip_from_request, fixed_window_allow
 
 logger = logging.getLogger(__name__)
 
+_DEVICE_HINT_SIGNING_SALT = "classhub.student-device-hint"
+
+
+def _device_hint_signing_key() -> str:
+    return getattr(settings, "DEVICE_HINT_SIGNING_KEY", settings.SECRET_KEY)
+
 
 def _json_no_store_response(payload: dict, *, status: int = 200, private: bool = False) -> JsonResponse:
     response = JsonResponse(payload, status=status)
@@ -164,7 +170,8 @@ def _load_device_hint_student(request, classroom: Class, display_name: str) -> S
     try:
         payload = signing.loads(
             raw,
-            salt="classhub.student-device-hint",
+            key=_device_hint_signing_key(),
+            salt=_DEVICE_HINT_SIGNING_SALT,
             max_age=_device_hint_cookie_max_age_seconds(),
         )
     except (BadSignature, SignatureExpired):
@@ -208,7 +215,11 @@ def _load_name_match_student(classroom: Class, display_name: str) -> StudentIden
 
 def _apply_device_hint_cookie(response: JsonResponse, classroom: Class, student: StudentIdentity) -> None:
     payload = {"class_id": classroom.id, "student_id": student.id}
-    signed = signing.dumps(payload, salt="classhub.student-device-hint")
+    signed = signing.dumps(
+        payload,
+        key=_device_hint_signing_key(),
+        salt=_DEVICE_HINT_SIGNING_SALT,
+    )
     response.set_cookie(
         getattr(settings, "DEVICE_REJOIN_COOKIE_NAME", "classhub_student_hint"),
         signed,

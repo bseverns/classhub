@@ -121,8 +121,8 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
 
 11. ✅ **chore(code): delete `hub/views/_legacy.py` + remove imports/exports**  
 12. ✅ **refactor(teach): split `teacher.py` into submodules (auth/roster/content/videos/closeout)**  
-13. 🟨 **security(session): harden join transition invariants (CSRF/session rotation + tests)**  
-14. ⬜ **security(keys): add `DEVICE_HINT_SIGNING_KEY` separate from `SECRET_KEY`**  
+13. ✅ **security(session): harden join transition invariants (CSRF/session rotation + tests)**  
+14. 🟨 **security(keys): add `DEVICE_HINT_SIGNING_KEY` separate from `SECRET_KEY`**  
 15. ⬜ **ops(backup): unify backup + restore into one rehearsable workflow**
 
 ---
@@ -171,6 +171,9 @@ Add one short entry per merged PR.
 - **2026-02-24** — Completed Sprint #12 after green production deploy + golden smoke; `teacher.py` split is live and verified.
 - **2026-02-24** — Started Sprint #13 session hardening: join flow now rotates session key + CSRF token on successful join, with tests for CSRF enforcement and join transition rotation invariants.
 - **2026-02-24** — Completed Sprint #11 after green server smoke and GitHub CI; `_legacy.py` removal is deploy-verified.
+- **2026-02-24** — Completed Sprint #13 after green production deploy + golden smoke; join transition now enforces session+CSRF rotation invariants with regression coverage.
+- **2026-02-24** — Started Sprint #14 key hardening: moving device-hint signing onto a dedicated `DEVICE_HINT_SIGNING_KEY` separate from `SECRET_KEY`.
+- **2026-02-24** — Implemented Sprint #14 key hardening: device-hint cookies now sign/verify with `DEVICE_HINT_SIGNING_KEY`; env guardrails/docs/tests updated; pending server/GitHub verification.
 
 ---
 
