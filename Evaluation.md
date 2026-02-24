@@ -119,7 +119,7 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
 
 ### “Evaluation deltas” follow-on (commits 11–15)
 
-11. 🟨 **chore(code): delete `hub/views/_legacy.py` + remove imports/exports**  
+11. ✅ **chore(code): delete `hub/views/_legacy.py` + remove imports/exports**  
 12. ⬜ **refactor(teach): split `teacher.py` into submodules (auth/roster/content/videos/closeout)**  
 13. ⬜ **security(session): harden join transition invariants (CSRF/session rotation + tests)**  
 14. ⬜ **security(keys): add `DEVICE_HINT_SIGNING_KEY` separate from `SECRET_KEY`**  
@@ -167,6 +167,7 @@ Add one short entry per merged PR.
 - **2026-02-24** — Implemented Sprint #10 validation gate: added `scripts/validate_coursepack.py`, wired it into `content_preflight.sh`, and added CI coverage in `test-suite` (classhub job); pending server/GH confirmation.
 - **2026-02-24** — Completed Sprint #10 after green server smoke and GitHub CI; coursepack validation gate is now active in preflight + CI.
 - **2026-02-24** — Started Sprint #11 cleanup: deleted `hub/views/_legacy.py` and removed the last compatibility import from `hub/views/__init__.py`; pending validation run.
+- **2026-02-24** — Completed Sprint #11 after green server smoke and GitHub CI; `_legacy.py` removal is deploy-verified.
 
 ---
 
