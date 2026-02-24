@@ -2,6 +2,14 @@
 
 This is a quick checklist to rebuild the server from scratch after a total loss.
 
+Routine rehearsal command:
+
+```bash
+bash scripts/backup_restore_rehearsal.sh --compose-mode prod
+```
+
+Run this periodically so backup+restore is tested before an incident.
+
 ```mermaid
 flowchart TD
   A[Provision fresh server] --> B[Clone repo]

@@ -697,6 +697,25 @@ Historical implementation logs and superseded decisions are archived by month in
 - Moves retention from manual cleanup to reliable routine operations.
 - Surfaces cleanup failures early and keeps uploads/event tables bounded over time.
 
+## Unified backup + restore rehearsal workflow
+
+**Current decision:**
+- Use `scripts/backup_restore_rehearsal.sh` as the single operator entrypoint for backup+restore drills.
+- The rehearsal script:
+  - runs Postgres/uploads/MinIO backup scripts,
+  - restores Postgres into a temporary database,
+  - extracts uploads/MinIO archives into a temporary workspace,
+  - runs ClassHub/Helper `migrate` + `check` against the restored DB.
+- Legacy per-surface scripts remain available for ad-hoc usage:
+  - `scripts/backup_postgres.sh`
+  - `scripts/backup_uploads.sh`
+  - `scripts/backup_minio.sh`
+
+**Why this remains active:**
+- Turns disaster recovery from documentation-only into a repeatable operator ritual.
+- Verifies restore viability before an incident, not during one.
+- Reduces drift between backup artifacts and practical restore commands.
+
 ## Defensive hardening pass (downloads, return codes, rate limits)
 
 **Current decision:**

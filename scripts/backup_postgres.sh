@@ -4,8 +4,10 @@ set -euo pipefail
 # Backup Postgres from the docker-compose stack.
 # Run from the host with access to docker.
 
-OUT_DIR="${OUT_DIR:-/srv/classhub/backups/postgres}"
-STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+OUT_DIR="${OUT_DIR:-${ROOT_DIR}/backups/postgres}"
+STAMP="${STAMP:-$(date -u +%Y%m%dT%H%M%SZ)}"
 mkdir -p "$OUT_DIR"
 
 # Adjust service name if you rename compose services.

@@ -3,9 +3,11 @@ set -euo pipefail
 
 # Backup Class Hub student uploads from the bind-mounted uploads directory.
 
-SRC="${SRC:-/srv/classhub/data/classhub_uploads}"
-OUT_DIR="${OUT_DIR:-/srv/classhub/backups/uploads}"
-STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+SRC="${SRC:-${ROOT_DIR}/data/classhub_uploads}"
+OUT_DIR="${OUT_DIR:-${ROOT_DIR}/backups/uploads}"
+STAMP="${STAMP:-$(date -u +%Y%m%dT%H%M%SZ)}"
 
 mkdir -p "$OUT_DIR"
 

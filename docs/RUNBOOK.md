@@ -290,16 +290,29 @@ Backup scripts:
 - `scripts/backup_postgres.sh`
 - `scripts/backup_minio.sh`
 - `scripts/backup_uploads.sh`
+- `scripts/backup_restore_rehearsal.sh` (one-command backup + restore drill)
 
 Disaster recovery guide:
 
 - [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 
-Recommended restore drill:
+Recommended restore drill (single command):
 
-1. Restore Postgres dump into a temporary DB.
-2. Confirm both Django services migrate and boot.
-3. Run `bash scripts/system_doctor.sh --smoke-mode basic`.
+```bash
+bash scripts/backup_restore_rehearsal.sh --compose-mode prod
+```
+
+This script:
+1. Creates fresh Postgres/uploads/MinIO backups.
+2. Restores the Postgres dump into a temporary database.
+3. Extracts uploads/MinIO archives into a temporary restore directory.
+4. Runs ClassHub/Helper `migrate` + `check` against the restored DB.
+
+Optional reuse of existing artifacts:
+
+```bash
+bash scripts/backup_restore_rehearsal.sh --skip-backup --compose-mode prod
+```
 
 ## Release artifact packaging
 
