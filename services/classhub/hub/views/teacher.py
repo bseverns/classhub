@@ -2760,6 +2760,7 @@ def teach_material_submissions(request, material_id: int):
 
 
 __all__ = [
+    "teach_login",
     "teacher_logout",
     "teach_home",
     "teach_teacher_2fa_setup",
