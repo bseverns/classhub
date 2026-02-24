@@ -1,39 +1,35 @@
 import json
 import logging
 import os
-import re
 import time
 import urllib.error
 import urllib.request
-import uuid
 from functools import lru_cache
-from pathlib import Path
 
 from django.conf import settings
 from django.core.cache import cache
 from django.core.signing import BadSignature, SignatureExpired
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
+from common.helper_scope import parse_scope_token
 from common.request_safety import (
     build_staff_or_student_actor_key,
     client_ip_from_request,
     fixed_window_allow,
 )
-from common.helper_scope import parse_scope_token
-
 from django.db import connection, transaction
-from django.db.utils import DatabaseError
 
-from .policy import build_instructions
-from .queueing import acquire_slot, release_slot
 from .classhub_events import emit_helper_chat_access_event
+from .engine import auth as engine_auth
 from .engine import backends as engine_backends
 from .engine import circuit as engine_circuit
 from .engine import heuristics as engine_heuristics
 from .engine import reference as engine_reference
+from .engine import runtime as engine_runtime
+from .engine import service as engine_service
+from .policy import build_instructions
+from .queueing import acquire_slot, release_slot
 
-EMAIL_RE = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
-PHONE_RE = re.compile(r"\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b")
 DEFAULT_TEXT_LANGUAGE_KEYWORDS = engine_heuristics.DEFAULT_TEXT_LANGUAGE_KEYWORDS
 DEFAULT_PIPER_CONTEXT_KEYWORDS = engine_heuristics.DEFAULT_PIPER_CONTEXT_KEYWORDS
 DEFAULT_PIPER_HARDWARE_KEYWORDS = engine_heuristics.DEFAULT_PIPER_HARDWARE_KEYWORDS
@@ -42,69 +38,37 @@ logger = logging.getLogger(__name__)
 
 def _redact(text: str) -> str:
     """Apply lightweight redaction before model invocation/logging."""
-    value = str(text or "")
-    value = EMAIL_RE.sub("[REDACTED_EMAIL]", value)
-    value = PHONE_RE.sub("[REDACTED_PHONE]", value)
-    return value
+    return engine_runtime.redact(text)
 
 
 def _env_int(name: str, default: int) -> int:
-    raw = os.getenv(name, "").strip()
-    if not raw:
-        return default
-    try:
-        return int(raw)
-    except Exception:
-        return default
+    return engine_runtime.env_int(name, default, getenv=os.getenv)
 
 
 def _env_float(name: str, default: float) -> float:
-    raw = os.getenv(name, "").strip()
-    if not raw:
-        return default
-    try:
-        return float(raw)
-    except Exception:
-        return default
+    return engine_runtime.env_float(name, default, getenv=os.getenv)
 
 
 def _env_bool(name: str, default: bool) -> bool:
-    raw = os.getenv(name, "").strip().lower()
-    if not raw:
-        return default
-    if raw in {"1", "true", "yes", "on"}:
-        return True
-    if raw in {"0", "false", "no", "off"}:
-        return False
-    return default
+    return engine_runtime.env_bool(name, default, getenv=os.getenv)
 
 
 def _request_id(request) -> str:
-    header_value = (request.META.get("HTTP_X_REQUEST_ID", "") or "").strip()
-    if header_value:
-        return header_value[:80]
-    return uuid.uuid4().hex
+    return engine_runtime.request_id(request)
 
 
 def _json_response(payload: dict, *, request_id: str, status: int = 200) -> JsonResponse:
-    body = dict(payload or {})
-    body.setdefault("request_id", request_id)
-    resp = JsonResponse(body, status=status)
-    resp["X-Request-ID"] = request_id
-    resp["Cache-Control"] = "no-store"
-    resp["Pragma"] = "no-cache"
-    return resp
+    return engine_runtime.json_response(payload, request_id_value=request_id, status=status)
 
 
 def _log_chat_event(level: str, event: str, *, request_id: str, **fields):
-    row = {"event": event, "request_id": request_id, **fields}
-    line = json.dumps(row, sort_keys=True, default=str)
-    if level == "warning":
-        logger.warning(line)
-    elif level == "error":
-        logger.error(line)
-    else:
-        logger.info(line)
+    engine_runtime.log_chat_event(
+        level,
+        event,
+        request_id_value=request_id,
+        logger=logger,
+        **fields,
+    )
 
 
 def _backend_circuit_key(backend: str) -> str:
@@ -146,58 +110,31 @@ def _reset_backend_failure_state(backend: str) -> None:
 @lru_cache(maxsize=32)
 def _table_exists(table_name: str) -> bool:
     """Best-effort table existence check without raising for missing tables."""
-    try:
-        with connection.cursor() as cursor:
-            return table_name in set(connection.introspection.table_names(cursor))
-    except DatabaseError:
-        if connection.in_atomic_block:
-            try:
-                transaction.set_rollback(False)
-            except Exception:
-                pass
-        return False
+    return engine_auth.table_exists(
+        connection=connection,
+        transaction_module=transaction,
+        table_name=table_name,
+    )
 
 
 def _student_session_exists(student_id: int, class_id: int) -> bool:
     """Validate student session against shared Class Hub table when available."""
-    if not _table_exists("hub_studentidentity"):
-        if bool(getattr(settings, "HELPER_REQUIRE_CLASSHUB_TABLE", False)):
-            return False
-        return True
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT 1 FROM hub_studentidentity WHERE id = %s AND classroom_id = %s LIMIT 1",
-                [student_id, class_id],
-            )
-            return cursor.fetchone() is not None
-    except DatabaseError:
-        # Postgres marks the transaction as aborted after SQL errors; clear the
-        # rollback flag so this best-effort check doesn't poison the request.
-        if connection.in_atomic_block:
-            try:
-                transaction.set_rollback(False)
-            except Exception:
-                pass
-        # MVP default is fail-open for local/demo setups; production can force
-        # fail-closed by enabling HELPER_REQUIRE_CLASSHUB_TABLE.
-        if bool(getattr(settings, "HELPER_REQUIRE_CLASSHUB_TABLE", False)):
-            return False
-        return True
+    return engine_auth.student_session_exists(
+        connection=connection,
+        transaction_module=transaction,
+        settings=settings,
+        student_id=student_id,
+        class_id=class_id,
+        table_exists_fn=_table_exists,
+    )
 
 
 def _actor_key(request) -> str:
-    key = build_staff_or_student_actor_key(request)
-    if not key:
-        return ""
-    if key.startswith("student:"):
-        student_id = request.session.get("student_id")
-        class_id = request.session.get("class_id")
-        if not (student_id and class_id):
-            return ""
-        if not _student_session_exists(student_id, class_id):
-            return ""
-    return key
+    return engine_auth.actor_key(
+        request=request,
+        build_actor_key_fn=build_staff_or_student_actor_key,
+        student_session_exists_fn=_student_session_exists,
+    )
 
 
 def _load_scope_from_token(scope_token: str, *, max_age_seconds: int) -> dict:
@@ -420,18 +357,7 @@ def healthz(request):
 
 @require_POST
 def chat(request):
-    """POST /helper/chat
-
-    Input JSON:
-      {"message": "..."}
-
-    Output JSON:
-      {"text": "...", "model": "..."}
-
-    Day-1 note:
-    - This endpoint is not yet tied to class materials (RAG planned).
-    - Caddy routes /helper/* to this service.
-    """
+    """POST /helper/chat"""
     started_at = time.monotonic()
     request_id = _request_id(request)
     actor = _actor_key(request)
@@ -446,7 +372,6 @@ def chat(request):
         _log_chat_event("warning", "unauthorized", request_id=request_id, actor_type=actor_type, ip=client_ip)
         return _json_response({"error": "unauthorized"}, status=401, request_id=request_id)
 
-    # Append-only event in classhub table (metadata-only; never raw prompt text).
     try:
         classroom_id = int(request.session.get("class_id") or 0)
     except Exception:
@@ -489,275 +414,46 @@ def chat(request):
         _log_chat_event("warning", "bad_json", request_id=request_id, actor_type=actor_type, ip=client_ip)
         return _json_response({"error": "bad_json"}, status=400, request_id=request_id)
 
-    scope_token = str(payload.get("scope_token") or "").strip()
-    context_value = ""
-    topics: list[str] = []
-    allowed_topics: list[str] = []
-    reference_key = ""
-    scope_verified = False
-
-    if scope_token:
-        try:
-            scope = _load_scope_from_token(
-                scope_token,
-                max_age_seconds=max(_env_int("HELPER_SCOPE_TOKEN_MAX_AGE_SECONDS", 7200), 60),
-            )
-            context_value = scope.get("context", "")
-            topics = scope.get("topics", [])
-            allowed_topics = scope.get("allowed_topics", [])
-            reference_key = scope.get("reference", "")
-            scope_verified = True
-        except SignatureExpired:
-            _log_chat_event("warning", "scope_token_expired", request_id=request_id, actor_type=actor_type, ip=client_ip)
-            return _json_response({"error": "invalid_scope_token"}, status=400, request_id=request_id)
-        except (BadSignature, ValueError):
-            _log_chat_event("warning", "scope_token_invalid", request_id=request_id, actor_type=actor_type, ip=client_ip)
-            return _json_response({"error": "invalid_scope_token"}, status=400, request_id=request_id)
-    else:
-        # Students must send signed scope metadata.
-        # Staff can optionally be forced to require signed scope metadata too.
-        require_scope_for_staff = bool(getattr(settings, "HELPER_REQUIRE_SCOPE_TOKEN_FOR_STAFF", False))
-        if actor_type == "student" or (actor_type == "staff" and require_scope_for_staff):
-            _log_chat_event("warning", "scope_token_missing", request_id=request_id, actor_type=actor_type, ip=client_ip)
-            return _json_response({"error": "missing_scope_token"}, status=400, request_id=request_id)
-        # Do not trust unsigned, client-supplied scope fields.
-        if any(payload.get(k) for k in ("context", "topics", "allowed_topics", "reference")):
-            _log_chat_event(
-                "info",
-                "unsigned_scope_fields_ignored",
-                request_id=request_id,
-                actor_type=actor_type,
-                ip=client_ip,
-            )
-
-    message = (payload.get("message") or "").strip()
-    if not message:
-        return _json_response({"error": "missing_message"}, status=400, request_id=request_id)
-
-    # Bound size + redact obvious PII patterns
-    message = _redact(message)[:8000]
-
-    backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
-    strictness = (os.getenv("HELPER_STRICTNESS", "light") or "light").lower()
-    scope_mode = (os.getenv("HELPER_SCOPE_MODE", "soft") or "soft").lower()
-    if backend == "openai" and not bool(getattr(settings, "HELPER_REMOTE_MODE_ACKNOWLEDGED", False)):
-        _log_chat_event(
-            "warning",
-            "remote_backend_not_acknowledged",
-            request_id=request_id,
-            actor_type=actor_type,
-            backend=backend,
-        )
-        return _json_response({"error": "remote_backend_not_acknowledged"}, status=503, request_id=request_id)
-
-    reference_dir = os.getenv("HELPER_REFERENCE_DIR", "/app/tutor/reference").strip()
-    reference_map_raw = os.getenv("HELPER_REFERENCE_MAP", "").strip()
-    default_reference_file = os.getenv("HELPER_REFERENCE_FILE", "").strip()
-    if reference_key:
-        # When scope includes an explicit reference key, only use a resolved file
-        # for that key (never silently fall back to global default reference).
-        reference_file = _resolve_reference_file(reference_key, reference_dir, reference_map_raw)
-    else:
-        reference_file = default_reference_file
-    reference_text = _load_reference_text(reference_file)
-    reference_chunks = _load_reference_chunks(reference_file)
-    reference_source = reference_key or (Path(reference_file).stem if reference_file else "")
-    citations = _build_reference_citations(
-        message=message,
-        context=context_value or "",
-        topics=topics,
-        reference_chunks=reference_chunks,
-        source_label=reference_source,
-        max_items=max(_env_int("HELPER_REFERENCE_MAX_CITATIONS", 3), 1),
+    deps = engine_service.ChatDeps(
+        json_response=_json_response,
+        log_chat_event=_log_chat_event,
+        env_int=_env_int,
+        env_float=_env_float,
+        env_bool=_env_bool,
+        redact=_redact,
+        load_scope_from_token=_load_scope_from_token,
+        resolve_reference_file=_resolve_reference_file,
+        load_reference_text=_load_reference_text,
+        load_reference_chunks=_load_reference_chunks,
+        build_reference_citations=_build_reference_citations,
+        format_reference_citations_for_prompt=_format_reference_citations_for_prompt,
+        parse_csv_list=_parse_csv_list,
+        contains_text_language=_contains_text_language,
+        is_scratch_context=_is_scratch_context,
+        is_piper_context=_is_piper_context,
+        is_piper_hardware_question=_is_piper_hardware_question,
+        build_piper_hardware_triage_text=_build_piper_hardware_triage_text,
+        allowed_topic_overlap=_allowed_topic_overlap,
+        build_instructions=build_instructions,
+        backend_circuit_is_open=_backend_circuit_is_open,
+        call_backend_with_retries=_call_backend_with_retries,
+        record_backend_failure=_record_backend_failure,
+        reset_backend_failure_state=_reset_backend_failure_state,
+        acquire_slot=acquire_slot,
+        release_slot=release_slot,
+        truncate_response_text=_truncate_response_text,
     )
-    reference_citations = _format_reference_citations_for_prompt(citations)
-    env_keywords = _parse_csv_list(os.getenv("HELPER_TEXT_LANGUAGE_KEYWORDS", ""))
-    lang_keywords = env_keywords or DEFAULT_TEXT_LANGUAGE_KEYWORDS
-    if _contains_text_language(message, lang_keywords) and _is_scratch_context(context_value or "", topics, reference_text):
-        _log_chat_event("info", "policy_redirect_text_language", request_id=request_id, actor_type=actor_type, backend=backend)
-        return _json_response(
-            {
-                "text": (
-                    "We’re using Scratch blocks in this class, not text programming languages. "
-                    "Tell me which Scratch block or part of your project you’re stuck on, "
-                    "and I’ll help you with the Scratch version."
-                ),
-                "model": "",
-                "backend": backend,
-                "strictness": strictness,
-                "attempts": 0,
-                "scope_verified": scope_verified,
-                "citations": citations,
-            },
-            request_id=request_id,
-        )
-    if (
-        _env_bool("HELPER_PIPER_HARDWARE_TRIAGE_ENABLED", True)
-        and _is_piper_context(context_value or "", topics, reference_text, reference_key)
-        and _is_piper_hardware_question(message)
-        and not citations
-    ):
-        _log_chat_event(
-            "info",
-            "policy_redirect_piper_hardware_triage",
-            request_id=request_id,
-            actor_type=actor_type,
-            backend=backend,
-        )
-        return _json_response(
-            {
-                "text": _build_piper_hardware_triage_text(message),
-                "model": "",
-                "backend": backend,
-                "strictness": strictness,
-                "attempts": 0,
-                "scope_verified": scope_verified,
-                "triage_mode": "piper_hardware",
-                "citations": citations,
-            },
-            request_id=request_id,
-        )
-    if allowed_topics:
-        filter_mode = (os.getenv("HELPER_TOPIC_FILTER_MODE", "soft") or "soft").lower()
-        if filter_mode == "strict" and not _allowed_topic_overlap(message, allowed_topics):
-            _log_chat_event("info", "policy_redirect_allowed_topics", request_id=request_id, actor_type=actor_type, backend=backend)
-            return _json_response(
-                {
-                    "text": (
-                        "Let’s keep this focused on today’s lesson topics: "
-                        + ", ".join(allowed_topics)
-                        + ". Which part of that do you need help with?"
-                    ),
-                    "model": "",
-                    "backend": backend,
-                    "strictness": strictness,
-                    "attempts": 0,
-                    "scope_verified": scope_verified,
-                    "citations": citations,
-                },
-                request_id=request_id,
-            )
-    instructions = build_instructions(
-        strictness,
-        context=context_value or "",
-        topics=topics,
-        scope_mode=scope_mode,
-        allowed_topics=allowed_topics,
-        reference_text=reference_text,
-        reference_citations=reference_citations,
-    )
-
-    if _backend_circuit_is_open(backend):
-        _log_chat_event("warning", "backend_circuit_open", request_id=request_id, backend=backend)
-        return _json_response({"error": "backend_unavailable"}, status=503, request_id=request_id)
-
-    max_concurrency = _env_int("HELPER_MAX_CONCURRENCY", 2)
-    max_wait = _env_float("HELPER_QUEUE_MAX_WAIT_SECONDS", 10.0)
-    poll = _env_float("HELPER_QUEUE_POLL_SECONDS", 0.2)
-    ttl = _env_int("HELPER_QUEUE_SLOT_TTL_SECONDS", 120)
-    queue_started_at = time.monotonic()
-    slot_key, token = None, None
-    queue_error = False
-    try:
-        slot_key, token = acquire_slot(max_concurrency, max_wait, poll, ttl)
-    except Exception as exc:
-        queue_error = True
-        _log_chat_event(
-            "warning",
-            "queue_unavailable",
-            request_id=request_id,
-            actor_type=actor_type,
-            backend=backend,
-            error_type=exc.__class__.__name__,
-        )
-    queue_wait_ms = int((time.monotonic() - queue_started_at) * 1000)
-    if max_concurrency > 0 and slot_key is None:
-        if queue_error:
-            # Queue backend unavailable. Fail-open for classroom continuity.
-            _log_chat_event(
-                "warning",
-                "queue_fail_open",
-                request_id=request_id,
-                actor_type=actor_type,
-                backend=backend,
-                queue_wait_ms=queue_wait_ms,
-            )
-        else:
-            _log_chat_event(
-                "warning",
-                "queue_busy",
-                request_id=request_id,
-                actor_type=actor_type,
-                backend=backend,
-                queue_wait_ms=queue_wait_ms,
-            )
-            return _json_response({"error": "busy"}, status=503, request_id=request_id)
-
-    attempts_used = 0
-    model_used = ""
-    try:
-        text, model_used, attempts_used = _call_backend_with_retries(backend, instructions, message)
-    except RuntimeError as exc:
-        _record_backend_failure(backend)
-        if str(exc) == "openai_not_installed":
-            _log_chat_event("error", "openai_not_installed", request_id=request_id, backend=backend)
-            return _json_response({"error": "openai_not_installed"}, status=500, request_id=request_id)
-        if str(exc) == "unknown_backend":
-            _log_chat_event("error", "unknown_backend", request_id=request_id, backend=backend)
-            return _json_response({"error": "unknown_backend"}, status=500, request_id=request_id)
-        _log_chat_event(
-            "error",
-            "backend_runtime_error",
-            request_id=request_id,
-            backend=backend,
-            error_type=exc.__class__.__name__,
-        )
-        return _json_response({"error": "backend_error"}, status=502, request_id=request_id)
-    except (urllib.error.URLError, urllib.error.HTTPError):
-        _record_backend_failure(backend)
-        _log_chat_event("error", "backend_transport_error", request_id=request_id, backend=backend)
-        if backend == "ollama":
-            return _json_response({"error": "ollama_error"}, status=502, request_id=request_id)
-        return _json_response({"error": "backend_error"}, status=502, request_id=request_id)
-    except ValueError:
-        _record_backend_failure(backend)
-        _log_chat_event("error", "backend_parse_error", request_id=request_id, backend=backend)
-        return _json_response({"error": "backend_error"}, status=502, request_id=request_id)
-    except Exception:
-        _record_backend_failure(backend)
-        _log_chat_event("error", "backend_error", request_id=request_id, backend=backend)
-        return _json_response({"error": "backend_error"}, status=502, request_id=request_id)
-    finally:
-        release_slot(slot_key, token)
-
-    safe_text, truncated = _truncate_response_text(text or "")
-
-    _reset_backend_failure_state(backend)
-    total_ms = int((time.monotonic() - started_at) * 1000)
-    _log_chat_event(
-        "info",
-        "success",
+    return engine_service.handle_chat(
+        request=request,
+        payload=payload,
         request_id=request_id,
         actor_type=actor_type,
-        backend=backend,
-        attempts=attempts_used,
-        queue_wait_ms=queue_wait_ms,
-        response_chars=len(safe_text),
-        truncated=truncated,
-        total_ms=total_ms,
+        client_ip=client_ip,
+        settings=settings,
+        started_at=started_at,
+        default_text_language_keywords=DEFAULT_TEXT_LANGUAGE_KEYWORDS,
+        signature_expired_exc=SignatureExpired,
+        bad_signature_exc=BadSignature,
+        deps=deps,
     )
-    return _json_response(
-        {
-            "text": safe_text,
-            "model": model_used,
-            "backend": backend,
-            "strictness": strictness,
-            "attempts": attempts_used,
-            "queue_wait_ms": queue_wait_ms,
-            "total_ms": total_ms,
-            "truncated": truncated,
-            "scope_verified": scope_verified,
-            "citations": citations,
-        },
-        request_id=request_id,
-    )
+

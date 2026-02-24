@@ -149,6 +149,7 @@ Add one short entry per merged PR.
 - **2026-02-24** — Started Sprint #2 helper seam refactor (`tutor/views.py` extraction into engine/backend modules).
 - **2026-02-24** — Landed helper engine seam (`tutor/engine/backends.py`, `circuit.py`, `reference.py`) with compatibility wrappers in `tutor/views.py`; pending full Django test run in a provisioned env.
 - **2026-02-24** — Continued Sprint #2 cleanup by extracting policy heuristics into `tutor/engine/heuristics.py` and adding focused engine unit tests.
+- **2026-02-24** — Reduced `tutor/views.py` to a thin endpoint delegating to `tutor/engine/service.py`; extracted auth/runtime helpers into `tutor/engine/auth.py` + `runtime.py`.
 
 ---
 

@@ -205,6 +205,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keep `/helper/chat` as the single HTTP endpoint in `tutor/views.py`, but move backend/runtime internals into `tutor/engine/*`.
 - Introduce an explicit backend interface contract (`BackendInterface`) plus callable adapters in `tutor/engine/backends.py`.
 - Keep policy heuristics in dedicated engine modules (`tutor/engine/heuristics.py`, `reference.py`, `circuit.py`) and call them through thin view wrappers.
+- Keep auth/session boundary checks and runtime request plumbing in engine modules (`tutor/engine/auth.py`, `runtime.py`) and call them via wrapper functions in `tutor/views.py`.
 - Keep `tutor.views` helper function names stable as compatibility wrappers during extraction.
 
 **Why this remains active:**

@@ -1,9 +1,12 @@
 import urllib.error
+from types import SimpleNamespace
 
 from django.test import SimpleTestCase
 
+from .engine import auth
 from .engine import backends
 from .engine import heuristics
+from .engine import runtime
 
 
 class BackendEngineTests(SimpleTestCase):
@@ -91,3 +94,57 @@ class HeuristicsEngineTests(SimpleTestCase):
         self.assertIn("which storymode mission + step", lowered)
         self.assertIn("do this one check now", lowered)
         self.assertIn("retest only that same input", lowered)
+
+
+class RuntimeEngineTests(SimpleTestCase):
+    def test_redact_masks_email_and_phone(self):
+        raw = "Email student@example.org or call 612-555-0123."
+        redacted = runtime.redact(raw)
+        self.assertIn("[REDACTED_EMAIL]", redacted)
+        self.assertIn("[REDACTED_PHONE]", redacted)
+        self.assertNotIn("student@example.org", redacted)
+        self.assertNotIn("612-555-0123", redacted)
+
+    def test_env_bool_parsing_uses_defaults_and_truthy_values(self):
+        env = {
+            "A": "true",
+            "B": "0",
+            "C": "",
+        }
+        self.assertTrue(runtime.env_bool("A", False, getenv=lambda k, d="": env.get(k, d)))
+        self.assertFalse(runtime.env_bool("B", True, getenv=lambda k, d="": env.get(k, d)))
+        self.assertTrue(runtime.env_bool("C", True, getenv=lambda k, d="": env.get(k, d)))
+
+
+class AuthEngineTests(SimpleTestCase):
+    def test_student_session_exists_respects_require_table_when_missing(self):
+        fake_settings = SimpleNamespace(HELPER_REQUIRE_CLASSHUB_TABLE=False)
+        allowed = auth.student_session_exists(
+            connection=SimpleNamespace(),
+            transaction_module=SimpleNamespace(),
+            settings=fake_settings,
+            student_id=1,
+            class_id=2,
+            table_exists_fn=lambda _table_name: False,
+        )
+        self.assertTrue(allowed)
+
+        fake_settings_fail_closed = SimpleNamespace(HELPER_REQUIRE_CLASSHUB_TABLE=True)
+        blocked = auth.student_session_exists(
+            connection=SimpleNamespace(),
+            transaction_module=SimpleNamespace(),
+            settings=fake_settings_fail_closed,
+            student_id=1,
+            class_id=2,
+            table_exists_fn=lambda _table_name: False,
+        )
+        self.assertFalse(blocked)
+
+    def test_actor_key_blocks_student_when_session_invalid(self):
+        request = SimpleNamespace(session={"student_id": 1, "class_id": 2})
+        key = auth.actor_key(
+            request=request,
+            build_actor_key_fn=lambda _request: "student:1",
+            student_session_exists_fn=lambda _student_id, _class_id: False,
+        )
+        self.assertEqual(key, "")
