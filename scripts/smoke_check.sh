@@ -157,7 +157,7 @@ if [[ -n "${CLASS_CODE}" ]]; then
   echo "[smoke] /join OK"
 
   # Join rotates CSRF/session identifiers; refresh token from updated cookie jar.
-  CSRF_TOKEN="$(awk '$6==\"csrftoken\"{print $7}' \"${COOKIE_JAR}\" | tail -n1)"
+  CSRF_TOKEN="$(awk '$6=="csrftoken"{print $7}' "${COOKIE_JAR}" | tail -n1)"
   [[ -n "${CSRF_TOKEN}" ]] || fail "unable to refresh csrftoken after /join"
 
   code="$(curl "${CURL_FLAGS[@]}" -o "${TMP_STUDENT_PAGE}" -w "%{http_code}" \
