@@ -14,9 +14,11 @@ Reading order for non-developers:
 5) security flags for reverse proxy deployments
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+
 import environ
+from common.csp import normalize_csp_mode
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -202,7 +204,7 @@ CLASSHUB_OPERATOR_PROFILE = {
     "admin_label": CLASSHUB_ADMIN_LABEL,
 }
 
-_DEFAULT_CSP_POLICY = (
+_DEFAULT_CSP_POLICY_RELAXED = (
     "default-src 'self'; "
     "base-uri 'self'; "
     "object-src 'none'; "
@@ -214,7 +216,7 @@ _DEFAULT_CSP_POLICY = (
     "script-src 'self' 'unsafe-inline'; "
     "connect-src 'self' https:;"
 )
-_DEFAULT_CSP_REPORT_ONLY_POLICY = (
+_DEFAULT_CSP_POLICY_STRICT = (
     "default-src 'self'; "
     "base-uri 'self'; "
     "object-src 'none'; "
@@ -320,14 +322,15 @@ CLASSHUB_INTERNAL_EVENTS_TOKEN = env("CLASSHUB_INTERNAL_EVENTS_TOKEN", default="
 HELPER_LLM_BACKEND = (env("HELPER_LLM_BACKEND", default="ollama").strip() or "ollama").lower()
 ADMIN_2FA_REQUIRED = env.bool("DJANGO_ADMIN_2FA_REQUIRED", default=True)
 TEACHER_2FA_REQUIRED = env.bool("DJANGO_TEACHER_2FA_REQUIRED", default=True)
-CSP_POLICY = env(
-    "DJANGO_CSP_POLICY",
-    default=("" if DEBUG else _DEFAULT_CSP_POLICY),
-).strip()
-CSP_REPORT_ONLY_POLICY = env(
-    "DJANGO_CSP_REPORT_ONLY_POLICY",
-    default=("" if DEBUG else _DEFAULT_CSP_REPORT_ONLY_POLICY),
-).strip()
+CSP_POLICY_RELAXED = _DEFAULT_CSP_POLICY_RELAXED
+CSP_POLICY_STRICT = _DEFAULT_CSP_POLICY_STRICT
+try:
+    CSP_MODE = normalize_csp_mode(env("DJANGO_CSP_MODE", default="relaxed"))
+except ValueError as exc:
+    raise RuntimeError("DJANGO_CSP_MODE must be one of: relaxed, report-only, strict") from exc
+CSP_MODE_DEFAULTS_ENABLED = not DEBUG
+CSP_POLICY = env("DJANGO_CSP_POLICY", default="").strip()
+CSP_REPORT_ONLY_POLICY = env("DJANGO_CSP_REPORT_ONLY_POLICY", default="").strip()
 PERMISSIONS_POLICY = env(
     "DJANGO_PERMISSIONS_POLICY",
     default=_DEFAULT_PERMISSIONS_POLICY,

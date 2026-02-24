@@ -637,6 +637,53 @@ class HelperSecurityHeaderTests(TestCase):
         self.assertEqual(resp["X-Frame-Options"], "DENY")
 
 
+class HelperCSPModeTests(TestCase):
+    _RELAXED_POLICY = "default-src 'self'; script-src 'self' 'unsafe-inline'"
+    _STRICT_POLICY = "default-src 'self'; script-src 'self'"
+
+    @override_settings(
+        CSP_MODE="relaxed",
+        CSP_MODE_DEFAULTS_ENABLED=True,
+        CSP_POLICY="",
+        CSP_REPORT_ONLY_POLICY="",
+        CSP_POLICY_RELAXED=_RELAXED_POLICY,
+        CSP_POLICY_STRICT=_STRICT_POLICY,
+    )
+    def test_relaxed_mode_sets_enforced_and_report_only_headers(self):
+        resp = self.client.get("/helper/healthz")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Security-Policy"], self._RELAXED_POLICY)
+        self.assertEqual(resp["Content-Security-Policy-Report-Only"], self._STRICT_POLICY)
+
+    @override_settings(
+        CSP_MODE="report-only",
+        CSP_MODE_DEFAULTS_ENABLED=True,
+        CSP_POLICY="",
+        CSP_REPORT_ONLY_POLICY="",
+        CSP_POLICY_RELAXED=_RELAXED_POLICY,
+        CSP_POLICY_STRICT=_STRICT_POLICY,
+    )
+    def test_report_only_mode_sets_report_only_header_only(self):
+        resp = self.client.get("/helper/healthz")
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotIn("Content-Security-Policy", resp)
+        self.assertEqual(resp["Content-Security-Policy-Report-Only"], self._STRICT_POLICY)
+
+    @override_settings(
+        CSP_MODE="strict",
+        CSP_MODE_DEFAULTS_ENABLED=True,
+        CSP_POLICY="",
+        CSP_REPORT_ONLY_POLICY="",
+        CSP_POLICY_RELAXED=_RELAXED_POLICY,
+        CSP_POLICY_STRICT=_STRICT_POLICY,
+    )
+    def test_strict_mode_sets_enforced_header_only(self):
+        resp = self.client.get("/helper/healthz")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Security-Policy"], self._STRICT_POLICY)
+        self.assertNotIn("Content-Security-Policy-Report-Only", resp)
+
+
 class HelperSiteModeTests(TestCase):
     @override_settings(SITE_MODE="join-only")
     def test_join_only_blocks_chat_endpoint(self):

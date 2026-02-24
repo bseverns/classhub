@@ -16,8 +16,10 @@ This is the single source of truth for edge-vs-app security ownership.
 
 ## App-Owned (Django)
 - CSP:
-  - Enforced: `Content-Security-Policy` from `DJANGO_CSP_POLICY` (production default baseline)
-  - Report-only: `Content-Security-Policy-Report-Only` from `DJANGO_CSP_REPORT_ONLY_POLICY`
+  - Mode selector: `DJANGO_CSP_MODE` (`relaxed`, `report-only`, `strict`)
+  - Enforced override: `DJANGO_CSP_POLICY`
+  - Report-only override: `DJANGO_CSP_REPORT_ONLY_POLICY`
+  - Default mode is `relaxed` (enforced relaxed + strict report-only)
 - Framing policy:
   - Primary: CSP `frame-ancestors 'self'`
   - Fallback: `X-Frame-Options: SAMEORIGIN` (`DJANGO_X_FRAME_OPTIONS`)

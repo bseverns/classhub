@@ -101,7 +101,7 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
    **Impact:** reproducibility + fewer “class-day surprises.”  
    **Accept:** CI fails if `:latest` appears.
 
-7. ⬜ **security(csp): add CSP modes (relaxed/report-only/strict) + tests**  
+7. 🟨 **security(csp): add CSP modes (relaxed/report-only/strict) + tests**  
    **Impact:** gives operators a safe migration path toward strict CSP.  
    **Accept:** header tests verify mode switching.
 
@@ -157,6 +157,7 @@ Add one short entry per merged PR.
 - **2026-02-24** — Completed Sprint #4 after production deploy+smoke confirmation; started Sprint #5 least-privilege Compose hardening (`no-new-privileges`, `cap_drop`, `tmpfs`) for edge/app services.
 - **2026-02-24** — Completed Sprint #5 least-privilege Compose hardening; production deploy + smoke checks passed.
 - **2026-02-24** — Completed Sprint #6 by pinning MinIO/Ollama image tags in compose/env defaults and adding CI guard script (`scripts/check_no_latest_tags.py`) in lint workflow.
+- **2026-02-24** — Started Sprint #7 CSP migration modes: added `DJANGO_CSP_MODE` (`relaxed`/`report-only`/`strict`) with shared resolver, env validation, and mode-switching header tests for both services.
 
 ---
 

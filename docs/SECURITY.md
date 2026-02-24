@@ -212,10 +212,19 @@ Class Hub and Homework Helper attach these headers by default:
 
 Primary knobs:
 
+- `DJANGO_CSP_MODE` (`relaxed`, `report-only`, `strict`)
 - `DJANGO_CSP_POLICY`
 - `DJANGO_CSP_REPORT_ONLY_POLICY`
 - `DJANGO_PERMISSIONS_POLICY`
 - `DJANGO_SECURE_REFERRER_POLICY`
+
+Mode behavior:
+
+- `relaxed` (default): enforced relaxed baseline + strict report-only baseline
+- `report-only`: strict report-only baseline only (no enforced CSP header)
+- `strict`: strict enforced baseline only
+
+`DJANGO_CSP_POLICY` and `DJANGO_CSP_REPORT_ONLY_POLICY` remain explicit overrides when you need custom policies.
 
 Rollout strategy:
 

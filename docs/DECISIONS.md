@@ -19,6 +19,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Non-root Django runtime containers](#non-root-django-runtime-containers)
 - [Compose least-privilege flags](#compose-least-privilege-flags)
 - [Pinned infrastructure images + latest-tag CI guard](#pinned-infrastructure-images--latest-tag-ci-guard)
+- [CSP rollout modes](#csp-rollout-modes)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
 - [Error-response redaction](#error-response-redaction)
@@ -379,6 +380,21 @@ Historical implementation logs and superseded decisions are archived by month in
 - Improves reproducibility across deploys and classroom sessions by avoiding implicit upstream image churn.
 - Converts accidental `:latest` reintroduction into a fast CI failure instead of a runtime surprise on deploy day.
 
+## CSP rollout modes
+
+**Current decision:**
+- Add `DJANGO_CSP_MODE` with three supported values:
+  - `relaxed` (default): relaxed enforced CSP + strict report-only CSP.
+  - `report-only`: strict report-only CSP only.
+  - `strict`: strict enforced CSP only.
+- Keep `DJANGO_CSP_POLICY` and `DJANGO_CSP_REPORT_ONLY_POLICY` as explicit per-header overrides when operators need fully custom directives.
+- Apply the same mode resolver in both Class Hub and Homework Helper middleware so headers stay consistent across services.
+- Validate `DJANGO_CSP_MODE` in `scripts/validate_env_secrets.sh` to fail fast on invalid deploy config.
+
+**Why this remains active:**
+- Provides a predictable migration path from inline-compatible policy to strict CSP without code edits.
+- Keeps browser hardening behavior aligned between both services and easier to reason about in ops runbooks.
+
 ## Redirect target validation
 
 **Current decision:**
@@ -538,7 +554,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Caddy uses default reverse-proxy forwarded headers for Django client IP/proto awareness.
 - Proxy-header trust is mode-aware (`0` in local preset, `1` in domain preset behind Caddy first hop).
 - Caddy enforces request-body limits per upstream (`CADDY_CLASSHUB_MAX_BODY`, `CADDY_HELPER_MAX_BODY`).
-- Class Hub and Helper emit enforced + report-only CSP baselines by default in production; `DJANGO_CSP_POLICY` and `DJANGO_CSP_REPORT_ONLY_POLICY` can override/tune them.
+- Class Hub and Helper CSP defaults are mode-driven via `DJANGO_CSP_MODE` (`relaxed`/`report-only`/`strict`); `DJANGO_CSP_POLICY` and `DJANGO_CSP_REPORT_ONLY_POLICY` can still override/tune headers directly.
 - Both Django services reject weak/default secret keys when `DJANGO_DEBUG=0`.
 - Deploy flow includes automated `.env` validation via `scripts/validate_env_secrets.sh`.
 - Security headers and HTTPS controls are enabled in production through explicit env knobs (`DJANGO_SECURE_*`).
@@ -670,7 +686,7 @@ Historical implementation logs and superseded decisions are archived by month in
 
 **Current decision:**
 - Security header and cache ownership is documented in one place: [SECURITY_BASELINE.md](SECURITY_BASELINE.md).
-- Class Hub and Helper now support enforced CSP via `DJANGO_CSP_POLICY` while still emitting report-only CSP via `DJANGO_CSP_REPORT_ONLY_POLICY`.
+- Class Hub and Helper now support CSP rollout modes via `DJANGO_CSP_MODE`, with optional per-header overrides via `DJANGO_CSP_POLICY` and `DJANGO_CSP_REPORT_ONLY_POLICY`.
 - Security headers are attached consistently by middleware (`Permissions-Policy`, `Referrer-Policy`, `X-Frame-Options`, plus CSP headers).
 - Caddy templates now support optional teacher/admin edge armor:
   - IP allowlist for `/admin*` and `/teach*` via `CADDY_STAFF_IP_ALLOWLIST_V4`/`CADDY_STAFF_IP_ALLOWLIST_V6`

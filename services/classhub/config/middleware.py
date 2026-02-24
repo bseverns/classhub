@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from common.csp import resolve_csp_headers
 from common.request_safety import build_staff_actor_key, client_ip_from_request, fixed_window_allow
 
 logger = logging.getLogger(__name__)
@@ -17,10 +18,16 @@ class SecurityHeadersMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        csp_policy = (getattr(settings, "CSP_POLICY", "") or "").strip()
+        csp_policy, csp_report_only = resolve_csp_headers(
+            mode=getattr(settings, "CSP_MODE", "relaxed"),
+            relaxed_policy=getattr(settings, "CSP_POLICY_RELAXED", ""),
+            strict_policy=getattr(settings, "CSP_POLICY_STRICT", ""),
+            explicit_policy=getattr(settings, "CSP_POLICY", ""),
+            explicit_report_only_policy=getattr(settings, "CSP_REPORT_ONLY_POLICY", ""),
+            mode_defaults_enabled=bool(getattr(settings, "CSP_MODE_DEFAULTS_ENABLED", True)),
+        )
         if csp_policy and "Content-Security-Policy" not in response:
             response["Content-Security-Policy"] = csp_policy
-        csp_report_only = (getattr(settings, "CSP_REPORT_ONLY_POLICY", "") or "").strip()
         if csp_report_only and "Content-Security-Policy-Report-Only" not in response:
             response["Content-Security-Policy-Report-Only"] = csp_report_only
         permissions_policy = (getattr(settings, "PERMISSIONS_POLICY", "") or "").strip()

@@ -303,6 +303,16 @@ if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.domain" || "${CADDYFILE_TEMPLATE}" =
   fi
 fi
 
+CSP_MODE_VAL="$(env_file_value DJANGO_CSP_MODE)"
+CSP_MODE_VAL="${CSP_MODE_VAL:-relaxed}"
+case "${CSP_MODE_VAL}" in
+  relaxed|report-only|report_only|reportonly|strict)
+    ;;
+  *)
+    fail "DJANGO_CSP_MODE must be one of: relaxed, report-only, strict"
+    ;;
+esac
+
 SITE_MODE_VAL="$(env_file_value CLASSHUB_SITE_MODE)"
 SITE_MODE_VAL="${SITE_MODE_VAL:-normal}"
 case "${SITE_MODE_VAL}" in
