@@ -34,7 +34,7 @@ from django.views.decorators.http import require_POST
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from qrcode.image.svg import SvgPathImage
 
-from ..models import (
+from ...models import (
     Class,
     LessonAsset,
     LessonAssetFolder,
@@ -47,13 +47,13 @@ from ..models import (
     Submission,
     gen_class_code,
 )
-from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
-from ..services.content_links import build_asset_url, parse_course_lesson_url
-from ..services.filenames import safe_filename
-from ..services.markdown_content import load_lesson_markdown, load_teacher_material_html
-from ..services.authoring_templates import generate_authoring_templates
-from ..services.audit import log_audit_event
-from ..services.release_state import (
+from ...http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
+from ...services.content_links import build_asset_url, parse_course_lesson_url
+from ...services.filenames import safe_filename
+from ...services.markdown_content import load_lesson_markdown, load_teacher_material_html
+from ...services.authoring_templates import generate_authoring_templates
+from ...services.audit import log_audit_event
+from ...services.release_state import (
     lesson_release_override_map,
     lesson_release_state,
     parse_release_date,
