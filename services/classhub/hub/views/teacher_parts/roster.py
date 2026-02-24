@@ -3,6 +3,8 @@
 from .shared import *  # noqa: F401,F403,F405
 
 
+@staff_member_required
+@require_POST
 def teach_create_class(request):
     name = (request.POST.get("name") or "").strip()[:200]
     if not name:
@@ -28,7 +30,6 @@ def teach_create_class(request):
 
 
 @staff_member_required
-@require_POST
 def teach_class_dashboard(request, class_id: int):
     classroom = Class.objects.filter(id=class_id).first()
     if not classroom:

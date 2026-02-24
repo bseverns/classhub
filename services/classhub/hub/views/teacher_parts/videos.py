@@ -3,6 +3,7 @@
 from .shared import *  # noqa: F401,F403,F405
 
 
+@staff_member_required
 def teach_videos(request):
     try:
         class_id = int((request.GET.get("class_id") or request.POST.get("class_id") or "0").strip())

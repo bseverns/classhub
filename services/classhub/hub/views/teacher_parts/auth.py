@@ -62,6 +62,8 @@ def teacher_logout(request):
     return redirect("/teach/login")
 
 
+@staff_member_required
+@require_POST
 def teach_create_teacher(request):
     if not request.user.is_superuser:
         return _safe_internal_redirect(

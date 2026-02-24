@@ -3,6 +3,7 @@
 from .shared import *  # noqa: F401,F403,F405
 
 
+@staff_member_required
 def teach_home(request):
     """Teacher landing page (outside /admin)."""
     notice = (request.GET.get("notice") or "").strip()

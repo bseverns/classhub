@@ -669,3 +669,7 @@ def _lesson_asset_redirect_params(folder_id: int = 0, course_slug: str = "", les
     if notice:
         query["notice"] = notice
     return urlencode(query)
+
+
+# Re-export underscore-prefixed helpers used by split endpoint modules.
+__all__ = [name for name in globals() if not name.startswith("__")]
