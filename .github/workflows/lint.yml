@@ -23,3 +23,5 @@ jobs:
         run: bash scripts/repo_hygiene_check.sh
       - name: Guard internal service port exposure
         run: python scripts/check_compose_port_exposure.py
+      - name: Guard against :latest image tags
+        run: python scripts/check_no_latest_tags.py

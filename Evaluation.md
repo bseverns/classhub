@@ -67,7 +67,7 @@ Scope target:
 - ✅ Non-root containers (foundation for least-privilege Compose)
 
 Stretch:
-- Pin `:latest` images + CI guard
+- ✅ Pin `:latest` images + CI guard
 
 ---
 
@@ -93,11 +93,11 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
    **Impact:** real hardening with low behavior risk.  
    **Accept:** compose boots; uploads still work.
 
-5. 🟨 **security(compose): least-privilege flags (no-new-privileges, cap_drop, tmpfs)**  
+5. ✅ **security(compose): least-privilege flags (no-new-privileges, cap_drop, tmpfs)**  
    **Impact:** reduces container breakout blast radius.  
    **Accept:** compose stable; smoke scripts pass.
 
-6. ⬜ **chore(compose): pin MinIO/Ollama tags; add CI guard against `:latest`**  
+6. ✅ **chore(compose): pin MinIO/Ollama tags; add CI guard against `:latest`**  
    **Impact:** reproducibility + fewer “class-day surprises.”  
    **Accept:** CI fails if `:latest` appears.
 
@@ -155,6 +155,8 @@ Add one short entry per merged PR.
 - **2026-02-24** — Completed Sprint #3 edge hardening: Caddy now blocks `/internal/*` with 404 and smoke checks assert the block.
 - **2026-02-24** — Started Sprint #4 container hardening: Django service images now run as non-root with configurable `APP_UID`/`APP_GID`, plus deploy/bootstrap docs for bind-mounted upload permissions.
 - **2026-02-24** — Completed Sprint #4 after production deploy+smoke confirmation; started Sprint #5 least-privilege Compose hardening (`no-new-privileges`, `cap_drop`, `tmpfs`) for edge/app services.
+- **2026-02-24** — Completed Sprint #5 least-privilege Compose hardening; production deploy + smoke checks passed.
+- **2026-02-24** — Completed Sprint #6 by pinning MinIO/Ollama image tags in compose/env defaults and adding CI guard script (`scripts/check_no_latest_tags.py`) in lint workflow.
 
 ---
 

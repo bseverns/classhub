@@ -55,7 +55,7 @@ services:
       retries: 10
 
   ollama:
-    image: ollama/ollama:latest
+    image: ${OLLAMA_IMAGE:-ollama/ollama:0.5.7}
     container_name: classhub_ollama
     restart: unless-stopped
     ports:
@@ -65,7 +65,7 @@ services:
       - ../data/ollama:/root/.ollama
 
   minio:
-    image: minio/minio:latest
+    image: ${MINIO_IMAGE:-minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1}
     container_name: classhub_minio
     restart: unless-stopped
     env_file: [.env]

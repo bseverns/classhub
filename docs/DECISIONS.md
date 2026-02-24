@@ -18,6 +18,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Deployment guardrails](#deployment-guardrails)
 - [Non-root Django runtime containers](#non-root-django-runtime-containers)
 - [Compose least-privilege flags](#compose-least-privilege-flags)
+- [Pinned infrastructure images + latest-tag CI guard](#pinned-infrastructure-images--latest-tag-ci-guard)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
 - [Error-response redaction](#error-response-redaction)
@@ -366,6 +367,17 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces privilege-escalation and container-breakout blast radius on public edge/app workloads.
 - Keeps required behavior intact (Caddy low-port bind, Django uploads bind-mount writes) while tightening defaults.
+
+## Pinned infrastructure images + latest-tag CI guard
+
+**Current decision:**
+- `compose/docker-compose.yml` pins Ollama and MinIO images by versioned tag defaults (`OLLAMA_IMAGE`, `MINIO_IMAGE`) instead of `:latest`.
+- `compose/.env.example`, `.env.example.local`, and `.env.example.domain` declare these pinned image tags as explicit operator-facing defaults.
+- CI lint now runs `scripts/check_no_latest_tags.py` to fail on committed `:latest` tags in compose/env config files.
+
+**Why this remains active:**
+- Improves reproducibility across deploys and classroom sessions by avoiding implicit upstream image churn.
+- Converts accidental `:latest` reintroduction into a fast CI failure instead of a runtime surprise on deploy day.
 
 ## Redirect target validation
 
