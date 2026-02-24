@@ -116,6 +116,10 @@ code="$(http_code "${BASE_URL}/helper/healthz")"
 [[ "${code}" == "200" ]] || fail "/helper/healthz returned ${code}"
 echo "[smoke] /helper/healthz OK"
 
+code="$(http_code "${BASE_URL}/internal/events/helper-chat-access")"
+[[ "${code}" == "404" ]] || fail "/internal/events/helper-chat-access returned ${code} (expected 404 from edge block)"
+echo "[smoke] /internal/* edge block OK"
+
 admin_login_code="$(
   curl "${CURL_FLAGS[@]}" -D "${TMP_HEADERS}" -o /dev/null -w "%{http_code}" "${BASE_URL}/admin/login/"
 )"

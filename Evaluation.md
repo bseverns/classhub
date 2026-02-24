@@ -63,7 +63,7 @@ This file is intentionally **two things at once**:
 Scope target:
 - ✅ Operator profile (white-label without template edits)
 - 🟨 Helper modularization seam (backend interface + engine modules)
-- ⬜ Edge hardening for internal endpoints
+- ✅ Edge hardening for internal endpoints
 - ⬜ Non-root containers (foundation for least-privilege Compose)
 
 Stretch:
@@ -85,7 +85,7 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
    **Impact:** makes streaming/new backends/policy evolution safe.  
    **Accept:** all existing helper tests pass; new unit tests cover engine/backends.
 
-3. ⬜ **security(edge): block `/internal/*` at Caddy (keep helper → classhub_web direct)**  
+3. ✅ **security(edge): block `/internal/*` at Caddy (keep helper → classhub_web direct)**  
    **Impact:** shrinks public attack surface and curiosity traffic.  
    **Accept:** browser gets 404; helper internal events still succeed.
 
@@ -150,6 +150,7 @@ Add one short entry per merged PR.
 - **2026-02-24** — Landed helper engine seam (`tutor/engine/backends.py`, `circuit.py`, `reference.py`) with compatibility wrappers in `tutor/views.py`; pending full Django test run in a provisioned env.
 - **2026-02-24** — Continued Sprint #2 cleanup by extracting policy heuristics into `tutor/engine/heuristics.py` and adding focused engine unit tests.
 - **2026-02-24** — Reduced `tutor/views.py` to a thin endpoint delegating to `tutor/engine/service.py`; extracted auth/runtime helpers into `tutor/engine/auth.py` + `runtime.py`.
+- **2026-02-24** — Completed Sprint #3 edge hardening: Caddy now blocks `/internal/*` with 404 and smoke checks assert the block.
 
 ---
 

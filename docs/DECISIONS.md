@@ -23,6 +23,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Teacher UI comfort mode](#teacher-ui-comfort-mode)
 - [Helper scope signing](#helper-scope-signing)
 - [Helper event ingestion boundary](#helper-event-ingestion-boundary)
+- [Edge block for internal endpoints](#edge-block-for-internal-endpoints)
 - [Helper grounding for Piper hardware](#helper-grounding-for-piper-hardware)
 - [Helper lesson citations](#helper-lesson-citations)
 - [Production transport hardening](#production-transport-hardening)
@@ -448,6 +449,17 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Removes raw cross-service SQL writes and keeps ownership of `StudentEvent` writes inside Class Hub.
 - Preserves append-only telemetry behavior while reducing coupling between services.
+
+## Edge block for internal endpoints
+
+**Current decision:**
+- Caddy blocks public access to `/internal/*` with `404` across all routing templates.
+- Helper internal telemetry continues to target `classhub_web` directly via `CLASSHUB_INTERNAL_EVENTS_URL`, bypassing Caddy.
+- Smoke checks assert edge behavior by expecting `404` on `/internal/events/helper-chat-access`.
+
+**Why this remains active:**
+- Shrinks public attack surface and discovery traffic on internal-only endpoints.
+- Preserves helper event forwarding reliability without exposing internal routes to browsers.
 
 ## Helper grounding for Piper hardware
 

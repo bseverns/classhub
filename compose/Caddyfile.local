@@ -39,6 +39,11 @@
     reverse_proxy classhub_web:8000
   }
 
+  @internal_routes path /internal /internal/*
+  handle @internal_routes {
+    respond "not found" 404
+  }
+
   # Homework Helper
   handle /helper/* {
     request_body {
