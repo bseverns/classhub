@@ -105,7 +105,7 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
    **Impact:** gives operators a safe migration path toward strict CSP.  
    **Accept:** header tests verify mode switching.
 
-8. ⬜ **refactor(frontend): move `glass_theme` inline CSS/JS into static assets**  
+8. 🟨 **refactor(frontend): move `glass_theme` inline CSS/JS into static assets**  
    **Impact:** unlocks strict CSP; improves caching.  
    **Accept:** UI unchanged; no console errors.
 
@@ -159,6 +159,7 @@ Add one short entry per merged PR.
 - **2026-02-24** — Completed Sprint #6 by pinning MinIO/Ollama image tags in compose/env defaults and adding CI guard script (`scripts/check_no_latest_tags.py`) in lint workflow.
 - **2026-02-24** — Started Sprint #7 CSP migration modes: added `DJANGO_CSP_MODE` (`relaxed`/`report-only`/`strict`) with shared resolver, env validation, and mode-switching header tests for both services.
 - **2026-02-24** — Completed Sprint #7 after green server smoke and GitHub CI; CSP mode rollout (`relaxed`/`report-only`/`strict`) is now active with header tests.
+- **2026-02-24** — Started Sprint #8 by moving shared `glass_theme` inline CSS/JS from `includes/glass_theme.html` into static files (`static/css/glass_theme.css`, `static/js/glass_theme.js`) with template static includes.
 
 ---
 

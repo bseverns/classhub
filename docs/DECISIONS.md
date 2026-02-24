@@ -20,6 +20,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Compose least-privilege flags](#compose-least-privilege-flags)
 - [Pinned infrastructure images + latest-tag CI guard](#pinned-infrastructure-images--latest-tag-ci-guard)
 - [CSP rollout modes](#csp-rollout-modes)
+- [Glass theme static assets](#glass-theme-static-assets)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
 - [Error-response redaction](#error-response-redaction)
@@ -394,6 +395,19 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Provides a predictable migration path from inline-compatible policy to strict CSP without code edits.
 - Keeps browser hardening behavior aligned between both services and easier to reason about in ops runbooks.
+
+## Glass theme static assets
+
+**Current decision:**
+- Move shared `glass_theme` presentation assets out of inline template blocks into:
+  - `services/classhub/static/css/glass_theme.css`
+  - `services/classhub/static/js/glass_theme.js`
+- Keep `services/classhub/templates/includes/glass_theme.html` as a thin include that only emits static `<link>` and `<script src>` tags.
+- Preserve existing class names/behavior so consuming templates remain unchanged.
+
+**Why this remains active:**
+- Reduces inline script/style surface and improves compatibility with strict CSP rollout.
+- Improves client caching and keeps shared visual behavior centralized for safer iteration.
 
 ## Redirect target validation
 
