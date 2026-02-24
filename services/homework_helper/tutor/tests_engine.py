@@ -1,5 +1,6 @@
 import urllib.error
 from types import SimpleNamespace
+from unittest.mock import MagicMock, patch
 
 from django.test import SimpleTestCase
 
@@ -76,6 +77,32 @@ class BackendEngineTests(SimpleTestCase):
             )
         self.assertEqual(str(exc.exception), "unknown_backend")
         self.assertEqual(calls["count"], 1)
+
+    def test_mock_chat_uses_default_text_when_empty(self):
+        text, model = backends.mock_chat(text="")
+        self.assertIn("step by step", text.lower())
+        self.assertEqual(model, "mock-tutor-v1")
+
+    @patch("tutor.engine.backends.urllib.request.urlopen")
+    def test_ollama_chat_parses_response_payload(self, urlopen_mock):
+        ctx = MagicMock()
+        ctx.__enter__.return_value.read.return_value = (
+            b'{"message":{"content":"Try one block at a time."},"model":"llama-test"}'
+        )
+        urlopen_mock.return_value = ctx
+
+        text, model = backends.ollama_chat(
+            base_url="http://ollama:11434",
+            model="llama3.2:1b",
+            instructions="Tutor mode",
+            message="How do I move a sprite?",
+            timeout_seconds=30,
+            temperature=0.2,
+            top_p=0.9,
+            num_predict=0,
+        )
+        self.assertEqual(text, "Try one block at a time.")
+        self.assertEqual(model, "llama-test")
 
 
 class HeuristicsEngineTests(SimpleTestCase):

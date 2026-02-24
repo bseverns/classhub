@@ -16,6 +16,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Request safety and helper access posture](#request-safety-and-helper-access-posture)
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
 - [Deployment guardrails](#deployment-guardrails)
+- [Non-root Django runtime containers](#non-root-django-runtime-containers)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
 - [Error-response redaction](#error-response-redaction)
@@ -205,6 +206,7 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Keep `/helper/chat` as the single HTTP endpoint in `tutor/views.py`, but move backend/runtime internals into `tutor/engine/*`.
 - Introduce an explicit backend interface contract (`BackendInterface`) plus callable adapters in `tutor/engine/backends.py`.
+- Keep concrete backend provider implementations (`ollama_chat`, `openai_chat`, `mock_chat`) in `tutor/engine/backends.py`; `tutor/views.py` keeps thin compatibility shims only.
 - Keep policy heuristics in dedicated engine modules (`tutor/engine/heuristics.py`, `reference.py`, `circuit.py`) and call them through thin view wrappers.
 - Keep auth/session boundary checks and runtime request plumbing in engine modules (`tutor/engine/auth.py`, `runtime.py`) and call them via wrapper functions in `tutor/views.py`.
 - Keep `tutor.views` helper function names stable as compatibility wrappers during extraction.
@@ -335,6 +337,18 @@ Historical implementation logs and superseded decisions are archived by month in
 - Prevents CI from accidentally probing external placeholder domains while validating local compose stacks.
 - Prevents CI flakes when local model servers are reachable but model weights are not yet loaded.
 - Keeps strict smoke focused on route authorization outcomes instead of brittle intermediate login form internals.
+
+## Non-root Django runtime containers
+
+**Current decision:**
+- `classhub_web` and `helper_web` images run as a non-root `app` user by default.
+- Compose passes `APP_UID`/`APP_GID` as Docker build args so operators can align container identity with host-mounted data ownership.
+- `scripts/validate_env_secrets.sh` enforces positive integer `APP_UID`/`APP_GID` values to prevent accidental root runtime identity.
+- Day-1 bootstrap now creates `data/classhub_uploads` and `data/ollama` directories up front for predictable non-root startup behavior.
+
+**Why this remains active:**
+- Reduces blast radius from runtime process compromise compared with root-running containers.
+- Keeps upload and generated-template writes reliable on bind-mounted storage when UID/GID is explicitly aligned.
 
 ## Redirect target validation
 

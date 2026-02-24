@@ -2,8 +2,6 @@ import json
 import logging
 import os
 import time
-import urllib.error
-import urllib.request
 from functools import lru_cache
 
 from django.conf import settings
@@ -71,14 +69,6 @@ def _log_chat_event(level: str, event: str, *, request_id: str, **fields):
     )
 
 
-def _backend_circuit_key(backend: str) -> str:
-    return engine_circuit.backend_circuit_key(backend)
-
-
-def _backend_failure_counter_key(backend: str) -> str:
-    return engine_circuit.backend_failure_counter_key(backend)
-
-
 def _backend_circuit_is_open(backend: str) -> bool:
     return engine_circuit.backend_circuit_is_open(
         cache_backend=cache,
@@ -142,64 +132,33 @@ def _load_scope_from_token(scope_token: str, *, max_age_seconds: int) -> dict:
 
 
 def _ollama_chat(base_url: str, model: str, instructions: str, message: str) -> tuple[str, str]:
-    url = base_url.rstrip("/") + "/api/chat"
-    temperature = float(os.getenv("OLLAMA_TEMPERATURE", "0.2"))
-    top_p = float(os.getenv("OLLAMA_TOP_P", "0.9"))
-    num_predict = _env_int("OLLAMA_NUM_PREDICT", 0)
-    options = {
-        "temperature": temperature,
-        "top_p": top_p,
-    }
-    if num_predict > 0:
-        options["num_predict"] = num_predict
-    payload = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": instructions},
-            {"role": "user", "content": message},
-        ],
-        "stream": False,
-        "options": options,
-    }
-    data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
-
-    timeout = int(os.getenv("OLLAMA_TIMEOUT_SECONDS", "30"))
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        body = resp.read().decode("utf-8")
-    parsed = json.loads(body)
-
-    text = ""
-    if isinstance(parsed, dict):
-        msg = parsed.get("message") or {}
-        text = msg.get("content") or parsed.get("response") or ""
-    return text, parsed.get("model", model) if isinstance(parsed, dict) else model
+    """Compatibility shim for existing test patch targets."""
+    return engine_backends.ollama_chat(
+        base_url=base_url,
+        model=model,
+        instructions=instructions,
+        message=message,
+        timeout_seconds=_env_int("OLLAMA_TIMEOUT_SECONDS", 30),
+        temperature=float(os.getenv("OLLAMA_TEMPERATURE", "0.2")),
+        top_p=float(os.getenv("OLLAMA_TOP_P", "0.9")),
+        num_predict=_env_int("OLLAMA_NUM_PREDICT", 0),
+    )
 
 
 def _openai_chat(model: str, instructions: str, message: str) -> tuple[str, str]:
-    try:
-        from openai import OpenAI
-    except Exception as exc:  # pragma: no cover - optional dependency
-        raise RuntimeError("openai_not_installed") from exc
-
-    client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-    create_kwargs = {
-        "model": model,
-        "instructions": instructions,
-        "input": message,
-    }
-    max_output_tokens = _env_int("OPENAI_MAX_OUTPUT_TOKENS", 0)
-    if max_output_tokens > 0:
-        create_kwargs["max_output_tokens"] = max_output_tokens
-    response = client.responses.create(**create_kwargs)
-    return (getattr(response, "output_text", "") or ""), model
+    """Compatibility shim for existing test patch targets."""
+    return engine_backends.openai_chat(
+        api_key=os.environ.get("OPENAI_API_KEY"),
+        model=model,
+        instructions=instructions,
+        message=message,
+        max_output_tokens=_env_int("OPENAI_MAX_OUTPUT_TOKENS", 0),
+    )
 
 
 def _mock_chat() -> tuple[str, str]:
-    text = (os.getenv("HELPER_MOCK_RESPONSE_TEXT", "") or "").strip()
-    if not text:
-        text = "Let's solve this step by step. What did you try already?"
-    return text, "mock-tutor-v1"
+    """Compatibility shim for existing test patch targets."""
+    return engine_backends.mock_chat(text=os.getenv("HELPER_MOCK_RESPONSE_TEXT", ""))
 
 
 def _truncate_response_text(text: str) -> tuple[str, bool]:
@@ -207,10 +166,6 @@ def _truncate_response_text(text: str) -> tuple[str, bool]:
         text,
         max_chars=_env_int("HELPER_RESPONSE_MAX_CHARS", 2200),
     )
-
-
-def _is_retryable_backend_error(exc: Exception) -> bool:
-    return engine_backends.is_retryable_backend_error(exc)
 
 
 def _invoke_backend(backend: str, instructions: str, message: str) -> tuple[str, str]:
@@ -258,28 +213,8 @@ def _call_backend_with_retries(backend: str, instructions: str, message: str) ->
     )
 
 
-def _resolve_reference_file(reference_key: str | None, reference_dir: str, reference_map_raw: str) -> str:
-    return engine_reference.resolve_reference_file(reference_key, reference_dir, reference_map_raw)
-
-
-def _is_scratch_context(context_value: str, topics: list[str], reference_text: str) -> bool:
-    return engine_heuristics.is_scratch_context(context_value, topics, reference_text)
-
-
-def _parse_csv_list(raw: str) -> list[str]:
-    return engine_heuristics.parse_csv_list(raw)
-
-
-def _contains_text_language(message: str, keywords: list[str]) -> bool:
-    return engine_heuristics.contains_text_language(message, keywords)
-
-
-def _contains_any_phrase(text: str, phrases: list[str]) -> bool:
-    return engine_heuristics.contains_any_phrase(text, phrases)
-
-
 def _is_piper_context(context_value: str, topics: list[str], reference_text: str, reference_key: str = "") -> bool:
-    context_keywords = _parse_csv_list(os.getenv("HELPER_PIPER_CONTEXT_KEYWORDS", ""))
+    context_keywords = engine_heuristics.parse_csv_list(os.getenv("HELPER_PIPER_CONTEXT_KEYWORDS", ""))
     keywords = context_keywords or DEFAULT_PIPER_CONTEXT_KEYWORDS
     return engine_heuristics.is_piper_context(
         context_value,
@@ -291,57 +226,18 @@ def _is_piper_context(context_value: str, topics: list[str], reference_text: str
 
 
 def _is_piper_hardware_question(message: str) -> bool:
-    hardware_keywords = _parse_csv_list(os.getenv("HELPER_PIPER_HARDWARE_KEYWORDS", ""))
+    hardware_keywords = engine_heuristics.parse_csv_list(os.getenv("HELPER_PIPER_HARDWARE_KEYWORDS", ""))
     keywords = hardware_keywords or DEFAULT_PIPER_HARDWARE_KEYWORDS
     return engine_heuristics.is_piper_hardware_question(message, keywords=keywords)
-
-
-def _select_piper_hardware_check(message: str) -> str:
-    return engine_heuristics.select_piper_hardware_check(message)
 
 
 def _build_piper_hardware_triage_text(message: str) -> str:
     return engine_heuristics.build_piper_hardware_triage_text(message)
 
 
-def _tokenize(text: str) -> set[str]:
-    return engine_heuristics.tokenize(text)
-
-
-def _clean_reference_line(line: str) -> str:
-    return engine_reference.clean_reference_line(line)
-
-
 @lru_cache(maxsize=4)
 def _load_reference_chunks(path_str: str) -> tuple[str, ...]:
     return engine_reference.load_reference_chunks(path_str, logger=logger)
-
-
-def _build_reference_citations(
-    *,
-    message: str,
-    context: str,
-    topics: list[str],
-    reference_chunks: tuple[str, ...],
-    source_label: str,
-    max_items: int = 3,
-) -> list[dict]:
-    return engine_reference.build_reference_citations(
-        message=message,
-        context=context,
-        topics=topics,
-        reference_chunks=reference_chunks,
-        source_label=source_label,
-        max_items=max_items,
-    )
-
-
-def _format_reference_citations_for_prompt(citations: list[dict]) -> str:
-    return engine_reference.format_reference_citations_for_prompt(citations)
-
-
-def _allowed_topic_overlap(message: str, allowed_topics: list[str]) -> bool:
-    return engine_heuristics.allowed_topic_overlap(message, allowed_topics)
 
 
 @lru_cache(maxsize=4)
@@ -422,18 +318,18 @@ def chat(request):
         env_bool=_env_bool,
         redact=_redact,
         load_scope_from_token=_load_scope_from_token,
-        resolve_reference_file=_resolve_reference_file,
+        resolve_reference_file=engine_reference.resolve_reference_file,
         load_reference_text=_load_reference_text,
         load_reference_chunks=_load_reference_chunks,
-        build_reference_citations=_build_reference_citations,
-        format_reference_citations_for_prompt=_format_reference_citations_for_prompt,
-        parse_csv_list=_parse_csv_list,
-        contains_text_language=_contains_text_language,
-        is_scratch_context=_is_scratch_context,
+        build_reference_citations=engine_reference.build_reference_citations,
+        format_reference_citations_for_prompt=engine_reference.format_reference_citations_for_prompt,
+        parse_csv_list=engine_heuristics.parse_csv_list,
+        contains_text_language=engine_heuristics.contains_text_language,
+        is_scratch_context=engine_heuristics.is_scratch_context,
         is_piper_context=_is_piper_context,
         is_piper_hardware_question=_is_piper_hardware_question,
         build_piper_hardware_triage_text=_build_piper_hardware_triage_text,
-        allowed_topic_overlap=_allowed_topic_overlap,
+        allowed_topic_overlap=engine_heuristics.allowed_topic_overlap,
         build_instructions=build_instructions,
         backend_circuit_is_open=_backend_circuit_is_open,
         call_backend_with_retries=_call_backend_with_retries,
@@ -456,4 +352,3 @@ def chat(request):
         bad_signature_exc=BadSignature,
         deps=deps,
     )
-

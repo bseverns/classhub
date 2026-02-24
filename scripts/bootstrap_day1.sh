@@ -75,7 +75,7 @@ fi
 systemctl restart docker
 
 log "Create directory spine"
-mkdir -p "$PROJECT_ROOT"/{compose,data/postgres,data/minio,backups/postgres,backups/minio,logs}
+mkdir -p "$PROJECT_ROOT"/{compose,data/postgres,data/minio,data/ollama,data/classhub_uploads,backups/postgres,backups/minio,logs}
 chown -R "$DEPLOY_USER":"$DEPLOY_USER" "$PROJECT_ROOT"
 chmod 750 "$PROJECT_ROOT"
 

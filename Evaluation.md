@@ -62,9 +62,9 @@ This file is intentionally **two things at once**:
 
 Scope target:
 - ✅ Operator profile (white-label without template edits)
-- 🟨 Helper modularization seam (backend interface + engine modules)
+- ✅ Helper modularization seam (backend interface + engine modules)
 - ✅ Edge hardening for internal endpoints
-- ⬜ Non-root containers (foundation for least-privilege Compose)
+- 🟨 Non-root containers (foundation for least-privilege Compose)
 
 Stretch:
 - Pin `:latest` images + CI guard
@@ -81,7 +81,7 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
    **Impact:** forks/deploys feel native; values messaging becomes configurable.  
    **Accept:** join + My Data pages reflect env-only changes.
 
-2. 🟨 **refactor(helper): split `tutor/views.py` into engine modules + backend interface**  
+2. ✅ **refactor(helper): split `tutor/views.py` into engine modules + backend interface**  
    **Impact:** makes streaming/new backends/policy evolution safe.  
    **Accept:** all existing helper tests pass; new unit tests cover engine/backends.
 
@@ -89,7 +89,7 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
    **Impact:** shrinks public attack surface and curiosity traffic.  
    **Accept:** browser gets 404; helper internal events still succeed.
 
-4. ⬜ **chore(docker): run services as non-root user; tighten filesystem defaults**  
+4. 🟨 **chore(docker): run services as non-root user; tighten filesystem defaults**  
    **Impact:** real hardening with low behavior risk.  
    **Accept:** compose boots; uploads still work.
 
@@ -150,7 +150,9 @@ Add one short entry per merged PR.
 - **2026-02-24** — Landed helper engine seam (`tutor/engine/backends.py`, `circuit.py`, `reference.py`) with compatibility wrappers in `tutor/views.py`; pending full Django test run in a provisioned env.
 - **2026-02-24** — Continued Sprint #2 cleanup by extracting policy heuristics into `tutor/engine/heuristics.py` and adding focused engine unit tests.
 - **2026-02-24** — Reduced `tutor/views.py` to a thin endpoint delegating to `tutor/engine/service.py`; extracted auth/runtime helpers into `tutor/engine/auth.py` + `runtime.py`.
+- **2026-02-24** — Completed optional helper seam cleanup: moved backend provider implementations into `tutor/engine/backends.py`, trimmed dead compatibility wrappers from `tutor/views.py`, and added engine tests for provider parsing/defaults.
 - **2026-02-24** — Completed Sprint #3 edge hardening: Caddy now blocks `/internal/*` with 404 and smoke checks assert the block.
+- **2026-02-24** — Started Sprint #4 container hardening: Django service images now run as non-root with configurable `APP_UID`/`APP_GID`, plus deploy/bootstrap docs for bind-mounted upload permissions.
 
 ---
 

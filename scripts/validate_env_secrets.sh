@@ -177,6 +177,23 @@ if [[ "${RUN_MIGRATIONS_ON_START}" != "0" && "${RUN_MIGRATIONS_ON_START}" != "1"
   fail "RUN_MIGRATIONS_ON_START must be 0 or 1"
 fi
 
+APP_UID_RAW="$(env_file_value APP_UID)"
+APP_GID_RAW="$(env_file_value APP_GID)"
+if [[ -n "${APP_UID_RAW}" && ! "${APP_UID_RAW}" =~ ^[0-9]+$ ]]; then
+  fail "APP_UID must be an integer when set"
+fi
+if [[ -n "${APP_GID_RAW}" && ! "${APP_GID_RAW}" =~ ^[0-9]+$ ]]; then
+  fail "APP_GID must be an integer when set"
+fi
+APP_UID="${APP_UID_RAW:-1000}"
+APP_GID="${APP_GID_RAW:-1000}"
+if [[ "${APP_UID}" -le 0 ]]; then
+  fail "APP_UID must be greater than 0 (non-root runtime identity)"
+fi
+if [[ "${APP_GID}" -le 0 ]]; then
+  fail "APP_GID must be greater than 0 (non-root runtime identity)"
+fi
+
 HELPER_LLM_BACKEND="$(env_file_value HELPER_LLM_BACKEND)"
 if [[ "${HELPER_LLM_BACKEND,,}" == "openai" ]]; then
   require_strong_secret "OPENAI_API_KEY" 20

@@ -72,6 +72,9 @@ services:
     build:
       context: ../services
       dockerfile: classhub/Dockerfile
+      args:
+        APP_UID: ${APP_UID:-10001}
+        APP_GID: ${APP_GID:-10001}
     container_name: classhub_web
     restart: unless-stopped
     env_file: [.env]
@@ -105,6 +108,9 @@ services:
     build:
       context: ../services
       dockerfile: homework_helper/Dockerfile
+      args:
+        APP_UID: ${APP_UID:-10001}
+        APP_GID: ${APP_GID:-10001}
     container_name: helper_web
     restart: unless-stopped
     env_file: [.env]

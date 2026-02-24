@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import time
 import urllib.error
+import urllib.request
 from dataclasses import dataclass
 from typing import Callable, Mapping, Protocol
 
@@ -79,3 +81,76 @@ def call_backend_with_retries(
 
     raise last_exc or RuntimeError("backend_error")
 
+
+def ollama_chat(
+    *,
+    base_url: str,
+    model: str,
+    instructions: str,
+    message: str,
+    timeout_seconds: int,
+    temperature: float,
+    top_p: float,
+    num_predict: int,
+) -> tuple[str, str]:
+    """Execute a non-streaming Ollama chat completion and return `(text, model_used)`."""
+    url = base_url.rstrip("/") + "/api/chat"
+    options: dict[str, float | int] = {
+        "temperature": temperature,
+        "top_p": top_p,
+    }
+    if num_predict > 0:
+        options["num_predict"] = num_predict
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": instructions},
+            {"role": "user", "content": message},
+        ],
+        "stream": False,
+        "options": options,
+    }
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=int(timeout_seconds)) as resp:
+        body = resp.read().decode("utf-8")
+    parsed = json.loads(body)
+    text = ""
+    if isinstance(parsed, dict):
+        msg = parsed.get("message") or {}
+        text = msg.get("content") or parsed.get("response") or ""
+    return text, parsed.get("model", model) if isinstance(parsed, dict) else model
+
+
+def openai_chat(
+    *,
+    api_key: str | None,
+    model: str,
+    instructions: str,
+    message: str,
+    max_output_tokens: int,
+) -> tuple[str, str]:
+    """Execute an OpenAI Responses API request and return `(text, model_used)`."""
+    try:
+        from openai import OpenAI
+    except Exception as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError("openai_not_installed") from exc
+
+    client = OpenAI(api_key=api_key)
+    create_kwargs = {
+        "model": model,
+        "instructions": instructions,
+        "input": message,
+    }
+    if max_output_tokens > 0:
+        create_kwargs["max_output_tokens"] = max_output_tokens
+    response = client.responses.create(**create_kwargs)
+    return (getattr(response, "output_text", "") or ""), model
+
+
+def mock_chat(*, text: str) -> tuple[str, str]:
+    """Return deterministic mock backend output for tests/local smoke."""
+    normalized = (text or "").strip()
+    if not normalized:
+        normalized = "Let's solve this step by step. What did you try already?"
+    return normalized, "mock-tutor-v1"

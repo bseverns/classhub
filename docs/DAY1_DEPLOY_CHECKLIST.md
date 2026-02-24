@@ -20,12 +20,16 @@ flowchart TD
 - Set Docker log limits
 - Create `/srv/classhub` directory spine
 - Put backups off-server
+- Plan container UID/GID mapping for bind-mounted writes (`APP_UID`/`APP_GID`)
 
 ## Run
 - Copy the mode-appropriate env example:
   - local/day-1: `compose/.env.example.local` → `compose/.env`
   - domain/TLS: `compose/.env.example.domain` → `compose/.env`
 - Set a strong `DJANGO_SECRET_KEY` (do not keep placeholder/default values)
+- Set non-root container ids to match your deploy user (recommended):
+  - `APP_UID=$(id -u <deploy-user>)`
+  - `APP_GID=$(id -g <deploy-user>)`
 - Keep admin 2FA enforcement enabled: `DJANGO_ADMIN_2FA_REQUIRED=1`
 - For domain/TLS mode, set:
   - `DJANGO_SECURE_SSL_REDIRECT=1`
