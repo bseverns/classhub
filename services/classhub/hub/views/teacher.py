@@ -1921,7 +1921,9 @@ def teach_teacher_2fa_setup(request):
         return response
 
     device_name = _teacher_2fa_device_name()
-    device = TOTPDevice.objects.filter(user=user, name=device_name).first()
+    device = TOTPDevice.objects.filter(user=user, confirmed=True).first()
+    if device is None:
+        device = TOTPDevice.objects.filter(user=user, name=device_name).first()
     if device is None:
         device = TOTPDevice.objects.create(user=user, name=device_name, confirmed=False)
 
