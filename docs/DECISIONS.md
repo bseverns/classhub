@@ -23,6 +23,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [CSP strict flip hold (2026-02-24 to 2026-03-02)](#csp-strict-flip-hold-2026-02-24-to-2026-03-02)
 - [Glass theme static assets](#glass-theme-static-assets)
 - [Helper widget static assets](#helper-widget-static-assets)
+- [Helper widget error transparency](#helper-widget-error-transparency)
 - [Coursepack validation gate](#coursepack-validation-gate)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
@@ -444,6 +445,19 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces inline script/style exposure on the model-facing helper surface.
 - Improves cacheability and keeps helper UI behavior centralized for safer updates.
+
+## Helper widget error transparency
+
+**Current decision:**
+- For non-2xx `/helper/chat` responses, helper UI now surfaces a structured status line in-widget:
+  - `Helper error: <error_code> (request <request_id>)` when the API returns JSON with a request id.
+  - status-derived fallback codes (for example `csrf_forbidden` for HTTP 403) when the response is non-JSON.
+- Keep citations cleared on error responses and network failures.
+- Keep detailed diagnostics server-side; UI only exposes coarse code + request id for support correlation.
+
+**Why this remains active:**
+- Reduces MTTR during class sessions by making helper failures diagnosable without immediate shell access.
+- Gives staff a stable request id they can match against helper/classhub logs.
 
 ## Coursepack validation gate
 

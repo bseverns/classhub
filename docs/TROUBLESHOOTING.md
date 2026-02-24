@@ -49,6 +49,7 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 |---|---|---|
 | Site not loading over HTTPS | Caddy logs + `.env` domain/template | Edge routing/TLS |
 | `/helper/chat` failing (502 / `ollama_error`) | `helper_web` logs + Ollama tags | Helper backend/model |
+| `/helper/chat` failing with 403 CSRF page | Browser request headers (`Referer`, `X-CSRFToken`, `Cookie`) + `classhub_web` logs | CSRF/referrer/session |
 | Teacher login smoke fails | smoke credentials + login response path | Auth/config mismatch |
 | Container unhealthy/restarting | service logs + DB auth | Boot/runtime dependency |
 | Helper returns policy redirect unexpectedly | topic filter mode + scope context | Policy config |
@@ -120,7 +121,7 @@ Checks:
 ```bash
 cd /srv/lms/app/compose
 docker compose logs --tail=200 helper_web
-docker compose logs --tail=200 classhub_ollama
+docker compose logs --tail=200 ollama
 curl http://localhost:11434/api/tags
 docker compose exec -T helper_web env | grep -E '^(OLLAMA_BASE_URL|OLLAMA_MODEL|OLLAMA_TIMEOUT_SECONDS|HELPER_LLM_BACKEND|HELPER_GUNICORN_TIMEOUT_SECONDS|HELPER_BACKEND_MAX_ATTEMPTS|HELPER_QUEUE_MAX_WAIT_SECONDS|HELPER_BACKOFF_SECONDS)='
 ```
@@ -139,6 +140,41 @@ docker compose up -d helper_web
 ```
 
 If using non-compose Ollama, ensure `OLLAMA_BASE_URL` points to a host reachable from containers.
+
+## Symptom: `/helper/chat` fails with 403 CSRF page
+
+Example failure signal:
+
+```text
+Forbidden (403)
+CSRF verification failed. Request aborted.
+... requires a "Referer header" ... but none was sent.
+```
+
+Common causes:
+
+- request was sent by `curl`/script without CSRF cookie + `X-CSRFToken` + `Referer` (expected to fail)
+- browser privacy extension/policy strips `Referer`
+- mixed hosts (for example `localhost` vs `lms.example.org`) causing cookie/referrer mismatch
+
+Checks:
+
+```bash
+cd /srv/lms/app/compose
+docker compose logs --since=10m classhub_web | grep -Ei 'csrf|forbidden|referer|helper/chat'
+docker compose exec -T helper_web env | grep -E '^(CSRF_TRUSTED_ORIGINS|DJANGO_ALLOWED_HOSTS)='
+```
+
+In browser DevTools (`Network` -> `helper/chat`), verify request headers include:
+
+- `Referer: https://<your-domain>/...`
+- `X-CSRFToken: ...`
+- `Cookie: csrftoken=...; sessionid=...`
+
+Notes:
+
+- A raw `curl` POST to `/helper/chat` is expected to fail CSRF unless you include valid session + CSRF headers.
+- The helper widget now surfaces structured errors as `Helper error: <error_code> (request <id>)`; CSRF HTML responses map to `csrf_forbidden`.
 
 ## Symptom: smoke says teacher login failed
 

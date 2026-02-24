@@ -75,6 +75,28 @@
   };
 
   const hasKeyword = (text, words) => words.some((w) => text.includes(w));
+  const helperErrorCodeFromStatus = (status) => {
+    if (status === 400) return "bad_request";
+    if (status === 401) return "unauthorized";
+    if (status === 403) return "csrf_forbidden";
+    if (status === 404) return "not_found";
+    if (status === 429) return "rate_limited";
+    if (status >= 500 && status < 600) return "backend_error";
+    return `http_${status}`;
+  };
+  const formatHelperErrorText = ({ status, data, headerRequestId }) => {
+    const errorCode = data && typeof data.error === "string" ? data.error : helperErrorCodeFromStatus(status);
+    const requestId =
+      (data && typeof data.request_id === "string" && data.request_id) || headerRequestId || "";
+    let text = `Helper error: ${errorCode}`;
+    if (requestId) {
+      text += ` (request ${requestId})`;
+    }
+    if (data && typeof data.message === "string" && data.message.trim()) {
+      text += `. ${data.message.trim()}`;
+    }
+    return text;
+  };
   const detectPromptGroup = (ref, context, topics) => {
     const meta = `${ref} ${context} ${topics}`.toLowerCase();
     if (
@@ -174,14 +196,31 @@
           credentials: "same-origin",
           body: JSON.stringify(payload),
         });
-        if (!res.ok) {
-          throw new Error("helper_error");
+        let data = null;
+        const contentType = (res.headers.get("Content-Type") || "").toLowerCase();
+        if (contentType.includes("application/json")) {
+          try {
+            data = await res.json();
+          } catch (_err) {
+            data = null;
+          }
         }
-        const data = await res.json();
-        setOutput(data.text || "(no output)");
-        renderCitations(data.citations || []);
+        if (!res.ok) {
+          const requestIdHeader = (res.headers.get("X-Request-ID") || "").trim();
+          setOutput(
+            formatHelperErrorText({
+              status: res.status,
+              data,
+              headerRequestId: requestIdHeader,
+            }),
+          );
+          renderCitations([]);
+          return;
+        }
+        setOutput((data && data.text) || "(no output)");
+        renderCitations((data && data.citations) || []);
       } catch (err) {
-        setOutput("Helper error (check server logs).");
+        setOutput("Helper error: network_failure");
         renderCitations([]);
       } finally {
         button.disabled = false;
