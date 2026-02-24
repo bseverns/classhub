@@ -278,7 +278,7 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(Submission.objects.filter(student_id=student.id).count(), 0)
         self.assertEqual(StudentEvent.objects.filter(student_id=student.id).count(), 0)
 
-    @patch("hub.views.teacher.generate_authoring_templates")
+    @patch("hub.views.teacher_parts.content.generate_authoring_templates")
     def test_teach_home_can_generate_authoring_templates(self, mock_generate):
         mock_generate.return_value.output_paths = [
             Path("/uploads/authoring_templates/sample-teacher-plan-template.md"),
@@ -314,7 +314,7 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(event.actor_user_id, self.staff.id)
         self.assertEqual(event.target_id, "sample_slug")
 
-    @patch("hub.views.teacher.generate_authoring_templates")
+    @patch("hub.views.teacher_parts.content.generate_authoring_templates")
     def test_teach_home_template_generator_rejects_invalid_slug(self, mock_generate):
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.post(

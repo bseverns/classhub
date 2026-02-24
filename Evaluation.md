@@ -120,7 +120,7 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
 ### “Evaluation deltas” follow-on (commits 11–15)
 
 11. ✅ **chore(code): delete `hub/views/_legacy.py` + remove imports/exports**  
-12. ⬜ **refactor(teach): split `teacher.py` into submodules (auth/roster/content/videos/closeout)**  
+12. 🟨 **refactor(teach): split `teacher.py` into submodules (auth/roster/content/videos/closeout)**  
 13. ⬜ **security(session): harden join transition invariants (CSRF/session rotation + tests)**  
 14. ⬜ **security(keys): add `DEVICE_HINT_SIGNING_KEY` separate from `SECRET_KEY`**  
 15. ⬜ **ops(backup): unify backup + restore into one rehearsable workflow**
@@ -145,6 +145,7 @@ A change is “done” when it meets **all** of these:
 Add one short entry per merged PR.
 
 - **2026-02-23** — Converted Evaluation.md into a tracker; backlog ranked; Sprint 01 drafted.
+- **2026-02-24** — Started Sprint 02 item #12: extracted `hub/views/teacher.py` into `hub/views/teacher_parts/{shared,auth,content,videos,roster}.py` with `teacher.py` compatibility exports; pending full CI/server verification.
 - **2026-02-24** — Completed Sprint #1 commit (operator profile + template/admin de-hardcoding + docs/tests updates).
 - **2026-02-24** — Started Sprint #2 helper seam refactor (`tutor/views.py` extraction into engine/backend modules).
 - **2026-02-24** — Landed helper engine seam (`tutor/engine/backends.py`, `circuit.py`, `reference.py`) with compatibility wrappers in `tutor/views.py`; pending full Django test run in a provisioned env.
