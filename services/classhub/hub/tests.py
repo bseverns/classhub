@@ -118,7 +118,7 @@ class TeacherPortalTests(TestCase):
     def test_teach_lessons_requires_staff(self):
         resp = self.client.get("/teach/lessons")
         self.assertEqual(resp.status_code, 302)
-        self.assertIn("/admin/login/", resp["Location"])
+        self.assertIn("/teach/login", resp["Location"])
 
     def test_teach_lessons_shows_submission_progress(self):
         classroom, upload = self._build_lesson_with_submission()
@@ -377,12 +377,12 @@ class TeacherPortalTests(TestCase):
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.get("/teach/logout")
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp["Location"], "/admin/login/")
+        self.assertEqual(resp["Location"], "/teach/login")
         self.assertIsNone(self.client.session.get("_auth_user_id"))
 
         denied = self.client.get("/teach")
         self.assertEqual(denied.status_code, 302)
-        self.assertIn("/admin/login/", denied["Location"])
+        self.assertIn("/teach/login", denied["Location"])
 
     def test_teacher_can_rename_student(self):
         classroom = Class.objects.create(name="Period Rename", join_code="REN12345")

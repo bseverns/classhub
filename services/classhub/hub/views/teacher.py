@@ -13,7 +13,17 @@ from urllib.parse import urlencode, urlparse
 
 import qrcode
 from django.conf import settings
-from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.admin.views.decorators import staff_member_required as django_staff_member_required
+
+
+def staff_member_required(view_func=None):
+    """
+    Wrap the Django admin staff_member_required decorator to redirect unauthenticated
+    teachers to /teach/login instead of the Django admin login page.
+    """
+    if view_func is None:
+        return lambda f: django_staff_member_required(f, login_url="/teach/login")
+    return django_staff_member_required(view_func, login_url="/teach/login")
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
@@ -1889,7 +1899,7 @@ def teach_teacher_2fa_setup(request):
         login_next = "/teach/2fa/setup"
         if safe_next:
             login_next = f"{login_next}?{urlencode({'next': safe_next})}"
-        login_url = f"/admin/login/?{urlencode({'next': login_next})}"
+        login_url = f"/teach/login?{urlencode({'next': login_next})}"
         if token:
             response = render(
                 request,
@@ -1906,7 +1916,7 @@ def teach_teacher_2fa_setup(request):
             )
             apply_no_store(response, private=True, pragma=True)
             return response
-        response = _safe_internal_redirect(request, login_url, fallback="/admin/login/")
+        response = _safe_internal_redirect(request, login_url, fallback="/teach/login")
         apply_no_store(response, private=True, pragma=True)
         return response
 
