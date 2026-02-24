@@ -44,3 +44,4 @@ compose/docker-compose.override.yml.disabled
 .DS_Store
 __MACOSX/
 site/
+Evaluation.md
