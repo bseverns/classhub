@@ -164,6 +164,7 @@ Add one short entry per merged PR.
 - **2026-02-24** — Started Sprint #9 by extracting `helper_widget` inline CSS/JS into app static files (`hub/static/css/helper_widget.css`, `hub/static/js/helper_widget.js`) with static template includes.
 - **2026-02-24** — Completed Sprint #9 after green server smoke and GitHub CI; helper widget static extraction is deploy-verified.
 - **2026-02-24** — Started Sprint #10 content validation work (`course.yaml` + lesson files) in preflight and CI.
+- **2026-02-24** — Implemented Sprint #10 validation gate: added `scripts/validate_coursepack.py`, wired it into `content_preflight.sh`, and added CI coverage in `test-suite` (classhub job); pending server/GH confirmation.
 
 ---
 

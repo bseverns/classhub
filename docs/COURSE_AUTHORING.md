@@ -261,6 +261,17 @@ python3 scripts/validate_lesson_video_order.py \
 Run content checks before deployment:
 
 ```bash
+python3 scripts/validate_coursepack.py --course-slug <course_slug>
+```
+
+This validates:
+- `course.yaml` structure (required keys, duplicates, lesson file references)
+- lesson markdown front matter presence + parseability
+- manifest/front-matter slug/session consistency
+
+Then run the full preflight:
+
+```bash
 bash scripts/content_preflight.sh <course_slug>
 ```
 

@@ -22,6 +22,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [CSP rollout modes](#csp-rollout-modes)
 - [Glass theme static assets](#glass-theme-static-assets)
 - [Helper widget static assets](#helper-widget-static-assets)
+- [Coursepack validation gate](#coursepack-validation-gate)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
 - [Error-response redaction](#error-response-redaction)
@@ -422,6 +423,17 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces inline script/style exposure on the model-facing helper surface.
 - Improves cacheability and keeps helper UI behavior centralized for safer updates.
+
+## Coursepack validation gate
+
+**Current decision:**
+- Add `scripts/validate_coursepack.py` to validate `course.yaml` and lesson front matter before deploy/test execution.
+- `scripts/content_preflight.sh` now runs coursepack validation before video-order sync checks.
+- CI (`.github/workflows/test-suite.yml`, classhub job) runs `python scripts/validate_coursepack.py --all` so malformed coursepacks fail early with actionable errors.
+
+**Why this remains active:**
+- Prevents avoidable runtime lesson failures caused by malformed manifests, missing lesson files, or broken front matter.
+- Keeps content-as-code reliable by enforcing basic schema and file-boundary expectations in both operator preflight and CI.
 
 ## Redirect target validation
 

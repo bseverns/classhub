@@ -28,6 +28,8 @@ jobs:
         run: |
           pip install -r services/classhub/requirements.txt
           pip install coverage==7.6.8
+      - name: Validate coursepacks
+        run: python scripts/validate_coursepack.py --all
       - name: Django checks (classhub)
         env:
           DJANGO_DEBUG: "1"
