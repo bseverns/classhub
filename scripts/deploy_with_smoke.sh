@@ -108,6 +108,14 @@ fi
 
 echo "[deploy] caddy runtime guardrail OK"
 
+echo "[deploy] reloading caddy config from mounted template"
+if ! docker exec classhub_caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile; then
+  echo "[deploy] caddy reload failed" >&2
+  rollback_if_configured
+  exit 1
+fi
+echo "[deploy] caddy reload OK"
+
 SMOKE_MODE="${DEPLOY_SMOKE_MODE:-strict}"
 if [[ "${SMOKE_MODE}" == "golden" ]]; then
   set +e

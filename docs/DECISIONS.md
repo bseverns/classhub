@@ -320,6 +320,7 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Deploy path uses migration gate + smoke checks + deterministic compose invocation.
 - Caddy mount source must match the expected compose config file.
+- Deploy script explicitly reloads Caddy config from `/etc/caddy/Caddyfile` before smoke checks.
 - Domain-template Caddy CEL expressions must use unquoted `{env.*}` placeholders inside `expression` matchers.
 - `scripts/system_doctor.sh` is the canonical one-command stack diagnostic.
 - Golden-path smoke can auto-provision fixtures via `scripts/golden_path_smoke.sh`.
@@ -333,6 +334,7 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Prevents avoidable outages from config drift.
 - Prevents Caddy crash-loop on startup caused by invalid CEL expression rendering.
+- Prevents stale edge routing behavior when Caddy container remains running across deploys.
 - Catches regressions before users encounter them.
 - Reduces operator setup friction for smoke checks that previously depended on static credentials.
 - Reduces startup-time healthcheck failures from long runtime `collectstatic` work.
