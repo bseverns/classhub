@@ -64,7 +64,7 @@ Scope target:
 - ✅ Operator profile (white-label without template edits)
 - ✅ Helper modularization seam (backend interface + engine modules)
 - ✅ Edge hardening for internal endpoints
-- 🟨 Non-root containers (foundation for least-privilege Compose)
+- ✅ Non-root containers (foundation for least-privilege Compose)
 
 Stretch:
 - Pin `:latest` images + CI guard
@@ -89,11 +89,11 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
    **Impact:** shrinks public attack surface and curiosity traffic.  
    **Accept:** browser gets 404; helper internal events still succeed.
 
-4. 🟨 **chore(docker): run services as non-root user; tighten filesystem defaults**  
+4. ✅ **chore(docker): run services as non-root user; tighten filesystem defaults**  
    **Impact:** real hardening with low behavior risk.  
    **Accept:** compose boots; uploads still work.
 
-5. ⬜ **security(compose): least-privilege flags (no-new-privileges, cap_drop, tmpfs)**  
+5. 🟨 **security(compose): least-privilege flags (no-new-privileges, cap_drop, tmpfs)**  
    **Impact:** reduces container breakout blast radius.  
    **Accept:** compose stable; smoke scripts pass.
 
@@ -154,6 +154,7 @@ Add one short entry per merged PR.
 - **2026-02-24** — Refined helper test base to run `/helper/chat` through the real stack with mock backend defaults; fault-injection now patches engine backends instead of view shims for most cases.
 - **2026-02-24** — Completed Sprint #3 edge hardening: Caddy now blocks `/internal/*` with 404 and smoke checks assert the block.
 - **2026-02-24** — Started Sprint #4 container hardening: Django service images now run as non-root with configurable `APP_UID`/`APP_GID`, plus deploy/bootstrap docs for bind-mounted upload permissions.
+- **2026-02-24** — Completed Sprint #4 after production deploy+smoke confirmation; started Sprint #5 least-privilege Compose hardening (`no-new-privileges`, `cap_drop`, `tmpfs`) for edge/app services.
 
 ---
 

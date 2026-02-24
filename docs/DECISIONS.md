@@ -17,6 +17,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
 - [Deployment guardrails](#deployment-guardrails)
 - [Non-root Django runtime containers](#non-root-django-runtime-containers)
+- [Compose least-privilege flags](#compose-least-privilege-flags)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
 - [Error-response redaction](#error-response-redaction)
@@ -353,6 +354,18 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces blast radius from runtime process compromise compared with root-running containers.
 - Keeps upload and generated-template writes reliable on bind-mounted storage when UID/GID is explicitly aligned.
+
+## Compose least-privilege flags
+
+**Current decision:**
+- `caddy`, `classhub_web`, and `helper_web` set `security_opt: ["no-new-privileges:true"]`.
+- `classhub_web` and `helper_web` drop all Linux capabilities via `cap_drop: ["ALL"]`.
+- `caddy` drops all capabilities and adds back only `NET_BIND_SERVICE` for `80/443` binding.
+- `caddy`, `classhub_web`, and `helper_web` mount `/tmp` as tmpfs (`rw,noexec,nosuid,size=64m`).
+
+**Why this remains active:**
+- Reduces privilege-escalation and container-breakout blast radius on public edge/app workloads.
+- Keeps required behavior intact (Caddy low-port bind, Django uploads bind-mount writes) while tightening defaults.
 
 ## Redirect target validation
 
