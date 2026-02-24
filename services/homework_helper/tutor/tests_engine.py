@@ -3,6 +3,7 @@ import urllib.error
 from django.test import SimpleTestCase
 
 from .engine import backends
+from .engine import heuristics
 
 
 class BackendEngineTests(SimpleTestCase):
@@ -73,3 +74,20 @@ class BackendEngineTests(SimpleTestCase):
         self.assertEqual(str(exc.exception), "unknown_backend")
         self.assertEqual(calls["count"], 1)
 
+
+class HeuristicsEngineTests(SimpleTestCase):
+    def test_truncate_response_text_limits_output(self):
+        text, truncated = heuristics.truncate_response_text("A" * 260, max_chars=220)
+        self.assertTrue(truncated)
+        self.assertEqual(len(text), 220)
+
+    def test_allowed_topic_overlap_requires_intersection(self):
+        self.assertTrue(heuristics.allowed_topic_overlap("sprite motion blocks", ["sprite control", "events"]))
+        self.assertFalse(heuristics.allowed_topic_overlap("database joins", ["scratch sprites", "motion blocks"]))
+
+    def test_build_piper_hardware_triage_text_includes_guided_steps(self):
+        text = heuristics.build_piper_hardware_triage_text("StoryMode jump button is not working")
+        lowered = text.lower()
+        self.assertIn("which storymode mission + step", lowered)
+        self.assertIn("do this one check now", lowered)
+        self.assertIn("retest only that same input", lowered)

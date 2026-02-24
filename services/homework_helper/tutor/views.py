@@ -29,50 +29,14 @@ from .queueing import acquire_slot, release_slot
 from .classhub_events import emit_helper_chat_access_event
 from .engine import backends as engine_backends
 from .engine import circuit as engine_circuit
+from .engine import heuristics as engine_heuristics
 from .engine import reference as engine_reference
 
 EMAIL_RE = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
 PHONE_RE = re.compile(r"\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b")
-DEFAULT_TEXT_LANGUAGE_KEYWORDS = [
-    "pascal",
-    "python",
-    "java",
-    "javascript",
-    "typescript",
-    "c++",
-    "c#",
-    "csharp",
-    "ruby",
-    "php",
-    "go",
-    "golang",
-    "rust",
-    "swift",
-    "kotlin",
-]
-DEFAULT_PIPER_CONTEXT_KEYWORDS = [
-    "piper",
-    "storymode",
-    "pipercode",
-    "mars",
-    "cheeseteroid",
-    "gpio",
-    "breadboard",
-]
-DEFAULT_PIPER_HARDWARE_KEYWORDS = [
-    "storymode",
-    "mars",
-    "cheeseteroid",
-    "breadboard",
-    "jumper",
-    "wire",
-    "wiring",
-    "gpio",
-    "button",
-    "buttons",
-    "physical controls",
-    "controls not working",
-]
+DEFAULT_TEXT_LANGUAGE_KEYWORDS = engine_heuristics.DEFAULT_TEXT_LANGUAGE_KEYWORDS
+DEFAULT_PIPER_CONTEXT_KEYWORDS = engine_heuristics.DEFAULT_PIPER_CONTEXT_KEYWORDS
+DEFAULT_PIPER_HARDWARE_KEYWORDS = engine_heuristics.DEFAULT_PIPER_HARDWARE_KEYWORDS
 logger = logging.getLogger(__name__)
 
 
@@ -302,12 +266,10 @@ def _mock_chat() -> tuple[str, str]:
 
 
 def _truncate_response_text(text: str) -> tuple[str, bool]:
-    max_chars = _env_int("HELPER_RESPONSE_MAX_CHARS", 2200)
-    if max_chars < 200:
-        max_chars = 200
-    if len(text) <= max_chars:
-        return text, False
-    return text[:max_chars].rstrip(), True
+    return engine_heuristics.truncate_response_text(
+        text,
+        max_chars=_env_int("HELPER_RESPONSE_MAX_CHARS", 2200),
+    )
 
 
 def _is_retryable_backend_error(exc: Exception) -> bool:
@@ -364,77 +326,49 @@ def _resolve_reference_file(reference_key: str | None, reference_dir: str, refer
 
 
 def _is_scratch_context(context_value: str, topics: list[str], reference_text: str) -> bool:
-    if "scratch" in (context_value or "").lower():
-        return True
-    if any("scratch" in t.lower() for t in topics):
-        return True
-    if "scratch" in (reference_text or "").lower():
-        return True
-    return False
+    return engine_heuristics.is_scratch_context(context_value, topics, reference_text)
 
 
 def _parse_csv_list(raw: str) -> list[str]:
-    return [part.strip().lower() for part in (raw or "").split(",") if part.strip()]
+    return engine_heuristics.parse_csv_list(raw)
 
 
 def _contains_text_language(message: str, keywords: list[str]) -> bool:
-    lowered = message.lower()
-    return any(keyword in lowered for keyword in keywords)
+    return engine_heuristics.contains_text_language(message, keywords)
 
 
 def _contains_any_phrase(text: str, phrases: list[str]) -> bool:
-    lowered = (text or "").lower()
-    return any(phrase and phrase in lowered for phrase in phrases)
+    return engine_heuristics.contains_any_phrase(text, phrases)
 
 
 def _is_piper_context(context_value: str, topics: list[str], reference_text: str, reference_key: str = "") -> bool:
     context_keywords = _parse_csv_list(os.getenv("HELPER_PIPER_CONTEXT_KEYWORDS", ""))
     keywords = context_keywords or DEFAULT_PIPER_CONTEXT_KEYWORDS
-    combined = " ".join(
-        [
-            context_value or "",
-            " ".join(topics or []),
-            reference_text or "",
-            reference_key or "",
-        ]
+    return engine_heuristics.is_piper_context(
+        context_value,
+        topics,
+        reference_text,
+        reference_key=reference_key,
+        keywords=keywords,
     )
-    return _contains_any_phrase(combined, keywords)
 
 
 def _is_piper_hardware_question(message: str) -> bool:
     hardware_keywords = _parse_csv_list(os.getenv("HELPER_PIPER_HARDWARE_KEYWORDS", ""))
     keywords = hardware_keywords or DEFAULT_PIPER_HARDWARE_KEYWORDS
-    return _contains_any_phrase(message, keywords)
+    return engine_heuristics.is_piper_hardware_question(message, keywords=keywords)
 
 
 def _select_piper_hardware_check(message: str) -> str:
-    lowered = (message or "").lower()
-    if any(token in lowered for token in ("jump", "cheeseteroid")):
-        return "Check only the jump input path: confirm jumper seating and shared ground for that jump control."
-    if any(token in lowered for token in ("none", "all", "every", "nothing")) and any(
-        token in lowered for token in ("button", "buttons", "control", "controls", "wire", "wiring")
-    ):
-        return "Check shared ground first, then reseat one suspect jumper wire and retest before changing anything else."
-    if any(token in lowered for token in ("left", "right", "forward", "back", "direction", "one direction")):
-        return "Compare the failing direction wire path to a known-good direction and change only one mismatch."
-    if any(token in lowered for token in ("storymode", "mars", "step", "level")):
-        return "Confirm you are on the exact StoryMode test step where controls are evaluated before rewiring."
-    return "Pick one input, verify its jumper path and shared ground, then retest only that single input."
+    return engine_heuristics.select_piper_hardware_check(message)
 
 
 def _build_piper_hardware_triage_text(message: str) -> str:
-    one_check = _select_piper_hardware_check(message)
-    return (
-        "Let's triage this in one pass.\n"
-        "1) Which StoryMode mission + step are you on (Mars or Cheeseteroid), and which single input fails?\n"
-        f"2) Do this one check now: {one_check}\n"
-        "3) Retest only that same input and tell me: works now, still fails, or changed behavior."
-    )
+    return engine_heuristics.build_piper_hardware_triage_text(message)
 
 
 def _tokenize(text: str) -> set[str]:
-    parts = re.split(r"[^a-z0-9]+", text.lower())
-    return {p for p in parts if len(p) >= 4}
+    return engine_heuristics.tokenize(text)
 
 
 def _clean_reference_line(line: str) -> str:
@@ -470,15 +404,7 @@ def _format_reference_citations_for_prompt(citations: list[dict]) -> str:
 
 
 def _allowed_topic_overlap(message: str, allowed_topics: list[str]) -> bool:
-    if not allowed_topics:
-        return True
-    msg_tokens = _tokenize(message)
-    if not msg_tokens:
-        return False
-    topic_tokens: set[str] = set()
-    for topic in allowed_topics:
-        topic_tokens |= _tokenize(topic)
-    return bool(msg_tokens & topic_tokens)
+    return engine_heuristics.allowed_topic_overlap(message, allowed_topics)
 
 
 @lru_cache(maxsize=4)
