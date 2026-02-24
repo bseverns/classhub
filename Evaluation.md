@@ -109,11 +109,11 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
    **Impact:** unlocks strict CSP; improves caching.  
    **Accept:** UI unchanged; no console errors.
 
-9. 🟨 **refactor(frontend): move `helper_widget` inline CSS/JS into static assets**  
+9. ✅ **refactor(frontend): move `helper_widget` inline CSS/JS into static assets**  
    **Impact:** reduces XSS multiplier on the model-facing surface.  
    **Accept:** helper works; citations render.
 
-10. ⬜ **feat(content): validate `course.yaml` + lesson files in preflight + CI**  
+10. 🟨 **feat(content): validate `course.yaml` + lesson files in preflight + CI**  
    **Impact:** authoring errors fail fast before deploy.  
    **Accept:** malformed coursepacks fail CI with actionable messages.
 
@@ -162,6 +162,8 @@ Add one short entry per merged PR.
 - **2026-02-24** — Started Sprint #8 by moving shared `glass_theme` inline CSS/JS from `includes/glass_theme.html` into app static files (`hub/static/css/glass_theme.css`, `hub/static/js/glass_theme.js`) with template static includes.
 - **2026-02-24** — Completed Sprint #8 after green server smoke and GitHub CI.
 - **2026-02-24** — Started Sprint #9 by extracting `helper_widget` inline CSS/JS into app static files (`hub/static/css/helper_widget.css`, `hub/static/js/helper_widget.js`) with static template includes.
+- **2026-02-24** — Completed Sprint #9 after green server smoke and GitHub CI; helper widget static extraction is deploy-verified.
+- **2026-02-24** — Started Sprint #10 content validation work (`course.yaml` + lesson files) in preflight and CI.
 
 ---
 
