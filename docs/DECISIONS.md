@@ -20,6 +20,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Compose least-privilege flags](#compose-least-privilege-flags)
 - [Pinned infrastructure images + latest-tag CI guard](#pinned-infrastructure-images--latest-tag-ci-guard)
 - [CSP rollout modes](#csp-rollout-modes)
+- [CSP strict flip hold (2026-02-24 to 2026-03-02)](#csp-strict-flip-hold-2026-02-24-to-2026-03-02)
 - [Glass theme static assets](#glass-theme-static-assets)
 - [Helper widget static assets](#helper-widget-static-assets)
 - [Coursepack validation gate](#coursepack-validation-gate)
@@ -389,7 +390,7 @@ Historical implementation logs and superseded decisions are archived by month in
 
 **Current decision:**
 - Add `DJANGO_CSP_MODE` with three supported values:
-  - `relaxed` (default): relaxed enforced CSP + strict report-only CSP.
+  - `relaxed` (settings fallback when `DJANGO_CSP_MODE` is unset): relaxed enforced CSP + strict report-only CSP.
   - `report-only`: strict report-only CSP only.
   - `strict`: strict enforced CSP only.
 - Keep `DJANGO_CSP_POLICY` and `DJANGO_CSP_REPORT_ONLY_POLICY` as explicit per-header overrides when operators need fully custom directives.
@@ -399,6 +400,24 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Provides a predictable migration path from inline-compatible policy to strict CSP without code edits.
 - Keeps browser hardening behavior aligned between both services and easier to reason about in ops runbooks.
+
+## CSP strict flip hold (2026-02-24 to 2026-03-02)
+
+**Current decision:**
+- Keep compose example defaults at `DJANGO_CSP_MODE=report-only` during the week of Tuesday, February 24, 2026 through Monday, March 2, 2026.
+- Do not flip to `strict` yet because these templates still contain sizable inline scripts:
+  - `services/classhub/templates/teach_class.html`
+  - `services/classhub/templates/teach_home.html`
+  - `services/classhub/templates/student_join.html`
+  - `services/classhub/templates/student_class.html`
+  - `services/classhub/templates/lesson_page.html`
+  - `services/classhub/templates/teach_join_card.html`
+  - `services/classhub/templates/admin/login.html`
+- Review report-only violations on Monday, March 2, 2026, then decide whether strict CSP can be enabled without class-day regressions.
+
+**Why this remains active:**
+- Keeps classroom-critical pages stable while inline JS migration is still in progress.
+- Preserves CSP telemetry so we can prioritize the remaining script extraction work using real violations.
 
 ## Glass theme static assets
 
