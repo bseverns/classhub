@@ -105,11 +105,11 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
    **Impact:** gives operators a safe migration path toward strict CSP.  
    **Accept:** header tests verify mode switching.
 
-8. 🟨 **refactor(frontend): move `glass_theme` inline CSS/JS into static assets**  
+8. ✅ **refactor(frontend): move `glass_theme` inline CSS/JS into static assets**  
    **Impact:** unlocks strict CSP; improves caching.  
    **Accept:** UI unchanged; no console errors.
 
-9. ⬜ **refactor(frontend): move `helper_widget` inline CSS/JS into static assets**  
+9. 🟨 **refactor(frontend): move `helper_widget` inline CSS/JS into static assets**  
    **Impact:** reduces XSS multiplier on the model-facing surface.  
    **Accept:** helper works; citations render.
 
@@ -160,6 +160,8 @@ Add one short entry per merged PR.
 - **2026-02-24** — Started Sprint #7 CSP migration modes: added `DJANGO_CSP_MODE` (`relaxed`/`report-only`/`strict`) with shared resolver, env validation, and mode-switching header tests for both services.
 - **2026-02-24** — Completed Sprint #7 after green server smoke and GitHub CI; CSP mode rollout (`relaxed`/`report-only`/`strict`) is now active with header tests.
 - **2026-02-24** — Started Sprint #8 by moving shared `glass_theme` inline CSS/JS from `includes/glass_theme.html` into app static files (`hub/static/css/glass_theme.css`, `hub/static/js/glass_theme.js`) with template static includes.
+- **2026-02-24** — Completed Sprint #8 after green server smoke and GitHub CI.
+- **2026-02-24** — Started Sprint #9 by extracting `helper_widget` inline CSS/JS into app static files (`hub/static/css/helper_widget.css`, `hub/static/js/helper_widget.js`) with static template includes.
 
 ---
 

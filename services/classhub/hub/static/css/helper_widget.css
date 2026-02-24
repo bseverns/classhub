@@ -1,0 +1,178 @@
+  .helper-widget {
+    border: 1px solid var(--line, rgba(22, 59, 80, 0.2));
+    border-radius: var(--radius, 18px);
+    padding: 16px;
+    margin-top: 22px;
+    background: var(--glass, rgba(255, 255, 255, 0.56));
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    box-shadow: var(--shadow, 0 20px 44px rgba(14, 42, 62, 0.16));
+    max-width: none;
+  }
+  .helper-widget textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 10px;
+    border-radius: var(--radius-sm, 12px);
+    border: 1px solid var(--line, rgba(22, 59, 80, 0.2));
+    background: var(--glass-strong, rgba(255, 255, 255, 0.74));
+    color: var(--ink, #143244);
+    font-size: 15px;
+    font-family: inherit;
+  }
+  .helper-widget textarea:focus {
+    outline: none;
+    border-color: var(--focus, #0f7c8b);
+    box-shadow: 0 0 0 3px rgba(15, 124, 139, 0.16);
+  }
+  .helper-widget .helper-submit {
+    margin-top: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: var(--radius-sm, 12px);
+    border: 1px solid rgba(9, 31, 44, 0.24);
+    background: linear-gradient(155deg, var(--cta-bg, #12394f), var(--cta-bg-hover, #0f3042));
+    color: var(--cta-ink, #eef7fb);
+    cursor: pointer;
+  }
+  .helper-widget .helper-submit:hover {
+    filter: brightness(1.04);
+  }
+  .helper-widget .helper-submit:disabled {
+    cursor: wait;
+    filter: grayscale(0.25);
+    opacity: 0.86;
+  }
+  .helper-widget pre {
+    white-space: pre-wrap;
+    margin-top: 12px;
+    color: #26495d;
+    min-height: 40px;
+    border: 1px solid rgba(22, 59, 80, 0.14);
+    border-radius: var(--radius-sm, 12px);
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.44);
+  }
+  .helper-description {
+    color: var(--muted, #4e6f80);
+    font-size: 14px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+  }
+  .helper-title-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .helper-title {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  .helper-backend-badge {
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid rgba(22, 59, 80, 0.2);
+    border-radius: 999px;
+    padding: 4px 10px;
+    color: #1d475e;
+    background: rgba(255, 255, 255, 0.72);
+  }
+  .helper-privacy {
+    margin-top: -4px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(169, 46, 66, 0.35);
+    border-radius: 10px;
+    padding: 10px;
+    background: linear-gradient(180deg, rgba(255, 240, 242, 0.84), rgba(255, 248, 249, 0.72));
+  }
+  .helper-privacy-line {
+    margin: 0 0 6px 0;
+    font-size: 12px;
+    text-align: center;
+    color: #7b2a39;
+    font-weight: 350;
+    letter-spacing: 0.004em;
+  }
+  .helper-privacy-line:last-child {
+    margin-bottom: 0;
+  }
+  .helper-privacy a {
+    color: #8f2038;
+    text-decoration-color: rgba(143, 32, 56, 0.45);
+  }
+  .helper-privacy a:hover {
+    color: #6e172b;
+    text-decoration-color: rgba(110, 23, 43, 0.68);
+  }
+  .helper-citations {
+    margin-top: 10px;
+    border-top: 1px solid rgba(22, 59, 80, 0.14);
+    padding-top: 10px;
+  }
+  .helper-citations-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--muted, #4e6f80);
+    margin-bottom: 6px;
+  }
+  .helper-citations-list {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 6px;
+  }
+  .helper-citations-list li {
+    font-size: 12px;
+    color: #33596e;
+  }
+  .helper-quick-wrap {
+    margin-bottom: 12px;
+  }
+  .helper-quick-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--muted, #4e6f80);
+    margin-bottom: 6px;
+  }
+  .helper-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .helper-widget .helper-quick-action {
+    margin-top: 0;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 52, 72, 0.24);
+    background: rgba(255, 255, 255, 0.72);
+    color: #1f455c;
+    cursor: pointer;
+  }
+  .helper-quick-action:hover {
+    background: rgba(255, 255, 255, 0.92);
+  }
+  .helper-quick-action:focus {
+    outline: none;
+    border-color: var(--focus, #0f7c8b);
+    box-shadow: 0 0 0 3px rgba(15, 124, 139, 0.16);
+  }
+  .helper-quick-action:disabled {
+    cursor: wait;
+    opacity: 0.8;
+  }
+  @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+    .helper-widget {
+      background: #f6fafc;
+    }
+    .helper-widget textarea {
+      background: #f9fcfe;
+    }
+  }

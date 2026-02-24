@@ -21,6 +21,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Pinned infrastructure images + latest-tag CI guard](#pinned-infrastructure-images--latest-tag-ci-guard)
 - [CSP rollout modes](#csp-rollout-modes)
 - [Glass theme static assets](#glass-theme-static-assets)
+- [Helper widget static assets](#helper-widget-static-assets)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
 - [Error-response redaction](#error-response-redaction)
@@ -408,6 +409,19 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces inline script/style surface and improves compatibility with strict CSP rollout.
 - Improves client caching and keeps shared visual behavior centralized for safer iteration.
+
+## Helper widget static assets
+
+**Current decision:**
+- Move shared `helper_widget` presentation assets out of inline template blocks into:
+  - `services/classhub/hub/static/css/helper_widget.css`
+  - `services/classhub/hub/static/js/helper_widget.js`
+- Keep `services/classhub/templates/includes/helper_widget.html` as a thin include that emits widget markup plus static `<link>` and `<script src>` tags.
+- Keep helper behavior and prompt/citation rendering logic unchanged while reducing inline surface.
+
+**Why this remains active:**
+- Reduces inline script/style exposure on the model-facing helper surface.
+- Improves cacheability and keeps helper UI behavior centralized for safer updates.
 
 ## Redirect target validation
 
