@@ -113,7 +113,7 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ done · ⛔ blocked
    **Impact:** reduces XSS multiplier on the model-facing surface.  
    **Accept:** helper works; citations render.
 
-10. 🟨 **feat(content): validate `course.yaml` + lesson files in preflight + CI**  
+10. ✅ **feat(content): validate `course.yaml` + lesson files in preflight + CI**  
    **Impact:** authoring errors fail fast before deploy.  
    **Accept:** malformed coursepacks fail CI with actionable messages.
 
@@ -165,6 +165,7 @@ Add one short entry per merged PR.
 - **2026-02-24** — Completed Sprint #9 after green server smoke and GitHub CI; helper widget static extraction is deploy-verified.
 - **2026-02-24** — Started Sprint #10 content validation work (`course.yaml` + lesson files) in preflight and CI.
 - **2026-02-24** — Implemented Sprint #10 validation gate: added `scripts/validate_coursepack.py`, wired it into `content_preflight.sh`, and added CI coverage in `test-suite` (classhub job); pending server/GH confirmation.
+- **2026-02-24** — Completed Sprint #10 after green server smoke and GitHub CI; coursepack validation gate is now active in preflight + CI.
 
 ---
 
