@@ -108,8 +108,16 @@ fi
 
 echo "[deploy] caddy runtime guardrail OK"
 
-echo "[deploy] reloading caddy config from mounted template"
-if ! docker exec classhub_caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile; then
+echo "[deploy] formatting caddy config in container temp path"
+if ! docker exec classhub_caddy sh -ec \
+  'cp /etc/caddy/Caddyfile /tmp/Caddyfile.deploy && caddy fmt --overwrite /tmp/Caddyfile.deploy >/dev/null'; then
+  echo "[deploy] caddy fmt failed" >&2
+  rollback_if_configured
+  exit 1
+fi
+
+echo "[deploy] reloading caddy config from formatted template"
+if ! docker exec classhub_caddy caddy reload --config /tmp/Caddyfile.deploy --adapter caddyfile; then
   echo "[deploy] caddy reload failed" >&2
   rollback_if_configured
   exit 1
