@@ -262,6 +262,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Mermaid defaults are tuned in `docs/javascripts/mermaid-init.js` with `themeVariables.fontSize=22px` and `useMaxWidth=false` for common diagram types.
 - Mermaid SVG output now has a large minimum width in `docs/stylesheets/extra.css` (`min-width: 1200px`, reduced to `960px` on narrower viewports) so diagrams scale up first and use horizontal scroll when needed.
 - Mermaid init now catches render promise failures and logs structured parse/render diagnostics to the console (page path + error payload) to avoid opaque unhandled-promise errors.
+- Docs layout now widens Material's default grid limit (`.md-grid`) on desktop (`min-width: 60em`) to `max-width: min(96vw, 120rem)` so wiki pages use window width more effectively.
 
 **Why this remains active:**
 - Prevents operational and architecture diagrams from becoming unreadable on standard laptop displays.

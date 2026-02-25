@@ -1,3 +1,9 @@
+@media screen and (min-width: 60em) {
+  .md-grid {
+    max-width: min(96vw, 120rem);
+  }
+}
+
 .md-typeset .mermaid {
   margin: 1.25em 0;
   overflow-x: auto;
