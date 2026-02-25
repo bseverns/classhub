@@ -517,13 +517,13 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keep compose example defaults at `DJANGO_CSP_MODE=report-only` during the week of Tuesday, February 24, 2026 through Monday, March 2, 2026.
 - Do not flip to `strict` yet because these templates still contain sizable inline scripts:
   - `services/classhub/templates/teach_home.html`
-  - `services/classhub/templates/student_join.html`
   - `services/classhub/templates/lesson_page.html`
-  - `services/classhub/templates/teach_join_card.html`
   - `services/classhub/templates/admin/login.html`
 - Inline script blocks were removed from:
   - `services/classhub/templates/teach_class.html` (moved to `services/classhub/hub/static/js/teach_class.js`)
   - `services/classhub/templates/student_class.html` (moved to `services/classhub/hub/static/js/student_class.js`)
+  - `services/classhub/templates/student_join.html` (moved to `services/classhub/hub/static/js/student_join.js`)
+  - `services/classhub/templates/teach_join_card.html` (moved to `services/classhub/hub/static/js/teach_join_card.js`)
 - Review report-only violations on Monday, March 2, 2026, then decide whether strict CSP can be enabled without class-day regressions.
 
 **Why this remains active:**

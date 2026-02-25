@@ -227,6 +227,9 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Student Join Card")
         self.assertContains(resp, "JOIN7788")
         self.assertContains(resp, "/?class_code=JOIN7788")
+        self.assertContains(resp, "/static/js/teach_join_card.js")
+        self.assertNotContains(resp, "onclick=\"window.print()\"", html=False)
+        self.assertNotContains(resp, "Copied class code.", html=False)
 
     def test_teach_class_masks_return_codes_by_default(self):
         classroom = Class.objects.create(name="Period Roster", join_code="MASK1234")
@@ -1979,6 +1982,9 @@ class OperatorProfileTemplateTests(TestCase):
         self.assertEqual(join_resp.status_code, 200)
         self.assertContains(join_resp, "this server is hosted by Northside Public Schools.")
         self.assertContains(join_resp, "No surveillance analytics. No ad-tech. No data broker sharing.")
+        self.assertContains(join_resp, "/static/js/student_join.js")
+        self.assertNotContains(join_resp, "const csrfToken = () =>", html=False)
+        self.assertNotContains(join_resp, "document.getElementById('join-form')", html=False)
 
         self._login_student()
         my_data_resp = self.client.get("/student/my-data")

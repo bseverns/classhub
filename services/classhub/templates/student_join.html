@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -112,83 +113,6 @@
       </main>
     </div>
 
-    <script>
-      const msg = document.getElementById('msg');
-      const showErr = (t) => { msg.textContent = t; msg.style.display = 'block'; };
-
-      // Django CSRF: read csrftoken cookie and send it as X-CSRFToken.
-      // This keeps CSRF protection enabled without requiring a full form POST.
-      const getCookie = (name) => {
-        const cookies = document.cookie ? document.cookie.split('; ') : [];
-        for (const c of cookies) {
-          const idx = c.indexOf('=');
-          if (idx === -1) continue;
-          const k = c.slice(0, idx);
-          const v = c.slice(idx + 1);
-          if (k === name) return decodeURIComponent(v);
-        }
-        return '';
-      };
-
-      const csrfToken = () => getCookie('csrftoken') || '';
-
-      (() => {
-        const params = new URLSearchParams(window.location.search || '');
-        const prefillCode = (params.get('class_code') || params.get('code') || '').trim();
-        if (prefillCode) {
-          const codeInput = document.getElementById('code');
-          codeInput.value = prefillCode;
-          const nameInput = document.getElementById('name');
-          if (nameInput) nameInput.focus();
-        }
-      })();
-
-      document.getElementById('join-form').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        msg.style.display = 'none';
-        const class_code = (document.getElementById('code').value || '').trim();
-        const display_name = (document.getElementById('name').value || '').trim();
-        const return_code = (document.getElementById('return_code').value || '').trim();
-        const joinBtn = document.getElementById('join');
-        joinBtn.disabled = true;
-        joinBtn.setAttribute('aria-busy', 'true');
-
-        try {
-          const res = await fetch('/join', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': csrfToken(),
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify({ class_code, display_name, return_code })
-          });
-
-          if (!res.ok) {
-            const contentType = (res.headers.get('content-type') || '').toLowerCase();
-            const data = contentType.includes('application/json')
-              ? await res.json().catch(() => ({}))
-              : {};
-            const e = data.error || 'join_failed';
-            if (e === 'invalid_code') return showErr('That class code is not recognized.');
-            if (e === 'invalid_return_code') return showErr('That return code is not valid for this class.');
-            if (e === 'class_locked') return showErr('This class is locked right now.');
-            if (e === 'missing_fields') return showErr('Please enter a class code and your name.');
-            if (e === 'rate_limited') return showErr('Too many join attempts. Wait a minute and try again.');
-            if (e === 'site_mode_restricted') return showErr(data.message || 'Joining is temporarily unavailable.');
-            if (res.status === 403) return showErr('Security check blocked the join request. Reload and try again.');
-            if (res.status >= 500) return showErr('Server error while joining. Please try again in a moment.');
-            return showErr('Could not join. Try again.');
-          }
-
-          window.location.href = '/student';
-        } catch (err) {
-          showErr('Network error. Please try again.');
-        } finally {
-          joinBtn.disabled = false;
-          joinBtn.removeAttribute('aria-busy');
-        }
-      });
-    </script>
+    <script src="{% static 'js/student_join.js' %}" defer></script>
   </body>
 </html>

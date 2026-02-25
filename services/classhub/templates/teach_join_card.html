@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -70,7 +71,7 @@
           <div class="join-code">{{ classroom.join_code }}</div>
           <div class="action-row">
             <button type="button" data-copy-value="{{ classroom.join_code }}">Copy code</button>
-            <button type="button" onclick="window.print()">Print this page</button>
+            <button type="button" data-print-page>Print this page</button>
           </div>
           <div class="muted copy-status" id="copy-status" role="status" aria-live="polite"></div>
 
@@ -88,31 +89,6 @@
         </div>
       </main>
     </div>
-    <script>
-      (function () {
-        const btn = document.querySelector("[data-copy-value]");
-        const status = document.getElementById("copy-status");
-        if (!btn || !status) return;
-        btn.addEventListener("click", async () => {
-          const text = btn.getAttribute("data-copy-value") || "";
-          if (!text) return;
-          try {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-              await navigator.clipboard.writeText(text);
-            } else {
-              const input = document.createElement("input");
-              input.value = text;
-              document.body.appendChild(input);
-              input.select();
-              document.execCommand("copy");
-              document.body.removeChild(input);
-            }
-            status.textContent = "Copied class code.";
-          } catch (err) {
-            status.textContent = "Copy failed. Highlight and copy the code manually.";
-          }
-        });
-      })();
-    </script>
+    <script src="{% static 'js/teach_join_card.js' %}" defer></script>
   </body>
 </html>
