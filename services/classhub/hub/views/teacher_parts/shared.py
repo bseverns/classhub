@@ -81,6 +81,7 @@ from .shared_routing import (
 )
 from .shared_tracker import (
     _build_class_digest_rows,
+    _build_helper_signal_snapshot,
     _build_lesson_tracker_rows,
     _local_day_window,
 )

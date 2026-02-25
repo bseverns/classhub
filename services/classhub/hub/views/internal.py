@@ -21,8 +21,11 @@ _ALLOWED_HELPER_EVENT_DETAIL_KEYS = {
     "request_id",
     "actor_type",
     "backend",
+    "intent",
     "scope_verified",
     "attempts",
+    "follow_up_suggestions_count",
+    "conversation_compacted",
     "truncated",
 }
 _SAFE_TOKEN_RE = re.compile(r"^[a-z0-9_-]+$")
@@ -54,14 +57,14 @@ def _sanitize_helper_event_details(details: dict) -> dict:
             if request_id:
                 clean[key] = request_id
             continue
-        if key in {"actor_type", "backend"}:
+        if key in {"actor_type", "backend", "intent"}:
             token = str(value or "").strip().lower()[:32]
             if token and _SAFE_TOKEN_RE.fullmatch(token):
                 clean[key] = token
             else:
                 dropped += 1
             continue
-        if key in {"scope_verified", "truncated"}:
+        if key in {"scope_verified", "truncated", "conversation_compacted"}:
             clean[key] = bool(value)
             continue
         if key == "attempts":
@@ -72,6 +75,17 @@ def _sanitize_helper_event_details(details: dict) -> dict:
                 continue
             if attempts >= 0:
                 clean[key] = attempts
+            else:
+                dropped += 1
+            continue
+        if key == "follow_up_suggestions_count":
+            try:
+                suggestion_count = int(value)
+            except Exception:
+                dropped += 1
+                continue
+            if suggestion_count >= 0:
+                clean[key] = suggestion_count
             else:
                 dropped += 1
             continue

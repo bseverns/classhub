@@ -56,6 +56,12 @@ def teach_class_dashboard(request, class_id: int):
     student_count = classroom.students.count()
     students = list(classroom.students.all().order_by("created_at", "id"))
     lesson_rows = _build_lesson_tracker_rows(request, classroom.id, modules, student_count)
+    helper_signals = _build_helper_signal_snapshot(
+        classroom=classroom,
+        students=students,
+        window_hours=max(int(getattr(settings, "CLASSHUB_HELPER_SIGNAL_WINDOW_HOURS", 24) or 24), 1),
+        top_students=max(int(getattr(settings, "CLASSHUB_HELPER_SIGNAL_TOP_STUDENTS", 5) or 5), 1),
+    )
     submission_counts_by_student: dict[int, int] = {}
     if students:
         rows = (
@@ -79,6 +85,7 @@ def teach_class_dashboard(request, class_id: int):
             "submission_counts": submission_counts,
             "submission_counts_by_student": submission_counts_by_student,
             "lesson_rows": lesson_rows,
+            "helper_signals": helper_signals,
             "notice": notice,
             "error": error,
         },

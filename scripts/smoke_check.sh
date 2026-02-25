@@ -219,6 +219,8 @@ if [[ -n "${CLASS_CODE}" ]]; then
 
   [[ "${code}" == "200" ]] || fail "/helper/chat returned ${code}: $(cat "${TMP_HELPER}")"
   grep -Eq '"text"[[:space:]]*:' "${TMP_HELPER}" || fail "/helper/chat response missing text field: $(cat "${TMP_HELPER}")"
+  grep -Eq '"intent"[[:space:]]*:[[:space:]]*"[a-z0-9_-]+"' "${TMP_HELPER}" || fail "/helper/chat response missing intent field: $(cat "${TMP_HELPER}")"
+  grep -Eq '"follow_up_suggestions"[[:space:]]*:[[:space:]]*\[[[:space:]]*"' "${TMP_HELPER}" || fail "/helper/chat response missing non-empty follow_up_suggestions: $(cat "${TMP_HELPER}")"
   echo "[smoke] /helper/chat OK"
 fi
 

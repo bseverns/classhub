@@ -592,11 +592,13 @@ Historical implementation logs and superseded decisions are archived by month in
 - Helper responses include a per-turn `intent` tag (for example `debug`, `concept`, `strategy`) derived from the latest student message.
 - Helper responses include bounded `follow_up_suggestions` so student UI can present one-tap next prompts per assistant turn.
 - Teacher class dashboard includes a `Reset helper conversations` action (`POST /teach/class/<id>/reset-helper-conversations`) that calls helper internal endpoint `POST /helper/internal/reset-class-conversations`.
+- Helper chat access events now include summarized telemetry fields (`intent`, `follow_up_suggestions_count`, `conversation_compacted`) and `/teach/class/<id>` renders a “Helper Signals” panel for the last `CLASSHUB_HELPER_SIGNAL_WINDOW_HOURS`.
 - Internal helper reset endpoint requires `Authorization: Bearer <HELPER_INTERNAL_API_TOKEN>` and clears only indexed student conversation keys for the target class.
 
 **Why this remains active:**
 - Keeps prompt size bounded on CPU-constrained local models while retaining useful conversational context.
 - Gives teachers a practical classroom control to clear stale helper context without deleting roster/submission data.
+- Gives teachers class-level visibility into how students are using helper support without storing raw prompts.
 - Preserves privacy posture: cache-only memory, class-scoped deletion, and explicit internal token boundary.
 
 ## Coursepack validation gate

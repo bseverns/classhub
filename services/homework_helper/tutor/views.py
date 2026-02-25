@@ -4,6 +4,7 @@ import os
 import time
 from functools import lru_cache
 import hmac
+import re
 
 from django.conf import settings
 from django.core.cache import cache
@@ -35,6 +36,7 @@ DEFAULT_TEXT_LANGUAGE_KEYWORDS = engine_heuristics.DEFAULT_TEXT_LANGUAGE_KEYWORD
 DEFAULT_PIPER_CONTEXT_KEYWORDS = engine_heuristics.DEFAULT_PIPER_CONTEXT_KEYWORDS
 DEFAULT_PIPER_HARDWARE_KEYWORDS = engine_heuristics.DEFAULT_PIPER_HARDWARE_KEYWORDS
 logger = logging.getLogger(__name__)
+_SAFE_TOKEN_RE = re.compile(r"^[a-z0-9_-]+$")
 
 
 def _redact(text: str) -> str:
@@ -352,6 +354,53 @@ def _internal_api_token() -> str:
     return str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip()
 
 
+def _build_helper_event_details(*, response, request_id: str, actor_type: str, backend: str) -> dict:
+    details: dict = {
+        "request_id": request_id,
+        "actor_type": actor_type,
+    }
+    backend_token = str(backend or "").strip().lower()
+    if backend_token and _SAFE_TOKEN_RE.fullmatch(backend_token):
+        details["backend"] = backend_token
+
+    try:
+        payload = json.loads(response.content.decode("utf-8"))
+    except Exception:
+        return details
+    if not isinstance(payload, dict):
+        return details
+
+    backend_value = str(payload.get("backend") or "").strip().lower()
+    if backend_value and _SAFE_TOKEN_RE.fullmatch(backend_value):
+        details["backend"] = backend_value
+
+    intent = str(payload.get("intent") or "").strip().lower()
+    if intent and _SAFE_TOKEN_RE.fullmatch(intent):
+        details["intent"] = intent
+
+    if "scope_verified" in payload:
+        details["scope_verified"] = bool(payload.get("scope_verified"))
+    if "truncated" in payload:
+        details["truncated"] = bool(payload.get("truncated"))
+    if "conversation_compacted" in payload:
+        details["conversation_compacted"] = bool(payload.get("conversation_compacted"))
+
+    attempts_raw = payload.get("attempts")
+    try:
+        attempts = int(attempts_raw)
+    except Exception:
+        attempts = None
+    if attempts is not None and attempts >= 0:
+        details["attempts"] = attempts
+
+    follow_up_suggestions = payload.get("follow_up_suggestions")
+    if isinstance(follow_up_suggestions, list):
+        valid_suggestions = [row for row in follow_up_suggestions if str(row or "").strip()]
+        details["follow_up_suggestions_count"] = len(valid_suggestions)
+
+    return details
+
+
 @csrf_exempt
 @require_POST
 def reset_class_conversations(request):
@@ -412,6 +461,7 @@ def chat(request):
     request_id = _request_id(request)
     actor = _actor_key(request)
     actor_type = actor.split(":", 1)[0] if actor else "anonymous"
+    backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
     client_ip = client_ip_from_request(
         request,
         trust_proxy_headers=getattr(settings, "REQUEST_SAFETY_TRUST_PROXY_HEADERS", False),
@@ -430,12 +480,19 @@ def chat(request):
         student_id = int(request.session.get("student_id") or 0)
     except Exception:
         student_id = 0
-    emit_helper_chat_access_event(
-        classroom_id=classroom_id,
-        student_id=student_id,
-        ip_address=client_ip,
-        details={"request_id": request_id, "actor_type": actor_type},
-    )
+
+    def _emit_helper_event(response) -> None:
+        emit_helper_chat_access_event(
+            classroom_id=classroom_id,
+            student_id=student_id,
+            ip_address=client_ip,
+            details=_build_helper_event_details(
+                response=response,
+                request_id=request_id,
+                actor_type=actor_type,
+                backend=backend,
+            ),
+        )
 
     actor_limit = _env_int("HELPER_RATE_LIMIT_PER_MINUTE", 30)
     ip_limit = _env_int("HELPER_RATE_LIMIT_PER_IP_PER_MINUTE", 90)
@@ -447,7 +504,9 @@ def chat(request):
         request_id=request_id,
     ):
         _log_chat_event("warning", "rate_limited_actor", request_id=request_id, actor_type=actor_type, ip=client_ip)
-        return _json_response({"error": "rate_limited"}, status=429, request_id=request_id)
+        response = _json_response({"error": "rate_limited"}, status=429, request_id=request_id)
+        _emit_helper_event(response)
+        return response
     if not fixed_window_allow(
         f"rl:ip:{client_ip}:m",
         limit=ip_limit,
@@ -456,16 +515,22 @@ def chat(request):
         request_id=request_id,
     ):
         _log_chat_event("warning", "rate_limited_ip", request_id=request_id, actor_type=actor_type, ip=client_ip)
-        return _json_response({"error": "rate_limited"}, status=429, request_id=request_id)
+        response = _json_response({"error": "rate_limited"}, status=429, request_id=request_id)
+        _emit_helper_event(response)
+        return response
 
     try:
         payload = json.loads(request.body.decode("utf-8"))
     except Exception:
         _log_chat_event("warning", "bad_json", request_id=request_id, actor_type=actor_type, ip=client_ip)
-        return _json_response({"error": "bad_json"}, status=400, request_id=request_id)
+        response = _json_response({"error": "bad_json"}, status=400, request_id=request_id)
+        _emit_helper_event(response)
+        return response
     if not isinstance(payload, dict):
         _log_chat_event("warning", "bad_json", request_id=request_id, actor_type=actor_type, ip=client_ip)
-        return _json_response({"error": "bad_json"}, status=400, request_id=request_id)
+        response = _json_response({"error": "bad_json"}, status=400, request_id=request_id)
+        _emit_helper_event(response)
+        return response
 
     deps = engine_service.ChatDeps(
         json_response=_json_response,
@@ -505,7 +570,7 @@ def chat(request):
         classify_intent=_classify_intent,
         build_follow_up_suggestions=_build_follow_up_suggestions,
     )
-    return engine_service.handle_chat(
+    response = engine_service.handle_chat(
         request=request,
         payload=payload,
         request_id=request_id,
@@ -519,3 +584,5 @@ def chat(request):
         bad_signature_exc=BadSignature,
         deps=deps,
     )
+    _emit_helper_event(response)
+    return response

@@ -447,6 +447,12 @@ class HelperChatAuthTests(TestCase):
         resp = self._post_chat({"message": "How do I move a sprite?"})
         self.assertEqual(resp.status_code, 200)
         event_mock.assert_called_once()
+        details = event_mock.call_args.kwargs.get("details") or {}
+        self.assertEqual(details.get("actor_type"), "student")
+        self.assertEqual(details.get("backend"), "mock")
+        self.assertEqual(details.get("intent"), "general")
+        self.assertGreaterEqual(int(details.get("follow_up_suggestions_count") or 0), 1)
+        self.assertFalse(details.get("conversation_compacted"))
 
     def test_student_session_exists_fails_open_when_classhub_table_unavailable(self):
         with patch("tutor.views.connection.cursor", side_effect=ProgrammingError("missing table")):

@@ -68,6 +68,7 @@ def handle_chat(
     conversation_id = deps.normalize_conversation_id(str(payload.get("conversation_id") or ""))
     conversation_enabled = False
     intent = ""
+    conversation_compacted = False
 
     def _response(body: dict, *, status: int = 200):
         payload_with_conversation = dict(body or {})
@@ -75,6 +76,8 @@ def handle_chat(
         payload_with_conversation["conversation_enabled"] = conversation_enabled
         if intent and "intent" not in payload_with_conversation:
             payload_with_conversation["intent"] = intent
+        if "conversation_compacted" not in payload_with_conversation:
+            payload_with_conversation["conversation_compacted"] = conversation_compacted
         return deps.json_response(payload_with_conversation, status=status, request_id=request_id)
 
     scope_token = str(payload.get("scope_token") or "").strip()
@@ -160,7 +163,7 @@ def handle_chat(
     )
 
     def _persist_turns(assistant_text: str) -> None:
-        nonlocal history_turns, history_summary
+        nonlocal history_turns, history_summary, conversation_compacted
         if not conversation_enabled:
             return
         user_turn = {"role": "student", "content": message[:conversation_turn_max_chars], "intent": intent}
@@ -183,6 +186,7 @@ def handle_chat(
         history_turns = next_turns
         history_summary = next_summary
         if compacted:
+            conversation_compacted = True
             deps.log_chat_event(
                 "info",
                 "conversation_compacted",

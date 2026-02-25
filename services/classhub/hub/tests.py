@@ -240,6 +240,57 @@ class TeacherPortalTests(TestCase):
         self.assertNotContains(resp, f">{student.return_code}<", html=False)
         self.assertContains(resp, "Show")
 
+    def test_teach_class_shows_helper_signal_panel(self):
+        classroom = Class.objects.create(name="Period Signals", join_code="SIG12345")
+        ada = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        ben = StudentIdentity.objects.create(classroom=classroom, display_name="Ben")
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+            source="homework_helper.chat",
+            details={
+                "request_id": "req-1",
+                "intent": "debug",
+                "follow_up_suggestions_count": 2,
+                "conversation_compacted": True,
+            },
+        )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+            source="homework_helper.chat",
+            details={
+                "request_id": "req-2",
+                "intent": "debug",
+                "follow_up_suggestions_count": 1,
+                "conversation_compacted": False,
+            },
+        )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ben,
+            event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+            source="homework_helper.chat",
+            details={
+                "request_id": "req-3",
+                "intent": "concept",
+                "follow_up_suggestions_count": 3,
+                "conversation_compacted": False,
+            },
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Helper Signals")
+        self.assertContains(resp, "3 helper chats")
+        self.assertContains(resp, "debug")
+        self.assertContains(resp, "concept")
+        self.assertContains(resp, "Ada")
+        self.assertContains(resp, "2 chats")
+
     def test_teach_delete_student_data_removes_student_submissions_and_events(self):
         classroom = Class.objects.create(name="Delete Data Class", join_code="DEL12345")
         module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
@@ -2143,7 +2194,10 @@ class InternalHelperEventEndpointTests(TestCase):
                 "request_id": "req-789",
                 "actor_type": "student",
                 "backend": "ollama",
+                "intent": "debug",
                 "attempts": 2,
+                "follow_up_suggestions_count": 3,
+                "conversation_compacted": True,
                 "scope_verified": True,
                 "truncated": False,
                 "display_name": "Ada",
@@ -2167,7 +2221,10 @@ class InternalHelperEventEndpointTests(TestCase):
                 "request_id": "req-789",
                 "actor_type": "student",
                 "backend": "ollama",
+                "intent": "debug",
                 "attempts": 2,
+                "follow_up_suggestions_count": 3,
+                "conversation_compacted": True,
                 "scope_verified": True,
                 "truncated": False,
             },
