@@ -15,10 +15,13 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: |
+            services/common/pyproject.toml
             services/classhub/requirements.txt
             .github/workflows/migration-gate.yml
       - name: Install classhub deps
         run: pip install -r services/classhub/requirements.txt
+      - name: Install shared common package (editable)
+        run: pip install -e services/common
       - name: Check classhub migrations committed
         env:
           DJANGO_DEBUG: "1"
@@ -35,10 +38,13 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: |
+            services/common/pyproject.toml
             services/homework_helper/requirements.txt
             .github/workflows/migration-gate.yml
       - name: Install helper deps
         run: pip install -r services/homework_helper/requirements.txt
+      - name: Install shared common package (editable)
+        run: pip install -e services/common
       - name: Check helper migrations committed
         env:
           DJANGO_DEBUG: "1"

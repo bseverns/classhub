@@ -4,7 +4,8 @@ import sys
 from pathlib import Path
 
 
-# Allow imports from sibling shared package: services/common/...
+# Compatibility fallback for local runs when common package is not installed.
+# Primary path should be: pip install -e services/common
 SERVICES_DIR = Path(__file__).resolve().parents[1]
 if str(SERVICES_DIR) not in sys.path:
     sys.path.insert(0, str(SERVICES_DIR))

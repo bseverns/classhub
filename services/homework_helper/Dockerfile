@@ -19,7 +19,9 @@ WORKDIR /app
 COPY homework_helper/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-COPY common /app/common
+COPY common /tmp/common
+RUN pip install --no-cache-dir /tmp/common
+
 COPY homework_helper /app
 
 EXPOSE 8000

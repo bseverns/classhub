@@ -636,6 +636,31 @@ Historical implementation logs and superseded decisions are archived by month in
 - Prevents path traversal from malformed or compromised lesson metadata.
 - Preserves predictable content loading boundaries for self-hosted operators.
 
+## Service-layer extraction scaffold
+
+**Current decision:**
+- Keep view modules as request/response adapters while moving denser classroom logic into service modules.
+- Student portfolio export logic now runs via `hub/services/export_service.py`.
+- Teacher digest/tracker logic now runs via `hub/services/teacher_tracker.py`, with a thin compatibility wrapper in `views/teacher_parts/shared_tracker.py`.
+- Join/upload flows use explicit service facades:
+  - `hub/services/join_flow_service.py`
+  - `hub/services/submission_service.py`
+
+**Why this remains active:**
+- Reduces “big file gravity” in view modules and makes feature work cheaper to test in isolation.
+- Establishes stable service boundaries for follow-on refactors (join flow, submission flow, exports, tracker).
+
+## Internal shared package install
+
+**Current decision:**
+- `services/common` is now an installable internal package (`classhub-common`) with `pyproject.toml`.
+- CI test/migration jobs install it in editable mode (`pip install -e services/common`).
+- Service Docker images install `common` during build (instead of relying only on path-copy conventions).
+
+**Why this remains active:**
+- Removes reliance on ad-hoc path behavior and makes shared code dependency explicit.
+- Keeps local/CI/container environments aligned for shared utility imports.
+
 ## Error-response redaction
 
 **Current decision:**

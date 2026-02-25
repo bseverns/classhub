@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "classhub-common"
+version = "0.1.0"
+description = "Shared utilities for ClassHub and Homework Helper"
+readme = "README.md"
+requires-python = ">=3.12"
+
+[tool.setuptools]
+packages = ["common", "common.request_safety"]
+
+[tool.setuptools.package-dir]
+common = "."
+"common.request_safety" = "request_safety"

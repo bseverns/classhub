@@ -24,28 +24,26 @@ from ..models import (
     Submission,
 )
 from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
-from ..services.filenames import safe_filename
+from ..services.export_service import build_student_portfolio_export_response
 from ..services.ip_privacy import minimize_student_event_ip
-from ..services.student_home import (
-    build_material_access_map,
-    build_submissions_by_material,
-    helper_backend_label,
-    privacy_meta_context,
-)
-from ..services.student_join import (
+from ..services.join_flow_service import (
     JoinValidationError,
     apply_device_hint_cookie,
     clear_device_hint_cookie,
     resolve_join_student,
 )
-from ..services.student_uploads import process_material_upload_form, resolve_upload_release_state
-from ..services.upload_scan import scan_uploaded_file
-from ..services.upload_policy import parse_extensions
-from ..services.upload_validation import validate_upload_content
-from ..services.zip_exports import (
-    reserve_archive_path,
-    temporary_zip_archive,
-    write_submission_file_to_archive,
+from ..services.submission_service import (
+    parse_extensions,
+    process_material_upload_form,
+    resolve_upload_release_state,
+    scan_uploaded_file,
+    validate_upload_content,
+)
+from ..services.student_home import (
+    build_material_access_map,
+    build_submissions_by_material,
+    helper_backend_label,
+    privacy_meta_context,
 )
 from common.request_safety import client_ip_from_request, fixed_window_allow
 
@@ -262,84 +260,12 @@ def student_portfolio_export(request):
     """
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
         return redirect("/")
-
-    student = request.student
-    classroom = request.classroom
-    submissions = list(
-        Submission.objects.filter(student=student, material__module__classroom=classroom)
-        .select_related("material__module")
-        .order_by("uploaded_at", "id")
-    )
-
-    generated_at = timezone.localtime(timezone.now())
-    rows: list[dict] = []
-    used_archive_paths: set[str] = set()
-
-    with temporary_zip_archive() as (tmp, archive):
-        for sub in submissions:
-            local_uploaded_at = timezone.localtime(sub.uploaded_at)
-            module_label = safe_filename(sub.material.module.title or "module")
-            material_label = safe_filename(sub.material.title or "material")
-            original = safe_filename(sub.original_filename or Path(sub.file.name).name or "submission")
-            timestamp = local_uploaded_at.strftime("%Y%m%d_%H%M%S")
-            archive_path = reserve_archive_path(
-                f"files/{module_label}/{material_label}/{timestamp}_{sub.id}_{original}",
-                used_archive_paths,
-                fallback=f"files/{module_label}/{material_label}/{timestamp}_{sub.id}_dup_{original}",
-            )
-            included = write_submission_file_to_archive(
-                archive,
-                submission=sub,
-                arcname=archive_path,
-                allow_file_fallback=True,
-            )
-            status = "ok" if included else "missing"
-
-            rows.append(
-                {
-                    "submission_id": sub.id,
-                    "module_title": sub.material.module.title,
-                    "material_title": sub.material.title,
-                    "uploaded_at": local_uploaded_at,
-                    "original_filename": sub.original_filename or Path(sub.file.name).name,
-                    "note": sub.note or "",
-                    "archive_path": archive_path,
-                    "included": included,
-                    "status": status,
-                }
-            )
-
-        index_html = render_to_string(
-            "student_portfolio_index.html",
-            {
-                "student": student,
-                "classroom": classroom,
-                "generated_at": generated_at,
-                "rows": rows,
-                "submission_count": len(rows),
-                "included_count": sum(1 for row in rows if row["included"]),
-            },
-        )
-        archive.writestr("index.html", index_html.encode("utf-8"))
-
-    stamp = generated_at.strftime("%Y%m%d")
     filename_mode = str(getattr(settings, "CLASSHUB_PORTFOLIO_FILENAME_MODE", "generic") or "generic").strip().lower()
-    if filename_mode == "descriptive":
-        student_name = safe_filename(student.display_name or "student")
-        class_name = safe_filename(classroom.name or "classroom")
-        filename = safe_attachment_filename(f"{class_name}_{student_name}_portfolio_{stamp}.zip")
-    else:
-        filename = safe_attachment_filename(f"portfolio_{stamp}.zip")
-    tmp.seek(0)
-    response = FileResponse(
-        tmp,
-        as_attachment=True,
-        filename=filename,
-        content_type="application/zip",
+    return build_student_portfolio_export_response(
+        student=request.student,
+        classroom=request.classroom,
+        filename_mode=filename_mode,
     )
-    apply_download_safety(response)
-    apply_no_store(response, private=True, pragma=True)
-    return response
 
 
 def student_my_data(request):
