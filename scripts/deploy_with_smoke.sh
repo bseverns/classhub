@@ -8,6 +8,8 @@ SMOKE_CHECK="${ROOT_DIR}/scripts/smoke_check.sh"
 GOLDEN_SMOKE="${ROOT_DIR}/scripts/golden_path_smoke.sh"
 ENV_CHECK="${ROOT_DIR}/scripts/validate_env_secrets.sh"
 LAST_GOOD_FILE="${ROOT_DIR}/.deploy/last_good_ref"
+SMOKE_LOG_FILE="$(mktemp)"
+trap 'rm -f "${SMOKE_LOG_FILE}"' EXIT
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "[deploy] docker is required" >&2
@@ -132,9 +134,16 @@ if [[ "${SMOKE_MODE}" == "golden" ]]; then
   set -e
 elif [[ "${SMOKE_MODE}" == "strict" ]]; then
   set +e
-  "${SMOKE_CHECK}" --strict
+  "${SMOKE_CHECK}" --strict 2>&1 | tee "${SMOKE_LOG_FILE}"
   smoke_status=$?
   set -e
+  if [[ ${smoke_status} -ne 0 ]] && grep -Eq '\[smoke\] FAIL: /join returned (404: \{"error":[[:space:]]*"invalid_code"\}|invalid_code for SMOKE_CLASS_CODE=)' "${SMOKE_LOG_FILE}"; then
+    echo "[deploy] strict smoke failed due stale SMOKE_CLASS_CODE; retrying golden smoke"
+    set +e
+    "${GOLDEN_SMOKE}" --compose-mode prod --skip-up
+    smoke_status=$?
+    set -e
+  fi
 else
   set +e
   "${SMOKE_CHECK}"

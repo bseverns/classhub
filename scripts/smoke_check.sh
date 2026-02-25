@@ -152,6 +152,9 @@ if [[ -n "${CLASS_CODE}" ]]; then
     -H "Referer: ${BASE_URL}/" \
     --data "${JOIN_PAYLOAD}" \
     "${BASE_URL}/join")"
+  if [[ "${code}" == "404" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"invalid_code"' "${TMP_JOIN}"; then
+    fail "/join returned invalid_code for SMOKE_CLASS_CODE='${CLASS_CODE}' (likely stale/rotated). Update SMOKE_CLASS_CODE or run golden smoke."
+  fi
   [[ "${code}" == "200" ]] || fail "/join returned ${code}: $(cat "${TMP_JOIN}")"
   grep -Eq '"ok"[[:space:]]*:[[:space:]]*true' "${TMP_JOIN}" || fail "/join response missing ok=true: $(cat "${TMP_JOIN}")"
   echo "[smoke] /join OK"
