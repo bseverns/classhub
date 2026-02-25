@@ -22,6 +22,7 @@ jobs:
             echo "DJANGO_SECRET_KEY=cccccccccccccccccccccccccccccccc"
             echo "DEVICE_HINT_SIGNING_KEY=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
             echo "CLASSHUB_INTERNAL_EVENTS_TOKEN=dddddddddddddddd"
+            echo "HELPER_INTERNAL_API_TOKEN=ffffffffffffffff"
             echo "DJANGO_DEBUG=0"
             echo "DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1"
             echo "CSRF_TRUSTED_ORIGINS=http://localhost"
