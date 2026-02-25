@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -5,25 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ course.title|default:course_slug }}</title>
     {% include "includes/glass_theme.html" %}
-    <style>
-      .shell {
-        max-width: 920px;
-      }
-      .heading h1 {
-        margin: 6px 0 0 0;
-        font-size: clamp(1.85rem, 2.7vw, 2.3rem);
-      }
-      .lesson-list {
-        margin: 10px 0 0 0;
-        padding-left: 18px;
-      }
-      .lesson-list li {
-        margin: 10px 0;
-      }
-      .lesson-list a {
-        font-weight: 700;
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/course_overview.css' %}" />
   </head>
   <body class="glass-theme">
     <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -40,7 +23,7 @@
         </div>
 
         <div class="card">
-          <h2 style="margin:0">Lessons</h2>
+          <h2 class="section-title-tight">Lessons</h2>
           <ul class="lesson-list">
             {% for l in lessons %}
               <li>

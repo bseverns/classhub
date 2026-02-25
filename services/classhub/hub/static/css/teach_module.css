@@ -1,0 +1,63 @@
+.shell { max-width: 1120px; }
+.top h1 { margin: 6px 0 0 0; font-size: clamp(1.8rem, 2.4vw, 2.3rem); }
+.mat {
+  border: 1px solid rgba(22, 59, 80, 0.14);
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.45);
+}
+.btnline form { display: inline-block; margin: 0 6px 0 0; }
+.btnline button { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
+details {
+  border: 1px solid rgba(22, 59, 80, 0.14);
+  border-radius: 14px;
+  padding: 12px;
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.4);
+}
+summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #1b4258;
+}
+.section-title-tight {
+  margin: 0;
+}
+.material-type-meta {
+  font-size: 13px;
+}
+.material-link-row {
+  margin-top: 8px;
+}
+.material-text-preview {
+  margin-top: 10px;
+}
+.material-upload-meta,
+.material-empty-meta {
+  margin-top: 8px;
+}
+.materials-empty-note {
+  margin-top: 12px;
+}
+.material-form {
+  margin-top: 10px;
+  max-width: 760px;
+}
+.stacked-label {
+  display: block;
+  margin-top: 10px;
+}
+.submit-spaced {
+  margin-top: 12px;
+}
+.upload-config-row {
+  margin-top: 10px;
+}
+.upload-config-col-main {
+  min-width: 240px;
+  flex: 1;
+}
+.upload-config-col-side {
+  min-width: 180px;
+}

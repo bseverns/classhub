@@ -1,0 +1,20 @@
+.shell {
+  max-width: 920px;
+}
+.heading h1 {
+  margin: 6px 0 0 0;
+  font-size: clamp(1.85rem, 2.7vw, 2.3rem);
+}
+.lesson-list {
+  margin: 10px 0 0 0;
+  padding-left: 18px;
+}
+.lesson-list li {
+  margin: 10px 0;
+}
+.lesson-list a {
+  font-weight: 700;
+}
+.section-title-tight {
+  margin: 0;
+}

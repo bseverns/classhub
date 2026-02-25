@@ -121,18 +121,39 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertIn("/teach/login", resp["Location"])
 
+    def test_teach_login_page_uses_external_css_without_inline_styles(self):
+        resp = self.client.get("/teach/login")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/teach_login.css")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin-bottom: 20px;"', html=False)
+
     def test_teach_lessons_shows_submission_progress(self):
         classroom, upload = self._build_lesson_with_submission()
         _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get(f"/teach/lessons?class_id={classroom.id}")
         self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/teach_lessons.css")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin:0"', html=False)
         self.assertContains(resp, "Session 1 lesson")
         self.assertContains(resp, "Submitted 1 / 2")
         self.assertContains(resp, "Review missing now (1)")
         self.assertContains(resp, f"/teach/material/{upload.id}/submissions")
         self.assertContains(resp, f"/teach/material/{upload.id}/submissions?show=missing")
         self.assertContains(resp, f"/teach/material/{upload.id}/submissions?download=zip_latest")
+
+    def test_teach_material_submissions_page_uses_external_css_without_inline_styles(self):
+        classroom, upload = self._build_lesson_with_submission()
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/material/{upload.id}/submissions")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/teach_material_submissions.css")
+        self.assertContains(resp, classroom.name)
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="text-decoration-thickness:2px;"', html=False)
 
     def test_teach_home_shows_recent_submissions(self):
         self._build_lesson_with_submission()
@@ -229,10 +250,12 @@ class TeacherPortalTests(TestCase):
         resp = self.client.get(f"/teach/class/{classroom.id}/join-card")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["Cache-Control"], "private, no-store")
+        self.assertContains(resp, "/static/css/teach_join_card.css")
         self.assertContains(resp, "Student Join Card")
         self.assertContains(resp, "JOIN7788")
         self.assertContains(resp, "/?class_code=JOIN7788")
         self.assertContains(resp, "/static/js/teach_join_card.js")
+        self.assertNotContains(resp, "<style>", html=False)
         self.assertNotContains(resp, "onclick=\"window.print()\"", html=False)
         self.assertNotContains(resp, "Copied class code.", html=False)
 
@@ -244,9 +267,12 @@ class TeacherPortalTests(TestCase):
         resp = self.client.get(f"/teach/class/{classroom.id}")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["Cache-Control"], "private, no-store")
+        self.assertContains(resp, "/static/css/teach_class.css")
         self.assertContains(resp, "••••••")
         self.assertNotContains(resp, "data-secret-code=")
         self.assertContains(resp, "/static/js/teach_class.js")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin:0 0 12px 0;"', html=False)
         self.assertNotContains(resp, "returnCodeBaseUrl = ", html=False)
         self.assertNotContains(resp, "onsubmit=\"return confirm(", html=False)
         self.assertNotContains(resp, f">{student.return_code}<", html=False)
@@ -278,6 +304,44 @@ class TeacherPortalTests(TestCase):
 
         resp = self.client.get(f"/teach/class/{classroom.id}/student/{student.id}/return-code")
         self.assertEqual(resp.status_code, 404)
+
+    def test_teach_module_uses_external_css_without_inline_styles(self):
+        classroom = Class.objects.create(name="Period Module", join_code="MOD12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        Material.objects.create(
+            module=module,
+            title="Intro notes",
+            type=Material.TYPE_TEXT,
+            body="Welcome to session one.",
+            order_index=0,
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/module/{module.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/teach_module.css")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin:0"', html=False)
+
+    def test_teach_videos_uses_external_css_without_inline_styles(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach/videos")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/teach_videos.css")
+        self.assertContains(resp, "Lesson Videos")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin:0"', html=False)
+
+    def test_teach_assets_uses_external_css_without_inline_styles(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach/assets")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/teach_assets.css")
+        self.assertContains(resp, "Lesson Assets")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin:0"', html=False)
 
     def test_teach_class_shows_helper_signal_panel(self):
         classroom = Class.objects.create(name="Period Signals", join_code="SIG12345")
@@ -744,6 +808,9 @@ class Teacher2FASetupTests(TestCase):
         self.assertEqual(follow["Cache-Control"], "private, no-store")
         self.assertContains(follow, "Scan QR Code")
         self.assertContains(follow, "Authenticator code")
+        self.assertContains(follow, "/static/css/teach_setup_otp.css")
+        self.assertNotContains(follow, "<style>", html=False)
+        self.assertNotContains(follow, 'style="margin:0 0 10px 0"', html=False)
         self.assertTrue(TOTPDevice.objects.filter(user=self.teacher, name="teacher-primary").exists())
 
     def test_invite_link_can_confirm_totp_device(self):
@@ -1107,13 +1174,25 @@ class LessonReleaseTests(TestCase):
         self.assertContains(resp, "Preview intro-only page")
         self.assertNotContains(resp, "Open lesson", status_code=200)
 
+    def test_course_overview_uses_external_css_without_inline_styles(self):
+        self._login_student()
+
+        resp = self.client.get("/course/piper_scratch_12_session")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/course_overview.css")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin:0"', html=False)
+
     def test_student_home_masks_return_code_by_default(self):
         self._login_student()
 
         resp = self.client.get("/student")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["Cache-Control"], "private, no-store")
+        self.assertContains(resp, "/static/css/student_class.css")
         self.assertContains(resp, "••••••")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin-top:8px"', html=False)
         self.assertNotContains(resp, "data-secret-code=")
         self.assertContains(resp, "/static/js/student_class.js")
         self.assertNotContains(resp, "returnCodeUrl = ", html=False)
@@ -1158,6 +1237,15 @@ class LessonReleaseTests(TestCase):
         )
         self.assertEqual(resp.status_code, 403)
         self.assertContains(resp, locked_until.isoformat(), status_code=403)
+
+    def test_material_upload_page_uses_external_css_without_inline_styles(self):
+        self._login_student()
+
+        resp = self.client.get(f"/material/{self.upload.id}/upload")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/material_upload.css")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin:0"', html=False)
 
     @override_settings(
         CLASSHUB_UPLOAD_SCAN_ENABLED=True,
@@ -1858,6 +1946,7 @@ class StudentPortfolioExportTests(TestCase):
         self.assertIn("Ada Portfolio Export", index_html)
         self.assertIn("ada_project.sb3", index_html)
         self.assertNotIn("ben_project.sb3", index_html)
+        self.assertNotIn("<style", index_html)
 
     def test_portfolio_export_content_disposition_defaults_to_generic_filename(self):
         self.classroom.name = "Portfolio/Class"
@@ -1927,7 +2016,10 @@ class StudentDataControlsTests(TestCase):
         resp = self.client.get("/student/my-data")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["Cache-Control"], "private, no-store")
+        self.assertContains(resp, "/static/css/student_my_data.css")
         self.assertContains(resp, "/static/js/confirm_forms.js")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin:0"', html=False)
         self.assertNotContains(resp, "onsubmit=\"return confirm(", html=False)
         self.assertContains(resp, "My submissions")
         self.assertContains(resp, "portfolio.sb3")
@@ -1994,7 +2086,10 @@ class OperatorProfileTemplateTests(TestCase):
         self.assertEqual(join_resp.status_code, 200)
         self.assertContains(join_resp, "this server is hosted by Northside Public Schools.")
         self.assertContains(join_resp, "No surveillance analytics. No ad-tech. No data broker sharing.")
+        self.assertContains(join_resp, "/static/css/student_join.css")
         self.assertContains(join_resp, "/static/js/student_join.js")
+        self.assertNotContains(join_resp, "<style>", html=False)
+        self.assertNotContains(join_resp, 'style="display:none"', html=False)
         self.assertNotContains(join_resp, "const csrfToken = () =>", html=False)
         self.assertNotContains(join_resp, "document.getElementById('join-form')", html=False)
 
@@ -2007,7 +2102,10 @@ class OperatorProfileTemplateTests(TestCase):
         admin_login_resp = self.client.get("/admin/login/")
         self.assertEqual(admin_login_resp.status_code, 200)
         self.assertContains(admin_login_resp, "Northside School Admin Login")
+        self.assertContains(admin_login_resp, "/static/css/admin_login.css")
         self.assertContains(admin_login_resp, "/static/js/admin_login.js")
+        self.assertNotContains(admin_login_resp, "<style>", html=False)
+        self.assertNotContains(admin_login_resp, 'style="margin:8px 0 0 0;"', html=False)
         self.assertNotContains(admin_login_resp, 'var form = document.getElementById("login-form")', html=False)
 
 

@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -5,52 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Teacher · Lesson Videos</title>
     {% include "includes/glass_theme.html" %}
-    <style>
-      .shell { max-width: 1100px; }
-      .top h1 { margin: 6px 0 0 0; font-size: clamp(1.85rem, 2.7vw, 2.35rem); }
-      .btnline form { display: inline-block; margin: 0 6px 0 0; }
-      .btnline button { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
-      .notice {
-        margin-top: 12px;
-        padding: 10px 12px;
-        border: 1px solid rgba(32, 125, 82, 0.35);
-        border-radius: 10px;
-        background: rgba(216, 246, 231, 0.65);
-        color: #1f5f45;
-      }
-      .error {
-        margin-top: 12px;
-        padding: 10px 12px;
-        border: 1px solid rgba(182, 56, 56, 0.35);
-        border-radius: 10px;
-        background: rgba(255, 224, 224, 0.58);
-        color: #8f2d2d;
-      }
-      .row-wrap { margin-top: 10px; }
-      .row-wrap .row > div { min-width: 220px; flex: 1; }
-      input[type="file"] { margin-top: 8px; }
-      .status-pill {
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 999px;
-        font-size: 12px;
-        border: 1px solid rgba(22, 59, 80, 0.22);
-        background: rgba(255, 255, 255, 0.6);
-      }
-      .status-pill.live {
-        border-color: rgba(32, 125, 82, 0.45);
-        background: rgba(216, 246, 231, 0.7);
-        color: #1f5f45;
-      }
-      .status-pill.draft {
-        border-color: rgba(172, 112, 32, 0.45);
-        background: rgba(255, 241, 213, 0.75);
-        color: #8c5c19;
-      }
-      .row-draft td {
-        opacity: 0.82;
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/teach_videos.css' %}" />
   </head>
   <body class="glass-theme teacher-comfort">
     <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -72,7 +28,7 @@
         {% endif %}
 
         <div class="card">
-          <h2 style="margin:0">Select lesson</h2>
+          <h2 class="section-title-tight">Select lesson</h2>
           <form method="get" class="row row-wrap">
             {% if class_id %}
               <input type="hidden" name="class_id" value="{{ class_id }}" />
@@ -97,7 +53,7 @@
                 {% endfor %}
               </select>
             </div>
-            <div style="align-self:end">
+            <div class="align-end">
               <button type="submit">Load lesson</button>
             </div>
           </form>
@@ -105,13 +61,13 @@
 
         <div class="card">
           <div class="row">
-            <h2 style="margin:0">Add video</h2>
+            <h2 class="section-title-tight">Add video</h2>
             {% if selected_course_slug and selected_lesson_slug %}
               <div class="muted"><a href="/course/{{ selected_course_slug }}/{{ selected_lesson_slug }}" target="_blank" rel="noopener">Open lesson preview</a></div>
             {% endif %}
           </div>
 
-          <form method="post" enctype="multipart/form-data" style="margin-top:10px; max-width:920px">
+          <form method="post" enctype="multipart/form-data" class="video-form">
             {% csrf_token %}
             <input type="hidden" name="action" value="add" />
             <input type="hidden" name="course_slug" value="{{ selected_course_slug }}" />
@@ -125,7 +81,7 @@
                 <label for="video-title">Title</label>
                 <input id="video-title" name="title" placeholder="e.g., Save privately: Download to your computer" required />
               </div>
-              <div style="min-width:160px; max-width:200px">
+              <div class="video-minutes-col">
                 <label for="video-minutes">Minutes</label>
                 <input id="video-minutes" name="minutes" type="number" min="0" step="1" placeholder="4" />
               </div>
@@ -141,19 +97,19 @@
             <input id="video-file" name="video_file" type="file" accept="video/*,.m3u8" />
             <div class="muted">Choose URL or upload, not both. Uploaded files are streamed through Django with permission checks.</div>
 
-            <label style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+            <label class="inline-check-label top-gap-8">
               <input type="checkbox" name="is_active" value="1" checked />
               <span>Publish immediately (uncheck to save as draft)</span>
             </label>
 
-            <button type="submit" style="margin-top:12px">Save video</button>
+            <button type="submit" class="submit-spaced">Save video</button>
           </form>
         </div>
 
         <div class="card">
-          <h2 style="margin:0">Bulk upload files</h2>
-          <p class="muted" style="margin-top:8px">Upload multiple files at once and auto-create video rows for this lesson.</p>
-          <form method="post" enctype="multipart/form-data" style="margin-top:10px; max-width:920px">
+          <h2 class="section-title-tight">Bulk upload files</h2>
+          <p class="muted top-gap-8">Upload multiple files at once and auto-create video rows for this lesson.</p>
+          <form method="post" enctype="multipart/form-data" class="video-form">
             {% csrf_token %}
             <input type="hidden" name="action" value="bulk_upload" />
             <input type="hidden" name="course_slug" value="{{ selected_course_slug }}" />
@@ -168,22 +124,22 @@
             <label for="title-prefix">Optional title prefix</label>
             <input id="title-prefix" name="title_prefix" placeholder="e.g., Session 2" />
 
-            <label style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+            <label class="inline-check-label top-gap-8">
               <input type="checkbox" name="bulk_is_active" value="1" checked />
               <span>Publish immediately (uncheck to save as draft)</span>
             </label>
 
-            <button type="submit" style="margin-top:12px">Upload files</button>
+            <button type="submit" class="submit-spaced">Upload files</button>
           </form>
         </div>
 
         <div class="card">
           <div class="row">
-            <h2 style="margin:0">Tagged videos</h2>
+            <h2 class="section-title-tight">Tagged videos</h2>
             <div class="muted">{{ published_count }} published · {{ draft_count }} draft</div>
           </div>
           {% if lesson_video_rows %}
-            <table style="margin-top:10px">
+            <table class="table-top-gap">
               <thead>
                 <tr>
                   <th scope="col">Order</th>
@@ -268,7 +224,7 @@
               </tbody>
             </table>
           {% else %}
-            <p class="muted" style="margin-top:10px">No videos tagged to this lesson yet.</p>
+            <p class="muted top-gap-10">No videos tagged to this lesson yet.</p>
           {% endif %}
         </div>
       </main>

@@ -1,0 +1,7 @@
+.shell { max-width: 1160px; }
+.top h1 { margin: 6px 0 0 0; font-size: clamp(1.8rem, 2.5vw, 2.3rem); }
+.filters .filter-link { margin-right: 10px; font-weight: 700; }
+.filters .filter-link.is-active { text-decoration-thickness: 2px; }
+.btnline { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.table-top-gap { margin-top: 10px; }
+.download-note { margin-top: 14px; }

@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -5,54 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Upload - {{ material.title }}</title>
     {% include "includes/glass_theme.html" %}
-    <style>
-      .shell {
-        max-width: 940px;
-      }
-      .top h1 {
-        margin: 6px 0 0 0;
-        font-size: clamp(1.8rem, 2.6vw, 2.25rem);
-      }
-      input[type="file"] {
-        display: block;
-        margin-top: 8px;
-      }
-      .err {
-        color: #8a1f1f;
-        background: rgba(255, 224, 224, 0.58);
-        padding: 10px;
-        border-radius: 10px;
-        border: 1px solid rgba(182, 56, 56, 0.35);
-        margin-top: 12px;
-      }
-      .privacy-note {
-        margin-top: 12px;
-        border: 1px solid rgba(169, 46, 66, 0.35);
-        border-radius: 12px;
-        padding: 11px;
-        background: linear-gradient(180deg, rgba(255, 240, 242, 0.84), rgba(255, 248, 249, 0.72));
-      }
-      .privacy-note p {
-        margin: 0 0 6px 0;
-        text-align: center;
-      }
-      .privacy-note .muted {
-        color: #7b2a39;
-        font-weight: 350;
-        letter-spacing: 0.004em;
-      }
-      .privacy-note p:last-child {
-        margin-bottom: 0;
-      }
-      .privacy-note a {
-        color: #8f2038;
-        text-decoration-color: rgba(143, 32, 56, 0.45);
-      }
-      .privacy-note a:hover {
-        color: #6e172b;
-        text-decoration-color: rgba(110, 23, 43, 0.68);
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/material_upload.css' %}" />
   </head>
   <body class="glass-theme">
     <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -67,9 +21,9 @@
         </div>
 
         <div class="card">
-          <h2 style="margin:0">Upload your work</h2>
-          <p class="muted" style="margin-top:8px">Allowed: <strong>{{ allowed_exts|join:", " }}</strong> · Max <strong>{{ material.max_upload_mb }}MB</strong></p>
-          <p class="muted" style="margin-top:8px">Done means your file appears in <strong>Your uploads</strong> below.</p>
+          <h2 class="section-title-tight">Upload your work</h2>
+          <p class="muted top-gap-8">Allowed: <strong>{{ allowed_exts|join:", " }}</strong> · Max <strong>{{ material.max_upload_mb }}MB</strong></p>
+          <p class="muted top-gap-8">Done means your file appears in <strong>Your uploads</strong> below.</p>
           <div class="privacy-note">
             <p class="muted"><strong>Privacy at a glance:</strong> we store your display name, uploaded files, and upload timestamps for class progress.</p>
             <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
@@ -85,7 +39,7 @@
             <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
           </div>
           {% if upload_locked %}
-            <p class="muted" style="margin-top:8px">
+            <p class="muted top-gap-8">
               Submissions open on <strong>{{ upload_available_on|date:"M j, Y" }}</strong>. You can review prior uploads below.
             </p>
           {% endif %}
@@ -95,22 +49,22 @@
           {% endif %}
 
           {% if not upload_locked %}
-            <form method="post" enctype="multipart/form-data" style="margin-top:12px">
+            <form method="post" enctype="multipart/form-data" class="upload-form">
               {% csrf_token %}
               {{ form.file }}
-              <div style="margin-top:10px">{{ form.note }}</div>
+              <div class="upload-note-field">{{ form.note }}</div>
               <button type="submit">Upload</button>
             </form>
           {% endif %}
         </div>
 
         <div class="card">
-          <h2 style="margin:0">Your uploads</h2>
+          <h2 class="section-title-tight">Your uploads</h2>
           {% if submissions %}
-            <p class="muted" style="margin-top:8px"><span class="state-pill state-pill--done">Done for now</span> Latest upload is saved.</p>
+            <p class="muted top-gap-8"><span class="state-pill state-pill--done">Done for now</span> Latest upload is saved.</p>
           {% endif %}
           {% if submissions %}
-            <table style="margin-top:10px">
+            <table class="table-top-gap">
               <thead>
                 <tr>
                   <th scope="col">When</th>
@@ -135,7 +89,7 @@
               </tbody>
             </table>
           {% else %}
-            <p class="muted" style="margin-top:10px">No uploads yet.</p>
+            <p class="muted top-gap-10">No uploads yet.</p>
           {% endif %}
         </div>
       </main>

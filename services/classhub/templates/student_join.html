@@ -6,64 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Join Class</title>
     {% include "includes/glass_theme.html" %}
-    <style>
-      .shell {
-        max-width: 760px;
-      }
-      .hero {
-        margin-top: 6px;
-        margin-bottom: 14px;
-      }
-      .hero h1 {
-        margin: 0;
-        font-size: clamp(2rem, 2.8vw, 2.6rem);
-      }
-      .hero p {
-        margin: 8px 0 0 0;
-      }
-      .error {
-        margin-top: 10px;
-        padding: 9px 11px;
-        border: 1px solid rgba(182, 56, 56, 0.35);
-        border-radius: 10px;
-        color: #8f2d2d;
-        background: rgba(255, 224, 224, 0.55);
-        font-size: 14px;
-      }
-      .actions {
-        margin-top: 16px;
-      }
-      .entry-note {
-        margin-top: 16px;
-      }
-      .privacy-note {
-        margin-top: 14px;
-        border: 1px solid rgba(169, 46, 66, 0.35);
-        border-radius: 12px;
-        padding: 12px;
-        background: linear-gradient(180deg, rgba(255, 240, 242, 0.84), rgba(255, 248, 249, 0.72));
-      }
-      .privacy-note p {
-        margin: 0 0 6px 0;
-        text-align: center;
-      }
-      .privacy-note .muted {
-        color: #7b2a39;
-        font-weight: 350;
-        letter-spacing: 0.004em;
-      }
-      .privacy-note p:last-child {
-        margin-bottom: 0;
-      }
-      .privacy-note a {
-        color: #8f2038;
-        text-decoration-color: rgba(143, 32, 56, 0.45);
-      }
-      .privacy-note a:hover {
-        color: #6e172b;
-        text-decoration-color: rgba(110, 23, 43, 0.68);
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/student_join.css' %}" />
   </head>
   <body class="glass-theme">
     <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -89,7 +32,7 @@
             <div class="actions">
               <button id="join" type="submit">Join class</button>
             </div>
-            <div id="msg" class="error" role="alert" aria-live="assertive" style="display:none"></div>
+            <div id="msg" class="error hidden" role="alert" aria-live="assertive"></div>
           </form>
 
           <div class="privacy-note" aria-live="polite">

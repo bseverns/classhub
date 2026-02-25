@@ -6,62 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>My Data</title>
     {% include "includes/glass_theme.html" %}
-    <style>
-      .shell {
-        max-width: 960px;
-      }
-      .top h1 {
-        margin: 6px 0 0 0;
-        font-size: clamp(1.85rem, 2.7vw, 2.3rem);
-      }
-      .notice {
-        border: 1px solid rgba(36, 128, 66, 0.25);
-        background: rgba(224, 248, 229, 0.75);
-        color: #215a2f;
-        border-radius: 12px;
-        padding: 10px;
-        margin-top: 12px;
-      }
-      .privacy-note {
-        margin-top: 12px;
-        border: 1px solid rgba(169, 46, 66, 0.35);
-        border-radius: 12px;
-        padding: 11px;
-        background: linear-gradient(180deg, rgba(255, 240, 242, 0.84), rgba(255, 248, 249, 0.72));
-      }
-      .privacy-note p {
-        margin: 0 0 6px 0;
-        text-align: center;
-      }
-      .privacy-note .muted {
-        color: #7b2a39;
-        font-weight: 350;
-        letter-spacing: 0.004em;
-      }
-      .privacy-note p:last-child {
-        margin-bottom: 0;
-      }
-      .privacy-note a {
-        color: #8f2038;
-        text-decoration-color: rgba(143, 32, 56, 0.45);
-      }
-      .privacy-note a:hover {
-        color: #6e172b;
-        text-decoration-color: rgba(110, 23, 43, 0.68);
-      }
-      .actions {
-        margin-top: 12px;
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-      .actions form {
-        margin: 0;
-      }
-      .danger {
-        background: linear-gradient(155deg, #7d2020, #631717);
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/student_my_data.css' %}" />
   </head>
   <body class="glass-theme">
     <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -78,7 +23,7 @@
         {% endif %}
 
         <div class="card">
-          <h2 style="margin:0">Privacy at a glance</h2>
+          <h2 class="section-title-tight">Privacy at a glance</h2>
           <div class="privacy-note">
             <p class="muted">Stored data: your display name, submissions, and class event timestamps.</p>
             <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
@@ -106,9 +51,9 @@
         </div>
 
         <div class="card">
-          <h2 style="margin:0">My submissions</h2>
+          <h2 class="section-title-tight">My submissions</h2>
           {% if submissions %}
-            <table style="margin-top:10px">
+            <table class="table-top-gap">
               <thead>
                 <tr>
                   <th scope="col">When</th>
@@ -131,7 +76,7 @@
               </tbody>
             </table>
           {% else %}
-            <p class="muted" style="margin-top:10px">No submissions stored yet.</p>
+            <p class="muted top-gap-10">No submissions stored yet.</p>
           {% endif %}
         </div>
       </main>

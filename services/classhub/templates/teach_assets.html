@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -5,70 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Teacher · Lesson Assets</title>
     {% include "includes/glass_theme.html" %}
-    <style>
-      .shell { max-width: 1120px; }
-      .top h1 { margin: 6px 0 0 0; font-size: clamp(1.85rem, 2.7vw, 2.35rem); }
-      .notice {
-        margin-top: 12px;
-        padding: 10px 12px;
-        border: 1px solid rgba(32, 125, 82, 0.35);
-        border-radius: 10px;
-        background: rgba(216, 246, 231, 0.65);
-        color: #1f5f45;
-      }
-      .error {
-        margin-top: 12px;
-        padding: 10px 12px;
-        border: 1px solid rgba(182, 56, 56, 0.35);
-        border-radius: 10px;
-        background: rgba(255, 224, 224, 0.58);
-        color: #8f2d2d;
-      }
-      .row-wrap { margin-top: 10px; }
-      .row-wrap .row > div { min-width: 200px; flex: 1; }
-      .btnline form { display: inline-block; margin: 0 6px 0 0; }
-      .btnline button { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
-      .status-pill {
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 999px;
-        font-size: 12px;
-        border: 1px solid rgba(22, 59, 80, 0.22);
-        background: rgba(255, 255, 255, 0.6);
-      }
-      .status-pill.live {
-        border-color: rgba(32, 125, 82, 0.45);
-        background: rgba(216, 246, 231, 0.7);
-        color: #1f5f45;
-      }
-      .status-pill.draft {
-        border-color: rgba(172, 112, 32, 0.45);
-        background: rgba(255, 241, 213, 0.75);
-        color: #8c5c19;
-      }
-      .path-chip {
-        display: inline-block;
-        border: 1px solid rgba(22, 59, 80, 0.16);
-        border-radius: 999px;
-        padding: 2px 9px;
-        background: rgba(255, 255, 255, 0.62);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-        font-size: 12px;
-      }
-      .snippet {
-        margin-top: 6px;
-        padding: 6px 8px;
-        border-radius: 10px;
-        border: 1px solid rgba(22, 59, 80, 0.14);
-        background: rgba(255, 255, 255, 0.58);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-        font-size: 12px;
-        overflow-x: auto;
-      }
-      .row-draft td {
-        opacity: 0.82;
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/teach_assets.css' %}" />
   </head>
   <body class="glass-theme teacher-comfort">
     <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -90,8 +28,8 @@
         {% endif %}
 
         <div class="card">
-          <h2 style="margin:0">Create folder</h2>
-          <form method="post" class="row row-wrap" style="max-width:940px">
+          <h2 class="section-title-tight">Create folder</h2>
+          <form method="post" class="row row-wrap folder-create-form">
             {% csrf_token %}
             <input type="hidden" name="action" value="create_folder" />
             <input type="hidden" name="status" value="{{ status }}" />
@@ -107,14 +45,14 @@
               <label for="folder-name">Display name (optional)</label>
               <input id="folder-name" name="display_name" placeholder="e.g., GPIO reference" />
             </div>
-            <div style="align-self:end">
+            <div class="align-end">
               <button type="submit">Create folder</button>
             </div>
           </form>
         </div>
 
         <div class="card">
-          <h2 style="margin:0">Filter assets</h2>
+          <h2 class="section-title-tight">Filter assets</h2>
           <form method="get" class="row row-wrap">
             <div>
               <label for="folder_id">Folder</label>
@@ -141,15 +79,15 @@
                 <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Hidden draft</option>
               </select>
             </div>
-            <div style="align-self:end">
+            <div class="align-end">
               <button type="submit">Apply filter</button>
             </div>
           </form>
         </div>
 
         <div class="card">
-          <h2 style="margin:0">Upload asset</h2>
-          <form method="post" enctype="multipart/form-data" style="margin-top:10px; max-width:960px">
+          <h2 class="section-title-tight">Upload asset</h2>
+          <form method="post" enctype="multipart/form-data" class="asset-upload-form">
             {% csrf_token %}
             <input type="hidden" name="action" value="upload" />
             <input type="hidden" name="status" value="{{ status }}" />
@@ -187,23 +125,23 @@
             <input id="asset-file" name="asset_file" type="file" required />
             <div class="muted">After upload, use the generated link snippet in lesson markdown or text materials.</div>
 
-            <label style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+            <label class="inline-check-label top-gap-8">
               <input type="checkbox" name="is_active" value="1" checked />
               <span>Publish immediately (uncheck to keep hidden draft)</span>
             </label>
 
-            <button type="submit" style="margin-top:12px">Upload asset</button>
+            <button type="submit" class="submit-spaced">Upload asset</button>
           </form>
         </div>
 
         <div class="card">
           <div class="row">
-            <h2 style="margin:0">Asset library</h2>
+            <h2 class="section-title-tight">Asset library</h2>
             <div class="muted">{{ active_count }} published · {{ inactive_count }} hidden draft</div>
           </div>
 
           {% if asset_rows %}
-            <table style="margin-top:10px">
+            <table class="table-top-gap">
               <thead>
                 <tr>
                   <th scope="col">Asset</th>
@@ -266,7 +204,7 @@
               </tbody>
             </table>
           {% else %}
-            <p class="muted" style="margin-top:10px">No assets match this filter yet.</p>
+            <p class="muted top-gap-10">No assets match this filter yet.</p>
           {% endif %}
         </div>
       </main>

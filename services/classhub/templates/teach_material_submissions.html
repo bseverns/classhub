@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -5,12 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Submissions · {{ material.title }}</title>
     {% include "includes/glass_theme.html" %}
-    <style>
-      .shell { max-width: 1160px; }
-      .top h1 { margin: 6px 0 0 0; font-size: clamp(1.8rem, 2.5vw, 2.3rem); }
-      .filters a { margin-right: 10px; font-weight: 700; }
-      .btnline { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/teach_material_submissions.css' %}" />
   </head>
   <body class="glass-theme teacher-comfort">
     <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -31,12 +27,12 @@
         <div class="card">
           <div class="filters muted">
             Filter:
-            <a href="?show=all" {% if show == 'all' %}style="text-decoration-thickness:2px;"{% endif %}>All</a>
-            <a href="?show=submitted" {% if show == 'submitted' %}style="text-decoration-thickness:2px;"{% endif %}>Submitted</a>
-            <a href="?show=missing" {% if show == 'missing' %}style="text-decoration-thickness:2px;"{% endif %}>Missing</a>
+            <a class="filter-link{% if show == 'all' %} is-active{% endif %}" href="?show=all">All</a>
+            <a class="filter-link{% if show == 'submitted' %} is-active{% endif %}" href="?show=submitted">Submitted</a>
+            <a class="filter-link{% if show == 'missing' %} is-active{% endif %}" href="?show=missing">Missing</a>
           </div>
 
-          <table style="margin-top:10px">
+          <table class="table-top-gap">
             <thead>
               <tr>
                 <th scope="col">Student</th>
@@ -66,7 +62,7 @@
             </tbody>
           </table>
 
-          <p class="muted" style="margin-top:14px">Downloads are private: staff can download any submission; students can only download their own.</p>
+          <p class="muted download-note">Downloads are private: staff can download any submission; students can only download their own.</p>
         </div>
       </main>
     </div>

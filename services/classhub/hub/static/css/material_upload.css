@@ -1,0 +1,64 @@
+.shell {
+  max-width: 940px;
+}
+.top h1 {
+  margin: 6px 0 0 0;
+  font-size: clamp(1.8rem, 2.6vw, 2.25rem);
+}
+input[type="file"] {
+  display: block;
+  margin-top: 8px;
+}
+.err {
+  color: #8a1f1f;
+  background: rgba(255, 224, 224, 0.58);
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(182, 56, 56, 0.35);
+  margin-top: 12px;
+}
+.privacy-note {
+  margin-top: 12px;
+  border: 1px solid rgba(169, 46, 66, 0.35);
+  border-radius: 12px;
+  padding: 11px;
+  background: linear-gradient(180deg, rgba(255, 240, 242, 0.84), rgba(255, 248, 249, 0.72));
+}
+.privacy-note p {
+  margin: 0 0 6px 0;
+  text-align: center;
+}
+.privacy-note .muted {
+  color: #7b2a39;
+  font-weight: 350;
+  letter-spacing: 0.004em;
+}
+.privacy-note p:last-child {
+  margin-bottom: 0;
+}
+.privacy-note a {
+  color: #8f2038;
+  text-decoration-color: rgba(143, 32, 56, 0.45);
+}
+.privacy-note a:hover {
+  color: #6e172b;
+  text-decoration-color: rgba(110, 23, 43, 0.68);
+}
+.section-title-tight {
+  margin: 0;
+}
+.top-gap-8 {
+  margin-top: 8px;
+}
+.upload-form {
+  margin-top: 12px;
+}
+.upload-note-field {
+  margin-top: 10px;
+}
+.table-top-gap {
+  margin-top: 10px;
+}
+.top-gap-10 {
+  margin-top: 10px;
+}

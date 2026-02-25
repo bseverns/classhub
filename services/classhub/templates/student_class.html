@@ -6,90 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ classroom.name }}</title>
     {% include "includes/glass_theme.html" %}
-    <style>
-      .shell {
-        max-width: 980px;
-      }
-      .top h1 {
-        margin: 6px 0 0 0;
-        font-size: clamp(1.85rem, 2.7vw, 2.3rem);
-      }
-      .module {
-        margin-top: 16px;
-      }
-      .module h2 {
-        margin: 0;
-      }
-      .mat {
-        margin-top: 10px;
-        padding: 12px;
-        border-radius: 12px;
-        border: 1px solid rgba(22, 59, 80, 0.12);
-        background: rgba(255, 255, 255, 0.5);
-      }
-      .mat .muted {
-        margin-top: 6px;
-      }
-      .mat-link {
-        margin-top: 6px;
-        font-weight: 700;
-      }
-      .mat-link.muted-link {
-        font-weight: 600;
-      }
-      .status-row {
-        margin-top: 8px;
-      }
-      .empty-state {
-        margin-top: 10px;
-      }
-      .done-guide {
-        margin-top: 12px;
-        border: 1px solid rgba(22, 59, 80, 0.14);
-        border-radius: 12px;
-        padding: 12px;
-        background: rgba(255, 255, 255, 0.45);
-      }
-      .done-guide h2 {
-        margin: 0 0 8px 0;
-        font-size: 1rem;
-      }
-      .done-guide p {
-        margin: 0 0 6px 0;
-      }
-      .done-guide p:last-child {
-        margin-bottom: 0;
-      }
-      .inline-copy {
-        margin-left: 8px;
-        padding: 4px 8px;
-        border-radius: 9px;
-        font-size: 12px;
-      }
-      .secret-code {
-        display: inline-block;
-        min-width: 8ch;
-        text-align: center;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        letter-spacing: 0.08em;
-      }
-      .copy-status {
-        margin-top: 8px;
-        min-height: 18px;
-      }
-      .my-data-actions {
-        margin-top: 10px;
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-      .my-data-actions form {
-        margin: 0;
-      }
-      .danger-inline {
-        background: linear-gradient(155deg, #7d2020, #631717);
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/student_class.css' %}" />
   </head>
   <body class="glass-theme">
     <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -187,7 +104,7 @@
                         {% endif %}
                       {% endwith %}
                     {% elif mat.type == 'text' and mat.body %}
-                      <pre style="margin-top:8px">{{ mat.body }}</pre>
+                      <pre class="text-material-preview">{{ mat.body }}</pre>
                     {% elif mat.type == 'upload' %}
                       {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id %}
                         {% if access.is_lesson_upload and access.is_locked %}

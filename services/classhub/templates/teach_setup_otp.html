@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
 
@@ -6,54 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Teacher 2FA Setup · {{ operator_profile.product_name|default:"Class Hub" }}</title>
   {% include "includes/glass_theme.html" %}
-  <style>
-    .shell {
-      max-width: 880px;
-    }
-
-    .title-row h1 {
-      margin: 0;
-      font-size: clamp(1.8rem, 2.4vw, 2.3rem);
-    }
-
-    .notice {
-      margin-bottom: 12px;
-      padding: 10px 12px;
-      border: 1px solid rgba(32, 125, 82, 0.35);
-      border-radius: 10px;
-      background: rgba(216, 246, 231, 0.65);
-      color: #1f5f45;
-    }
-
-    .error {
-      margin-bottom: 12px;
-      padding: 10px 12px;
-      border: 1px solid rgba(182, 56, 56, 0.35);
-      border-radius: 10px;
-      background: rgba(255, 224, 224, 0.58);
-      color: #8f2d2d;
-    }
-
-    .qr-wrap {
-      margin: 10px 0 14px 0;
-      width: fit-content;
-      padding: 12px;
-      border-radius: 12px;
-      background: #fff;
-      border: 1px solid rgba(22, 59, 80, 0.2);
-    }
-
-    .code-pill {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 7px 10px;
-      border-radius: 10px;
-      border: 1px solid rgba(22, 59, 80, 0.2);
-      background: rgba(255, 255, 255, 0.66);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 0.95rem;
-    }
-  </style>
+  <link rel="stylesheet" href="{% static 'css/teach_setup_otp.css' %}" />
 </head>
 
 <body class="glass-theme teacher-comfort">
@@ -82,10 +36,10 @@
 
       <div class="card">
         {% if already_configured %}
-        <h2 style="margin:0 0 10px 0">Two-Factor Authentication</h2>
+        <h2 class="section-title">Two-Factor Authentication</h2>
         <p class="muted">Enter a code from your authenticator app to continue.</p>
         {% elif otp_ready %}
-        <h2 style="margin:0 0 10px 0">Scan QR Code</h2>
+        <h2 class="section-title">Scan QR Code</h2>
         <p class="muted">Use Google Authenticator, 1Password, Authy, or another TOTP app.</p>
 
         <div class="qr-wrap" aria-label="2FA QR code">
@@ -94,15 +48,15 @@
 
         <div class="muted">Can’t scan? Enter this key manually:</div>
         <div class="code-pill">{{ manual_secret }}</div>
-        <p class="muted" style="margin-top:10px">Token length: {{ digits }} digits.</p>
+        <p class="muted top-gap-10">Token length: {{ digits }} digits.</p>
         {% else %}
-        <h2 style="margin:0 0 10px 0">2FA setup unavailable</h2>
+        <h2 class="section-title">2FA setup unavailable</h2>
         <p class="muted">Open this page from a valid invite link, or sign in as a staff user first.</p>
         <p><a href="/teach/login">Go to teacher login</a></p>
         {% endif %}
 
         {% if already_configured or otp_ready %}
-        <form method="post" style="margin-top:12px;max-width:320px">
+        <form method="post" class="otp-form">
           {% csrf_token %}
           {% if token %}
           <input type="hidden" name="token" value="{{ token }}" />
@@ -126,9 +80,9 @@
         {% endif %}
 
         {% if otp_ready and not already_configured %}
-        <details style="margin-top:12px">
+        <details class="manual-details">
           <summary>Manual setup URL</summary>
-          <p class="muted" style="word-break: break-all">{{ config_url }}</p>
+          <p class="muted break-all">{{ config_url }}</p>
         </details>
         {% endif %}
       </div>

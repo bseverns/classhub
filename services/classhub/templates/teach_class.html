@@ -6,322 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Teacher · {{ classroom.name }}</title>
     {% include "includes/glass_theme.html" %}
-    <style>
-      .mini { font-size: 13px; }
-      .top h1 { margin: 6px 0 0 0; font-size: clamp(1.85rem, 2.6vw, 2.35rem); }
-      .btnline form { display: inline-block; margin: 0 6px 0 0; }
-      .btnline button { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
-      .quick { margin-top: 12px; margin-right: 8px; margin-bottom: 6px; }
-      .module {
-        border: 1px solid rgba(22, 59, 80, 0.14);
-        border-radius: 14px;
-        padding: 16px;
-        margin-top: 16px;
-        background: rgba(255, 255, 255, 0.42);
-      }
-      .mat {
-        margin-top: 12px;
-        padding: 12px;
-        border-radius: 12px;
-        border: 1px solid rgba(22, 59, 80, 0.12);
-        background: rgba(255, 255, 255, 0.5);
-      }
-      .actions a { margin-right: 8px; font-size: 13px; }
-      .lesson-table-wrap {
-        margin-top: 12px;
-        border: 1px solid rgba(22, 59, 80, 0.16);
-        border-radius: 14px;
-        overflow: auto;
-        background: rgba(255, 255, 255, 0.42);
-      }
-      .lesson-table-wrap table {
-        margin: 0;
-        min-width: 980px;
-      }
-      .lesson-table-wrap thead th {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-        background: rgba(237, 246, 251, 0.96);
-        backdrop-filter: blur(5px);
-      }
-      .lesson-table-wrap tbody td {
-        border-bottom-color: rgba(22, 59, 80, 0.12);
-      }
-      .lesson-table-wrap tbody tr:last-child td {
-        border-bottom: 0;
-      }
-      .lesson-row td {
-        background: rgba(255, 255, 255, 0.2);
-      }
-      .lesson-row:nth-child(even) td {
-        background: rgba(255, 255, 255, 0.34);
-      }
-      .module-cell {
-        min-width: 200px;
-      }
-      .lesson-cell {
-        min-width: 360px;
-      }
-      .dropbox-cell {
-        min-width: 300px;
-      }
-      .dropbox {
-        margin: 0 0 16px 0;
-        padding: 12px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.4);
-        border: 1px solid rgba(22, 59, 80, 0.12);
-      }
-      .dropbox:last-child {
-        margin-bottom: 0;
-      }
-      .teacher-note {
-        margin-top: 14px;
-        padding: 12px;
-        border-radius: 12px;
-        border: 1px solid rgba(22, 59, 80, 0.14);
-        background: rgba(255, 255, 255, 0.42);
-      }
-      .teacher-note summary {
-        cursor: pointer;
-        font-weight: 700;
-        color: #1b4258;
-      }
-      .teacher-note-body {
-        margin-top: 8px;
-      }
-      .release-box {
-        margin-top: 14px;
-        padding: 12px;
-        border-radius: 12px;
-        border: 1px solid rgba(22, 59, 80, 0.14);
-        background: rgba(255, 255, 255, 0.42);
-      }
-      .release-status {
-        font-size: 13px;
-        margin-bottom: 8px;
-      }
-      .release-actions {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        align-items: center;
-        margin-top: 6px;
-      }
-      .release-actions form {
-        margin: 0;
-      }
-      .release-actions input[type="date"] {
-        width: auto;
-        min-width: 165px;
-      }
-      .notice {
-        border: 1px solid rgba(36, 128, 66, 0.25);
-        background: rgba(224, 248, 229, 0.75);
-        color: #215a2f;
-        border-radius: 12px;
-        padding: 10px;
-      }
-      .error {
-        border: 1px solid rgba(182, 56, 56, 0.35);
-        background: rgba(255, 224, 224, 0.58);
-        color: #8f2d2d;
-        border-radius: 12px;
-        padding: 10px;
-      }
-      .inline-copy {
-        margin-left: 8px;
-        padding: 4px 8px;
-        border-radius: 9px;
-        font-size: 12px;
-      }
-      .secret-code {
-        display: inline-block;
-        min-width: 8ch;
-        text-align: center;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        letter-spacing: 0.08em;
-      }
-      .copy-status {
-        margin-top: 8px;
-        min-height: 18px;
-      }
-      .roster-table-wrap {
-        margin-top: 12px;
-        border: 1px solid rgba(22, 59, 80, 0.16);
-        border-radius: 14px;
-        overflow: auto;
-        background: rgba(255, 255, 255, 0.42);
-      }
-      .roster-table-wrap table {
-        margin: 0;
-        min-width: 760px;
-      }
-      .roster-table-wrap thead th {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-        background: rgba(237, 246, 251, 0.96);
-        backdrop-filter: blur(5px);
-      }
-      .roster-table-wrap tbody td {
-        border-bottom-color: rgba(22, 59, 80, 0.12);
-      }
-      .roster-table-wrap tbody tr:last-child td {
-        border-bottom: 0;
-      }
-      .rename-row {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-      .rename-row input {
-        min-width: 180px;
-      }
-      .delete-row {
-        margin-top: 8px;
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-      .delete-row label {
-        font-size: 12px;
-        color: #5a3131;
-        text-transform: none;
-        letter-spacing: normal;
-      }
-      .danger-inline {
-        padding: 6px 10px;
-        border-radius: 9px;
-        background: linear-gradient(155deg, #7d2020, #631717);
-      }
-      .merge-zone {
-        margin-top: 14px;
-        border: 1px solid rgba(22, 59, 80, 0.16);
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.46);
-        padding: 12px;
-      }
-      .merge-zone .merge-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: end;
-      }
-      .merge-zone .merge-row > label {
-        margin: 0;
-        min-width: 180px;
-      }
-      .merge-zone select {
-        min-width: 220px;
-      }
-      .danger-zone {
-        margin-top: 14px;
-        border: 1px solid rgba(182, 56, 56, 0.35);
-        border-radius: 12px;
-        background: rgba(255, 240, 240, 0.55);
-        padding: 12px;
-      }
-      .danger-zone button {
-        background: linear-gradient(155deg, #7d2020, #631717);
-      }
-      .danger-zone form {
-        margin-top: 10px;
-      }
-      .danger-zone label {
-        text-transform: none;
-        letter-spacing: normal;
-      }
-      .section-toggle {
-        margin: 0;
-      }
-      .section-toggle > summary {
-        cursor: pointer;
-        list-style: none;
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 2px;
-      }
-      .section-toggle > summary::-webkit-details-marker {
-        display: none;
-      }
-      .section-title {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #163b50;
-      }
-      .section-subtitle {
-        color: #496a7b;
-        font-size: 13px;
-      }
-      .section-body {
-        margin-top: 12px;
-      }
-      .helper-tune {
-        margin-top: 10px;
-        border: 1px solid rgba(22, 59, 80, 0.12);
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.5);
-        padding: 10px;
-      }
-      .helper-tune summary {
-        cursor: pointer;
-        font-weight: 700;
-        color: #1b4258;
-      }
-      .helper-tune .hint {
-        margin: 6px 0 8px 0;
-      }
-      .helper-grid {
-        display: grid;
-        gap: 8px;
-      }
-      .helper-grid textarea {
-        min-height: 70px;
-      }
-      .helper-grid button {
-        width: fit-content;
-      }
-      .helper-defaults {
-        margin-top: 8px;
-      }
-      .signal-kpis {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 8px;
-      }
-      .signal-kpi {
-        border: 1px solid rgba(22, 59, 80, 0.14);
-        border-radius: 10px;
-        padding: 8px 10px;
-        background: rgba(255, 255, 255, 0.46);
-        font-size: 13px;
-      }
-      .signal-grid {
-        margin-top: 12px;
-        display: grid;
-        gap: 12px;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      }
-      .signal-panel {
-        border: 1px solid rgba(22, 59, 80, 0.14);
-        border-radius: 12px;
-        padding: 12px;
-        background: rgba(255, 255, 255, 0.42);
-      }
-      .signal-list {
-        margin: 8px 0 0 0;
-        padding-left: 18px;
-        display: grid;
-        gap: 6px;
-      }
-      .signal-list li {
-        font-size: 13px;
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/teach_class.css' %}" />
   </head>
   <body class="glass-theme teacher-comfort" data-class-id="{{ classroom.id }}">
     <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -357,10 +42,10 @@
 
         <div class="card">
           {% if notice %}
-            <p class="notice" style="margin:0 0 12px 0;">{{ notice }}</p>
+            <p class="notice flash-banner">{{ notice }}</p>
           {% endif %}
           {% if error %}
-            <p class="error" style="margin:0 0 12px 0;">{{ error }}</p>
+            <p class="error flash-banner">{{ error }}</p>
           {% endif %}
           <details class="section-toggle">
             <summary>
@@ -416,8 +101,8 @@
                             <form method="post" action="/teach/class/{{ classroom.id }}/delete-student-data" class="delete-row" data-confirm="Delete all stored data for this student now?">
                               {% csrf_token %}
                               <input type="hidden" name="student_id" value="{{ st.id }}" />
-                              <label style="display:flex; gap:6px; align-items:center;">
-                                <input type="checkbox" name="confirm_delete" value="1" style="width:auto; margin:0;" required />
+                              <label class="inline-check-label">
+                                <input type="checkbox" name="confirm_delete" value="1" class="inline-check-input" required />
                                 Confirm delete
                               </label>
                               <button type="submit" class="danger-inline">Delete student data</button>
@@ -429,13 +114,13 @@
                   </table>
                 </div>
               {% else %}
-                <p class="muted" style="margin-top:12px">No students in roster yet.</p>
+                <p class="muted section-empty-note">No students in roster yet.</p>
               {% endif %}
 
               {% if students|length > 1 %}
                 <div class="merge-zone">
                   <strong>Merge student records</strong>
-                  <p class="muted mini" style="margin:6px 0 10px 0;">
+                  <p class="muted mini merge-note">
                     Use this when the same student appears twice after rejoining with class code.
                     The source student is removed, and submissions/events are moved to the destination student.
                   </p>
@@ -464,8 +149,8 @@
                           {% endfor %}
                         </select>
                       </label>
-                      <label style="display:flex; gap:6px; align-items:center; min-width:auto;">
-                        <input type="checkbox" name="confirm_merge" value="1" style="width:auto; margin:0;" required />
+                      <label class="inline-check-label merge-confirm-label">
+                        <input type="checkbox" name="confirm_merge" value="1" class="inline-check-input" required />
                         Confirm merge
                       </label>
                       <button type="submit">Merge students</button>
@@ -476,30 +161,30 @@
 
               <div class="danger-zone">
                 <strong>Reset roster</strong>
-                <p class="muted mini" style="margin:6px 0 0 0;">
+                <p class="muted mini danger-copy">
                   This removes all students in this class and deletes their submissions. Active student sessions are invalidated immediately.
                 </p>
                 <form method="post" action="/teach/class/{{ classroom.id }}/reset-roster" data-confirm="Reset roster for this class? This deletes students and submissions.">
                   {% csrf_token %}
-                  <label style="display:flex; align-items:center; gap:8px; margin-top:0;">
-                    <input type="checkbox" name="rotate_code" value="1" checked style="width:auto; margin:0;" />
+                  <label class="inline-check-label no-top-margin">
+                    <input type="checkbox" name="rotate_code" value="1" checked class="inline-check-input" />
                     Rotate class join code after reset
                   </label>
                   <button type="submit">Reset roster now</button>
                 </form>
-                <hr style="border:none; border-top:1px solid var(--line); margin:14px 0;" />
+                <hr class="danger-divider" />
                 <strong>Reset helper conversations</strong>
-                <p class="muted mini" style="margin:6px 0 0 0;">
+                <p class="muted mini danger-copy">
                   Exports a class helper snapshot (for internal research) and then clears cached helper chat history for this class only.
                 </p>
                 <form method="post" action="/teach/class/{{ classroom.id }}/reset-helper-conversations" data-confirm="Reset helper conversations for this class?">
                   {% csrf_token %}
                   <input type="hidden" name="export_before_reset" value="0" />
-                  <label style="display:flex; align-items:center; gap:8px; margin-top:0;">
-                    <input type="checkbox" name="export_before_reset" value="1" checked style="width:auto; margin:0;" />
+                  <label class="inline-check-label no-top-margin">
+                    <input type="checkbox" name="export_before_reset" value="1" checked class="inline-check-input" />
                     Export snapshot before clearing cache
                   </label>
-                  <p class="muted mini" style="margin:6px 0 10px 0;">
+                  <p class="muted mini merge-note">
                     Access to exported helper data is limited to class teachers and createMPLS administrators.
                   </p>
                   <button type="submit">Reset helper conversations</button>
@@ -544,7 +229,7 @@
                   </div>
                 </div>
               {% else %}
-                <p class="muted mini" style="margin-top:12px;">No helper activity in this window yet.</p>
+                <p class="muted mini section-empty-note">No helper activity in this window yet.</p>
               {% endif %}
             </div>
           </details>
@@ -730,7 +415,7 @@
                   </table>
                 </div>
               {% else %}
-                <p class="muted" style="margin-top:12px">No course lesson links detected in this class yet.</p>
+                <p class="muted section-empty-note">No course lesson links detected in this class yet.</p>
               {% endif %}
             </div>
           </details>
@@ -743,12 +428,12 @@
               <span class="section-subtitle">Order matters. Keep it predictable.</span>
             </summary>
             <div class="section-body">
-              <div style="max-width:520px">
+              <div class="module-editor-form-wrap">
                 <form method="post" action="/teach/class/{{ classroom.id }}/add-module">
                   {% csrf_token %}
                   <label for="module-title">New module title</label>
                   <input id="module-title" name="title" placeholder="e.g., Session 5 — Scratch Motion + Loops" />
-                  <button type="submit" style="margin-top:10px">Add module</button>
+                  <button type="submit" class="module-add-button">Add module</button>
                 </form>
               </div>
 
@@ -794,19 +479,19 @@
                           {% if mat.type == 'link' and mat.url %}
                             <div class="muted mini"><a href="{{ mat.url }}" target="_blank" rel="noopener">Open link</a></div>
                           {% elif mat.type == 'text' and mat.body %}
-                            <pre style="margin-top:8px;">{{ mat.body|truncatechars:280 }}</pre>
+                            <pre class="module-text-preview">{{ mat.body|truncatechars:280 }}</pre>
                           {% elif mat.type == 'upload' %}
                             <div class="muted mini">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
                           {% endif %}
                         </div>
                       {% endfor %}
                     {% else %}
-                      <div class="muted mini" style="margin-top:10px">No materials yet.</div>
+                      <div class="muted mini module-empty-note">No materials yet.</div>
                     {% endif %}
                   </div>
                 {% endfor %}
               {% else %}
-                <p class="muted" style="margin-top:12px">No modules yet.</p>
+                <p class="muted section-empty-note">No modules yet.</p>
               {% endif %}
             </div>
           </details>
