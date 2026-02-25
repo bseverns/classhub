@@ -8,6 +8,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Auth model: student access](#auth-model-student-access)
 - [Service boundary: Homework Helper separate service](#service-boundary-homework-helper-separate-service)
 - [Helper engine modularization seam](#helper-engine-modularization-seam)
+- [Student join service seam](#student-join-service-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
@@ -226,6 +227,20 @@ Historical implementation logs and superseded decisions are archived by month in
 - Reduces change risk by preserving endpoint behavior and test patch targets while creating a clean seam for future streaming/new providers.
 - Makes backend retry/circuit/reference code independently testable without expanding view-layer complexity.
 - Keeps tests focused on runtime behavior while reducing brittle coupling to temporary view compatibility shims.
+
+## Student join service seam
+
+**Current decision:**
+- Keep student view endpoints as I/O adapters and move join/session mechanics into dedicated service helpers in `hub/services/student_join.py`.
+- Service layer now owns:
+  - return-code + device-hint + name-match identity resolution,
+  - student identity allocation with return-code collision retries,
+  - signed device-hint cookie issue/clear behavior.
+- `join_class` in `hub/views/student.py` keeps request parsing, locking/transaction boundaries, session mutation, response shaping, and event emission.
+
+**Why this remains active:**
+- Reduces “big file gravity” in student views while preserving endpoint behavior.
+- Creates a stable seam for future join/auth policy changes without high-risk view rewrites.
 
 ## Routing mode: local vs domain Caddy configs
 

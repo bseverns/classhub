@@ -8,8 +8,6 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 from django.conf import settings
-from django.core import signing
-from django.core.signing import BadSignature, SignatureExpired
 from django.db import transaction
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.middleware.csrf import get_token, rotate_token
@@ -27,7 +25,6 @@ from ..models import (
     StudentEvent,
     StudentIdentity,
     Submission,
-    gen_student_return_code,
 )
 from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
 from ..services.content_links import parse_course_lesson_url
@@ -35,19 +32,18 @@ from ..services.filenames import safe_filename
 from ..services.ip_privacy import minimize_student_event_ip
 from ..services.markdown_content import load_lesson_markdown
 from ..services.release_state import lesson_release_override_map, lesson_release_state
+from ..services.student_join import (
+    JoinValidationError,
+    apply_device_hint_cookie,
+    clear_device_hint_cookie,
+    resolve_join_student,
+)
 from ..services.upload_scan import scan_uploaded_file
 from ..services.upload_validation import validate_upload_content
 from ..services.upload_policy import parse_extensions
 from common.request_safety import client_ip_from_request, fixed_window_allow
 
 logger = logging.getLogger(__name__)
-
-_DEVICE_HINT_SIGNING_SALT = "classhub.student-device-hint"
-
-
-def _device_hint_signing_key() -> str:
-    return getattr(settings, "DEVICE_HINT_SIGNING_KEY", settings.SECRET_KEY)
-
 
 def _json_no_store_response(payload: dict, *, status: int = 200, private: bool = False) -> JsonResponse:
     response = JsonResponse(payload, status=status)
@@ -80,19 +76,6 @@ def _helper_backend_label() -> str:
     if backend == "mock":
         return "Mock model (Test mode)"
     return "Model backend (Unknown)"
-
-
-def _clear_device_hint_cookie(response) -> None:
-    response.set_cookie(
-        getattr(settings, "DEVICE_REJOIN_COOKIE_NAME", "classhub_student_hint"),
-        "",
-        max_age=0,
-        expires="Thu, 01 Jan 1970 00:00:00 GMT",
-        path="/",
-        httponly=True,
-        samesite="Lax",
-        secure=not settings.DEBUG,
-    )
 
 
 def _emit_student_event(
@@ -144,92 +127,6 @@ def index(request):
     return response
 
 
-def _create_student_identity(classroom: Class, display_name: str) -> StudentIdentity:
-    for _ in range(20):
-        code = gen_student_return_code().upper()
-        if StudentIdentity.objects.filter(classroom=classroom, return_code=code).exists():
-            continue
-        return StudentIdentity.objects.create(
-            classroom=classroom,
-            display_name=display_name,
-            return_code=code,
-        )
-    raise RuntimeError("could_not_allocate_unique_student_return_code")
-
-
-def _device_hint_cookie_max_age_seconds() -> int:
-    days = int(getattr(settings, "DEVICE_REJOIN_MAX_AGE_DAYS", 30))
-    return max(days, 1) * 24 * 60 * 60
-
-
-def _load_device_hint_student(request, classroom: Class, display_name: str) -> StudentIdentity | None:
-    cookie_name = getattr(settings, "DEVICE_REJOIN_COOKIE_NAME", "classhub_student_hint")
-    raw = request.COOKIES.get(cookie_name)
-    if not raw:
-        return None
-    try:
-        payload = signing.loads(
-            raw,
-            key=_device_hint_signing_key(),
-            salt=_DEVICE_HINT_SIGNING_SALT,
-            max_age=_device_hint_cookie_max_age_seconds(),
-        )
-    except (BadSignature, SignatureExpired):
-        return None
-
-    try:
-        class_id = int(payload.get("class_id") or 0)
-        student_id = int(payload.get("student_id") or 0)
-    except Exception:
-        return None
-    if class_id != classroom.id or student_id <= 0:
-        return None
-
-    student = (
-        StudentIdentity.objects.filter(id=student_id, classroom=classroom)
-        .order_by("id")
-        .first()
-    )
-    if student is None:
-        return None
-    if student.display_name.strip().casefold() != display_name.strip().casefold():
-        return None
-    return student
-
-
-def _load_name_match_student(classroom: Class, display_name: str) -> StudentIdentity | None:
-    """Fallback rejoin by class + display-name match.
-
-    This intentionally prefers the oldest matching identity to keep behavior
-    deterministic when duplicate rows already exist.
-    """
-    normalized = (display_name or "").strip()
-    if not normalized:
-        return None
-    return (
-        StudentIdentity.objects.filter(classroom=classroom, display_name__iexact=normalized)
-        .order_by("id")
-        .first()
-    )
-
-
-def _apply_device_hint_cookie(response: JsonResponse, classroom: Class, student: StudentIdentity) -> None:
-    payload = {"class_id": classroom.id, "student_id": student.id}
-    signed = signing.dumps(
-        payload,
-        key=_device_hint_signing_key(),
-        salt=_DEVICE_HINT_SIGNING_SALT,
-    )
-    response.set_cookie(
-        getattr(settings, "DEVICE_REJOIN_COOKIE_NAME", "classhub_student_hint"),
-        signed,
-        max_age=_device_hint_cookie_max_age_seconds(),
-        httponly=True,
-        samesite="Lax",
-        secure=not settings.DEBUG,
-    )
-
-
 @require_POST
 def join_class(request):
     """Join via class code + display name.
@@ -276,35 +173,18 @@ def join_class(request):
 
     with transaction.atomic():
         Class.objects.select_for_update().filter(id=classroom.id).first()
-
-        student = None
-        rejoined = False
-        join_mode = "new"
-        if return_code:
-            student = (
-                StudentIdentity.objects.filter(classroom=classroom, return_code=return_code)
-                .order_by("id")
-                .first()
+        try:
+            join_result = resolve_join_student(
+                request=request,
+                classroom=classroom,
+                display_name=name,
+                return_code=return_code,
             )
-            if student is None:
-                return _json_no_store_response({"error": "invalid_return_code"}, status=400)
-            if student.display_name.strip().casefold() != name.strip().casefold():
-                return _json_no_store_response({"error": "invalid_return_code"}, status=400)
-            rejoined = True
-            join_mode = "return_code"
-        else:
-            student = _load_device_hint_student(request, classroom, name)
-            if student is not None:
-                rejoined = True
-                join_mode = "device_hint"
-            else:
-                student = _load_name_match_student(classroom, name)
-                if student is not None:
-                    rejoined = True
-                    join_mode = "name_match"
-
-        if student is None:
-            student = _create_student_identity(classroom, name)
+        except JoinValidationError as exc:
+            return _json_no_store_response({"error": exc.code}, status=400)
+        student = join_result.student
+        rejoined = join_result.rejoined
+        join_mode = join_result.join_mode
 
         student.last_seen_at = timezone.now()
         student.save(update_fields=["last_seen_at"])
@@ -317,7 +197,7 @@ def join_class(request):
     rotate_token(request)
 
     response = _json_no_store_response({"ok": True, "return_code": student.return_code, "rejoined": rejoined})
-    _apply_device_hint_cookie(response, classroom, student)
+    apply_device_hint_cookie(response, classroom=classroom, student=student)
     if join_mode == "return_code":
         event_type = StudentEvent.EVENT_REJOIN_RETURN_CODE
     elif join_mode in {"device_hint", "name_match"}:
@@ -606,7 +486,7 @@ def student_delete_work(request):
 def student_end_session(request):
     request.session.flush()
     response = redirect("/")
-    _clear_device_hint_cookie(response)
+    clear_device_hint_cookie(response)
     return response
 
 
@@ -801,7 +681,7 @@ def submission_download(request, submission_id: int):
 def student_logout(request):
     request.session.flush()
     response = redirect("/")
-    _clear_device_hint_cookie(response)
+    clear_device_hint_cookie(response)
     return response
 
 
