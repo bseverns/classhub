@@ -140,6 +140,8 @@ class TeacherPortalTests(TestCase):
 
         resp = self.client.get("/teach")
         self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/js/teach_home.js")
+        self.assertNotContains(resp, "const tabRoot = document.querySelector", html=False)
         self.assertContains(resp, "Recent submissions")
         self.assertContains(resp, "Ada")
         self.assertContains(resp, "Generate Course Authoring Templates")
@@ -1079,6 +1081,8 @@ class LessonReleaseTests(TestCase):
 
         resp = self.client.get("/course/piper_scratch_12_session/s01-welcome-private-workflow")
         self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/js/lesson_page.js")
+        self.assertNotContains(resp, "const items = Array.from(document.querySelectorAll('.video-item'))", html=False)
         self.assertContains(resp, "intro-only mode")
         self.assertNotContains(resp, "Homework dropbox")
 
@@ -1917,6 +1921,8 @@ class StudentDataControlsTests(TestCase):
         resp = self.client.get("/student/my-data")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["Cache-Control"], "private, no-store")
+        self.assertContains(resp, "/static/js/confirm_forms.js")
+        self.assertNotContains(resp, "onsubmit=\"return confirm(", html=False)
         self.assertContains(resp, "My submissions")
         self.assertContains(resp, "portfolio.sb3")
 
@@ -1995,6 +2001,8 @@ class OperatorProfileTemplateTests(TestCase):
         admin_login_resp = self.client.get("/admin/login/")
         self.assertEqual(admin_login_resp.status_code, 200)
         self.assertContains(admin_login_resp, "Northside School Admin Login")
+        self.assertContains(admin_login_resp, "/static/js/admin_login.js")
+        self.assertNotContains(admin_login_resp, 'var form = document.getElementById("login-form")', html=False)
 
 
 class LessonAssetDownloadTests(TestCase):

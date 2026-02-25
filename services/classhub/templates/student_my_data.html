@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -93,7 +94,7 @@
           </div>
           <div class="actions">
             <a href="/student/portfolio-export">Download my work</a>
-            <form method="post" action="/student/delete-work" onsubmit="return confirm('Delete all of your submissions now?');">
+            <form method="post" action="/student/delete-work" data-confirm="Delete all of your submissions now?">
               {% csrf_token %}
               <button type="submit" class="danger">Delete my work now</button>
             </form>
@@ -135,5 +136,6 @@
         </div>
       </main>
     </div>
+    <script src="{% static 'js/confirm_forms.js' %}" defer></script>
   </body>
 </html>
