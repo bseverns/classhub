@@ -31,7 +31,11 @@
 
   <label class="visually-hidden helper-label" for="helper-input-0">Question for helper</label>
   <textarea id="helper-input-0" class="helper-input" placeholder="Ask for help…"></textarea>
-  <button class="helper-submit" type="button">{{ helper_button_label|default:"Ask" }}</button>
+  <div class="helper-controls">
+    <button class="helper-submit" type="button">{{ helper_button_label|default:"Ask" }}</button>
+    <button class="helper-reset" type="button">Reset chat</button>
+  </div>
+  <div class="helper-transcript" role="log" aria-live="polite"></div>
   <pre class="helper-output" role="status" aria-live="polite"></pre>
   <div class="helper-citations" hidden>
     <div class="helper-citations-title">Lesson references used</div>

@@ -12,6 +12,13 @@
   };
   const csrfToken = () => getCookie("csrftoken") || "";
 
+  const newConversationId = () => {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      return window.crypto.randomUUID();
+    }
+    return "conv-" + Math.random().toString(16).slice(2) + Date.now().toString(16);
+  };
+
   const widgets = document.querySelectorAll(".helper-widget");
   const QUICK_PROMPTS = {
     piper: [
@@ -124,7 +131,9 @@
     const label = widget.querySelector(".helper-label");
     const textarea = widget.querySelector(".helper-input");
     const button = widget.querySelector(".helper-submit");
+    const resetButton = widget.querySelector(".helper-reset");
     const output = widget.querySelector(".helper-output");
+    const transcript = widget.querySelector(".helper-transcript");
     const citationWrap = widget.querySelector(".helper-citations");
     const citationList = widget.querySelector(".helper-citations-list");
     const quickWrap = widget.querySelector(".helper-quick-wrap");
@@ -136,10 +145,35 @@
     const helperReference = (widget.dataset.helperReference || "").trim();
     const helperContext = (widget.dataset.helperContext || "").trim();
     const helperTopics = (widget.dataset.helperTopics || "").trim();
+    let conversationId = newConversationId();
 
     const setOutput = (txt) => {
       output.textContent = txt;
     };
+
+    const appendTurn = (role, text) => {
+      if (!transcript) return;
+      const turn = document.createElement("div");
+      turn.className = `helper-turn helper-turn--${role === "student" ? "student" : "assistant"}`;
+      const labelNode = document.createElement("span");
+      labelNode.className = "helper-turn-label";
+      labelNode.textContent = role === "student" ? "You" : "Helper";
+      const contentNode = document.createElement("div");
+      contentNode.textContent = text;
+      turn.appendChild(labelNode);
+      turn.appendChild(contentNode);
+      transcript.appendChild(turn);
+      transcript.scrollTop = transcript.scrollHeight;
+    };
+
+    const clearTranscript = () => {
+      if (!transcript) return;
+      transcript.innerHTML = "";
+      renderCitations([]);
+      setOutput("Conversation reset.");
+      conversationId = newConversationId();
+    };
+
     const renderCitations = (rows) => {
       if (!citationWrap || !citationList) return;
       const citations = Array.isArray(rows) ? rows : [];
@@ -163,7 +197,16 @@
       citationWrap.hidden = false;
     };
 
-    const setQuickActionsBusy = (disabled) => {
+    const setControlsBusy = (disabled) => {
+      button.disabled = disabled;
+      if (disabled) {
+        button.setAttribute("aria-busy", "true");
+      } else {
+        button.removeAttribute("aria-busy");
+      }
+      if (resetButton) {
+        resetButton.disabled = disabled;
+      }
       if (!quickActions) return;
       quickActions.querySelectorAll(".helper-quick-action").forEach((quickBtn) => {
         quickBtn.disabled = disabled;
@@ -178,15 +221,19 @@
         return;
       }
       textarea.value = message;
-      button.disabled = true;
-      button.setAttribute("aria-busy", "true");
-      setQuickActionsBusy(true);
+      appendTurn("student", message);
+      setControlsBusy(true);
       setOutput("Thinking…");
+
       try {
-        const payload = { message };
+        const payload = {
+          message,
+          conversation_id: conversationId,
+        };
         if (scopeToken) {
           payload.scope_token = scopeToken;
         }
+
         const res = await fetch("/helper/chat", {
           method: "POST",
           headers: {
@@ -196,6 +243,7 @@
           credentials: "same-origin",
           body: JSON.stringify(payload),
         });
+
         let data = null;
         const contentType = (res.headers.get("Content-Type") || "").toLowerCase();
         if (contentType.includes("application/json")) {
@@ -205,27 +253,35 @@
             data = null;
           }
         }
+
+        if (data && typeof data.conversation_id === "string" && data.conversation_id.trim()) {
+          conversationId = data.conversation_id.trim();
+        }
+
         if (!res.ok) {
           const requestIdHeader = (res.headers.get("X-Request-ID") || "").trim();
-          setOutput(
-            formatHelperErrorText({
-              status: res.status,
-              data,
-              headerRequestId: requestIdHeader,
-            }),
-          );
+          const errorText = formatHelperErrorText({
+            status: res.status,
+            data,
+            headerRequestId: requestIdHeader,
+          });
+          appendTurn("assistant", errorText);
+          setOutput(errorText);
           renderCitations([]);
           return;
         }
-        setOutput((data && data.text) || "(no output)");
+
+        const responseText = (data && data.text) || "(no output)";
+        appendTurn("assistant", responseText);
+        setOutput("");
         renderCitations((data && data.citations) || []);
-      } catch (err) {
-        setOutput("Helper error: network_failure");
+      } catch (_err) {
+        const errText = "Helper error: network_failure";
+        appendTurn("assistant", errText);
+        setOutput(errText);
         renderCitations([]);
       } finally {
-        button.disabled = false;
-        button.removeAttribute("aria-busy");
-        setQuickActionsBusy(false);
+        setControlsBusy(false);
       }
     };
 
@@ -253,5 +309,12 @@
     button.addEventListener("click", async () => {
       await sendMessage(textarea.value || "");
     });
+
+    if (resetButton) {
+      resetButton.addEventListener("click", () => {
+        if (button.disabled) return;
+        clearTranscript();
+      });
+    }
   });
 })();

@@ -76,6 +76,49 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp["Cache-Control"], "no-store")
         self.assertEqual(resp["Pragma"], "no-cache")
         self.assertEqual(resp.json().get("text"), "Hint")
+        self.assertTrue(resp.json().get("conversation_id"))
+
+    @patch("tutor.engine.backends.invoke_backend")
+    def test_chat_reuses_recent_turns_when_conversation_id_is_reused(self, invoke_backend_mock):
+        self._set_student_session()
+        invoke_backend_mock.side_effect = [("First answer", "fake-model"), ("Second answer", "fake-model")]
+        conversation_id = "123e4567-e89b-12d3-a456-426614174000"
+
+        first = self._post_chat({"message": "First question", "conversation_id": conversation_id})
+        self.assertEqual(first.status_code, 200)
+        second = self._post_chat({"message": "Second question", "conversation_id": conversation_id})
+        self.assertEqual(second.status_code, 200)
+
+        second_backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
+        self.assertIn("Recent conversation:", second_backend_message)
+        self.assertIn("Student: First question", second_backend_message)
+        self.assertIn("Tutor: First answer", second_backend_message)
+        self.assertIn("Student (latest):", second_backend_message)
+        self.assertIn("Second question", second_backend_message)
+
+    @patch("tutor.engine.backends.invoke_backend")
+    def test_chat_reset_conversation_clears_cached_turns(self, invoke_backend_mock):
+        self._set_student_session()
+        invoke_backend_mock.side_effect = [
+            ("Initial answer", "fake-model"),
+            ("Reset answer", "fake-model"),
+        ]
+        conversation_id = "123e4567-e89b-12d3-a456-426614174001"
+
+        first = self._post_chat({"message": "Initial question", "conversation_id": conversation_id})
+        self.assertEqual(first.status_code, 200)
+        reset = self._post_chat(
+            {
+                "message": "After reset",
+                "conversation_id": conversation_id,
+                "reset_conversation": True,
+            }
+        )
+        self.assertEqual(reset.status_code, 200)
+
+        second_backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
+        self.assertNotIn("Initial question", second_backend_message)
+        self.assertNotIn("Initial answer", second_backend_message)
 
     @override_settings(
         CLASSHUB_INTERNAL_EVENTS_URL="http://classhub_web:8000/internal/events/helper-chat-access",

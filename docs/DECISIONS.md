@@ -31,6 +31,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Glass theme static assets](#glass-theme-static-assets)
 - [Helper widget static assets](#helper-widget-static-assets)
 - [Helper widget error transparency](#helper-widget-error-transparency)
+- [Helper conversation memory](#helper-conversation-memory)
 - [Coursepack validation gate](#coursepack-validation-gate)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
@@ -565,6 +566,23 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces MTTR during class sessions by making helper failures diagnosable without immediate shell access.
 - Gives staff a stable request id they can match against helper/classhub logs.
+
+## Helper conversation memory
+
+**Current decision:**
+- Helper chat now accepts/returns a `conversation_id` and uses it to keep short-lived context across follow-up turns.
+- Conversation turns are cached (not persisted in SQL) and isolated by actor + scope token + conversation id.
+- Stored turns are redacted and bounded by env controls:
+  - `HELPER_CONVERSATION_ENABLED`
+  - `HELPER_CONVERSATION_MAX_MESSAGES`
+  - `HELPER_CONVERSATION_TTL_SECONDS`
+  - `HELPER_CONVERSATION_TURN_MAX_CHARS`
+  - `HELPER_CONVERSATION_HISTORY_MAX_CHARS`
+- Student UI now shows a transcript and includes a `Reset chat` action that starts a fresh conversation id.
+
+**Why this remains active:**
+- Makes helper responses meaningfully conversational without introducing long-term transcript retention by default.
+- Preserves privacy boundaries while improving tutoring quality for clarifying follow-up questions.
 
 ## Coursepack validation gate
 

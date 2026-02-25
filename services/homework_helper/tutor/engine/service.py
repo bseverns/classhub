@@ -39,6 +39,12 @@ class ChatDeps:
     acquire_slot: Callable[[int, float, float, int], tuple[str | None, str | None]]
     release_slot: Callable[[str | None, str | None], None]
     truncate_response_text: Callable[[str], tuple[str, bool]]
+    normalize_conversation_id: Callable[[str], str]
+    scope_fingerprint: Callable[[str], str]
+    load_conversation_turns: Callable[..., list[dict]]
+    save_conversation_turns: Callable[..., None]
+    clear_conversation_turns: Callable[..., None]
+    format_conversation_for_prompt: Callable[..., str]
 
 
 def handle_chat(
@@ -46,6 +52,7 @@ def handle_chat(
     request,
     payload: dict,
     request_id: str,
+    actor_key: str,
     actor_type: str,
     client_ip: str,
     settings,
@@ -55,6 +62,15 @@ def handle_chat(
     bad_signature_exc: type[Exception],
     deps: ChatDeps,
 ):
+    conversation_id = deps.normalize_conversation_id(str(payload.get("conversation_id") or ""))
+    conversation_enabled = False
+
+    def _response(body: dict, *, status: int = 200):
+        payload_with_conversation = dict(body or {})
+        payload_with_conversation["conversation_id"] = conversation_id
+        payload_with_conversation["conversation_enabled"] = conversation_enabled
+        return deps.json_response(payload_with_conversation, status=status, request_id=request_id)
+
     scope_token = str(payload.get("scope_token") or "").strip()
     context_value = ""
     topics: list[str] = []
@@ -75,15 +91,15 @@ def handle_chat(
             scope_verified = True
         except signature_expired_exc:
             deps.log_chat_event("warning", "scope_token_expired", request_id=request_id, actor_type=actor_type, ip=client_ip)
-            return deps.json_response({"error": "invalid_scope_token"}, status=400, request_id=request_id)
+            return _response({"error": "invalid_scope_token"}, status=400)
         except (bad_signature_exc, ValueError):
             deps.log_chat_event("warning", "scope_token_invalid", request_id=request_id, actor_type=actor_type, ip=client_ip)
-            return deps.json_response({"error": "invalid_scope_token"}, status=400, request_id=request_id)
+            return _response({"error": "invalid_scope_token"}, status=400)
     else:
         require_scope_for_staff = bool(getattr(settings, "HELPER_REQUIRE_SCOPE_TOKEN_FOR_STAFF", False))
         if actor_type == "student" or (actor_type == "staff" and require_scope_for_staff):
             deps.log_chat_event("warning", "scope_token_missing", request_id=request_id, actor_type=actor_type, ip=client_ip)
-            return deps.json_response({"error": "missing_scope_token"}, status=400, request_id=request_id)
+            return _response({"error": "missing_scope_token"}, status=400)
         if any(payload.get(k) for k in ("context", "topics", "allowed_topics", "reference")):
             deps.log_chat_event(
                 "info",
@@ -93,11 +109,59 @@ def handle_chat(
                 ip=client_ip,
             )
 
+    conversation_enabled = deps.env_bool("HELPER_CONVERSATION_ENABLED", True) and bool(actor_key)
+    conversation_scope_fp = deps.scope_fingerprint(scope_token)
+    max_conversation_messages = max(deps.env_int("HELPER_CONVERSATION_MAX_MESSAGES", 8), 0)
+    conversation_ttl_seconds = max(deps.env_int("HELPER_CONVERSATION_TTL_SECONDS", 3600), 60)
+    conversation_turn_max_chars = max(deps.env_int("HELPER_CONVERSATION_TURN_MAX_CHARS", 800), 80)
+    conversation_history_max_chars = max(deps.env_int("HELPER_CONVERSATION_HISTORY_MAX_CHARS", 2400), 300)
+    if max_conversation_messages <= 0:
+        conversation_enabled = False
+
+    if conversation_enabled and bool(payload.get("reset_conversation")):
+        deps.clear_conversation_turns(
+            conversation_id=conversation_id,
+            actor_key=actor_key,
+            scope_fingerprint=conversation_scope_fp,
+        )
+
+    history_turns: list[dict] = []
+    if conversation_enabled:
+        history_turns = deps.load_conversation_turns(
+            conversation_id=conversation_id,
+            actor_key=actor_key,
+            scope_fingerprint=conversation_scope_fp,
+            max_messages=max_conversation_messages,
+        )
+
     message = (payload.get("message") or "").strip()
     if not message:
-        return deps.json_response({"error": "missing_message"}, status=400, request_id=request_id)
+        return _response({"error": "missing_message"}, status=400)
 
     message = deps.redact(message)[:8000]
+
+    def _persist_turns(assistant_text: str) -> None:
+        if not conversation_enabled:
+            return
+        user_turn = {"role": "student", "content": message[:conversation_turn_max_chars]}
+        assistant_turn = {"role": "assistant", "content": deps.redact(assistant_text)[:conversation_turn_max_chars]}
+        next_turns = [*history_turns, user_turn, assistant_turn]
+        if len(next_turns) > max_conversation_messages:
+            next_turns = next_turns[-max_conversation_messages:]
+        deps.save_conversation_turns(
+            conversation_id=conversation_id,
+            actor_key=actor_key,
+            scope_fingerprint=conversation_scope_fp,
+            turns=next_turns,
+            ttl_seconds=conversation_ttl_seconds,
+        )
+
+    conversation_prompt = ""
+    if conversation_enabled and history_turns:
+        conversation_prompt = deps.format_conversation_for_prompt(history_turns, max_chars=conversation_history_max_chars)
+    model_message = message
+    if conversation_prompt:
+        model_message = f"{conversation_prompt}\n\nStudent (latest):\n{message}"
 
     backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
     strictness = (os.getenv("HELPER_STRICTNESS", "light") or "light").lower()
@@ -110,7 +174,7 @@ def handle_chat(
             actor_type=actor_type,
             backend=backend,
         )
-        return deps.json_response({"error": "remote_backend_not_acknowledged"}, status=503, request_id=request_id)
+        return _response({"error": "remote_backend_not_acknowledged"}, status=503)
 
     reference_dir = os.getenv("HELPER_REFERENCE_DIR", "/app/tutor/reference").strip()
     reference_map_raw = os.getenv("HELPER_REFERENCE_MAP", "").strip()
@@ -135,21 +199,22 @@ def handle_chat(
     lang_keywords = env_keywords or default_text_language_keywords
     if deps.contains_text_language(message, lang_keywords) and deps.is_scratch_context(context_value or "", topics, reference_text):
         deps.log_chat_event("info", "policy_redirect_text_language", request_id=request_id, actor_type=actor_type, backend=backend)
-        return deps.json_response(
+        redirect_text = (
+            "We’re using Scratch blocks in this class, not text programming languages. "
+            "Tell me which Scratch block or part of your project you’re stuck on, "
+            "and I’ll help you with the Scratch version."
+        )
+        _persist_turns(redirect_text)
+        return _response(
             {
-                "text": (
-                    "We’re using Scratch blocks in this class, not text programming languages. "
-                    "Tell me which Scratch block or part of your project you’re stuck on, "
-                    "and I’ll help you with the Scratch version."
-                ),
+                "text": redirect_text,
                 "model": "",
                 "backend": backend,
                 "strictness": strictness,
                 "attempts": 0,
                 "scope_verified": scope_verified,
                 "citations": citations,
-            },
-            request_id=request_id,
+            }
         )
     if (
         deps.env_bool("HELPER_PIPER_HARDWARE_TRIAGE_ENABLED", True)
@@ -164,9 +229,11 @@ def handle_chat(
             actor_type=actor_type,
             backend=backend,
         )
-        return deps.json_response(
+        triage_text = deps.build_piper_hardware_triage_text(message)
+        _persist_turns(triage_text)
+        return _response(
             {
-                "text": deps.build_piper_hardware_triage_text(message),
+                "text": triage_text,
                 "model": "",
                 "backend": backend,
                 "strictness": strictness,
@@ -174,28 +241,28 @@ def handle_chat(
                 "scope_verified": scope_verified,
                 "triage_mode": "piper_hardware",
                 "citations": citations,
-            },
-            request_id=request_id,
+            }
         )
     if allowed_topics:
         filter_mode = (os.getenv("HELPER_TOPIC_FILTER_MODE", "soft") or "soft").lower()
         if filter_mode == "strict" and not deps.allowed_topic_overlap(message, allowed_topics):
             deps.log_chat_event("info", "policy_redirect_allowed_topics", request_id=request_id, actor_type=actor_type, backend=backend)
-            return deps.json_response(
+            redirect_text = (
+                "Let’s keep this focused on today’s lesson topics: "
+                + ", ".join(allowed_topics)
+                + ". Which part of that do you need help with?"
+            )
+            _persist_turns(redirect_text)
+            return _response(
                 {
-                    "text": (
-                        "Let’s keep this focused on today’s lesson topics: "
-                        + ", ".join(allowed_topics)
-                        + ". Which part of that do you need help with?"
-                    ),
+                    "text": redirect_text,
                     "model": "",
                     "backend": backend,
                     "strictness": strictness,
                     "attempts": 0,
                     "scope_verified": scope_verified,
                     "citations": citations,
-                },
-                request_id=request_id,
+                }
             )
     instructions = deps.build_instructions(
         strictness,
@@ -209,7 +276,7 @@ def handle_chat(
 
     if deps.backend_circuit_is_open(backend):
         deps.log_chat_event("warning", "backend_circuit_open", request_id=request_id, backend=backend)
-        return deps.json_response({"error": "backend_unavailable"}, status=503, request_id=request_id)
+        return _response({"error": "backend_unavailable"}, status=503)
 
     max_concurrency = deps.env_int("HELPER_MAX_CONCURRENCY", 2)
     max_wait = deps.env_float("HELPER_QUEUE_MAX_WAIT_SECONDS", 10.0)
@@ -250,20 +317,20 @@ def handle_chat(
                 backend=backend,
                 queue_wait_ms=queue_wait_ms,
             )
-            return deps.json_response({"error": "busy"}, status=503, request_id=request_id)
+            return _response({"error": "busy"}, status=503)
 
     attempts_used = 0
     model_used = ""
     try:
-        text, model_used, attempts_used = deps.call_backend_with_retries(backend, instructions, message)
+        text, model_used, attempts_used = deps.call_backend_with_retries(backend, instructions, model_message)
     except RuntimeError as exc:
         deps.record_backend_failure(backend)
         if str(exc) == "openai_not_installed":
             deps.log_chat_event("error", "openai_not_installed", request_id=request_id, backend=backend)
-            return deps.json_response({"error": "openai_not_installed"}, status=500, request_id=request_id)
+            return _response({"error": "openai_not_installed"}, status=500)
         if str(exc) == "unknown_backend":
             deps.log_chat_event("error", "unknown_backend", request_id=request_id, backend=backend)
-            return deps.json_response({"error": "unknown_backend"}, status=500, request_id=request_id)
+            return _response({"error": "unknown_backend"}, status=500)
         deps.log_chat_event(
             "error",
             "backend_runtime_error",
@@ -271,25 +338,26 @@ def handle_chat(
             backend=backend,
             error_type=exc.__class__.__name__,
         )
-        return deps.json_response({"error": "backend_error"}, status=502, request_id=request_id)
+        return _response({"error": "backend_error"}, status=502)
     except (urllib.error.URLError, urllib.error.HTTPError):
         deps.record_backend_failure(backend)
         deps.log_chat_event("error", "backend_transport_error", request_id=request_id, backend=backend)
         if backend == "ollama":
-            return deps.json_response({"error": "ollama_error"}, status=502, request_id=request_id)
-        return deps.json_response({"error": "backend_error"}, status=502, request_id=request_id)
+            return _response({"error": "ollama_error"}, status=502)
+        return _response({"error": "backend_error"}, status=502)
     except ValueError:
         deps.record_backend_failure(backend)
         deps.log_chat_event("error", "backend_parse_error", request_id=request_id, backend=backend)
-        return deps.json_response({"error": "backend_error"}, status=502, request_id=request_id)
+        return _response({"error": "backend_error"}, status=502)
     except Exception:
         deps.record_backend_failure(backend)
         deps.log_chat_event("error", "backend_error", request_id=request_id, backend=backend)
-        return deps.json_response({"error": "backend_error"}, status=502, request_id=request_id)
+        return _response({"error": "backend_error"}, status=502)
     finally:
         deps.release_slot(slot_key, token)
 
     safe_text, truncated = deps.truncate_response_text(text or "")
+    _persist_turns(safe_text)
 
     deps.reset_backend_failure_state(backend)
     total_ms = int((time.monotonic() - started_at) * 1000)
@@ -305,7 +373,7 @@ def handle_chat(
         truncated=truncated,
         total_ms=total_ms,
     )
-    return deps.json_response(
+    return _response(
         {
             "text": safe_text,
             "model": model_used,
@@ -317,7 +385,5 @@ def handle_chat(
             "truncated": truncated,
             "scope_verified": scope_verified,
             "citations": citations,
-        },
-        request_id=request_id,
+        }
     )
-

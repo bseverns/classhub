@@ -37,6 +37,11 @@ HELPER_REFERENCE_DIR=/app/tutor/reference
 HELPER_REFERENCE_MAP={"piper_scratch":"piper_scratch.md"}
 HELPER_SCOPE_TOKEN_MAX_AGE_SECONDS=7200
 HELPER_RESPONSE_MAX_CHARS=2200
+HELPER_CONVERSATION_ENABLED=1
+HELPER_CONVERSATION_MAX_MESSAGES=8
+HELPER_CONVERSATION_TTL_SECONDS=3600
+HELPER_CONVERSATION_TURN_MAX_CHARS=800
+HELPER_CONVERSATION_HISTORY_MAX_CHARS=2400
 HELPER_MAX_CONCURRENCY=2
 HELPER_QUEUE_MAX_WAIT_SECONDS=10
 HELPER_QUEUE_POLL_SECONDS=0.2
@@ -48,6 +53,11 @@ HELPER_CIRCUIT_BREAKER_TTL_SECONDS=30
 HELPER_TOPIC_FILTER_MODE=strict
 HELPER_TEXT_LANGUAGE_KEYWORDS=pascal,python,java,javascript,typescript,c++,c#,csharp,ruby,php,go,golang,rust,swift,kotlin
 ```
+
+Conversation behavior:
+- Each chat request can include a `conversation_id`; the helper now returns one on every response.
+- Recent redacted turns are cached per `(actor, scope token, conversation_id)` with TTL, so follow-up questions can build on prior context.
+- Reset by starting a new `conversation_id` (UI `Reset chat` does this).
 
 ### Ollama (local)
 

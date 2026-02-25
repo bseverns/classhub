@@ -22,6 +22,7 @@ from .engine import auth as engine_auth
 from .engine import backends as engine_backends
 from .engine import circuit as engine_circuit
 from .engine import heuristics as engine_heuristics
+from .engine import memory as engine_memory
 from .engine import reference as engine_reference
 from .engine import runtime as engine_runtime
 from .engine import service as engine_service
@@ -245,6 +246,64 @@ def _load_reference_text(path_str: str) -> str:
     return engine_reference.load_reference_text(path_str, logger=logger)
 
 
+def _normalize_conversation_id(raw: str) -> str:
+    return engine_memory.normalize_conversation_id(raw)
+
+
+def _conversation_scope_fingerprint(scope_token: str) -> str:
+    return engine_memory.scope_fingerprint(scope_token)
+
+
+def _load_conversation_turns(*, conversation_id: str, actor_key: str, scope_fingerprint: str, max_messages: int) -> list[dict]:
+    key = engine_memory.conversation_cache_key(
+        actor_key=actor_key,
+        scope_fp=scope_fingerprint,
+        conversation_id=conversation_id,
+    )
+    return engine_memory.load_turns(
+        cache_backend=cache,
+        key=key,
+        max_messages=max_messages,
+    )
+
+
+def _save_conversation_turns(
+    *,
+    conversation_id: str,
+    actor_key: str,
+    scope_fingerprint: str,
+    turns: list[dict],
+    ttl_seconds: int,
+) -> None:
+    key = engine_memory.conversation_cache_key(
+        actor_key=actor_key,
+        scope_fp=scope_fingerprint,
+        conversation_id=conversation_id,
+    )
+    engine_memory.save_turns(
+        cache_backend=cache,
+        key=key,
+        turns=turns,
+        ttl_seconds=ttl_seconds,
+    )
+
+
+def _clear_conversation_turns(*, conversation_id: str, actor_key: str, scope_fingerprint: str) -> None:
+    key = engine_memory.conversation_cache_key(
+        actor_key=actor_key,
+        scope_fp=scope_fingerprint,
+        conversation_id=conversation_id,
+    )
+    engine_memory.clear_turns(
+        cache_backend=cache,
+        key=key,
+    )
+
+
+def _format_conversation_for_prompt(turns: list[dict], *, max_chars: int) -> str:
+    return engine_memory.format_turns_for_prompt(turns=turns, max_chars=max_chars)
+
+
 @require_GET
 def healthz(request):
     backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
@@ -338,11 +397,18 @@ def chat(request):
         acquire_slot=acquire_slot,
         release_slot=release_slot,
         truncate_response_text=_truncate_response_text,
+        normalize_conversation_id=_normalize_conversation_id,
+        scope_fingerprint=_conversation_scope_fingerprint,
+        load_conversation_turns=_load_conversation_turns,
+        save_conversation_turns=_save_conversation_turns,
+        clear_conversation_turns=_clear_conversation_turns,
+        format_conversation_for_prompt=_format_conversation_for_prompt,
     )
     return engine_service.handle_chat(
         request=request,
         payload=payload,
         request_id=request_id,
+        actor_key=actor,
         actor_type=actor_type,
         client_ip=client_ip,
         settings=settings,
