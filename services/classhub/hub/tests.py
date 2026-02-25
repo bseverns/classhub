@@ -238,6 +238,9 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(resp["Cache-Control"], "private, no-store")
         self.assertContains(resp, "••••••")
         self.assertNotContains(resp, "data-secret-code=")
+        self.assertContains(resp, "/static/js/teach_class.js")
+        self.assertNotContains(resp, "returnCodeBaseUrl = ", html=False)
+        self.assertNotContains(resp, "onsubmit=\"return confirm(", html=False)
         self.assertNotContains(resp, f">{student.return_code}<", html=False)
         self.assertContains(resp, "Show")
 
@@ -1099,6 +1102,9 @@ class LessonReleaseTests(TestCase):
         self.assertEqual(resp["Cache-Control"], "private, no-store")
         self.assertContains(resp, "••••••")
         self.assertNotContains(resp, "data-secret-code=")
+        self.assertContains(resp, "/static/js/student_class.js")
+        self.assertNotContains(resp, "returnCodeUrl = ", html=False)
+        self.assertNotContains(resp, "onsubmit=\"return confirm(", html=False)
         self.assertNotContains(resp, f">{self.student.return_code}<", html=False)
         self.assertContains(resp, "Copy return code")
 
