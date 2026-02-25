@@ -367,7 +367,11 @@ def _write_class_reset_archive(*, class_id: int, request_id: str, conversations:
     if not archive_dir:
         raise RuntimeError("archive_directory_not_configured")
 
-    os.makedirs(archive_dir, exist_ok=True)
+    os.makedirs(archive_dir, mode=0o750, exist_ok=True)
+    try:
+        os.chmod(archive_dir, 0o750)
+    except Exception:
+        pass
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     req_fragment = re.sub(r"[^a-zA-Z0-9]", "", str(request_id or ""))[:12] or "reset"
     filename = f"class_{int(class_id)}_helper_reset_{stamp}_{req_fragment}.json"
@@ -380,6 +384,10 @@ def _write_class_reset_archive(*, class_id: int, request_id: str, conversations:
     }
     with open(archive_path, "w", encoding="utf-8") as handle:
         json.dump(payload, handle, ensure_ascii=True, indent=2)
+    try:
+        os.chmod(archive_path, 0o640)
+    except Exception:
+        pass
     return archive_path, len(conversations)
 
 

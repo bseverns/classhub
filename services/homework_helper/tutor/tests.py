@@ -99,6 +99,32 @@ class HelperChatAuthTests(TestCase):
         self.assertIn("Second question", second_backend_message)
 
     @patch("tutor.engine.backends.invoke_backend")
+    @patch.dict(
+        "os.environ",
+        {
+            "HELPER_CONVERSATION_TTL_SECONDS": "1",
+        },
+        clear=False,
+    )
+    def test_chat_drops_conversation_history_after_ttl_expiry(self, invoke_backend_mock):
+        self._set_student_session()
+        invoke_backend_mock.side_effect = [("First answer", "fake-model"), ("After expiry", "fake-model")]
+        conversation_id = "123e4567-e89b-12d3-a456-426614174002"
+
+        first = self._post_chat({"message": "First question", "conversation_id": conversation_id})
+        self.assertEqual(first.status_code, 200)
+
+        time.sleep(1.2)
+
+        second = self._post_chat({"message": "Second question", "conversation_id": conversation_id})
+        self.assertEqual(second.status_code, 200)
+        second_backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
+        self.assertNotIn("Recent conversation:", second_backend_message)
+        self.assertNotIn("First question", second_backend_message)
+        self.assertNotIn("First answer", second_backend_message)
+        self.assertIn("Second question", second_backend_message)
+
+    @patch("tutor.engine.backends.invoke_backend")
     def test_chat_reset_conversation_clears_cached_turns(self, invoke_backend_mock):
         self._set_student_session()
         invoke_backend_mock.side_effect = [

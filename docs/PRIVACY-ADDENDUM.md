@@ -87,6 +87,9 @@ flowchart LR
   - `generic`: `portfolio_YYYYMMDD.zip`.
   - `descriptive`: `<class>_<student>_portfolio_YYYYMMDD.zip`.
 - Retention maintenance entrypoint: `scripts/retention_maintenance.sh`.
+- Helper reset archive retention defaults:
+  - `RETENTION_HELPER_EXPORT_DAYS=180` (set `0` to skip age-based cleanup)
+  - `RETENTION_HELPER_EXPORT_DIR=/uploads/helper_reset_exports`
 - Backups should be pruned with the same policy window used for live data.
 
 ## Data That Stays Local
@@ -115,6 +118,7 @@ flowchart LR
 ## Operational Logging
 - Logged:
   - request id (`request_id`), route-level status/error class, timing (`queue_wait_ms`, `total_ms`), backend name.
+  - helper class-reset archive metadata in teacher audit events (`archived_conversations`, `archive_path`) when export-before-reset is enabled.
 - Not logged by design:
   - student names, return codes, raw helper prompts, submission file contents, filenames in helper event forwarding logs.
 - Log rotation/retention:

@@ -462,6 +462,14 @@ cd /srv/lms/app
 bash scripts/retention_maintenance.sh --compose-mode prod
 ```
 
+Helper reset export retention (optional override):
+
+```bash
+export RETENTION_HELPER_EXPORT_DAYS=180
+export RETENTION_HELPER_EXPORT_DIR=/uploads/helper_reset_exports
+bash scripts/retention_maintenance.sh --compose-mode prod
+```
+
 Optional webhook alerts (for unattended runs):
 
 ```bash

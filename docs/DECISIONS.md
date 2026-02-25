@@ -866,6 +866,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Use `scripts/retention_maintenance.sh` as the single scheduled task entrypoint for:
   - `prune_submissions`
   - `prune_student_events` (with optional CSV export-before-delete)
+  - prune helper reset JSON exports (`RETENTION_HELPER_EXPORT_DAYS`, default 180)
   - `scavenge_orphan_uploads` (report/delete/off modes)
 - Optional webhook notifications report failures (and optional success) for unattended runs.
 - Provide reference systemd units in `ops/systemd/` for daily execution.

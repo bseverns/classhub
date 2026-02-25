@@ -7,6 +7,8 @@ COMPOSE_MODE="${COMPOSE_MODE:-prod}" # prod|dev
 RETENTION_SUBMISSION_DAYS="${RETENTION_SUBMISSION_DAYS:-90}"
 RETENTION_EVENT_DAYS="${RETENTION_EVENT_DAYS:-180}"
 RETENTION_EVENT_EXPORT_DIR="${RETENTION_EVENT_EXPORT_DIR:-/uploads/retention_exports}"
+RETENTION_HELPER_EXPORT_DAYS="${RETENTION_HELPER_EXPORT_DAYS:-180}"
+RETENTION_HELPER_EXPORT_DIR="${RETENTION_HELPER_EXPORT_DIR:-}"
 RETENTION_SCAVENGE_MODE="${RETENTION_SCAVENGE_MODE:-report}" # report|delete|off
 RETENTION_ALERT_WEBHOOK_URL="${RETENTION_ALERT_WEBHOOK_URL:-}"
 RETENTION_ALERT_ON_SUCCESS="${RETENTION_ALERT_ON_SUCCESS:-0}"
@@ -28,6 +30,10 @@ Options:
   --event-days <N>                Retention window for student events (default: 180; 0 skips)
   --event-export-dir <path>       In-container export dir for student event CSV snapshots
                                   (default: /uploads/retention_exports; empty disables export)
+  --helper-export-days <N>        Retention window for helper reset JSON exports
+                                  (default: 180; 0 skips)
+  --helper-export-dir <path>      In-container helper export dir override
+                                  (default: HELPER_CLASS_RESET_ARCHIVE_DIR or /uploads/helper_reset_exports)
   --scavenge <report|delete|off>  Orphan upload cleanup mode (default: report)
   --alert-webhook-url <url>       Optional webhook for failure/success alerts
   --alert-on-success              Send success alert in addition to failures
@@ -51,6 +57,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --event-export-dir)
       RETENTION_EVENT_EXPORT_DIR="$2"
+      shift 2
+      ;;
+    --helper-export-days)
+      RETENTION_HELPER_EXPORT_DAYS="$2"
+      shift 2
+      ;;
+    --helper-export-dir)
+      RETENTION_HELPER_EXPORT_DIR="$2"
       shift 2
       ;;
     --scavenge)
@@ -102,6 +116,10 @@ if ! [[ "${RETENTION_SUBMISSION_DAYS}" =~ ^[0-9]+$ ]]; then
 fi
 if ! [[ "${RETENTION_EVENT_DAYS}" =~ ^[0-9]+$ ]]; then
   echo "[retention] --event-days must be a non-negative integer" >&2
+  exit 1
+fi
+if ! [[ "${RETENTION_HELPER_EXPORT_DAYS}" =~ ^[0-9]+$ ]]; then
+  echo "[retention] --helper-export-days must be a non-negative integer" >&2
   exit 1
 fi
 case "${RETENTION_SCAVENGE_MODE}" in
@@ -171,6 +189,40 @@ else
   echo "[retention] skipping prune_student_events (event-days=0)"
 fi
 
+if (( RETENTION_HELPER_EXPORT_DAYS > 0 )); then
+  CURRENT_STEP="prune_helper_reset_exports"
+  echo "[retention] pruning helper reset exports older than ${RETENTION_HELPER_EXPORT_DAYS} days"
+  run_compose exec -T \
+    -e RETENTION_HELPER_EXPORT_DAYS="${RETENTION_HELPER_EXPORT_DAYS}" \
+    -e RETENTION_HELPER_EXPORT_DIR="${RETENTION_HELPER_EXPORT_DIR}" \
+    classhub_web sh -lc '
+      set -eu
+      days="${RETENTION_HELPER_EXPORT_DAYS:-180}"
+      dir="${RETENTION_HELPER_EXPORT_DIR:-${HELPER_CLASS_RESET_ARCHIVE_DIR:-/uploads/helper_reset_exports}}"
+      if [ ! -d "${dir}" ]; then
+        echo "[retention] helper export dir not found: ${dir} (skip)"
+        exit 0
+      fi
+      if [ "${days}" -le 0 ]; then
+        echo "[retention] skipping helper export prune (helper-export-days=0)"
+        exit 0
+      fi
+      cutoff=$((days - 1))
+      if [ "${cutoff}" -lt 0 ]; then
+        cutoff=0
+      fi
+      count="$(find "${dir}" -type f -name "class_*_helper_reset_*.json" -mtime +"${cutoff}" | wc -l | tr -d "[:space:]")"
+      if [ "${count}" = "0" ]; then
+        echo "[retention] no helper reset exports older than ${days} days in ${dir}"
+        exit 0
+      fi
+      echo "[retention] deleting ${count} helper reset export(s) older than ${days} days from ${dir}"
+      find "${dir}" -type f -name "class_*_helper_reset_*.json" -mtime +"${cutoff}" -delete
+    '
+else
+  echo "[retention] skipping helper reset export prune (helper-export-days=0)"
+fi
+
 case "${RETENTION_SCAVENGE_MODE}" in
   off)
     echo "[retention] skipping orphan upload scavenger (--scavenge off)"
@@ -187,7 +239,7 @@ case "${RETENTION_SCAVENGE_MODE}" in
     ;;
 esac
 
-success_msg="[retention] complete (submission-days=${RETENTION_SUBMISSION_DAYS}, event-days=${RETENTION_EVENT_DAYS}, scavenge=${RETENTION_SCAVENGE_MODE})"
+success_msg="[retention] complete (submission-days=${RETENTION_SUBMISSION_DAYS}, event-days=${RETENTION_EVENT_DAYS}, helper-export-days=${RETENTION_HELPER_EXPORT_DAYS}, scavenge=${RETENTION_SCAVENGE_MODE})"
 echo "${success_msg}"
 if [[ "${RETENTION_ALERT_ON_SUCCESS}" == "1" ]]; then
   notify_webhook "success" "${success_msg}"

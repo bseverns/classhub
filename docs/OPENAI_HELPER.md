@@ -73,6 +73,11 @@ Conversation behavior:
 - Reset by starting a new `conversation_id` (UI `Reset chat` does this), or clear all student helper conversations for a class via teacher dashboard action (`/teach/class/<id>/reset-helper-conversations`).
 - On class reset, helper can export a JSON snapshot before cache deletion (controlled by `HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE` and `HELPER_CLASS_RESET_ARCHIVE_ENABLED`).
 
+Archive access + audit:
+- Helper reset archives are written under uploads storage (default `/uploads/helper_reset_exports`) and are not served by public routes.
+- Teacher-triggered reset actions create audit metadata in Class Hub, including archive path/count when export occurs.
+- Ops should keep archive filesystem access restricted to trusted teacher/admin operators.
+
 ### Ollama (local)
 
 Required env:
