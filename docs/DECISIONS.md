@@ -10,6 +10,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper engine modularization seam](#helper-engine-modularization-seam)
 - [Student join service seam](#student-join-service-seam)
 - [Student home and upload service seam](#student-home-and-upload-service-seam)
+- [Teacher shared helpers split seam](#teacher-shared-helpers-split-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
@@ -254,6 +255,21 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Continues reducing “big file gravity” in `hub/views/student.py` without changing endpoint behavior.
 - Makes student home and upload business rules independently testable and safer to iterate as policy evolves.
+
+## Teacher shared helpers split seam
+
+**Current decision:**
+- Keep `from .shared import *` in teacher endpoint modules as a compatibility import seam.
+- Split helper implementation by concern into:
+  - `hub/views/teacher_parts/shared_auth.py` (staff/2FA/setup helpers),
+  - `hub/views/teacher_parts/shared_tracker.py` (digest/tracker aggregations),
+  - `hub/views/teacher_parts/shared_routing.py` (redirect/query/path helpers),
+  - `hub/views/teacher_parts/shared_ordering.py` (ordering/title helpers).
+- Keep `hub/views/teacher_parts/shared.py` as a re-export module so endpoint behavior and imports stay stable while implementation moves out of a single large file.
+
+**Why this remains active:**
+- Reduces “big file gravity” in teacher helper code without forcing a broad import rewrite in one pass.
+- Creates clearer seams for future extraction into `hub/services/*` while preserving current endpoint contracts.
 
 ## Routing mode: local vs domain Caddy configs
 

@@ -76,6 +76,13 @@ def _emit_student_event(
         logger.exception("student_event_write_failed type=%s", event_type)
 
 
+def _end_student_session_response(request):
+    request.session.flush()
+    response = redirect("/")
+    clear_device_hint_cookie(response)
+    return response
+
+
 def healthz(request):
     # Used by Caddy/ops checks to confirm the app process is alive.
     return HttpResponse("ok", content_type="text/plain")
@@ -388,10 +395,7 @@ def student_delete_work(request):
 
 @require_POST
 def student_end_session(request):
-    request.session.flush()
-    response = redirect("/")
-    clear_device_hint_cookie(response)
-    return response
+    return _end_student_session_response(request)
 
 
 def material_upload(request, material_id: int):
@@ -503,10 +507,7 @@ def submission_download(request, submission_id: int):
 
 
 def student_logout(request):
-    request.session.flush()
-    response = redirect("/")
-    clear_device_hint_cookie(response)
-    return response
+    return _end_student_session_response(request)
 
 
 __all__ = [
