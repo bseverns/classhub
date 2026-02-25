@@ -12,7 +12,7 @@ from django.middleware.csrf import get_token, rotate_token
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from common.helper_scope import issue_scope_token
 
 from ..forms import SubmissionUploadForm
@@ -48,6 +48,7 @@ from ..services.student_home import (
 from common.request_safety import client_ip_from_request, fixed_window_allow
 
 logger = logging.getLogger(__name__)
+
 
 def _json_no_store_response(payload: dict, *, status: int = 200, private: bool = False) -> JsonResponse:
     response = JsonResponse(payload, status=status)
@@ -251,6 +252,16 @@ def student_home(request):
     return response
 
 
+@require_GET
+def student_return_code(request):
+    if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
+        return redirect("/")
+    return _json_no_store_response(
+        {"return_code": request.student.return_code},
+        private=True,
+    )
+
+
 def student_portfolio_export(request):
     """Download this student's submissions as an offline portfolio ZIP.
 
@@ -436,6 +447,7 @@ __all__ = [
     "index",
     "join_class",
     "student_home",
+    "student_return_code",
     "student_portfolio_export",
     "student_my_data",
     "student_delete_work",

@@ -1070,8 +1070,22 @@ class LessonReleaseTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["Cache-Control"], "private, no-store")
         self.assertContains(resp, "••••••")
+        self.assertNotContains(resp, "data-secret-code=")
         self.assertNotContains(resp, f">{self.student.return_code}<", html=False)
         self.assertContains(resp, "Copy return code")
+
+    def test_student_return_code_endpoint_requires_student_session(self):
+        resp = self.client.get("/student/return-code")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/")
+
+    def test_student_return_code_endpoint_returns_json_for_logged_in_student(self):
+        self._login_student()
+
+        resp = self.client.get("/student/return-code")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+        self.assertEqual(resp.json(), {"return_code": self.student.return_code})
 
     @patch("hub.views.content.load_course_manifest", return_value={"title": "Demo", "lessons": [{"slug": "demo-lesson"}]})
     @patch("hub.views.content.load_lesson_markdown", side_effect=ValueError("secret details should not leak"))

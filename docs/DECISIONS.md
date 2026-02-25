@@ -938,7 +938,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Cache-backed limiter helpers now tolerate corrupt cache state without raising request-path errors (fail-open with warning logs including request id).
 - Release archives now run a reusable artifact lint check (`scripts/lint_release_artifact.py`) and exclude local/runtime secrets and state (`compose/.env` + local backup variants, `data/`, `.deploy/`).
 - `safe_filename` now lives in a dedicated filename service module (`hub/services/filenames.py`) and is imported where needed.
-- TODO: If we need stronger return-code secrecy, move reveal-from-DOM to an authenticated fetch endpoint (`/student/return-code`) in a follow-up pass; deferred to avoid broad template/JS churn in this defensive sprint.
+- Student return-code reveal is no longer sourced from DOM attributes; `/student` now fetches from authenticated `GET /student/return-code` on demand with `private, no-store` caching.
 
 **Why this remains active:**
 - Reduces content-sniffing and filename abuse risk on download endpoints.
