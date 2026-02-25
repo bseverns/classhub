@@ -520,6 +520,10 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Keep compose example defaults at `DJANGO_CSP_MODE=report-only` during the week of Tuesday, February 24, 2026 through Monday, March 2, 2026.
 - Do not flip to `strict` before Monday review; confirm report-only violations are clean after template script extraction.
+- Transitional canary allowed before full flip:
+  - `DJANGO_CSP_MODE=strict`
+  - explicit `DJANGO_CSP_POLICY` with `script-src 'self'` and temporary `style-src 'unsafe-inline'`
+  - use for staging / controlled windows, then remove `'unsafe-inline'` from `style-src` for full strict enforcement
 - Inline script blocks were removed from:
   - `services/classhub/templates/teach_class.html` (moved to `services/classhub/hub/static/js/teach_class.js`)
   - `services/classhub/templates/student_class.html` (moved to `services/classhub/hub/static/js/student_class.js`)

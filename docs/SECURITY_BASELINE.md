@@ -20,6 +20,7 @@ This is the single source of truth for edge-vs-app security ownership.
   - Enforced override: `DJANGO_CSP_POLICY`
   - Report-only override: `DJANGO_CSP_REPORT_ONLY_POLICY`
   - Default mode is `relaxed` (enforced relaxed + strict report-only)
+  - Transitional strict-script canary is allowed via `DJANGO_CSP_MODE=strict` + explicit `DJANGO_CSP_POLICY` that keeps `script-src 'self'` while temporarily allowing `style-src 'unsafe-inline'`
 - Framing policy:
   - Primary: CSP `frame-ancestors 'self'`
   - Fallback: `X-Frame-Options: SAMEORIGIN` (`DJANGO_X_FRAME_OPTIONS`)

@@ -233,6 +233,15 @@ Rollout strategy:
 2. Tighten directives (especially `script-src`, `style-src`, `connect-src`, `frame-src`).
 3. Keep enforced + report-only in parallel until violation noise stabilizes.
 
+Transitional strict-script canary:
+
+- Before full strict CSP rollout, you can lock script execution while temporarily allowing inline styles.
+- Set:
+  - `DJANGO_CSP_MODE=strict`
+  - `DJANGO_CSP_POLICY=default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https:;`
+- This is useful when inline scripts are removed but template/style extraction is still in progress.
+- After style cleanup, remove `'unsafe-inline'` from `style-src` and rely on mode-derived strict policy.
+
 Embed notes:
 
 - YouTube embeds use privacy-enhanced `youtube-nocookie.com`; keep `frame-src https://www.youtube-nocookie.com`.

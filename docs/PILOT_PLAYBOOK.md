@@ -86,6 +86,10 @@ RETENTION_SUBMISSION_DAYS=90
 RETENTION_EVENT_DAYS=180
 RETENTION_HELPER_EXPORT_DAYS=180
 RETENTION_SCAVENGE_MODE=report
+
+# Optional CSP canary before full strict flip:
+# DJANGO_CSP_MODE=strict
+# DJANGO_CSP_POLICY=default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https:;
 ```
 
 Research note:
