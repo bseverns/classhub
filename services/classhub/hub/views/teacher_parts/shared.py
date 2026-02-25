@@ -2,9 +2,7 @@
 
 from datetime import timedelta
 from pathlib import Path
-import tempfile
 from urllib.parse import urlencode, urlparse
-import zipfile
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -40,6 +38,11 @@ from ...services.content_links import build_asset_url
 from ...services.filenames import safe_filename
 from ...services.markdown_content import load_lesson_markdown
 from ...services.release_state import parse_release_date
+from ...services.zip_exports import (
+    reserve_archive_path as _reserve_archive_path,
+    temporary_zip_archive as _temporary_zip_archive,
+    write_submission_file_to_archive as _write_submission_file_to_archive,
+)
 from ..content import iter_course_lesson_options
 from .shared_auth import (
     _AUTHORING_TEMPLATE_SUFFIXES,

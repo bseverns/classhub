@@ -38,6 +38,11 @@ from .services.upload_policy import (
 )
 from .services.upload_scan import scan_uploaded_file
 from .services.upload_validation import validate_upload_content
+from .services.zip_exports import (
+    reserve_archive_path,
+    temporary_zip_archive,
+    write_submission_file_to_archive,
+)
 
 
 def _sample_sb3_upload() -> SimpleUploadedFile:
@@ -297,6 +302,79 @@ class UploadValidationServiceTests(SimpleTestCase):
         upload = SimpleUploadedFile("project.sb3", b"not-a-zip")
         error = validate_upload_content(upload, ".sb3")
         self.assertIn("does not match .sb3", error)
+
+
+class _SubmissionFileWithoutPath:
+    def __init__(self, payload: bytes):
+        self._payload = payload
+
+    @property
+    def path(self):
+        raise AttributeError("no filesystem path")
+
+    def open(self, mode: str = "rb"):
+        if "b" not in mode:
+            raise ValueError("binary mode required")
+        return BytesIO(self._payload)
+
+
+class _SubmissionFileWithPath:
+    def __init__(self, path: str):
+        self.path = path
+
+    def open(self, mode: str = "rb"):
+        return open(self.path, mode)
+
+
+class ZipExportServiceTests(SimpleTestCase):
+    def test_reserve_archive_path_uses_fallback_for_duplicate(self):
+        used = set()
+        first = reserve_archive_path("files/project.sb3", used, fallback="files/project_1.sb3")
+        second = reserve_archive_path("files/project.sb3", used, fallback="files/project_1.sb3")
+        self.assertEqual(first, "files/project.sb3")
+        self.assertEqual(second, "files/project_1.sb3")
+
+    def test_write_submission_file_to_archive_uses_fallback_stream(self):
+        submission = SimpleNamespace(file=_SubmissionFileWithoutPath(b"fallback-bytes"))
+        with temporary_zip_archive() as (tmp, archive):
+            ok = write_submission_file_to_archive(
+                archive,
+                submission=submission,
+                arcname="files/fallback.sb3",
+                allow_file_fallback=True,
+            )
+        self.assertTrue(ok)
+        tmp.seek(0)
+        with zipfile.ZipFile(tmp, "r") as archive:
+            self.assertEqual(archive.read("files/fallback.sb3"), b"fallback-bytes")
+
+    def test_write_submission_file_to_archive_returns_false_without_fallback(self):
+        submission = SimpleNamespace(file=_SubmissionFileWithoutPath(b"fallback-bytes"))
+        with temporary_zip_archive() as (_tmp, archive):
+            ok = write_submission_file_to_archive(
+                archive,
+                submission=submission,
+                arcname="files/fallback.sb3",
+                allow_file_fallback=False,
+            )
+        self.assertFalse(ok)
+
+    def test_write_submission_file_to_archive_uses_file_path_when_present(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            source = Path(tmpdir) / "project.sb3"
+            source.write_bytes(b"path-bytes")
+            submission = SimpleNamespace(file=_SubmissionFileWithPath(str(source)))
+            with temporary_zip_archive() as (tmp, archive):
+                ok = write_submission_file_to_archive(
+                    archive,
+                    submission=submission,
+                    arcname="files/project.sb3",
+                    allow_file_fallback=False,
+                )
+            self.assertTrue(ok)
+            tmp.seek(0)
+            with zipfile.ZipFile(tmp, "r") as archive:
+                self.assertEqual(archive.read("files/project.sb3"), b"path-bytes")
 
 
 class ContentLinksServiceTests(SimpleTestCase):

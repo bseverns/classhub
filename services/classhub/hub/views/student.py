@@ -2,8 +2,6 @@
 
 import json
 import logging
-import tempfile
-import zipfile
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -44,6 +42,11 @@ from ..services.student_uploads import process_material_upload_form, resolve_upl
 from ..services.upload_scan import scan_uploaded_file
 from ..services.upload_policy import parse_extensions
 from ..services.upload_validation import validate_upload_content
+from ..services.zip_exports import (
+    reserve_archive_path,
+    temporary_zip_archive,
+    write_submission_file_to_archive,
+)
 from common.request_safety import client_ip_from_request, fixed_window_allow
 
 logger = logging.getLogger(__name__)
@@ -268,37 +271,29 @@ def student_portfolio_export(request):
         .order_by("uploaded_at", "id")
     )
 
-    tmp = tempfile.TemporaryFile(mode="w+b")
-
     generated_at = timezone.localtime(timezone.now())
     rows: list[dict] = []
     used_archive_paths: set[str] = set()
 
-    with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+    with temporary_zip_archive() as (tmp, archive):
         for sub in submissions:
             local_uploaded_at = timezone.localtime(sub.uploaded_at)
             module_label = safe_filename(sub.material.module.title or "module")
             material_label = safe_filename(sub.material.title or "material")
             original = safe_filename(sub.original_filename or Path(sub.file.name).name or "submission")
             timestamp = local_uploaded_at.strftime("%Y%m%d_%H%M%S")
-            archive_path = f"files/{module_label}/{material_label}/{timestamp}_{sub.id}_{original}"
-            if archive_path in used_archive_paths:
-                archive_path = f"files/{module_label}/{material_label}/{timestamp}_{sub.id}_dup_{original}"
-            used_archive_paths.add(archive_path)
-
-            included = False
-            status = "ok"
-            try:
-                source_path = sub.file.path
-                archive.write(source_path, arcname=archive_path)
-                included = True
-            except Exception:
-                try:
-                    with sub.file.open("rb") as fh:
-                        archive.writestr(archive_path, fh.read())
-                    included = True
-                except Exception:
-                    status = "missing"
+            archive_path = reserve_archive_path(
+                f"files/{module_label}/{material_label}/{timestamp}_{sub.id}_{original}",
+                used_archive_paths,
+                fallback=f"files/{module_label}/{material_label}/{timestamp}_{sub.id}_dup_{original}",
+            )
+            included = write_submission_file_to_archive(
+                archive,
+                submission=sub,
+                arcname=archive_path,
+                allow_file_fallback=True,
+            )
+            status = "ok" if included else "missing"
 
             rows.append(
                 {

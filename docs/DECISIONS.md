@@ -12,6 +12,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Student home and upload service seam](#student-home-and-upload-service-seam)
 - [Teacher shared helpers split seam](#teacher-shared-helpers-split-seam)
 - [Teacher roster code/reorder helper seam](#teacher-roster-codereorder-helper-seam)
+- [Shared zip export helper seam](#shared-zip-export-helper-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
@@ -282,6 +283,19 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Removes repeated collision-retry and reorder blocks from roster endpoints while preserving endpoint behavior.
 - Keeps future changes to code generation or reorder semantics in one place instead of multiple view branches.
+
+## Shared zip export helper seam
+
+**Current decision:**
+- Centralize ZIP export primitives in `hub/services/zip_exports.py`:
+  - `temporary_zip_archive(...)`
+  - `reserve_archive_path(...)`
+  - `write_submission_file_to_archive(...)`
+- Student portfolio export and teacher zip exports now call these shared helpers instead of duplicating low-level tempfile/zip write/fallback blocks.
+
+**Why this remains active:**
+- Reduces repeated archive-writing code across student and teacher endpoints while preserving response and file naming behavior.
+- Keeps file-path fallback behavior explicit in one place (enabled for student portfolio export; disabled for teacher classroom batch exports).
 
 ## Routing mode: local vs domain Caddy configs
 

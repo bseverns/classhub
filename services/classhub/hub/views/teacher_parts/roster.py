@@ -450,27 +450,25 @@ def teach_export_class_submissions_today(request, class_id: int):
         .order_by("student__display_name", "material__title", "uploaded_at", "id")
     )
 
-    tmp = tempfile.TemporaryFile(mode="w+b")
-
     file_count = 0
     used_paths: set[str] = set()
-    with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+    with _temporary_zip_archive() as (tmp, archive):
         for sub in rows:
-            try:
-                source_path = sub.file.path
-            except Exception:
-                continue
             student_name = safe_filename(sub.student.display_name)
             material_name = safe_filename(sub.material.title)
             original = safe_filename(sub.original_filename or Path(sub.file.name).name)
             stamp = timezone.localtime(sub.uploaded_at).strftime("%H%M%S")
-            candidate = f"{student_name}/{material_name}/{stamp}_{original}"
-            if candidate in used_paths:
-                candidate = f"{student_name}/{material_name}/{stamp}_{sub.id}_{original}"
-            used_paths.add(candidate)
-            try:
-                archive.write(source_path, arcname=candidate)
-            except Exception:
+            candidate = _reserve_archive_path(
+                f"{student_name}/{material_name}/{stamp}_{original}",
+                used_paths,
+                fallback=f"{student_name}/{material_name}/{stamp}_{sub.id}_{original}",
+            )
+            if not _write_submission_file_to_archive(
+                archive,
+                submission=sub,
+                arcname=candidate,
+                allow_file_fallback=False,
+            ):
                 continue
             file_count += 1
         if file_count == 0:
@@ -709,23 +707,20 @@ def teach_material_submissions(request, material_id: int):
     show = (request.GET.get("show") or "all").strip()
 
     if request.GET.get("download") == "zip_latest":
-        tmp = tempfile.TemporaryFile(mode="w+b")
-
-        with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as z:
+        with _temporary_zip_archive() as (tmp, z):
             for st in students:
                 s = latest_by_student.get(st.id)
                 if not s:
                     continue
-                try:
-                    src_path = s.file.path
-                except Exception:
-                    continue
                 base_name = safe_filename(st.display_name)
                 orig = safe_filename(s.original_filename or Path(s.file.name).name)
                 arc = f"{base_name}/{orig}"
-                try:
-                    z.write(src_path, arcname=arc)
-                except Exception:
+                if not _write_submission_file_to_archive(
+                    z,
+                    submission=s,
+                    arcname=arc,
+                    allow_file_fallback=False,
+                ):
                     continue
 
         download_name = safe_attachment_filename(
