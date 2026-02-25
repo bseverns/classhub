@@ -21,26 +21,29 @@ from ..forms import SubmissionUploadForm
 from ..models import (
     Class,
     Material,
-    Module,
     StudentEvent,
     StudentIdentity,
     Submission,
 )
 from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
-from ..services.content_links import parse_course_lesson_url
 from ..services.filenames import safe_filename
 from ..services.ip_privacy import minimize_student_event_ip
-from ..services.markdown_content import load_lesson_markdown
-from ..services.release_state import lesson_release_override_map, lesson_release_state
+from ..services.student_home import (
+    build_material_access_map,
+    build_submissions_by_material,
+    helper_backend_label,
+    privacy_meta_context,
+)
 from ..services.student_join import (
     JoinValidationError,
     apply_device_hint_cookie,
     clear_device_hint_cookie,
     resolve_join_student,
 )
+from ..services.student_uploads import process_material_upload_form, resolve_upload_release_state
 from ..services.upload_scan import scan_uploaded_file
-from ..services.upload_validation import validate_upload_content
 from ..services.upload_policy import parse_extensions
+from ..services.upload_validation import validate_upload_content
 from common.request_safety import client_ip_from_request, fixed_window_allow
 
 logger = logging.getLogger(__name__)
@@ -49,33 +52,6 @@ def _json_no_store_response(payload: dict, *, status: int = 200, private: bool =
     response = JsonResponse(payload, status=status)
     apply_no_store(response, private=private, pragma=True)
     return response
-
-
-def _retention_days(setting_name: str, default: int) -> int:
-    raw = getattr(settings, setting_name, default)
-    try:
-        value = int(raw)
-    except Exception:
-        value = int(default)
-    return value if value > 0 else 0
-
-
-def _privacy_meta_context() -> dict:
-    return {
-        "submission_retention_days": _retention_days("CLASSHUB_SUBMISSION_RETENTION_DAYS", 90),
-        "student_event_retention_days": _retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180),
-    }
-
-
-def _helper_backend_label() -> str:
-    backend = (getattr(settings, "HELPER_LLM_BACKEND", "ollama") or "ollama").strip().lower()
-    if backend == "openai":
-        return "Remote model (OpenAI)"
-    if backend == "ollama":
-        return "Local model (Ollama)"
-    if backend == "mock":
-        return "Mock model (Test mode)"
-    return "Model backend (Unknown)"
 
 
 def _emit_student_event(
@@ -120,7 +96,7 @@ def index(request):
         request,
         "student_join.html",
         {
-            **_privacy_meta_context(),
+            **privacy_meta_context(),
         },
     )
     apply_no_store(response, private=True, pragma=True)
@@ -223,83 +199,11 @@ def student_home(request):
     request.student.save(update_fields=["last_seen_at"])
 
     classroom = request.classroom
-    modules = classroom.modules.prefetch_related("materials").all()
-    lesson_release_cache: dict[tuple[str, str], dict] = {}
-    module_lesson_cache: dict[int, tuple[str, str] | None] = {}
-    release_override_map = lesson_release_override_map(classroom.id)
+    modules = list(classroom.modules.prefetch_related("materials").all())
+    material_ids, material_access = build_material_access_map(request, classroom=classroom, modules=modules)
+    submissions_by_material = build_submissions_by_material(student=request.student, material_ids=material_ids)
 
-    def _get_module_lesson(module: Module) -> tuple[str, str] | None:
-        if module.id in module_lesson_cache:
-            return module_lesson_cache[module.id]
-        mats = list(module.materials.all())
-        mats.sort(key=lambda m: (m.order_index, m.id))
-        for mat in mats:
-            if mat.type != Material.TYPE_LINK:
-                continue
-            parsed = parse_course_lesson_url(mat.url)
-            if parsed:
-                module_lesson_cache[module.id] = parsed
-                return parsed
-        module_lesson_cache[module.id] = None
-        return None
-
-    def _get_release_state(course_slug: str, lesson_slug: str) -> dict:
-        key = (course_slug, lesson_slug)
-        if key in lesson_release_cache:
-            return lesson_release_cache[key]
-        try:
-            front_matter, _body, lesson_meta = load_lesson_markdown(course_slug, lesson_slug)
-        except ValueError:
-            front_matter = {}
-            lesson_meta = {}
-        state = lesson_release_state(
-            request,
-            front_matter,
-            lesson_meta,
-            classroom_id=classroom.id,
-            course_slug=course_slug,
-            lesson_slug=lesson_slug,
-            override_map=release_override_map,
-        )
-        lesson_release_cache[key] = state
-        return state
-
-    material_ids = []
-    material_access = {}
-    for m in modules:
-        module_lesson = _get_module_lesson(m)
-        for mat in m.materials.all():
-            material_ids.append(mat.id)
-            access = {"is_locked": False, "available_on": None, "is_lesson_link": False, "is_lesson_upload": False}
-
-            if mat.type == Material.TYPE_LINK:
-                parsed = parse_course_lesson_url(mat.url)
-                if parsed:
-                    state = _get_release_state(*parsed)
-                    access["is_lesson_link"] = True
-                    access["is_locked"] = bool(state.get("is_locked"))
-                    access["available_on"] = state.get("available_on")
-            elif mat.type == Material.TYPE_UPLOAD and module_lesson:
-                state = _get_release_state(*module_lesson)
-                access["is_lesson_upload"] = True
-                access["is_locked"] = bool(state.get("is_locked"))
-                access["available_on"] = state.get("available_on")
-
-            material_access[mat.id] = access
-
-    submissions_by_material = {}
-    if material_ids:
-        qs = (
-            Submission.objects.filter(student=request.student, material_id__in=material_ids)
-            .only("id", "material_id", "uploaded_at")
-            .order_by("material_id", "-uploaded_at", "-id")
-        )
-        for s in qs:
-            if s.material_id not in submissions_by_material:
-                submissions_by_material[s.material_id] = {"count": 0, "last": s.uploaded_at, "last_id": s.id}
-            submissions_by_material[s.material_id]["count"] += 1
-
-    privacy_meta = _privacy_meta_context()
+    privacy_meta = privacy_meta_context()
     helper_widget = render_to_string(
         "includes/helper_widget.html",
         {
@@ -309,7 +213,7 @@ def student_home(request):
             "helper_topics": "Classroom overview",
             "helper_reference": "",
             "helper_allowed_topics": "",
-            "helper_backend_label": _helper_backend_label(),
+            "helper_backend_label": helper_backend_label(),
             "helper_delete_url": "/student/my-data",
             **privacy_meta,
             "helper_scope_token": issue_scope_token(
@@ -454,7 +358,7 @@ def student_my_data(request):
             "classroom": request.classroom,
             "submissions": submissions,
             "notice": notice,
-            **_privacy_meta_context(),
+            **privacy_meta_context(),
         },
     )
     apply_no_store(response, private=True, pragma=True)
@@ -505,29 +409,7 @@ def material_upload(request, material_id: int):
     if material.type != Material.TYPE_UPLOAD:
         return HttpResponse("Not an upload material", status=404)
 
-    release_state = {"is_locked": False, "available_on": None}
-    module_mats = list(material.module.materials.all())
-    module_mats.sort(key=lambda m: (m.order_index, m.id))
-    for candidate in module_mats:
-        if candidate.type != Material.TYPE_LINK:
-            continue
-        parsed = parse_course_lesson_url(candidate.url)
-        if not parsed:
-            continue
-        try:
-            front_matter, _body, lesson_meta = load_lesson_markdown(parsed[0], parsed[1])
-        except ValueError:
-            front_matter = {}
-            lesson_meta = {}
-        release_state = lesson_release_state(
-            request,
-            front_matter,
-            lesson_meta,
-            classroom_id=material.module.classroom_id,
-            course_slug=parsed[0],
-            lesson_slug=parsed[1],
-        )
-        break
+    release_state = resolve_upload_release_state(request, material=material)
 
     allowed_exts = parse_extensions(material.accepted_extensions) or [".sb3"]
     max_bytes = int(material.max_upload_mb) * 1024 * 1024
@@ -547,79 +429,21 @@ def material_upload(request, material_id: int):
     elif request.method == "POST":
         form = SubmissionUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            f = form.cleaned_data["file"]
-            note = (form.cleaned_data.get("note") or "").strip()
-
-            name = (getattr(f, "name", "") or "upload").strip()
-            lower = name.lower()
-            ext = "." + lower.rsplit(".", 1)[-1] if "." in lower else ""
-
-            if ext not in allowed_exts:
-                error = f"File type not allowed. Allowed: {', '.join(allowed_exts)}"
-            elif getattr(f, "size", 0) and f.size > max_bytes:
-                error = f"File too large. Max size: {material.max_upload_mb}MB"
-            else:
-                content_error = validate_upload_content(f, ext)
-                if content_error:
-                    error = content_error
-                    response_status = 400
-                    logger.info(
-                        "upload_rejected_content_mismatch material_id=%s student_id=%s ext=%s",
-                        material.id,
-                        request.student.id,
-                        ext,
-                    )
-                    scan_result = None
-                else:
-                    scan_result = scan_uploaded_file(f)
-                fail_closed = bool(getattr(settings, "CLASSHUB_UPLOAD_SCAN_FAIL_CLOSED", False))
-                if error:
-                    pass
-                elif scan_result.status == "infected":
-                    logger.warning(
-                        "upload_blocked_malware material_id=%s student_id=%s message=%s",
-                        material.id,
-                        request.student.id,
-                        scan_result.message,
-                    )
-                    error = "Upload blocked by malware scan. Ask your teacher for help."
-                    response_status = 400
-                elif scan_result.status == "error" and fail_closed:
-                    logger.warning(
-                        "upload_blocked_scan_error material_id=%s student_id=%s message=%s",
-                        material.id,
-                        request.student.id,
-                        scan_result.message,
-                    )
-                    error = "Upload scanner unavailable right now. Please try again shortly."
-                    response_status = 503
-                else:
-                    submission = Submission.objects.create(
-                        material=material,
-                        student=request.student,
-                        original_filename=name,
-                        file=f,
-                        note=note,
-                    )
-                    _emit_student_event(
-                        event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
-                        classroom=request.classroom,
-                        student=request.student,
-                        source="classhub.material_upload",
-                        details={
-                            "material_id": material.id,
-                            "submission_id": submission.id,
-                            "file_ext": (Path(name).suffix or "").lower()[:16],
-                            "size_bytes": int(getattr(f, "size", 0) or 0),
-                            "scan_status": scan_result.status if scan_result else "skipped",
-                        },
-                        ip_address=client_ip_from_request(
-                            request,
-                            trust_proxy_headers=getattr(settings, "REQUEST_SAFETY_TRUST_PROXY_HEADERS", False),
-                            xff_index=getattr(settings, "REQUEST_SAFETY_XFF_INDEX", 0),
-                        ),
-                    )
-                    return redirect(f"/material/{material.id}/upload")
+            upload_result = process_material_upload_form(
+                request=request,
+                material=material,
+                form=form,
+                allowed_exts=allowed_exts,
+                max_bytes=max_bytes,
+                validate_upload_content_fn=validate_upload_content,
+                scan_uploaded_file_fn=scan_uploaded_file,
+                emit_student_event_fn=_emit_student_event,
+                logger=logger,
+            )
+            if upload_result.redirect_url:
+                return redirect(upload_result.redirect_url)
+            error = upload_result.error
+            response_status = upload_result.response_status
     submissions = Submission.objects.filter(material=material, student=request.student).all()
 
     response = render(
@@ -635,7 +459,7 @@ def material_upload(request, material_id: int):
             "submissions": submissions,
             "upload_locked": bool(release_state.get("is_locked")),
             "upload_available_on": release_state.get("available_on"),
-            **_privacy_meta_context(),
+            **privacy_meta_context(),
         },
         status=response_status,
     )

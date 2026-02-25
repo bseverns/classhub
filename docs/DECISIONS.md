@@ -9,6 +9,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Service boundary: Homework Helper separate service](#service-boundary-homework-helper-separate-service)
 - [Helper engine modularization seam](#helper-engine-modularization-seam)
 - [Student join service seam](#student-join-service-seam)
+- [Student home and upload service seam](#student-home-and-upload-service-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
@@ -241,6 +242,18 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces “big file gravity” in student views while preserving endpoint behavior.
 - Creates a stable seam for future join/auth policy changes without high-risk view rewrites.
+
+## Student home and upload service seam
+
+**Current decision:**
+- Keep `student_home` and `material_upload` endpoints in `hub/views/student.py` as thin request/response adapters.
+- Move release/access map assembly and submission rollup logic into `hub/services/student_home.py`.
+- Move upload release-gate and upload validation/scan/persist orchestration into `hub/services/student_uploads.py`.
+- Preserve existing upload patch targets in view tests by passing `scan_uploaded_file` and `validate_upload_content` from the view into the service call.
+
+**Why this remains active:**
+- Continues reducing “big file gravity” in `hub/views/student.py` without changing endpoint behavior.
+- Makes student home and upload business rules independently testable and safer to iterate as policy evolves.
 
 ## Routing mode: local vs domain Caddy configs
 
