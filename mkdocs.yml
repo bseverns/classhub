@@ -31,6 +31,8 @@ markdown_extensions:
 extra_javascript:
   - https://unpkg.com/mermaid@10/dist/mermaid.min.js
   - javascripts/mermaid-init.js
+extra_css:
+  - stylesheets/extra.css
 
 exclude_docs: README.md
 

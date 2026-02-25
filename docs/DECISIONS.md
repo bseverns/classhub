@@ -10,6 +10,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper engine modularization seam](#helper-engine-modularization-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
+- [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
 - [Secret handling: env-only secret sources](#secret-handling-env-only-secret-sources)
 - [Operator profile white-labeling](#operator-profile-white-labeling)
 - [Compose env dollar escaping](#compose-env-dollar-escaping)
@@ -251,6 +252,17 @@ Historical implementation logs and superseded decisions are archived by month in
 - This repository is both an operational system and a teaching object.
 - Maintainers need repeatable onboarding and incident handling, not tribal knowledge.
 - Shipping docs in lockstep with code reduces deployment and handoff risk.
+
+## Docs Mermaid readability defaults
+
+**Current decision:**
+- Docs build now includes `docs/stylesheets/extra.css` via `extra_css` in `mkdocs.yml`.
+- Mermaid blocks are rendered with horizontal overflow instead of forced shrink-to-fit so diagram text stays legible at normal browser zoom.
+- Mermaid defaults are tuned in `docs/javascripts/mermaid-init.js` with `themeVariables.fontSize=16px` and `useMaxWidth=false` for common diagram types.
+
+**Why this remains active:**
+- Prevents operational and architecture diagrams from becoming unreadable on standard laptop displays.
+- Keeps mobile behavior usable by allowing horizontal scroll on large diagrams instead of shrinking text.
 
 ## Secret handling: env-only secret sources
 
