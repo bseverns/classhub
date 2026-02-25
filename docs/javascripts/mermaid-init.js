@@ -6,7 +6,7 @@ document$.subscribe(function () {
     startOnLoad: false,
     securityLevel: "strict",
     themeVariables: {
-      fontSize: "16px",
+      fontSize: "22px",
     },
     flowchart: {
       useMaxWidth: false,
@@ -21,7 +21,21 @@ document$.subscribe(function () {
       useMaxWidth: false,
     },
   });
-  mermaid.run({
-    querySelector: ".mermaid",
-  });
+  mermaid.parseError = function (error, hash) {
+    console.error("[docs] Mermaid parse error", {
+      path: window.location.pathname,
+      error,
+      hash,
+    });
+  };
+  mermaid
+    .run({
+      querySelector: ".mermaid",
+    })
+    .catch(function (error) {
+      console.error("[docs] Mermaid render failed", {
+        path: window.location.pathname,
+        error,
+      });
+    });
 });

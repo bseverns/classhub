@@ -9,4 +9,11 @@
   display: block;
   height: auto;
   max-width: none;
+  min-width: 1200px;
+}
+
+@media (max-width: 1200px) {
+  .md-typeset .mermaid > svg {
+    min-width: 960px;
+  }
 }
