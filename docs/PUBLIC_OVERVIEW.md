@@ -11,6 +11,10 @@ Class Hub is a classroom-first, self-hosted micro-LMS with a separate Homework H
 ## Verification signal
 If this page is useful, you should be able to answer: who this is for, what it deliberately does not do, and the next 2 docs to read for an evaluation.
 
+## Organization and place acknowledgment
+- createMPLS is a Minneapolis-based 501(c)(3) nonprofit organization.
+- Minneapolis is located on land ceded by treaty and has historically been home to the Anishinaabe, Dakota, and Oceti Sakowin peoples.
+
 ## What it is
 - A self-hosted learning hub for classes, modules, and lesson materials.
 - A simple student join flow (`class code + display name`) without student password accounts in MVP.

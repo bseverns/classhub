@@ -5,6 +5,10 @@ fast student join → lesson → submission → teacher review, with a quarantin
 
 Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [Try It Local](TRY_IT_LOCAL.md).
 
+## Organization and place acknowledgment
+- createMPLS is a Minneapolis-based 501(c)(3) nonprofit organization.
+- Minneapolis is located on land ceded by treaty and has historically been home to the Anishinaabe, Dakota, and Oceti Sakowin peoples.
+
 ## Quick links
 - [Start Here](START_HERE.md)
 - [Things to Install First](START_HERE.md#things-you-need-to-install-first)
