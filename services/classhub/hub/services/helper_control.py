@@ -12,6 +12,8 @@ from dataclasses import dataclass
 class HelperResetResult:
     ok: bool
     deleted_conversations: int = 0
+    archived_conversations: int = 0
+    archive_path: str = ""
     error_code: str = ""
     status_code: int = 0
 
@@ -22,6 +24,7 @@ def reset_class_conversations(
     endpoint_url: str,
     internal_token: str,
     timeout_seconds: float,
+    export_before_reset: bool = True,
 ) -> HelperResetResult:
     if class_id <= 0:
         return HelperResetResult(ok=False, error_code="invalid_class_id")
@@ -30,7 +33,9 @@ def reset_class_conversations(
     if not internal_token:
         return HelperResetResult(ok=False, error_code="helper_token_not_configured")
 
-    payload = json.dumps({"class_id": int(class_id)}).encode("utf-8")
+    payload = json.dumps(
+        {"class_id": int(class_id), "export_before_reset": bool(export_before_reset)}
+    ).encode("utf-8")
     request = urllib.request.Request(
         endpoint_url,
         data=payload,
@@ -74,7 +79,18 @@ def reset_class_conversations(
         deleted = int(parsed.get("deleted_conversations") or 0)
     except Exception:
         deleted = 0
-    return HelperResetResult(ok=True, deleted_conversations=max(deleted, 0), status_code=status)
+    try:
+        archived = int(parsed.get("archived_conversations") or 0)
+    except Exception:
+        archived = 0
+    archive_path = str(parsed.get("archive_path") or "").strip()
+    return HelperResetResult(
+        ok=True,
+        deleted_conversations=max(deleted, 0),
+        archived_conversations=max(archived, 0),
+        archive_path=archive_path[:512],
+        status_code=status,
+    )
 
 
 def _safe_json_dict(raw: str) -> dict:
@@ -93,4 +109,3 @@ def _extract_error_code(raw: str) -> str:
     if not value:
         return ""
     return value[:80]
-

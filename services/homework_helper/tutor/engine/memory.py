@@ -342,6 +342,63 @@ def clear_class_conversations(*, cache_backend, class_id: int, max_keys: int = 4
     return deleted
 
 
+def snapshot_class_conversations(
+    *,
+    cache_backend,
+    class_id: int,
+    max_keys: int = 4000,
+    max_messages: int = 120,
+) -> list[dict[str, object]]:
+    class_key = conversation_class_index_key(class_id=class_id)
+    try:
+        indexed = cache_backend.get(class_key)
+    except Exception:
+        logger.warning("conversation_memory_cache_get_failed key=%s", class_key)
+        return []
+
+    keys = _coerce_key_list(indexed, max_items=max(int(max_keys), 1))
+    if not keys:
+        return []
+
+    snapshots: list[dict[str, object]] = []
+    message_limit = max(int(max_messages), 1)
+    for key in keys:
+        actor_key = ""
+        scope_fp = ""
+        conversation_id = ""
+        parsed = _parse_conversation_cache_key(key)
+        if parsed is not None:
+            actor_key, scope_fp, conversation_id = parsed
+        state = load_state(cache_backend=cache_backend, key=key, max_messages=message_limit)
+        snapshots.append(
+            {
+                "cache_key": key,
+                "actor_key": actor_key,
+                "scope_fingerprint": scope_fp,
+                "conversation_id": conversation_id,
+                "summary": str(state.get("summary") or ""),
+                "turns": list(state.get("turns") or []),
+            }
+        )
+    return snapshots
+
+
+def _parse_conversation_cache_key(key: str) -> tuple[str, str, str] | None:
+    raw = str(key or "").strip()
+    prefix = "helper:conversation:"
+    if not raw.startswith(prefix):
+        return None
+    payload = raw[len(prefix) :]
+    try:
+        actor_and_scope, conversation_id = payload.rsplit(":", 1)
+        actor_key, scope_fp = actor_and_scope.rsplit(":", 1)
+    except ValueError:
+        return None
+    if not actor_key or not scope_fp or not conversation_id:
+        return None
+    return actor_key, scope_fp, conversation_id
+
+
 def format_turns_for_prompt(*, turns: list[dict[str, str]], max_chars: int, summary: str = "") -> str:
     normalized = _coerce_turns(turns)
     summary_text = _coerce_summary(summary, max_chars=max(int(max_chars), 300))

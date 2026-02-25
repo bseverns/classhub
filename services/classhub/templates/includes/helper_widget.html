@@ -12,7 +12,9 @@
   </div>
   <p class="helper-description">{{ helper_description|default:"Ask the helper for hints, steps, or feedback." }}</p>
   <div class="helper-privacy">
-    <p class="muted helper-privacy-line">Stored: helper access timestamps and lesson-scope metadata only (not ads/tracking profiles).</p>
+    <p class="muted helper-privacy-line">Stored: helper access timestamps, lesson-scope metadata, and short-lived chat context used for follow-up help.</p>
+    <p class="muted helper-privacy-line">If teachers reset helper conversations, a class snapshot may be exported for internal research and quality review before cache clear.</p>
+    <p class="muted helper-privacy-line">Access: only your teachers and createMPLS administrators can access helper records and exports.</p>
     <p class="muted helper-privacy-line">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
     <p class="muted helper-privacy-line">
       Retention:

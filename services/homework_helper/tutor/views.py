@@ -5,6 +5,7 @@ import time
 from functools import lru_cache
 import hmac
 import re
+from datetime import datetime, timezone
 
 from django.conf import settings
 from django.core.cache import cache
@@ -354,6 +355,34 @@ def _internal_api_token() -> str:
     return str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip()
 
 
+def _payload_bool(value) -> bool:
+    if isinstance(value, bool):
+        return value
+    text = str(value or "").strip().lower()
+    return text in {"1", "true", "yes", "on"}
+
+
+def _write_class_reset_archive(*, class_id: int, request_id: str, conversations: list[dict]) -> tuple[str, int]:
+    archive_dir = (os.getenv("HELPER_CLASS_RESET_ARCHIVE_DIR", "/uploads/helper_reset_exports") or "").strip()
+    if not archive_dir:
+        raise RuntimeError("archive_directory_not_configured")
+
+    os.makedirs(archive_dir, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    req_fragment = re.sub(r"[^a-zA-Z0-9]", "", str(request_id or ""))[:12] or "reset"
+    filename = f"class_{int(class_id)}_helper_reset_{stamp}_{req_fragment}.json"
+    archive_path = os.path.join(archive_dir, filename)
+    payload = {
+        "class_id": int(class_id),
+        "archived_at": datetime.now(timezone.utc).isoformat(),
+        "conversation_count": len(conversations),
+        "conversations": conversations,
+    }
+    with open(archive_path, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, ensure_ascii=True, indent=2)
+    return archive_path, len(conversations)
+
+
 def _build_helper_event_details(*, response, request_id: str, actor_type: str, backend: str) -> dict:
     details: dict = {
         "request_id": request_id,
@@ -430,10 +459,38 @@ def reset_class_conversations(request):
     if class_id <= 0:
         return _json_response({"error": "invalid_class_id"}, status=400, request_id=request_id)
 
+    max_keys = max(_env_int("HELPER_CLASS_RESET_MAX_KEYS", 4000), 1)
+    archive_enabled = _env_bool("HELPER_CLASS_RESET_ARCHIVE_ENABLED", True)
+    archive_requested = _payload_bool(payload.get("export_before_reset"))
+    archive_before_reset = archive_enabled and archive_requested
+    archive_path = ""
+    archived_conversations = 0
+    if archive_before_reset:
+        snapshot = engine_memory.snapshot_class_conversations(
+            cache_backend=cache,
+            class_id=class_id,
+            max_keys=max_keys,
+            max_messages=max(_env_int("HELPER_CLASS_RESET_ARCHIVE_MAX_MESSAGES", 120), 1),
+        )
+        if snapshot:
+            try:
+                archive_path, archived_conversations = _write_class_reset_archive(
+                    class_id=class_id,
+                    request_id=request_id,
+                    conversations=snapshot,
+                )
+            except Exception:
+                _log_chat_event(
+                    "warning",
+                    "class_conversations_archive_failed",
+                    request_id=request_id,
+                    class_id=class_id,
+                )
+
     deleted = engine_memory.clear_class_conversations(
         cache_backend=cache,
         class_id=class_id,
-        max_keys=max(_env_int("HELPER_CLASS_RESET_MAX_KEYS", 4000), 1),
+        max_keys=max_keys,
     )
     _log_chat_event(
         "info",
@@ -441,11 +498,18 @@ def reset_class_conversations(request):
         request_id=request_id,
         class_id=class_id,
         deleted_conversations=deleted,
+        archived_conversations=archived_conversations,
+        archive_path=archive_path,
     )
-    return _json_response(
-        {"ok": True, "class_id": class_id, "deleted_conversations": deleted},
-        request_id=request_id,
-    )
+    response_payload = {
+        "ok": True,
+        "class_id": class_id,
+        "deleted_conversations": deleted,
+        "archived_conversations": archived_conversations,
+    }
+    if archive_path:
+        response_payload["archive_path"] = archive_path
+    return _json_response(response_payload, request_id=request_id)
 
 
 @require_GET

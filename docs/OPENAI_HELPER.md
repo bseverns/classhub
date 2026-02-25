@@ -57,7 +57,11 @@ HELPER_TEXT_LANGUAGE_KEYWORDS=pascal,python,java,javascript,typescript,c++,c#,cs
 HELPER_INTERNAL_API_TOKEN=...
 HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
 HELPER_INTERNAL_RESET_TIMEOUT_SECONDS=2
+HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE=1
 HELPER_CLASS_RESET_MAX_KEYS=4000
+HELPER_CLASS_RESET_ARCHIVE_ENABLED=1
+HELPER_CLASS_RESET_ARCHIVE_DIR=/uploads/helper_reset_exports
+HELPER_CLASS_RESET_ARCHIVE_MAX_MESSAGES=120
 ```
 
 Conversation behavior:
@@ -67,6 +71,7 @@ Conversation behavior:
 - Each response includes an `intent` tag (`debug`, `concept`, `strategy`, etc.) derived from the latest student message.
 - Each response includes `follow_up_suggestions` (bounded by `HELPER_FOLLOW_UP_SUGGESTIONS_MAX`) so the UI can offer one-tap next questions.
 - Reset by starting a new `conversation_id` (UI `Reset chat` does this), or clear all student helper conversations for a class via teacher dashboard action (`/teach/class/<id>/reset-helper-conversations`).
+- On class reset, helper can export a JSON snapshot before cache deletion (controlled by `HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE` and `HELPER_CLASS_RESET_ARCHIVE_ENABLED`).
 
 ### Ollama (local)
 

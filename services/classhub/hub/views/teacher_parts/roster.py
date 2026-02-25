@@ -400,11 +400,17 @@ def teach_reset_helper_conversations(request, class_id: int):
     if not classroom:
         return HttpResponse("Not found", status=404)
 
+    export_before_reset = bool(getattr(settings, "HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE", True))
+    posted_export_before_reset = (request.POST.get("export_before_reset") or "").strip().lower()
+    if posted_export_before_reset in {"0", "1", "true", "false", "yes", "no", "on", "off"}:
+        export_before_reset = posted_export_before_reset in {"1", "true", "yes", "on"}
+
     result = _reset_helper_class_conversations(
         class_id=classroom.id,
         endpoint_url=str(getattr(settings, "HELPER_INTERNAL_RESET_URL", "") or "").strip(),
         internal_token=str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip(),
         timeout_seconds=float(getattr(settings, "HELPER_INTERNAL_RESET_TIMEOUT_SECONDS", 2.0) or 2.0),
+        export_before_reset=export_before_reset,
     )
     if not result.ok:
         _audit(
@@ -437,10 +443,18 @@ def teach_reset_helper_conversations(request, class_id: int):
         summary=f"Reset helper conversations for {classroom.name}",
         metadata={
             "deleted_conversations": result.deleted_conversations,
+            "archived_conversations": result.archived_conversations,
+            "archive_path": result.archive_path,
+            "export_before_reset": export_before_reset,
             "status_code": result.status_code,
         },
     )
     notice = f"Helper conversations reset. Cleared {result.deleted_conversations} conversation(s)."
+    if result.archived_conversations > 0:
+        notice += f" Archived {result.archived_conversations} conversation(s)"
+        if result.archive_path:
+            notice += f" to {result.archive_path}"
+        notice += "."
     return _safe_internal_redirect(
         request,
         _with_notice(_teach_class_path(classroom.id), notice=notice),

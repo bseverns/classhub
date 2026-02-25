@@ -490,10 +490,18 @@
                 <hr style="border:none; border-top:1px solid var(--line); margin:14px 0;" />
                 <strong>Reset helper conversations</strong>
                 <p class="muted mini" style="margin:6px 0 0 0;">
-                  Clears cached helper chat history for students in this class only.
+                  Exports a class helper snapshot (for internal research) and then clears cached helper chat history for this class only.
                 </p>
                 <form method="post" action="/teach/class/{{ classroom.id }}/reset-helper-conversations" onsubmit="return confirm('Reset helper conversations for this class?');">
                   {% csrf_token %}
+                  <input type="hidden" name="export_before_reset" value="0" />
+                  <label style="display:flex; align-items:center; gap:8px; margin-top:0;">
+                    <input type="checkbox" name="export_before_reset" value="1" checked style="width:auto; margin:0;" />
+                    Export snapshot before clearing cache
+                  </label>
+                  <p class="muted mini" style="margin:6px 0 10px 0;">
+                    Access to exported helper data is limited to class teachers and createMPLS administrators.
+                  </p>
                   <button type="submit">Reset helper conversations</button>
                 </form>
               </div>

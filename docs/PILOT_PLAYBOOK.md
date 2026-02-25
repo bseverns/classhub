@@ -74,6 +74,9 @@ HELPER_STRICTNESS=light
 HELPER_SCOPE_MODE=strict
 HELPER_TOPIC_FILTER_MODE=strict
 HELPER_MAX_CONCURRENCY=2
+HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE=1
+HELPER_CLASS_RESET_ARCHIVE_ENABLED=1
+HELPER_CLASS_RESET_ARCHIVE_DIR=/uploads/helper_reset_exports
 
 # Join rate limit (protect against accidental hammering / refresh storms).
 CLASSHUB_JOIN_RATE_LIMIT_PER_MINUTE=20
@@ -83,3 +86,7 @@ RETENTION_SUBMISSION_DAYS=90
 RETENTION_EVENT_DAYS=180
 RETENTION_SCAVENGE_MODE=report
 ```
+
+Research note:
+- When teachers reset class helper conversations, a JSON snapshot can be exported before cache clear for internal research.
+- Access to exported helper data should remain limited to class teachers and createMPLS administrators.

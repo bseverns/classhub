@@ -579,7 +579,13 @@ class TeacherPortalTests(TestCase):
     @patch("hub.views.teacher_parts.roster._reset_helper_class_conversations")
     def test_teacher_can_reset_helper_conversations(self, reset_mock):
         classroom = Class.objects.create(name="Period Helper", join_code="HLP12345")
-        reset_mock.return_value = HelperResetResult(ok=True, deleted_conversations=4, status_code=200)
+        reset_mock.return_value = HelperResetResult(
+            ok=True,
+            deleted_conversations=4,
+            archived_conversations=4,
+            archive_path="/uploads/helper_reset_exports/sample.json",
+            status_code=200,
+        )
 
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.post(f"/teach/class/{classroom.id}/reset-helper-conversations")
@@ -592,6 +598,8 @@ class TeacherPortalTests(TestCase):
         self.assertIsNotNone(event)
         self.assertEqual(event.classroom_id, classroom.id)
         self.assertEqual(event.metadata.get("deleted_conversations"), 4)
+        self.assertEqual(event.metadata.get("archived_conversations"), 4)
+        self.assertEqual(event.metadata.get("archive_path"), "/uploads/helper_reset_exports/sample.json")
 
     @patch("hub.views.teacher_parts.roster._reset_helper_class_conversations")
     def test_teacher_reset_helper_conversations_handles_failure(self, reset_mock):
