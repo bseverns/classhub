@@ -140,7 +140,10 @@ class TeacherPortalTests(TestCase):
 
         resp = self.client.get("/teach")
         self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/teach_home.css")
         self.assertContains(resp, "/static/js/teach_home.js")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin:0 0 10px 0"', html=False)
         self.assertNotContains(resp, "const tabRoot = document.querySelector", html=False)
         self.assertContains(resp, "Recent submissions")
         self.assertContains(resp, "Ada")
@@ -1081,7 +1084,10 @@ class LessonReleaseTests(TestCase):
 
         resp = self.client.get("/course/piper_scratch_12_session/s01-welcome-private-workflow")
         self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/lesson_page.css")
         self.assertContains(resp, "/static/js/lesson_page.js")
+        self.assertNotContains(resp, "<style>", html=False)
+        self.assertNotContains(resp, 'style="margin-top:0;"', html=False)
         self.assertNotContains(resp, "const items = Array.from(document.querySelectorAll('.video-item'))", html=False)
         self.assertContains(resp, "intro-only mode")
         self.assertNotContains(resp, "Homework dropbox")

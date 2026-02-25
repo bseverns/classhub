@@ -6,133 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Teacher · {{ operator_profile.product_name|default:"Class Hub" }}</title>
     {% include "includes/glass_theme.html" %}
-    <style>
-      .shell { max-width: 1040px; }
-      .title-row h1 { margin: 0; font-size: clamp(1.9rem, 2.7vw, 2.4rem); }
-      .title-row .muted { margin-top: 4px; }
-      .class-link { font-weight: 700; }
-      .submit-wrap { margin-top: 12px; }
-      .table-wrap {
-        margin-top: 12px;
-        border: 1px solid rgba(22, 59, 80, 0.16);
-        border-radius: 14px;
-        overflow: auto;
-        background: rgba(255, 255, 255, 0.42);
-      }
-      .table-wrap table {
-        margin: 0;
-        min-width: 700px;
-      }
-      .table-wrap thead th {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-        background: rgba(237, 246, 251, 0.96);
-        backdrop-filter: blur(5px);
-      }
-      .table-wrap tbody tr:nth-child(even) {
-        background: rgba(255, 255, 255, 0.34);
-      }
-      .table-wrap tbody td {
-        border-bottom-color: rgba(22, 59, 80, 0.12);
-      }
-      .table-wrap tbody tr:last-child td {
-        border-bottom: 0;
-      }
-      .notice {
-        margin-bottom: 12px;
-        padding: 10px 12px;
-        border: 1px solid rgba(32, 125, 82, 0.35);
-        border-radius: 10px;
-        background: rgba(216, 246, 231, 0.65);
-        color: #1f5f45;
-      }
-      .error {
-        margin-bottom: 12px;
-        padding: 10px 12px;
-        border: 1px solid rgba(182, 56, 56, 0.35);
-        border-radius: 10px;
-        background: rgba(255, 224, 224, 0.58);
-        color: #8f2d2d;
-      }
-      .grid-2 {
-        display: grid;
-        gap: 16px;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      }
-      .download-list {
-        margin: 14px 0 0 0;
-        padding-left: 18px;
-      }
-      .download-list li { margin: 8px 0; }
-      .inline-copy {
-        margin-left: 8px;
-        padding: 4px 8px;
-        border-radius: 9px;
-        font-size: 12px;
-      }
-      .copy-status {
-        margin-top: 8px;
-        min-height: 18px;
-      }
-      .teacher-account-table th:nth-child(1) { min-width: 180px; }
-      .teacher-account-table th:nth-child(2) { min-width: 220px; }
-      .teacher-account-table th:nth-child(3) { min-width: 130px; }
-      .helper-note {
-        margin-top: 8px;
-        font-size: 13px;
-        color: #42697d;
-      }
-      .closeout-list {
-        margin-top: 12px;
-        display: grid;
-        gap: 10px;
-      }
-      .closeout-item {
-        border: 1px solid rgba(22, 59, 80, 0.14);
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.44);
-        padding: 10px 12px;
-      }
-      .closeout-item summary {
-        cursor: pointer;
-        font-weight: 700;
-      }
-      .closeout-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 10px;
-      }
-      .closeout-actions form {
-        margin: 0;
-      }
-      .closeout-actions .mini {
-        padding: 7px 10px;
-        font-size: 13px;
-      }
-      .top-tabs {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 12px;
-      }
-      .top-tab {
-        border: 1px solid rgba(22, 59, 80, 0.26);
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.5);
-        color: #12394f;
-        padding: 8px 14px;
-        font-weight: 700;
-      }
-      .top-tab[aria-selected="true"] {
-        background: linear-gradient(155deg, #12394f, #0f3042);
-        color: #eef7fb;
-      }
-      .top-tab-panel[hidden] {
-        display: none;
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/teach_home.css' %}" />
   </head>
   <body class="glass-theme teacher-comfort">
     <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -170,10 +44,10 @@
           </div>
 
           <section class="top-tab-panel" id="panel-quick-actions" role="tabpanel" aria-labelledby="tab-quick-actions">
-            <h2 style="margin:0 0 10px 0">Create a class</h2>
+            <h2 class="section-title">Create a class</h2>
             <form method="post" action="/teach/create-class">
               {% csrf_token %}
-              <div style="max-width:520px">
+              <div class="create-class-name-wrap">
                 <label for="class-name">Class name</label>
                 <input id="class-name" name="name" placeholder="e.g., Piper + Scratch (Period 3)" />
               </div>
@@ -185,8 +59,8 @@
 
           {% if request.user.is_superuser %}
             <section class="top-tab-panel" id="panel-invite-teacher" role="tabpanel" aria-labelledby="tab-invite-teacher" hidden>
-              <h2 style="margin:0 0 10px 0">Create Teacher Account + Invite</h2>
-              <div class="muted" style="margin-bottom:10px">
+              <h2 class="section-title">Create Teacher Account + Invite</h2>
+              <div class="muted section-subtitle">
                 Creates a staff account and emails a one-click 2FA setup link.
               </div>
               <form method="post" action="/teach/create-teacher">
@@ -212,8 +86,8 @@
                     <label for="teacher-password">Starting password</label>
                     <input id="teacher-password" name="password" type="password" required />
                   </div>
-                  <div style="display:flex;align-items:flex-end">
-                    <label style="display:flex;gap:8px;align-items:center;margin:0">
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
                       <input type="checkbox" name="email_include_password" value="1" />
                       Include temporary password in email
                     </label>
@@ -226,7 +100,7 @@
               </form>
 
               {% if teacher_accounts %}
-                <div class="table-wrap" style="margin-top:14px">
+                <div class="table-wrap teacher-account-table-wrap">
                   <table class="teacher-account-table">
                     <thead>
                       <tr>
@@ -269,8 +143,8 @@
         </div>
 
         <div class="card">
-          <h2 style="margin:0 0 10px 0">Generate Course Authoring Templates</h2>
-          <div class="muted" style="margin-bottom:10px">
+          <h2 class="section-title">Generate Course Authoring Templates</h2>
+          <div class="muted section-subtitle">
             Create pre-formatted `.md` and `.docx` starter files for teachers.
           </div>
           <form method="post" action="/teach/generate-authoring-templates">
@@ -293,13 +167,13 @@
                 <input id="template-duration" name="template_duration" type="number" min="15" max="240" value="{{ template_duration }}" required />
               </div>
             </div>
-            <div class="muted" style="margin-top:10px">Files are written to <code>{{ template_output_dir }}</code>.</div>
+            <div class="muted template-output-note">Files are written to <code>{{ template_output_dir }}</code>.</div>
             <div class="submit-wrap">
               <button type="submit">Generate templates</button>
             </div>
           </form>
           {% if template_download_rows %}
-            <h3 style="margin:14px 0 6px 0">Download files for <code>{{ template_slug }}</code></h3>
+            <h3 class="section-title-compact">Download files for <code>{{ template_slug }}</code></h3>
             <ul class="download-list">
               {% for row in template_download_rows %}
                 <li>
@@ -316,7 +190,7 @@
 
         <div class="card">
           <div class="row">
-            <h2 style="margin:0">Classes</h2>
+            <h2 class="section-title-tight">Classes</h2>
             <div class="muted">Tip: keep codes visible in-room, not in email.</div>
           </div>
           <p id="copy-status" class="muted copy-status" role="status" aria-live="polite"></p>
@@ -360,7 +234,7 @@
 
         <div class="card">
           <div class="row">
-            <h2 style="margin:0">What Changed Since Yesterday</h2>
+            <h2 class="section-title-tight">What Changed Since Yesterday</h2>
             <div class="muted">Window started {{ digest_since|date:"M j, g:i A" }}</div>
           </div>
 
@@ -404,7 +278,7 @@
 
         <div class="card">
           <div class="row">
-            <h2 style="margin:0">End-of-Class Closeout</h2>
+            <h2 class="section-title-tight">End-of-Class Closeout</h2>
             <div class="muted">Keep this collapsed until you need actions.</div>
           </div>
           {% if class_digest_rows %}
@@ -412,7 +286,7 @@
               {% for row in class_digest_rows %}
                 <details class="closeout-item">
                   <summary>{{ row.classroom.name }} · {{ row.student_total }} students</summary>
-                  <div class="muted" style="margin-top:8px;">
+                  <div class="muted closeout-student-note">
                     {{ row.students_without_submissions }} still need a first upload.
                   </div>
                   <div class="closeout-actions">
@@ -435,7 +309,7 @@
 
         <div class="card">
           <div class="row">
-            <h2 style="margin:0">Recent submissions</h2>
+            <h2 class="section-title-tight">Recent submissions</h2>
             <div class="muted">Latest uploads across all classes</div>
           </div>
 

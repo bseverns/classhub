@@ -1,0 +1,129 @@
+.shell {
+  max-width: 1040px;
+}
+.top h1 {
+  margin: 6px 0 0 0;
+  font-size: clamp(1.9rem, 2.8vw, 2.45rem);
+}
+.nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.video-item {
+  border: 1px solid rgba(22, 59, 80, 0.14);
+  border-radius: 12px;
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.46);
+}
+.video-toggle {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  padding: 12px 14px;
+}
+.video-toggle:hover {
+  filter: none;
+  box-shadow: none;
+  transform: none;
+  background: rgba(255, 255, 255, 0.4);
+}
+.video-toggle h3 {
+  margin: 0;
+}
+.video-panel {
+  padding: 0 14px 14px;
+}
+.video-panel[hidden] {
+  display: none;
+}
+.video-frame {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.7);
+}
+.video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.video-native {
+  display: block;
+  width: 100%;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+}
+.video-state {
+  margin-top: 8px;
+}
+.lesson-content {
+  line-height: 1.58;
+}
+.lesson-reading {
+  max-width: 74ch;
+  margin: 0 auto;
+}
+.lesson-status {
+  margin-top: 10px;
+}
+.lesson-content h1,
+.lesson-content h2,
+.lesson-content h3 {
+  line-height: 1.2;
+}
+.lesson-content p,
+.lesson-content ul,
+.lesson-content ol {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.lesson-content code,
+.lesson-content pre {
+  background: rgba(241, 249, 252, 0.92);
+  border-radius: 10px;
+}
+.lesson-content pre {
+  padding: 12px;
+  overflow: auto;
+}
+.lesson-content code {
+  padding: 2px 6px;
+}
+.lesson-content table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.lesson-content th,
+.lesson-content td {
+  border: 1px solid rgba(22, 59, 80, 0.18);
+  padding: 8px;
+  text-align: left;
+}
+.lesson-content blockquote {
+  border-left: 3px solid rgba(22, 59, 80, 0.26);
+  margin: 12px 0;
+  padding-left: 12px;
+  color: #33596e;
+}
+.card-title {
+  margin-top: 0;
+}
+.dropbox-detail {
+  margin-top: 8px;
+}
+.dropbox-state {
+  margin: 8px 0 0 0;
+}
+.dropbox-actions {
+  margin-top: 8px;
+}
