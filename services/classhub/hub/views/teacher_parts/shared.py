@@ -54,6 +54,8 @@ from .shared_auth import (
     staff_member_required,
 )
 from .shared_ordering import (
+    _apply_directional_reorder,
+    _next_unique_class_join_code,
     _next_lesson_video_order,
     _normalize_order,
     _title_from_video_filename,

@@ -10,11 +10,7 @@ def teach_create_class(request):
     if not name:
         return redirect("/teach")
 
-    join_code = gen_class_code()
-    for _ in range(10):
-        if not Class.objects.filter(join_code=join_code).exists():
-            break
-        join_code = gen_class_code()
+    join_code = _next_unique_class_join_code()
 
     classroom = Class.objects.create(name=name, join_code=join_code)
     _audit(
@@ -361,12 +357,7 @@ def teach_reset_roster(request, class_id: int):
     classroom.session_epoch = int(getattr(classroom, "session_epoch", 1) or 1) + 1
     updated_fields.append("session_epoch")
     if rotate_code:
-        join_code = gen_class_code()
-        for _ in range(10):
-            if not Class.objects.filter(join_code=join_code).exclude(id=classroom.id).exists():
-                break
-            join_code = gen_class_code()
-        classroom.join_code = join_code
+        classroom.join_code = _next_unique_class_join_code(exclude_class_id=classroom.id)
         updated_fields.append("join_code")
     classroom.save(update_fields=updated_fields)
 
@@ -526,13 +517,7 @@ def teach_rotate_code(request, class_id: int):
     if not classroom:
         return HttpResponse("Not found", status=404)
 
-    join_code = gen_class_code()
-    for _ in range(10):
-        if not Class.objects.filter(join_code=join_code).exists():
-            break
-        join_code = gen_class_code()
-
-    classroom.join_code = join_code
+    classroom.join_code = _next_unique_class_join_code()
     classroom.save(update_fields=["join_code"])
     _audit(
         request,
@@ -586,19 +571,8 @@ def teach_move_module(request, class_id: int):
     modules = list(classroom.modules.all())
     modules.sort(key=lambda m: (m.order_index, m.id))
 
-    idx = next((i for i, m in enumerate(modules) if m.id == module_id), None)
-    if idx is None:
+    if not _apply_directional_reorder(modules, target_id=module_id, direction=direction):
         return _safe_internal_redirect(request, _teach_class_path(classroom.id), fallback="/teach")
-
-    if direction == "up" and idx > 0:
-        modules[idx - 1], modules[idx] = modules[idx], modules[idx - 1]
-    elif direction == "down" and idx < len(modules) - 1:
-        modules[idx + 1], modules[idx] = modules[idx], modules[idx + 1]
-
-    for i, m in enumerate(modules):
-        if m.order_index != i:
-            m.order_index = i
-            m.save(update_fields=["order_index"])
     _audit(
         request,
         action="module.reorder",
@@ -690,19 +664,8 @@ def teach_move_material(request, module_id: int):
     mats = list(module.materials.all())
     mats.sort(key=lambda m: (m.order_index, m.id))
 
-    idx = next((i for i, m in enumerate(mats) if m.id == material_id), None)
-    if idx is None:
+    if not _apply_directional_reorder(mats, target_id=material_id, direction=direction):
         return _safe_internal_redirect(request, _teach_module_path(module.id), fallback=_teach_class_path(module.classroom_id))
-
-    if direction == "up" and idx > 0:
-        mats[idx - 1], mats[idx] = mats[idx], mats[idx - 1]
-    elif direction == "down" and idx < len(mats) - 1:
-        mats[idx + 1], mats[idx] = mats[idx], mats[idx + 1]
-
-    for i, m in enumerate(mats):
-        if m.order_index != i:
-            m.order_index = i
-            m.save(update_fields=["order_index"])
     _audit(
         request,
         action="material.reorder",

@@ -11,6 +11,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Student join service seam](#student-join-service-seam)
 - [Student home and upload service seam](#student-home-and-upload-service-seam)
 - [Teacher shared helpers split seam](#teacher-shared-helpers-split-seam)
+- [Teacher roster code/reorder helper seam](#teacher-roster-codereorder-helper-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
@@ -270,6 +271,17 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces “big file gravity” in teacher helper code without forcing a broad import rewrite in one pass.
 - Creates clearer seams for future extraction into `hub/services/*` while preserving current endpoint contracts.
+
+## Teacher roster code/reorder helper seam
+
+**Current decision:**
+- Centralize class join-code allocation into `_next_unique_class_join_code(...)` in `hub/views/teacher_parts/shared_ordering.py`.
+- Centralize directional order updates into `_apply_directional_reorder(...)` in `hub/views/teacher_parts/shared_ordering.py`.
+- `hub/views/teacher_parts/roster.py` now calls these helpers for class create/reset/rotate and module/material move actions.
+
+**Why this remains active:**
+- Removes repeated collision-retry and reorder blocks from roster endpoints while preserving endpoint behavior.
+- Keeps future changes to code generation or reorder semantics in one place instead of multiple view branches.
 
 ## Routing mode: local vs domain Caddy configs
 
