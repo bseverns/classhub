@@ -106,6 +106,11 @@ cd /srv/lms/app
 bash scripts/smoke_check.sh --strict
 ```
 
+Notes:
+
+- `/helper/chat` smoke retries transient model startup failures by default (`SMOKE_HELPER_CHAT_RETRIES=3`, `SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS=3`).
+- Increase those values in `compose/.env` if Ollama cold starts regularly exceed a few seconds on your server.
+
 Golden-path smoke (auto fixture bootstrap):
 
 ```bash

@@ -427,6 +427,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Golden smoke issues a server-side staff session key for `/teach` checks so admin-login form changes (OTP/superuser prompts) do not create false negatives.
 - `deploy_with_smoke.sh` now auto-retries with golden smoke when strict smoke fails specifically due stale `SMOKE_CLASS_CODE` (`/join` -> `invalid_code`).
 - `smoke_check.sh` now emits an explicit stale-code diagnostic for `/join invalid_code` failures, with remediation guidance.
+- `smoke_check.sh` now retries `/helper/chat` for transient backend startup failures (`502` + `ollama_error`) before failing deploy smoke.
 - Regression coverage is required for helper auth/admin hardening and backend retry/circuit behavior.
 
 **Why this remains active:**
@@ -440,6 +441,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Prevents CI flakes when local model servers are reachable but model weights are not yet loaded.
 - Keeps strict smoke focused on route authorization outcomes instead of brittle intermediate login form internals.
 - Reduces deploy failures caused by class-code rotation between smoke runs without weakening strict smoke checks for other regressions.
+- Reduces false negative deploy smoke failures when local Ollama is healthy but still warming model execution for the first generation request.
 
 ## CI speed and signal quality
 

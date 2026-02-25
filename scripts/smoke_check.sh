@@ -63,6 +63,10 @@ TEACHER_PASSWORD="${SMOKE_TEACHER_PASSWORD:-$(env_file_value SMOKE_TEACHER_PASSW
 TEACHER_SESSION_KEY="${SMOKE_TEACHER_SESSION_KEY:-$(env_file_value SMOKE_TEACHER_SESSION_KEY)}"
 TIMEOUT_SECONDS="${SMOKE_TIMEOUT_SECONDS:-$(env_file_value SMOKE_TIMEOUT_SECONDS)}"
 TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-20}"
+HELPER_CHAT_RETRIES="${SMOKE_HELPER_CHAT_RETRIES:-$(env_file_value SMOKE_HELPER_CHAT_RETRIES)}"
+HELPER_CHAT_RETRIES="${HELPER_CHAT_RETRIES:-3}"
+HELPER_CHAT_RETRY_DELAY_SECONDS="${SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS:-$(env_file_value SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS)}"
+HELPER_CHAT_RETRY_DELAY_SECONDS="${HELPER_CHAT_RETRY_DELAY_SECONDS:-3}"
 
 INSECURE_TLS="${SMOKE_INSECURE_TLS:-$(env_file_value SMOKE_INSECURE_TLS)}"
 INSECURE_TLS="${INSECURE_TLS:-0}"
@@ -178,13 +182,41 @@ if [[ -n "${CLASS_CODE}" ]]; then
     HELPER_PAYLOAD="$(printf '{"message":"%s","context":"smoke","topics":"scratch"}' "${HELPER_MESSAGE}")"
   fi
 
-  code="$(curl "${CURL_FLAGS[@]}" -o "${TMP_HELPER}" -w "%{http_code}" \
-    -c "${COOKIE_JAR}" -b "${COOKIE_JAR}" \
-    -H "Content-Type: application/json" \
-    -H "X-CSRFToken: ${CSRF_TOKEN}" \
-    -H "Referer: ${BASE_URL}/" \
-    --data "${HELPER_PAYLOAD}" \
-    "${BASE_URL}/helper/chat")"
+  code=""
+  helper_attempt=1
+  while (( helper_attempt <= HELPER_CHAT_RETRIES )); do
+    if ! code="$(curl "${CURL_FLAGS[@]}" -o "${TMP_HELPER}" -w "%{http_code}" \
+      -c "${COOKIE_JAR}" -b "${COOKIE_JAR}" \
+      -H "Content-Type: application/json" \
+      -H "X-CSRFToken: ${CSRF_TOKEN}" \
+      -H "Referer: ${BASE_URL}/" \
+      --data "${HELPER_PAYLOAD}" \
+      "${BASE_URL}/helper/chat")"; then
+      if (( helper_attempt < HELPER_CHAT_RETRIES )); then
+        echo "[smoke] /helper/chat transport error on attempt ${helper_attempt}/${HELPER_CHAT_RETRIES}; retrying in ${HELPER_CHAT_RETRY_DELAY_SECONDS}s"
+        sleep "${HELPER_CHAT_RETRY_DELAY_SECONDS}"
+        ((helper_attempt += 1))
+        continue
+      fi
+      fail "/helper/chat transport error after ${HELPER_CHAT_RETRIES} attempts"
+    fi
+
+    if [[ "${code}" == "200" ]]; then
+      break
+    fi
+
+    if [[ "${code}" == "502" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"ollama_error"' "${TMP_HELPER}"; then
+      if (( helper_attempt < HELPER_CHAT_RETRIES )); then
+        echo "[smoke] /helper/chat returned transient ollama_error on attempt ${helper_attempt}/${HELPER_CHAT_RETRIES}; retrying in ${HELPER_CHAT_RETRY_DELAY_SECONDS}s"
+        sleep "${HELPER_CHAT_RETRY_DELAY_SECONDS}"
+        ((helper_attempt += 1))
+        continue
+      fi
+    fi
+
+    fail "/helper/chat returned ${code}: $(cat "${TMP_HELPER}")"
+  done
+
   [[ "${code}" == "200" ]] || fail "/helper/chat returned ${code}: $(cat "${TMP_HELPER}")"
   grep -Eq '"text"[[:space:]]*:' "${TMP_HELPER}" || fail "/helper/chat response missing text field: $(cat "${TMP_HELPER}")"
   echo "[smoke] /helper/chat OK"
