@@ -7,6 +7,7 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
 
 ## Quick links
 - [Start Here](START_HERE.md)
+- [Things to Install First](START_HERE.md#things-you-need-to-install-first)
 - [Public Overview](PUBLIC_OVERVIEW.md)
 - [Try It Local](TRY_IT_LOCAL.md)
 - [Day 1 Checklist](DAY1_DEPLOY_CHECKLIST.md)

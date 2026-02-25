@@ -13,6 +13,27 @@ Evaluating whether this fits your org? Start with [PUBLIC_OVERVIEW.md](PUBLIC_OV
 ## Verification signal
 You should be able to pick a role path in under 30 seconds and identify the exact next doc to open.
 
+## Things you need to install first
+
+If your school or org already hosts ClassHub for you, you may not need to install anything beyond a browser.
+
+| Role | Install first | Notes |
+|---|---|---|
+| Teacher / school staff (using an existing ClassHub site) | Modern web browser (Chrome, Edge, Firefox, or Safari) | For 2FA-enabled teacher/admin accounts, also install an authenticator app on your phone. |
+| Evaluator / decision-maker | Modern web browser | Use this with [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md) and [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md). |
+| Operator / admin (self-hosting) | Docker Engine, Docker Compose v2, Git, Bash, curl | See [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) for full server setup. |
+| Developer | Same as Operator/admin, plus Python 3.12 + pip (recommended) | Most app work still runs in Docker; Python is mainly for local tooling/docs tasks. |
+
+Quick check for Operator/Developer machines:
+
+```bash
+docker --version
+docker compose version
+git --version
+bash --version
+curl --version
+```
+
 ```mermaid
 flowchart TD
   A[Start Here] --> B{Your role}
