@@ -450,6 +450,9 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Python-focused workflows now enable pip caching through `actions/setup-python` cache settings with explicit dependency paths.
 - Lint workflow now enforces a frontend static asset reference guard (`scripts/check_frontend_static_refs.py`) so classhub template `{% static 'css/*' %}` and `{% static 'js/*' %}` links fail fast if files are missing.
+- Lint workflow now enforces a template inline-JS guard (`scripts/check_no_inline_template_js.py`) that fails on:
+  - `<script>` tags without `src`
+  - inline event handler attributes (`onclick=`, `onsubmit=`, etc.)
 - CI now writes concise human-readable summaries to `$GITHUB_STEP_SUMMARY`:
   - Ruff advisory stats in `lint`.
   - Coverage totals for `classhub-tests` and `helper-tests` in `test-suite`.
@@ -459,6 +462,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Reduces repeated dependency download/install time across CI jobs.
 - Improves review ergonomics by surfacing key quality signals without opening artifacts.
 - Catches frontend wiring regressions with a lightweight check while keeping the stack Python-first.
+- Prevents CSP regressions by blocking inline JS reintroduction in templates.
 - Prevents silent CI gate loss from workflow syntax regressions.
 
 ## Non-root Django runtime containers

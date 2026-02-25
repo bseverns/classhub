@@ -38,3 +38,5 @@ jobs:
         run: python scripts/check_no_latest_tags.py
       - name: Guard classhub frontend static references
         run: python scripts/check_frontend_static_refs.py
+      - name: Guard templates against inline JS surfaces
+        run: python scripts/check_no_inline_template_js.py
