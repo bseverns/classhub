@@ -3,11 +3,13 @@ import logging
 import os
 import time
 from functools import lru_cache
+import hmac
 
 from django.conf import settings
 from django.core.cache import cache
 from django.core.signing import BadSignature, SignatureExpired
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 from common.helper_scope import parse_scope_token
 from common.request_safety import (
@@ -254,25 +256,26 @@ def _conversation_scope_fingerprint(scope_token: str) -> str:
     return engine_memory.scope_fingerprint(scope_token)
 
 
-def _load_conversation_turns(*, conversation_id: str, actor_key: str, scope_fingerprint: str, max_messages: int) -> list[dict]:
+def _load_conversation_state(*, conversation_id: str, actor_key: str, scope_fingerprint: str, max_messages: int) -> dict:
     key = engine_memory.conversation_cache_key(
         actor_key=actor_key,
         scope_fp=scope_fingerprint,
         conversation_id=conversation_id,
     )
-    return engine_memory.load_turns(
+    return engine_memory.load_state(
         cache_backend=cache,
         key=key,
         max_messages=max_messages,
     )
 
 
-def _save_conversation_turns(
+def _save_conversation_state(
     *,
     conversation_id: str,
     actor_key: str,
     scope_fingerprint: str,
     turns: list[dict],
+    summary: str,
     ttl_seconds: int,
 ) -> None:
     key = engine_memory.conversation_cache_key(
@@ -280,11 +283,13 @@ def _save_conversation_turns(
         scope_fp=scope_fingerprint,
         conversation_id=conversation_id,
     )
-    engine_memory.save_turns(
+    engine_memory.save_state(
         cache_backend=cache,
         key=key,
         turns=turns,
+        summary=summary,
         ttl_seconds=ttl_seconds,
+        actor_key=actor_key,
     )
 
 
@@ -300,8 +305,98 @@ def _clear_conversation_turns(*, conversation_id: str, actor_key: str, scope_fin
     )
 
 
-def _format_conversation_for_prompt(turns: list[dict], *, max_chars: int) -> str:
-    return engine_memory.format_turns_for_prompt(turns=turns, max_chars=max_chars)
+def _format_conversation_for_prompt(turns: list[dict], *, max_chars: int, summary: str = "") -> str:
+    return engine_memory.format_turns_for_prompt(turns=turns, max_chars=max_chars, summary=summary)
+
+
+def _compact_conversation(*, turns: list[dict], max_messages: int, summary: str, summary_max_chars: int) -> tuple[str, list[dict], bool]:
+    return engine_memory.compact_turns(
+        turns=turns,
+        max_messages=max_messages,
+        summary=summary,
+        summary_max_chars=summary_max_chars,
+    )
+
+
+def _classify_intent(message: str) -> str:
+    return engine_heuristics.classify_intent(message)
+
+
+def _build_follow_up_suggestions(
+    *,
+    intent: str,
+    context: str,
+    topics: list[str],
+    allowed_topics: list[str],
+    history_summary: str = "",
+    max_items: int = 3,
+) -> list[str]:
+    return engine_heuristics.build_follow_up_suggestions(
+        intent=intent,
+        context=context,
+        topics=topics,
+        allowed_topics=allowed_topics,
+        history_summary=history_summary,
+        max_items=max_items,
+    )
+
+
+def _extract_bearer_token(request) -> str:
+    header = (request.META.get("HTTP_AUTHORIZATION", "") or "").strip()
+    if not header.lower().startswith("bearer "):
+        return ""
+    return header[7:].strip()
+
+
+def _internal_api_token() -> str:
+    return str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip()
+
+
+@csrf_exempt
+@require_POST
+def reset_class_conversations(request):
+    request_id = _request_id(request)
+    configured_token = _internal_api_token()
+    if not configured_token:
+        _log_chat_event("error", "internal_token_not_configured", request_id=request_id)
+        return _json_response({"error": "internal_token_not_configured"}, status=503, request_id=request_id)
+
+    provided_token = _extract_bearer_token(request)
+    if not provided_token or not hmac.compare_digest(configured_token, provided_token):
+        _log_chat_event("warning", "internal_unauthorized", request_id=request_id)
+        return _json_response({"error": "unauthorized"}, status=401, request_id=request_id)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        _log_chat_event("warning", "internal_bad_json", request_id=request_id)
+        return _json_response({"error": "bad_json"}, status=400, request_id=request_id)
+    if not isinstance(payload, dict):
+        return _json_response({"error": "bad_json"}, status=400, request_id=request_id)
+
+    try:
+        class_id = int(payload.get("class_id") or 0)
+    except Exception:
+        class_id = 0
+    if class_id <= 0:
+        return _json_response({"error": "invalid_class_id"}, status=400, request_id=request_id)
+
+    deleted = engine_memory.clear_class_conversations(
+        cache_backend=cache,
+        class_id=class_id,
+        max_keys=max(_env_int("HELPER_CLASS_RESET_MAX_KEYS", 4000), 1),
+    )
+    _log_chat_event(
+        "info",
+        "class_conversations_reset",
+        request_id=request_id,
+        class_id=class_id,
+        deleted_conversations=deleted,
+    )
+    return _json_response(
+        {"ok": True, "class_id": class_id, "deleted_conversations": deleted},
+        request_id=request_id,
+    )
 
 
 @require_GET
@@ -368,6 +463,9 @@ def chat(request):
     except Exception:
         _log_chat_event("warning", "bad_json", request_id=request_id, actor_type=actor_type, ip=client_ip)
         return _json_response({"error": "bad_json"}, status=400, request_id=request_id)
+    if not isinstance(payload, dict):
+        _log_chat_event("warning", "bad_json", request_id=request_id, actor_type=actor_type, ip=client_ip)
+        return _json_response({"error": "bad_json"}, status=400, request_id=request_id)
 
     deps = engine_service.ChatDeps(
         json_response=_json_response,
@@ -399,10 +497,13 @@ def chat(request):
         truncate_response_text=_truncate_response_text,
         normalize_conversation_id=_normalize_conversation_id,
         scope_fingerprint=_conversation_scope_fingerprint,
-        load_conversation_turns=_load_conversation_turns,
-        save_conversation_turns=_save_conversation_turns,
+        load_conversation_state=_load_conversation_state,
+        save_conversation_state=_save_conversation_state,
+        compact_conversation=_compact_conversation,
         clear_conversation_turns=_clear_conversation_turns,
         format_conversation_for_prompt=_format_conversation_for_prompt,
+        classify_intent=_classify_intent,
+        build_follow_up_suggestions=_build_follow_up_suggestions,
     )
     return engine_service.handle_chat(
         request=request,

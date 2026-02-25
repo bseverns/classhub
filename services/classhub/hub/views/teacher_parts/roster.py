@@ -388,6 +388,61 @@ def teach_reset_roster(request, class_id: int):
 
 @staff_member_required
 @require_POST
+def teach_reset_helper_conversations(request, class_id: int):
+    classroom = Class.objects.filter(id=class_id).first()
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+
+    result = _reset_helper_class_conversations(
+        class_id=classroom.id,
+        endpoint_url=str(getattr(settings, "HELPER_INTERNAL_RESET_URL", "") or "").strip(),
+        internal_token=str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip(),
+        timeout_seconds=float(getattr(settings, "HELPER_INTERNAL_RESET_TIMEOUT_SECONDS", 2.0) or 2.0),
+    )
+    if not result.ok:
+        _audit(
+            request,
+            action="class.reset_helper_conversations_failed",
+            classroom=classroom,
+            target_type="Class",
+            target_id=str(classroom.id),
+            summary=f"Failed helper conversation reset for {classroom.name}",
+            metadata={
+                "error_code": result.error_code,
+                "status_code": result.status_code,
+            },
+        )
+        return _safe_internal_redirect(
+            request,
+            _with_notice(
+                _teach_class_path(classroom.id),
+                error=f"Could not reset helper conversations ({result.error_code}).",
+            ),
+            fallback=_teach_class_path(classroom.id),
+        )
+
+    _audit(
+        request,
+        action="class.reset_helper_conversations",
+        classroom=classroom,
+        target_type="Class",
+        target_id=str(classroom.id),
+        summary=f"Reset helper conversations for {classroom.name}",
+        metadata={
+            "deleted_conversations": result.deleted_conversations,
+            "status_code": result.status_code,
+        },
+    )
+    notice = f"Helper conversations reset. Cleared {result.deleted_conversations} conversation(s)."
+    return _safe_internal_redirect(
+        request,
+        _with_notice(_teach_class_path(classroom.id), notice=notice),
+        fallback=_teach_class_path(classroom.id),
+    )
+
+
+@staff_member_required
+@require_POST
 def teach_toggle_lock(request, class_id: int):
     classroom = Class.objects.filter(id=class_id).first()
     if not classroom:
@@ -781,6 +836,7 @@ __all__ = [
     "teach_merge_students",
     "teach_delete_student_data",
     "teach_reset_roster",
+    "teach_reset_helper_conversations",
     "teach_toggle_lock",
     "teach_lock_class",
     "teach_export_class_submissions_today",

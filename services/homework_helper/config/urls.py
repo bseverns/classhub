@@ -6,4 +6,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("helper/healthz", views.healthz),
     path("helper/chat", views.chat),
+    path("helper/internal/reset-class-conversations", views.reset_class_conversations),
 ]

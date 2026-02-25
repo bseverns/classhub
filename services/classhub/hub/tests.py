@@ -34,6 +34,7 @@ from .models import (
     Submission,
 )
 from .services.upload_scan import ScanResult
+from .services.helper_control import HelperResetResult
 
 
 def _sample_sb3_bytes() -> bytes:
@@ -523,6 +524,38 @@ class TeacherPortalTests(TestCase):
         student_resp = student_client.get("/student")
         self.assertEqual(student_resp.status_code, 302)
         self.assertEqual(student_resp["Location"], "/")
+
+    @patch("hub.views.teacher_parts.roster._reset_helper_class_conversations")
+    def test_teacher_can_reset_helper_conversations(self, reset_mock):
+        classroom = Class.objects.create(name="Period Helper", join_code="HLP12345")
+        reset_mock.return_value = HelperResetResult(ok=True, deleted_conversations=4, status_code=200)
+
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.post(f"/teach/class/{classroom.id}/reset-helper-conversations")
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/class/", resp["Location"])
+        self.assertIn("notice=", resp["Location"])
+
+        reset_mock.assert_called_once()
+        event = AuditEvent.objects.filter(action="class.reset_helper_conversations").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.classroom_id, classroom.id)
+        self.assertEqual(event.metadata.get("deleted_conversations"), 4)
+
+    @patch("hub.views.teacher_parts.roster._reset_helper_class_conversations")
+    def test_teacher_reset_helper_conversations_handles_failure(self, reset_mock):
+        classroom = Class.objects.create(name="Period Helper Fail", join_code="HLF12345")
+        reset_mock.return_value = HelperResetResult(ok=False, error_code="helper_unreachable", status_code=0)
+
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.post(f"/teach/class/{classroom.id}/reset-helper-conversations")
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("error=", resp["Location"])
+
+        event = AuditEvent.objects.filter(action="class.reset_helper_conversations_failed").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.classroom_id, classroom.id)
+        self.assertEqual(event.metadata.get("error_code"), "helper_unreachable")
 
     @override_settings(
         EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",

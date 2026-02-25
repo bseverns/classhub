@@ -42,6 +42,8 @@ HELPER_CONVERSATION_MAX_MESSAGES=8
 HELPER_CONVERSATION_TTL_SECONDS=3600
 HELPER_CONVERSATION_TURN_MAX_CHARS=800
 HELPER_CONVERSATION_HISTORY_MAX_CHARS=2400
+HELPER_CONVERSATION_SUMMARY_MAX_CHARS=900
+HELPER_FOLLOW_UP_SUGGESTIONS_MAX=3
 HELPER_MAX_CONCURRENCY=2
 HELPER_QUEUE_MAX_WAIT_SECONDS=10
 HELPER_QUEUE_POLL_SECONDS=0.2
@@ -52,12 +54,19 @@ HELPER_CIRCUIT_BREAKER_FAILURES=5
 HELPER_CIRCUIT_BREAKER_TTL_SECONDS=30
 HELPER_TOPIC_FILTER_MODE=strict
 HELPER_TEXT_LANGUAGE_KEYWORDS=pascal,python,java,javascript,typescript,c++,c#,csharp,ruby,php,go,golang,rust,swift,kotlin
+HELPER_INTERNAL_API_TOKEN=...
+HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+HELPER_INTERNAL_RESET_TIMEOUT_SECONDS=2
+HELPER_CLASS_RESET_MAX_KEYS=4000
 ```
 
 Conversation behavior:
 - Each chat request can include a `conversation_id`; the helper now returns one on every response.
 - Recent redacted turns are cached per `(actor, scope token, conversation_id)` with TTL, so follow-up questions can build on prior context.
-- Reset by starting a new `conversation_id` (UI `Reset chat` does this).
+- When history exceeds `HELPER_CONVERSATION_MAX_MESSAGES`, older turns are compacted into a rolling summary to preserve context while keeping prompts short.
+- Each response includes an `intent` tag (`debug`, `concept`, `strategy`, etc.) derived from the latest student message.
+- Each response includes `follow_up_suggestions` (bounded by `HELPER_FOLLOW_UP_SUGGESTIONS_MAX`) so the UI can offer one-tap next questions.
+- Reset by starting a new `conversation_id` (UI `Reset chat` does this), or clear all student helper conversations for a class via teacher dashboard action (`/teach/class/<id>/reset-helper-conversations`).
 
 ### Ollama (local)
 

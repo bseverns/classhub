@@ -32,6 +32,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper widget static assets](#helper-widget-static-assets)
 - [Helper widget error transparency](#helper-widget-error-transparency)
 - [Helper conversation memory](#helper-conversation-memory)
+- [Helper conversation compaction + class reset control](#helper-conversation-compaction--class-reset-control)
 - [Coursepack validation gate](#coursepack-validation-gate)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
@@ -583,6 +584,20 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Makes helper responses meaningfully conversational without introducing long-term transcript retention by default.
 - Preserves privacy boundaries while improving tutoring quality for clarifying follow-up questions.
+
+## Helper conversation compaction and class reset control
+
+**Current decision:**
+- Helper conversation cache now supports lightweight rolling summaries when turn count exceeds `HELPER_CONVERSATION_MAX_MESSAGES`, controlled by `HELPER_CONVERSATION_SUMMARY_MAX_CHARS`.
+- Helper responses include a per-turn `intent` tag (for example `debug`, `concept`, `strategy`) derived from the latest student message.
+- Helper responses include bounded `follow_up_suggestions` so student UI can present one-tap next prompts per assistant turn.
+- Teacher class dashboard includes a `Reset helper conversations` action (`POST /teach/class/<id>/reset-helper-conversations`) that calls helper internal endpoint `POST /helper/internal/reset-class-conversations`.
+- Internal helper reset endpoint requires `Authorization: Bearer <HELPER_INTERNAL_API_TOKEN>` and clears only indexed student conversation keys for the target class.
+
+**Why this remains active:**
+- Keeps prompt size bounded on CPU-constrained local models while retaining useful conversational context.
+- Gives teachers a practical classroom control to clear stale helper context without deleting roster/submission data.
+- Preserves privacy posture: cache-only memory, class-scoped deletion, and explicit internal token boundary.
 
 ## Coursepack validation gate
 

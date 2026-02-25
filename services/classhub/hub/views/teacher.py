@@ -22,6 +22,7 @@ __all__ = [
     "teach_merge_students",
     "teach_delete_student_data",
     "teach_reset_roster",
+    "teach_reset_helper_conversations",
     "teach_toggle_lock",
     "teach_lock_class",
     "teach_export_class_submissions_today",

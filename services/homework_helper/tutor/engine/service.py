@@ -41,10 +41,13 @@ class ChatDeps:
     truncate_response_text: Callable[[str], tuple[str, bool]]
     normalize_conversation_id: Callable[[str], str]
     scope_fingerprint: Callable[[str], str]
-    load_conversation_turns: Callable[..., list[dict]]
-    save_conversation_turns: Callable[..., None]
+    load_conversation_state: Callable[..., dict]
+    save_conversation_state: Callable[..., None]
+    compact_conversation: Callable[..., tuple[str, list[dict], bool]]
     clear_conversation_turns: Callable[..., None]
     format_conversation_for_prompt: Callable[..., str]
+    classify_intent: Callable[[str], str]
+    build_follow_up_suggestions: Callable[..., list[str]]
 
 
 def handle_chat(
@@ -64,11 +67,14 @@ def handle_chat(
 ):
     conversation_id = deps.normalize_conversation_id(str(payload.get("conversation_id") or ""))
     conversation_enabled = False
+    intent = ""
 
     def _response(body: dict, *, status: int = 200):
         payload_with_conversation = dict(body or {})
         payload_with_conversation["conversation_id"] = conversation_id
         payload_with_conversation["conversation_enabled"] = conversation_enabled
+        if intent and "intent" not in payload_with_conversation:
+            payload_with_conversation["intent"] = intent
         return deps.json_response(payload_with_conversation, status=status, request_id=request_id)
 
     scope_token = str(payload.get("scope_token") or "").strip()
@@ -115,6 +121,7 @@ def handle_chat(
     conversation_ttl_seconds = max(deps.env_int("HELPER_CONVERSATION_TTL_SECONDS", 3600), 60)
     conversation_turn_max_chars = max(deps.env_int("HELPER_CONVERSATION_TURN_MAX_CHARS", 800), 80)
     conversation_history_max_chars = max(deps.env_int("HELPER_CONVERSATION_HISTORY_MAX_CHARS", 2400), 300)
+    conversation_summary_max_chars = max(deps.env_int("HELPER_CONVERSATION_SUMMARY_MAX_CHARS", 900), 200)
     if max_conversation_messages <= 0:
         conversation_enabled = False
 
@@ -126,39 +133,72 @@ def handle_chat(
         )
 
     history_turns: list[dict] = []
+    history_summary = ""
     if conversation_enabled:
-        history_turns = deps.load_conversation_turns(
+        conversation_state = deps.load_conversation_state(
             conversation_id=conversation_id,
             actor_key=actor_key,
             scope_fingerprint=conversation_scope_fp,
             max_messages=max_conversation_messages,
         )
+        history_turns = list(conversation_state.get("turns") or [])
+        history_summary = str(conversation_state.get("summary") or "").strip()
 
     message = (payload.get("message") or "").strip()
     if not message:
         return _response({"error": "missing_message"}, status=400)
 
     message = deps.redact(message)[:8000]
+    intent = deps.classify_intent(message)
+    follow_up_suggestions = deps.build_follow_up_suggestions(
+        intent=intent,
+        context=context_value or "",
+        topics=topics,
+        allowed_topics=allowed_topics,
+        history_summary=history_summary,
+        max_items=max(deps.env_int("HELPER_FOLLOW_UP_SUGGESTIONS_MAX", 3), 1),
+    )
 
     def _persist_turns(assistant_text: str) -> None:
+        nonlocal history_turns, history_summary
         if not conversation_enabled:
             return
-        user_turn = {"role": "student", "content": message[:conversation_turn_max_chars]}
-        assistant_turn = {"role": "assistant", "content": deps.redact(assistant_text)[:conversation_turn_max_chars]}
+        user_turn = {"role": "student", "content": message[:conversation_turn_max_chars], "intent": intent}
+        assistant_turn = {"role": "assistant", "content": deps.redact(assistant_text)[:conversation_turn_max_chars], "intent": intent}
         next_turns = [*history_turns, user_turn, assistant_turn]
-        if len(next_turns) > max_conversation_messages:
-            next_turns = next_turns[-max_conversation_messages:]
-        deps.save_conversation_turns(
+        next_summary, next_turns, compacted = deps.compact_conversation(
+            turns=next_turns,
+            max_messages=max_conversation_messages,
+            summary=history_summary,
+            summary_max_chars=conversation_summary_max_chars,
+        )
+        deps.save_conversation_state(
             conversation_id=conversation_id,
             actor_key=actor_key,
             scope_fingerprint=conversation_scope_fp,
             turns=next_turns,
+            summary=next_summary,
             ttl_seconds=conversation_ttl_seconds,
         )
+        history_turns = next_turns
+        history_summary = next_summary
+        if compacted:
+            deps.log_chat_event(
+                "info",
+                "conversation_compacted",
+                request_id=request_id,
+                actor_type=actor_type,
+                backend=(os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower(),
+                conversation_id=conversation_id,
+            )
 
     conversation_prompt = ""
-    if conversation_enabled and history_turns:
-        conversation_prompt = deps.format_conversation_for_prompt(history_turns, max_chars=conversation_history_max_chars)
+    if conversation_enabled and (history_turns or history_summary):
+        conversation_prompt = deps.format_conversation_for_prompt(
+            history_turns,
+            max_chars=conversation_history_max_chars,
+            summary=history_summary,
+        )
     model_message = message
     if conversation_prompt:
         model_message = f"{conversation_prompt}\n\nStudent (latest):\n{message}"
@@ -214,6 +254,8 @@ def handle_chat(
                 "attempts": 0,
                 "scope_verified": scope_verified,
                 "citations": citations,
+                "intent": intent,
+                "follow_up_suggestions": follow_up_suggestions,
             }
         )
     if (
@@ -241,6 +283,8 @@ def handle_chat(
                 "scope_verified": scope_verified,
                 "triage_mode": "piper_hardware",
                 "citations": citations,
+                "intent": intent,
+                "follow_up_suggestions": follow_up_suggestions,
             }
         )
     if allowed_topics:
@@ -262,6 +306,8 @@ def handle_chat(
                     "attempts": 0,
                     "scope_verified": scope_verified,
                     "citations": citations,
+                    "intent": intent,
+                    "follow_up_suggestions": follow_up_suggestions,
                 }
             )
     instructions = deps.build_instructions(
@@ -372,6 +418,7 @@ def handle_chat(
         response_chars=len(safe_text),
         truncated=truncated,
         total_ms=total_ms,
+        intent=intent,
     )
     return _response(
         {
@@ -385,5 +432,7 @@ def handle_chat(
             "truncated": truncated,
             "scope_verified": scope_verified,
             "citations": citations,
+            "intent": intent,
+            "follow_up_suggestions": follow_up_suggestions,
         }
     )

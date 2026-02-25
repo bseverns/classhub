@@ -36,6 +36,7 @@ from ...models import (
 from ...services.authoring_templates import generate_authoring_templates
 from ...services.content_links import build_asset_url
 from ...services.filenames import safe_filename
+from ...services.helper_control import reset_class_conversations as _reset_helper_class_conversations
 from ...services.markdown_content import load_lesson_markdown
 from ...services.release_state import parse_release_date
 from ...services.zip_exports import (

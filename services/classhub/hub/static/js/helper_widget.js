@@ -151,8 +151,9 @@
       output.textContent = txt;
     };
 
-    const appendTurn = (role, text) => {
+    const appendTurn = (role, text, options = {}) => {
       if (!transcript) return;
+      const suggestions = Array.isArray(options.suggestions) ? options.suggestions : [];
       const turn = document.createElement("div");
       turn.className = `helper-turn helper-turn--${role === "student" ? "student" : "assistant"}`;
       const labelNode = document.createElement("span");
@@ -162,6 +163,33 @@
       contentNode.textContent = text;
       turn.appendChild(labelNode);
       turn.appendChild(contentNode);
+      if (role !== "student" && suggestions.length) {
+        const followupsWrap = document.createElement("div");
+        followupsWrap.className = "helper-followups";
+        const followupsLabel = document.createElement("div");
+        followupsLabel.className = "helper-followups-label";
+        followupsLabel.textContent = "Try next:";
+        followupsWrap.appendChild(followupsLabel);
+        suggestions.forEach((row) => {
+          const suggestion = String(row || "").trim();
+          if (!suggestion) return;
+          const followupBtn = document.createElement("button");
+          followupBtn.type = "button";
+          followupBtn.className = "helper-followup-action";
+          followupBtn.textContent = suggestion;
+          followupBtn.addEventListener("click", () => {
+            if (button.disabled) return;
+            textarea.value = suggestion;
+            textarea.focus();
+            textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+            sendMessage(suggestion);
+          });
+          followupsWrap.appendChild(followupBtn);
+        });
+        if (followupsWrap.childElementCount > 1) {
+          turn.appendChild(followupsWrap);
+        }
+      }
       transcript.appendChild(turn);
       transcript.scrollTop = transcript.scrollHeight;
     };
@@ -210,6 +238,10 @@
       if (!quickActions) return;
       quickActions.querySelectorAll(".helper-quick-action").forEach((quickBtn) => {
         quickBtn.disabled = disabled;
+      });
+      if (!transcript) return;
+      transcript.querySelectorAll(".helper-followup-action").forEach((followupBtn) => {
+        followupBtn.disabled = disabled;
       });
     };
 
@@ -272,7 +304,8 @@
         }
 
         const responseText = (data && data.text) || "(no output)";
-        appendTurn("assistant", responseText);
+        const followUpSuggestions = (data && data.follow_up_suggestions) || [];
+        appendTurn("assistant", responseText, { suggestions: followUpSuggestions });
         setOutput("");
         renderCitations((data && data.citations) || []);
       } catch (_err) {

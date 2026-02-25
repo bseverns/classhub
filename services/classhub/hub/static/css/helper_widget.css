@@ -102,6 +102,42 @@
     margin-bottom: 4px;
     color: #4e6f80;
   }
+  .helper-followups {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .helper-followups-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #4e6f80;
+    margin-right: 2px;
+  }
+  .helper-followup-action {
+    margin-top: 0;
+    padding: 5px 9px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 52, 72, 0.2);
+    background: rgba(255, 255, 255, 0.86);
+    color: #204960;
+    cursor: pointer;
+  }
+  .helper-followup-action:hover {
+    background: rgba(255, 255, 255, 0.96);
+  }
+  .helper-followup-action:focus {
+    outline: none;
+    border-color: var(--focus, #0f7c8b);
+    box-shadow: 0 0 0 3px rgba(15, 124, 139, 0.16);
+  }
+  .helper-followup-action:disabled {
+    cursor: wait;
+    opacity: 0.78;
+  }
   .helper-widget .helper-submit:hover {
     filter: brightness(1.04);
   }

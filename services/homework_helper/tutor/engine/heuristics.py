@@ -135,9 +135,113 @@ def allowed_topic_overlap(message: str, allowed_topics: list[str]) -> bool:
     return bool(msg_tokens & topic_tokens)
 
 
+def classify_intent(message: str) -> str:
+    lowered = (message or "").strip().lower()
+    if not lowered:
+        return "general"
+    if any(token in lowered for token in ("error", "not working", "doesn't", "doesnt", "can't", "cant", "stuck", "broken", "fail")):
+        return "debug"
+    if any(token in lowered for token in ("what is", "why", "explain", "define", "mean", "difference")):
+        return "concept"
+    if any(token in lowered for token in ("next step", "what should i do", "how do i start", "plan", "first step", "sequence")):
+        return "strategy"
+    if any(token in lowered for token in ("is this right", "check my", "did i do", "review this", "how did i do")):
+        return "reflection"
+    if any(token in lowered for token in ("done", "finished", "submitted", "complete", "completed")):
+        return "status"
+    return "general"
+
+
+def build_follow_up_suggestions(
+    *,
+    intent: str,
+    context: str,
+    topics: list[str],
+    allowed_topics: list[str],
+    history_summary: str = "",
+    max_items: int = 3,
+) -> list[str]:
+    limit = max(int(max_items), 1)
+    topic_hint = _pick_topic_hint(allowed_topics=allowed_topics, topics=topics, context=context, history_summary=history_summary)
+    rows = _follow_up_templates(intent=intent, topic_hint=topic_hint)
+    unique: list[str] = []
+    for row in rows:
+        suggestion = _normalize_suggestion(row)
+        if not suggestion:
+            continue
+        if suggestion in unique:
+            continue
+        unique.append(suggestion)
+        if len(unique) >= limit:
+            break
+    return unique
+
+
+def _pick_topic_hint(*, allowed_topics: list[str], topics: list[str], context: str, history_summary: str) -> str:
+    for candidate in [*(allowed_topics or []), *(topics or []), context or "", history_summary or ""]:
+        cleaned = _normalize_topic(candidate)
+        if cleaned:
+            return cleaned
+    return "this lesson"
+
+
+def _normalize_topic(raw: str) -> str:
+    value = " ".join(str(raw or "").strip().split())
+    if not value:
+        return ""
+    return value[:48]
+
+
+def _normalize_suggestion(raw: str) -> str:
+    value = " ".join(str(raw or "").strip().split())
+    if not value:
+        return ""
+    if value[-1] not in ".?!":
+        value = value + "?"
+    return value[:140]
+
+
+def _follow_up_templates(*, intent: str, topic_hint: str) -> list[str]:
+    key = str(intent or "").strip().lower()
+    if key == "debug":
+        return [
+            "What did you try right before the issue happened",
+            f"Which one test can you run next for {topic_hint}",
+            "What changed after your last test",
+        ]
+    if key == "concept":
+        return [
+            "Can you explain this idea in your own words",
+            f"Where do you see {topic_hint} in your project",
+            "Want a quick concrete example",
+        ]
+    if key == "strategy":
+        return [
+            "What is the smallest next step you can do now",
+            "What result will tell you that step worked",
+            f"Want a 3-step plan for {topic_hint}",
+        ]
+    if key == "reflection":
+        return [
+            "What part feels strongest so far",
+            "What part still needs one improvement",
+            "Want feedback on one specific section first",
+        ]
+    if key == "status":
+        return [
+            "Which requirement is still incomplete",
+            f"Want a quick submit checklist for {topic_hint}",
+            "Do you want to verify one final detail before submitting",
+        ]
+    return [
+        "What have you already tried",
+        "What did you expect to happen",
+        "Want one small next step",
+    ]
+
+
 def truncate_response_text(text: str, *, max_chars: int) -> tuple[str, bool]:
     limit = max(int(max_chars), 200)
     if len(text) <= limit:
         return text, False
     return text[:limit].rstrip(), True
-

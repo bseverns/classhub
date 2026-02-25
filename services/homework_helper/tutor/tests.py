@@ -14,6 +14,7 @@ from common.helper_scope import issue_scope_token
 
 from . import classhub_events
 from . import views
+from .engine import memory as engine_memory
 
 
 class HelperChatAuthTests(TestCase):
@@ -120,6 +121,64 @@ class HelperChatAuthTests(TestCase):
         self.assertNotIn("Initial question", second_backend_message)
         self.assertNotIn("Initial answer", second_backend_message)
 
+    @patch("tutor.engine.backends.invoke_backend")
+    @patch.dict(
+        "os.environ",
+        {
+            "HELPER_CONVERSATION_MAX_MESSAGES": "2",
+            "HELPER_CONVERSATION_SUMMARY_MAX_CHARS": "400",
+        },
+        clear=False,
+    )
+    def test_chat_compacts_history_into_summary_when_turn_budget_exceeded(self, invoke_backend_mock):
+        self._set_student_session()
+        invoke_backend_mock.side_effect = [
+            ("Answer one", "fake-model"),
+            ("Answer two", "fake-model"),
+            ("Answer three", "fake-model"),
+        ]
+        conversation_id = "123e4567-e89b-12d3-a456-426614174101"
+
+        self._post_chat({"message": "First question", "conversation_id": conversation_id})
+        self._post_chat({"message": "Second question", "conversation_id": conversation_id})
+        third = self._post_chat({"message": "Third question", "conversation_id": conversation_id})
+        self.assertEqual(third.status_code, 200)
+
+        third_backend_message = str(invoke_backend_mock.call_args_list[2].kwargs["message"])
+        self.assertIn("Conversation summary:", third_backend_message)
+        self.assertIn("First question", third_backend_message)
+        self.assertIn("Recent conversation:", third_backend_message)
+        self.assertIn("Second question", third_backend_message)
+        self.assertIn("Student (latest):", third_backend_message)
+        self.assertIn("Third question", third_backend_message)
+
+    def test_chat_returns_intent_tag(self):
+        self._set_student_session()
+        resp = self._post_chat({"message": "My sprite is not working, what should I check first?"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("intent"), "debug")
+
+    def test_chat_returns_follow_up_suggestions(self):
+        self._set_student_session()
+        resp = self._post_chat({"message": "My sprite is not working, what should I check first?"})
+        self.assertEqual(resp.status_code, 200)
+        suggestions = resp.json().get("follow_up_suggestions")
+        self.assertIsInstance(suggestions, list)
+        self.assertGreaterEqual(len(suggestions), 1)
+        self.assertLessEqual(len(suggestions), 3)
+        self.assertTrue(any("try" in str(item).lower() for item in suggestions))
+
+    def test_chat_follow_up_suggestions_change_with_intent(self):
+        self._set_student_session()
+        debug_resp = self._post_chat({"message": "It is not working and I am stuck."})
+        concept_resp = self._post_chat({"message": "What is a sprite in Scratch?"})
+        self.assertEqual(debug_resp.status_code, 200)
+        self.assertEqual(concept_resp.status_code, 200)
+        debug_suggestions = debug_resp.json().get("follow_up_suggestions") or []
+        concept_suggestions = concept_resp.json().get("follow_up_suggestions") or []
+        self.assertNotEqual(debug_suggestions, concept_suggestions)
+        self.assertTrue(any("own words" in str(item).lower() for item in concept_suggestions))
+
     @override_settings(
         CLASSHUB_INTERNAL_EVENTS_URL="http://classhub_web:8000/internal/events/helper-chat-access",
         CLASSHUB_INTERNAL_EVENTS_TOKEN="token-123",
@@ -203,6 +262,7 @@ class HelperChatAuthTests(TestCase):
         body = resp.json()
         self.assertEqual(body.get("triage_mode"), "piper_hardware")
         self.assertEqual(body.get("attempts"), 0)
+        self.assertTrue(body.get("follow_up_suggestions"))
         text = (body.get("text") or "").lower()
         self.assertIn("which storymode mission + step", text)
         self.assertIn("do this one check now", text)
@@ -743,3 +803,60 @@ class HelperSiteModeTests(TestCase):
     def test_maintenance_still_allows_healthz(self):
         resp = self.client.get("/helper/healthz")
         self.assertEqual(resp.status_code, 200)
+
+
+class HelperInternalResetTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
+    @override_settings(HELPER_INTERNAL_API_TOKEN="")
+    def test_internal_reset_requires_configured_token(self):
+        resp = self.client.post(
+            "/helper/internal/reset-class-conversations",
+            data=json.dumps({"class_id": 5}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION="Bearer test-token",
+        )
+        self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.json().get("error"), "internal_token_not_configured")
+
+    @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
+    def test_internal_reset_rejects_invalid_token(self):
+        resp = self.client.post(
+            "/helper/internal/reset-class-conversations",
+            data=json.dumps({"class_id": 5}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION="Bearer wrong-token",
+        )
+        self.assertEqual(resp.status_code, 401)
+        self.assertEqual(resp.json().get("error"), "unauthorized")
+
+    @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
+    def test_internal_reset_clears_class_conversation_keys(self):
+        key = engine_memory.conversation_cache_key(
+            actor_key="student:55:9001",
+            scope_fp="noscope",
+            conversation_id="class-reset-test",
+        )
+        engine_memory.save_state(
+            cache_backend=cache,
+            key=key,
+            turns=[{"role": "student", "content": "Need help", "intent": "debug"}],
+            summary="",
+            ttl_seconds=300,
+            actor_key="student:55:9001",
+        )
+        self.assertIsNotNone(cache.get(key))
+
+        resp = self.client.post(
+            "/helper/internal/reset-class-conversations",
+            data=json.dumps({"class_id": 55}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION="Bearer token-123",
+        )
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        self.assertTrue(body.get("ok"))
+        self.assertEqual(body.get("class_id"), 55)
+        self.assertGreaterEqual(int(body.get("deleted_conversations") or 0), 1)
+        self.assertIsNone(cache.get(key))
