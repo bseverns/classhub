@@ -376,11 +376,13 @@ Historical implementation logs and superseded decisions are archived by month in
 - CI now writes concise human-readable summaries to `$GITHUB_STEP_SUMMARY`:
   - Ruff advisory stats in `lint`.
   - Coverage totals for `classhub-tests` and `helper-tests` in `test-suite`.
+- Workflow syntax is now protected by a dedicated YAML parse gate (`.github/workflows/workflow-lint.yml`) so malformed workflow files fail fast in CI.
 
 **Why this remains active:**
 - Reduces repeated dependency download/install time across CI jobs.
 - Improves review ergonomics by surfacing key quality signals without opening artifacts.
 - Catches frontend wiring regressions with a lightweight check while keeping the stack Python-first.
+- Prevents silent CI gate loss from workflow syntax regressions.
 
 ## Non-root Django runtime containers
 

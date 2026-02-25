@@ -15,20 +15,20 @@ jobs:
         run: |
           cp compose/.env.example compose/.env
           # Append CI overrides so env guardrails stay stable even if .env.example formatting changes.
-          cat >> compose/.env <<'EOF'
-CADDYFILE_TEMPLATE=Caddyfile.local
-POSTGRES_PASSWORD=aaaaaaaaaaaaaaaa
-MINIO_ROOT_PASSWORD=bbbbbbbbbbbbbbbb
-DJANGO_SECRET_KEY=cccccccccccccccccccccccccccccccc
-DEVICE_HINT_SIGNING_KEY=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-CLASSHUB_INTERNAL_EVENTS_TOKEN=dddddddddddddddd
-DJANGO_DEBUG=0
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
-CSRF_TRUSTED_ORIGINS=http://localhost
-SMOKE_BASE_URL=http://localhost
-HELPER_LLM_BACKEND=mock
-HELPER_TOPIC_FILTER_MODE=strict
-EOF
+          {
+            echo "CADDYFILE_TEMPLATE=Caddyfile.local"
+            echo "POSTGRES_PASSWORD=aaaaaaaaaaaaaaaa"
+            echo "MINIO_ROOT_PASSWORD=bbbbbbbbbbbbbbbb"
+            echo "DJANGO_SECRET_KEY=cccccccccccccccccccccccccccccccc"
+            echo "DEVICE_HINT_SIGNING_KEY=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+            echo "CLASSHUB_INTERNAL_EVENTS_TOKEN=dddddddddddddddd"
+            echo "DJANGO_DEBUG=0"
+            echo "DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1"
+            echo "CSRF_TRUSTED_ORIGINS=http://localhost"
+            echo "SMOKE_BASE_URL=http://localhost"
+            echo "HELPER_LLM_BACKEND=mock"
+            echo "HELPER_TOPIC_FILTER_MODE=strict"
+          } >> compose/.env
 
       - name: Run system doctor with golden-path smoke
         run: |
