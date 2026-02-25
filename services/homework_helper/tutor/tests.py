@@ -50,10 +50,10 @@ class HelperChatAuthTests(TestCase):
             content_type="application/json",
         )
 
-    def _set_student_session(self):
+    def _set_student_session(self, *, student_id: int = 101, class_id: int = 5):
         session = self.client.session
-        session["student_id"] = 101
-        session["class_id"] = 5
+        session["student_id"] = student_id
+        session["class_id"] = class_id
         session.save()
 
     def test_chat_requires_class_or_staff_session(self):
@@ -120,6 +120,61 @@ class HelperChatAuthTests(TestCase):
         second_backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
         self.assertNotIn("Initial question", second_backend_message)
         self.assertNotIn("Initial answer", second_backend_message)
+
+    @patch("tutor.engine.backends.invoke_backend")
+    def test_chat_isolates_conversation_history_by_actor_and_scope(self, invoke_backend_mock):
+        invoke_backend_mock.side_effect = [
+            ("Scope A answer 1", "fake-model"),
+            ("Scope A answer 2", "fake-model"),
+            ("Scope B answer 1", "fake-model"),
+            ("Actor B answer 1", "fake-model"),
+        ]
+        conversation_id = "123e4567-e89b-12d3-a456-4266141740aa"
+        scope_a = issue_scope_token(
+            context="Lesson scope: Session 1",
+            topics=["scratch motion"],
+            allowed_topics=["scratch motion", "sprites"],
+            reference="piper_scratch",
+        )
+        scope_b = issue_scope_token(
+            context="Lesson scope: Session 2",
+            topics=["scratch loops"],
+            allowed_topics=["scratch loops", "sprites"],
+            reference="piper_scratch",
+        )
+
+        self._set_student_session(student_id=101, class_id=5)
+        first = self._post_chat(
+            {"message": "Scope A first question", "conversation_id": conversation_id, "scope_token": scope_a}
+        )
+        second = self._post_chat(
+            {"message": "Scope A second question", "conversation_id": conversation_id, "scope_token": scope_a}
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(second.status_code, 200)
+        second_backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
+        self.assertIn("Recent conversation:", second_backend_message)
+        self.assertIn("Student: Scope A first question", second_backend_message)
+        self.assertIn("Tutor: Scope A answer 1", second_backend_message)
+
+        scope_switched = self._post_chat(
+            {"message": "Scope B first question", "conversation_id": conversation_id, "scope_token": scope_b}
+        )
+        self.assertEqual(scope_switched.status_code, 200)
+        scope_switched_backend_message = str(invoke_backend_mock.call_args_list[2].kwargs["message"])
+        self.assertNotIn("Scope A first question", scope_switched_backend_message)
+        self.assertNotIn("Scope A answer 1", scope_switched_backend_message)
+        self.assertNotIn("Recent conversation:", scope_switched_backend_message)
+
+        self._set_student_session(student_id=202, class_id=5)
+        actor_switched = self._post_chat(
+            {"message": "Actor B first question", "conversation_id": conversation_id, "scope_token": scope_a}
+        )
+        self.assertEqual(actor_switched.status_code, 200)
+        actor_switched_backend_message = str(invoke_backend_mock.call_args_list[3].kwargs["message"])
+        self.assertNotIn("Scope A first question", actor_switched_backend_message)
+        self.assertNotIn("Scope A answer 1", actor_switched_backend_message)
+        self.assertNotIn("Recent conversation:", actor_switched_backend_message)
 
     @patch("tutor.engine.backends.invoke_backend")
     @patch.dict(
