@@ -992,4 +992,5 @@ class HelperInternalResetTests(TestCase):
                 archive_path = str(body.get("archive_path") or "")
                 self.assertTrue(archive_path)
                 self.assertTrue(os.path.exists(archive_path))
+                self.assertTrue(Path(archive_path).resolve().is_relative_to(Path(temp_dir).resolve()))
         self.assertIsNone(cache.get(key))

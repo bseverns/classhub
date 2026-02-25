@@ -6,6 +6,8 @@ from functools import lru_cache
 import hmac
 import re
 from datetime import datetime, timezone
+from pathlib import Path
+from uuid import uuid4
 
 from django.conf import settings
 from django.core.cache import cache
@@ -367,28 +369,34 @@ def _write_class_reset_archive(*, class_id: int, request_id: str, conversations:
     if not archive_dir:
         raise RuntimeError("archive_directory_not_configured")
 
-    os.makedirs(archive_dir, mode=0o750, exist_ok=True)
+    archive_root = Path(archive_dir).expanduser().resolve()
+    archive_root.mkdir(mode=0o750, parents=True, exist_ok=True)
     try:
-        os.chmod(archive_dir, 0o750)
+        os.chmod(archive_root, 0o750)
     except Exception:
         pass
+
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    req_fragment = re.sub(r"[^a-zA-Z0-9]", "", str(request_id or ""))[:12] or "reset"
-    filename = f"class_{int(class_id)}_helper_reset_{stamp}_{req_fragment}.json"
-    archive_path = os.path.join(archive_dir, filename)
+    # Keep archive paths independent of request payload to avoid path-injection taint.
+    filename = f"class_helper_reset_{stamp}_{uuid4().hex[:12]}.json"
+    archive_path = (archive_root / filename).resolve()
+    if archive_path.parent != archive_root:
+        raise RuntimeError("archive_path_outside_root")
+
     payload = {
         "class_id": int(class_id),
         "archived_at": datetime.now(timezone.utc).isoformat(),
         "conversation_count": len(conversations),
         "conversations": conversations,
+        "request_id": str(request_id or ""),
     }
-    with open(archive_path, "w", encoding="utf-8") as handle:
+    with archive_path.open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, ensure_ascii=True, indent=2)
     try:
         os.chmod(archive_path, 0o640)
     except Exception:
         pass
-    return archive_path, len(conversations)
+    return str(archive_path), len(conversations)
 
 
 def _build_helper_event_details(*, response, request_id: str, actor_type: str, backend: str) -> dict:
