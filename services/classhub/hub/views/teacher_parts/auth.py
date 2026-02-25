@@ -1,5 +1,7 @@
 """Teacher auth and onboarding endpoints."""
 
+import re
+
 from .shared import *  # noqa: F401,F403,F405
 
 

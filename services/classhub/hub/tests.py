@@ -628,10 +628,11 @@ class Teacher2FASetupTests(TestCase):
             digits=device.digits,
             drift=device.drift,
         )
+        otp_token = f"{otp_value:0{int(device.digits)}d}"
         resp = self.client.post(
             "/teach/2fa/setup",
             {
-                "otp_token": f"{otp_value:0{int(device.digits)}d}",
+                "otp_token": f" {otp_token[:3]} {otp_token[3:]} ",
             },
         )
         self.assertEqual(resp.status_code, 302)
