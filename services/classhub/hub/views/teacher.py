@@ -18,6 +18,7 @@ __all__ = [
     "teach_create_class",
     "teach_class_dashboard",
     "teach_class_join_card",
+    "teach_student_return_code",
     "teach_rename_student",
     "teach_merge_students",
     "teach_delete_student_data",

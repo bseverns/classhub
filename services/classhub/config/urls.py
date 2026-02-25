@@ -55,6 +55,7 @@ urlpatterns = [
     path("teach/create-class", views.teach_create_class),
     path("teach/class/<int:class_id>", views.teach_class_dashboard),
     path("teach/class/<int:class_id>/join-card", views.teach_class_join_card),
+    path("teach/class/<int:class_id>/student/<int:student_id>/return-code", views.teach_student_return_code),
     path("teach/class/<int:class_id>/rename-student", views.teach_rename_student),
     path("teach/class/<int:class_id>/merge-students", views.teach_merge_students),
     path("teach/class/<int:class_id>/delete-student-data", views.teach_delete_student_data),

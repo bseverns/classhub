@@ -1,5 +1,8 @@
 """Teacher class, roster, module, and submission endpoints."""
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+
 from .shared import *  # noqa: F401,F403,F405
 
 
@@ -110,6 +113,22 @@ def teach_class_join_card(request, class_id: int):
             "prefilled_join_url": request.build_absolute_uri(f"/?{query}"),
         },
     )
+    apply_no_store(response, private=True, pragma=True)
+    return response
+
+
+@staff_member_required
+@require_GET
+def teach_student_return_code(request, class_id: int, student_id: int):
+    classroom = Class.objects.filter(id=class_id).first()
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+
+    student = StudentIdentity.objects.filter(id=student_id, classroom=classroom).first()
+    if not student:
+        return HttpResponse("Not found", status=404)
+
+    response = JsonResponse({"return_code": student.return_code})
     apply_no_store(response, private=True, pragma=True)
     return response
 
@@ -853,6 +872,7 @@ __all__ = [
     "teach_create_class",
     "teach_class_dashboard",
     "teach_class_join_card",
+    "teach_student_return_code",
     "teach_rename_student",
     "teach_merge_students",
     "teach_delete_student_data",

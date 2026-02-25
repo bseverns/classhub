@@ -387,7 +387,7 @@
                             <span
                               id="student-return-code-{{ st.id }}"
                               class="pill secret-code"
-                              data-secret-code="{{ st.return_code|b64encode }}"
+                              data-return-code-student-id="{{ st.id }}"
                               data-shown="0"
                             >••••••</span>
                             <button
@@ -818,24 +818,48 @@
         const status = document.getElementById("copy-status");
         const copyButtons = document.querySelectorAll("[data-copy-value], [data-copy-secret-target]");
         const toggleButtons = document.querySelectorAll("[data-secret-target]");
-        const decodeSecret = (el) => {
+        const returnCodeBaseUrl = "/teach/class/{{ classroom.id }}/student";
+        const returnCodeCache = new Map();
+        const returnCodePromises = new Map();
+        const studentIdFor = (el) => {
           if (!el) return "";
-          const encoded = el.getAttribute("data-secret-code") || "";
-          if (!encoded) return "";
-          try {
-            return atob(encoded);
-          } catch (_err) {
-            return "";
+          return String(el.getAttribute("data-return-code-student-id") || "").trim();
+        };
+        const fetchReturnCode = async (studentId) => {
+          if (!studentId) throw new Error("missing_student_id");
+          if (returnCodeCache.has(studentId)) return returnCodeCache.get(studentId) || "";
+          if (!returnCodePromises.has(studentId)) {
+            returnCodePromises.set(
+              studentId,
+              fetch(`${returnCodeBaseUrl}/${encodeURIComponent(studentId)}/return-code`, {
+                method: "GET",
+                credentials: "same-origin",
+                headers: { Accept: "application/json" },
+              })
+                .then(async (resp) => {
+                  if (!resp.ok) throw new Error("return_code_unavailable");
+                  const payload = await resp.json();
+                  const value = (payload && payload.return_code ? String(payload.return_code) : "").trim();
+                  if (!value) throw new Error("missing_return_code");
+                  returnCodeCache.set(studentId, value);
+                  return value;
+                })
+                .finally(() => {
+                  if (!returnCodeCache.has(studentId)) returnCodePromises.delete(studentId);
+                })
+            );
           }
+          return returnCodePromises.get(studentId);
         };
         const maskFor = (value) => "•".repeat(Math.max(value.length, 6));
         const setMasked = (el) => {
-          const plain = decodeSecret(el);
+          const studentId = studentIdFor(el);
+          const plain = studentId ? (returnCodeCache.get(studentId) || "") : "";
           el.textContent = maskFor(plain);
           el.setAttribute("data-shown", "0");
         };
-        const setShown = (el) => {
-          const plain = decodeSecret(el);
+        const setShown = async (el) => {
+          const plain = await fetchReturnCode(studentIdFor(el));
           el.textContent = plain || maskFor("");
           el.setAttribute("data-shown", "1");
         };
@@ -844,7 +868,7 @@
           const target = document.getElementById(btn.getAttribute("data-secret-target") || "");
           if (!target) return;
           setMasked(target);
-          btn.addEventListener("click", () => {
+          btn.addEventListener("click", async () => {
             const shown = target.getAttribute("data-shown") === "1";
             if (shown) {
               setMasked(target);
@@ -853,11 +877,15 @@
               btn.setAttribute("aria-label", "Show return code");
               if (status) status.textContent = "Return code hidden.";
             } else {
-              setShown(target);
-              btn.textContent = "Hide";
-              btn.setAttribute("aria-pressed", "true");
-              btn.setAttribute("aria-label", "Hide return code");
-              if (status) status.textContent = "Return code shown.";
+              try {
+                await setShown(target);
+                btn.textContent = "Hide";
+                btn.setAttribute("aria-pressed", "true");
+                btn.setAttribute("aria-label", "Hide return code");
+                if (status) status.textContent = "Return code shown.";
+              } catch (_err) {
+                if (status) status.textContent = "Could not load return code. Refresh and try again.";
+              }
             }
           });
         });
@@ -868,7 +896,12 @@
             let value = btn.getAttribute("data-copy-value") || "";
             if (!value) {
               const target = document.getElementById(btn.getAttribute("data-copy-secret-target") || "");
-              value = decodeSecret(target);
+              try {
+                value = await fetchReturnCode(studentIdFor(target));
+              } catch (_err) {
+                status.textContent = "Could not load return code. Refresh and try again.";
+                return;
+              }
             }
             if (!value) return;
             try {

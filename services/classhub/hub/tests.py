@@ -237,8 +237,36 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["Cache-Control"], "private, no-store")
         self.assertContains(resp, "••••••")
+        self.assertNotContains(resp, "data-secret-code=")
         self.assertNotContains(resp, f">{student.return_code}<", html=False)
         self.assertContains(resp, "Show")
+
+    def test_teach_student_return_code_requires_staff(self):
+        classroom = Class.objects.create(name="Period Roster", join_code="MASK1234")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+
+        resp = self.client.get(f"/teach/class/{classroom.id}/student/{student.id}/return-code")
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/login", resp["Location"])
+
+    def test_teach_student_return_code_returns_json_for_staff(self):
+        classroom = Class.objects.create(name="Period Roster", join_code="MASK1234")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}/student/{student.id}/return-code")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+        self.assertEqual(resp.json(), {"return_code": student.return_code})
+
+    def test_teach_student_return_code_enforces_class_scope(self):
+        classroom = Class.objects.create(name="Period Roster", join_code="MASK1234")
+        other_class = Class.objects.create(name="Other", join_code="OTHR1234")
+        student = StudentIdentity.objects.create(classroom=other_class, display_name="Ada")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}/student/{student.id}/return-code")
+        self.assertEqual(resp.status_code, 404)
 
     def test_teach_class_shows_helper_signal_panel(self):
         classroom = Class.objects.create(name="Period Signals", join_code="SIG12345")
