@@ -24,6 +24,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            services/classhub/requirements.txt
+            .github/workflows/test-suite.yml
       - name: Install classhub deps
         run: |
           pip install -r services/classhub/requirements.txt
@@ -46,12 +50,39 @@ jobs:
         run: |
           coverage run --branch --source=services/classhub/hub services/classhub/manage.py test
           coverage report -m
+          coverage json -o coverage-classhub.json
           coverage xml -o coverage-classhub.xml
+      - name: Coverage summary (classhub)
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = Path("coverage-classhub.json")
+          if not summary.exists():
+              raise SystemExit(0)
+
+          data = json.loads(summary.read_text())
+          totals = data.get("totals", {})
+          pct = totals.get("percent_covered_display", totals.get("percent_covered", "n/a"))
+          stmts = totals.get("num_statements", "n/a")
+          missing = totals.get("missing_lines", "n/a")
+          with Path(Path.cwd() / ".github_step_summary_tmp").open("w", encoding="utf-8") as out:
+              out.write("### Class Hub coverage\n")
+              out.write(f"- Coverage: {pct}%\n")
+              out.write(f"- Statements: {stmts}\n")
+              out.write(f"- Missing lines: {missing}\n")
+          PY
+          cat .github_step_summary_tmp >> "$GITHUB_STEP_SUMMARY"
+          rm -f .github_step_summary_tmp
       - name: Upload classhub coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-classhub
-          path: coverage-classhub.xml
+          path: |
+            coverage-classhub.xml
+            coverage-classhub.json
 
   helper-tests:
     runs-on: ubuntu-latest
@@ -60,6 +91,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            services/homework_helper/requirements.txt
+            .github/workflows/test-suite.yml
       - name: Install helper deps
         run: |
           pip install -r services/homework_helper/requirements.txt
@@ -78,9 +113,36 @@ jobs:
         run: |
           coverage run --branch --source=services/homework_helper/tutor services/homework_helper/manage.py test
           coverage report -m
+          coverage json -o coverage-helper.json
           coverage xml -o coverage-helper.xml
+      - name: Coverage summary (helper)
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = Path("coverage-helper.json")
+          if not summary.exists():
+              raise SystemExit(0)
+
+          data = json.loads(summary.read_text())
+          totals = data.get("totals", {})
+          pct = totals.get("percent_covered_display", totals.get("percent_covered", "n/a"))
+          stmts = totals.get("num_statements", "n/a")
+          missing = totals.get("missing_lines", "n/a")
+          with Path(Path.cwd() / ".github_step_summary_tmp").open("w", encoding="utf-8") as out:
+              out.write("### Homework Helper coverage\n")
+              out.write(f"- Coverage: {pct}%\n")
+              out.write(f"- Statements: {stmts}\n")
+              out.write(f"- Missing lines: {missing}\n")
+          PY
+          cat .github_step_summary_tmp >> "$GITHUB_STEP_SUMMARY"
+          rm -f .github_step_summary_tmp
       - name: Upload helper coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-helper
-          path: coverage-helper.xml
+          path: |
+            coverage-helper.xml
+            coverage-helper.json

@@ -13,15 +13,28 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: .github/workflows/lint.yml
       - name: Install ruff
         run: pip install ruff==0.8.6
       - name: Ruff blocking gate (syntax/undefined)
         run: ruff check services scripts --select E9,F63,F7,F82
       - name: Ruff advisory coverage (E,F,I,B,UP)
-        run: ruff check services scripts --select E,F,I,B,UP --statistics --exit-zero
+        run: ruff check services scripts --select E,F,I,B,UP --statistics --exit-zero | tee /tmp/ruff-advisory.txt
+      - name: Lint summary
+        if: always()
+        run: |
+          {
+            echo "### Ruff advisory stats"
+            echo '```text'
+            cat /tmp/ruff-advisory.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Repo hygiene guard
         run: bash scripts/repo_hygiene_check.sh
       - name: Guard internal service port exposure
         run: python scripts/check_compose_port_exposure.py
       - name: Guard against :latest image tags
         run: python scripts/check_no_latest_tags.py
+      - name: Guard classhub frontend static references
+        run: python scripts/check_frontend_static_refs.py

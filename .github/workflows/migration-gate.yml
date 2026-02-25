@@ -13,6 +13,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            services/classhub/requirements.txt
+            .github/workflows/migration-gate.yml
       - name: Install classhub deps
         run: pip install -r services/classhub/requirements.txt
       - name: Check classhub migrations committed
@@ -29,6 +33,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            services/homework_helper/requirements.txt
+            .github/workflows/migration-gate.yml
       - name: Install helper deps
         run: pip install -r services/homework_helper/requirements.txt
       - name: Check helper migrations committed

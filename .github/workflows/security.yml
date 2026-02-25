@@ -24,6 +24,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            services/classhub/requirements.txt
+            services/homework_helper/requirements.txt
+            .github/workflows/security.yml
       - name: Install dependency auditor
         run: pip install pip-audit==2.8.0
       - name: Audit classhub dependencies
@@ -38,6 +43,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: .github/workflows/security.yml
       - name: Install Bandit
         run: pip install bandit==1.8.3
       - name: Bandit scan + gate

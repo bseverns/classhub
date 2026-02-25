@@ -36,6 +36,7 @@ Run from repo root:
 ```bash
 bash scripts/repo_hygiene_check.sh
 ruff check services scripts
+python3 scripts/check_frontend_static_refs.py
 bash scripts/make_release_zip.sh /tmp/classhub_release_ci.zip
 python3 scripts/lint_release_artifact.py /tmp/classhub_release_ci.zip
 ```
@@ -51,6 +52,27 @@ python3 services/homework_helper/manage.py test
 ```
 
 If you use Docker-first local dev, run equivalent checks via `docker compose exec`.
+
+## Maintainer branch protection baseline
+For repository admins, keep `main` protected with:
+
+- Require pull requests before merge.
+- Require at least 1 approving review.
+- Require conversation resolution before merge.
+- Require status checks to pass before merge.
+
+Recommended required checks (by workflow job):
+
+- `lint / ruff`
+- `test-suite / release-artifact-check`
+- `test-suite / classhub-tests`
+- `test-suite / helper-tests`
+- `migration-gate / classhub`
+- `migration-gate / helper`
+- `security / secret-scan`
+- `security / dependency-audit`
+- `security / sast-bandit`
+- `stack-smoke / doctor`
 
 ## Scope control
 - Keep PRs narrow and explain what is explicitly out of scope.

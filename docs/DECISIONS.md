@@ -17,6 +17,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Request safety and helper access posture](#request-safety-and-helper-access-posture)
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
 - [Deployment guardrails](#deployment-guardrails)
+- [CI speed and signal quality](#ci-speed-and-signal-quality)
 - [Non-root Django runtime containers](#non-root-django-runtime-containers)
 - [Compose least-privilege flags](#compose-least-privilege-flags)
 - [Pinned infrastructure images + latest-tag CI guard](#pinned-infrastructure-images--latest-tag-ci-guard)
@@ -365,6 +366,20 @@ Historical implementation logs and superseded decisions are archived by month in
 - Prevents CI from accidentally probing external placeholder domains while validating local compose stacks.
 - Prevents CI flakes when local model servers are reachable but model weights are not yet loaded.
 - Keeps strict smoke focused on route authorization outcomes instead of brittle intermediate login form internals.
+
+## CI speed and signal quality
+
+**Current decision:**
+- Python-focused workflows now enable pip caching through `actions/setup-python` cache settings with explicit dependency paths.
+- Lint workflow now enforces a frontend static asset reference guard (`scripts/check_frontend_static_refs.py`) so classhub template `{% static 'css/*' %}` and `{% static 'js/*' %}` links fail fast if files are missing.
+- CI now writes concise human-readable summaries to `$GITHUB_STEP_SUMMARY`:
+  - Ruff advisory stats in `lint`.
+  - Coverage totals for `classhub-tests` and `helper-tests` in `test-suite`.
+
+**Why this remains active:**
+- Reduces repeated dependency download/install time across CI jobs.
+- Improves review ergonomics by surfacing key quality signals without opening artifacts.
+- Catches frontend wiring regressions with a lightweight check while keeping the stack Python-first.
 
 ## Non-root Django runtime containers
 
