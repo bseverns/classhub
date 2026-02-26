@@ -66,8 +66,18 @@ def actor_key(*, request, build_actor_key_fn, student_session_exists_fn) -> str:
     )
 
 
-def load_scope_from_token(*, scope_token: str, max_age_seconds: int, parse_scope_token_fn) -> dict:
-    return parse_scope_token_fn(scope_token, max_age_seconds=max_age_seconds)
+def load_scope_from_token(
+    *,
+    scope_token: str,
+    max_age_seconds: int,
+    scope_signing_key: str,
+    parse_scope_token_fn,
+) -> dict:
+    return parse_scope_token_fn(
+        scope_token,
+        max_age_seconds=max_age_seconds,
+        signing_key=scope_signing_key,
+    )
 
 
 def ollama_chat(

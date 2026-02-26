@@ -78,6 +78,14 @@ if not DEBUG and _secret_key_looks_unsafe(DEVICE_HINT_SIGNING_KEY):
 if not DEBUG and DEVICE_HINT_SIGNING_KEY == SECRET_KEY:
     raise RuntimeError("DEVICE_HINT_SIGNING_KEY must differ from DJANGO_SECRET_KEY when DJANGO_DEBUG=0")
 
+HELPER_SCOPE_SIGNING_KEY = env("HELPER_SCOPE_SIGNING_KEY", default="").strip()
+if not HELPER_SCOPE_SIGNING_KEY:
+    # Backward-compatible fallback; set explicitly in production to decouple
+    # helper scope tokens from the main Django secret.
+    HELPER_SCOPE_SIGNING_KEY = SECRET_KEY
+if not DEBUG and _secret_key_looks_unsafe(HELPER_SCOPE_SIGNING_KEY):
+    raise RuntimeError("HELPER_SCOPE_SIGNING_KEY must be a strong non-default value when DJANGO_DEBUG=0")
+
 ALLOWED_HOSTS = [h.strip() for h in env("DJANGO_ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",") if h.strip()]
 
 # Use when serving via domain + HTTPS so Django accepts browser CSRF tokens

@@ -4,6 +4,7 @@ from django.utils.html import format_html
 from .models import (
     AuditEvent,
     Class,
+    ClassInviteLink,
     LessonAsset,
     LessonAssetFolder,
     LessonRelease,
@@ -53,6 +54,24 @@ class StudentEventAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(ClassInviteLink)
+class ClassInviteLinkAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "classroom",
+        "label",
+        "is_active",
+        "max_uses",
+        "use_count",
+        "expires_at",
+        "created_at",
+        "last_used_at",
+    )
+    list_filter = ("is_active", "classroom")
+    search_fields = ("token", "label", "classroom__name", "classroom__join_code")
+    readonly_fields = ("use_count", "created_at", "last_used_at", "updated_at")
 
 
 @admin.register(Submission)

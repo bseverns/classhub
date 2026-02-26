@@ -2,6 +2,17 @@
 .top h1 { margin: 6px 0 0 0; font-size: clamp(1.85rem, 2.6vw, 2.35rem); }
 .btnline form { display: inline-block; margin: 0 6px 0 0; }
 .btnline button { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
+.btnline a {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(22, 59, 80, 0.22);
+  background: rgba(255, 255, 255, 0.46);
+  color: #1b4258;
+  text-decoration: none;
+  font-size: 13px;
+}
 .quick { margin-top: 12px; margin-right: 8px; margin-bottom: 6px; }
 .module {
   border: 1px solid rgba(22, 59, 80, 0.14);
@@ -252,6 +263,19 @@
 }
 .section-body {
   margin-top: 12px;
+}
+.invite-create-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  align-items: end;
+}
+.invite-create-form button {
+  width: fit-content;
+}
+.invite-table-wrap code {
+  word-break: break-all;
+  font-size: 12px;
 }
 .helper-tune {
   margin-top: 10px;

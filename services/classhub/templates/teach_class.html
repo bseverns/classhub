@@ -37,6 +37,7 @@
               {% csrf_token %}
               <button type="submit">Rotate code</button>
             </form>
+            <a href="/teach/class/{{ classroom.id }}/export-summary-csv">Export summary CSV</a>
           </div>
         </div>
 
@@ -47,6 +48,94 @@
           {% if error %}
             <p class="error flash-banner">{{ error }}</p>
           {% endif %}
+          <details class="section-toggle">
+            <summary>
+              <span class="section-title">Student Invite Links</span>
+              <span class="section-subtitle">Generate no-login links with optional expiry and seat caps.</span>
+            </summary>
+            <div class="section-body">
+              <form method="post" action="/teach/class/{{ classroom.id }}/create-invite-link" class="invite-create-form">
+                {% csrf_token %}
+                <label>
+                  Label (optional)
+                  <input name="label" maxlength="120" placeholder="e.g., Period 3 paid cohort" />
+                </label>
+                <label>
+                  Expires in hours (optional)
+                  <input name="expires_in_hours" type="number" min="1" max="2160" placeholder="e.g., 72" />
+                </label>
+                <label>
+                  Seat cap (optional)
+                  <input name="seat_cap" type="number" min="1" max="5000" placeholder="e.g., 24" />
+                </label>
+                <button type="submit">Create invite link</button>
+              </form>
+              {% if invite_links %}
+                <div class="roster-table-wrap invite-table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th scope="col">Label</th>
+                        <th scope="col">Link</th>
+                        <th scope="col">Seats</th>
+                        <th scope="col">Expires</th>
+                        <th scope="col">Status</th>
+                        <th scope="col"><span class="visually-hidden">Action</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for invite in invite_links %}
+                        <tr>
+                          <td>{{ invite.label|default:"(no label)" }}</td>
+                          <td>
+                            <code>{{ invite.invite_url }}</code>
+                            <button type="button" class="inline-copy" data-copy-value="{{ invite.invite_url }}">Copy</button>
+                          </td>
+                          <td>
+                            {% if invite.max_uses %}
+                              {{ invite.use_count }} / {{ invite.max_uses }}
+                              {% if invite.seats_remaining_value is not None %}
+                                <span class="muted mini"> · {{ invite.seats_remaining_value }} left</span>
+                              {% endif %}
+                            {% else %}
+                              Unlimited
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if invite.expires_at %}
+                              {{ invite.expires_at|date:"M j, Y g:i A" }}
+                            {% else %}
+                              Never
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if invite.is_active and not invite.is_expired_now %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% elif not invite.is_active %}
+                              <span class="state-pill state-pill--locked">Disabled</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Expired</span>
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if invite.is_active %}
+                              <form method="post" action="/teach/class/{{ classroom.id }}/disable-invite-link">
+                                {% csrf_token %}
+                                <input type="hidden" name="invite_id" value="{{ invite.id }}" />
+                                <button type="submit">Disable</button>
+                              </form>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted section-empty-note">No invite links yet.</p>
+              {% endif %}
+            </div>
+          </details>
           <details class="section-toggle">
             <summary>
               <span class="section-title">Roster</span>

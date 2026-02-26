@@ -25,6 +25,7 @@ from common.helper_scope import parse_scope_token
 from ..models import (
     AuditEvent,
     Class,
+    ClassInviteLink,
     LessonAsset,
     LessonAssetFolder,
     LessonVideo,

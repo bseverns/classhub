@@ -171,7 +171,9 @@ require_nonempty "MINIO_ROOT_USER"
 if [[ "${DJANGO_DEBUG}" == "0" ]]; then
   require_strong_secret "DJANGO_SECRET_KEY" 32
   require_strong_secret "DEVICE_HINT_SIGNING_KEY" 32
+  require_strong_secret "HELPER_SCOPE_SIGNING_KEY" 32
   require_distinct_values "DJANGO_SECRET_KEY" "DEVICE_HINT_SIGNING_KEY"
+  require_distinct_values "DJANGO_SECRET_KEY" "HELPER_SCOPE_SIGNING_KEY"
   require_strong_secret "CLASSHUB_INTERNAL_EVENTS_TOKEN" 16
   require_strong_secret "HELPER_INTERNAL_API_TOKEN" 16
   ADMIN_2FA_REQUIRED="$(env_file_value DJANGO_ADMIN_2FA_REQUIRED)"

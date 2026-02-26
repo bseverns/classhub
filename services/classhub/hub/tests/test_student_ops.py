@@ -237,6 +237,57 @@ class JoinClassTests(TestCase):
         )
         self.assertEqual(allowed.status_code, 200)
 
+    def test_invite_url_redirects_to_join_page_with_token(self):
+        invite = ClassInviteLink.objects.create(classroom=self.classroom, label="Paid cohort")
+
+        resp = self.client.get(f"/invite/{invite.token}")
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(f"/?invite={invite.token}", resp["Location"])
+
+    def test_join_allows_invite_token_without_class_code(self):
+        invite = ClassInviteLink.objects.create(classroom=self.classroom, label="Paid cohort")
+
+        resp = self.client.post(
+            "/join",
+            data=json.dumps({"display_name": "Ada", "invite_token": invite.token}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(self.client.session.get("class_id"), self.classroom.id)
+        invite.refresh_from_db()
+        self.assertEqual(invite.use_count, 1)
+
+    def test_join_blocks_new_student_when_invite_seat_cap_reached(self):
+        invite = ClassInviteLink.objects.create(classroom=self.classroom, max_uses=1, use_count=1)
+
+        resp = self.client.post(
+            "/join",
+            data=json.dumps({"display_name": "Ada", "invite_token": invite.token}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json().get("error"), "invite_seat_cap_reached")
+        self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 0)
+
+    def test_join_rejoin_does_not_consume_new_invite_seat(self):
+        invite = ClassInviteLink.objects.create(classroom=self.classroom, max_uses=1)
+        first = self.client.post(
+            "/join",
+            data=json.dumps({"display_name": "Ada", "invite_token": invite.token}),
+            content_type="application/json",
+        )
+        self.assertEqual(first.status_code, 200)
+        self.client.get("/logout")
+
+        second = self.client.post(
+            "/join",
+            data=json.dumps({"display_name": "Ada", "invite_token": invite.token}),
+            content_type="application/json",
+        )
+        self.assertEqual(second.status_code, 200)
+        invite.refresh_from_db()
+        self.assertEqual(invite.use_count, 1)
+
 
 class TeacherAuditTests(TestCase):
     def setUp(self):
@@ -322,6 +373,11 @@ class StudentEventRetentionCommandTests(TestCase):
     def test_prune_student_events_dry_run_keeps_rows(self):
         call_command("prune_student_events", older_than_days=90, dry_run=True)
         self.assertEqual(StudentEvent.objects.count(), 2)
+
+    def test_studentevent_queryset_delete_requires_retention_context(self):
+        with self.assertRaises(ValueError):
+            StudentEvent.objects.filter(id=self.old.id).delete()
+        self.assertTrue(StudentEvent.objects.filter(id=self.old.id).exists())
 
     def test_prune_student_events_deletes_old_rows(self):
         call_command("prune_student_events", older_than_days=90)
@@ -832,5 +888,3 @@ class OperatorProfileTemplateTests(TestCase):
         self.assertNotContains(admin_login_resp, "<style>", html=False)
         self.assertNotContains(admin_login_resp, 'style="margin:8px 0 0 0;"', html=False)
         self.assertNotContains(admin_login_resp, 'var form = document.getElementById("login-form")', html=False)
-
-

@@ -113,7 +113,7 @@ class TeacherPortalTests(TestCase):
         self.assertNotContains(resp, 'style="margin-bottom: 20px;"', html=False)
 
     def test_teach_lessons_shows_submission_progress(self):
-        classroom, upload = self._build_lesson_with_submission()
+        classroom, _upload = self._build_lesson_with_submission()
         _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get(f"/teach/lessons?class_id={classroom.id}")
@@ -129,7 +129,7 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, f"/teach/material/{upload.id}/submissions?download=zip_latest")
 
     def test_teach_material_submissions_page_uses_external_css_without_inline_styles(self):
-        classroom, upload = self._build_lesson_with_submission()
+        classroom, _upload = self._build_lesson_with_submission()
         _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get(f"/teach/material/{upload.id}/submissions")
@@ -156,7 +156,7 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Invite teacher")
 
     def test_teach_home_shows_since_yesterday_digest(self):
-        classroom, upload = self._build_lesson_with_submission()
+        classroom, _upload = self._build_lesson_with_submission()
         student = StudentIdentity.objects.filter(classroom=classroom, display_name="Ada").first()
         StudentEvent.objects.create(
             classroom=classroom,
@@ -242,6 +242,58 @@ class TeacherPortalTests(TestCase):
         self.assertNotContains(resp, "<style>", html=False)
         self.assertNotContains(resp, "onclick=\"window.print()\"", html=False)
         self.assertNotContains(resp, "Copied class code.", html=False)
+
+    def test_teach_class_can_create_student_invite_link(self):
+        classroom = Class.objects.create(name="Paid Cohort", join_code="INV12345")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/create-invite-link",
+            {
+                "label": "After-school paid cohort",
+                "expires_in_hours": "48",
+                "seat_cap": "12",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        invite = ClassInviteLink.objects.filter(classroom=classroom).first()
+        self.assertIsNotNone(invite)
+        self.assertEqual(invite.label, "After-school paid cohort")
+        self.assertEqual(invite.max_uses, 12)
+        self.assertTrue(invite.is_active)
+        self.assertIsNotNone(invite.expires_at)
+
+    def test_teach_class_export_summary_csv_contains_class_student_and_lesson_rows(self):
+        classroom, upload = self._build_lesson_with_submission()
+        student = StudentIdentity.objects.filter(classroom=classroom, display_name="Ada").first()
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=student,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=student,
+            event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+            source="test",
+            details={"prompt": "do not export this"},
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}/export-summary-csv")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("attachment;", resp["Content-Disposition"])
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+        body = resp.content.decode("utf-8")
+        self.assertIn("class_summary", body)
+        self.assertIn("student_summary", body)
+        self.assertIn("lesson_summary", body)
+        self.assertIn("Ada", body)
+        self.assertIn("piper_scratch_12_session", body)
+        self.assertNotIn("do not export this", body)
+        self.assertNotIn("prompt", body)
 
     def test_teach_class_masks_return_codes_by_default(self):
         classroom = Class.objects.create(name="Period Roster", join_code="MASK1234")
@@ -378,7 +430,7 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Ada")
         self.assertContains(resp, "2 chats")
 
-    def test_teach_delete_student_data_removes_student_submissions_and_events(self):
+    def test_teach_delete_student_data_removes_submissions_and_detaches_events(self):
         classroom = Class.objects.create(name="Delete Data Class", join_code="DEL12345")
         module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
         upload = Material.objects.create(
@@ -416,6 +468,7 @@ class TeacherPortalTests(TestCase):
         self.assertFalse(StudentIdentity.objects.filter(id=student.id).exists())
         self.assertEqual(Submission.objects.filter(student_id=student.id).count(), 0)
         self.assertEqual(StudentEvent.objects.filter(student_id=student.id).count(), 0)
+        self.assertEqual(StudentEvent.objects.filter(classroom=classroom).count(), 1)
 
     @patch("hub.views.teacher_parts.content.generate_authoring_templates")
     def test_teach_home_can_generate_authoring_templates(self, mock_generate):
@@ -758,5 +811,3 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertIn("/teach?error=", resp["Location"])
         self.assertFalse(get_user_model().objects.filter(username="blocked").exists())
-
-

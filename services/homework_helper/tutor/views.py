@@ -134,6 +134,7 @@ def _load_scope_from_token(scope_token: str, *, max_age_seconds: int) -> dict:
     return runtime_load_scope_from_token(
         scope_token=scope_token,
         max_age_seconds=max_age_seconds,
+        scope_signing_key=str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or ""),
         parse_scope_token_fn=parse_scope_token,
     )
 

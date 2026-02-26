@@ -5,6 +5,7 @@
   const codeInput = document.getElementById("code");
   const nameInput = document.getElementById("name");
   const returnCodeInput = document.getElementById("return_code");
+  const inviteTokenInput = document.getElementById("invite_token");
 
   if (!msg || !joinForm || !joinBtn || !codeInput || !nameInput || !returnCodeInput) return;
 
@@ -42,6 +43,7 @@
     const class_code = (codeInput.value || "").trim();
     const display_name = (nameInput.value || "").trim();
     const return_code = (returnCodeInput.value || "").trim();
+    const invite_token = inviteTokenInput ? (inviteTokenInput.value || "").trim() : "";
 
     joinBtn.disabled = true;
     joinBtn.setAttribute("aria-busy", "true");
@@ -54,7 +56,7 @@
           "X-CSRFToken": csrfToken(),
         },
         credentials: "same-origin",
-        body: JSON.stringify({ class_code, display_name, return_code }),
+        body: JSON.stringify({ class_code, display_name, return_code, invite_token }),
       });
 
       if (!res.ok) {
@@ -65,6 +67,10 @@
         if (errorCode === "invalid_return_code") return showErr("That return code is not valid for this class.");
         if (errorCode === "class_locked") return showErr("This class is locked right now.");
         if (errorCode === "missing_fields") return showErr("Please enter a class code and your name.");
+        if (errorCode === "invite_invalid") return showErr("That invite link is not valid.");
+        if (errorCode === "invite_inactive") return showErr("That invite link is disabled.");
+        if (errorCode === "invite_expired") return showErr("That invite link has expired.");
+        if (errorCode === "invite_seat_cap_reached") return showErr("That invite link has reached its seat limit.");
         if (errorCode === "rate_limited") return showErr("Too many join attempts. Wait a minute and try again.");
         if (errorCode === "site_mode_restricted") return showErr(data.message || "Joining is temporarily unavailable.");
         if (res.status === 403) return showErr("Security check blocked the join request. Reload and try again.");

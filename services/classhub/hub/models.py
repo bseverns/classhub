@@ -10,9 +10,12 @@ Note: for Day-1, we keep the model tiny. As the platform grows, add:
 
 import re
 import secrets
+from contextlib import contextmanager
+from contextvars import ContextVar
 from pathlib import Path
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 def gen_class_code(length: int = 8) -> str:
@@ -30,6 +33,12 @@ def gen_student_return_code(length: int = 6) -> str:
     This is shown to students so they can reclaim their identity after cookie loss.
     """
     alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
+def gen_student_invite_token(length: int = 24) -> str:
+    """Generate a URL-safe invite token."""
+    alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
@@ -180,6 +189,74 @@ class StudentIdentity(models.Model):
         return f"{self.display_name} @ {self.classroom.join_code}"
 
 
+class ClassInviteLink(models.Model):
+    """Teacher-generated student invite bridge with optional expiry and seat cap."""
+
+    classroom = models.ForeignKey(Class, on_delete=models.CASCADE, related_name="invite_links")
+    token = models.CharField(max_length=48, unique=True, default=gen_student_invite_token)
+    label = models.CharField(max_length=120, blank=True, default="")
+    expires_at = models.DateTimeField(null=True, blank=True)
+    max_uses = models.PositiveIntegerField(null=True, blank=True)
+    use_count = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="class_invites_created",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [
+            models.Index(fields=["classroom", "is_active"], name="hub_clsinv_clsact_93d2_idx"),
+            models.Index(fields=["classroom", "created_at"], name="hub_clsinv_clscrt_5d9a_idx"),
+            models.Index(fields=["expires_at"], name="hub_clsinv_exp_a2e1_idx"),
+        ]
+
+    def is_expired(self, *, at=None) -> bool:
+        when = at or timezone.now()
+        return bool(self.expires_at and self.expires_at <= when)
+
+    def has_seat_available(self) -> bool:
+        if self.max_uses is None:
+            return True
+        return int(self.use_count or 0) < int(self.max_uses or 0)
+
+    def is_usable(self, *, at=None) -> bool:
+        return bool(self.is_active and not self.is_expired(at=at) and self.has_seat_available())
+
+    def seats_remaining(self) -> int | None:
+        if self.max_uses is None:
+            return None
+        return max(int(self.max_uses) - int(self.use_count or 0), 0)
+
+    def __str__(self) -> str:
+        return f"Invite #{self.id} for class {self.classroom_id}"
+
+
+_STUDENT_EVENT_DELETE_ALLOWED = ContextVar("hub_student_event_delete_allowed", default=False)
+
+
+def _student_event_delete_allowed() -> bool:
+    return bool(_STUDENT_EVENT_DELETE_ALLOWED.get())
+
+
+class StudentEventQuerySet(models.QuerySet):
+    def delete(self, *args, **kwargs):
+        if not _student_event_delete_allowed():
+            raise ValueError("StudentEvent deletion is restricted to retention workflows.")
+        return super().delete(*args, **kwargs)
+
+
+class StudentEventManager(models.Manager.from_queryset(StudentEventQuerySet)):
+    pass
+
+
 class StudentEvent(models.Model):
     """Append-only student activity stream for operational visibility.
 
@@ -230,6 +307,16 @@ class StudentEvent(models.Model):
             models.Index(fields=["student", "created_at"], name="hub_student_student_01e0d2_idx"),
             models.Index(fields=["classroom", "event_type", "created_at"], name="hub_ste_cl_evtcr_b2e3_idx"),
         ]
+    objects = StudentEventManager()
+
+    @classmethod
+    @contextmanager
+    def allow_retention_delete(cls):
+        token = _STUDENT_EVENT_DELETE_ALLOWED.set(True)
+        try:
+            yield
+        finally:
+            _STUDENT_EVENT_DELETE_ALLOWED.reset(token)
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
@@ -237,7 +324,9 @@ class StudentEvent(models.Model):
         return super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        raise ValueError("StudentEvent is append-only and cannot be deleted.")
+        if not _student_event_delete_allowed():
+            raise ValueError("StudentEvent deletion is restricted to retention workflows.")
+        return super().delete(*args, **kwargs)
 
     def __str__(self) -> str:
         return f"{self.created_at.isoformat()} {self.event_type}"

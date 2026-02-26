@@ -14,14 +14,29 @@
       <main id="main-content">
         <div class="hero">
           <h1>Join your class</h1>
-          <p class="muted">Enter the class code your teacher gives you. Pick a name your teacher will recognize.</p>
+          {% if invite_join_classroom %}
+            <p class="muted">You are joining <strong>{{ invite_join_classroom.name }}</strong> by invite link.</p>
+          {% else %}
+            <p class="muted">Enter the class code your teacher gives you. Pick a name your teacher will recognize.</p>
+          {% endif %}
           <p class="muted">If this is the same classroom computer/browser, you can usually leave return code blank.</p>
         </div>
 
         <div class="card">
           <form id="join-form" novalidate>
-            <label for="code">Class code</label>
-            <input id="code" name="class_code" placeholder="ABCD1234" autocomplete="off" required />
+            {% if invite_join_error %}
+              <div class="error" role="alert">
+                {{ invite_join_error_message }}
+              </div>
+            {% endif %}
+            {% if invite_join_classroom %}
+              <input id="code" name="class_code" value="{{ invite_join_classroom.join_code }}" type="hidden" />
+              <input id="invite_token" name="invite_token" value="{{ invite_join_token }}" type="hidden" />
+            {% else %}
+              <label for="code">Class code</label>
+              <input id="code" name="class_code" placeholder="ABCD1234" autocomplete="off" required />
+              <input id="invite_token" name="invite_token" value="" type="hidden" />
+            {% endif %}
 
             <label for="name">Your name</label>
             <input id="name" name="display_name" placeholder="Ada" autocomplete="name" required />

@@ -236,7 +236,6 @@ def teach_delete_student_data(request, class_id: int):
 
     submission_count = Submission.objects.filter(student=student).count()
     student_event_count = StudentEvent.objects.filter(student=student).count()
-    StudentEvent.objects.filter(student=student).delete()
     student.delete()
 
     classroom.session_epoch = int(getattr(classroom, "session_epoch", 1) or 1) + 1
@@ -251,13 +250,13 @@ def teach_delete_student_data(request, class_id: int):
         metadata={
             "student_id": student_id,
             "submissions_deleted": submission_count,
-            "student_events_deleted": student_event_count,
+            "student_events_detached": student_event_count,
             "session_epoch": classroom.session_epoch,
         },
     )
     notice = (
         f"Deleted student data for student #{student_id}: "
-        f"{submission_count} submission(s), {student_event_count} event record(s)."
+        f"{submission_count} submission(s), {student_event_count} event record(s) detached from student identity."
     )
     return _safe_internal_redirect(
         request,

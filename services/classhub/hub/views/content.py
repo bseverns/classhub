@@ -37,6 +37,10 @@ from ..services.upload_policy import front_matter_submission
 logger = logging.getLogger(__name__)
 
 
+def _helper_scope_signing_key() -> str:
+    return str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or "")
+
+
 def _helper_backend_label() -> str:
     backend = (getattr(settings, "HELPER_LLM_BACKEND", "ollama") or "ollama").strip().lower()
     if backend == "openai":
@@ -259,6 +263,7 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
         topics=helper_topics,
         allowed_topics=helper_allowed_topics,
         reference=helper_reference,
+        signing_key=_helper_scope_signing_key(),
     )
     helper_widget = ""
     can_use_helper = bool(

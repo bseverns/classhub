@@ -1234,3 +1234,31 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Teacher tracker and export paths frequently query latest uploads and distinct submitters by material/student.
 - Composite keys reduce row-scan and sort pressure as classroom data volume grows.
+
+## Retention-only StudentEvent deletes, paid-cohort invite links, and class summary CSV
+
+**Current decision:**
+- Enforce StudentEvent delete invariants at both model and queryset layers:
+  - `StudentEvent.delete()` is blocked unless a retention-only context is active.
+  - `StudentEventQuerySet.delete()` is also blocked by default, closing the bulk-delete gap.
+  - Retention command path (`manage.py prune_student_events`) now enables a scoped privileged delete context explicitly.
+- Teacher roster "delete student data" no longer hard-deletes StudentEvent rows; events are retained and detached from deleted student identities via FK `SET_NULL`.
+- Add teacher-generated `ClassInviteLink` records for no-login student onboarding:
+  - invite URL `/invite/<token>` bridges into join flow,
+  - optional expiry (`expires_at`),
+  - optional seat cap (`max_uses`, consumed only on new identity creation),
+  - disable action in teacher UI.
+- Add class-level CSV export (`/teach/class/<id>/export-summary-csv`) with row types:
+  - `class_summary` (joins/rejoins, active students, submissions, helper access totals),
+  - `student_summary` (display_name, joins, submissions, helper access counts, first/last seen),
+  - `lesson_summary` (course/lesson/module submission coverage).
+- Add dedicated helper scope signing secret support via `HELPER_SCOPE_SIGNING_KEY`:
+  - shared by classhub + helper service via compose `.env`,
+  - defaults to `DJANGO_SECRET_KEY` for backward compatibility,
+  - documented as a separate key in env examples and deploy validation.
+
+**Why this remains active:**
+- Preserves append-only telemetry guarantees outside explicit retention workflows.
+- Supports paid/cohort onboarding flows without introducing student logins.
+- Gives staff a low-friction operational export with minimal PII and no helper prompt content.
+- Reduces blast radius by decoupling helper scope token signing from Django’s primary secret.

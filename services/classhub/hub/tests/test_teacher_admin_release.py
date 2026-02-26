@@ -114,6 +114,30 @@ class LessonReleaseTests(TestCase):
         self.assertEqual(scope["allowed_topics"], ["Piper circuits", "StoryMode controls"])
         self.assertEqual(scope["reference"], "piper-hardware")
 
+    @override_settings(HELPER_SCOPE_SIGNING_KEY="scope-signing-key-cccccccccccccccccccccccccccccccc")
+    def test_student_helper_scope_token_uses_dedicated_signing_key(self):
+        self._login_student()
+
+        resp = self.client.get("/course/piper_scratch_12_session/s01-welcome-private-workflow")
+        self.assertEqual(resp.status_code, 200)
+        token_match = re.search(r'data-helper-scope-token="([^"]+)"', resp.content.decode("utf-8"))
+        self.assertIsNotNone(token_match)
+        token = token_match.group(1)
+
+        with self.assertRaises(signing.BadSignature):
+            parse_scope_token(
+                token,
+                max_age_seconds=3600,
+                signing_key="wrong-signing-key-dddddddddddddddddddddddddddddd",
+            )
+
+        scope = parse_scope_token(
+            token,
+            max_age_seconds=3600,
+            signing_key="scope-signing-key-cccccccccccccccccccccccccccccccc",
+        )
+        self.assertTrue(scope.get("context"))
+
     def test_student_lesson_is_intro_only_before_release(self):
         LessonRelease.objects.create(
             classroom=self.classroom,
@@ -247,4 +271,3 @@ class LessonReleaseTests(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertContains(resp, "Upload blocked by malware scan", status_code=400)
         self.assertEqual(Submission.objects.filter(material=self.upload).count(), 0)
-

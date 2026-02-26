@@ -18,6 +18,7 @@ from common.helper_scope import issue_scope_token
 from ..forms import SubmissionUploadForm
 from ..models import (
     Class,
+    ClassInviteLink,
     Material,
     StudentEvent,
     StudentIdentity,
@@ -48,6 +49,36 @@ from ..services.student_home import (
 from common.request_safety import client_ip_from_request, fixed_window_allow
 
 logger = logging.getLogger(__name__)
+
+
+def _helper_scope_signing_key() -> str:
+    return str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or "")
+
+
+def _invite_error_message(code: str) -> str:
+    messages = {
+        "invite_invalid": "That invite link is not valid.",
+        "invite_inactive": "That invite link has been disabled.",
+        "invite_expired": "That invite link has expired.",
+        "invite_seat_cap_reached": "That invite link has reached its seat limit.",
+    }
+    return messages.get(code, "That invite link is not usable right now.")
+
+
+def _resolve_invite_link(token: str, *, enforce_seat_cap: bool = True) -> tuple[ClassInviteLink | None, str]:
+    invite_token = (token or "").strip()
+    if not invite_token:
+        return None, "invite_missing"
+    invite = ClassInviteLink.objects.select_related("classroom").filter(token=invite_token).first()
+    if invite is None:
+        return None, "invite_invalid"
+    if not invite.is_active:
+        return None, "invite_inactive"
+    if invite.is_expired():
+        return None, "invite_expired"
+    if enforce_seat_cap and not invite.has_seat_available():
+        return None, "invite_seat_cap_reached"
+    return invite, ""
 
 
 def _json_no_store_response(payload: dict, *, status: int = 200, private: bool = False) -> JsonResponse:
@@ -90,6 +121,10 @@ def healthz(request):
     return HttpResponse("ok", content_type="text/plain")
 
 
+def invite_join(request, invite_token: str):
+    return redirect(f"/?{urlencode({'invite': invite_token})}")
+
+
 def index(request):
     """Landing page.
 
@@ -100,11 +135,19 @@ def index(request):
     """
     if getattr(request, "student", None) is not None:
         return redirect("/student")
+    invite_token = (request.GET.get("invite") or "").strip()
+    invite, invite_error = _resolve_invite_link(invite_token, enforce_seat_cap=False) if invite_token else (None, "")
+    if invite is not None and not invite.has_seat_available():
+        invite_error = "invite_seat_cap_reached"
     get_token(request)
     response = render(
         request,
         "student_join.html",
         {
+            "invite_join_classroom": invite.classroom if invite else None,
+            "invite_join_token": invite.token if invite else "",
+            "invite_join_error": invite_error,
+            "invite_join_error_message": _invite_error_message(invite_error) if invite_error else "",
             **privacy_meta_context(),
         },
     )
@@ -146,18 +189,46 @@ def join_class(request):
     code = (payload.get("class_code") or "").strip().upper()
     name = (payload.get("display_name") or "").strip()[:80]
     return_code = (payload.get("return_code") or "").strip().upper()
+    invite_token = (payload.get("invite_token") or "").strip()
 
-    if not code or not name:
+    if not name or (not code and not invite_token):
         return _json_no_store_response({"error": "missing_fields"}, status=400)
 
-    classroom = Class.objects.filter(join_code=code).first()
-    if not classroom:
+    invite = None
+    if invite_token:
+        invite, invite_error = _resolve_invite_link(invite_token, enforce_seat_cap=False)
+        if invite is None:
+            return _json_no_store_response({"error": invite_error}, status=403)
+        classroom = invite.classroom
+    else:
+        classroom = Class.objects.filter(join_code=code).first()
+        if not classroom:
+            return _json_no_store_response({"error": "invalid_code"}, status=404)
+    if classroom is None:
         return _json_no_store_response({"error": "invalid_code"}, status=404)
-    if classroom.is_locked:
-        return _json_no_store_response({"error": "class_locked"}, status=403)
 
     with transaction.atomic():
-        Class.objects.select_for_update().filter(id=classroom.id).first()
+        if invite is not None:
+            invite = (
+                ClassInviteLink.objects.select_for_update()
+                .select_related("classroom")
+                .filter(id=invite.id)
+                .first()
+            )
+            if invite is None:
+                return _json_no_store_response({"error": "invite_invalid"}, status=403)
+            if not invite.is_active:
+                return _json_no_store_response({"error": "invite_inactive"}, status=403)
+            if invite.is_expired():
+                return _json_no_store_response({"error": "invite_expired"}, status=403)
+            classroom = invite.classroom
+
+        classroom = Class.objects.select_for_update().filter(id=classroom.id).first()
+        if classroom is None:
+            return _json_no_store_response({"error": "invalid_code"}, status=404)
+        if classroom.is_locked:
+            return _json_no_store_response({"error": "class_locked"}, status=403)
+
         try:
             join_result = resolve_join_student(
                 request=request,
@@ -165,6 +236,15 @@ def join_class(request):
                 display_name=name,
                 return_code=return_code,
             )
+            if invite is not None and join_result.join_mode == "new":
+                if not invite.has_seat_available():
+                    raise JoinValidationError("invite_seat_cap_reached")
+                invite.use_count = int(invite.use_count or 0) + 1
+                invite.last_used_at = timezone.now()
+                invite.save(update_fields=["use_count", "last_used_at"])
+            elif invite is not None:
+                invite.last_used_at = timezone.now()
+                invite.save(update_fields=["last_used_at"])
         except JoinValidationError as exc:
             return _json_no_store_response({"error": exc.code}, status=400)
         student = join_result.student
@@ -194,7 +274,10 @@ def join_class(request):
         classroom=classroom,
         student=student,
         source="classhub.join_class",
-        details={"join_mode": join_mode},
+        details={
+            "join_mode": join_mode,
+            **({"invite_id": int(invite.id)} if invite is not None else {}),
+        },
         ip_address=client_ip,
     )
     return response
@@ -230,6 +313,7 @@ def student_home(request):
                 topics=["Classroom overview"],
                 allowed_topics=[],
                 reference="",
+                signing_key=_helper_scope_signing_key(),
             ),
         },
     )
@@ -444,6 +528,7 @@ def student_logout(request):
 
 __all__ = [
     "healthz",
+    "invite_join",
     "index",
     "join_class",
     "student_home",

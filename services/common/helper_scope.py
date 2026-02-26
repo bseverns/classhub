@@ -28,6 +28,7 @@ def issue_scope_token(
     topics=None,
     allowed_topics=None,
     reference: str = "",
+    signing_key: str = "",
 ) -> str:
     payload = {
         "v": SCOPE_TOKEN_VERSION,
@@ -36,11 +37,11 @@ def issue_scope_token(
         "allowed_topics": _normalize_list(allowed_topics),
         "reference": _normalize_text(reference),
     }
-    return signing.dumps(payload, salt=SCOPE_TOKEN_SALT)
+    return signing.dumps(payload, salt=SCOPE_TOKEN_SALT, key=(signing_key or None))
 
 
-def parse_scope_token(token: str, *, max_age_seconds: int) -> dict:
-    payload = signing.loads(token, salt=SCOPE_TOKEN_SALT, max_age=max_age_seconds)
+def parse_scope_token(token: str, *, max_age_seconds: int, signing_key: str = "") -> dict:
+    payload = signing.loads(token, salt=SCOPE_TOKEN_SALT, max_age=max_age_seconds, key=(signing_key or None))
     if not isinstance(payload, dict):
         raise ValueError("invalid_scope_payload")
     version = int(payload.get("v") or 0)

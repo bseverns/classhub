@@ -102,5 +102,6 @@ class Command(BaseCommand):
         if dry_run:
             self.stdout.write(self.style.WARNING(f"[dry-run] Would delete events: {count}"))
             return
-        deleted, _details = qs.delete()
+        with StudentEvent.allow_retention_delete():
+            deleted, _details = qs.delete()
         self.stdout.write(self.style.SUCCESS(f"Deleted rows: {deleted}"))

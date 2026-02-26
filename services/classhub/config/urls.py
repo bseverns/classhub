@@ -22,6 +22,7 @@ urlpatterns = [
 
     # Student flow (class-code login and classroom page).
     path("", views.index),
+    path("invite/<slug:invite_token>", views.invite_join),
     path("join", views.join_class),
     path("student", views.student_home),
     path("student/return-code", views.student_return_code),
@@ -55,6 +56,8 @@ urlpatterns = [
     path("teach/create-class", views.teach_create_class),
     path("teach/class/<int:class_id>", views.teach_class_dashboard),
     path("teach/class/<int:class_id>/join-card", views.teach_class_join_card),
+    path("teach/class/<int:class_id>/create-invite-link", views.teach_create_invite_link),
+    path("teach/class/<int:class_id>/disable-invite-link", views.teach_disable_invite_link),
     path("teach/class/<int:class_id>/student/<int:student_id>/return-code", views.teach_student_return_code),
     path("teach/class/<int:class_id>/rename-student", views.teach_rename_student),
     path("teach/class/<int:class_id>/merge-students", views.teach_merge_students),
@@ -64,6 +67,7 @@ urlpatterns = [
     path("teach/class/<int:class_id>/toggle-lock", views.teach_toggle_lock),
     path("teach/class/<int:class_id>/lock", views.teach_lock_class),
     path("teach/class/<int:class_id>/export-submissions-today", views.teach_export_class_submissions_today),
+    path("teach/class/<int:class_id>/export-summary-csv", views.teach_export_class_summary_csv),
     path("teach/class/<int:class_id>/rotate-code", views.teach_rotate_code),
     path("teach/class/<int:class_id>/add-module", views.teach_add_module),
     path("teach/class/<int:class_id>/move-module", views.teach_move_module),

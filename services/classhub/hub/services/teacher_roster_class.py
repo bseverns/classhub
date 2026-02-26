@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+import csv
+from datetime import timedelta
+from io import StringIO
+
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from ..models import Material, Submission
+from ..models import Material, StudentEvent, StudentIdentity, Submission
+from .content_links import parse_course_lesson_url
 from .filenames import safe_filename
+from .markdown_content import load_lesson_markdown
 from .teacher_tracker import _build_helper_signal_snapshot, _build_lesson_tracker_rows
 from .zip_exports import (
     reserve_archive_path,
@@ -130,4 +136,189 @@ def export_submissions_today_archive(*, classroom, day_start, day_end):
     return tmp, file_count
 
 
-__all__ = ["build_dashboard_context", "export_submissions_today_archive"]
+def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
+    active_window_days = max(int(active_window_days or 0), 1)
+    now = timezone.now()
+    active_since = now - timedelta(days=active_window_days)
+
+    students = list(
+        StudentIdentity.objects.filter(classroom=classroom)
+        .only("id", "display_name", "created_at", "last_seen_at")
+        .order_by("display_name", "id")
+    )
+    student_ids = [int(student.id) for student in students]
+
+    joins_total = StudentEvent.objects.filter(
+        classroom=classroom,
+        event_type=StudentEvent.EVENT_CLASS_JOIN,
+    ).count()
+    rejoins_total = StudentEvent.objects.filter(
+        classroom=classroom,
+        event_type__in=[StudentEvent.EVENT_REJOIN_DEVICE_HINT, StudentEvent.EVENT_REJOIN_RETURN_CODE],
+    ).count()
+    helper_access_total = StudentEvent.objects.filter(
+        classroom=classroom,
+        event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+    ).count()
+    active_students = StudentIdentity.objects.filter(
+        classroom=classroom,
+        last_seen_at__gte=active_since,
+    ).count()
+    total_submissions = Submission.objects.filter(student__classroom=classroom).count()
+
+    joins_by_student: dict[int, int] = {}
+    for row in (
+        StudentEvent.objects.filter(
+            student_id__in=student_ids,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+        )
+        .values("student_id")
+        .annotate(total=models.Count("id"))
+    ):
+        joins_by_student[int(row["student_id"])] = int(row["total"] or 0)
+
+    helper_by_student: dict[int, int] = {}
+    for row in (
+        StudentEvent.objects.filter(
+            student_id__in=student_ids,
+            event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+        )
+        .values("student_id")
+        .annotate(total=models.Count("id"))
+    ):
+        helper_by_student[int(row["student_id"])] = int(row["total"] or 0)
+
+    submissions_by_student: dict[int, int] = {}
+    for row in (
+        Submission.objects.filter(student_id__in=student_ids)
+        .values("student_id")
+        .annotate(total=models.Count("id"))
+    ):
+        submissions_by_student[int(row["student_id"])] = int(row["total"] or 0)
+
+    modules = list(classroom.modules.prefetch_related("materials").all())
+    modules.sort(key=lambda module: (module.order_index, module.id))
+
+    lesson_rows: list[dict] = []
+    for module in modules:
+        mats = list(module.materials.all())
+        mats.sort(key=lambda material: (material.order_index, material.id))
+        course_slug = ""
+        lesson_slug = ""
+        lesson_title = ""
+        for material in mats:
+            if material.type != Material.TYPE_LINK:
+                continue
+            parsed = parse_course_lesson_url(material.url)
+            if not parsed:
+                continue
+            course_slug, lesson_slug = parsed
+            try:
+                front_matter, _body, _meta = load_lesson_markdown(course_slug, lesson_slug)
+                lesson_title = str(front_matter.get("title") or lesson_slug).strip()
+            except ValueError:
+                lesson_title = lesson_slug
+            break
+
+        upload_material_ids = [material.id for material in mats if material.type == Material.TYPE_UPLOAD]
+        submissions_total = (
+            Submission.objects.filter(material_id__in=upload_material_ids).count() if upload_material_ids else 0
+        )
+        submitters_total = (
+            Submission.objects.filter(material_id__in=upload_material_ids)
+            .values("student_id")
+            .distinct()
+            .count()
+            if upload_material_ids
+            else 0
+        )
+        if not (course_slug or lesson_slug or upload_material_ids):
+            continue
+        lesson_rows.append(
+            {
+                "course_slug": course_slug,
+                "lesson_slug": lesson_slug,
+                "lesson_title": lesson_title or lesson_slug or module.title,
+                "module_title": module.title,
+                "submissions": submissions_total,
+                "submitters": submitters_total,
+            }
+        )
+
+    fieldnames = [
+        "row_type",
+        "class_id",
+        "class_name",
+        "display_name",
+        "course_slug",
+        "lesson_slug",
+        "lesson_title",
+        "module_title",
+        "joins",
+        "rejoins",
+        "active_students",
+        "submissions",
+        "submitters",
+        "helper_accesses",
+        "first_seen_at",
+        "last_seen_at",
+        "active_window_days",
+    ]
+    out = StringIO()
+    writer = csv.DictWriter(out, fieldnames=fieldnames)
+    writer.writeheader()
+
+    writer.writerow(
+        {
+            "row_type": "class_summary",
+            "class_id": classroom.id,
+            "class_name": classroom.name,
+            "joins": joins_total,
+            "rejoins": rejoins_total,
+            "active_students": active_students,
+            "submissions": total_submissions,
+            "helper_accesses": helper_access_total,
+            "active_window_days": active_window_days,
+        }
+    )
+
+    for student in students:
+        writer.writerow(
+            {
+                "row_type": "student_summary",
+                "class_id": classroom.id,
+                "class_name": classroom.name,
+                "display_name": student.display_name,
+                "joins": joins_by_student.get(int(student.id), 0),
+                "submissions": submissions_by_student.get(int(student.id), 0),
+                "helper_accesses": helper_by_student.get(int(student.id), 0),
+                "first_seen_at": (student.created_at.isoformat() if student.created_at else ""),
+                "last_seen_at": (student.last_seen_at.isoformat() if student.last_seen_at else ""),
+                "active_window_days": active_window_days,
+            }
+        )
+
+    for lesson in lesson_rows:
+        writer.writerow(
+            {
+                "row_type": "lesson_summary",
+                "class_id": classroom.id,
+                "class_name": classroom.name,
+                "course_slug": lesson["course_slug"],
+                "lesson_slug": lesson["lesson_slug"],
+                "lesson_title": lesson["lesson_title"],
+                "module_title": lesson["module_title"],
+                "submissions": lesson["submissions"],
+                "submitters": lesson["submitters"],
+                "active_window_days": active_window_days,
+            }
+        )
+
+    return out.getvalue()
+
+
+__all__ = [
+    "build_dashboard_context",
+    "export_class_summary_csv",
+    "export_submissions_today_archive",
+]
