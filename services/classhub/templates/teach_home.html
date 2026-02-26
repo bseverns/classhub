@@ -36,6 +36,9 @@
             <button type="button" class="top-tab" id="tab-quick-actions" role="tab" aria-controls="panel-quick-actions" aria-selected="true">
               Class setup
             </button>
+            <button type="button" class="top-tab" id="tab-profile" role="tab" aria-controls="panel-profile" aria-selected="false">
+              My profile
+            </button>
             {% if request.user.is_superuser %}
               <button type="button" class="top-tab" id="tab-invite-teacher" role="tab" aria-controls="panel-invite-teacher" aria-selected="false">
                 Invite teacher
@@ -56,6 +59,57 @@
               </div>
               <div class="submit-wrap">
                 <button type="submit">Create class</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="top-tab-panel" id="panel-profile" role="tabpanel" aria-labelledby="tab-profile" hidden>
+            <h2 class="section-title">My profile</h2>
+            <div class="muted section-subtitle">
+              Update your contact details and password for teacher sign-in.
+            </div>
+
+            <h3 class="section-title-compact">Profile details</h3>
+            <form method="post" action="/teach/profile/update">
+              {% csrf_token %}
+              <div class="grid-2">
+                <div>
+                  <label for="profile-first-name">First name</label>
+                  <input id="profile-first-name" name="first_name" value="{{ profile_first_name }}" />
+                </div>
+                <div>
+                  <label for="profile-last-name">Last name</label>
+                  <input id="profile-last-name" name="last_name" value="{{ profile_last_name }}" />
+                </div>
+                <div>
+                  <label for="profile-email">Email</label>
+                  <input id="profile-email" name="email" type="email" value="{{ profile_email }}" />
+                </div>
+              </div>
+              <div class="submit-wrap">
+                <button type="submit">Save profile</button>
+              </div>
+            </form>
+
+            <h3 class="section-title-compact">Change password</h3>
+            <form method="post" action="/teach/profile/password">
+              {% csrf_token %}
+              <div class="grid-2">
+                <div>
+                  <label for="current-password">Current password</label>
+                  <input id="current-password" name="current_password" type="password" autocomplete="current-password" required />
+                </div>
+                <div>
+                  <label for="new-password">New password</label>
+                  <input id="new-password" name="new_password" type="password" autocomplete="new-password" required />
+                </div>
+                <div>
+                  <label for="new-password-confirm">Confirm new password</label>
+                  <input id="new-password-confirm" name="new_password_confirm" type="password" autocomplete="new-password" required />
+                </div>
+              </div>
+              <div class="submit-wrap">
+                <button type="submit">Change password</button>
               </div>
             </form>
           </section>

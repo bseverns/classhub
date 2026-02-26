@@ -1,6 +1,13 @@
 """Compatibility export surface for teacher portal endpoints."""
 
-from .teacher_parts.auth import teach_create_teacher, teach_login, teach_teacher_2fa_setup, teacher_logout
+from .teacher_parts.auth import (
+    teach_change_password,
+    teach_create_teacher,
+    teach_login,
+    teach_teacher_2fa_setup,
+    teach_update_profile,
+    teacher_logout,
+)
 from .teacher_parts.content import (
     teach_download_authoring_template,
     teach_generate_authoring_templates,
@@ -47,6 +54,8 @@ from .teacher_parts.videos import teach_assets, teach_videos
 __all__ = [
     "teach_login",
     "teacher_logout",
+    "teach_update_profile",
+    "teach_change_password",
     "teach_home",
     "teach_teacher_2fa_setup",
     "teach_generate_authoring_templates",

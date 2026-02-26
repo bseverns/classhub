@@ -50,3 +50,12 @@ Synced from `press/screenshots/` for wiki/docs browsing.
 ![Admin login](images/press/07-admin-login.png)
 
 ![Health checks terminal](images/press/08-health-checks-terminal.png)
+
+Planned next captures (placeholders):
+- `09-teacher-profile-tab.png`
+- `10-org-management-tab.png`
+- `11-invite-only-enrollment.png`
+- `12-certificate-eligibility.png`
+- `13-a11y-smoke-terminal.png`
+
+See `press/screenshots/PLACEHOLDERS.md` and `press/screenshots/SHOTLIST.md`.

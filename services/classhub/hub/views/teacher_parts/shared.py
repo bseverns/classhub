@@ -8,7 +8,9 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.password_validation import validate_password
 from django.core.validators import validate_email
 from django.db import IntegrityError, models, transaction
 from django.db.utils import OperationalError, ProgrammingError

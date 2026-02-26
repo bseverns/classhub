@@ -51,6 +51,8 @@ A new reader should be able to find their role path without opening more than on
 - [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md)
 - [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md)
 - `press/README.md`
+- `press/screenshots/SHOTLIST.md`
+- `press/screenshots/PLACEHOLDERS.md`
 
 ### Design rationale
 - [DECISIONS.md](DECISIONS.md)

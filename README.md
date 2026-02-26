@@ -70,6 +70,8 @@ Then open:
 - Contributing guide: `CONTRIBUTING.md`
 - Changelog: `CHANGELOG.md`
 - Press kit: [press/README.md](press/README.md)
+- Screenshot shot list: `press/screenshots/SHOTLIST.md`
+- Screenshot placeholders: `press/screenshots/PLACEHOLDERS.md`
 
 A lightweight, self-hosted LMS focused on reliable classroom operations.
 

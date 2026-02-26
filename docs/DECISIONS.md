@@ -170,6 +170,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Superusers can create teacher staff accounts from `/teach` and trigger invite emails.
 - Invite email carries a signed, expiring link to `/teach/2fa/setup`.
 - `/teach/2fa/setup` provisions and confirms teacher TOTP devices via QR + manual secret fallback.
+- Staff can self-manage their own teacher profile details (name/email/password) from `/teach` without using Django admin.
 - SMTP remains environment-configured; local default is console backend for safe non-production testing.
 
 **Why this remains active:**

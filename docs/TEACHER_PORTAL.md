@@ -174,6 +174,9 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
 - `/teach`:
   - class list
   - one-click `Copy` for class join codes
+  - `My profile` tab for all staff:
+    - update first/last name and email
+    - change password (requires current password)
   - superuser-only teacher onboarding card (create account + send 2FA invite email)
   - superuser-only organization management tab:
     - create organizations

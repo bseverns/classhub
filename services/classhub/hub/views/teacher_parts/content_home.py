@@ -31,7 +31,6 @@ from .shared import (
     timezone,
 )
 
-
 def _read_org_admin_state(request):
     org_name = (request.GET.get("org_name") or "").strip()
     org_membership_org_id = (request.GET.get("org_membership_org_id") or "").strip()
@@ -51,6 +50,26 @@ def _read_org_admin_state(request):
         "org_admin_active": org_admin_active,
     }
 
+def _read_profile_state(request, user):
+    profile_first_name = (request.GET.get("profile_first_name") or "").strip()
+    profile_last_name = (request.GET.get("profile_last_name") or "").strip()
+    profile_email = (request.GET.get("profile_email") or "").strip()
+    return {
+        "profile_first_name": profile_first_name or (user.first_name or ""),
+        "profile_last_name": profile_last_name or (user.last_name or ""),
+        "profile_email": profile_email or (user.email or ""),
+        "profile_tab_active": (request.GET.get("profile_tab") or "").strip() == "1"
+        or bool(profile_first_name or profile_last_name or profile_email),
+    }
+
+def _resolve_initial_top_tab(*, user, profile_tab_active, org_admin_active, teacher_invite_active):
+    if profile_tab_active:
+        return "profile"
+    if user.is_superuser and org_admin_active:
+        return "org-admin"
+    if user.is_superuser and teacher_invite_active:
+        return "invite-teacher"
+    return "quick-actions"
 
 def _build_org_admin_context(*, user, user_model):
     if not user.is_superuser:
@@ -79,6 +98,35 @@ def _build_org_admin_context(*, user, user_model):
         "org_role_choices": OrganizationMembership.ROLE_CHOICES,
     }
 
+def _recent_submissions_for_class_ids(class_ids):
+    if not class_ids:
+        return []
+    return list(
+        Submission.objects.select_related("student", "material__module__classroom")
+        .filter(material__module__classroom_id__in=class_ids)[:20]
+    )
+
+def _build_template_download_rows(template_slug: str, output_dir: Path):
+    rows: list[dict] = []
+    if not template_slug or not _TEMPLATE_SLUG_RE.match(template_slug):
+        return rows
+
+    existing_names: set[str] = set()
+    try:
+        existing_names = {item.name for item in output_dir.iterdir() if item.is_file()}
+    except OSError:
+        existing_names = set()
+    for kind, suffix in _AUTHORING_TEMPLATE_SUFFIXES.items():
+        expected_name = f"{template_slug}-{suffix}"
+        rows.append(
+            {
+                "kind": kind,
+                "label": expected_name,
+                "exists": expected_name in existing_names,
+                "url": f"/teach/authoring-template/download?slug={template_slug}&kind={kind}",
+            }
+        )
+    return rows
 
 @staff_member_required
 def teach_home(request):
@@ -94,14 +142,16 @@ def teach_home(request):
     teacher_first_name = (request.GET.get("teacher_first_name") or "").strip()
     teacher_last_name = (request.GET.get("teacher_last_name") or "").strip()
     org_state = _read_org_admin_state(request)
+    profile_state = _read_profile_state(request, request.user)
     teacher_invite_active = bool(
         teacher_username or teacher_email or teacher_first_name or teacher_last_name
     )
-    initial_tab = "quick-actions"
-    if request.user.is_superuser and org_state["org_admin_active"]:
-        initial_tab = "org-admin"
-    elif request.user.is_superuser and teacher_invite_active:
-        initial_tab = "invite-teacher"
+    initial_tab = _resolve_initial_top_tab(
+        user=request.user,
+        profile_tab_active=profile_state["profile_tab_active"],
+        org_admin_active=org_state["org_admin_active"],
+        teacher_invite_active=teacher_invite_active,
+    )
 
     classes, assigned_class_ids = staff_accessible_classes_ranked(request.user)
     digest_since = timezone.now() - timedelta(days=1)
@@ -113,35 +163,9 @@ def teach_home(request):
         .only("id", "username", "first_name", "last_name", "email", "is_active", "is_superuser")
     )
     class_ids = [int(c.id) for c in classes]
-    recent_submissions = []
-    if class_ids:
-        recent_submissions = list(
-            Submission.objects.select_related("student", "material__module__classroom")
-            .filter(material__module__classroom_id__in=class_ids)[:20]
-        )
+    recent_submissions = _recent_submissions_for_class_ids(class_ids)
     output_dir = _authoring_template_output_dir()
-    template_download_rows: list[dict] = []
-    if template_slug and _TEMPLATE_SLUG_RE.match(template_slug):
-        existing_names: set[str] = set()
-        try:
-            existing_names = {
-                item.name
-                for item in output_dir.iterdir()
-                if item.is_file()
-            }
-        except OSError:
-            existing_names = set()
-        for kind, suffix in _AUTHORING_TEMPLATE_SUFFIXES.items():
-            expected_name = f"{template_slug}-{suffix}"
-            exists = expected_name in existing_names
-            template_download_rows.append(
-                {
-                    "kind": kind,
-                    "label": expected_name,
-                    "exists": exists,
-                    "url": f"/teach/authoring-template/download?slug={template_slug}&kind={kind}",
-                }
-            )
+    template_download_rows = _build_template_download_rows(template_slug, output_dir)
 
     org_admin_context = _build_org_admin_context(user=request.user, user_model=User)
 
@@ -169,6 +193,9 @@ def teach_home(request):
             "teacher_last_name": teacher_last_name,
             "teacher_invite_active": teacher_invite_active,
             "initial_top_tab": initial_tab,
+            "profile_first_name": profile_state["profile_first_name"],
+            "profile_last_name": profile_state["profile_last_name"],
+            "profile_email": profile_state["profile_email"],
             "org_name": org_state["org_name"],
             "org_membership_org_id": org_state["org_membership_org_id"],
             "org_membership_user_id": org_state["org_membership_user_id"],

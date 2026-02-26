@@ -51,3 +51,33 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 - Screen: terminal running health checks
 - Include: `/healthz` and `/helper/healthz` responses
 - Redact: hostnames/IPs for non-local environments
+
+## Additional capture targets (new features)
+9. `09-teacher-profile-tab.png`
+- Screen: teacher home (`/teach`) profile tab
+- Include: profile details form + password change form
+- Redact: real personal emails/usernames
+
+10. `10-org-management-tab.png`
+- Screen: teacher home (`/teach`) organizations tab (superuser)
+- Include: organization create form + memberships table
+- Redact: real organization names/emails if needed
+
+11. `11-invite-only-enrollment.png`
+- Screen: class dashboard (`/teach/class/<id>`)
+- Include: enrollment mode controls + invite-link management
+- Redact: live invite tokens/class codes
+
+12. `12-certificate-eligibility.png`
+- Screen: certificate eligibility page (`/teach/class/<id>/certificate-eligibility`)
+- Include: eligibility table and issue/download actions
+- Redact: real student names if needed
+
+13. `13-a11y-smoke-terminal.png`
+- Screen: terminal running `scripts/a11y_smoke.sh`
+- Include: pass/fail summary lines
+- Redact: hostnames/IPs if non-local
+
+## Placeholders
+- If these new screenshots are not captured yet, keep placeholders in
+  `press/screenshots/PLACEHOLDERS.md` and avoid broken image links in docs until files exist.

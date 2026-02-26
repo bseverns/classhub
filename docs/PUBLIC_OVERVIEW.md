@@ -44,6 +44,11 @@ If this page is useful, you should be able to answer: who this is for, what it d
 - Student join screen: `press/screenshots/01-student-join.png`
 - Teacher dashboard: `press/screenshots/03-teacher-dashboard.png`
 - Lesson page with helper: `press/screenshots/05-lesson-with-helper.png`
+- Teacher profile tab: `press/screenshots/09-teacher-profile-tab.png` (planned placeholder)
+- Organization management tab: `press/screenshots/10-org-management-tab.png` (planned placeholder)
+- Invite-only enrollment controls: `press/screenshots/11-invite-only-enrollment.png` (planned placeholder)
+- Certificate eligibility page: `press/screenshots/12-certificate-eligibility.png` (planned placeholder)
+- Accessibility smoke terminal: `press/screenshots/13-a11y-smoke-terminal.png` (planned placeholder)
 
 ## Ops and security links
 - [SECURITY.md](SECURITY.md)

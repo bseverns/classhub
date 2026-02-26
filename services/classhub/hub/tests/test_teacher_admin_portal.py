@@ -154,6 +154,88 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Ada")
         self.assertContains(resp, "Generate Course Authoring Templates")
         self.assertContains(resp, "Invite teacher")
+        self.assertContains(resp, "My profile")
+
+    def test_teacher_can_update_own_profile_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            "/teach/profile/update",
+            {
+                "first_name": "Terry",
+                "last_name": "Portal",
+                "email": "terry.portal@example.org",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+        self.assertIn("profile_tab=1", resp["Location"])
+
+        self.staff.refresh_from_db()
+        self.assertEqual(self.staff.first_name, "Terry")
+        self.assertEqual(self.staff.last_name, "Portal")
+        self.assertEqual(self.staff.email, "terry.portal@example.org")
+
+        event = AuditEvent.objects.filter(action="teacher_profile.update_self").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_teacher_profile_update_rejects_invalid_email(self):
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.post(
+            "/teach/profile/update",
+            {
+                "first_name": "Terry",
+                "last_name": "Portal",
+                "email": "invalid-email",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?error=", resp["Location"])
+        self.assertIn("profile_tab=1", resp["Location"])
+        self.staff.refresh_from_db()
+        self.assertEqual(self.staff.email, "")
+
+    def test_teacher_can_change_password_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.post(
+            "/teach/profile/password",
+            {
+                "current_password": "pw12345",
+                "new_password": "N3wTeacherPw123!",
+                "new_password_confirm": "N3wTeacherPw123!",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+        self.assertIn("profile_tab=1", resp["Location"])
+
+        self.staff.refresh_from_db()
+        self.assertTrue(self.staff.check_password("N3wTeacherPw123!"))
+        teach_resp = self.client.get("/teach")
+        self.assertEqual(teach_resp.status_code, 200)
+
+        event = AuditEvent.objects.filter(action="teacher_profile.change_password").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_teacher_password_change_rejects_wrong_current_password(self):
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.post(
+            "/teach/profile/password",
+            {
+                "current_password": "not-right",
+                "new_password": "N3wTeacherPw123!",
+                "new_password_confirm": "N3wTeacherPw123!",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?error=", resp["Location"])
+        self.assertIn("profile_tab=1", resp["Location"])
+
+        self.staff.refresh_from_db()
+        self.assertTrue(self.staff.check_password("pw12345"))
+        self.assertFalse(AuditEvent.objects.filter(action="teacher_profile.change_password").exists())
 
     def test_teach_home_shows_since_yesterday_digest(self):
         classroom, _upload = self._build_lesson_with_submission()
@@ -1373,3 +1455,18 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertEqual(resp_membership.status_code, 302)
         self.assertIn("/teach?error=", resp_membership["Location"])
         self.assertFalse(OrganizationMembership.objects.filter(organization=org, user=self.staff).exists())
+
+    def test_non_superuser_staff_can_update_own_profile(self):
+        resp = self.client.post(
+            "/teach/profile/update",
+            {
+                "first_name": "Org",
+                "last_name": "Teacher",
+                "email": "org.teacher@example.org",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+        self.staff.refresh_from_db()
+        self.assertEqual(self.staff.first_name, "Org")
+        self.assertEqual(self.staff.email, "org.teacher@example.org")

@@ -6,7 +6,8 @@ This folder provides reuse-ready, factual materials for evaluators, partners, an
 ## What to do now
 1. Start with `press/one_pager.md` for quick context.
 2. Copy short descriptions from `press/blurbs.md`.
-3. Use `press/architecture.md` and the screenshot shot list for visuals.
+3. Use `press/architecture.md` and `press/screenshots/SHOTLIST.md` for visuals.
+4. If you need screenshots not yet captured, use `press/screenshots/PLACEHOLDERS.md`.
 
 ## Verification signal
 If this press kit is complete for your use case, you can assemble a short external summary without opening internal engineering docs.
@@ -16,8 +17,10 @@ If this press kit is complete for your use case, you can assemble a short extern
 - `press/blurbs.md`
 - `press/architecture.md`
 - `press/screenshots/SHOTLIST.md`
+- `press/screenshots/PLACEHOLDERS.md`
 
 ## Usage rules
 - Do not publish real student data.
 - Use demo screenshots only.
 - Keep claims factual and tied to current docs.
+- Keep screenshot filenames stable once published so docs links stay valid.
