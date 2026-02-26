@@ -9,7 +9,10 @@ This is the single source of truth for edge-vs-app security ownership.
 - Route armor for `/admin*` and `/teach*`:
   - IP allowlists: `CADDY_STAFF_IP_ALLOWLIST_V4`, `CADDY_STAFF_IP_ALLOWLIST_V6`
   - Optional basic auth gate for `/admin*`: `CADDY_ADMIN_BASIC_AUTH_*`
+  - Fail-closed response (`503`) if admin basic auth is enabled with shipped/default credentials.
   - Explicit acknowledgement toggle for open staff routes: `CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1`
+- Optional upstream app health exposure:
+  - `CADDY_EXPOSE_UPSTREAM_HEALTHZ` (`1` = expose `/upstream-healthz`, `0` = edge `404`)
 - TLS redirect/termination (domain templates) and HSTS:
   - `Strict-Transport-Security: max-age=${CADDY_HSTS_MAX_AGE}` (default `31536000`)
 - Compression (`encode gzip`)

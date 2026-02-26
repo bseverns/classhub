@@ -77,6 +77,7 @@ Archive access + audit:
 - Helper reset archives are written under uploads storage (default `/uploads/helper_reset_exports`) and are not served by public routes.
 - Teacher-triggered reset actions create audit metadata in Class Hub, including archive path/count when export occurs.
 - Ops should keep archive filesystem access restricted to trusted teacher/admin operators.
+- Default archive retention is 30 days (`RETENTION_HELPER_EXPORT_DAYS=30`) via `scripts/retention_maintenance.sh`.
 
 ### Ollama (local)
 

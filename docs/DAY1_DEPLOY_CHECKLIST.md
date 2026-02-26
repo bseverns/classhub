@@ -135,6 +135,7 @@ curl -I https://$DOMAIN/
 ```
 
 Expected behavior: HTTPS endpoints return `200`; HTTP redirects to HTTPS (`301`/`308`).
+If `CADDY_EXPOSE_UPSTREAM_HEALTHZ=0`, `/upstream-healthz` should return `404`.
 
 Asset-domain mode expectations (`CADDYFILE_TEMPLATE=Caddyfile.domain.assets`):
 
@@ -149,6 +150,7 @@ curl -I https://$ASSET_DOMAIN/lesson-video/1/stream
 ```
 
 Expected behavior: both hosts answer health checks; asset host serves only `/lesson-asset/*` and `/lesson-video/*`.
+If `CADDY_EXPOSE_UPSTREAM_HEALTHZ=0`, both `/upstream-healthz` checks should return `404`.
 
 Service exposure defaults:
 - Postgres/Redis are internal-only on Docker networking.

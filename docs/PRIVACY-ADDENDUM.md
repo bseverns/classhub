@@ -88,8 +88,9 @@ flowchart LR
   - `descriptive`: `<class>_<student>_portfolio_YYYYMMDD.zip`.
 - Retention maintenance entrypoint: `scripts/retention_maintenance.sh`.
 - Helper reset archive retention defaults:
-  - `RETENTION_HELPER_EXPORT_DAYS=180` (set `0` to skip age-based cleanup)
+  - `RETENTION_HELPER_EXPORT_DAYS=30` (set `0` to skip age-based cleanup)
   - `RETENTION_HELPER_EXPORT_DIR=/uploads/helper_reset_exports`
+  - Access expectation: archives are operator-only artifacts for teachers/createMPLS admins and are not public web routes.
 - Backups should be pruned with the same policy window used for live data.
 
 ## Data That Stays Local

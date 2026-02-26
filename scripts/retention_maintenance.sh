@@ -7,7 +7,7 @@ COMPOSE_MODE="${COMPOSE_MODE:-prod}" # prod|dev
 RETENTION_SUBMISSION_DAYS="${RETENTION_SUBMISSION_DAYS:-90}"
 RETENTION_EVENT_DAYS="${RETENTION_EVENT_DAYS:-180}"
 RETENTION_EVENT_EXPORT_DIR="${RETENTION_EVENT_EXPORT_DIR:-/uploads/retention_exports}"
-RETENTION_HELPER_EXPORT_DAYS="${RETENTION_HELPER_EXPORT_DAYS:-180}"
+RETENTION_HELPER_EXPORT_DAYS="${RETENTION_HELPER_EXPORT_DAYS:-30}"
 RETENTION_HELPER_EXPORT_DIR="${RETENTION_HELPER_EXPORT_DIR:-}"
 RETENTION_SCAVENGE_MODE="${RETENTION_SCAVENGE_MODE:-report}" # report|delete|off
 RETENTION_ALERT_WEBHOOK_URL="${RETENTION_ALERT_WEBHOOK_URL:-}"
@@ -31,7 +31,7 @@ Options:
   --event-export-dir <path>       In-container export dir for student event CSV snapshots
                                   (default: /uploads/retention_exports; empty disables export)
   --helper-export-days <N>        Retention window for helper reset JSON exports
-                                  (default: 180; 0 skips)
+                                  (default: 30; 0 skips)
   --helper-export-dir <path>      In-container helper export dir override
                                   (default: HELPER_CLASS_RESET_ARCHIVE_DIR or /uploads/helper_reset_exports)
   --scavenge <report|delete|off>  Orphan upload cleanup mode (default: report)
@@ -197,7 +197,7 @@ if (( RETENTION_HELPER_EXPORT_DAYS > 0 )); then
     -e RETENTION_HELPER_EXPORT_DIR="${RETENTION_HELPER_EXPORT_DIR}" \
     classhub_web sh -lc '
       set -eu
-      days="${RETENTION_HELPER_EXPORT_DAYS:-180}"
+      days="${RETENTION_HELPER_EXPORT_DAYS:-30}"
       dir="${RETENTION_HELPER_EXPORT_DIR:-${HELPER_CLASS_RESET_ARCHIVE_DIR:-/uploads/helper_reset_exports}}"
       if [ ! -d "${dir}" ]; then
         echo "[retention] helper export dir not found: ${dir} (skip)"

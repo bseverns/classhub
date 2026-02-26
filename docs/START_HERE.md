@@ -92,7 +92,7 @@ flowchart TD
 - Teacher portal: `/teach`
 - Admin login: `/admin/login/`
 - Edge health: `/healthz`
-- Class Hub upstream health: `/upstream-healthz`
+- Class Hub upstream health: `/upstream-healthz` (when `CADDY_EXPOSE_UPSTREAM_HEALTHZ=1`)
 - Helper health: `/helper/healthz`
 
 ## Common commands

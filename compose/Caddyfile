@@ -10,6 +10,11 @@
 	@admin_routes path /admin*
 	@admin_login path /admin/login*
 	@admin_basic_auth_enabled expression `{env.CADDY_ADMIN_BASIC_AUTH_ENABLED} == "1"`
+	@admin_basic_auth_defaults_unacknowledged {
+		path /admin* /teach*
+		expression `{env.CADDY_ADMIN_BASIC_AUTH_ENABLED} == "1" && ({env.CADDY_ADMIN_BASIC_AUTH_USER} == "" || {env.CADDY_ADMIN_BASIC_AUTH_USER} == "disabled-admin" || {env.CADDY_ADMIN_BASIC_AUTH_HASH} == "" || {env.CADDY_ADMIN_BASIC_AUTH_HASH} == "$2a$14$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG" || {env.CADDY_ADMIN_BASIC_AUTH_HASH} == "$$2a$$14$$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG")`
+	}
+	respond @admin_basic_auth_defaults_unacknowledged "configure non-default CADDY_ADMIN_BASIC_AUTH_USER and CADDY_ADMIN_BASIC_AUTH_HASH or disable CADDY_ADMIN_BASIC_AUTH_ENABLED" 503
 	handle @admin_routes {
 		handle @admin_login {
 			reverse_proxy classhub_web:8000
@@ -29,7 +34,11 @@
 		}
 
 		handle_path /upstream-healthz {
-			reverse_proxy classhub_web:8000
+			@upstream_healthz_exposed expression `{env.CADDY_EXPOSE_UPSTREAM_HEALTHZ:1} == "1"`
+			handle @upstream_healthz_exposed {
+				reverse_proxy classhub_web:8000
+			}
+			respond "not found" 404
 		}
 
 		@internal_routes path /internal /internal/*

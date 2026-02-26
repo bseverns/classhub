@@ -449,6 +449,7 @@ Historical implementation logs and superseded decisions are archived by month in
   - either wrap the value in single quotes
   - or escape each `$` as `$$`
 - `scripts/validate_env_secrets.sh` enforces this for `CADDY_ADMIN_BASIC_AUTH_HASH` to prevent interpolation drift and noisy deploy warnings.
+- Caddy now fail-closes (`503`) when `CADDY_ADMIN_BASIC_AUTH_ENABLED=1` is set with shipped/default admin basic-auth credentials.
 
 **Why this remains active:**
 - Docker Compose treats bare `$...` as interpolation, which can silently mutate secrets and spam warnings during deploy.
@@ -493,7 +494,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - `scripts/system_doctor.sh` is the canonical one-command stack diagnostic.
 - Golden-path smoke can auto-provision fixtures via `scripts/golden_path_smoke.sh`.
 - Class Hub static assets are collected during image build; runtime migrations stay disabled in production (`RUN_MIGRATIONS_ON_START=0`) while deploy scripts run explicit migrations.
-- Edge health remains `/healthz` and upstream app health is exposed at `/upstream-healthz` for monitoring clarity.
+- Edge health remains `/healthz`; `/upstream-healthz` is now operator-controlled via `CADDY_EXPOSE_UPSTREAM_HEALTHZ` (`1` expose, `0` edge `404`).
 - Smoke checks default to `http://localhost` when `CADDYFILE_TEMPLATE=Caddyfile.local`, regardless of placeholder `SMOKE_BASE_URL` values in env examples.
 - CI doctor smoke uses `HELPER_LLM_BACKEND=mock` to keep `/helper/chat` deterministic without runtime model pull dependencies.
 - Golden smoke issues a server-side staff session key for `/teach` checks so admin-login form changes (OTP/superuser prompts) do not create false negatives.
@@ -503,6 +504,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Regression coverage is required for helper auth/admin hardening and backend retry/circuit behavior.
 - `ops/systemd/classhub-retention.service` now refuses root execution by default unless `CLASSHUB_ALLOW_ROOT_MAINTENANCE=1` is explicitly set as a break-glass override.
 - `ops/systemd/classhub-retention.service` now pins explicit non-root runtime identity (`User=lms`, `Group=docker`) and baseline systemd hardening flags (`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem`, `ProtectHome`, etc.).
+- Compose web-facing services (`caddy`, `classhub_web`, `helper_web`) now run with `read_only: true` root filesystems plus explicit writable mounts/tmpfs.
 
 **Why this remains active:**
 - Prevents avoidable outages from config drift.
@@ -996,7 +998,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Use `scripts/retention_maintenance.sh` as the single scheduled task entrypoint for:
   - `prune_submissions`
   - `prune_student_events` (with optional CSV export-before-delete)
-  - prune helper reset JSON exports (`RETENTION_HELPER_EXPORT_DAYS`, default 180)
+  - prune helper reset JSON exports (`RETENTION_HELPER_EXPORT_DAYS`, default 30)
   - `scavenge_orphan_uploads` (report/delete/off modes)
 - Optional webhook notifications report failures (and optional success) for unattended runs.
 - Provide reference systemd units in `ops/systemd/` for daily execution.
@@ -1060,7 +1062,9 @@ Historical implementation logs and superseded decisions are archived by month in
 - Caddy templates now support optional teacher/admin edge armor:
   - IP allowlist for `/admin*` and `/teach*` via `CADDY_STAFF_IP_ALLOWLIST_V4`/`CADDY_STAFF_IP_ALLOWLIST_V6`
   - optional extra basic-auth gate for `/admin*` via `CADDY_ADMIN_BASIC_AUTH_*`
+  - fail-closed guard when admin basic auth is enabled with shipped/default credentials
   - explicit acknowledgement required to keep open staff-route allowlists in domain mode: `CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1`
+  - optional upstream app health exposure toggle: `CADDY_EXPOSE_UPSTREAM_HEALTHZ`
 - Added a single operator-controlled degradation switch: `CLASSHUB_SITE_MODE` with modes:
   - `normal`
   - `read-only`

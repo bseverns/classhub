@@ -56,6 +56,8 @@ curl -fsS http://localhost/upstream-healthz
 curl -fsS http://localhost/helper/healthz
 ```
 
+If `CADDY_EXPOSE_UPSTREAM_HEALTHZ=0`, expect `/upstream-healthz` to return `404` from Caddy.
+
 ### Guardrailed deploy (recommended)
 
 ```bash
@@ -178,6 +180,8 @@ curl -I http://localhost/healthz
 curl -I http://localhost/upstream-healthz
 curl -I http://localhost/helper/healthz
 ```
+
+If `CADDY_EXPOSE_UPSTREAM_HEALTHZ=0`, `/upstream-healthz` should return `404`.
 
 ### Tail logs
 
@@ -465,7 +469,7 @@ bash scripts/retention_maintenance.sh --compose-mode prod
 Helper reset export retention (optional override):
 
 ```bash
-export RETENTION_HELPER_EXPORT_DAYS=180
+export RETENTION_HELPER_EXPORT_DAYS=30
 export RETENTION_HELPER_EXPORT_DIR=/uploads/helper_reset_exports
 bash scripts/retention_maintenance.sh --compose-mode prod
 ```

@@ -61,7 +61,7 @@ Use this as the standard release appendix/checklist.
 - Production deploys use `RUN_MIGRATIONS_ON_START=0`. Migrations run explicitly during deploy (`scripts/deploy_with_smoke.sh`).
 - Health checks:
   - `/healthz` = edge/proxy health
-  - `/upstream-healthz` = ClassHub upstream health
+  - `/upstream-healthz` = ClassHub upstream health (only when `CADDY_EXPOSE_UPSTREAM_HEALTHZ=1`)
 - Backups: Postgres + uploaded media (and MinIO if enabled). See [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md).
 
 ### Access controls
@@ -110,5 +110,5 @@ Add these bullets to the release summary when shipped:
 ### Operator checklist
 - Confirm `.env` has no placeholder secrets (`bash scripts/validate_env_secrets.sh`).
 - Confirm OTP works for `/teach/*` and `/admin/*`.
-- Confirm `/upstream-healthz` returns OK after deploy.
+- Confirm `/upstream-healthz` returns OK after deploy if `CADDY_EXPOSE_UPSTREAM_HEALTHZ=1` (otherwise expect `404`).
 - Confirm retention jobs/timers are configured if using pruning.

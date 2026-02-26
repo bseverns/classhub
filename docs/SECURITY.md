@@ -106,8 +106,11 @@ Optional Caddy controls for `/admin*` and `/teach*`:
   - `CADDY_ADMIN_BASIC_AUTH_USER`
   - `CADDY_ADMIN_BASIC_AUTH_HASH` (bcrypt hash)
   - `/admin/login*` is intentionally excluded so Django login + OTP can render.
+  - If enabled with default/placeholder credentials, Caddy now fail-closes with `503`.
 - Open staff-route acknowledgement (required if allowlists are intentionally open in domain mode):
   - `CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1`
+- Optional upstream app health endpoint exposure:
+  - `CADDY_EXPOSE_UPSTREAM_HEALTHZ=1` to expose `/upstream-healthz` publicly.
 
 These controls are additive to Django auth + OTP.
 

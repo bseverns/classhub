@@ -282,6 +282,11 @@ CADDY_ADMIN_BASIC_AUTH_ENABLED="${CADDY_ADMIN_BASIC_AUTH_ENABLED:-0}"
 if [[ "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" != "0" && "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" != "1" ]]; then
   fail "CADDY_ADMIN_BASIC_AUTH_ENABLED must be 0 or 1"
 fi
+CADDY_EXPOSE_UPSTREAM_HEALTHZ="$(env_file_value CADDY_EXPOSE_UPSTREAM_HEALTHZ)"
+CADDY_EXPOSE_UPSTREAM_HEALTHZ="${CADDY_EXPOSE_UPSTREAM_HEALTHZ:-}"
+if [[ -n "${CADDY_EXPOSE_UPSTREAM_HEALTHZ}" && "${CADDY_EXPOSE_UPSTREAM_HEALTHZ}" != "0" && "${CADDY_EXPOSE_UPSTREAM_HEALTHZ}" != "1" ]]; then
+  fail "CADDY_EXPOSE_UPSTREAM_HEALTHZ must be 0 or 1 when set"
+fi
 require_compose_safe_dollars "CADDY_ADMIN_BASIC_AUTH_HASH"
 if [[ "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" == "1" ]]; then
   require_nonempty "CADDY_ADMIN_BASIC_AUTH_USER"
@@ -293,6 +298,9 @@ if [[ "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" == "1" ]]; then
   CADDY_ADMIN_BASIC_AUTH_HASH_VAL="${CADDY_ADMIN_BASIC_AUTH_HASH_VAL//\$\$/\$}"
   if [[ "${CADDY_ADMIN_BASIC_AUTH_HASH_VAL}" != \$2* ]]; then
     fail "CADDY_ADMIN_BASIC_AUTH_HASH should be a bcrypt hash (starts with '$2')"
+  fi
+  if [[ "${CADDY_ADMIN_BASIC_AUTH_HASH_VAL}" == '$2a$14$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG' ]]; then
+    fail "CADDY_ADMIN_BASIC_AUTH_HASH must be changed from default when basic auth is enabled"
   fi
 fi
 
