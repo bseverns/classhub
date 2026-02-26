@@ -16,6 +16,7 @@ TEMP_ROOT="${TEMP_ROOT:-/tmp/classhub_restore_rehearsal}"
 SKIP_BACKUP=0
 KEEP_TEMP=0
 UP_TIMEOUT_SECONDS="${UP_TIMEOUT_SECONDS:-180}"
+POSTGRES_SERVICE="${POSTGRES_SERVICE:-postgres}"
 
 POSTGRES_BACKUP_PATH="${POSTGRES_BACKUP_PATH:-}"
 UPLOADS_BACKUP_PATH="${UPLOADS_BACKUP_PATH:-}"
@@ -136,26 +137,43 @@ latest_matching_file() {
 }
 
 health_state() {
-  local container_name="$1"
-  docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "${container_name}" 2>/dev/null || true
+  local container_ref="$1"
+  docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "${container_ref}" 2>/dev/null || true
 }
 
-wait_for_container_state() {
-  local container_name="$1"
+service_container_id() {
+  local service_name="$1"
+  run_compose ps -q "${service_name}" | head -n1
+}
+
+wait_for_service_state() {
+  local service_name="$1"
   local expected_state="$2"
   local deadline
   deadline=$((SECONDS + UP_TIMEOUT_SECONDS))
   while (( SECONDS < deadline )); do
+    local container_id
     local state
-    state="$(health_state "${container_name}")"
+    container_id="$(service_container_id "${service_name}")"
+    if [[ -z "${container_id}" ]]; then
+      sleep 2
+      continue
+    fi
+    state="$(health_state "${container_id}")"
     if [[ "${state}" == "${expected_state}" ]]; then
-      echo "[rehearsal] ${container_name} ${state}"
+      echo "[rehearsal] ${service_name} ${state}"
       return 0
     fi
     sleep 2
   done
-  echo "[rehearsal] timeout waiting for ${container_name} to become ${expected_state}" >&2
-  echo "[rehearsal] last state: $(health_state "${container_name}")" >&2
+  echo "[rehearsal] timeout waiting for ${service_name} to become ${expected_state}" >&2
+  local last_container
+  last_container="$(service_container_id "${service_name}")"
+  if [[ -n "${last_container}" ]]; then
+    echo "[rehearsal] last state: $(health_state "${last_container}")" >&2
+  else
+    echo "[rehearsal] last state: container missing for service ${service_name}" >&2
+  fi
   return 1
 }
 
@@ -169,6 +187,7 @@ POSTGRES_USER="${POSTGRES_USER:-classhub}"
 POSTGRES_PASSWORD="$(env_file_value POSTGRES_PASSWORD)"
 POSTGRES_DB="$(env_file_value POSTGRES_DB)"
 POSTGRES_DB="${POSTGRES_DB:-classhub}"
+POSTGRES_HOST="${POSTGRES_HOST:-${POSTGRES_SERVICE}}"
 
 if [[ -z "${POSTGRES_PASSWORD}" ]]; then
   echo "[rehearsal] POSTGRES_PASSWORD is required in compose/.env" >&2
@@ -223,7 +242,7 @@ DB_CREATED=0
 cleanup() {
   local code=$?
   if [[ "${DB_CREATED}" == "1" ]]; then
-    docker exec -e PGPASSWORD="${POSTGRES_PASSWORD}" classhub_postgres \
+    run_compose exec -T -e PGPASSWORD="${POSTGRES_PASSWORD}" "${POSTGRES_SERVICE}" \
       psql -v ON_ERROR_STOP=1 -U "${POSTGRES_USER}" -d postgres \
       -c "DROP DATABASE IF EXISTS \"${REHEARSAL_DB}\";" >/dev/null 2>&1 || true
   fi
@@ -248,21 +267,21 @@ echo "[rehearsal] extracted uploads files: ${UPLOADS_FILE_COUNT}"
 echo "[rehearsal] extracted minio files:   ${MINIO_FILE_COUNT}"
 
 echo "[rehearsal] 3/5 restoring Postgres backup into temporary database (${REHEARSAL_DB})"
-run_compose up -d classhub_postgres >/dev/null
-wait_for_container_state classhub_postgres healthy
+run_compose up -d "${POSTGRES_SERVICE}" >/dev/null
+wait_for_service_state "${POSTGRES_SERVICE}" healthy
 
-docker exec -e PGPASSWORD="${POSTGRES_PASSWORD}" classhub_postgres \
+run_compose exec -T -e PGPASSWORD="${POSTGRES_PASSWORD}" "${POSTGRES_SERVICE}" \
   psql -v ON_ERROR_STOP=1 -U "${POSTGRES_USER}" -d postgres \
   -c "DROP DATABASE IF EXISTS \"${REHEARSAL_DB}\";" \
   -c "CREATE DATABASE \"${REHEARSAL_DB}\";" >/dev/null
 DB_CREATED=1
 
-docker exec -i -e PGPASSWORD="${POSTGRES_PASSWORD}" classhub_postgres \
+run_compose exec -T -e PGPASSWORD="${POSTGRES_PASSWORD}" "${POSTGRES_SERVICE}" \
   psql -v ON_ERROR_STOP=1 -U "${POSTGRES_USER}" -d "${REHEARSAL_DB}" < "${POSTGRES_BACKUP_PATH}" >/dev/null
 
 POSTGRES_USER_ESCAPED="$(urlencode "${POSTGRES_USER}")"
 POSTGRES_PASSWORD_ESCAPED="$(urlencode "${POSTGRES_PASSWORD}")"
-REHEARSAL_DATABASE_URL="postgres://${POSTGRES_USER_ESCAPED}:${POSTGRES_PASSWORD_ESCAPED}@postgres:5432/${REHEARSAL_DB}"
+REHEARSAL_DATABASE_URL="postgres://${POSTGRES_USER_ESCAPED}:${POSTGRES_PASSWORD_ESCAPED}@${POSTGRES_HOST}:5432/${REHEARSAL_DB}"
 
 echo "[rehearsal] 4/5 validating ClassHub + Helper migrations against restored database"
 run_compose run --rm --no-deps -e DATABASE_URL="${REHEARSAL_DATABASE_URL}" classhub_web python manage.py migrate --noinput >/dev/null
