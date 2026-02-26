@@ -70,6 +70,7 @@ nav:
   - Security & Privacy:
       - Security Baseline: SECURITY_BASELINE.md
       - Security: SECURITY.md
+      - Endpoint Checklist: ENDPOINT_CHECKLIST.md
       - Privacy Addendum: PRIVACY-ADDENDUM.md
       - Helper Policy: HELPER_POLICY.md
 

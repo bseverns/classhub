@@ -7,7 +7,12 @@ from pathlib import Path
 from django.db.utils import OperationalError, ProgrammingError
 from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 
-from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
+from ..http.headers import (
+    apply_download_safety,
+    apply_inline_asset_safety,
+    apply_no_store,
+    safe_attachment_filename,
+)
 from ..models import LessonAsset, LessonVideo
 from ..services.content_links import video_mime_type
 
@@ -178,11 +183,7 @@ def lesson_asset_download(request, asset_id: int):
         content_type=content_type,
     )
     if inline_allowed:
-        # Defense-in-depth for any inline-rendered asset responses.
-        response["Content-Security-Policy"] = "sandbox; default-src 'none'"
-        response["X-Content-Type-Options"] = "nosniff"
-        response["Cache-Control"] = "private, max-age=60"
-        response["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        apply_inline_asset_safety(response, max_age_seconds=60)
     else:
         apply_download_safety(response)
         apply_no_store(response, private=True, pragma=True)

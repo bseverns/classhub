@@ -93,7 +93,7 @@ def teach_class_dashboard(request, class_id: int):
             "error": error,
         },
     )
-    response["Cache-Control"] = "private, no-store"
+    apply_no_store(response, private=True, pragma=True)
     return response
 
 

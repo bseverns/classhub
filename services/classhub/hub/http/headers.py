@@ -23,8 +23,16 @@ def apply_download_safety(response: HttpResponse) -> HttpResponse:
     return response
 
 
+def apply_inline_asset_safety(response: HttpResponse, *, max_age_seconds: int = 60) -> HttpResponse:
+    """Apply constrained headers for inline-rendered lesson assets."""
+    response["Content-Security-Policy"] = "sandbox; default-src 'none'"
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Cache-Control"] = f"private, max-age={max(int(max_age_seconds), 0)}"
+    response["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
+
 def safe_attachment_filename(name: str, *, fallback: str = "download", max_length: int = 255) -> str:
     """Return a conservative attachment filename safe for HTTP headers."""
     cleaned = safe_filename((name or fallback).strip())[:max_length]
     return cleaned or fallback
-

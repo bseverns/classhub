@@ -456,6 +456,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - Lint workflow now enforces a template inline-CSS guard (`scripts/check_no_inline_template_css.py`) that fails on:
   - `<style>` blocks
   - inline style attributes (`style=...`)
+- Lint workflow now enforces a view security-header helper guard (`scripts/check_view_header_helpers.py`) that fails on direct `Cache-Control` / `Pragma` / CSP / `nosniff` / `Referrer-Policy` assignments inside view modules.
+- `docs/ENDPOINT_CHECKLIST.md` is the required baseline for new endpoints (cache, CSP, download hardening, throttling, logging minimization, and error-handling expectations).
 - CI now writes concise human-readable summaries to `$GITHUB_STEP_SUMMARY`:
   - Ruff advisory stats in `lint`.
   - Coverage totals for `classhub-tests` and `helper-tests` in `test-suite`.
@@ -467,6 +469,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Catches frontend wiring regressions with a lightweight check while keeping the stack Python-first.
 - Prevents CSP regressions by blocking inline JS reintroduction in templates.
 - Prevents CSP regressions by blocking inline CSS reintroduction in templates.
+- Keeps security-header behavior centralized and reviewable via shared helpers.
 - Prevents silent CI gate loss from workflow syntax regressions.
 
 ## Non-root Django runtime containers

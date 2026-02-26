@@ -17,6 +17,7 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
 - [Day 1 Checklist](DAY1_DEPLOY_CHECKLIST.md)
 - [Runbook](RUNBOOK.md)
 - [Security Baseline](SECURITY_BASELINE.md)
+- [Endpoint Checklist](ENDPOINT_CHECKLIST.md)
 - [Privacy Addendum](PRIVACY-ADDENDUM.md)
 - [Disaster Recovery](DISASTER_RECOVERY.md)
 
