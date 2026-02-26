@@ -488,7 +488,7 @@ sudo systemctl status classhub-retention.timer
 ```
 
 Before enabling, edit `/etc/systemd/system/classhub-retention.service` if your app path or runtime user differs from `/srv/lms/app`.
-Set a non-root runtime user/group explicitly, for example:
+Shipped defaults are:
 
 ```ini
 [Service]
@@ -496,7 +496,22 @@ User=lms
 Group=docker
 ```
 
-The shipped unit now refuses to run as root unless `CLASSHUB_ALLOW_ROOT_MAINTENANCE=1` is set as an explicit break-glass override.
+If your host uses a different account, override `User=` / `Group=` in the copied unit.
+Ensure the runtime user exists and can access Docker:
+
+```ini
+[Service]
+User=<your-maintenance-user>
+Group=docker
+```
+
+```bash
+id <your-maintenance-user>
+getent group docker
+sudo usermod -aG docker <your-maintenance-user>
+```
+
+The unit also ships with baseline hardening (`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem`, `ProtectHome`, etc.) and refuses to run as root unless `CLASSHUB_ALLOW_ROOT_MAINTENANCE=1` is set as an explicit break-glass override.
 
 Review last run:
 

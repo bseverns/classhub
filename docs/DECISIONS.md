@@ -432,6 +432,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - `smoke_check.sh` now retries `/helper/chat` for transient backend startup failures (`502` + `ollama_error`) before failing deploy smoke.
 - Regression coverage is required for helper auth/admin hardening and backend retry/circuit behavior.
 - `ops/systemd/classhub-retention.service` now refuses root execution by default unless `CLASSHUB_ALLOW_ROOT_MAINTENANCE=1` is explicitly set as a break-glass override.
+- `ops/systemd/classhub-retention.service` now pins explicit non-root runtime identity (`User=lms`, `Group=docker`) and baseline systemd hardening flags (`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem`, `ProtectHome`, etc.).
 
 **Why this remains active:**
 - Prevents avoidable outages from config drift.
@@ -446,6 +447,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Reduces deploy failures caused by class-code rotation between smoke runs without weakening strict smoke checks for other regressions.
 - Reduces false negative deploy smoke failures when local Ollama is healthy but still warming model execution for the first generation request.
 - Reduces accidental privileged execution for unattended retention maintenance jobs.
+- Reduces host-level blast radius if the maintenance unit or script path is compromised.
 
 ## CI speed and signal quality
 
