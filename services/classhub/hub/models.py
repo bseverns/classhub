@@ -413,6 +413,101 @@ class StudentEvent(models.Model):
         return f"{self.created_at.isoformat()} {self.event_type}"
 
 
+_STUDENT_OUTCOME_EVENT_DELETE_ALLOWED = ContextVar("hub_student_outcome_event_delete_allowed", default=False)
+
+
+def _student_outcome_event_delete_allowed() -> bool:
+    return bool(_STUDENT_OUTCOME_EVENT_DELETE_ALLOWED.get())
+
+
+class StudentOutcomeEventQuerySet(models.QuerySet):
+    def delete(self, *args, **kwargs):
+        if not _student_outcome_event_delete_allowed():
+            raise ValueError("StudentOutcomeEvent deletion is restricted to retention workflows.")
+        return super().delete(*args, **kwargs)
+
+
+class StudentOutcomeEventManager(models.Manager.from_queryset(StudentOutcomeEventQuerySet)):
+    pass
+
+
+class StudentOutcomeEvent(models.Model):
+    """Append-only student outcomes stream for certificates/reporting."""
+
+    EVENT_SESSION_COMPLETED = "session_completed"
+    EVENT_ARTIFACT_SUBMITTED = "artifact_submitted"
+    EVENT_MILESTONE_EARNED = "milestone_earned"
+    EVENT_TYPE_CHOICES = [
+        (EVENT_SESSION_COMPLETED, "Session completed"),
+        (EVENT_ARTIFACT_SUBMITTED, "Artifact submitted"),
+        (EVENT_MILESTONE_EARNED, "Milestone earned"),
+    ]
+
+    classroom = models.ForeignKey(
+        Class,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student_outcome_events",
+    )
+    student = models.ForeignKey(
+        "StudentIdentity",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="outcome_events",
+    )
+    module = models.ForeignKey(
+        Module,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student_outcome_events",
+    )
+    material = models.ForeignKey(
+        Material,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student_outcome_events",
+    )
+    event_type = models.CharField(max_length=40, choices=EVENT_TYPE_CHOICES)
+    source = models.CharField(max_length=40, default="classhub")
+    details = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [
+            models.Index(fields=["classroom", "event_type", "created_at"], name="hub_stout_cl_evt_cra_idx"),
+            models.Index(fields=["student", "event_type", "created_at"], name="hub_stout_st_evt_cra_idx"),
+            models.Index(fields=["module", "event_type", "created_at"], name="hub_stout_mod_evt_cra_idx"),
+        ]
+    objects = StudentOutcomeEventManager()
+
+    @classmethod
+    @contextmanager
+    def allow_retention_delete(cls):
+        token = _STUDENT_OUTCOME_EVENT_DELETE_ALLOWED.set(True)
+        try:
+            yield
+        finally:
+            _STUDENT_OUTCOME_EVENT_DELETE_ALLOWED.reset(token)
+
+    def save(self, *args, **kwargs):
+        if self.pk is not None:
+            raise ValueError("StudentOutcomeEvent is append-only and cannot be updated.")
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if not _student_outcome_event_delete_allowed():
+            raise ValueError("StudentOutcomeEvent deletion is restricted to retention workflows.")
+        return super().delete(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f"{self.created_at.isoformat()} {self.event_type}"
+
+
 def _safe_path_part(raw: str) -> str:
     value = re.sub(r"[^a-zA-Z0-9_-]+", "-", (raw or "").strip().lower())
     value = value.strip("-")

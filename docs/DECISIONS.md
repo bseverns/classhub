@@ -66,6 +66,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Teacher daily digest + closeout workflow](#teacher-daily-digest-and-closeout-workflow)
 - [Submission query composite indexes](#submission-query-composite-indexes)
 - [Student portfolio export](#student-portfolio-export)
+- [Outcome events and certificate rollups](#outcome-events-and-certificate-rollups)
 - [Automated retention maintenance](#automated-retention-maintenance)
 - [Release verdict: 2026-02-21 hardening/polish push](#release-verdict-2026-02-21-hardeningpolish-push)
 
@@ -1047,6 +1048,25 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Gives students a take-home artifact without requiring full accounts.
 - Supports portability and parent/mentor sharing while preserving class privacy boundaries.
+
+## Outcome events and certificate rollups
+
+**Current decision:**
+- Track learner progress in append-only `StudentOutcomeEvent` rows with event types:
+  - `session_completed`
+  - `artifact_submitted`
+  - `milestone_earned`
+- Successful upload submissions emit outcome events:
+  - one `artifact_submitted` per successful submission
+  - one `session_completed` per student+module (first artifact in that module)
+- Teachers can export `/teach/class/<id>/export-outcomes-csv` for class/student rollups.
+- Certificate eligibility is threshold-based:
+  - `CLASSHUB_CERTIFICATE_MIN_SESSIONS` (default 8)
+  - `CLASSHUB_CERTIFICATE_MIN_ARTIFACTS` (default 6)
+
+**Why this remains active:**
+- Produces funder/parent-facing outcome summaries without adding grades or surveillance patterns.
+- Keeps privacy boundary intact by exporting only aggregate counts + display names (no raw details payloads).
 
 ## Automated retention maintenance
 

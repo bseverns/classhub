@@ -7,7 +7,7 @@ from django.conf import settings
 
 from common.request_safety import client_ip_from_request
 
-from ..models import Material, StudentEvent, Submission
+from ..models import Material, StudentEvent, StudentOutcomeEvent, Submission
 from .content_links import parse_course_lesson_url
 from .markdown_content import load_lesson_markdown
 from .release_state import lesson_release_state
@@ -130,4 +130,38 @@ def process_material_upload_form(
             xff_index=getattr(settings, "REQUEST_SAFETY_XFF_INDEX", 0),
         ),
     )
+    try:
+        StudentOutcomeEvent.objects.create(
+            classroom=request.classroom,
+            student=request.student,
+            module=material.module,
+            material=material,
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            source="classhub.material_upload",
+            details={
+                "material_id": material.id,
+                "module_id": material.module_id,
+                "submission_id": submission.id,
+            },
+        )
+        if not StudentOutcomeEvent.objects.filter(
+            classroom=request.classroom,
+            student=request.student,
+            module=material.module,
+            event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+        ).exists():
+            StudentOutcomeEvent.objects.create(
+                classroom=request.classroom,
+                student=request.student,
+                module=material.module,
+                material=material,
+                event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+                source="classhub.material_upload",
+                details={
+                    "module_id": material.module_id,
+                    "trigger": "artifact_submitted",
+                },
+            )
+    except Exception:
+        logger.exception("student_outcome_event_write_failed material_id=%s student_id=%s", material.id, request.student.id)
     return UploadAttemptResult(redirect_url=f"/material/{material.id}/upload")

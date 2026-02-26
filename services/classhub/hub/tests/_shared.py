@@ -36,6 +36,7 @@ from ..models import (
     OrganizationMembership,
     StudentEvent,
     StudentIdentity,
+    StudentOutcomeEvent,
     Submission,
 )
 from ..services.helper_control import HelperResetResult

@@ -15,6 +15,7 @@ from .models import (
     OrganizationMembership,
     StudentEvent,
     StudentIdentity,
+    StudentOutcomeEvent,
     Submission,
 )
 
@@ -60,6 +61,23 @@ class StudentEventAdmin(admin.ModelAdmin):
     list_display = ("created_at", "event_type", "classroom", "student", "source", "ip_address")
     list_filter = ("event_type", "classroom", "student", ("created_at", admin.DateFieldListFilter))
     search_fields = ("source", "ip_address", "student__display_name", "classroom__name", "classroom__join_code")
+    readonly_fields = ("created_at",)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(StudentOutcomeEvent)
+class StudentOutcomeEventAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "event_type", "classroom", "student", "module", "material", "source")
+    list_filter = ("event_type", "classroom", "module", ("created_at", admin.DateFieldListFilter))
+    search_fields = ("source", "student__display_name", "classroom__name", "classroom__join_code")
     readonly_fields = ("created_at",)
 
     def has_add_permission(self, request):

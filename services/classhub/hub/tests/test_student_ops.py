@@ -604,6 +604,23 @@ class StudentEventSubmissionTests(TestCase):
         self.assertEqual(event.classroom_id, self.classroom.id)
         self.assertEqual(event.student_id, self.student.id)
         self.assertEqual(int(event.details.get("material_id") or 0), self.material.id)
+        self.assertEqual(
+            StudentOutcomeEvent.objects.filter(
+                student=self.student,
+                classroom=self.classroom,
+                event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            StudentOutcomeEvent.objects.filter(
+                student=self.student,
+                classroom=self.classroom,
+                event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+                module=self.module,
+            ).count(),
+            1,
+        )
 
         submission = Submission.objects.filter(material=self.material, student=self.student).order_by("-id").first()
         self.assertIsNotNone(submission)
@@ -611,6 +628,43 @@ class StudentEventSubmissionTests(TestCase):
         stored_name = Path(submission.file.name).name
         self.assertNotEqual(stored_name, "project.sb3")
         self.assertTrue(re.match(r"^[a-f0-9]{32}\.sb3$", stored_name))
+
+    def test_material_upload_does_not_duplicate_session_completed_for_same_module(self):
+        self._login_student()
+        first = self.client.post(
+            f"/material/{self.material.id}/upload",
+            {
+                "file": SimpleUploadedFile("project1.sb3", _sample_sb3_bytes()),
+                "note": "first",
+            },
+        )
+        self.assertEqual(first.status_code, 302)
+        second = self.client.post(
+            f"/material/{self.material.id}/upload",
+            {
+                "file": SimpleUploadedFile("project2.sb3", _sample_sb3_bytes()),
+                "note": "second",
+            },
+        )
+        self.assertEqual(second.status_code, 302)
+        self.assertEqual(
+            StudentOutcomeEvent.objects.filter(
+                student=self.student,
+                classroom=self.classroom,
+                event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+                module=self.module,
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            StudentOutcomeEvent.objects.filter(
+                student=self.student,
+                classroom=self.classroom,
+                event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+                module=self.module,
+            ).count(),
+            2,
+        )
 
     def test_material_upload_rejects_invalid_sb3_content(self):
         self._login_student()

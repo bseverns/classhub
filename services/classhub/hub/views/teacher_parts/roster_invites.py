@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 from ...http.headers import apply_no_store, safe_attachment_filename
 from ...models import Class, ClassInviteLink
 from ...services.filenames import safe_filename
-from ...services.teacher_roster_class import export_class_summary_csv
+from ...services.teacher_roster_class import export_class_outcomes_csv, export_class_summary_csv
 from .shared_auth import (
     staff_can_manage_classroom,
     staff_classroom_or_none,
@@ -181,6 +181,33 @@ def teach_export_class_summary_csv(request, class_id: int):
 
 
 @staff_member_required
+def teach_export_class_outcomes_csv(request, class_id: int):
+    classroom = staff_classroom_or_none(request.user, class_id)
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+
+    active_window_days = _parse_positive_int((request.GET.get("active_window_days") or "").strip(), min_value=1, max_value=365)
+    if active_window_days is None:
+        active_window_days = 30
+    csv_text = export_class_outcomes_csv(classroom=classroom, active_window_days=active_window_days)
+    _audit(
+        request,
+        action="class.export_outcomes_csv",
+        classroom=classroom,
+        target_type="Class",
+        target_id=str(classroom.id),
+        summary=f"Exported class outcomes CSV for {classroom.name}",
+        metadata={"active_window_days": active_window_days},
+    )
+    day_label = timezone.localdate().strftime("%Y%m%d")
+    filename = safe_attachment_filename(f"{safe_filename(classroom.name)}_outcomes_{day_label}.csv")
+    response = HttpResponse(csv_text, content_type="text/csv; charset=utf-8")
+    response["Content-Disposition"] = f'attachment; filename=\"{filename}\"'
+    apply_no_store(response, private=True, pragma=True)
+    return response
+
+
+@staff_member_required
 @require_POST
 def teach_set_enrollment_mode(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
@@ -214,6 +241,7 @@ def teach_set_enrollment_mode(request, class_id: int):
 __all__ = [
     "teach_create_invite_link",
     "teach_disable_invite_link",
+    "teach_export_class_outcomes_csv",
     "teach_export_class_summary_csv",
     "teach_set_enrollment_mode",
 ]

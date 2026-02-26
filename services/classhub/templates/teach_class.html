@@ -50,6 +50,7 @@
               {% csrf_token %}
               <button type="submit">Rotate code</button>
             </form>
+            <a href="/teach/class/{{ classroom.id }}/export-outcomes-csv">Export outcomes CSV</a>
             <a href="/teach/class/{{ classroom.id }}/export-summary-csv">Export summary CSV</a>
           </div>
         </div>

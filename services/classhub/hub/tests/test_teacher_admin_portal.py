@@ -311,6 +311,45 @@ class TeacherPortalTests(TestCase):
         self.assertNotIn("do not export this", body)
         self.assertNotIn("prompt", body)
 
+    @override_settings(
+        CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,
+        CLASSHUB_CERTIFICATE_MIN_ARTIFACTS=1,
+    )
+    def test_teach_class_export_outcomes_csv_contains_rollups_without_details_payloads(self):
+        classroom, _upload = self._build_lesson_with_submission()
+        student = StudentIdentity.objects.filter(classroom=classroom, display_name="Ada").first()
+        StudentOutcomeEvent.objects.create(
+            classroom=classroom,
+            student=student,
+            event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+            source="test",
+            details={"private_note": "do-not-export"},
+        )
+        StudentOutcomeEvent.objects.create(
+            classroom=classroom,
+            student=student,
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            source="test",
+            details={"internal": "nope"},
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}/export-outcomes-csv")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("attachment;", resp["Content-Disposition"])
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+        body = resp.content.decode("utf-8")
+        self.assertIn("class_outcome_summary", body)
+        self.assertIn("student_outcome_summary", body)
+        self.assertIn("Ada", body)
+        self.assertIn("yes", body)
+        self.assertNotIn("do-not-export", body)
+        self.assertNotIn("private_note", body)
+
+        event = AuditEvent.objects.filter(action="class.export_outcomes_csv").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.classroom_id, classroom.id)
+
     def test_teach_class_masks_return_codes_by_default(self):
         classroom = Class.objects.create(name="Period Roster", join_code="MASK1234")
         student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")

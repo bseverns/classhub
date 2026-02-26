@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from ..models import Material, StudentEvent, StudentIdentity, Submission
+from ..models import Material, StudentEvent, StudentIdentity, StudentOutcomeEvent, Submission
 from .content_links import parse_course_lesson_url
 from .filenames import safe_filename
 from .markdown_content import load_lesson_markdown
@@ -317,8 +317,177 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
     return out.getvalue()
 
 
+def _int_setting(setting_name: str, default: int, *, minimum: int = 1) -> int:
+    raw = getattr(settings, setting_name, default)
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        value = int(default)
+    return max(value, minimum)
+
+
+def export_class_outcomes_csv(
+    *,
+    classroom,
+    active_window_days: int = 30,
+    certificate_min_sessions: int | None = None,
+    certificate_min_artifacts: int | None = None,
+) -> str:
+    active_window_days = max(int(active_window_days or 0), 1)
+    active_since = timezone.now() - timedelta(days=active_window_days)
+    certificate_min_sessions = (
+        _int_setting("CLASSHUB_CERTIFICATE_MIN_SESSIONS", 8)
+        if certificate_min_sessions is None
+        else max(int(certificate_min_sessions), 1)
+    )
+    certificate_min_artifacts = (
+        _int_setting("CLASSHUB_CERTIFICATE_MIN_ARTIFACTS", 6)
+        if certificate_min_artifacts is None
+        else max(int(certificate_min_artifacts), 1)
+    )
+
+    students = list(
+        StudentIdentity.objects.filter(classroom=classroom)
+        .only("id", "display_name")
+        .order_by("display_name", "id")
+    )
+    student_ids = [int(student.id) for student in students]
+
+    sessions_by_student: dict[int, int] = {}
+    artifacts_by_student: dict[int, int] = {}
+    milestones_by_student: dict[int, int] = {}
+    if student_ids:
+        for row in (
+            StudentOutcomeEvent.objects.filter(student_id__in=student_ids)
+            .values("student_id", "event_type")
+            .annotate(total=models.Count("id"))
+        ):
+            student_id = int(row["student_id"])
+            total = int(row["total"] or 0)
+            event_type = str(row["event_type"] or "")
+            if event_type == StudentOutcomeEvent.EVENT_SESSION_COMPLETED:
+                sessions_by_student[student_id] = total
+            elif event_type == StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED:
+                artifacts_by_student[student_id] = total
+            elif event_type == StudentOutcomeEvent.EVENT_MILESTONE_EARNED:
+                milestones_by_student[student_id] = total
+
+    outcome_windows: dict[int, tuple[str, str]] = {}
+    if student_ids:
+        for row in (
+            StudentOutcomeEvent.objects.filter(student_id__in=student_ids)
+            .values("student_id")
+            .annotate(first=models.Min("created_at"), last=models.Max("created_at"))
+        ):
+            student_id = int(row["student_id"])
+            first = row.get("first")
+            last = row.get("last")
+            outcome_windows[student_id] = (
+                first.isoformat() if first else "",
+                last.isoformat() if last else "",
+            )
+
+    class_sessions_total = StudentOutcomeEvent.objects.filter(
+        classroom=classroom,
+        event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+    ).count()
+    class_artifacts_total = StudentOutcomeEvent.objects.filter(
+        classroom=classroom,
+        event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+    ).count()
+    class_milestones_total = StudentOutcomeEvent.objects.filter(
+        classroom=classroom,
+        event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
+    ).count()
+    class_active_outcome_students = (
+        StudentOutcomeEvent.objects.filter(
+            classroom=classroom,
+            created_at__gte=active_since,
+            student__isnull=False,
+        )
+        .values("student_id")
+        .distinct()
+        .count()
+    )
+
+    eligible_students = 0
+    for student in students:
+        sid = int(student.id)
+        if (
+            sessions_by_student.get(sid, 0) >= certificate_min_sessions
+            and artifacts_by_student.get(sid, 0) >= certificate_min_artifacts
+        ):
+            eligible_students += 1
+
+    fieldnames = [
+        "row_type",
+        "class_id",
+        "class_name",
+        "display_name",
+        "session_completions",
+        "artifact_submissions",
+        "milestones",
+        "certificate_eligible",
+        "eligible_students",
+        "total_students",
+        "active_outcome_students",
+        "first_outcome_at",
+        "last_outcome_at",
+        "certificate_min_sessions",
+        "certificate_min_artifacts",
+        "active_window_days",
+    ]
+    out = StringIO()
+    writer = csv.DictWriter(out, fieldnames=fieldnames)
+    writer.writeheader()
+
+    writer.writerow(
+        {
+            "row_type": "class_outcome_summary",
+            "class_id": classroom.id,
+            "class_name": classroom.name,
+            "session_completions": class_sessions_total,
+            "artifact_submissions": class_artifacts_total,
+            "milestones": class_milestones_total,
+            "eligible_students": eligible_students,
+            "total_students": len(students),
+            "active_outcome_students": class_active_outcome_students,
+            "certificate_min_sessions": certificate_min_sessions,
+            "certificate_min_artifacts": certificate_min_artifacts,
+            "active_window_days": active_window_days,
+        }
+    )
+
+    for student in students:
+        sid = int(student.id)
+        sessions = sessions_by_student.get(sid, 0)
+        artifacts = artifacts_by_student.get(sid, 0)
+        eligible = sessions >= certificate_min_sessions and artifacts >= certificate_min_artifacts
+        first_outcome, last_outcome = outcome_windows.get(sid, ("", ""))
+        writer.writerow(
+            {
+                "row_type": "student_outcome_summary",
+                "class_id": classroom.id,
+                "class_name": classroom.name,
+                "display_name": student.display_name,
+                "session_completions": sessions,
+                "artifact_submissions": artifacts,
+                "milestones": milestones_by_student.get(sid, 0),
+                "certificate_eligible": "yes" if eligible else "no",
+                "first_outcome_at": first_outcome,
+                "last_outcome_at": last_outcome,
+                "certificate_min_sessions": certificate_min_sessions,
+                "certificate_min_artifacts": certificate_min_artifacts,
+                "active_window_days": active_window_days,
+            }
+        )
+
+    return out.getvalue()
+
+
 __all__ = [
     "build_dashboard_context",
+    "export_class_outcomes_csv",
     "export_class_summary_csv",
     "export_submissions_today_archive",
 ]
