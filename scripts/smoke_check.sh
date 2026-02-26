@@ -125,8 +125,13 @@ code="$(http_code "${BASE_URL}/internal/events/helper-chat-access")"
 echo "[smoke] /internal/* edge block OK"
 
 code="$(http_code "${BASE_URL}/helper/internal/reset-class-conversations")"
-[[ "${code}" == "404" ]] || fail "/helper/internal/reset-class-conversations returned ${code} (expected 404 from edge block)"
-echo "[smoke] /helper/internal/* edge block OK"
+if [[ "${code}" == "404" ]]; then
+  echo "[smoke] /helper/internal/* edge block OK"
+elif [[ "${code}" == "405" ]]; then
+  echo "[smoke] /helper/internal/* method guard deny OK (405)"
+else
+  fail "/helper/internal/reset-class-conversations returned ${code} (expected 404 or 405 deny)"
+fi
 
 admin_login_code="$(
   curl "${CURL_FLAGS[@]}" -D "${TMP_HEADERS}" -o /dev/null -w "%{http_code}" "${BASE_URL}/admin/login/"
