@@ -111,7 +111,7 @@ class ClassInviteLinkAdmin(admin.ModelAdmin):
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    list_display = ("id", "uploaded_at", "student", "material", "original_filename", "download_link")
+    list_display = ("id", "uploaded_at", "student", "material", "original_filename", "is_gallery_shared", "download_link")
     list_filter = ("material__module__classroom", "material")
     search_fields = ("original_filename", "student__display_name")
     readonly_fields = ("uploaded_at",)

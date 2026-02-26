@@ -135,6 +135,49 @@
                           </div>
                         {% endif %}
                       {% endwith %}
+                    {% elif mat.type == 'gallery' %}
+                      {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id gallery_entries=gallery_entries_by_material|get_item:mat.id %}
+                        {% if access.is_lesson_upload and access.is_locked %}
+                          <div class="status-row">
+                            <span class="state-pill state-pill--locked">Gallery locked</span>
+                          </div>
+                        {% elif access.is_lesson_upload %}
+                          <div class="status-row">
+                            <span class="state-pill state-pill--open">Gallery open</span>
+                          </div>
+                        {% endif %}
+                        <div class="muted">Accepted: {{ mat.accepted_extensions|default:'.png,.jpg,.jpeg,.webp,.gif,.pdf,.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
+                        {% if access.is_lesson_upload and access.is_locked %}
+                          <div class="muted">Gallery opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+                        {% else %}
+                          <div class="status-row">
+                            {% if s %}
+                              <span class="state-pill state-pill--done">Uploaded</span>
+                            {% else %}
+                              <span class="state-pill state-pill--open">Not uploaded yet</span>
+                            {% endif %}
+                          </div>
+                          <div class="mat-link">
+                            <a href="/material/{{ mat.id }}/upload">Upload / manage gallery</a>
+                            {% if s %}
+                              <span class="muted">· {{ s.count }} uploaded</span>
+                            {% endif %}
+                          </div>
+                        {% endif %}
+                        {% if gallery_entries %}
+                          <div class="gallery-shared-wrap">
+                            <div class="muted">Shared gallery</div>
+                            <ul class="gallery-shared-list">
+                              {% for g in gallery_entries %}
+                                <li>
+                                  <a href="/submission/{{ g.submission_id }}/download">{{ g.original_filename }}</a>
+                                  <span class="muted">· {{ g.display_name }}{% if g.is_owner %} (you){% endif %} · {{ g.uploaded_at|date:"M j, g:i a" }}</span>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        {% endif %}
+                      {% endwith %}
                     {% elif mat.type == 'checklist' %}
                       {% with access=material_access|get_item:mat.id items=material_checklist_items|get_item:mat.id state=material_responses|get_item:mat.id %}
                         {% if access.is_lesson_activity and access.is_locked %}

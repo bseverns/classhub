@@ -120,13 +120,7 @@ def teach_add_material(request, module_id: int):
     if not staff_can_manage_classroom(request.user, module.classroom):
         return HttpResponse("Forbidden", status=403)
 
-    allowed_types = {
-        Material.TYPE_LINK,
-        Material.TYPE_TEXT,
-        Material.TYPE_UPLOAD,
-        Material.TYPE_CHECKLIST,
-        Material.TYPE_REFLECTION,
-    }
+    allowed_types = {Material.TYPE_LINK, Material.TYPE_TEXT, Material.TYPE_UPLOAD, Material.TYPE_GALLERY, Material.TYPE_CHECKLIST, Material.TYPE_REFLECTION}
     mtype = (request.POST.get("type") or Material.TYPE_LINK).strip()
     if mtype not in allowed_types:
         mtype = Material.TYPE_LINK
@@ -145,18 +139,17 @@ def teach_add_material(request, module_id: int):
     elif mtype == Material.TYPE_TEXT:
         mat.body = (request.POST.get("body") or "").strip()
         mat.save(update_fields=["body"])
-    elif mtype == Material.TYPE_UPLOAD:
-        mat.accepted_extensions = (request.POST.get("accepted_extensions") or ".sb3").strip()
+    elif mtype in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}:
+        default_exts = ".sb3" if mtype == Material.TYPE_UPLOAD else ".png,.jpg,.jpeg,.webp,.gif,.pdf,.sb3"
+        mat.accepted_extensions = (request.POST.get("accepted_extensions") or default_exts).strip()
         try:
             mat.max_upload_mb = int(request.POST.get("max_upload_mb") or 50)
         except Exception:
             mat.max_upload_mb = 50
         mat.save(update_fields=["accepted_extensions", "max_upload_mb"])
-    elif mtype == Material.TYPE_CHECKLIST:
-        mat.body = (request.POST.get("checklist_items") or "").strip()
-        mat.save(update_fields=["body"])
-    elif mtype == Material.TYPE_REFLECTION:
-        mat.body = (request.POST.get("reflection_prompt") or "").strip()
+    elif mtype in {Material.TYPE_CHECKLIST, Material.TYPE_REFLECTION}:
+        prompt_key = "checklist_items" if mtype == Material.TYPE_CHECKLIST else "reflection_prompt"
+        mat.body = (request.POST.get(prompt_key) or "").strip()
         mat.save(update_fields=["body"])
     _audit(
         request,
@@ -208,7 +201,7 @@ def teach_material_submissions(request, material_id: int):
         .filter(id=material_id)
         .first()
     )
-    if not material or material.type != Material.TYPE_UPLOAD:
+    if not material or material.type not in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}:
         return HttpResponse("Not found", status=404)
 
     classroom = material.module.classroom

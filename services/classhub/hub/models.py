@@ -162,6 +162,7 @@ class Material(models.Model):
     - link: points to lesson/content URL
     - text: short instructions/reminders
     - upload: student dropbox for file submission
+    - gallery: upload with optional class-visible sharing
     - checklist: student self-report checklist
     - reflection: private journal prompt/response
     """
@@ -169,12 +170,14 @@ class Material(models.Model):
     TYPE_LINK = "link"
     TYPE_TEXT = "text"
     TYPE_UPLOAD = "upload"
+    TYPE_GALLERY = "gallery"
     TYPE_CHECKLIST = "checklist"
     TYPE_REFLECTION = "reflection"
     TYPE_CHOICES = [
         (TYPE_LINK, "Link"),
         (TYPE_TEXT, "Text"),
         (TYPE_UPLOAD, "Upload"),
+        (TYPE_GALLERY, "Gallery"),
         (TYPE_CHECKLIST, "Checklist"),
         (TYPE_REFLECTION, "Reflection"),
     ]
@@ -230,6 +233,7 @@ class Submission(models.Model):
     original_filename = models.CharField(max_length=255, blank=True, default="")
     file = models.FileField(upload_to=_submission_upload_to)
     note = models.TextField(blank=True, default="")
+    is_gallery_shared = models.BooleanField(default=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -238,6 +242,7 @@ class Submission(models.Model):
             models.Index(fields=["material", "uploaded_at"], name="hub_submis_matup_2a3bf4_idx"),
             models.Index(fields=["student", "uploaded_at"], name="hub_submiss_student_4f0ac8_idx"),
             models.Index(fields=["material", "student"], name="hub_submis_matstu_91b9f2_idx"),
+            models.Index(fields=["material", "is_gallery_shared", "uploaded_at"], name="hub_submis_matshr_90a5_idx"),
         ]
 
     def __str__(self) -> str:

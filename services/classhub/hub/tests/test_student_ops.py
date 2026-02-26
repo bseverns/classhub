@@ -679,6 +679,61 @@ class StudentEventSubmissionTests(TestCase):
         self.assertContains(resp, "does not match .sb3", status_code=400)
         self.assertEqual(Submission.objects.filter(material=self.material, student=self.student).count(), 0)
 
+    def test_gallery_upload_can_opt_in_to_class_sharing(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf,.sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        self._login_student()
+
+        resp = self.client.post(
+            f"/material/{gallery.id}/upload",
+            {
+                "file": SimpleUploadedFile("project.sb3", _sample_sb3_bytes()),
+                "share_with_class": "1",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        saved = Submission.objects.filter(material=gallery, student=self.student).order_by("-id").first()
+        self.assertIsNotNone(saved)
+        self.assertTrue(saved.is_gallery_shared)
+
+    def test_student_home_shows_shared_gallery_entries_only(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf,.sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        other = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ben")
+        Submission.objects.create(
+            material=gallery,
+            student=other,
+            original_filename="shared.sb3",
+            file=SimpleUploadedFile("shared.sb3", _sample_sb3_bytes()),
+            is_gallery_shared=True,
+        )
+        Submission.objects.create(
+            material=gallery,
+            student=other,
+            original_filename="private.sb3",
+            file=SimpleUploadedFile("private.sb3", _sample_sb3_bytes()),
+            is_gallery_shared=False,
+        )
+        self._login_student()
+
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Shared gallery")
+        self.assertContains(resp, "shared.sb3")
+        self.assertNotContains(resp, "private.sb3")
+
 
 class StudentChecklistReflectionTests(TestCase):
     def setUp(self):
@@ -818,6 +873,12 @@ class SubmissionDownloadHardeningTests(TestCase):
         session["class_id"] = self.classroom.id
         session.save()
 
+    def _login_student_client(self, client: Client, student: StudentIdentity):
+        session = client.session
+        session["student_id"] = student.id
+        session["class_id"] = student.classroom_id
+        session.save()
+
     def test_submission_download_sets_hardening_headers(self):
         self._login_student()
         resp = self.client.get(f"/submission/{self.submission.id}/download")
@@ -838,6 +899,54 @@ class SubmissionDownloadHardeningTests(TestCase):
         self.assertNotIn("/", disposition)
         self.assertNotIn("\\", disposition)
         self.assertNotRegex(disposition, r"[\r\n]")
+
+    def test_submission_download_allows_classmate_when_gallery_item_is_shared(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        owner = StudentIdentity.objects.create(classroom=self.classroom, display_name="Owner")
+        shared = Submission.objects.create(
+            material=gallery,
+            student=owner,
+            original_filename="shared.sb3",
+            file=SimpleUploadedFile("shared.sb3", _sample_sb3_bytes()),
+            is_gallery_shared=True,
+        )
+        viewer = StudentIdentity.objects.create(classroom=self.classroom, display_name="Viewer")
+        peer_client = Client()
+        self._login_student_client(peer_client, viewer)
+
+        resp = peer_client.get(f"/submission/{shared.id}/download")
+        self.assertEqual(resp.status_code, 200)
+
+    def test_submission_download_blocks_classmate_when_gallery_item_not_shared(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        owner = StudentIdentity.objects.create(classroom=self.classroom, display_name="Owner")
+        private_item = Submission.objects.create(
+            material=gallery,
+            student=owner,
+            original_filename="private.sb3",
+            file=SimpleUploadedFile("private.sb3", _sample_sb3_bytes()),
+            is_gallery_shared=False,
+        )
+        viewer = StudentIdentity.objects.create(classroom=self.classroom, display_name="Viewer")
+        peer_client = Client()
+        self._login_student_client(peer_client, viewer)
+
+        resp = peer_client.get(f"/submission/{private_item.id}/download")
+        self.assertEqual(resp.status_code, 403)
 
 
 class FileCleanupSignalTests(TestCase):

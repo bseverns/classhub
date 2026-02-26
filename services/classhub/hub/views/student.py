@@ -23,6 +23,7 @@ from ..services.join_flow_service import clear_device_hint_cookie
 from ..services.student_home import (
     build_material_access_map,
     build_material_checklist_items_map,
+    build_gallery_entries_map,
     build_material_response_map,
     build_submissions_by_material,
     helper_backend_label,
@@ -133,7 +134,11 @@ def student_home(request):
     submissions_by_material = build_submissions_by_material(student=request.student, material_ids=material_ids)
     material_checklist_items = build_material_checklist_items_map(modules=modules)
     material_responses = build_material_response_map(student=request.student, material_ids=material_ids)
-
+    gallery_entries_by_material = build_gallery_entries_map(
+        classroom=classroom,
+        viewer_student=request.student,
+        material_ids=material_ids,
+    )
     privacy_meta = privacy_meta_context()
     helper_widget = render_to_string(
         "includes/helper_widget.html",
@@ -157,7 +162,6 @@ def student_home(request):
         },
     )
     get_token(request)
-
     response = render(
         request,
         "student_class.html",
@@ -168,6 +172,7 @@ def student_home(request):
             "submissions_by_material": submissions_by_material,
             "material_checklist_items": material_checklist_items,
             "material_responses": material_responses,
+            "gallery_entries_by_material": gallery_entries_by_material,
             "material_access": material_access,
             "helper_widget": helper_widget,
             **privacy_meta,
@@ -257,8 +262,6 @@ def student_delete_work(request):
 @require_POST
 def student_end_session(request):
     return _end_student_session_response(request)
-
-
 @require_POST
 def material_checklist(request, material_id: int):
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
@@ -341,7 +344,7 @@ def material_reflection(request, material_id: int):
 
 
 def material_upload(request, material_id: int):
-    """Student upload page for a Material of type=upload."""
+    """Student upload page for a Material of type=upload or type=gallery."""
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
         return redirect("/")
 
@@ -352,7 +355,7 @@ def material_upload(request, material_id: int):
     )
     if not material or material.module.classroom_id != request.classroom.id:
         return HttpResponse("Not found", status=404)
-    if material.type != Material.TYPE_UPLOAD:
+    if material.type not in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}:
         return HttpResponse("Not an upload material", status=404)
 
     release_state = resolve_upload_release_state(request, material=material)
@@ -375,6 +378,7 @@ def material_upload(request, material_id: int):
     elif request.method == "POST":
         form = SubmissionUploadForm(request.POST, request.FILES)
         if form.is_valid():
+            share_with_class = bool(request.POST.get("share_with_class")) if material.type == Material.TYPE_GALLERY else False
             upload_result = process_material_upload_form(
                 request=request,
                 material=material,
@@ -385,6 +389,7 @@ def material_upload(request, material_id: int):
                 scan_uploaded_file_fn=scan_uploaded_file,
                 emit_student_event_fn=_emit_student_event,
                 logger=logger,
+                share_with_class=share_with_class,
             )
             if upload_result.redirect_url:
                 return redirect(upload_result.redirect_url)
@@ -403,6 +408,7 @@ def material_upload(request, material_id: int):
             "form": form,
             "error": error,
             "submissions": submissions,
+            "is_gallery_material": material.type == Material.TYPE_GALLERY,
             "upload_locked": bool(release_state.get("is_locked")),
             "upload_available_on": release_state.get("available_on"),
             **privacy_meta_context(),
@@ -417,7 +423,8 @@ def submission_download(request, submission_id: int):
     """Download a submission.
 
     - Staff users can download any submission.
-    - Students can only download their own submissions.
+    - Students can download their own submissions.
+    - Classmates can download gallery submissions only when sharing is explicitly enabled.
     """
     s = (
         Submission.objects.select_related("student", "material__module__classroom")
@@ -432,7 +439,13 @@ def submission_download(request, submission_id: int):
     else:
         if getattr(request, "student", None) is None:
             return redirect("/")
-        if s.student_id != request.student.id:
+        can_download_own = s.student_id == request.student.id
+        can_download_shared_gallery = (
+            s.material.type == Material.TYPE_GALLERY
+            and bool(s.is_gallery_shared)
+            and request.student.classroom_id == s.material.module.classroom_id
+        )
+        if not can_download_own and not can_download_shared_gallery:
             return HttpResponse("Forbidden", status=403)
 
     raw_filename = s.original_filename or Path(s.file.name).name or "submission"
@@ -450,8 +463,6 @@ def submission_download(request, submission_id: int):
 
 def student_logout(request):
     return _end_student_session_response(request)
-
-
 __all__ = [
     "healthz",
     "student_home",
@@ -460,6 +471,8 @@ __all__ = [
     "student_my_data",
     "student_delete_work",
     "student_end_session",
+    "material_checklist",
+    "material_reflection",
     "material_upload",
     "submission_download",
     "student_logout",

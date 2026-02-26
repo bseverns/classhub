@@ -612,7 +612,7 @@
                               <div class="muted mini">Type: {{ mat.type }}</div>
                             </div>
                             <div class="muted mini">
-                              {% if mat.type == 'upload' %}
+                              {% if mat.type == 'upload' or mat.type == 'gallery' %}
                                 Submitted: {{ submission_counts|get_item:mat.id|default:0 }} / {{ student_count }} · <a href="/teach/material/{{ mat.id }}/submissions">Submissions</a>
                               {% endif %}
                             </div>
@@ -623,6 +623,8 @@
                             <pre class="module-text-preview">{{ mat.body|truncatechars:280 }}</pre>
                           {% elif mat.type == 'upload' %}
                             <div class="muted mini">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
+                          {% elif mat.type == 'gallery' %}
+                            <div class="muted mini">Accepted: {{ mat.accepted_extensions|default:'.png,.jpg,.jpeg,.webp,.gif,.pdf,.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
                           {% elif mat.type == 'checklist' and mat.body %}
                             <pre class="module-text-preview">{{ mat.body|truncatechars:280 }}</pre>
                           {% elif mat.type == 'reflection' and mat.body %}

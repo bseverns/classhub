@@ -21,9 +21,17 @@
         </div>
 
         <div class="card">
-          <h2 class="section-title-tight">Upload your work</h2>
+          {% if is_gallery_material %}
+            <h2 class="section-title-tight">Upload to gallery</h2>
+          {% else %}
+            <h2 class="section-title-tight">Upload your work</h2>
+          {% endif %}
           <p class="muted top-gap-8">Allowed: <strong>{{ allowed_exts|join:", " }}</strong> · Max <strong>{{ material.max_upload_mb }}MB</strong></p>
-          <p class="muted top-gap-8">Done means your file appears in <strong>Your uploads</strong> below.</p>
+          {% if is_gallery_material %}
+            <p class="muted top-gap-8">Only uploads you explicitly mark as shared appear in class gallery.</p>
+          {% else %}
+            <p class="muted top-gap-8">Done means your file appears in <strong>Your uploads</strong> below.</p>
+          {% endif %}
           <div class="privacy-note">
             <p class="muted"><strong>Privacy at a glance:</strong> we store your display name, uploaded files, and upload timestamps for class progress.</p>
             <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
@@ -53,6 +61,12 @@
               {% csrf_token %}
               {{ form.file }}
               <div class="upload-note-field">{{ form.note }}</div>
+              {% if is_gallery_material %}
+                <label class="muted top-gap-8">
+                  <input type="checkbox" name="share_with_class" value="1" />
+                  Share this upload with class gallery
+                </label>
+              {% endif %}
               <button type="submit">Upload</button>
             </form>
           {% endif %}
@@ -69,6 +83,9 @@
                 <tr>
                   <th scope="col">When</th>
                   <th scope="col">File</th>
+                  {% if is_gallery_material %}
+                    <th scope="col">Shared</th>
+                  {% endif %}
                   <th scope="col">Download</th>
                 </tr>
               </thead>
@@ -77,6 +94,9 @@
                   <tr>
                     <td class="muted">{{ s.uploaded_at }}</td>
                     <td>{{ s.original_filename }}</td>
+                    {% if is_gallery_material %}
+                      <td class="muted">{% if s.is_gallery_shared %}Yes{% else %}No{% endif %}</td>
+                    {% endif %}
                     <td><a href="/submission/{{ s.id }}/download">Download</a></td>
                   </tr>
                   {% if s.note %}

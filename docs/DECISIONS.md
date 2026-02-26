@@ -1056,9 +1056,11 @@ Historical implementation logs and superseded decisions are archived by month in
 - Extend `Material.type` with:
   - `checklist`: line-based self-report checklist
   - `reflection`: private journal prompt + student response
+- Extend with `gallery`: upload material where sharing to classmates is explicit opt-in per submission.
 - Student responses are stored in `StudentMaterialResponse` keyed by student+material.
 - Checklist/reflection responses are excluded from CSV outcome/detail exports by default.
 - Milestone-only outcome events are emitted (`milestone_earned`) without storing reflection body/checklist text in event payloads.
+- Gallery downloads for classmates are allowed only when `is_gallery_shared=True` and class membership matches.
 
 **Why this remains active:**
 - Adds low-friction non-grade evidence of engagement for paid cohorts and funder reporting.

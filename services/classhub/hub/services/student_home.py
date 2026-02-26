@@ -98,6 +98,45 @@ def build_material_response_map(*, student: StudentIdentity, material_ids: list[
     return by_material
 
 
+def build_gallery_entries_map(
+    *,
+    classroom: Class,
+    viewer_student: StudentIdentity,
+    material_ids: list[int],
+    per_material_limit: int = 24,
+) -> dict[int, list[dict]]:
+    by_material: dict[int, list[dict]] = {}
+    if not material_ids:
+        return by_material
+
+    limit = max(int(per_material_limit), 1)
+    qs = (
+        Submission.objects.filter(
+            material_id__in=material_ids,
+            material__module__classroom=classroom,
+            material__type=Material.TYPE_GALLERY,
+            is_gallery_shared=True,
+        )
+        .select_related("student")
+        .only("id", "material_id", "student_id", "student__display_name", "uploaded_at", "original_filename")
+        .order_by("-uploaded_at", "-id")
+    )
+    for submission in qs:
+        rows = by_material.setdefault(submission.material_id, [])
+        if len(rows) >= limit:
+            continue
+        rows.append(
+            {
+                "submission_id": submission.id,
+                "display_name": submission.student.display_name,
+                "uploaded_at": submission.uploaded_at,
+                "original_filename": submission.original_filename,
+                "is_owner": submission.student_id == viewer_student.id,
+            }
+        )
+    return by_material
+
+
 def build_material_access_map(request, *, classroom: Class, modules: list[Module]) -> tuple[list[int], dict[int, dict]]:
     lesson_release_cache: dict[tuple[str, str], dict] = {}
     module_lesson_cache: dict[int, tuple[str, str] | None] = {}
@@ -157,9 +196,14 @@ def build_material_access_map(request, *, classroom: Class, modules: list[Module
                     access["is_lesson_link"] = True
                     access["is_locked"] = bool(state.get("is_locked"))
                     access["available_on"] = state.get("available_on")
-            elif mat.type in {Material.TYPE_UPLOAD, Material.TYPE_CHECKLIST, Material.TYPE_REFLECTION} and module_lesson:
+            elif mat.type in {
+                Material.TYPE_UPLOAD,
+                Material.TYPE_GALLERY,
+                Material.TYPE_CHECKLIST,
+                Material.TYPE_REFLECTION,
+            } and module_lesson:
                 state = get_release_state(*module_lesson)
-                access["is_lesson_upload"] = mat.type == Material.TYPE_UPLOAD
+                access["is_lesson_upload"] = mat.type in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}
                 access["is_lesson_activity"] = mat.type in {Material.TYPE_CHECKLIST, Material.TYPE_REFLECTION}
                 access["is_locked"] = bool(state.get("is_locked"))
                 access["available_on"] = state.get("available_on")

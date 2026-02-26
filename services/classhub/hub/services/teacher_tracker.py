@@ -406,7 +406,7 @@ def _compute_lesson_tracker_rows(
         mats.sort(key=lambda m: (m.order_index, m.id))
         module_materials_map[module.id] = mats
         for mat in mats:
-            if mat.type == Material.TYPE_UPLOAD:
+            if mat.type in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}:
                 upload_material_ids.append(mat.id)
 
     submission_counts = _material_submission_counts(upload_material_ids)
@@ -416,7 +416,7 @@ def _compute_lesson_tracker_rows(
         mats = module_materials_map.get(module.id, [])
         dropboxes: list[LessonTrackerDropboxRow] = []
         for mat in mats:
-            if mat.type != Material.TYPE_UPLOAD:
+            if mat.type not in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}:
                 continue
             submitted = submission_counts.get(mat.id, 0)
             dropboxes.append(

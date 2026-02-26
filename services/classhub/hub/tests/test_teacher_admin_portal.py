@@ -452,6 +452,27 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(created.title, "Reflection journal")
         self.assertIn("What changed in your code today?", created.body)
 
+    def test_teach_module_can_add_gallery_material(self):
+        classroom = Class.objects.create(name="Gallery Class", join_code="GAL12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/module/{module.id}/add-material",
+            {
+                "type": Material.TYPE_GALLERY,
+                "title": "Share to gallery",
+                "accepted_extensions": ".png,.jpg,.jpeg,.pdf",
+                "max_upload_mb": "20",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        created = Material.objects.filter(module=module, type=Material.TYPE_GALLERY).first()
+        self.assertIsNotNone(created)
+        self.assertEqual(created.title, "Share to gallery")
+        self.assertEqual(created.accepted_extensions, ".png,.jpg,.jpeg,.pdf")
+        self.assertEqual(created.max_upload_mb, 20)
+
     def test_teach_videos_uses_external_css_without_inline_styles(self):
         _force_login_staff_verified(self.client, self.staff)
 

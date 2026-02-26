@@ -154,7 +154,7 @@ def build_dashboard_context(*, request, classroom, normalize_order_fn) -> dict:
     upload_material_ids: list[int] = []
     for module in modules:
         for material in module.materials.all():
-            if material.type == Material.TYPE_UPLOAD:
+            if material.type in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}:
                 upload_material_ids.append(material.id)
 
     student_count = classroom.students.count()
@@ -314,7 +314,9 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
                 lesson_title = lesson_slug
             break
 
-        upload_material_ids = [material.id for material in mats if material.type == Material.TYPE_UPLOAD]
+        upload_material_ids = [
+            material.id for material in mats if material.type in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}
+        ]
         submissions_total = (
             Submission.objects.filter(material_id__in=upload_material_ids).count() if upload_material_ids else 0
         )

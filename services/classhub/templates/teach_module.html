@@ -47,7 +47,7 @@
                       <input type="hidden" name="direction" value="down" />
                       <button type="submit" aria-label="Move material {{ mat.title }} down">↓</button>
                     </form>
-                    {% if mat.type == 'upload' %}
+                    {% if mat.type == 'upload' or mat.type == 'gallery' %}
                       <a href="/teach/material/{{ mat.id }}/submissions">Submissions</a>
                     {% endif %}
                   </div>
@@ -59,6 +59,8 @@
                   <pre class="material-text-preview">{{ mat.body|truncatechars:800 }}</pre>
                 {% elif mat.type == 'upload' %}
                   <div class="muted material-upload-meta">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
+                {% elif mat.type == 'gallery' %}
+                  <div class="muted material-upload-meta">Accepted: {{ mat.accepted_extensions|default:'.png,.jpg,.jpeg,.webp,.gif,.pdf,.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
                 {% elif mat.type == 'checklist' and mat.body %}
                   <pre class="material-text-preview">{{ mat.body|truncatechars:800 }}</pre>
                 {% elif mat.type == 'reflection' and mat.body %}
@@ -121,6 +123,27 @@
               <label for="reflection-prompt" class="stacked-label">Prompt</label>
               <textarea id="reflection-prompt" name="reflection_prompt" placeholder="What was hard today, what changed, and what will you try next?"></textarea>
               <button type="submit" class="submit-spaced">Add reflection prompt</button>
+            </form>
+          </details>
+
+          <details>
+            <summary>Add a gallery dropbox</summary>
+            <form method="post" action="/teach/module/{{ module.id }}/add-material" class="material-form">
+              {% csrf_token %}
+              <input type="hidden" name="type" value="gallery" />
+              <label for="gallery-title">Title</label>
+              <input id="gallery-title" name="title" value="Share to gallery" />
+              <div class="row upload-config-row">
+                <div class="upload-config-col-main">
+                  <label for="gallery-ext">Accepted extensions</label>
+                  <input id="gallery-ext" name="accepted_extensions" value=".png,.jpg,.jpeg,.webp,.gif,.pdf,.sb3" />
+                </div>
+                <div class="upload-config-col-side">
+                  <label for="gallery-max">Max upload (MB)</label>
+                  <input id="gallery-max" name="max_upload_mb" value="50" />
+                </div>
+              </div>
+              <button type="submit" class="submit-spaced">Add gallery dropbox</button>
             </form>
           </details>
 

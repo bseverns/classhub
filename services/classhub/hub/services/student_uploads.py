@@ -58,6 +58,7 @@ def process_material_upload_form(
     scan_uploaded_file_fn,
     emit_student_event_fn,
     logger,
+    share_with_class: bool = False,
 ) -> UploadAttemptResult:
     uploaded_file = form.cleaned_data["file"]
     note = (form.cleaned_data.get("note") or "").strip()
@@ -111,6 +112,7 @@ def process_material_upload_form(
         original_filename=name,
         file=uploaded_file,
         note=note,
+        is_gallery_shared=bool(share_with_class and material.type == Material.TYPE_GALLERY),
     )
     emit_student_event_fn(
         event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
@@ -123,6 +125,7 @@ def process_material_upload_form(
             "file_ext": (Path(name).suffix or "").lower()[:16],
             "size_bytes": int(getattr(uploaded_file, "size", 0) or 0),
             "scan_status": scan_result.status,
+            "gallery_shared": bool(submission.is_gallery_shared),
         },
         ip_address=client_ip_from_request(
             request,
