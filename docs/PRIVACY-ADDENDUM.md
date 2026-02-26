@@ -66,6 +66,9 @@ flowchart LR
 - Student submissions: `Submission.original_filename`, `Submission.file`, `Submission.note`, `Submission.uploaded_at`, material/student links.
 - Student events (metadata-only): `StudentEvent.event_type`, `StudentEvent.source`, `StudentEvent.details`, minimized `StudentEvent.ip_address`, `StudentEvent.created_at`, optional classroom/student links.
 - Teacher/admin accounts: Django auth user fields (`username`, `email`, password hash, staff/superuser flags, auth/session metadata).
+- Reporting and certificate surfaces:
+  - class summary/outcomes exports and certificate eligibility/issuance are limited to classroom context and `display_name`;
+  - helper prompt content is excluded from these exports and eligibility rollups.
 
 ## Storage Locations
 - Primary relational data: Postgres (`classhub_postgres`).

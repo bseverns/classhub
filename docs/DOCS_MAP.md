@@ -34,6 +34,7 @@ A new reader should be able to find their role path without opening more than on
 - [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md)
 - [SECURITY_BASELINE.md](SECURITY_BASELINE.md)
 - [RUNBOOK.md](RUNBOOK.md)
+- [ACCESSIBILITY.md](ACCESSIBILITY.md)
 - [RELEASING.md](RELEASING.md)
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 - [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)

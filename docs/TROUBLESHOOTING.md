@@ -51,6 +51,7 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 | `/helper/chat` failing (502 / `ollama_error`) | `helper_web` logs + Ollama tags | Helper backend/model |
 | `/helper/chat` failing with 403 CSRF page | Browser request headers (`Referer`, `X-CSRFToken`, `Cookie`) + `classhub_web` logs | CSRF/referrer/session |
 | Teacher login smoke fails | smoke credentials + login response path | Auth/config mismatch |
+| Accessibility smoke fails (`scripts/a11y_smoke.sh`) | Playwright install + teacher session/bootstrap fixtures | Tooling/session/markup regression |
 | Container unhealthy/restarting | service logs + DB auth | Boot/runtime dependency |
 | Helper returns policy redirect unexpectedly | topic filter mode + scope context | Policy config |
 | Admin blocked by OTP | admin device enrollment | Auth hardening |
@@ -201,6 +202,41 @@ Then re-run strict smoke:
 cd /srv/lms/app
 bash scripts/smoke_check.sh --strict
 ```
+
+## Symptom: accessibility smoke fails
+
+Example failure signals:
+
+- `browserType.launch: Executable doesn't exist...`
+- `expected authenticated teacher view but was redirected to /teach/login...`
+- `[a11y] FAIL: found N violation(s) at critical+ impact`
+
+Checks:
+
+```bash
+cd /srv/lms/app
+bash scripts/system_doctor.sh --smoke-mode golden
+bash scripts/a11y_smoke.sh --compose-mode prod --install-browsers
+```
+
+If browser install is still missing:
+
+```bash
+npm --prefix scripts/a11y run install-browsers
+```
+
+If teacher routes redirect to login:
+
+1. Confirm golden fixtures completed successfully.
+2. Confirm `smoke_teacher` exists in Class Hub and is active staff.
+3. Re-run `scripts/a11y_smoke.sh` (it mints a fresh server-side session each run).
+
+If violations remain:
+
+1. Fix the exact selector(s) reported by axe.
+2. Re-run `scripts/a11y_smoke.sh`.
+3. Re-run strict smoke before deploy:
+   - `bash scripts/smoke_check.sh --strict`
 
 ## Symptom: helper or classhub container unhealthy/restarting
 

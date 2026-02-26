@@ -79,6 +79,7 @@
           {% endif %}
           {% if submissions %}
             <table class="table-top-gap">
+              <caption class="visually-hidden">Your uploaded files</caption>
               <thead>
                 <tr>
                   <th scope="col">When</th>
@@ -93,7 +94,7 @@
                 {% for s in submissions %}
                   <tr>
                     <td class="muted">{{ s.uploaded_at }}</td>
-                    <td>{{ s.original_filename }}</td>
+                    <th scope="row">{{ s.original_filename }}</th>
                     {% if is_gallery_material %}
                       <td class="muted">{% if s.is_gallery_shared %}Yes{% else %}No{% endif %}</td>
                     {% endif %}
@@ -102,7 +103,7 @@
                   {% if s.note %}
                     <tr>
                       <td></td>
-                      <td colspan="2" class="muted">Note: {{ s.note }}</td>
+                      <td colspan="{% if is_gallery_material %}3{% else %}2{% endif %}" class="muted">Note: {{ s.note }}</td>
                     </tr>
                   {% endif %}
                 {% endfor %}

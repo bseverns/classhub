@@ -142,6 +142,7 @@
 
           {% if asset_rows %}
             <table class="table-top-gap">
+              <caption class="visually-hidden">Lesson asset library rows</caption>
               <thead>
                 <tr>
                   <th scope="col">Asset</th>
@@ -154,12 +155,12 @@
               <tbody>
                 {% for row in asset_rows %}
                   <tr{% if not row.is_active %} class="row-draft"{% endif %}>
-                    <td>
+                    <th scope="row">
                       <strong>{{ row.title }}</strong>
                       {% if row.description %}<div class="muted">{{ row.description|truncatechars:160 }}</div>{% endif %}
                       {% if row.original_filename %}<div class="muted">File: {{ row.original_filename }}</div>{% endif %}
                       <div class="snippet">[{{ row.title|escape }}]({{ row.download_url }})</div>
-                    </td>
+                    </th>
                     <td><span class="path-chip">{{ row.folder.path }}</span></td>
                     <td class="muted">
                       {% if row.course_slug %}{{ row.course_slug }}{% else %}all courses{% endif %}

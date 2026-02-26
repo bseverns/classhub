@@ -122,6 +122,21 @@ bash scripts/golden_path_smoke.sh
 
 `golden_path_smoke.sh` also validates invite-only enrollment behavior and class summary CSV export (teacher session path).
 
+Accessibility smoke:
+
+```bash
+cd /srv/lms/app
+bash scripts/a11y_smoke.sh --compose-mode prod --install-browsers
+```
+
+Notes:
+
+- Run this after `golden_path_smoke.sh` or `system_doctor --smoke-mode golden` so class/teacher fixtures exist.
+- Default fail threshold is `critical`; override with `--fail-impact` when intentionally broadening checks.
+- Expected success line: `[a11y] PASS`.
+
+Reference: [ACCESSIBILITY.md](ACCESSIBILITY.md)
+
 ## Public domain deployment notes
 
 When running behind Caddy on a real domain, use these defaults to avoid false rate-limit identity and upload mismatches:

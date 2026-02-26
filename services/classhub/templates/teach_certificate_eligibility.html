@@ -43,24 +43,20 @@
           {% if can_manage %}
             <form method="post" action="/teach/class/{{ classroom.id }}/mark-session-completed" class="invite-create-form">
               {% csrf_token %}
-              <label>
-                Student
-                <select name="student_id" required>
-                  <option value="">Select student</option>
-                  {% for row in eligibility_rows %}
-                    <option value="{{ row.student_id }}">{{ row.display_name }}</option>
-                  {% endfor %}
-                </select>
-              </label>
-              <label>
-                Module
-                <select name="module_id" required>
-                  <option value="">Select module</option>
-                  {% for module in modules %}
-                    <option value="{{ module.id }}">{{ module.title }}</option>
-                  {% endfor %}
-                </select>
-              </label>
+              <label for="certificate-student-id">Student</label>
+              <select id="certificate-student-id" name="student_id" required>
+                <option value="">Select student</option>
+                {% for row in eligibility_rows %}
+                  <option value="{{ row.student_id }}">{{ row.display_name }}</option>
+                {% endfor %}
+              </select>
+              <label for="certificate-module-id">Module</label>
+              <select id="certificate-module-id" name="module_id" required>
+                <option value="">Select module</option>
+                {% for module in modules %}
+                  <option value="{{ module.id }}">{{ module.title }}</option>
+                {% endfor %}
+              </select>
               <button type="submit">Mark completed</button>
             </form>
           {% else %}
@@ -73,6 +69,7 @@
           {% if eligibility_rows %}
             <div class="roster-table-wrap">
               <table>
+                <caption class="visually-hidden">Certificate eligibility status for {{ classroom.name }}</caption>
                 <thead>
                   <tr>
                     <th scope="col">Student</th>
@@ -86,7 +83,7 @@
                 <tbody>
                   {% for row in eligibility_rows %}
                     <tr>
-                      <td><strong>{{ row.display_name }}</strong></td>
+                      <th scope="row"><strong>{{ row.display_name }}</strong></th>
                       <td>{{ row.session_count }}</td>
                       <td>{{ row.artifact_count }}</td>
                       <td>{{ row.milestone_count }}</td>

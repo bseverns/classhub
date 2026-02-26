@@ -41,6 +41,9 @@
           </div>
 
           <table class="table-top-gap">
+            <caption class="visually-hidden">
+              {% if is_rubric %}Rubric responses{% else %}Submission status{% endif %} for {{ material.title }}
+            </caption>
             <thead>
               <tr>
                 <th scope="col">Student</th>
@@ -53,7 +56,7 @@
             <tbody>
               {% for r in rows %}
                 <tr>
-                  <td><strong>{{ r.student.display_name }}</strong></td>
+                  <th scope="row"><strong>{{ r.student.display_name }}</strong></th>
                   {% if r.latest %}
                     {% if is_rubric %}
                       <td class="muted">{{ r.latest.updated_at }}</td>

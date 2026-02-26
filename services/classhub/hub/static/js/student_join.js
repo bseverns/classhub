@@ -12,6 +12,7 @@
   const showErr = (text) => {
     msg.textContent = text;
     msg.style.display = "block";
+    msg.focus();
   };
 
   // Django CSRF: read csrftoken cookie and send it as X-CSRFToken.

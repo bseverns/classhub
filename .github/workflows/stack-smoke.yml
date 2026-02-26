@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
       - name: Prepare compose env for CI doctor run
         run: |
@@ -39,3 +42,10 @@ jobs:
             --compose-mode prod \
             --smoke-mode golden \
             --helper-message "Help me with AP calculus limits."
+
+      - name: Run accessibility smoke
+        run: |
+          bash scripts/a11y_smoke.sh \
+            --compose-mode prod \
+            --install-browsers \
+            --fail-impact critical

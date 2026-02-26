@@ -70,6 +70,7 @@ flowchart TD
 - [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md) (field-level data lifecycle + deletion controls)
 - [SECURITY_BASELINE.md](SECURITY_BASELINE.md) (edge vs app ownership)
 - [RUNBOOK.md](RUNBOOK.md)
+- [ACCESSIBILITY.md](ACCESSIBILITY.md) (automated + manual accessibility checks)
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 - [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 

@@ -10,6 +10,9 @@ __pycache__/
 .coverage
 htmlcov/
 
+# Frontend/tooling cache
+node_modules/
+
 # Virtualenvs
 .venv/
 venv/

@@ -42,6 +42,12 @@ For full-stack confidence (recommended):
 bash scripts/system_doctor.sh --smoke-mode golden
 ```
 
+For accessibility regression confidence (recommended after stack smoke):
+
+```bash
+bash scripts/a11y_smoke.sh --compose-mode prod --install-browsers
+```
+
 If any command fails because of local environment constraints, note that explicitly in PR notes.
 
 ## 4) Docs + decision hygiene

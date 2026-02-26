@@ -54,6 +54,7 @@
           <h2 class="section-title-tight">My submissions</h2>
           {% if submissions %}
             <table class="table-top-gap">
+              <caption class="visually-hidden">Stored submissions for {{ student.display_name }}</caption>
               <thead>
                 <tr>
                   <th scope="col">When</th>
@@ -69,7 +70,7 @@
                     <td class="muted">{{ s.uploaded_at }}</td>
                     <td>{{ s.material.module.title }}</td>
                     <td>{{ s.material.title }}</td>
-                    <td>{{ s.original_filename }}</td>
+                    <th scope="row">{{ s.original_filename }}</th>
                     <td><a href="/submission/{{ s.id }}/download">Download</a></td>
                   </tr>
                 {% endfor %}

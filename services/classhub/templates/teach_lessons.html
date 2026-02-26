@@ -55,6 +55,7 @@
             {% if group.lesson_rows %}
               <div class="tracker-table-wrap">
                 <table>
+                  <caption class="visually-hidden">Lesson tracker for {{ group.classroom.name }}</caption>
                   <thead>
                     <tr>
                       <th scope="col">Module</th>
@@ -65,7 +66,7 @@
                   <tbody>
                     {% for row in group.lesson_rows %}
                       <tr class="lesson-row">
-                        <td class="module-cell"><strong>{{ row.module.title }}</strong></td>
+                        <th scope="row" class="module-cell"><strong>{{ row.module.title }}</strong></th>
                         <td class="lesson-cell">
                           <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
                           <div class="muted">{{ row.course_slug }} / {{ row.lesson_slug }}</div>

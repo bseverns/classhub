@@ -1,0 +1,13 @@
+{
+  "name": "classhub-a11y-smoke",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "smoke": "node run_smoke.mjs",
+    "install-browsers": "playwright install --with-deps chromium"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "playwright": "^1.52.0"
+  }
+}

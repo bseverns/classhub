@@ -102,6 +102,7 @@
               {% if teacher_accounts %}
                 <div class="table-wrap teacher-account-table-wrap">
                   <table class="teacher-account-table">
+                    <caption class="visually-hidden">Teacher accounts</caption>
                     <thead>
                       <tr>
                         <th scope="col">Username</th>
@@ -198,6 +199,7 @@
           {% if classes %}
             <div class="table-wrap">
               <table>
+                <caption class="visually-hidden">Classes available in the teacher portal</caption>
                 <thead>
                   <tr>
                     <th scope="col">Class</th>
@@ -209,12 +211,12 @@
                 <tbody>
                   {% for c in classes %}
                     <tr>
-                      <td>
+                      <th scope="row">
                         <strong>{{ c.name }}</strong>
                         {% if c.id in assigned_class_ids %}
                           <span class="state-pill state-pill--open">Assigned</span>
                         {% endif %}
-                      </td>
+                      </th>
                       <td>
                         <span class="pill">{{ c.join_code }}</span>
                         <button type="button" class="inline-copy" data-copy-value="{{ c.join_code }}">Copy</button>
@@ -246,6 +248,7 @@
           {% if class_digest_rows %}
             <div class="table-wrap">
               <table>
+                <caption class="visually-hidden">Daily class activity digest</caption>
                 <thead>
                   <tr>
                     <th scope="col">Class</th>
@@ -259,7 +262,7 @@
                 <tbody>
                   {% for row in class_digest_rows %}
                     <tr>
-                      <td><strong>{{ row.classroom.name }}</strong></td>
+                      <th scope="row"><strong>{{ row.classroom.name }}</strong></th>
                       <td>{{ row.new_students_since }}</td>
                       <td>{{ row.submission_total_since }}</td>
                       <td>{{ row.helper_access_total_since }}</td>
@@ -321,6 +324,7 @@
           {% if recent_submissions %}
             <div class="table-wrap">
               <table>
+                <caption class="visually-hidden">Recent submissions across classes</caption>
                 <thead>
                   <tr>
                     <th scope="col">When</th>

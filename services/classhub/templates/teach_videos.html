@@ -140,6 +140,7 @@
           </div>
           {% if lesson_video_rows %}
             <table class="table-top-gap">
+              <caption class="visually-hidden">Videos tagged to {{ selected_course_slug }} / {{ selected_lesson_slug }}</caption>
               <thead>
                 <tr>
                   <th scope="col">Order</th>
@@ -153,13 +154,13 @@
                 {% for row in lesson_video_rows %}
                   <tr{% if not row.is_active %} class="row-draft"{% endif %}>
                     <td class="muted">{{ forloop.counter }}</td>
-                    <td>
+                    <th scope="row">
                       <strong>{{ row.title }}</strong>
                       <div class="muted">
                         {% if row.minutes %}{{ row.minutes }} min{% endif %}
                         {% if row.outcome %} · {{ row.outcome }}{% endif %}
                       </div>
-                    </td>
+                    </th>
                     <td>
                       {% if row.is_active %}
                         <span class="status-pill live">Published</span>

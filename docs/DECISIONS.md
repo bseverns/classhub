@@ -30,6 +30,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Request safety and helper access posture](#request-safety-and-helper-access-posture)
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
 - [Deployment guardrails](#deployment-guardrails)
+- [Accessibility smoke gate](#accessibility-smoke-gate)
 - [View wildcard import guardrail](#view-wildcard-import-guardrail)
 - [CI speed and signal quality](#ci-speed-and-signal-quality)
 - [Non-root Django runtime containers](#non-root-django-runtime-containers)
@@ -591,6 +592,23 @@ Historical implementation logs and superseded decisions are archived by month in
 - Reduces false negative deploy smoke failures when local Ollama is healthy but still warming model execution for the first generation request.
 - Reduces accidental privileged execution for unattended retention maintenance jobs.
 - Reduces host-level blast radius if the maintenance unit or script path is compromised.
+
+## Accessibility smoke gate
+
+**Current decision:**
+- Add a Playwright + axe smoke gate (`scripts/a11y_smoke.sh`) that runs against the running compose stack.
+- Keep scope intentionally small and deterministic:
+  - student join page
+  - teacher home
+  - teacher lessons
+  - teacher class dashboard + certificate eligibility page (when smoke class fixture exists)
+- CI runs this gate in `stack-smoke` after golden smoke fixture provisioning.
+- Fail threshold defaults to `critical` impact violations to avoid noisy rollout regressions while still blocking severe accessibility breaks.
+
+**Why this remains active:**
+- Adds fast regression detection for high-impact accessibility failures in core classroom flows.
+- Reuses the same stack fixtures/session setup as smoke checks, reducing separate test harness drift.
+- Keeps the gate low-friction and repeatable for local/operator runs (`bash scripts/a11y_smoke.sh`).
 
 ## CI speed and signal quality
 
