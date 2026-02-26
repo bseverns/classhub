@@ -1,8 +1,30 @@
 """Compatibility exports for split teacher roster endpoints."""
 
-from .roster_class import *  # noqa: F401,F403
-from .roster_materials import *  # noqa: F401,F403
-from .roster_students import *  # noqa: F401,F403
+from .roster_class import (
+    teach_class_dashboard,
+    teach_class_join_card,
+    teach_create_class,
+    teach_export_class_submissions_today,
+    teach_lock_class,
+    teach_reset_helper_conversations,
+    teach_reset_roster,
+    teach_rotate_code,
+    teach_toggle_lock,
+)
+from .roster_materials import (
+    teach_add_material,
+    teach_add_module,
+    teach_material_submissions,
+    teach_module,
+    teach_move_material,
+    teach_move_module,
+)
+from .roster_students import (
+    teach_delete_student_data,
+    teach_merge_students,
+    teach_rename_student,
+    teach_student_return_code,
+)
 
 __all__ = [
     "teach_create_class",

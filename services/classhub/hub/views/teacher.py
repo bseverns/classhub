@@ -1,9 +1,35 @@
 """Compatibility export surface for teacher portal endpoints."""
 
-from .teacher_parts.auth import *  # noqa: F401,F403
-from .teacher_parts.content import *  # noqa: F401,F403
-from .teacher_parts.roster import *  # noqa: F401,F403
-from .teacher_parts.videos import *  # noqa: F401,F403
+from .teacher_parts.auth import teach_create_teacher, teach_login, teach_teacher_2fa_setup, teacher_logout
+from .teacher_parts.content import (
+    teach_download_authoring_template,
+    teach_generate_authoring_templates,
+    teach_home,
+    teach_lessons,
+    teach_set_lesson_release,
+)
+from .teacher_parts.roster import (
+    teach_add_material,
+    teach_add_module,
+    teach_class_dashboard,
+    teach_class_join_card,
+    teach_create_class,
+    teach_delete_student_data,
+    teach_export_class_submissions_today,
+    teach_lock_class,
+    teach_material_submissions,
+    teach_merge_students,
+    teach_module,
+    teach_move_material,
+    teach_move_module,
+    teach_rename_student,
+    teach_reset_helper_conversations,
+    teach_reset_roster,
+    teach_rotate_code,
+    teach_student_return_code,
+    teach_toggle_lock,
+)
+from .teacher_parts.videos import teach_assets, teach_videos
 
 __all__ = [
     "teach_login",
