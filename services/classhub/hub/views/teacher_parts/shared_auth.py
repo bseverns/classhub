@@ -23,6 +23,7 @@ from ...services.org_access import (
     staff_can_manage_classroom,
     staff_classroom_or_none,
     staff_default_organization,
+    staff_has_explicit_memberships,
 )
 
 _TEMPLATE_SLUG_RE = re.compile(r"^[a-z0-9_-]+$")
