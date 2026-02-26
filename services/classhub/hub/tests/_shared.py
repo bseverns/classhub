@@ -32,6 +32,8 @@ from ..models import (
     LessonRelease,
     Material,
     Module,
+    Organization,
+    OrganizationMembership,
     StudentEvent,
     StudentIdentity,
     Submission,

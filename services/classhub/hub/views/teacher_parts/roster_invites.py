@@ -10,7 +10,11 @@ from ...http.headers import apply_no_store, safe_attachment_filename
 from ...models import Class, ClassInviteLink
 from ...services.filenames import safe_filename
 from ...services.teacher_roster_class import export_class_summary_csv
-from .shared_auth import staff_member_required
+from .shared_auth import (
+    staff_can_manage_classroom,
+    staff_classroom_or_none,
+    staff_member_required,
+)
 from .shared_routing import (
     _audit,
     _parse_positive_int,
@@ -20,7 +24,7 @@ from .shared_routing import (
 )
 
 
-def _class_notice_redirect(request, classroom: Class, *, notice: str = "", error: str = ""):
+def _class_notice_redirect(request, classroom, *, notice: str = "", error: str = ""):
     class_path = _teach_class_path(classroom.id)
     return _safe_internal_redirect(
         request,
@@ -61,9 +65,11 @@ def _create_invite_link(request, *, classroom: Class, label: str, expires_in_hou
 @staff_member_required
 @require_POST
 def teach_create_invite_link(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     label, expires_in_hours, seat_cap, validation_error = _parse_invite_link_fields(request)
     if validation_error:
@@ -95,9 +101,11 @@ def teach_create_invite_link(request, class_id: int):
 @staff_member_required
 @require_POST
 def teach_disable_invite_link(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     try:
         invite_id = int((request.POST.get("invite_id") or "0").strip())
@@ -140,7 +148,7 @@ def teach_disable_invite_link(request, class_id: int):
 
 @staff_member_required
 def teach_export_class_summary_csv(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
 

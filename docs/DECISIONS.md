@@ -6,6 +6,7 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Active Decisions Snapshot
 
 - [Auth model: student access](#auth-model-student-access)
+- [Organization boundary and staff roles](#organization-boundary-and-staff-roles)
 - [Service boundary: Homework Helper separate service](#service-boundary-homework-helper-separate-service)
 - [Helper engine modularization seam](#helper-engine-modularization-seam)
 - [Helper view helper split seam](#helper-view-helper-split-seam)
@@ -100,6 +101,23 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Keeps student friction low while limiting impersonation risk.
 - Maintains minimal student PII collection in MVP.
+
+## Organization boundary and staff roles
+
+**Current decision:**
+- Add first-class `Organization` and `OrganizationMembership` models in ClassHub.
+- `Class.organization` is optional during rollout so existing data can migrate safely.
+- Staff role choices are `owner`, `admin`, `teacher`, `viewer`.
+- Teacher portal class visibility now uses org memberships when present:
+  - superusers keep full visibility.
+  - staff with no memberships keep legacy global class visibility.
+  - staff with memberships are restricted to classes in their active org memberships.
+- Mutating class endpoints require manage roles (`owner`, `admin`, `teacher`) once memberships are present; `viewer` is read-only.
+
+**Why this remains active:**
+- Establishes a concrete multi-program boundary without forcing a one-shot data migration.
+- Preserves backward compatibility for existing single-tenant deployments.
+- Provides a clear path to paid cohort partitioning and partner-org separation.
 
 ## Admin access 2FA
 

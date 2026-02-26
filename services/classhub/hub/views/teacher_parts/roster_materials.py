@@ -1,7 +1,6 @@
 """Teacher module/material/submission endpoints."""
 
 from .shared import (
-    Class,
     FileResponse,
     HttpResponse,
     Material,
@@ -23,15 +22,20 @@ from .shared import (
     require_POST,
     safe_attachment_filename,
     safe_filename,
+    staff_can_access_classroom,
+    staff_can_manage_classroom,
+    staff_classroom_or_none,
     staff_member_required,
 )
 
 @staff_member_required
 @require_POST
 def teach_add_module(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     title = (request.POST.get("title") or "").strip()[:200]
     if not title:
@@ -56,9 +60,11 @@ def teach_add_module(request, class_id: int):
 @staff_member_required
 @require_POST
 def teach_move_module(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     module_id = int(request.POST.get("module_id") or 0)
     direction = (request.POST.get("direction") or "").strip()
@@ -86,6 +92,8 @@ def teach_module(request, module_id: int):
     module = Module.objects.select_related("classroom").prefetch_related("materials").filter(id=module_id).first()
     if not module:
         return HttpResponse("Not found", status=404)
+    if not staff_can_access_classroom(request.user, module.classroom):
+        return HttpResponse("Not found", status=404)
 
     mats = list(module.materials.all())
     mats.sort(key=lambda m: (m.order_index, m.id))
@@ -109,6 +117,8 @@ def teach_add_material(request, module_id: int):
     module = Module.objects.select_related("classroom").filter(id=module_id).first()
     if not module:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, module.classroom):
+        return HttpResponse("Forbidden", status=403)
 
     mtype = (request.POST.get("type") or Material.TYPE_LINK).strip()
     title = (request.POST.get("title") or "").strip()[:200]
@@ -149,9 +159,11 @@ def teach_add_material(request, module_id: int):
 @staff_member_required
 @require_POST
 def teach_move_material(request, module_id: int):
-    module = Module.objects.filter(id=module_id).first()
+    module = Module.objects.select_related("classroom").filter(id=module_id).first()
     if not module:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, module.classroom):
+        return HttpResponse("Forbidden", status=403)
 
     material_id = int(request.POST.get("material_id") or 0)
     direction = (request.POST.get("direction") or "").strip()
@@ -185,6 +197,8 @@ def teach_material_submissions(request, material_id: int):
         return HttpResponse("Not found", status=404)
 
     classroom = material.module.classroom
+    if not staff_can_access_classroom(request.user, classroom):
+        return HttpResponse("Not found", status=404)
     students = list(classroom.students.all().order_by("created_at", "id"))
 
     all_subs = list(

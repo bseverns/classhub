@@ -1,7 +1,6 @@
 """Teacher lesson listing and release-tuning endpoints."""
 
 from .shared import (
-    Class,
     LessonRelease,
     OperationalError,
     ProgrammingError,
@@ -14,13 +13,16 @@ from .shared import (
     parse_release_date,
     render,
     require_POST,
+    staff_accessible_classes_queryset,
+    staff_can_manage_classroom,
+    staff_classroom_or_none,
     staff_member_required,
 )
 
 
 @staff_member_required
 def teach_lessons(request):
-    classes = list(Class.objects.all().order_by("name", "id"))
+    classes = list(staff_accessible_classes_queryset(request.user).order_by("name", "id"))
     try:
         class_id = int((request.GET.get("class_id") or "0").strip())
     except Exception:
@@ -76,9 +78,11 @@ def teach_set_lesson_release(request):
     default_return = f"/teach/lessons?class_id={class_id}" if class_id else "/teach/lessons"
     return_to = _safe_teacher_return_path((request.POST.get("return_to") or "").strip(), default_return)
 
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return _safe_internal_redirect(request, _with_notice(return_to, error="Class not found."), fallback=return_to)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return _safe_internal_redirect(request, _with_notice(return_to, error="Class write access denied."), fallback=return_to)
 
     course_slug = (request.POST.get("course_slug") or "").strip()
     lesson_slug = (request.POST.get("lesson_slug") or "").strip()

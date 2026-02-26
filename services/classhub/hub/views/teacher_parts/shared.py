@@ -55,6 +55,13 @@ from .shared_auth import (
     _teacher_2fa_device_name,
     _totp_qr_svg,
     _totp_secret_base32,
+    staff_accessible_classes_queryset,
+    staff_can_access_classroom,
+    staff_can_create_classes,
+    staff_can_manage_classroom,
+    staff_classroom_or_none,
+    staff_default_organization,
+    staff_has_explicit_memberships,
     staff_member_required,
 )
 from .shared_ordering import (

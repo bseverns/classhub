@@ -811,3 +811,60 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertIn("/teach?error=", resp["Location"])
         self.assertFalse(get_user_model().objects.filter(username="blocked").exists())
+
+
+class TeacherOrganizationAccessTests(TestCase):
+    def setUp(self):
+        self.staff = get_user_model().objects.create_user(
+            username="org_teacher",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        self.org_a = Organization.objects.create(name="Org Alpha")
+        self.org_b = Organization.objects.create(name="Org Beta")
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=self.staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+        )
+        self.class_a = Class.objects.create(name="Alpha Cohort", join_code="ORGA1234", organization=self.org_a)
+        self.class_b = Class.objects.create(name="Beta Cohort", join_code="ORGB1234", organization=self.org_b)
+        _force_login_staff_verified(self.client, self.staff)
+
+    def test_teach_home_lists_only_accessible_org_classes(self):
+        resp = self.client.get("/teach")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Alpha Cohort")
+        self.assertNotContains(resp, "Beta Cohort")
+
+    def test_teach_class_dashboard_blocks_other_org(self):
+        resp = self.client.get(f"/teach/class/{self.class_b.id}")
+        self.assertEqual(resp.status_code, 404)
+
+    def test_viewer_membership_cannot_mutate_class(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_VIEWER
+        membership.save(update_fields=["role"])
+
+        resp = self.client.post(f"/teach/class/{self.class_a.id}/toggle-lock")
+        self.assertEqual(resp.status_code, 403)
+
+    def test_create_class_assigns_default_org_for_membership_staff(self):
+        resp = self.client.post("/teach/create-class", {"name": "New Alpha Class"})
+        self.assertEqual(resp.status_code, 302)
+        created = Class.objects.filter(name="New Alpha Class").order_by("-id").first()
+        self.assertIsNotNone(created)
+        self.assertEqual(created.organization_id, self.org_a.id)
+
+    def test_legacy_staff_without_membership_keeps_global_access(self):
+        legacy_staff = get_user_model().objects.create_user(
+            username="legacy_staff",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        _force_login_staff_verified(self.client, legacy_staff)
+
+        resp = self.client.get(f"/teach/class/{self.class_b.id}")
+        self.assertEqual(resp.status_code, 200)

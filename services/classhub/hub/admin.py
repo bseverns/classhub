@@ -11,16 +11,32 @@ from .models import (
     LessonVideo,
     Material,
     Module,
+    Organization,
+    OrganizationMembership,
     StudentEvent,
     StudentIdentity,
     Submission,
 )
 
+@admin.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ("name", "is_active", "created_at", "updated_at")
+    list_filter = ("is_active",)
+    search_fields = ("name",)
+
+
+@admin.register(OrganizationMembership)
+class OrganizationMembershipAdmin(admin.ModelAdmin):
+    list_display = ("organization", "user", "role", "is_active", "updated_at")
+    list_filter = ("organization", "role", "is_active")
+    search_fields = ("organization__name", "user__username", "user__email")
+
+
 @admin.register(Class)
 class ClassAdmin(admin.ModelAdmin):
-    list_display = ("name", "join_code", "is_locked")
-    search_fields = ("name", "join_code")
-    list_filter = ("is_locked",)
+    list_display = ("name", "organization", "join_code", "is_locked")
+    search_fields = ("name", "join_code", "organization__name")
+    list_filter = ("organization", "is_locked")
 
 @admin.register(Module)
 class ModuleAdmin(admin.ModelAdmin):

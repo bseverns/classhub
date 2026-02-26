@@ -1,7 +1,6 @@
 """Teacher home and authoring template endpoints."""
 
 from .shared import (
-    Class,
     FileResponse,
     HttpResponse,
     Path,
@@ -23,7 +22,9 @@ from .shared import (
     require_POST,
     safe_attachment_filename,
     settings,
+    staff_accessible_classes_queryset,
     staff_member_required,
+    staff_has_explicit_memberships,
     timedelta,
     timezone,
 )
@@ -46,7 +47,7 @@ def teach_home(request):
         teacher_username or teacher_email or teacher_first_name or teacher_last_name
     )
 
-    classes = list(Class.objects.all().order_by("name", "id"))
+    classes = list(staff_accessible_classes_queryset(request.user).order_by("name", "id"))
     digest_since = timezone.now() - timedelta(days=1)
     class_digest_rows = _build_class_digest_rows(classes, since=digest_since)
     User = get_user_model()
@@ -55,10 +56,13 @@ def teach_home(request):
         .order_by("username", "id")
         .only("id", "username", "first_name", "last_name", "email", "is_active", "is_superuser")
     )
-    recent_submissions = list(
-        Submission.objects.select_related("student", "material__module__classroom")
-        .all()[:20]
-    )
+    class_ids = [int(c.id) for c in classes]
+    recent_submissions = []
+    if class_ids:
+        recent_submissions = list(
+            Submission.objects.select_related("student", "material__module__classroom")
+            .filter(material__module__classroom_id__in=class_ids)[:20]
+        )
     output_dir = _authoring_template_output_dir()
     template_download_rows: list[dict] = []
     if template_slug and _TEMPLATE_SLUG_RE.match(template_slug):
@@ -105,6 +109,7 @@ def teach_home(request):
             "teacher_first_name": teacher_first_name,
             "teacher_last_name": teacher_last_name,
             "teacher_invite_active": teacher_invite_active,
+            "org_membership_mode": staff_has_explicit_memberships(request.user),
         },
     )
     apply_no_store(response, private=True, pragma=True)

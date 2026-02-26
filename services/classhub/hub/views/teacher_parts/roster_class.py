@@ -16,7 +16,13 @@ from ...services.teacher_roster_class import (
     build_dashboard_context,
     export_submissions_today_archive,
 )
-from .shared_auth import staff_member_required
+from .shared_auth import (
+    staff_can_create_classes,
+    staff_can_manage_classroom,
+    staff_classroom_or_none,
+    staff_default_organization,
+    staff_member_required,
+)
 from .shared_ordering import _next_unique_class_join_code, _normalize_order
 from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
 from .shared_tracker import _local_day_window
@@ -24,13 +30,20 @@ from .shared_tracker import _local_day_window
 @staff_member_required
 @require_POST
 def teach_create_class(request):
+    if not staff_can_create_classes(request.user):
+        return HttpResponse("Forbidden", status=403)
+
     name = (request.POST.get("name") or "").strip()[:200]
     if not name:
         return redirect("/teach")
 
     join_code = _next_unique_class_join_code()
-
-    classroom = Class.objects.create(name=name, join_code=join_code)
+    organization = staff_default_organization(request.user)
+    classroom = Class.objects.create(
+        organization=organization,
+        name=name,
+        join_code=join_code,
+    )
     _audit(
         request,
         action="class.create",
@@ -38,14 +51,17 @@ def teach_create_class(request):
         target_type="Class",
         target_id=str(classroom.id),
         summary=f"Created class {classroom.name}",
-        metadata={"join_code": classroom.join_code},
+        metadata={
+            "join_code": classroom.join_code,
+            "organization_id": classroom.organization_id,
+        },
     )
     return redirect("/teach")
 
 
 @staff_member_required
 def teach_class_dashboard(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
 
@@ -85,7 +101,7 @@ def teach_class_dashboard(request, class_id: int):
 
 @staff_member_required
 def teach_class_join_card(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
 
@@ -105,9 +121,11 @@ def teach_class_join_card(request, class_id: int):
 @staff_member_required
 @require_POST
 def teach_reset_roster(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     rotate_code = (request.POST.get("rotate_code") or "1").strip() == "1"
 
@@ -153,9 +171,11 @@ def teach_reset_roster(request, class_id: int):
 @staff_member_required
 @require_POST
 def teach_reset_helper_conversations(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     export_before_reset = bool(getattr(settings, "HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE", True))
     posted_export_before_reset = (request.POST.get("export_before_reset") or "").strip().lower()
@@ -222,9 +242,11 @@ def teach_reset_helper_conversations(request, class_id: int):
 @staff_member_required
 @require_POST
 def teach_toggle_lock(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
     classroom.is_locked = not classroom.is_locked
     classroom.save(update_fields=["is_locked"])
     _audit(
@@ -242,9 +264,11 @@ def teach_toggle_lock(request, class_id: int):
 @staff_member_required
 @require_POST
 def teach_lock_class(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     if not classroom.is_locked:
         classroom.is_locked = True
@@ -268,7 +292,7 @@ def teach_lock_class(request, class_id: int):
 
 @staff_member_required
 def teach_export_class_submissions_today(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
 
@@ -310,9 +334,11 @@ def teach_export_class_submissions_today(request, class_id: int):
 @staff_member_required
 @require_POST
 def teach_rotate_code(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     classroom.join_code = _next_unique_class_join_code()
     classroom.save(update_fields=["join_code"])

@@ -16,6 +16,15 @@ from django.core.mail import send_mail
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from qrcode.image.svg import SvgPathImage
 
+from ...services.org_access import (
+    staff_accessible_classes_queryset,
+    staff_can_access_classroom,
+    staff_can_create_classes,
+    staff_can_manage_classroom,
+    staff_classroom_or_none,
+    staff_default_organization,
+)
+
 _TEMPLATE_SLUG_RE = re.compile(r"^[a-z0-9_-]+$")
 _AUTHORING_TEMPLATE_SUFFIXES = {
     "teacher_plan_md": "teacher-plan-template.md",

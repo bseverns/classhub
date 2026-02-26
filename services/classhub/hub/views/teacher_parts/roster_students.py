@@ -4,7 +4,6 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
 from .shared import (
-    Class,
     HttpResponse,
     StudentEvent,
     StudentIdentity,
@@ -15,6 +14,8 @@ from .shared import (
     _with_notice,
     apply_no_store,
     require_POST,
+    staff_can_manage_classroom,
+    staff_classroom_or_none,
     staff_member_required,
     transaction,
 )
@@ -22,7 +23,7 @@ from .shared import (
 @staff_member_required
 @require_GET
 def teach_student_return_code(request, class_id: int, student_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
 
@@ -38,9 +39,11 @@ def teach_student_return_code(request, class_id: int, student_id: int):
 @staff_member_required
 @require_POST
 def teach_rename_student(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     try:
         student_id = int((request.POST.get("student_id") or "0").strip())
@@ -97,9 +100,11 @@ def teach_rename_student(request, class_id: int):
 @staff_member_required
 @require_POST
 def teach_merge_students(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     try:
         source_student_id = int((request.POST.get("source_student_id") or "0").strip())
@@ -203,9 +208,11 @@ def teach_merge_students(request, class_id: int):
 @staff_member_required
 @require_POST
 def teach_delete_student_data(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
+    classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     try:
         student_id = int((request.POST.get("student_id") or "0").strip())

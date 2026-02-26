@@ -4,7 +4,6 @@ Teachers/admins can manage these objects in Django admin.
 Students never authenticate with email/password; they join a class by code.
 
 Note: for Day-1, we keep the model tiny. As the platform grows, add:
-- Organizations/schools (multi-tenancy)
 - Rubrics/grading + teacher feedback
 """
 
@@ -50,6 +49,13 @@ class Class(models.Model):
     - `is_locked=True` temporarily blocks new student joins.
     """
 
+    organization = models.ForeignKey(
+        "Organization",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="classes",
+    )
     name = models.CharField(max_length=200)
     join_code = models.CharField(max_length=16, unique=True, default=gen_class_code)
     is_locked = models.BooleanField(default=False)
@@ -58,6 +64,67 @@ class Class(models.Model):
 
     def __str__(self) -> str:
         return f"{self.name} ({self.join_code})"
+
+
+class Organization(models.Model):
+    """Top-level tenant boundary for programs/cohorts."""
+
+    name = models.CharField(max_length=200, unique=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name", "id"]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class OrganizationMembership(models.Model):
+    """Staff role assignment scoped to one organization."""
+
+    ROLE_OWNER = "owner"
+    ROLE_ADMIN = "admin"
+    ROLE_TEACHER = "teacher"
+    ROLE_VIEWER = "viewer"
+    ROLE_CHOICES = [
+        (ROLE_OWNER, "Owner"),
+        (ROLE_ADMIN, "Admin"),
+        (ROLE_TEACHER, "Teacher"),
+        (ROLE_VIEWER, "Viewer"),
+    ]
+
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name="memberships",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="classhub_organization_memberships",
+    )
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_TEACHER)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["organization_id", "user_id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organization", "user"],
+                name="uniq_org_membership_user",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["organization", "role", "is_active"], name="hub_orgmem_orgrol_86ee_idx"),
+            models.Index(fields=["user", "is_active"], name="hub_orgmem_usract_2129_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.organization.name}: {self.user} ({self.role})"
 
 
 class Module(models.Model):
