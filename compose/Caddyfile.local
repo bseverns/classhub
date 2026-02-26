@@ -42,11 +42,11 @@
 
 		@internal_routes path /internal /internal/*
 		respond @internal_routes "not found" 404
+		@helper_internal_routes path_regexp helperinternal ^/helper/internal(?:/.*)?$
+		respond @helper_internal_routes "not found" 404
 
 		# Homework Helper
 		handle /helper/* {
-			@helper_internal_routes path /helper/internal /helper/internal/*
-			respond @helper_internal_routes "not found" 404
 			request_body {
 				max_size {$CADDY_HELPER_MAX_BODY:1MB}
 			}
