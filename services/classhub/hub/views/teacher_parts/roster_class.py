@@ -1,6 +1,10 @@
 """Teacher class-level roster and dashboard endpoints."""
 
 from .shared import *  # noqa: F401,F403,F405
+from ...services.teacher_roster_class import (
+    build_dashboard_context,
+    export_submissions_today_archive,
+)
 
 @staff_member_required
 @require_POST
@@ -30,52 +34,11 @@ def teach_class_dashboard(request, class_id: int):
     if not classroom:
         return HttpResponse("Not found", status=404)
 
-    modules = list(classroom.modules.prefetch_related("materials").all())
-    modules.sort(key=lambda m: (m.order_index, m.id))
-    _normalize_order(modules)
-    modules = list(classroom.modules.prefetch_related("materials").all())
-    modules.sort(key=lambda m: (m.order_index, m.id))
-
-    upload_material_ids = []
-    for m in modules:
-        for mat in m.materials.all():
-            if mat.type == Material.TYPE_UPLOAD:
-                upload_material_ids.append(mat.id)
-
-    submission_counts = {}
-    if upload_material_ids:
-        qs = (
-            Submission.objects.filter(material_id__in=upload_material_ids)
-            .values("material_id", "student_id")
-            .distinct()
-        )
-        for row in qs:
-            submission_counts[row["material_id"]] = submission_counts.get(row["material_id"], 0) + 1
-
-    student_count = classroom.students.count()
-    students = list(classroom.students.all().order_by("created_at", "id"))
-    lesson_rows = _build_lesson_tracker_rows(
-        request,
-        classroom.id,
-        modules,
-        student_count,
-        class_session_epoch=classroom.session_epoch,
-    )
-    helper_signals = _build_helper_signal_snapshot(
+    context = build_dashboard_context(
+        request=request,
         classroom=classroom,
-        students=students,
-        window_hours=max(int(getattr(settings, "CLASSHUB_HELPER_SIGNAL_WINDOW_HOURS", 24) or 24), 1),
-        top_students=max(int(getattr(settings, "CLASSHUB_HELPER_SIGNAL_TOP_STUDENTS", 5) or 5), 1),
+        normalize_order_fn=_normalize_order,
     )
-    submission_counts_by_student: dict[int, int] = {}
-    if students:
-        rows = (
-            Submission.objects.filter(student__classroom=classroom)
-            .values("student_id")
-            .annotate(total=models.Count("id"))
-        )
-        for row in rows:
-            submission_counts_by_student[int(row["student_id"])] = int(row["total"])
     notice = (request.GET.get("notice") or "").strip()
     error = (request.GET.get("error") or "").strip()
 
@@ -84,13 +47,7 @@ def teach_class_dashboard(request, class_id: int):
         "teach_class.html",
         {
             "classroom": classroom,
-            "modules": modules,
-            "student_count": student_count,
-            "students": students,
-            "submission_counts": submission_counts,
-            "submission_counts_by_student": submission_counts_by_student,
-            "lesson_rows": lesson_rows,
-            "helper_signals": helper_signals,
+            **context,
             "notice": notice,
             "error": error,
         },
@@ -289,45 +246,11 @@ def teach_export_class_submissions_today(request, class_id: int):
         return HttpResponse("Not found", status=404)
 
     day_start, day_end = _local_day_window()
-    rows = list(
-        Submission.objects.filter(
-            student__classroom=classroom,
-            uploaded_at__gte=day_start,
-            uploaded_at__lt=day_end,
-        )
-        .select_related("student", "material")
-        .order_by("student__display_name", "material__title", "uploaded_at", "id")
+    tmp, file_count = export_submissions_today_archive(
+        classroom=classroom,
+        day_start=day_start,
+        day_end=day_end,
     )
-
-    file_count = 0
-    used_paths: set[str] = set()
-    with _temporary_zip_archive() as (tmp, archive):
-        for sub in rows:
-            student_name = safe_filename(sub.student.display_name)
-            material_name = safe_filename(sub.material.title)
-            original = safe_filename(sub.original_filename or Path(sub.file.name).name)
-            stamp = timezone.localtime(sub.uploaded_at).strftime("%H%M%S")
-            candidate = _reserve_archive_path(
-                f"{student_name}/{material_name}/{stamp}_{original}",
-                used_paths,
-                fallback=f"{student_name}/{material_name}/{stamp}_{sub.id}_{original}",
-            )
-            if not _write_submission_file_to_archive(
-                archive,
-                submission=sub,
-                arcname=candidate,
-                allow_file_fallback=False,
-            ):
-                continue
-            file_count += 1
-        if file_count == 0:
-            archive.writestr(
-                "README.txt",
-                (
-                    "No submission files were available for this class today.\n"
-                    "This can happen when there were no uploads or file sources were unavailable.\n"
-                ),
-            )
 
     _audit(
         request,

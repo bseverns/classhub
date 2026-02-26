@@ -3,7 +3,6 @@ import os
 import tempfile
 import time
 import urllib.error
-from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -13,7 +12,7 @@ from django.db.utils import ProgrammingError
 from django.test import TestCase, override_settings
 from common.helper_scope import issue_scope_token
 
-from . import views
+from .. import views
 
 
 class HelperChatAuthTests(TestCase):

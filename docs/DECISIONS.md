@@ -10,9 +10,11 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper engine modularization seam](#helper-engine-modularization-seam)
 - [Helper view helper split seam](#helper-view-helper-split-seam)
 - [Helper chat request/deps split seam](#helper-chat-requestdeps-split-seam)
+- [Helper tests package split seam](#helper-tests-package-split-seam)
 - [Student join service seam](#student-join-service-seam)
 - [Student home and upload service seam](#student-home-and-upload-service-seam)
 - [Teacher shared helpers split seam](#teacher-shared-helpers-split-seam)
+- [Teacher roster class service seam](#teacher-roster-class-service-seam)
 - [Teacher roster code/reorder helper seam](#teacher-roster-codereorder-helper-seam)
 - [Shared zip export helper seam](#shared-zip-export-helper-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
@@ -261,6 +263,19 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keeps the endpoint code focused on request/response flow while reducing nested branching inside `chat`.
 - Preserves compatibility with current test monkeypatches and operational seams while continuing the gradual split of `tutor/views.py`.
 
+## Helper tests package split seam
+
+**Current decision:**
+- Replace single-file `tutor/tests.py` with package-based tests under `tutor/tests/`.
+- Split by feature area:
+  - `test_chat_endpoint.py` for `/helper/chat` integration/auth behavior.
+  - `test_view_modules.py` for request/runtime helper module unit tests.
+- Keep backwards-compatible test target imports via `tutor/tests/__init__.py` so `tutor.tests.HelperChatAuthTests` remains valid.
+
+**Why this remains active:**
+- Reduces single-file test gravity and makes targeted test runs/reviews cheaper.
+- Preserves operator/CI command compatibility while improving test maintainability.
+
 ## Student join service seam
 
 **Current decision:**
@@ -301,6 +316,17 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces “big file gravity” in teacher helper code without forcing a broad import rewrite in one pass.
 - Creates clearer seams for future extraction into `hub/services/*` while preserving current endpoint contracts.
+
+## Teacher roster class service seam
+
+**Current decision:**
+- Keep `hub/views/teacher_parts/roster_class.py` as the HTTP adapter layer.
+- Move heavy dashboard data assembly and class-day submissions export archive construction into `hub/services/teacher_roster_class.py`.
+- Keep audit logging, response shaping, and redirect/not-found behavior in the view layer.
+
+**Why this remains active:**
+- Reduces dense view-file pressure and function complexity without changing endpoint contracts.
+- Creates explicit seams for further query optimization and targeted service-level tests.
 
 ## Teacher roster code/reorder helper seam
 
