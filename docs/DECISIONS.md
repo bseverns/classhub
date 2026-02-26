@@ -11,6 +11,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper view helper split seam](#helper-view-helper-split-seam)
 - [Helper chat request/deps split seam](#helper-chat-requestdeps-split-seam)
 - [Helper tests package split seam](#helper-tests-package-split-seam)
+- [ClassHub tests package split seam](#classhub-tests-package-split-seam)
 - [Student join service seam](#student-join-service-seam)
 - [Student home and upload service seam](#student-home-and-upload-service-seam)
 - [Teacher shared helpers split seam](#teacher-shared-helpers-split-seam)
@@ -275,6 +276,20 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Reduces single-file test gravity and makes targeted test runs/reviews cheaper.
 - Preserves operator/CI command compatibility while improving test maintainability.
+
+## ClassHub tests package split seam
+
+**Current decision:**
+- Replace single-file `hub/tests.py` with package-based tests under `hub/tests/`.
+- Split by feature area:
+  - `test_teacher_admin.py`
+  - `test_student_ops.py`
+  - `test_security_integration.py`
+- Keep backwards-compatible test target imports via `hub/tests/__init__.py` so commands targeting `hub.tests.<ClassName>` remain valid.
+
+**Why this remains active:**
+- Reduces monolithic test-file gravity in ClassHub and makes feature-specific test review/runs faster.
+- Preserves existing CI/server invocation patterns while enabling incremental test-module refactors.
 
 ## Student join service seam
 
