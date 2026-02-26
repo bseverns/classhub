@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SMOKE_SCRIPT="${ROOT_DIR}/scripts/smoke_check.sh"
+ENV_FILE="${ROOT_DIR}/compose/.env"
 
 COURSE_SLUG="${COURSE_SLUG:-piper_scratch_12_session}"
 CLASS_NAME="${CLASS_NAME:-Smoke Validation Class}"
@@ -19,6 +20,58 @@ UP_TIMEOUT_SECONDS=180
 SMOKE_BASE_URL="${SMOKE_BASE_URL:-}"
 SMOKE_TIMEOUT_SECONDS="${SMOKE_TIMEOUT_SECONDS:-20}"
 SMOKE_INSECURE_TLS="${SMOKE_INSECURE_TLS:-0}"
+
+fail() {
+  echo "[golden-smoke] FAIL: $*" >&2
+  exit 1
+}
+
+env_file_value() {
+  local key="$1"
+  if [[ ! -f "${ENV_FILE}" ]]; then
+    echo ""
+    return 0
+  fi
+  local raw
+  raw="$(grep -E "^${key}=" "${ENV_FILE}" | tail -n1 | cut -d= -f2- || true)"
+  raw="${raw%\"}"
+  raw="${raw#\"}"
+  raw="${raw%\'}"
+  raw="${raw#\'}"
+  echo "${raw}"
+}
+
+derive_base_url() {
+  local caddyfile_template
+  local domain
+  caddyfile_template="$(env_file_value CADDYFILE_TEMPLATE)"
+  domain="$(env_file_value DOMAIN)"
+  if [[ "${caddyfile_template}" == "Caddyfile.local" ]]; then
+    echo "http://localhost"
+  elif [[ -n "${domain}" ]]; then
+    echo "https://${domain}"
+  else
+    echo "http://localhost"
+  fi
+}
+
+resolved_smoke_base_url() {
+  if [[ -n "${SMOKE_BASE_URL}" ]]; then
+    echo "${SMOKE_BASE_URL}"
+    return 0
+  fi
+  local env_base_url
+  local caddyfile_template
+  env_base_url="$(env_file_value SMOKE_BASE_URL)"
+  caddyfile_template="$(env_file_value CADDYFILE_TEMPLATE)"
+  if [[ "${caddyfile_template}" == "Caddyfile.local" ]]; then
+    echo "http://localhost"
+  elif [[ -n "${env_base_url}" ]]; then
+    echo "${env_base_url}"
+  else
+    echo "$(derive_base_url)"
+  fi
+}
 
 usage() {
   cat <<'EOF'
@@ -246,5 +299,71 @@ if [[ -n "${SMOKE_BASE_URL}" ]]; then
 fi
 
 env "${SMOKE_ENV[@]}" "${SMOKE_SCRIPT}" --strict
+
+echo "[golden-smoke] running invite-only + CSV export checks"
+BASE_URL="$(resolved_smoke_base_url)"
+CURL_FLAGS=(-sS --max-time "${SMOKE_TIMEOUT_SECONDS}")
+if [[ "${SMOKE_INSECURE_TLS}" == "1" ]]; then
+  CURL_FLAGS+=(-k)
+fi
+TMP_COOKIE_JAR="$(mktemp)"
+TMP_JOIN_BODY="$(mktemp)"
+TMP_CSV_BODY="$(mktemp)"
+trap 'rm -f "${TMP_COOKIE_JAR}" "${TMP_JOIN_BODY}" "${TMP_CSV_BODY}"' EXIT
+
+CLASS_AND_INVITE="$(
+  run_compose exec -T \
+    -e SMOKE_CLASS_NAME="${CLASS_NAME}" \
+    -e SMOKE_TEACHER_USERNAME="${TEACHER_USERNAME}" \
+    classhub_web \
+    python manage.py shell -c \
+    "import os; from django.contrib.auth import get_user_model; from hub.models import Class, ClassInviteLink; cls = Class.objects.get(name=os.environ['SMOKE_CLASS_NAME']); cls.enrollment_mode = Class.ENROLLMENT_INVITE_ONLY; cls.save(update_fields=['enrollment_mode']); teacher = get_user_model().objects.get(username=os.environ['SMOKE_TEACHER_USERNAME']); invite = ClassInviteLink.objects.create(classroom=cls, label='golden-smoke-invite', max_uses=5, created_by=teacher); print(f'{cls.id}:{invite.token}')"
+)"
+CLASS_AND_INVITE="$(echo "${CLASS_AND_INVITE}" | tr -d '\r' | tail -n1)"
+CLASS_ID="${CLASS_AND_INVITE%%:*}"
+INVITE_TOKEN="${CLASS_AND_INVITE#*:}"
+[[ -n "${CLASS_ID}" && -n "${INVITE_TOKEN}" && "${CLASS_AND_INVITE}" == *:* ]] || fail "unable to create invite-only fixture"
+
+curl "${CURL_FLAGS[@]}" -c "${TMP_COOKIE_JAR}" -b "${TMP_COOKIE_JAR}" "${BASE_URL}/invite/${INVITE_TOKEN}" >/dev/null
+CSRF_TOKEN="$(awk '$6=="csrftoken"{print $7}' "${TMP_COOKIE_JAR}" | tail -n1)"
+[[ -n "${CSRF_TOKEN}" ]] || fail "unable to resolve csrftoken for invite flow"
+
+CLASS_JOIN_PAYLOAD="$(printf '{"class_code":"%s","display_name":"Invite Only Block"}' "${CLASS_CODE}")"
+JOIN_BLOCK_CODE="$(
+  curl "${CURL_FLAGS[@]}" -o "${TMP_JOIN_BODY}" -w "%{http_code}" \
+    -c "${TMP_COOKIE_JAR}" -b "${TMP_COOKIE_JAR}" \
+    -H "Content-Type: application/json" \
+    -H "X-CSRFToken: ${CSRF_TOKEN}" \
+    -H "Referer: ${BASE_URL}/" \
+    --data "${CLASS_JOIN_PAYLOAD}" \
+    "${BASE_URL}/join"
+)"
+[[ "${JOIN_BLOCK_CODE}" == "403" ]] || fail "expected /join class-code block in invite-only mode, got ${JOIN_BLOCK_CODE}"
+grep -Eq '"error"[[:space:]]*:[[:space:]]*"invite_required"' "${TMP_JOIN_BODY}" \
+  || fail "expected invite_required error in invite-only mode: $(cat "${TMP_JOIN_BODY}")"
+
+INVITE_JOIN_PAYLOAD="$(printf '{"display_name":"Invite Smoke Student","invite_token":"%s"}' "${INVITE_TOKEN}")"
+INVITE_JOIN_CODE="$(
+  curl "${CURL_FLAGS[@]}" -o "${TMP_JOIN_BODY}" -w "%{http_code}" \
+    -c "${TMP_COOKIE_JAR}" -b "${TMP_COOKIE_JAR}" \
+    -H "Content-Type: application/json" \
+    -H "X-CSRFToken: ${CSRF_TOKEN}" \
+    -H "Referer: ${BASE_URL}/" \
+    --data "${INVITE_JOIN_PAYLOAD}" \
+    "${BASE_URL}/join"
+)"
+[[ "${INVITE_JOIN_CODE}" == "200" ]] || fail "expected invite join 200, got ${INVITE_JOIN_CODE}: $(cat "${TMP_JOIN_BODY}")"
+grep -Eq '"ok"[[:space:]]*:[[:space:]]*true' "${TMP_JOIN_BODY}" \
+  || fail "invite join missing ok=true: $(cat "${TMP_JOIN_BODY}")"
+
+CSV_CODE="$(
+  curl "${CURL_FLAGS[@]}" -o "${TMP_CSV_BODY}" -w "%{http_code}" \
+    -H "Referer: ${BASE_URL}/teach" \
+    -b "sessionid=${TEACHER_SESSION_KEY}" \
+    "${BASE_URL}/teach/class/${CLASS_ID}/export-summary-csv"
+)"
+[[ "${CSV_CODE}" == "200" ]] || fail "expected summary csv export 200, got ${CSV_CODE}"
+grep -Eq '^row_type,class_id,class_name' "${TMP_CSV_BODY}" || fail "summary csv missing header"
+grep -Eq 'class_summary' "${TMP_CSV_BODY}" || fail "summary csv missing class_summary row"
 
 echo "[golden-smoke] PASS class_code=${CLASS_CODE} teacher=${TEACHER_USERNAME}"

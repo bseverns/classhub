@@ -1,0 +1,107 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teacher · Certificate Eligibility · {{ classroom.name }}</title>
+    {% include "includes/glass_theme.html" %}
+    <link rel="stylesheet" href="{% static 'css/teach_class.css' %}" />
+  </head>
+  <body class="glass-theme teacher-comfort">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="shell">
+      <main id="main-content">
+        <div class="top">
+          <div>
+            <div class="muted navline">
+              <a href="/teach">Teacher</a> · <a href="/teach/class/{{ classroom.id }}">Class dashboard</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a>
+              {% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %} · <a href="/teach/logout">Log out</a>
+            </div>
+            <h1>Certificate Eligibility · {{ classroom.name }}</h1>
+            <div class="muted">
+              Eligible students <strong>{{ eligible_students }}/{{ total_students }}</strong>
+              · Threshold: {{ certificate_min_sessions }} sessions + {{ certificate_min_artifacts }} artifacts
+            </div>
+          </div>
+          <div class="btnline">
+            <a href="/teach/class/{{ classroom.id }}/export-outcomes-csv">Export outcomes CSV</a>
+          </div>
+        </div>
+
+        <div class="card">
+          {% if notice %}
+            <p class="notice flash-banner">{{ notice }}</p>
+          {% endif %}
+          {% if error %}
+            <p class="error flash-banner">{{ error }}</p>
+          {% endif %}
+          <h2 class="section-title">Mark Session Completed</h2>
+          <p class="muted mini merge-note">
+            Use this only when completion happened offline and no artifact upload was submitted.
+          </p>
+          <form method="post" action="/teach/class/{{ classroom.id }}/mark-session-completed" class="invite-create-form">
+            {% csrf_token %}
+            <label>
+              Student
+              <select name="student_id" required>
+                <option value="">Select student</option>
+                {% for row in eligibility_rows %}
+                  <option value="{{ row.student_id }}">{{ row.display_name }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label>
+              Module
+              <select name="module_id" required>
+                <option value="">Select module</option>
+                {% for module in modules %}
+                  <option value="{{ module.id }}">{{ module.title }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <button type="submit">Mark completed</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title">All Students</h2>
+          {% if eligibility_rows %}
+            <div class="roster-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Student</th>
+                    <th scope="col">Sessions</th>
+                    <th scope="col">Artifacts</th>
+                    <th scope="col">Milestones</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in eligibility_rows %}
+                    <tr>
+                      <td><strong>{{ row.display_name }}</strong></td>
+                      <td>{{ row.session_count }}</td>
+                      <td>{{ row.artifact_count }}</td>
+                      <td>{{ row.milestone_count }}</td>
+                      <td>
+                        {% if row.certificate_eligible %}
+                          <span class="state-pill state-pill--open">Eligible</span>
+                        {% else %}
+                          <span class="state-pill state-pill--locked">In progress</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="muted section-empty-note">No students in this class yet.</p>
+          {% endif %}
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

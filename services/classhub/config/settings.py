@@ -224,6 +224,7 @@ CLASSHUB_OPERATOR_PROFILE = {
     "privacy_promise_text": CLASSHUB_PRIVACY_PROMISE_TEXT,
     "admin_label": CLASSHUB_ADMIN_LABEL,
 }
+REQUIRE_ORG_MEMBERSHIP_FOR_STAFF = env.bool("REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", default=False)
 
 _DEFAULT_CSP_POLICY_RELAXED = (
     "default-src 'self'; "

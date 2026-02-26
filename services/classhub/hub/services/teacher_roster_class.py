@@ -51,6 +51,81 @@ def _submission_counts_by_student(*, classroom, students: list) -> dict[int, int
     return submission_counts
 
 
+def build_certificate_eligibility_rows(
+    *,
+    classroom,
+    students: list[StudentIdentity] | None = None,
+    certificate_min_sessions: int | None = None,
+    certificate_min_artifacts: int | None = None,
+) -> dict:
+    certificate_min_sessions = (
+        _int_setting("CLASSHUB_CERTIFICATE_MIN_SESSIONS", 8)
+        if certificate_min_sessions is None
+        else max(int(certificate_min_sessions), 1)
+    )
+    certificate_min_artifacts = (
+        _int_setting("CLASSHUB_CERTIFICATE_MIN_ARTIFACTS", 6)
+        if certificate_min_artifacts is None
+        else max(int(certificate_min_artifacts), 1)
+    )
+    if students is None:
+        students = list(
+            StudentIdentity.objects.filter(classroom=classroom)
+            .only("id", "display_name")
+            .order_by("display_name", "id")
+        )
+
+    student_ids = [int(student.id) for student in students]
+    sessions_by_student: dict[int, int] = {}
+    artifacts_by_student: dict[int, int] = {}
+    milestones_by_student: dict[int, int] = {}
+    if student_ids:
+        for row in (
+            StudentOutcomeEvent.objects.filter(student_id__in=student_ids)
+            .values("student_id", "event_type")
+            .annotate(total=models.Count("id"))
+        ):
+            student_id = int(row["student_id"])
+            total = int(row["total"] or 0)
+            event_type = str(row["event_type"] or "")
+            if event_type == StudentOutcomeEvent.EVENT_SESSION_COMPLETED:
+                sessions_by_student[student_id] = total
+            elif event_type == StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED:
+                artifacts_by_student[student_id] = total
+            elif event_type == StudentOutcomeEvent.EVENT_MILESTONE_EARNED:
+                milestones_by_student[student_id] = total
+
+    eligible_students = 0
+    rows: list[dict] = []
+    for student in students:
+        student_id = int(student.id)
+        session_count = int(sessions_by_student.get(student_id, 0))
+        artifact_count = int(artifacts_by_student.get(student_id, 0))
+        milestone_count = int(milestones_by_student.get(student_id, 0))
+        certificate_eligible = (
+            session_count >= certificate_min_sessions and artifact_count >= certificate_min_artifacts
+        )
+        if certificate_eligible:
+            eligible_students += 1
+        rows.append(
+            {
+                "student_id": student_id,
+                "display_name": student.display_name,
+                "session_count": session_count,
+                "artifact_count": artifact_count,
+                "milestone_count": milestone_count,
+                "certificate_eligible": certificate_eligible,
+            }
+        )
+    return {
+        "rows": rows,
+        "eligible_students": int(eligible_students),
+        "total_students": len(students),
+        "certificate_min_sessions": int(certificate_min_sessions),
+        "certificate_min_artifacts": int(certificate_min_artifacts),
+    }
+
+
 def _build_outcome_snapshot(*, classroom, students: list[StudentIdentity]) -> dict:
     window_days = _int_setting("CLASSHUB_OUTCOME_WINDOW_DAYS", 30)
     top_students_limit = _int_setting("CLASSHUB_OUTCOME_TOP_STUDENTS", 5)
@@ -618,6 +693,7 @@ def export_class_outcomes_csv(
 
 
 __all__ = [
+    "build_certificate_eligibility_rows",
     "build_dashboard_context",
     "export_class_outcomes_csv",
     "export_class_summary_csv",

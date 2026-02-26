@@ -313,6 +313,9 @@
               <p class="muted mini merge-note">
                 Eligibility threshold: {{ outcome_snapshot.certificate_min_sessions }} sessions and {{ outcome_snapshot.certificate_min_artifacts }} artifacts.
               </p>
+              <p class="muted mini merge-note">
+                <a href="/teach/class/{{ classroom.id }}/certificate-eligibility">Open full eligibility view</a> to review all students and manually mark offline session completion.
+              </p>
               {% if outcome_snapshot.top_students %}
                 <div class="signal-panel">
                   <strong>Top outcome students</strong>

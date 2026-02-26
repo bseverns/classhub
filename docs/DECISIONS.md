@@ -116,6 +116,8 @@ Historical implementation logs and superseded decisions are archived by month in
   - superusers keep full visibility.
   - staff with no memberships keep legacy global class visibility.
   - staff with memberships are restricted to classes in their active org memberships.
+- Optional hard boundary mode `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1` removes legacy fallback:
+  - staff with no active org membership cannot list/access classes or create classes.
 - Mutating class endpoints require manage roles (`owner`, `admin`, `teacher`) once memberships are present; `viewer` is read-only.
 
 **Why this remains active:**
@@ -1090,7 +1092,14 @@ Historical implementation logs and superseded decisions are archived by month in
 - Successful upload submissions emit outcome events:
   - one `artifact_submitted` per successful submission
   - one `session_completed` per student+module (first artifact in that module)
+- Manual/sessionless workflows can emit `session_completed` from teacher UI:
+  - `POST /teach/class/<id>/mark-session-completed` records one `session_completed` per student+module if absent.
+- Milestone outcome triggers are material-specific:
+  - checklist fully checked (`checklist_completed`)
+  - first non-empty reflection save (`reflection_submitted`)
+  - first rubric save with score/feedback (`rubric_submitted`)
 - Teachers can export `/teach/class/<id>/export-outcomes-csv` for class/student rollups.
+- Teachers can review all students in `/teach/class/<id>/certificate-eligibility`.
 - Certificate eligibility is threshold-based:
   - `CLASSHUB_CERTIFICATE_MIN_SESSIONS` (default 8)
   - `CLASSHUB_CERTIFICATE_MIN_ARTIFACTS` (default 6)

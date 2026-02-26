@@ -73,6 +73,8 @@ urlpatterns = [
     path("teach/class/<int:class_id>/export-submissions-today", views.teach_export_class_submissions_today),
     path("teach/class/<int:class_id>/export-outcomes-csv", views.teach_export_class_outcomes_csv),
     path("teach/class/<int:class_id>/export-summary-csv", views.teach_export_class_summary_csv),
+    path("teach/class/<int:class_id>/certificate-eligibility", views.teach_certificate_eligibility),
+    path("teach/class/<int:class_id>/mark-session-completed", views.teach_mark_session_completed),
     path("teach/class/<int:class_id>/rotate-code", views.teach_rotate_code),
     path("teach/class/<int:class_id>/add-module", views.teach_add_module),
     path("teach/class/<int:class_id>/move-module", views.teach_move_module),

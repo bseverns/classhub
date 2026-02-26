@@ -31,7 +31,7 @@ def _invite_error_message(code: str) -> str:
         "invite_invalid": "That invite link is not valid.",
         "invite_inactive": "That invite link has been disabled.",
         "invite_expired": "That invite link has expired.",
-        "invite_seat_cap_reached": "That invite link has reached its seat limit.",
+        "invite_seat_cap_reached": "This invite is full right now. Ask your teacher for a new invite link.",
     }
     return messages.get(code, "That invite link is not usable right now.")
 

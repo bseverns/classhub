@@ -5,6 +5,7 @@ Legacy compatibility:
 - Once a user has active org memberships, class access is restricted to those orgs.
 """
 
+from django.conf import settings
 from django.db.models import QuerySet
 
 from ..models import Class, ClassStaffAssignment, Organization, OrganizationMembership
@@ -14,6 +15,10 @@ _MANAGE_ROLES = {
     OrganizationMembership.ROLE_ADMIN,
     OrganizationMembership.ROLE_TEACHER,
 }
+
+
+def _require_org_membership_for_staff() -> bool:
+    return bool(getattr(settings, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", False))
 
 
 def _active_memberships_queryset(user) -> QuerySet[OrganizationMembership]:
@@ -42,6 +47,8 @@ def staff_accessible_classes_queryset(user) -> QuerySet[Class]:
 
     memberships = _active_memberships_queryset(user)
     if not memberships.exists():
+        if _require_org_membership_for_staff():
+            return Class.objects.none()
         return Class.objects.all()
     org_ids = memberships.values_list("organization_id", flat=True)
     return Class.objects.filter(organization_id__in=org_ids)
@@ -114,6 +121,8 @@ def staff_can_create_classes(user) -> bool:
 
     memberships = _active_memberships_queryset(user)
     if not memberships.exists():
+        if _require_org_membership_for_staff():
+            return False
         return True
     return memberships.filter(role__in=_MANAGE_ROLES).exists()
 
@@ -130,6 +139,8 @@ def staff_can_manage_classroom(user, classroom: Class | None) -> bool:
 
     memberships = _active_memberships_queryset(user)
     if not memberships.exists():
+        if _require_org_membership_for_staff():
+            return False
         return True
     if classroom.organization_id is None:
         return False

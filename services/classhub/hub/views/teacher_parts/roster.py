@@ -26,6 +26,7 @@ from .roster_materials import (
     teach_move_material,
     teach_move_module,
 )
+from .roster_outcomes import teach_certificate_eligibility, teach_mark_session_completed
 from .roster_students import (
     teach_delete_student_data,
     teach_merge_students,
@@ -58,4 +59,6 @@ __all__ = [
     "teach_add_material",
     "teach_move_material",
     "teach_material_submissions",
+    "teach_certificate_eligibility",
+    "teach_mark_session_completed",
 ]

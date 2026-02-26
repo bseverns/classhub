@@ -72,7 +72,7 @@
         if (errorCode === "invite_invalid") return showErr("That invite link is not valid.");
         if (errorCode === "invite_inactive") return showErr("That invite link is disabled.");
         if (errorCode === "invite_expired") return showErr("That invite link has expired.");
-        if (errorCode === "invite_seat_cap_reached") return showErr("That invite link has reached its seat limit.");
+        if (errorCode === "invite_seat_cap_reached") return showErr("This invite is full right now. Ask your teacher for a new invite link.");
         if (errorCode === "rate_limited") return showErr("Too many join attempts. Wait a minute and try again.");
         if (errorCode === "site_mode_restricted") return showErr(data.message || "Joining is temporarily unavailable.");
         if (res.status === 403) return showErr("Security check blocked the join request. Reload and try again.");

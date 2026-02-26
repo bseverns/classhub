@@ -640,6 +640,54 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Ada")
         self.assertContains(resp, "eligible")
 
+    @override_settings(
+        CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,
+        CLASSHUB_CERTIFICATE_MIN_ARTIFACTS=1,
+    )
+    def test_teacher_can_mark_session_completed_and_view_certificate_page(self):
+        classroom = Class.objects.create(name="Period Manual Session", join_code="MAN12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        _force_login_staff_verified(self.client, self.staff)
+
+        view_resp = self.client.get(f"/teach/class/{classroom.id}/certificate-eligibility")
+        self.assertEqual(view_resp.status_code, 200)
+        self.assertContains(view_resp, "Certificate Eligibility")
+        self.assertContains(view_resp, "Mark Session Completed")
+        self.assertContains(view_resp, "Ada")
+
+        post_resp = self.client.post(
+            f"/teach/class/{classroom.id}/mark-session-completed",
+            {"student_id": str(student.id), "module_id": str(module.id)},
+        )
+        self.assertEqual(post_resp.status_code, 302)
+        self.assertIn("/teach/class/", post_resp["Location"])
+
+        self.assertEqual(
+            StudentOutcomeEvent.objects.filter(
+                classroom=classroom,
+                student=student,
+                module=module,
+                event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+            ).count(),
+            1,
+        )
+
+        second_post = self.client.post(
+            f"/teach/class/{classroom.id}/mark-session-completed",
+            {"student_id": str(student.id), "module_id": str(module.id)},
+        )
+        self.assertEqual(second_post.status_code, 302)
+        self.assertEqual(
+            StudentOutcomeEvent.objects.filter(
+                classroom=classroom,
+                student=student,
+                module=module,
+                event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+            ).count(),
+            1,
+        )
+
     def test_teach_delete_student_data_removes_submissions_and_detaches_events(self):
         classroom = Class.objects.create(name="Delete Data Class", join_code="DEL12345")
         module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
@@ -1071,6 +1119,19 @@ class TeacherOrganizationAccessTests(TestCase):
         )
         self.assertEqual(resp.status_code, 403)
 
+    def test_viewer_membership_cannot_mark_session_completed(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_VIEWER
+        membership.save(update_fields=["role"])
+        module = Module.objects.create(classroom=self.class_a, title="Session 1", order_index=0)
+        student = StudentIdentity.objects.create(classroom=self.class_a, display_name="Ada")
+
+        resp = self.client.post(
+            f"/teach/class/{self.class_a.id}/mark-session-completed",
+            {"student_id": str(student.id), "module_id": str(module.id)},
+        )
+        self.assertEqual(resp.status_code, 403)
+
     def test_create_class_assigns_default_org_for_membership_staff(self):
         resp = self.client.post("/teach/create-class", {"name": "New Alpha Class"})
         self.assertEqual(resp.status_code, 302)
@@ -1120,3 +1181,32 @@ class TeacherOrganizationAccessTests(TestCase):
 
         resp = self.client.get(f"/teach/class/{self.class_b.id}")
         self.assertEqual(resp.status_code, 200)
+
+    @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True)
+    def test_hard_org_boundary_blocks_legacy_staff_without_membership(self):
+        legacy_staff = get_user_model().objects.create_user(
+            username="legacy_staff_hard",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        _force_login_staff_verified(self.client, legacy_staff)
+
+        teach_resp = self.client.get("/teach")
+        self.assertEqual(teach_resp.status_code, 200)
+        self.assertNotContains(teach_resp, "Alpha Cohort")
+        blocked_resp = self.client.get(f"/teach/class/{self.class_a.id}")
+        self.assertEqual(blocked_resp.status_code, 404)
+
+    @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True)
+    def test_hard_org_boundary_blocks_class_create_without_membership(self):
+        legacy_staff = get_user_model().objects.create_user(
+            username="legacy_staff_create",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        _force_login_staff_verified(self.client, legacy_staff)
+        resp = self.client.post("/teach/create-class", {"name": "Should Not Create"})
+        self.assertEqual(resp.status_code, 403)
+        self.assertFalse(Class.objects.filter(name="Should Not Create").exists())

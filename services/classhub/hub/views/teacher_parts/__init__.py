@@ -11,6 +11,7 @@ from .content import (
 from .roster import (
     teach_add_material,
     teach_add_module,
+    teach_certificate_eligibility,
     teach_class_dashboard,
     teach_class_join_card,
     teach_create_invite_link,
@@ -20,6 +21,7 @@ from .roster import (
     teach_export_class_summary_csv,
     teach_export_class_submissions_today,
     teach_lock_class,
+    teach_mark_session_completed,
     teach_material_submissions,
     teach_merge_students,
     teach_module,
@@ -61,6 +63,7 @@ __all__ = [
     "teach_export_class_submissions_today",
     "teach_rotate_code",
     "teach_add_module",
+    "teach_certificate_eligibility",
     "teach_move_module",
     "teach_videos",
     "teach_assets",
@@ -68,4 +71,5 @@ __all__ = [
     "teach_add_material",
     "teach_move_material",
     "teach_material_submissions",
+    "teach_mark_session_completed",
 ]
