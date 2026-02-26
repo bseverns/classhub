@@ -1132,6 +1132,18 @@ class TeacherOrganizationAccessTests(TestCase):
         )
         self.assertEqual(resp.status_code, 403)
 
+    def test_viewer_membership_certificate_page_hides_mark_completed_form(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_VIEWER
+        membership.save(update_fields=["role"])
+        Module.objects.create(classroom=self.class_a, title="Session 1", order_index=0)
+        StudentIdentity.objects.create(classroom=self.class_a, display_name="Ada")
+
+        resp = self.client.get(f"/teach/class/{self.class_a.id}/certificate-eligibility")
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, "/mark-session-completed")
+        self.assertContains(resp, "Read-only role")
+
     def test_create_class_assigns_default_org_for_membership_staff(self):
         resp = self.client.post("/teach/create-class", {"name": "New Alpha Class"})
         self.assertEqual(resp.status_code, 302)

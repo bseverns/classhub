@@ -23,6 +23,7 @@ def teach_certificate_eligibility(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    can_manage = staff_can_manage_classroom(request.user, classroom)
 
     students = list(classroom.students.only("id", "display_name").order_by("display_name", "id"))
     modules = list(classroom.modules.only("id", "title", "order_index").order_by("order_index", "id"))
@@ -38,6 +39,7 @@ def teach_certificate_eligibility(request, class_id: int):
             "total_students": summary["total_students"],
             "certificate_min_sessions": summary["certificate_min_sessions"],
             "certificate_min_artifacts": summary["certificate_min_artifacts"],
+            "can_manage": can_manage,
             "notice": (request.GET.get("notice") or "").strip(),
             "error": (request.GET.get("error") or "").strip(),
         },

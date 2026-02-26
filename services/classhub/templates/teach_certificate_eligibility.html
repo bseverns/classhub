@@ -40,28 +40,32 @@
           <p class="muted mini merge-note">
             Use this only when completion happened offline and no artifact upload was submitted.
           </p>
-          <form method="post" action="/teach/class/{{ classroom.id }}/mark-session-completed" class="invite-create-form">
-            {% csrf_token %}
-            <label>
-              Student
-              <select name="student_id" required>
-                <option value="">Select student</option>
-                {% for row in eligibility_rows %}
-                  <option value="{{ row.student_id }}">{{ row.display_name }}</option>
-                {% endfor %}
-              </select>
-            </label>
-            <label>
-              Module
-              <select name="module_id" required>
-                <option value="">Select module</option>
-                {% for module in modules %}
-                  <option value="{{ module.id }}">{{ module.title }}</option>
-                {% endfor %}
-              </select>
-            </label>
-            <button type="submit">Mark completed</button>
-          </form>
+          {% if can_manage %}
+            <form method="post" action="/teach/class/{{ classroom.id }}/mark-session-completed" class="invite-create-form">
+              {% csrf_token %}
+              <label>
+                Student
+                <select name="student_id" required>
+                  <option value="">Select student</option>
+                  {% for row in eligibility_rows %}
+                    <option value="{{ row.student_id }}">{{ row.display_name }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>
+                Module
+                <select name="module_id" required>
+                  <option value="">Select module</option>
+                  {% for module in modules %}
+                    <option value="{{ module.id }}">{{ module.title }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <button type="submit">Mark completed</button>
+            </form>
+          {% else %}
+            <p class="muted mini section-empty-note">Read-only role: session completion updates are limited to teacher/admin roles.</p>
+          {% endif %}
         </div>
 
         <div class="card">

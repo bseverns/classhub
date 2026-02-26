@@ -81,7 +81,7 @@ def build_certificate_eligibility_rows(
     milestones_by_student: dict[int, int] = {}
     if student_ids:
         for row in (
-            StudentOutcomeEvent.objects.filter(student_id__in=student_ids)
+            StudentOutcomeEvent.objects.filter(classroom=classroom, student_id__in=student_ids)
             .values("student_id", "event_type")
             .annotate(total=models.Count("id"))
         ):
