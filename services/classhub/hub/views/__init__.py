@@ -13,8 +13,6 @@ from .media import lesson_asset_download, lesson_video_stream
 from .student_join import index, invite_join, join_class
 from .student import (
     healthz,
-    material_checklist,
-    material_reflection,
     material_upload,
     student_delete_work,
     student_end_session,
@@ -25,6 +23,7 @@ from .student import (
     student_return_code,
     submission_download,
 )
+from .student_materials import material_checklist, material_reflection, material_rubric
 from .teacher import (
     teach_add_material,
     teach_add_module,
@@ -76,6 +75,7 @@ __all__ = [
     "lesson_video_stream",
     "material_checklist",
     "material_reflection",
+    "material_rubric",
     "material_upload",
     "student_delete_work",
     "student_end_session",

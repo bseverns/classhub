@@ -614,6 +614,8 @@
                             <div class="muted mini">
                               {% if mat.type == 'upload' or mat.type == 'gallery' %}
                                 Submitted: {{ submission_counts|get_item:mat.id|default:0 }} / {{ student_count }} · <a href="/teach/material/{{ mat.id }}/submissions">Submissions</a>
+                              {% elif mat.type == 'rubric' %}
+                                Responses: <a href="/teach/material/{{ mat.id }}/submissions">View</a>
                               {% endif %}
                             </div>
                           </div>
@@ -629,6 +631,11 @@
                             <pre class="module-text-preview">{{ mat.body|truncatechars:280 }}</pre>
                           {% elif mat.type == 'reflection' and mat.body %}
                             <pre class="module-text-preview">{{ mat.body|truncatechars:280 }}</pre>
+                          {% elif mat.type == 'rubric' %}
+                            <div class="muted mini">Scale 1-{{ mat.rubric_scale_max }}</div>
+                            {% if mat.body %}
+                              <pre class="module-text-preview">{{ mat.body|truncatechars:280 }}</pre>
+                            {% endif %}
                           {% endif %}
                         </div>
                       {% endfor %}

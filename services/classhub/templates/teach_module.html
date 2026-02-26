@@ -47,7 +47,7 @@
                       <input type="hidden" name="direction" value="down" />
                       <button type="submit" aria-label="Move material {{ mat.title }} down">↓</button>
                     </form>
-                    {% if mat.type == 'upload' or mat.type == 'gallery' %}
+                    {% if mat.type == 'upload' or mat.type == 'gallery' or mat.type == 'rubric' %}
                       <a href="/teach/material/{{ mat.id }}/submissions">Submissions</a>
                     {% endif %}
                   </div>
@@ -65,6 +65,11 @@
                   <pre class="material-text-preview">{{ mat.body|truncatechars:800 }}</pre>
                 {% elif mat.type == 'reflection' and mat.body %}
                   <pre class="material-text-preview">{{ mat.body|truncatechars:800 }}</pre>
+                {% elif mat.type == 'rubric' %}
+                  <div class="muted material-upload-meta">Scale 1-{{ mat.rubric_scale_max }}</div>
+                  {% if mat.body %}
+                    <pre class="material-text-preview">{{ mat.body|truncatechars:800 }}</pre>
+                  {% endif %}
                 {% else %}
                   <div class="muted material-empty-meta">(Empty details)</div>
                 {% endif %}
@@ -123,6 +128,27 @@
               <label for="reflection-prompt" class="stacked-label">Prompt</label>
               <textarea id="reflection-prompt" name="reflection_prompt" placeholder="What was hard today, what changed, and what will you try next?"></textarea>
               <button type="submit" class="submit-spaced">Add reflection prompt</button>
+            </form>
+          </details>
+
+          <details>
+            <summary>Add a rubric</summary>
+            <form method="post" action="/teach/module/{{ module.id }}/add-material" class="material-form">
+              {% csrf_token %}
+              <input type="hidden" name="type" value="rubric" />
+              <label for="rubric-title">Title</label>
+              <input id="rubric-title" name="title" value="Session rubric" />
+              <div class="row upload-config-row">
+                <div class="upload-config-col-main">
+                  <label for="rubric-criteria">Criteria (one per line)</label>
+                  <textarea id="rubric-criteria" name="rubric_criteria" placeholder="Problem solving&#10;Code quality&#10;Reflection depth"></textarea>
+                </div>
+                <div class="upload-config-col-side">
+                  <label for="rubric-scale-max">Max score</label>
+                  <input id="rubric-scale-max" name="rubric_scale_max" value="4" />
+                </div>
+              </div>
+              <button type="submit" class="submit-spaced">Add rubric</button>
             </form>
           </details>
 

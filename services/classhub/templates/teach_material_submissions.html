@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Submissions · {{ material.title }}</title>
+    <title>{% if is_rubric %}Responses{% else %}Submissions{% endif %} · {{ material.title }}</title>
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/teach_material_submissions.css' %}" />
   </head>
@@ -15,12 +15,20 @@
         <div class="top">
           <div>
             <div class="muted navline"><a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a> · <a href="/teach/assets">Lesson assets</a> · <a href="/teach/class/{{ classroom.id }}">{{ classroom.name }}</a> · <a href="/teach/module/{{ module.id }}">{{ module.title }}</a> · <a href="/teach/logout">Log out</a></div>
-            <h1>Submissions</h1>
-            <div class="muted">Material: <strong>{{ material.title }}</strong> · Accepted <span class="pill">{{ material.accepted_extensions|default:'.sb3' }}</span> · Students {{ student_count }} · Missing {{ missing }}</div>
+            <h1>{% if is_rubric %}Responses{% else %}Submissions{% endif %}</h1>
+            {% if is_rubric %}
+              <div class="muted">Material: <strong>{{ material.title }}</strong> · Scale 1-{{ material.rubric_scale_max }} · Students {{ student_count }} · Missing {{ missing }}</div>
+            {% else %}
+              <div class="muted">Material: <strong>{{ material.title }}</strong> · Accepted <span class="pill">{{ material.accepted_extensions|default:'.sb3' }}</span> · Students {{ student_count }} · Missing {{ missing }}</div>
+            {% endif %}
           </div>
           <div class="btnline">
-            <a class="btn" href="?download=zip_latest">Download all latest (ZIP)</a>
-            <a href="/admin/hub/submission/?material__id__exact={{ material.id }}">Open in admin</a>
+            {% if not is_rubric %}
+              <a class="btn" href="?download=zip_latest">Download all latest (ZIP)</a>
+              <a href="/admin/hub/submission/?material__id__exact={{ material.id }}">Open in admin</a>
+            {% else %}
+              <a href="/admin/hub/studentmaterialresponse/?material__id__exact={{ material.id }}">Open in admin</a>
+            {% endif %}
           </div>
         </div>
 
@@ -36,9 +44,9 @@
             <thead>
               <tr>
                 <th scope="col">Student</th>
-                <th scope="col">Latest upload</th>
-                <th scope="col">Files</th>
-                <th scope="col">Latest file</th>
+                <th scope="col">{% if is_rubric %}Latest response{% else %}Latest upload{% endif %}</th>
+                <th scope="col">{% if is_rubric %}Rated criteria{% else %}Files{% endif %}</th>
+                <th scope="col">{% if is_rubric %}Feedback{% else %}Latest file{% endif %}</th>
                 <th scope="col"><span class="visually-hidden">Actions</span></th>
               </tr>
             </thead>
@@ -47,10 +55,17 @@
                 <tr>
                   <td><strong>{{ r.student.display_name }}</strong></td>
                   {% if r.latest %}
-                    <td class="muted">{{ r.latest.uploaded_at }}</td>
-                    <td class="muted">{{ r.count }}</td>
-                    <td class="muted">{{ r.latest.original_filename|default:r.latest.file.name }}</td>
-                    <td><a href="/submission/{{ r.latest.id }}/download">Download latest</a></td>
+                    {% if is_rubric %}
+                      <td class="muted">{{ r.latest.updated_at }}</td>
+                      <td class="muted">{{ r.count }}</td>
+                      <td class="muted">{{ r.latest.rubric_feedback|default:"—"|truncatechars:120 }}</td>
+                      <td class="muted">Saved</td>
+                    {% else %}
+                      <td class="muted">{{ r.latest.uploaded_at }}</td>
+                      <td class="muted">{{ r.count }}</td>
+                      <td class="muted">{{ r.latest.original_filename|default:r.latest.file.name }}</td>
+                      <td><a href="/submission/{{ r.latest.id }}/download">Download latest</a></td>
+                    {% endif %}
                   {% else %}
                     <td class="muted">—</td>
                     <td class="muted">0</td>
@@ -62,7 +77,9 @@
             </tbody>
           </table>
 
-          <p class="muted download-note">Downloads are private: staff can download any submission; students can only download their own.</p>
+          {% if not is_rubric %}
+            <p class="muted download-note">Downloads are private: staff can download any submission; students can only download their own.</p>
+          {% endif %}
         </div>
       </main>
     </div>

@@ -165,6 +165,7 @@ class Material(models.Model):
     - gallery: upload with optional class-visible sharing
     - checklist: student self-report checklist
     - reflection: private journal prompt/response
+    - rubric: criterion ratings + optional feedback
     """
 
     TYPE_LINK = "link"
@@ -173,6 +174,7 @@ class Material(models.Model):
     TYPE_GALLERY = "gallery"
     TYPE_CHECKLIST = "checklist"
     TYPE_REFLECTION = "reflection"
+    TYPE_RUBRIC = "rubric"
     TYPE_CHOICES = [
         (TYPE_LINK, "Link"),
         (TYPE_TEXT, "Text"),
@@ -180,6 +182,7 @@ class Material(models.Model):
         (TYPE_GALLERY, "Gallery"),
         (TYPE_CHECKLIST, "Checklist"),
         (TYPE_REFLECTION, "Reflection"),
+        (TYPE_RUBRIC, "Rubric"),
     ]
 
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="materials")
@@ -191,6 +194,7 @@ class Material(models.Model):
 
     # For text material
     body = models.TextField(blank=True, default="")
+    rubric_scale_max = models.PositiveSmallIntegerField(default=4)
 
     # For upload material
     # Comma-separated list of extensions (including the leading dot), e.g. ".sb3,.png"
@@ -256,6 +260,8 @@ class StudentMaterialResponse(models.Model):
     student = models.ForeignKey("StudentIdentity", on_delete=models.CASCADE, related_name="material_responses")
     checklist_checked = models.JSONField(default=list, blank=True)
     reflection_text = models.TextField(blank=True, default="")
+    rubric_scores = models.JSONField(default=list, blank=True)
+    rubric_feedback = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

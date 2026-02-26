@@ -27,6 +27,7 @@ from .shared import (
     staff_classroom_or_none,
     staff_member_required,
 )
+from ...services.teacher_material_reviews import build_rubric_material_rows
 
 @staff_member_required
 @require_POST
@@ -120,7 +121,7 @@ def teach_add_material(request, module_id: int):
     if not staff_can_manage_classroom(request.user, module.classroom):
         return HttpResponse("Forbidden", status=403)
 
-    allowed_types = {Material.TYPE_LINK, Material.TYPE_TEXT, Material.TYPE_UPLOAD, Material.TYPE_GALLERY, Material.TYPE_CHECKLIST, Material.TYPE_REFLECTION}
+    allowed_types = {Material.TYPE_LINK, Material.TYPE_TEXT, Material.TYPE_UPLOAD, Material.TYPE_GALLERY, Material.TYPE_CHECKLIST, Material.TYPE_REFLECTION, Material.TYPE_RUBRIC}
     mtype = (request.POST.get("type") or Material.TYPE_LINK).strip()
     if mtype not in allowed_types:
         mtype = Material.TYPE_LINK
@@ -151,6 +152,13 @@ def teach_add_material(request, module_id: int):
         prompt_key = "checklist_items" if mtype == Material.TYPE_CHECKLIST else "reflection_prompt"
         mat.body = (request.POST.get(prompt_key) or "").strip()
         mat.save(update_fields=["body"])
+    elif mtype == Material.TYPE_RUBRIC:
+        mat.body = (request.POST.get("rubric_criteria") or "").strip()
+        try:
+            mat.rubric_scale_max = max(2, min(int(request.POST.get("rubric_scale_max") or 4), 10))
+        except Exception:
+            mat.rubric_scale_max = 4
+        mat.save(update_fields=["body", "rubric_scale_max"])
     _audit(
         request,
         action="material.add",
@@ -201,7 +209,7 @@ def teach_material_submissions(request, material_id: int):
         .filter(id=material_id)
         .first()
     )
-    if not material or material.type not in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}:
+    if not material or material.type not in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY, Material.TYPE_RUBRIC}:
         return HttpResponse("Not found", status=404)
 
     classroom = material.module.classroom
@@ -209,11 +217,13 @@ def teach_material_submissions(request, material_id: int):
         return HttpResponse("Not found", status=404)
     students = list(classroom.students.all().order_by("created_at", "id"))
 
-    all_subs = list(
-        Submission.objects.filter(material=material)
-        .select_related("student")
-        .order_by("-uploaded_at", "-id")
-    )
+    all_subs = []
+    if material.type in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}:
+        all_subs = list(
+            Submission.objects.filter(material=material)
+            .select_related("student")
+            .order_by("-uploaded_at", "-id")
+        )
 
     latest_by_student = {}
     count_by_student = {}
@@ -224,6 +234,22 @@ def teach_material_submissions(request, material_id: int):
             latest_by_student[sid] = s
 
     show = (request.GET.get("show") or "all").strip()
+    if material.type == Material.TYPE_RUBRIC:
+        rows, missing = build_rubric_material_rows(material=material, students=students, show=show)
+        return render(
+            request,
+            "teach_material_submissions.html",
+            {
+                "classroom": classroom,
+                "module": material.module,
+                "material": material,
+                "rows": rows,
+                "student_count": len(students),
+                "missing": missing,
+                "show": show,
+                "is_rubric": True,
+            },
+        )
 
     if request.GET.get("download") == "zip_latest":
         with _temporary_zip_archive() as (tmp, z):

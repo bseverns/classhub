@@ -36,6 +36,7 @@ urlpatterns = [
     path("material/<int:material_id>/upload", views.material_upload),
     path("material/<int:material_id>/checklist", views.material_checklist),
     path("material/<int:material_id>/reflection", views.material_reflection),
+    path("material/<int:material_id>/rubric", views.material_rubric),
     path("submission/<int:submission_id>/download", views.submission_download),
     path("lesson-video/<int:video_id>/stream", views.lesson_video_stream),
     path("lesson-asset/<int:asset_id>/download", views.lesson_asset_download),

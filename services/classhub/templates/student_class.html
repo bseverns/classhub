@@ -240,6 +240,44 @@
                           </div>
                         {% endif %}
                       {% endwith %}
+                    {% elif mat.type == 'rubric' %}
+                      {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id spec=material_rubric_specs|get_item:mat.id %}
+                        {% if access.is_lesson_activity and access.is_locked %}
+                          <div class="status-row">
+                            <span class="state-pill state-pill--locked">Rubric locked</span>
+                          </div>
+                          <div class="muted">Rubric opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+                        {% elif spec and spec.criteria %}
+                          <form method="post" action="/material/{{ mat.id }}/rubric" class="reflection-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="return_to" value="/student" />
+                            <div class="muted">Rate each criterion from 1 to {{ spec.scale_max }}.</div>
+                            {% for criterion in spec.criteria %}
+                              {% with criterion_index=forloop.counter0 selected_score=state.rubric_scores|get_item:forloop.counter0 %}
+                                <label class="muted stacked-rubric-label">{{ criterion }}</label>
+                                <select name="criterion_{{ criterion_index }}">
+                                  <option value="">Not scored</option>
+                                  {% for score in spec.scale_values %}
+                                    <option value="{{ score }}" {% if selected_score == score %}selected{% endif %}>{{ score }}</option>
+                                  {% endfor %}
+                                </select>
+                              {% endwith %}
+                            {% endfor %}
+                            <label for="rubric-feedback-{{ mat.id }}" class="muted">Optional feedback</label>
+                            <textarea id="rubric-feedback-{{ mat.id }}" name="rubric_feedback" rows="4" placeholder="Short note to your teacher (optional).">{{ state.rubric_feedback|default:'' }}</textarea>
+                            <button type="submit">Save rubric</button>
+                          </form>
+                          <div class="status-row">
+                            {% if state and state.rubric_scores %}
+                              <span class="state-pill state-pill--done">Saved</span>
+                            {% else %}
+                              <span class="state-pill state-pill--open">Not saved yet</span>
+                            {% endif %}
+                          </div>
+                        {% else %}
+                          <div class="muted empty-state">(Rubric criteria not configured yet.)</div>
+                        {% endif %}
+                      {% endwith %}
                     {% else %}
                       <div class="muted empty-state">(Empty material — teacher will fill this in.)</div>
                     {% endif %}

@@ -57,6 +57,10 @@ def parse_checklist_items(raw: str) -> list[str]:
     return items
 
 
+def parse_rubric_criteria(raw: str) -> list[str]:
+    return parse_checklist_items(raw)
+
+
 def build_material_checklist_items_map(*, modules: list[Module]) -> dict[int, list[str]]:
     material_checklist_items: dict[int, list[str]] = {}
     for module in modules:
@@ -65,6 +69,21 @@ def build_material_checklist_items_map(*, modules: list[Module]) -> dict[int, li
                 continue
             material_checklist_items[mat.id] = parse_checklist_items(mat.body)
     return material_checklist_items
+
+
+def build_material_rubric_specs_map(*, modules: list[Module]) -> dict[int, dict]:
+    by_material: dict[int, dict] = {}
+    for module in modules:
+        for mat in _sorted_module_materials(module):
+            if mat.type != Material.TYPE_RUBRIC:
+                continue
+            scale_max = max(int(getattr(mat, "rubric_scale_max", 4) or 4), 2)
+            by_material[mat.id] = {
+                "criteria": parse_rubric_criteria(mat.body),
+                "scale_values": list(range(1, min(scale_max, 10) + 1)),
+                "scale_max": min(scale_max, 10),
+            }
+    return by_material
 
 
 def build_material_response_map(*, student: StudentIdentity, material_ids: list[int]) -> dict[int, dict]:
@@ -93,6 +112,8 @@ def build_material_response_map(*, student: StudentIdentity, material_ids: list[
         by_material[row.material_id] = {
             "checklist_checked": checked_indexes,
             "reflection_text": (row.reflection_text or ""),
+            "rubric_scores": [int(v) for v in (row.rubric_scores or []) if str(v).isdigit()],
+            "rubric_feedback": (row.rubric_feedback or ""),
             "updated_at": row.updated_at,
         }
     return by_material
@@ -201,10 +222,15 @@ def build_material_access_map(request, *, classroom: Class, modules: list[Module
                 Material.TYPE_GALLERY,
                 Material.TYPE_CHECKLIST,
                 Material.TYPE_REFLECTION,
+                Material.TYPE_RUBRIC,
             } and module_lesson:
                 state = get_release_state(*module_lesson)
                 access["is_lesson_upload"] = mat.type in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}
-                access["is_lesson_activity"] = mat.type in {Material.TYPE_CHECKLIST, Material.TYPE_REFLECTION}
+                access["is_lesson_activity"] = mat.type in {
+                    Material.TYPE_CHECKLIST,
+                    Material.TYPE_REFLECTION,
+                    Material.TYPE_RUBRIC,
+                }
                 access["is_locked"] = bool(state.get("is_locked"))
                 access["available_on"] = state.get("available_on")
             material_access[mat.id] = access

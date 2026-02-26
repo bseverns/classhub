@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from ..models import Material, StudentEvent, StudentIdentity, StudentOutcomeEvent, Submission
+from ..models import Material, StudentEvent, StudentIdentity, StudentMaterialResponse, StudentOutcomeEvent, Submission
 from .content_links import parse_course_lesson_url
 from .filenames import safe_filename
 from .markdown_content import load_lesson_markdown
@@ -259,6 +259,14 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
         last_seen_at__gte=active_since,
     ).count()
     total_submissions = Submission.objects.filter(student__classroom=classroom).count()
+    total_rubric_responses = StudentMaterialResponse.objects.filter(
+        student__classroom=classroom,
+        material__type=Material.TYPE_RUBRIC,
+    ).count()
+    total_rubric_responders = StudentMaterialResponse.objects.filter(
+        student__classroom=classroom,
+        material__type=Material.TYPE_RUBRIC,
+    ).values("student_id").distinct().count()
 
     joins_by_student: dict[int, int] = {}
     for row in (
@@ -289,6 +297,13 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
         .annotate(total=models.Count("id"))
     ):
         submissions_by_student[int(row["student_id"])] = int(row["total"] or 0)
+    rubric_by_student: dict[int, int] = {}
+    for row in (
+        StudentMaterialResponse.objects.filter(student_id__in=student_ids, material__type=Material.TYPE_RUBRIC)
+        .values("student_id")
+        .annotate(total=models.Count("id"))
+    ):
+        rubric_by_student[int(row["student_id"])] = int(row["total"] or 0)
 
     modules = list(classroom.modules.prefetch_related("materials").all())
     modules.sort(key=lambda module: (module.order_index, module.id))
@@ -317,6 +332,7 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
         upload_material_ids = [
             material.id for material in mats if material.type in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}
         ]
+        rubric_material_ids = [material.id for material in mats if material.type == Material.TYPE_RUBRIC]
         submissions_total = (
             Submission.objects.filter(material_id__in=upload_material_ids).count() if upload_material_ids else 0
         )
@@ -328,7 +344,18 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
             if upload_material_ids
             else 0
         )
-        if not (course_slug or lesson_slug or upload_material_ids):
+        rubric_responses_total = (
+            StudentMaterialResponse.objects.filter(material_id__in=rubric_material_ids).count() if rubric_material_ids else 0
+        )
+        rubric_responders_total = (
+            StudentMaterialResponse.objects.filter(material_id__in=rubric_material_ids)
+            .values("student_id")
+            .distinct()
+            .count()
+            if rubric_material_ids
+            else 0
+        )
+        if not (course_slug or lesson_slug or upload_material_ids or rubric_material_ids):
             continue
         lesson_rows.append(
             {
@@ -338,6 +365,8 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
                 "module_title": module.title,
                 "submissions": submissions_total,
                 "submitters": submitters_total,
+                "rubric_responses": rubric_responses_total,
+                "rubric_responders": rubric_responders_total,
             }
         )
 
@@ -355,6 +384,8 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
         "active_students",
         "submissions",
         "submitters",
+        "rubric_responses",
+        "rubric_responders",
         "helper_accesses",
         "first_seen_at",
         "last_seen_at",
@@ -373,6 +404,8 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
             "rejoins": rejoins_total,
             "active_students": active_students,
             "submissions": total_submissions,
+            "rubric_responses": total_rubric_responses,
+            "rubric_responders": total_rubric_responders,
             "helper_accesses": helper_access_total,
             "active_window_days": active_window_days,
         }
@@ -387,6 +420,7 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
                 "display_name": student.display_name,
                 "joins": joins_by_student.get(int(student.id), 0),
                 "submissions": submissions_by_student.get(int(student.id), 0),
+                "rubric_responses": rubric_by_student.get(int(student.id), 0),
                 "helper_accesses": helper_by_student.get(int(student.id), 0),
                 "first_seen_at": (student.created_at.isoformat() if student.created_at else ""),
                 "last_seen_at": (student.last_seen_at.isoformat() if student.last_seen_at else ""),
@@ -406,6 +440,8 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
                 "module_title": lesson["module_title"],
                 "submissions": lesson["submissions"],
                 "submitters": lesson["submitters"],
+                "rubric_responses": lesson["rubric_responses"],
+                "rubric_responders": lesson["rubric_responders"],
                 "active_window_days": active_window_days,
             }
         )

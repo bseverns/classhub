@@ -12,6 +12,14 @@ def get_item(d: dict, key):
     try:
         return d.get(key)
     except Exception:
+        pass
+    try:
+        idx = int(key)
+    except Exception:
+        return None
+    try:
+        return d[idx]
+    except Exception:
         return None
 
 

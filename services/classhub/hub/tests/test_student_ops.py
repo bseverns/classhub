@@ -753,6 +753,14 @@ class StudentChecklistReflectionTests(TestCase):
             body="What changed in your code today?",
             order_index=1,
         )
+        self.rubric = Material.objects.create(
+            module=self.module,
+            title="Session rubric",
+            type=Material.TYPE_RUBRIC,
+            body="Problem solving\nCode quality",
+            rubric_scale_max=4,
+            order_index=2,
+        )
         self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
 
     def _login_student(self):
@@ -767,8 +775,10 @@ class StudentChecklistReflectionTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, f"/material/{self.checklist.id}/checklist")
         self.assertContains(resp, f"/material/{self.reflection.id}/reflection")
+        self.assertContains(resp, f"/material/{self.rubric.id}/rubric")
         self.assertContains(resp, "Class checklist")
         self.assertContains(resp, "Reflection journal")
+        self.assertContains(resp, "Session rubric")
 
     def test_student_can_save_checklist_and_emit_completion_milestone(self):
         self._login_student()
@@ -817,6 +827,34 @@ class StudentChecklistReflectionTests(TestCase):
         self.assertEqual(milestone.details.get("trigger"), "reflection_submitted")
         self.assertNotIn("loop and tested", json.dumps(milestone.details))
 
+    def test_student_can_save_rubric_without_event_content_leak(self):
+        self._login_student()
+        resp = self.client.post(
+            f"/material/{self.rubric.id}/rubric",
+            {
+                "criterion_0": "4",
+                "criterion_1": "3",
+                "rubric_feedback": "I improved my structure today.",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/student")
+
+        saved = StudentMaterialResponse.objects.filter(student=self.student, material=self.rubric).first()
+        self.assertIsNotNone(saved)
+        self.assertEqual(saved.rubric_scores, [4, 3])
+        self.assertEqual(saved.rubric_feedback, "I improved my structure today.")
+
+        milestone = StudentOutcomeEvent.objects.filter(
+            student=self.student,
+            classroom=self.classroom,
+            material=self.rubric,
+            event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
+        ).order_by("-id").first()
+        self.assertIsNotNone(milestone)
+        self.assertEqual(milestone.details.get("trigger"), "rubric_submitted")
+        self.assertNotIn("improved my structure", json.dumps(milestone.details))
+
     def test_checklist_and_reflection_posts_are_blocked_when_lesson_locked(self):
         Material.objects.create(
             module=self.module,
@@ -844,6 +882,11 @@ class StudentChecklistReflectionTests(TestCase):
             {"reflection_text": "Locked write should fail."},
         )
         self.assertEqual(reflection_resp.status_code, 403)
+        rubric_resp = self.client.post(
+            f"/material/{self.rubric.id}/rubric",
+            {"criterion_0": "4", "criterion_1": "3"},
+        )
+        self.assertEqual(rubric_resp.status_code, 403)
         self.assertEqual(StudentMaterialResponse.objects.filter(student=self.student).count(), 0)
 
 

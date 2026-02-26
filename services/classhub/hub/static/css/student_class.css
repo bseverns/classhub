@@ -97,6 +97,10 @@
   margin-top: 6px;
   min-height: 110px;
 }
+.stacked-rubric-label {
+  display: block;
+  margin-top: 8px;
+}
 .gallery-shared-wrap {
   margin-top: 10px;
 }

@@ -282,6 +282,20 @@ class TeacherPortalTests(TestCase):
     def test_teach_class_export_summary_csv_contains_class_student_and_lesson_rows(self):
         classroom, upload = self._build_lesson_with_submission()
         student = StudentIdentity.objects.filter(classroom=classroom, display_name="Ada").first()
+        rubric = Material.objects.create(
+            module=upload.module,
+            title="Session rubric",
+            type=Material.TYPE_RUBRIC,
+            body="Problem solving\nCode quality",
+            rubric_scale_max=4,
+            order_index=2,
+        )
+        StudentMaterialResponse.objects.create(
+            material=rubric,
+            student=student,
+            rubric_scores=[4, 3],
+            rubric_feedback="private rubric note",
+        )
         StudentEvent.objects.create(
             classroom=classroom,
             student=student,
@@ -308,8 +322,10 @@ class TeacherPortalTests(TestCase):
         self.assertIn("lesson_summary", body)
         self.assertIn("Ada", body)
         self.assertIn("piper_scratch_12_session", body)
+        self.assertIn("rubric_responses", body)
         self.assertNotIn("do not export this", body)
         self.assertNotIn("prompt", body)
+        self.assertNotIn("private rubric note", body)
 
     @override_settings(
         CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,
@@ -472,6 +488,53 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(created.title, "Share to gallery")
         self.assertEqual(created.accepted_extensions, ".png,.jpg,.jpeg,.pdf")
         self.assertEqual(created.max_upload_mb, 20)
+
+    def test_teach_module_can_add_rubric_material(self):
+        classroom = Class.objects.create(name="Rubric Class", join_code="RUB12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/module/{module.id}/add-material",
+            {
+                "type": Material.TYPE_RUBRIC,
+                "title": "Session rubric",
+                "rubric_criteria": "Problem solving\nCode quality\nReflection depth",
+                "rubric_scale_max": "5",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        created = Material.objects.filter(module=module, type=Material.TYPE_RUBRIC).first()
+        self.assertIsNotNone(created)
+        self.assertEqual(created.title, "Session rubric")
+        self.assertEqual(created.rubric_scale_max, 5)
+        self.assertIn("Problem solving", created.body)
+
+    def test_teach_material_submissions_supports_rubric_responses(self):
+        classroom = Class.objects.create(name="Rubric Review", join_code="RBR12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        rubric = Material.objects.create(
+            module=module,
+            title="Session rubric",
+            type=Material.TYPE_RUBRIC,
+            body="Problem solving\nCode quality",
+            rubric_scale_max=4,
+            order_index=0,
+        )
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        StudentMaterialResponse.objects.create(
+            material=rubric,
+            student=student,
+            rubric_scores=[4, 3],
+            rubric_feedback="Strong growth this week.",
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/material/{rubric.id}/submissions")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Responses")
+        self.assertContains(resp, "Scale 1-4")
+        self.assertContains(resp, "Strong growth this week.")
 
     def test_teach_videos_uses_external_css_without_inline_styles(self):
         _force_login_staff_verified(self.client, self.staff)
