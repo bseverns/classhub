@@ -29,5 +29,6 @@ Use this checklist whenever adding or changing an HTTP endpoint in ClassHub or H
 - `scripts/check_no_inline_template_css.py`
 - `scripts/check_view_header_helpers.py`
 - `scripts/check_view_size_budgets.py`
+- `scripts/check_view_function_budgets.py`
 
 If you need to bypass one of these guards for a valid reason, document the exception in `docs/DECISIONS.md` in the same PR.

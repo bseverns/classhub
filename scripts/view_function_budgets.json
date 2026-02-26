@@ -1,0 +1,23 @@
+{
+  "max_lines_by_function": {
+    "services/classhub/hub/views/content.py::course_lesson": 165,
+    "services/classhub/hub/views/media.py::_stream_file_with_range": 85,
+    "services/classhub/hub/views/student.py::join_class": 105,
+    "services/classhub/hub/views/student.py::material_upload": 90,
+    "services/classhub/hub/views/teacher_parts/auth.py::teach_create_teacher": 130,
+    "services/classhub/hub/views/teacher_parts/auth.py::teach_teacher_2fa_setup": 155,
+    "services/classhub/hub/views/teacher_parts/content.py::teach_home": 100,
+    "services/classhub/hub/views/teacher_parts/content.py::teach_generate_authoring_templates": 110,
+    "services/classhub/hub/views/teacher_parts/content.py::teach_set_lesson_release": 265,
+    "services/classhub/hub/views/teacher_parts/roster.py::teach_class_dashboard": 90,
+    "services/classhub/hub/views/teacher_parts/roster.py::teach_merge_students": 125,
+    "services/classhub/hub/views/teacher_parts/roster.py::teach_delete_student_data": 85,
+    "services/classhub/hub/views/teacher_parts/roster.py::teach_reset_helper_conversations": 90,
+    "services/classhub/hub/views/teacher_parts/roster.py::teach_export_class_submissions_today": 95,
+    "services/classhub/hub/views/teacher_parts/roster.py::teach_material_submissions": 115,
+    "services/classhub/hub/views/teacher_parts/videos.py::teach_videos": 285,
+    "services/classhub/hub/views/teacher_parts/videos.py::teach_assets": 240,
+    "services/homework_helper/tutor/views.py::chat": 155,
+    "services/homework_helper/tutor/views.py::reset_class_conversations": 100
+  }
+}

@@ -46,3 +46,5 @@ jobs:
         run: python scripts/check_view_header_helpers.py
       - name: Guard dense view module size budgets
         run: python scripts/check_view_size_budgets.py
+      - name: Guard dense view function size budgets
+        run: python scripts/check_view_function_budgets.py
