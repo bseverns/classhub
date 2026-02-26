@@ -348,6 +348,18 @@ class TeacherPortalTests(TestCase):
             source="test",
             details={"internal": "nope"},
         )
+        CertificateIssuance.objects.create(
+            classroom=classroom,
+            student=student,
+            issued_by=self.staff,
+            code="CERT0001",
+            signed_token="signed-token",
+            session_count=1,
+            artifact_count=1,
+            milestone_count=0,
+            min_sessions_required=1,
+            min_artifacts_required=1,
+        )
         _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get(f"/teach/class/{classroom.id}/export-outcomes-csv")
@@ -357,6 +369,8 @@ class TeacherPortalTests(TestCase):
         body = resp.content.decode("utf-8")
         self.assertIn("class_outcome_summary", body)
         self.assertIn("student_outcome_summary", body)
+        self.assertIn("certificate_issued", body)
+        self.assertIn("certificate_issued_students", body)
         self.assertIn("Ada", body)
         self.assertIn("yes", body)
         self.assertNotIn("do-not-export", body)
@@ -672,6 +686,53 @@ class TeacherPortalTests(TestCase):
             ).count(),
             1,
         )
+
+    @override_settings(
+        CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,
+        CLASSHUB_CERTIFICATE_MIN_ARTIFACTS=1,
+    )
+    def test_teacher_can_issue_and_download_certificate(self):
+        classroom = Class.objects.create(name="Period Certs", join_code="CER12345")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        StudentOutcomeEvent.objects.create(
+            classroom=classroom,
+            student=student,
+            event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+            source="test",
+            details={},
+        )
+        StudentOutcomeEvent.objects.create(
+            classroom=classroom,
+            student=student,
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            source="test",
+            details={},
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        issue_resp = self.client.post(
+            f"/teach/class/{classroom.id}/issue-certificate",
+            {"student_id": str(student.id)},
+        )
+        self.assertEqual(issue_resp.status_code, 302)
+
+        issuance = CertificateIssuance.objects.filter(classroom=classroom, student=student).first()
+        self.assertIsNotNone(issuance)
+        self.assertTrue((issuance.signed_token or "").strip())
+        self.assertGreaterEqual(issuance.session_count, 1)
+        self.assertGreaterEqual(issuance.artifact_count, 1)
+
+        view_resp = self.client.get(f"/teach/class/{classroom.id}/certificate-eligibility")
+        self.assertEqual(view_resp.status_code, 200)
+        self.assertContains(view_resp, "Download")
+        self.assertContains(view_resp, issuance.code)
+
+        download_resp = self.client.get(f"/teach/class/{classroom.id}/certificate/{student.id}/download")
+        self.assertEqual(download_resp.status_code, 200)
+        self.assertIn("attachment;", download_resp["Content-Disposition"])
+        self.assertIn(issuance.code, download_resp["Content-Disposition"])
+        self.assertContains(download_resp, "Class Hub Certificate Record")
+        self.assertContains(download_resp, "Signed token")
 
         second_post = self.client.post(
             f"/teach/class/{classroom.id}/mark-session-completed",

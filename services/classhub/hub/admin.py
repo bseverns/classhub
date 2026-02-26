@@ -3,6 +3,7 @@ from django.utils.html import format_html
 
 from .models import (
     AuditEvent,
+    CertificateIssuance,
     Class,
     ClassInviteLink,
     ClassStaffAssignment,
@@ -137,6 +138,14 @@ class StudentMaterialResponseAdmin(admin.ModelAdmin):
     list_filter = ("material__module__classroom", "material")
     search_fields = ("student__display_name", "material__title")
     readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(CertificateIssuance)
+class CertificateIssuanceAdmin(admin.ModelAdmin):
+    list_display = ("code", "classroom", "student", "issued_by", "session_count", "artifact_count", "issued_at")
+    list_filter = ("classroom", "issued_by")
+    search_fields = ("code", "student__display_name", "classroom__name", "classroom__join_code")
+    readonly_fields = ("issued_at", "updated_at")
 
 
 @admin.register(LessonVideo)

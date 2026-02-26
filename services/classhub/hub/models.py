@@ -614,6 +614,51 @@ def _safe_asset_filename(raw: str) -> str:
     return value or "asset"
 
 
+def gen_certificate_code(length: int = 12) -> str:
+    """Generate a human-friendly certificate code."""
+    alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
+class CertificateIssuance(models.Model):
+    """Teacher-issued certificate record for one student in one class."""
+
+    classroom = models.ForeignKey(Class, on_delete=models.CASCADE, related_name="certificate_issuances")
+    student = models.ForeignKey("StudentIdentity", on_delete=models.CASCADE, related_name="certificate_issuances")
+    issued_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="issued_certificates",
+    )
+    code = models.CharField(max_length=24, unique=True, default=gen_certificate_code)
+    signed_token = models.TextField(blank=True, default="")
+    session_count = models.PositiveIntegerField(default=0)
+    artifact_count = models.PositiveIntegerField(default=0)
+    milestone_count = models.PositiveIntegerField(default=0)
+    min_sessions_required = models.PositiveIntegerField(default=1)
+    min_artifacts_required = models.PositiveIntegerField(default=1)
+    issued_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-issued_at", "-id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["classroom", "student"],
+                name="uniq_certificate_per_student_class",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["classroom", "issued_at"], name="hub_cert_clsiss_1d1b_idx"),
+            models.Index(fields=["student", "issued_at"], name="hub_cert_stuiss_67e4_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"Certificate {self.code} ({self.student.display_name})"
+
+
 class LessonAssetFolder(models.Model):
     """Teacher-managed folder namespace for reference assets."""
 

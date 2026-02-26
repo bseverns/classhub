@@ -10,7 +10,15 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from ..models import Material, StudentEvent, StudentIdentity, StudentMaterialResponse, StudentOutcomeEvent, Submission
+from ..models import (
+    CertificateIssuance,
+    Material,
+    StudentEvent,
+    StudentIdentity,
+    StudentMaterialResponse,
+    StudentOutcomeEvent,
+    Submission,
+)
 from .content_links import parse_course_lesson_url
 from .filenames import safe_filename
 from .markdown_content import load_lesson_markdown
@@ -618,6 +626,15 @@ def export_class_outcomes_csv(
     )
 
     eligible_students = 0
+    issued_by_student: dict[int, str] = {}
+    if student_ids:
+        for row in CertificateIssuance.objects.filter(classroom=classroom, student_id__in=student_ids).values(
+            "student_id",
+            "issued_at",
+        ):
+            issued_by_student[int(row["student_id"])] = (
+                row["issued_at"].isoformat() if row.get("issued_at") else ""
+            )
     for student in students:
         sid = int(student.id)
         if (
@@ -635,6 +652,9 @@ def export_class_outcomes_csv(
         "artifact_submissions",
         "milestones",
         "certificate_eligible",
+        "certificate_issued",
+        "certificate_issued_at",
+        "certificate_issued_students",
         "eligible_students",
         "total_students",
         "active_outcome_students",
@@ -657,6 +677,7 @@ def export_class_outcomes_csv(
             "artifact_submissions": class_artifacts_total,
             "milestones": class_milestones_total,
             "eligible_students": eligible_students,
+            "certificate_issued_students": len(issued_by_student),
             "total_students": len(students),
             "active_outcome_students": class_active_outcome_students,
             "certificate_min_sessions": certificate_min_sessions,
@@ -671,6 +692,7 @@ def export_class_outcomes_csv(
         artifacts = artifacts_by_student.get(sid, 0)
         eligible = sessions >= certificate_min_sessions and artifacts >= certificate_min_artifacts
         first_outcome, last_outcome = outcome_windows.get(sid, ("", ""))
+        certificate_issued_at = issued_by_student.get(sid, "")
         writer.writerow(
             {
                 "row_type": "student_outcome_summary",
@@ -681,6 +703,8 @@ def export_class_outcomes_csv(
                 "artifact_submissions": artifacts,
                 "milestones": milestones_by_student.get(sid, 0),
                 "certificate_eligible": "yes" if eligible else "no",
+                "certificate_issued": "yes" if certificate_issued_at else "no",
+                "certificate_issued_at": certificate_issued_at,
                 "first_outcome_at": first_outcome,
                 "last_outcome_at": last_outcome,
                 "certificate_min_sessions": certificate_min_sessions,

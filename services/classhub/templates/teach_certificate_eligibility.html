@@ -80,6 +80,7 @@
                     <th scope="col">Artifacts</th>
                     <th scope="col">Milestones</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Certificate</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -94,6 +95,26 @@
                           <span class="state-pill state-pill--open">Eligible</span>
                         {% else %}
                           <span class="state-pill state-pill--locked">In progress</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if row.certificate_issued %}
+                          <div class="muted mini">
+                            Code <strong>{{ row.certificate_code }}</strong>
+                            {% if row.certificate_issued_at %} · {{ row.certificate_issued_at|date:"M j, Y g:i A" }}{% endif %}
+                          </div>
+                          <a href="/teach/class/{{ classroom.id }}/certificate/{{ row.student_id }}/download">Download</a>
+                        {% elif row.certificate_eligible %}
+                          <span class="muted mini">Not issued</span>
+                        {% else %}
+                          <span class="muted mini">Not eligible</span>
+                        {% endif %}
+                        {% if can_manage and row.certificate_eligible %}
+                          <form method="post" action="/teach/class/{{ classroom.id }}/issue-certificate" class="mini">
+                            {% csrf_token %}
+                            <input type="hidden" name="student_id" value="{{ row.student_id }}" />
+                            <button type="submit">{% if row.certificate_issued %}Re-issue{% else %}Issue{% endif %}</button>
+                          </form>
                         {% endif %}
                       </td>
                     </tr>

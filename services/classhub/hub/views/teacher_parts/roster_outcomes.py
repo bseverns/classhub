@@ -3,7 +3,7 @@
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 
-from ...models import Module, StudentIdentity, StudentOutcomeEvent
+from ...models import CertificateIssuance, Module, StudentIdentity, StudentOutcomeEvent
 from ...services.teacher_roster_class import build_certificate_eligibility_rows
 from .shared_auth import staff_can_manage_classroom, staff_classroom_or_none, staff_member_required
 from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
@@ -28,6 +28,21 @@ def teach_certificate_eligibility(request, class_id: int):
     students = list(classroom.students.only("id", "display_name").order_by("display_name", "id"))
     modules = list(classroom.modules.only("id", "title", "order_index").order_by("order_index", "id"))
     summary = build_certificate_eligibility_rows(classroom=classroom, students=students)
+    issuance_rows = list(
+        CertificateIssuance.objects.filter(classroom=classroom)
+        .only("id", "student_id", "issued_at", "code")
+        .order_by("-issued_at", "-id")
+    )
+    issuance_by_student: dict[int, CertificateIssuance] = {}
+    for issuance in issuance_rows:
+        if issuance.student_id not in issuance_by_student:
+            issuance_by_student[int(issuance.student_id)] = issuance
+    for row in summary.get("rows", []):
+        issuance = issuance_by_student.get(int(row.get("student_id") or 0))
+        row["certificate_issued"] = bool(issuance)
+        row["certificate_code"] = issuance.code if issuance else ""
+        row["certificate_issued_at"] = issuance.issued_at if issuance else None
+
     response = render(
         request,
         "teach_certificate_eligibility.html",
