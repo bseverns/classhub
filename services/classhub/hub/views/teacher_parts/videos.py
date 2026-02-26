@@ -1,6 +1,24 @@
 """Teacher lesson video and asset endpoints."""
 
-from .shared import *  # noqa: F401,F403,F405
+from .shared import (
+    IntegrityError,
+    LessonAsset,
+    LessonAssetFolder,
+    LessonVideo,
+    OperationalError,
+    ProgrammingError,
+    _audit,
+    _lesson_asset_redirect_params,
+    _lesson_video_redirect_params,
+    _next_lesson_video_order,
+    _normalize_optional_slug_tag,
+    _safe_internal_redirect,
+    _title_from_video_filename,
+    build_asset_url,
+    iter_course_lesson_options,
+    render,
+    staff_member_required,
+)
 
 
 @staff_member_required

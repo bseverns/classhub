@@ -18,11 +18,6 @@ WILDCARD_IMPORT_RE = re.compile(r"^\s*from\s+[.\w]+\s+import\s+\*(?:\s+#.*)?$", 
 # Temporary baseline while legacy modules are being split and cleaned.
 ALLOWED_WILDCARD_IMPORT_COUNTS: dict[str, int] = {
     "services/classhub/hub/views/__init__.py": 5,
-    "services/classhub/hub/views/teacher_parts/auth.py": 1,
-    "services/classhub/hub/views/teacher_parts/content.py": 1,
-    "services/classhub/hub/views/teacher_parts/roster_materials.py": 1,
-    "services/classhub/hub/views/teacher_parts/roster_students.py": 1,
-    "services/classhub/hub/views/teacher_parts/videos.py": 1,
 }
 
 

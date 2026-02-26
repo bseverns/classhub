@@ -3,7 +3,21 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
-from .shared import *  # noqa: F401,F403,F405
+from .shared import (
+    Class,
+    HttpResponse,
+    StudentEvent,
+    StudentIdentity,
+    Submission,
+    _audit,
+    _safe_internal_redirect,
+    _teach_class_path,
+    _with_notice,
+    apply_no_store,
+    require_POST,
+    staff_member_required,
+    transaction,
+)
 
 @staff_member_required
 @require_GET

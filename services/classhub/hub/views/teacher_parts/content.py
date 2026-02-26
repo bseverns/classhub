@@ -1,6 +1,14 @@
 """Teacher dashboard, lessons, and authoring template endpoints."""
 
-from .shared import *  # noqa: F401,F403,F405
+from .shared import (
+    Class, FileResponse, HttpResponse, LessonRelease, OperationalError, Path, ProgrammingError, Submission,
+    _AUTHORING_TEMPLATE_SUFFIXES, _TEMPLATE_SLUG_RE, _audit, _authoring_template_output_dir,
+    _build_class_digest_rows, _build_lesson_tracker_rows, _normalize_helper_topics_text,
+    _parse_positive_int, _resolve_authoring_template_download_path, _safe_internal_redirect,
+    _safe_teacher_return_path, _with_notice, apply_download_safety, apply_no_store,
+    generate_authoring_templates, get_user_model, parse_release_date, render, require_POST,
+    safe_attachment_filename, settings, staff_member_required, timedelta, timezone,
+)
 
 
 @staff_member_required

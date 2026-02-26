@@ -1,6 +1,30 @@
 """Teacher module/material/submission endpoints."""
 
-from .shared import *  # noqa: F401,F403,F405
+from .shared import (
+    Class,
+    FileResponse,
+    HttpResponse,
+    Material,
+    Module,
+    Path,
+    Submission,
+    _apply_directional_reorder,
+    _audit,
+    _normalize_order,
+    _safe_internal_redirect,
+    _teach_class_path,
+    _teach_module_path,
+    _temporary_zip_archive,
+    _write_submission_file_to_archive,
+    apply_download_safety,
+    apply_no_store,
+    models,
+    render,
+    require_POST,
+    safe_attachment_filename,
+    safe_filename,
+    staff_member_required,
+)
 
 @staff_member_required
 @require_POST

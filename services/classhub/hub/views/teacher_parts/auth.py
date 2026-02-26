@@ -2,7 +2,13 @@
 
 import re
 
-from .shared import *  # noqa: F401,F403,F405
+from .shared import (
+    AuthenticationForm, TOTPDevice, _audit, _build_teacher_setup_token, _format_base32_for_display,
+    _resolve_teacher_setup_user, _safe_internal_redirect, _safe_teacher_return_path,
+    _send_teacher_onboarding_email, _teacher_2fa_device_name, _totp_qr_svg, _totp_secret_base32,
+    _with_notice, apply_no_store, auth_login, auth_logout, get_user_model, mark_safe, redirect, render,
+    require_POST, settings, staff_member_required, urlencode, urlparse, validate_email,
+)
 
 
 def teach_login(request):
