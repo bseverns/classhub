@@ -8,6 +8,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Auth model: student access](#auth-model-student-access)
 - [Service boundary: Homework Helper separate service](#service-boundary-homework-helper-separate-service)
 - [Helper engine modularization seam](#helper-engine-modularization-seam)
+- [Helper view helper split seam](#helper-view-helper-split-seam)
+- [Helper chat request/deps split seam](#helper-chat-requestdeps-split-seam)
 - [Student join service seam](#student-join-service-seam)
 - [Student home and upload service seam](#student-home-and-upload-service-seam)
 - [Teacher shared helpers split seam](#teacher-shared-helpers-split-seam)
@@ -235,6 +237,29 @@ Historical implementation logs and superseded decisions are archived by month in
 - Reduces change risk by preserving endpoint behavior and test patch targets while creating a clean seam for future streaming/new providers.
 - Makes backend retry/circuit/reference code independently testable without expanding view-layer complexity.
 - Keeps tests focused on runtime behavior while reducing brittle coupling to temporary view compatibility shims.
+
+## Helper view helper split seam
+
+**Current decision:**
+- Keep `/helper/chat` in `tutor/views.py` as the stable endpoint and test patch surface.
+- Move stable helper functions (redaction/env/runtime wrappers, reference loading, conversation memory adapters, helper event detail shaping) into `tutor/views_chat_helpers.py`.
+- Keep patch-sensitive seams in `tutor/views.py` (for example `build_instructions`, `acquire_slot`, `time.sleep`, and auth table/session checks) so existing tests and operational monkeypatch targets remain unchanged.
+
+**Why this remains active:**
+- Reduces `tutor/views.py` size and complexity without forcing a broad test rewrite.
+- Preserves backwards compatibility for current test patch targets while creating a clearer path for future endpoint splits.
+
+## Helper chat request/deps split seam
+
+**Current decision:**
+- Keep `chat` in `tutor/views.py` as the stable HTTP boundary and patch target.
+- Move request-shaping helpers (actor/client derivation, session id loading, rate-limit gate, payload parse) into `tutor/views_chat_request.py`.
+- Move `ChatDeps` wiring into `tutor/views_chat_deps.py`, but pass patch-sensitive callables from `tutor/views.py` (`build_instructions`, reference loaders, backend wrappers) so existing tests keep patching `tutor.views.*`.
+- Move backend/auth runtime internals into `tutor/views_chat_runtime.py`, while keeping compatibility wrappers in `tutor/views.py` (`_actor_key`, `_student_session_exists`, `_call_backend_with_retries`, etc.) so existing patch targets stay stable.
+
+**Why this remains active:**
+- Keeps the endpoint code focused on request/response flow while reducing nested branching inside `chat`.
+- Preserves compatibility with current test monkeypatches and operational seams while continuing the gradual split of `tutor/views.py`.
 
 ## Student join service seam
 

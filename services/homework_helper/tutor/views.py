@@ -1,9 +1,7 @@
-import json
 import logging
 import os
 import time
 from functools import lru_cache
-import re
 
 from django.conf import settings
 from django.core.cache import cache
@@ -19,62 +17,63 @@ from common.request_safety import (
 from django.db import connection, transaction
 
 from .classhub_events import emit_helper_chat_access_event
-from .engine import auth as engine_auth
-from .engine import backends as engine_backends
-from .engine import circuit as engine_circuit
-from .engine import heuristics as engine_heuristics
-from .engine import memory as engine_memory
-from .engine import reference as engine_reference
-from .engine import runtime as engine_runtime
+from .engine import auth as engine_auth  # re-exported patch surface in tests
 from .engine import service as engine_service
 from .policy import build_instructions
 from .queueing import acquire_slot, release_slot
+from .views_chat_deps import DEFAULT_TEXT_LANGUAGE_KEYWORDS, build_chat_deps
+from .views_chat_helpers import (
+    _build_follow_up_suggestions,
+    _build_helper_event_details,
+    _build_piper_hardware_triage_text,
+    _classify_intent,
+    _clear_conversation_turns,
+    _compact_conversation,
+    _conversation_scope_fingerprint,
+    _env_bool,
+    _env_float,
+    _env_int,
+    _format_conversation_for_prompt,
+    _is_piper_context,
+    _is_piper_hardware_question,
+    _json_response,
+    _load_conversation_state,
+    _load_reference_chunks,
+    _load_reference_text,
+    _log_chat_event,
+    _normalize_conversation_id,
+    _redact,
+    _request_id,
+    _save_conversation_state,
+    _truncate_response_text,
+)
+from .views_chat_request import (
+    enforce_rate_limits,
+    load_session_ids,
+    parse_chat_payload,
+    resolve_actor_and_client,
+)
+from .views_chat_runtime import (
+    actor_key as runtime_actor_key,
+    backend_circuit_is_open as runtime_backend_circuit_is_open,
+    call_backend_with_retries as runtime_call_backend_with_retries,
+    invoke_backend as runtime_invoke_backend,
+    load_scope_from_token as runtime_load_scope_from_token,
+    mock_chat as runtime_mock_chat,
+    ollama_chat as runtime_ollama_chat,
+    openai_chat as runtime_openai_chat,
+    record_backend_failure as runtime_record_backend_failure,
+    reset_backend_failure_state as runtime_reset_backend_failure_state,
+    student_session_exists as runtime_student_session_exists,
+    table_exists as runtime_table_exists,
+)
 from .views_reset import reset_class_conversations
 
-DEFAULT_TEXT_LANGUAGE_KEYWORDS = engine_heuristics.DEFAULT_TEXT_LANGUAGE_KEYWORDS
-DEFAULT_PIPER_CONTEXT_KEYWORDS = engine_heuristics.DEFAULT_PIPER_CONTEXT_KEYWORDS
-DEFAULT_PIPER_HARDWARE_KEYWORDS = engine_heuristics.DEFAULT_PIPER_HARDWARE_KEYWORDS
 logger = logging.getLogger(__name__)
-_SAFE_TOKEN_RE = re.compile(r"^[a-z0-9_-]+$")
-
-
-def _redact(text: str) -> str:
-    """Apply lightweight redaction before model invocation/logging."""
-    return engine_runtime.redact(text)
-
-
-def _env_int(name: str, default: int) -> int:
-    return engine_runtime.env_int(name, default, getenv=os.getenv)
-
-
-def _env_float(name: str, default: float) -> float:
-    return engine_runtime.env_float(name, default, getenv=os.getenv)
-
-
-def _env_bool(name: str, default: bool) -> bool:
-    return engine_runtime.env_bool(name, default, getenv=os.getenv)
-
-
-def _request_id(request) -> str:
-    return engine_runtime.request_id(request)
-
-
-def _json_response(payload: dict, *, request_id: str, status: int = 200) -> JsonResponse:
-    return engine_runtime.json_response(payload, request_id_value=request_id, status=status)
-
-
-def _log_chat_event(level: str, event: str, *, request_id: str, **fields):
-    engine_runtime.log_chat_event(
-        level,
-        event,
-        request_id_value=request_id,
-        logger=logger,
-        **fields,
-    )
 
 
 def _backend_circuit_is_open(backend: str) -> bool:
-    return engine_circuit.backend_circuit_is_open(
+    return runtime_backend_circuit_is_open(
         cache_backend=cache,
         backend=backend,
         logger=logger,
@@ -84,7 +83,7 @@ def _backend_circuit_is_open(backend: str) -> bool:
 def _record_backend_failure(backend: str) -> None:
     threshold = max(_env_int("HELPER_CIRCUIT_BREAKER_FAILURES", 5), 1)
     ttl = max(_env_int("HELPER_CIRCUIT_BREAKER_TTL_SECONDS", 30), 1)
-    engine_circuit.record_backend_failure(
+    runtime_record_backend_failure(
         cache_backend=cache,
         backend=backend,
         threshold=threshold,
@@ -94,7 +93,7 @@ def _record_backend_failure(backend: str) -> None:
 
 
 def _reset_backend_failure_state(backend: str) -> None:
-    engine_circuit.reset_backend_failure_state(
+    runtime_reset_backend_failure_state(
         cache_backend=cache,
         backend=backend,
         logger=logger,
@@ -104,7 +103,7 @@ def _reset_backend_failure_state(backend: str) -> None:
 @lru_cache(maxsize=32)
 def _table_exists(table_name: str) -> bool:
     """Best-effort table existence check without raising for missing tables."""
-    return engine_auth.table_exists(
+    return runtime_table_exists(
         connection=connection,
         transaction_module=transaction,
         table_name=table_name,
@@ -113,7 +112,7 @@ def _table_exists(table_name: str) -> bool:
 
 def _student_session_exists(student_id: int, class_id: int) -> bool:
     """Validate student session against shared Class Hub table when available."""
-    return engine_auth.student_session_exists(
+    return runtime_student_session_exists(
         connection=connection,
         transaction_module=transaction,
         settings=settings,
@@ -124,7 +123,7 @@ def _student_session_exists(student_id: int, class_id: int) -> bool:
 
 
 def _actor_key(request) -> str:
-    return engine_auth.actor_key(
+    return runtime_actor_key(
         request=request,
         build_actor_key_fn=build_staff_or_student_actor_key,
         student_session_exists_fn=_student_session_exists,
@@ -132,12 +131,16 @@ def _actor_key(request) -> str:
 
 
 def _load_scope_from_token(scope_token: str, *, max_age_seconds: int) -> dict:
-    return parse_scope_token(scope_token, max_age_seconds=max_age_seconds)
+    return runtime_load_scope_from_token(
+        scope_token=scope_token,
+        max_age_seconds=max_age_seconds,
+        parse_scope_token_fn=parse_scope_token,
+    )
 
 
 def _ollama_chat(base_url: str, model: str, instructions: str, message: str) -> tuple[str, str]:
     """Compatibility shim for existing test patch targets."""
-    return engine_backends.ollama_chat(
+    return runtime_ollama_chat(
         base_url=base_url,
         model=model,
         instructions=instructions,
@@ -151,7 +154,7 @@ def _ollama_chat(base_url: str, model: str, instructions: str, message: str) -> 
 
 def _openai_chat(model: str, instructions: str, message: str) -> tuple[str, str]:
     """Compatibility shim for existing test patch targets."""
-    return engine_backends.openai_chat(
+    return runtime_openai_chat(
         api_key=os.environ.get("OPENAI_API_KEY"),
         model=model,
         instructions=instructions,
@@ -162,48 +165,23 @@ def _openai_chat(model: str, instructions: str, message: str) -> tuple[str, str]
 
 def _mock_chat() -> tuple[str, str]:
     """Compatibility shim for existing test patch targets."""
-    return engine_backends.mock_chat(text=os.getenv("HELPER_MOCK_RESPONSE_TEXT", ""))
-
-
-def _truncate_response_text(text: str) -> tuple[str, bool]:
-    return engine_heuristics.truncate_response_text(
-        text,
-        max_chars=_env_int("HELPER_RESPONSE_MAX_CHARS", 2200),
-    )
+    return runtime_mock_chat(text=os.getenv("HELPER_MOCK_RESPONSE_TEXT", ""))
 
 
 def _invoke_backend(backend: str, instructions: str, message: str) -> tuple[str, str]:
-    registry = {
-        "ollama": engine_backends.CallableBackend(
-            chat_fn=lambda system_instructions, user_message: _ollama_chat(
-                os.getenv("OLLAMA_BASE_URL", "http://ollama:11434"),
-                os.getenv("OLLAMA_MODEL", "llama3.2:1b"),
-                system_instructions,
-                user_message,
-            )
-        ),
-        "openai": engine_backends.CallableBackend(
-            chat_fn=lambda system_instructions, user_message: _openai_chat(
-                os.getenv("OPENAI_MODEL", "gpt-5.2"),
-                system_instructions,
-                user_message,
-            )
-        ),
-        "mock": engine_backends.CallableBackend(
-            chat_fn=lambda _system_instructions, _user_message: _mock_chat()
-        ),
-    }
-    return engine_backends.invoke_backend(
-        backend,
+    return runtime_invoke_backend(
+        backend=backend,
         instructions=instructions,
         message=message,
-        registry=registry,
+        ollama_chat_fn=_ollama_chat,
+        openai_chat_fn=_openai_chat,
+        mock_chat_fn=_mock_chat,
     )
 
 
 def _call_backend_with_retries(backend: str, instructions: str, message: str) -> tuple[str, str, int]:
-    return engine_backends.call_backend_with_retries(
-        backend,
+    return runtime_call_backend_with_retries(
+        backend=backend,
         instructions=instructions,
         message=message,
         invoke_backend_fn=lambda backend_name, system_instructions, user_message: _invoke_backend(
@@ -217,178 +195,6 @@ def _call_backend_with_retries(backend: str, instructions: str, message: str) ->
     )
 
 
-def _is_piper_context(context_value: str, topics: list[str], reference_text: str, reference_key: str = "") -> bool:
-    context_keywords = engine_heuristics.parse_csv_list(os.getenv("HELPER_PIPER_CONTEXT_KEYWORDS", ""))
-    keywords = context_keywords or DEFAULT_PIPER_CONTEXT_KEYWORDS
-    return engine_heuristics.is_piper_context(
-        context_value,
-        topics,
-        reference_text,
-        reference_key=reference_key,
-        keywords=keywords,
-    )
-
-
-def _is_piper_hardware_question(message: str) -> bool:
-    hardware_keywords = engine_heuristics.parse_csv_list(os.getenv("HELPER_PIPER_HARDWARE_KEYWORDS", ""))
-    keywords = hardware_keywords or DEFAULT_PIPER_HARDWARE_KEYWORDS
-    return engine_heuristics.is_piper_hardware_question(message, keywords=keywords)
-
-
-def _build_piper_hardware_triage_text(message: str) -> str:
-    return engine_heuristics.build_piper_hardware_triage_text(message)
-
-
-@lru_cache(maxsize=4)
-def _load_reference_chunks(path_str: str) -> tuple[str, ...]:
-    return engine_reference.load_reference_chunks(path_str, logger=logger)
-
-
-@lru_cache(maxsize=4)
-def _load_reference_text(path_str: str) -> str:
-    return engine_reference.load_reference_text(path_str, logger=logger)
-
-
-def _normalize_conversation_id(raw: str) -> str:
-    return engine_memory.normalize_conversation_id(raw)
-
-
-def _conversation_scope_fingerprint(scope_token: str) -> str:
-    return engine_memory.scope_fingerprint(scope_token)
-
-
-def _load_conversation_state(*, conversation_id: str, actor_key: str, scope_fingerprint: str, max_messages: int) -> dict:
-    key = engine_memory.conversation_cache_key(
-        actor_key=actor_key,
-        scope_fp=scope_fingerprint,
-        conversation_id=conversation_id,
-    )
-    return engine_memory.load_state(
-        cache_backend=cache,
-        key=key,
-        max_messages=max_messages,
-    )
-
-
-def _save_conversation_state(
-    *,
-    conversation_id: str,
-    actor_key: str,
-    scope_fingerprint: str,
-    turns: list[dict],
-    summary: str,
-    ttl_seconds: int,
-) -> None:
-    key = engine_memory.conversation_cache_key(
-        actor_key=actor_key,
-        scope_fp=scope_fingerprint,
-        conversation_id=conversation_id,
-    )
-    engine_memory.save_state(
-        cache_backend=cache,
-        key=key,
-        turns=turns,
-        summary=summary,
-        ttl_seconds=ttl_seconds,
-        actor_key=actor_key,
-    )
-
-
-def _clear_conversation_turns(*, conversation_id: str, actor_key: str, scope_fingerprint: str) -> None:
-    key = engine_memory.conversation_cache_key(
-        actor_key=actor_key,
-        scope_fp=scope_fingerprint,
-        conversation_id=conversation_id,
-    )
-    engine_memory.clear_turns(
-        cache_backend=cache,
-        key=key,
-    )
-
-
-def _format_conversation_for_prompt(turns: list[dict], *, max_chars: int, summary: str = "") -> str:
-    return engine_memory.format_turns_for_prompt(turns=turns, max_chars=max_chars, summary=summary)
-
-
-def _compact_conversation(*, turns: list[dict], max_messages: int, summary: str, summary_max_chars: int) -> tuple[str, list[dict], bool]:
-    return engine_memory.compact_turns(
-        turns=turns,
-        max_messages=max_messages,
-        summary=summary,
-        summary_max_chars=summary_max_chars,
-    )
-
-
-def _classify_intent(message: str) -> str:
-    return engine_heuristics.classify_intent(message)
-
-
-def _build_follow_up_suggestions(
-    *,
-    intent: str,
-    context: str,
-    topics: list[str],
-    allowed_topics: list[str],
-    history_summary: str = "",
-    max_items: int = 3,
-) -> list[str]:
-    return engine_heuristics.build_follow_up_suggestions(
-        intent=intent,
-        context=context,
-        topics=topics,
-        allowed_topics=allowed_topics,
-        history_summary=history_summary,
-        max_items=max_items,
-    )
-
-
-def _build_helper_event_details(*, response, request_id: str, actor_type: str, backend: str) -> dict:
-    details: dict = {
-        "request_id": request_id,
-        "actor_type": actor_type,
-    }
-    backend_token = str(backend or "").strip().lower()
-    if backend_token and _SAFE_TOKEN_RE.fullmatch(backend_token):
-        details["backend"] = backend_token
-
-    try:
-        payload = json.loads(response.content.decode("utf-8"))
-    except Exception:
-        return details
-    if not isinstance(payload, dict):
-        return details
-
-    backend_value = str(payload.get("backend") or "").strip().lower()
-    if backend_value and _SAFE_TOKEN_RE.fullmatch(backend_value):
-        details["backend"] = backend_value
-
-    intent = str(payload.get("intent") or "").strip().lower()
-    if intent and _SAFE_TOKEN_RE.fullmatch(intent):
-        details["intent"] = intent
-
-    if "scope_verified" in payload:
-        details["scope_verified"] = bool(payload.get("scope_verified"))
-    if "truncated" in payload:
-        details["truncated"] = bool(payload.get("truncated"))
-    if "conversation_compacted" in payload:
-        details["conversation_compacted"] = bool(payload.get("conversation_compacted"))
-
-    attempts_raw = payload.get("attempts")
-    try:
-        attempts = int(attempts_raw)
-    except Exception:
-        attempts = None
-    if attempts is not None and attempts >= 0:
-        details["attempts"] = attempts
-
-    follow_up_suggestions = payload.get("follow_up_suggestions")
-    if isinstance(follow_up_suggestions, list):
-        valid_suggestions = [row for row in follow_up_suggestions if str(row or "").strip()]
-        details["follow_up_suggestions_count"] = len(valid_suggestions)
-
-    return details
-
-
 @require_GET
 def healthz(request):
     backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
@@ -400,27 +206,19 @@ def chat(request):
     """POST /helper/chat"""
     started_at = time.monotonic()
     request_id = _request_id(request)
-    actor = _actor_key(request)
-    actor_type = actor.split(":", 1)[0] if actor else "anonymous"
-    backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
-    client_ip = client_ip_from_request(
-        request,
-        trust_proxy_headers=getattr(settings, "REQUEST_SAFETY_TRUST_PROXY_HEADERS", False),
-        xff_index=getattr(settings, "REQUEST_SAFETY_XFF_INDEX", 0),
+    actor, actor_type, client_ip = resolve_actor_and_client(
+        request=request,
+        actor_key_fn=_actor_key,
+        settings=settings,
+        client_ip_from_request_fn=client_ip_from_request,
     )
+    backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
 
     if not actor:
         _log_chat_event("warning", "unauthorized", request_id=request_id, actor_type=actor_type, ip=client_ip)
         return _json_response({"error": "unauthorized"}, status=401, request_id=request_id)
 
-    try:
-        classroom_id = int(request.session.get("class_id") or 0)
-    except Exception:
-        classroom_id = 0
-    try:
-        student_id = int(request.session.get("student_id") or 0)
-    except Exception:
-        student_id = 0
+    classroom_id, student_id = load_session_ids(request)
 
     def _emit_helper_event(response) -> None:
         emit_helper_chat_access_event(
@@ -437,79 +235,65 @@ def chat(request):
 
     actor_limit = _env_int("HELPER_RATE_LIMIT_PER_MINUTE", 30)
     ip_limit = _env_int("HELPER_RATE_LIMIT_PER_IP_PER_MINUTE", 90)
-    if not fixed_window_allow(
-        f"rl:actor:{actor}:m",
-        limit=actor_limit,
-        window_seconds=60,
-        cache_backend=cache,
+    rate_limit_response = enforce_rate_limits(
+        actor=actor,
+        actor_type=actor_type,
+        client_ip=client_ip,
         request_id=request_id,
-    ):
-        _log_chat_event("warning", "rate_limited_actor", request_id=request_id, actor_type=actor_type, ip=client_ip)
-        response = _json_response({"error": "rate_limited"}, status=429, request_id=request_id)
-        _emit_helper_event(response)
-        return response
-    if not fixed_window_allow(
-        f"rl:ip:{client_ip}:m",
-        limit=ip_limit,
-        window_seconds=60,
+        actor_limit=actor_limit,
+        ip_limit=ip_limit,
+        fixed_window_allow_fn=fixed_window_allow,
         cache_backend=cache,
+        log_chat_event_fn=_log_chat_event,
+        json_response_fn=_json_response,
+    )
+    if rate_limit_response is not None:
+        _emit_helper_event(rate_limit_response)
+        return rate_limit_response
+
+    payload, bad_payload_response = parse_chat_payload(
+        request_body=request.body,
         request_id=request_id,
-    ):
-        _log_chat_event("warning", "rate_limited_ip", request_id=request_id, actor_type=actor_type, ip=client_ip)
-        response = _json_response({"error": "rate_limited"}, status=429, request_id=request_id)
+        actor_type=actor_type,
+        client_ip=client_ip,
+        log_chat_event_fn=_log_chat_event,
+        json_response_fn=_json_response,
+    )
+    if bad_payload_response is not None:
+        response = bad_payload_response
         _emit_helper_event(response)
         return response
 
-    try:
-        payload = json.loads(request.body.decode("utf-8"))
-    except Exception:
-        _log_chat_event("warning", "bad_json", request_id=request_id, actor_type=actor_type, ip=client_ip)
-        response = _json_response({"error": "bad_json"}, status=400, request_id=request_id)
-        _emit_helper_event(response)
-        return response
-    if not isinstance(payload, dict):
-        _log_chat_event("warning", "bad_json", request_id=request_id, actor_type=actor_type, ip=client_ip)
-        response = _json_response({"error": "bad_json"}, status=400, request_id=request_id)
-        _emit_helper_event(response)
-        return response
-
-    deps = engine_service.ChatDeps(
-        json_response=_json_response,
-        log_chat_event=_log_chat_event,
-        env_int=_env_int,
-        env_float=_env_float,
-        env_bool=_env_bool,
-        redact=_redact,
-        load_scope_from_token=_load_scope_from_token,
-        resolve_reference_file=engine_reference.resolve_reference_file,
-        load_reference_text=_load_reference_text,
-        load_reference_chunks=_load_reference_chunks,
-        build_reference_citations=engine_reference.build_reference_citations,
-        format_reference_citations_for_prompt=engine_reference.format_reference_citations_for_prompt,
-        parse_csv_list=engine_heuristics.parse_csv_list,
-        contains_text_language=engine_heuristics.contains_text_language,
-        is_scratch_context=engine_heuristics.is_scratch_context,
-        is_piper_context=_is_piper_context,
-        is_piper_hardware_question=_is_piper_hardware_question,
-        build_piper_hardware_triage_text=_build_piper_hardware_triage_text,
-        allowed_topic_overlap=engine_heuristics.allowed_topic_overlap,
-        build_instructions=build_instructions,
-        backend_circuit_is_open=_backend_circuit_is_open,
-        call_backend_with_retries=_call_backend_with_retries,
-        record_backend_failure=_record_backend_failure,
-        reset_backend_failure_state=_reset_backend_failure_state,
-        acquire_slot=acquire_slot,
-        release_slot=release_slot,
-        truncate_response_text=_truncate_response_text,
-        normalize_conversation_id=_normalize_conversation_id,
-        scope_fingerprint=_conversation_scope_fingerprint,
-        load_conversation_state=_load_conversation_state,
-        save_conversation_state=_save_conversation_state,
-        compact_conversation=_compact_conversation,
-        clear_conversation_turns=_clear_conversation_turns,
-        format_conversation_for_prompt=_format_conversation_for_prompt,
-        classify_intent=_classify_intent,
-        build_follow_up_suggestions=_build_follow_up_suggestions,
+    deps = build_chat_deps(
+        json_response_fn=_json_response,
+        log_chat_event_fn=_log_chat_event,
+        env_int_fn=_env_int,
+        env_float_fn=_env_float,
+        env_bool_fn=_env_bool,
+        redact_fn=_redact,
+        load_scope_from_token_fn=_load_scope_from_token,
+        load_reference_text_fn=_load_reference_text,
+        load_reference_chunks_fn=_load_reference_chunks,
+        is_piper_context_fn=_is_piper_context,
+        is_piper_hardware_question_fn=_is_piper_hardware_question,
+        build_piper_hardware_triage_text_fn=_build_piper_hardware_triage_text,
+        build_instructions_fn=build_instructions,
+        backend_circuit_is_open_fn=_backend_circuit_is_open,
+        call_backend_with_retries_fn=_call_backend_with_retries,
+        record_backend_failure_fn=_record_backend_failure,
+        reset_backend_failure_state_fn=_reset_backend_failure_state,
+        acquire_slot_fn=acquire_slot,
+        release_slot_fn=release_slot,
+        truncate_response_text_fn=_truncate_response_text,
+        normalize_conversation_id_fn=_normalize_conversation_id,
+        scope_fingerprint_fn=_conversation_scope_fingerprint,
+        load_conversation_state_fn=_load_conversation_state,
+        save_conversation_state_fn=_save_conversation_state,
+        compact_conversation_fn=_compact_conversation,
+        clear_conversation_turns_fn=_clear_conversation_turns,
+        format_conversation_for_prompt_fn=_format_conversation_for_prompt,
+        classify_intent_fn=_classify_intent,
+        build_follow_up_suggestions_fn=_build_follow_up_suggestions,
     )
     response = engine_service.handle_chat(
         request=request,
