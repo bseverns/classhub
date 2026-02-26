@@ -42,7 +42,7 @@
 		}
 
 		handle_path /upstream-healthz {
-			@upstream_healthz_exposed expression `{env.CADDY_EXPOSE_UPSTREAM_HEALTHZ:1} == "1"`
+			@upstream_healthz_exposed expression `{env.CADDY_EXPOSE_UPSTREAM_HEALTHZ} == "1"`
 			handle @upstream_healthz_exposed {
 				reverse_proxy classhub_web:8000
 			}
