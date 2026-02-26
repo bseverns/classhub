@@ -188,7 +188,6 @@
                         {% elif items %}
                           <form method="post" action="/material/{{ mat.id }}/checklist" class="checklist-form">
                             {% csrf_token %}
-                            <input type="hidden" name="return_to" value="/student" />
                             {% for item in items %}
                               <label class="checklist-item-row">
                                 <input
@@ -226,7 +225,6 @@
                           {% endif %}
                           <form method="post" action="/material/{{ mat.id }}/reflection" class="reflection-form">
                             {% csrf_token %}
-                            <input type="hidden" name="return_to" value="/student" />
                             <label for="reflection-{{ mat.id }}" class="muted">Your private reflection</label>
                             <textarea id="reflection-{{ mat.id }}" name="reflection_text" rows="5" placeholder="Write a short reflection.">{{ state.reflection_text|default:'' }}</textarea>
                             <button type="submit">Save reflection</button>
@@ -250,7 +248,6 @@
                         {% elif spec and spec.criteria %}
                           <form method="post" action="/material/{{ mat.id }}/rubric" class="reflection-form">
                             {% csrf_token %}
-                            <input type="hidden" name="return_to" value="/student" />
                             <div class="muted">Rate each criterion from 1 to {{ spec.scale_max }}.</div>
                             {% for criterion in spec.criteria %}
                               {% with criterion_index=forloop.counter0 selected_score=state.rubric_scores|get_item:forloop.counter0 %}

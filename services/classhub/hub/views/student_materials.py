@@ -12,13 +12,6 @@ from ..services.student_home import build_material_access_map, parse_checklist_i
 logger = logging.getLogger(__name__)
 
 
-def _safe_student_return_path(request, fallback: str = "/student") -> str:
-    candidate = (request.POST.get("return_to") or request.GET.get("return_to") or "").strip()
-    if candidate.startswith("/") and not candidate.startswith("//"):
-        return candidate
-    return fallback
-
-
 def _resolve_material_with_lock_check(request, *, material_id: int, expected_type: str):
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
         return None, redirect("/")
@@ -97,7 +90,7 @@ def material_checklist(request, material_id: int):
             trigger="checklist_completed",
             source="classhub.material_checklist",
         )
-    return redirect(_safe_student_return_path(request))
+    return redirect("/student")
 
 
 @require_POST
@@ -128,7 +121,7 @@ def material_reflection(request, material_id: int):
             trigger="reflection_submitted",
             source="classhub.material_reflection",
         )
-    return redirect(_safe_student_return_path(request))
+    return redirect("/student")
 
 
 @require_POST
@@ -176,7 +169,7 @@ def material_rubric(request, material_id: int):
             trigger="rubric_submitted",
             source="classhub.material_rubric",
         )
-    return redirect(_safe_student_return_path(request))
+    return redirect("/student")
 
 
 __all__ = [
