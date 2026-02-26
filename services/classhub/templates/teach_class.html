@@ -24,11 +24,24 @@
               <button type="button" class="inline-copy" data-copy-value="{{ classroom.join_code }}">Copy</button>
               · <a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">Printable join card</a>
               · Students {{ student_count }}
-              · Status {% if classroom.is_locked %}<span class="state-pill state-pill--locked">Locked</span>{% else %}<span class="state-pill state-pill--open">Open</span>{% endif %}
+              · Join flow {% if classroom.enrollment_mode == 'open' %}<span class="state-pill state-pill--open">Open</span>{% elif classroom.enrollment_mode == 'invite_only' %}<span class="state-pill state-pill--locked">Invite only</span>{% else %}<span class="state-pill state-pill--locked">Closed</span>{% endif %}
+              · Class {% if classroom.is_locked %}<span class="state-pill state-pill--locked">Locked</span>{% else %}<span class="state-pill state-pill--open">Unlocked</span>{% endif %}
             </div>
             <div id="copy-status" class="muted copy-status" role="status" aria-live="polite"></div>
           </div>
           <div class="btnline">
+            <form method="post" action="/teach/class/{{ classroom.id }}/set-enrollment-mode">
+              {% csrf_token %}
+              <label>
+                <span class="visually-hidden">Enrollment mode</span>
+                <select name="enrollment_mode">
+                  <option value="open" {% if classroom.enrollment_mode == 'open' %}selected{% endif %}>Open</option>
+                  <option value="invite_only" {% if classroom.enrollment_mode == 'invite_only' %}selected{% endif %}>Invite only</option>
+                  <option value="closed" {% if classroom.enrollment_mode == 'closed' %}selected{% endif %}>Closed</option>
+                </select>
+              </label>
+              <button type="submit">Set enrollment</button>
+            </form>
             <form method="post" action="/teach/class/{{ classroom.id }}/toggle-lock">
               {% csrf_token %}
               <button type="submit">{% if classroom.is_locked %}Unlock{% else %}Lock{% endif %}</button>

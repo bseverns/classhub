@@ -49,6 +49,15 @@ class Class(models.Model):
     - `is_locked=True` temporarily blocks new student joins.
     """
 
+    ENROLLMENT_OPEN = "open"
+    ENROLLMENT_INVITE_ONLY = "invite_only"
+    ENROLLMENT_CLOSED = "closed"
+    ENROLLMENT_MODE_CHOICES = [
+        (ENROLLMENT_OPEN, "Open"),
+        (ENROLLMENT_INVITE_ONLY, "Invite only"),
+        (ENROLLMENT_CLOSED, "Closed"),
+    ]
+
     organization = models.ForeignKey(
         "Organization",
         on_delete=models.SET_NULL,
@@ -58,6 +67,11 @@ class Class(models.Model):
     )
     name = models.CharField(max_length=200)
     join_code = models.CharField(max_length=16, unique=True, default=gen_class_code)
+    enrollment_mode = models.CharField(
+        max_length=20,
+        choices=ENROLLMENT_MODE_CHOICES,
+        default=ENROLLMENT_OPEN,
+    )
     is_locked = models.BooleanField(default=False)
     # Increment to invalidate active student sessions without rotating database IDs.
     session_epoch = models.PositiveIntegerField(default=1)

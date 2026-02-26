@@ -288,6 +288,98 @@ class JoinClassTests(TestCase):
         invite.refresh_from_db()
         self.assertEqual(invite.use_count, 1)
 
+    def test_join_by_class_code_is_blocked_when_invite_only_enrollment(self):
+        self.classroom.enrollment_mode = Class.ENROLLMENT_INVITE_ONLY
+        self.classroom.save(update_fields=["enrollment_mode"])
+
+        resp = self.client.post(
+            "/join",
+            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "Ada"}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.json().get("error"), "invite_required")
+        self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 0)
+
+    def test_join_by_invite_is_allowed_when_invite_only_enrollment(self):
+        self.classroom.enrollment_mode = Class.ENROLLMENT_INVITE_ONLY
+        self.classroom.save(update_fields=["enrollment_mode"])
+        invite = ClassInviteLink.objects.create(classroom=self.classroom, label="Invite only cohort")
+
+        resp = self.client.post(
+            "/join",
+            data=json.dumps({"display_name": "Ada", "invite_token": invite.token}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(self.client.session.get("class_id"), self.classroom.id)
+
+    def test_join_is_blocked_when_enrollment_closed_even_with_invite(self):
+        self.classroom.enrollment_mode = Class.ENROLLMENT_CLOSED
+        self.classroom.save(update_fields=["enrollment_mode"])
+        invite = ClassInviteLink.objects.create(classroom=self.classroom, label="Closed cohort")
+
+        resp = self.client.post(
+            "/join",
+            data=json.dumps({"display_name": "Ada", "invite_token": invite.token}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.json().get("error"), "class_enrollment_closed")
+        self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 0)
+
+    def test_join_rejoin_with_return_code_allowed_when_enrollment_closed(self):
+        first = self.client.post(
+            "/join",
+            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "Ada"}),
+            content_type="application/json",
+        )
+        self.assertEqual(first.status_code, 200)
+        return_code = first.json().get("return_code")
+        self.client.get("/logout")
+        self.classroom.enrollment_mode = Class.ENROLLMENT_CLOSED
+        self.classroom.save(update_fields=["enrollment_mode"])
+
+        second = self.client.post(
+            "/join",
+            data=json.dumps(
+                {
+                    "class_code": self.classroom.join_code,
+                    "display_name": "Ada",
+                    "return_code": return_code,
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertTrue(second.json().get("rejoined"))
+
+    def test_join_rejoin_with_return_code_allowed_when_invite_only(self):
+        first = self.client.post(
+            "/join",
+            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "Ada"}),
+            content_type="application/json",
+        )
+        self.assertEqual(first.status_code, 200)
+        return_code = first.json().get("return_code")
+        self.client.get("/logout")
+        self.classroom.enrollment_mode = Class.ENROLLMENT_INVITE_ONLY
+        self.classroom.save(update_fields=["enrollment_mode"])
+
+        second = self.client.post(
+            "/join",
+            data=json.dumps(
+                {
+                    "class_code": self.classroom.join_code,
+                    "display_name": "Ada",
+                    "return_code": return_code,
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertTrue(second.json().get("rejoined"))
+
 
 class TeacherAuditTests(TestCase):
     def setUp(self):

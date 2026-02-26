@@ -66,6 +66,8 @@
         if (errorCode === "invalid_code") return showErr("That class code is not recognized.");
         if (errorCode === "invalid_return_code") return showErr("That return code is not valid for this class.");
         if (errorCode === "class_locked") return showErr("This class is locked right now.");
+        if (errorCode === "class_enrollment_closed") return showErr("Enrollment for this class is closed.");
+        if (errorCode === "invite_required") return showErr("This class accepts joins by invite link only.");
         if (errorCode === "missing_fields") return showErr("Please enter a class code and your name.");
         if (errorCode === "invite_invalid") return showErr("That invite link is not valid.");
         if (errorCode === "invite_inactive") return showErr("That invite link is disabled.");

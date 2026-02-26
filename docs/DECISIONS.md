@@ -7,6 +7,7 @@ Historical implementation logs and superseded decisions are archived by month in
 
 - [Auth model: student access](#auth-model-student-access)
 - [Organization boundary and staff roles](#organization-boundary-and-staff-roles)
+- [Paid cohort enrollment controls](#paid-cohort-enrollment-controls)
 - [Service boundary: Homework Helper separate service](#service-boundary-homework-helper-separate-service)
 - [Helper engine modularization seam](#helper-engine-modularization-seam)
 - [Helper view helper split seam](#helper-view-helper-split-seam)
@@ -118,6 +119,20 @@ Historical implementation logs and superseded decisions are archived by month in
 - Establishes a concrete multi-program boundary without forcing a one-shot data migration.
 - Preserves backward compatibility for existing single-tenant deployments.
 - Provides a clear path to paid cohort partitioning and partner-org separation.
+
+## Paid cohort enrollment controls
+
+**Current decision:**
+- Each class has explicit `enrollment_mode`:
+  - `open`: class code and invite links both accepted.
+  - `invite_only`: only invite links can join.
+  - `closed`: all new joins blocked.
+- Teacher class dashboard now exposes an enrollment-mode control at class scope.
+- Invite links remain optional and can still enforce expiry + seat caps.
+
+**Why this remains active:**
+- Supports paid cohort windows without forcing student login friction.
+- Lets staff close enrollment cleanly while preserving active roster/session operations.
 
 ## Admin access 2FA
 

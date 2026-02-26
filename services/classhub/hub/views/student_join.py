@@ -156,6 +156,12 @@ def _complete_join_transaction(
         except JoinValidationError as exc:
             return None, classroom, invite, False, "", exc.code, 400
 
+        if join_result.join_mode == "new":
+            if classroom.enrollment_mode == Class.ENROLLMENT_CLOSED:
+                return None, classroom, invite, False, "", "class_enrollment_closed", 403
+            if classroom.enrollment_mode == Class.ENROLLMENT_INVITE_ONLY and invite is None:
+                return None, classroom, invite, False, "", "invite_required", 403
+
         if invite is not None:
             now = timezone.now()
             if join_result.join_mode == "new":

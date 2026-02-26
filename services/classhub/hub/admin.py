@@ -34,9 +34,9 @@ class OrganizationMembershipAdmin(admin.ModelAdmin):
 
 @admin.register(Class)
 class ClassAdmin(admin.ModelAdmin):
-    list_display = ("name", "organization", "join_code", "is_locked")
+    list_display = ("name", "organization", "join_code", "enrollment_mode", "is_locked")
     search_fields = ("name", "join_code", "organization__name")
-    list_filter = ("organization", "is_locked")
+    list_filter = ("organization", "enrollment_mode", "is_locked")
 
 @admin.register(Module)
 class ModuleAdmin(admin.ModelAdmin):

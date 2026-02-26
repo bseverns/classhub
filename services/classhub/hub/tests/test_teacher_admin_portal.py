@@ -263,6 +263,22 @@ class TeacherPortalTests(TestCase):
         self.assertTrue(invite.is_active)
         self.assertIsNotNone(invite.expires_at)
 
+    def test_teach_class_can_set_enrollment_mode(self):
+        classroom = Class.objects.create(name="Paid Cohort", join_code="ENR12345")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/set-enrollment-mode",
+            {"enrollment_mode": "invite_only"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        classroom.refresh_from_db()
+        self.assertEqual(classroom.enrollment_mode, Class.ENROLLMENT_INVITE_ONLY)
+        event = AuditEvent.objects.filter(action="class.set_enrollment_mode").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.classroom_id, classroom.id)
+        self.assertEqual(event.metadata.get("enrollment_mode"), Class.ENROLLMENT_INVITE_ONLY)
+
     def test_teach_class_export_summary_csv_contains_class_student_and_lesson_rows(self):
         classroom, upload = self._build_lesson_with_submission()
         student = StudentIdentity.objects.filter(classroom=classroom, display_name="Ada").first()
@@ -848,6 +864,17 @@ class TeacherOrganizationAccessTests(TestCase):
         membership.save(update_fields=["role"])
 
         resp = self.client.post(f"/teach/class/{self.class_a.id}/toggle-lock")
+        self.assertEqual(resp.status_code, 403)
+
+    def test_viewer_membership_cannot_set_enrollment_mode(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_VIEWER
+        membership.save(update_fields=["role"])
+
+        resp = self.client.post(
+            f"/teach/class/{self.class_a.id}/set-enrollment-mode",
+            {"enrollment_mode": "closed"},
+        )
         self.assertEqual(resp.status_code, 403)
 
     def test_create_class_assigns_default_org_for_membership_staff(self):

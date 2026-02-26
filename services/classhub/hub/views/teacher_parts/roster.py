@@ -15,6 +15,7 @@ from .roster_invites import (
     teach_create_invite_link,
     teach_disable_invite_link,
     teach_export_class_summary_csv,
+    teach_set_enrollment_mode,
 )
 from .roster_materials import (
     teach_add_material,
@@ -37,6 +38,7 @@ __all__ = [
     "teach_class_join_card",
     "teach_create_invite_link",
     "teach_disable_invite_link",
+    "teach_set_enrollment_mode",
     "teach_student_return_code",
     "teach_rename_student",
     "teach_merge_students",
