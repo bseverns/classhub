@@ -673,6 +673,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Teacher digest/tracker logic now runs via `hub/services/teacher_tracker.py`, with a thin compatibility wrapper in `views/teacher_parts/shared_tracker.py`.
 - Helper topic/default parsing now runs via `hub/services/helper_topics.py` and is shared by both lesson rendering and teacher tracker services.
 - Lesson tracker service now requires prefetched module materials (`prefetch_related("materials")`) to prevent accidental N+1 query regressions.
+- Teacher tracker payload contracts are now explicit via `hub/services/teacher_tracker_types.py` (`TypedDict` shapes for digest rows, lesson rows, and helper signal snapshots).
 - Join/upload flows use explicit service facades:
   - `hub/services/join_flow_service.py`
   - `hub/services/submission_service.py`

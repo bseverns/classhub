@@ -18,6 +18,15 @@ from .content_links import parse_course_lesson_url
 from .helper_topics import build_allowed_topics, build_lesson_topics
 from .markdown_content import load_lesson_markdown, load_teacher_material_html
 from .release_state import lesson_release_override_map, lesson_release_state
+from .teacher_tracker_types import (
+    ClassDigestRow,
+    HelperSignalIntentRow,
+    HelperSignalSnapshot,
+    HelperSignalStudentRow,
+    LessonTrackerDropboxRow,
+    LessonTrackerHelperDefaults,
+    LessonTrackerRow,
+)
 
 _SAFE_INTENT_RE = re.compile(r"^[a-z0-9_-]{1,32}$")
 
@@ -51,7 +60,7 @@ def _material_latest_upload_map(material_ids: list[int]) -> dict[int, timezone.d
     return latest
 
 
-def _build_class_digest_rows(classes: list[Class], *, since: timezone.datetime) -> list[dict]:
+def _build_class_digest_rows(classes: list[Class], *, since: timezone.datetime) -> list[ClassDigestRow]:
     class_ids = [int(c.id) for c in classes if c and c.id]
     if not class_ids:
         return []
@@ -115,7 +124,7 @@ def _build_class_digest_rows(classes: list[Class], *, since: timezone.datetime) 
         class_id = int(row["material__module__classroom_id"])
         last_submission_at[class_id] = row["last_uploaded_at"]
 
-    rows: list[dict] = []
+    rows: list[ClassDigestRow] = []
     for classroom in classes:
         classroom_id = int(classroom.id)
         student_total = int(student_totals.get(classroom_id, 0))
@@ -149,7 +158,7 @@ def _build_helper_signal_snapshot(
     students: list[StudentIdentity],
     window_hours: int = 24,
     top_students: int = 5,
-) -> dict:
+) -> HelperSignalSnapshot:
     window_hours = max(int(window_hours), 1)
     top_students = max(int(top_students), 1)
     since = timezone.now() - timedelta(hours=window_hours)
@@ -199,13 +208,13 @@ def _build_helper_signal_snapshot(
             intent_bucket: dict[str, int] = bucket["intent_counts"]
             intent_bucket[intent] = intent_bucket.get(intent, 0) + 1
 
-    intent_rows = [
+    intent_rows: list[HelperSignalIntentRow] = [
         {"intent": intent, "count": count}
         for intent, count in sorted(intent_counts.items(), key=lambda item: (-item[1], item[0]))
     ]
 
     names_by_student_id = {int(st.id): st.display_name for st in students if getattr(st, "id", None)}
-    busiest_students: list[dict] = []
+    busiest_students: list[HelperSignalStudentRow] = []
     for student_id, bucket in student_counts.items():
         intent_bucket: dict[str, int] = bucket.get("intent_counts") or {}
         if intent_bucket:
@@ -238,14 +247,16 @@ def _build_helper_signal_snapshot(
     }
 
 
-def _build_lesson_tracker_rows(request, classroom_id: int, modules: list[Module], student_count: int) -> list[dict]:
-    rows: list[dict] = []
+def _build_lesson_tracker_rows(
+    request, classroom_id: int, modules: list[Module], student_count: int
+) -> list[LessonTrackerRow]:
+    rows: list[LessonTrackerRow] = []
     upload_material_ids = []
     module_materials_map: dict[int, list[Material]] = {}
     teacher_material_html_by_lesson: dict[tuple[str, str], str] = {}
     lesson_title_by_lesson: dict[tuple[str, str], str] = {}
     lesson_release_by_lesson: dict[tuple[str, str], dict] = {}
-    helper_defaults_by_lesson: dict[tuple[str, str], dict] = {}
+    helper_defaults_by_lesson: dict[tuple[str, str], LessonTrackerHelperDefaults] = {}
     release_override_map = lesson_release_override_map(classroom_id)
 
     for module in modules:
@@ -266,7 +277,7 @@ def _build_lesson_tracker_rows(request, classroom_id: int, modules: list[Module]
 
     for module in modules:
         mats = module_materials_map.get(module.id, [])
-        dropboxes = []
+        dropboxes: list[LessonTrackerDropboxRow] = []
         for mat in mats:
             if mat.type != Material.TYPE_UPLOAD:
                 continue
