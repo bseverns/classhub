@@ -270,6 +270,10 @@ Historical implementation logs and superseded decisions are archived by month in
 - Replace single-file `tutor/tests.py` with package-based tests under `tutor/tests/`.
 - Split by feature area:
   - `test_chat_endpoint.py` for `/helper/chat` integration/auth behavior.
+  - `test_access.py` for helper admin/session and security-header/CSP/site-mode behavior.
+  - `test_events.py` for internal ClassHub event forwarding behavior.
+  - `test_internal_reset.py` for helper internal reset endpoint behavior.
+  - `test_engine.py` for engine/auth/backend/heuristics/runtime unit behavior.
   - `test_view_modules.py` for request/runtime helper module unit tests.
 - Keep backwards-compatible test target imports via `tutor/tests/__init__.py` so `tutor.tests.HelperChatAuthTests` remains valid.
 
@@ -288,6 +292,7 @@ Historical implementation logs and superseded decisions are archived by month in
   - `test_student_ops.py`
   - `test_security_integration.py`
 - Keep backwards-compatible test target imports via `hub/tests/__init__.py` so commands targeting `hub.tests.<ClassName>` remain valid.
+- Add `scripts/test_teacher_admin.sh` as the canonical compose-backed runner for teacher/admin-focused ClassHub tests.
 
 **Why this remains active:**
 - Reduces monolithic test-file gravity in ClassHub and makes feature-specific test review/runs faster.
