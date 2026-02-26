@@ -182,6 +182,8 @@
                               type="button"
                               class="inline-copy"
                               data-secret-target="student-return-code-{{ st.id }}"
+                              data-show-label="Show return code for {{ st.display_name }}"
+                              data-hide-label="Hide return code for {{ st.display_name }}"
                               aria-controls="student-return-code-{{ st.id }}"
                               aria-pressed="false"
                               aria-label="Show return code for {{ st.display_name }}"
@@ -198,7 +200,12 @@
                             <form method="post" action="/teach/class/{{ classroom.id }}/rename-student" class="rename-row">
                               {% csrf_token %}
                               <input type="hidden" name="student_id" value="{{ st.id }}" />
-                              <input name="display_name" value="{{ st.display_name }}" maxlength="80" />
+                              <input
+                                name="display_name"
+                                value="{{ st.display_name }}"
+                                maxlength="80"
+                                aria-label="Rename {{ st.display_name }}"
+                              />
                               <button type="submit">Rename</button>
                             </form>
                             <form method="post" action="/teach/class/{{ classroom.id }}/delete-student-data" class="delete-row" data-confirm="Delete all stored data for this student now?">
@@ -440,7 +447,15 @@
                                 <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
                                 <input type="hidden" name="action" value="set_date" />
                                 <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
-                                <input type="date" name="available_on" value="{% if release.override_available_on %}{{ release.override_available_on|date:'Y-m-d' }}{% endif %}" />
+                                <label class="visually-hidden" for="release-date-class-{{ row.module.id }}">
+                                  Availability date for {{ row.lesson_title }}
+                                </label>
+                                <input
+                                  id="release-date-class-{{ row.module.id }}"
+                                  type="date"
+                                  name="available_on"
+                                  value="{% if release.override_available_on %}{{ release.override_available_on|date:'Y-m-d' }}{% endif %}"
+                                />
                                 <button type="submit">Set date</button>
                               </form>
                               <form method="post" action="/teach/lessons/release">

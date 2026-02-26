@@ -28,9 +28,13 @@ flowchart TD
   - domain/TLS: `compose/.env.example.domain` → `compose/.env`
 - Set a strong `DJANGO_SECRET_KEY` (do not keep placeholder/default values)
 - Set a separate strong `DEVICE_HINT_SIGNING_KEY` (do not reuse `DJANGO_SECRET_KEY`)
+- Set a separate strong `HELPER_SCOPE_SIGNING_KEY` (do not reuse `DJANGO_SECRET_KEY` in production)
 - Set non-root container ids to match your deploy user (recommended):
   - `APP_UID=$(id -u <deploy-user>)`
   - `APP_GID=$(id -g <deploy-user>)`
+- Pick staff/org boundary mode:
+  - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0` (legacy fallback for staff without memberships)
+  - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1` (hard org boundary; recommended once memberships are in place)
 - Keep admin 2FA enforcement enabled: `DJANGO_ADMIN_2FA_REQUIRED=1`
 - For domain/TLS mode, set:
   - `DJANGO_SECURE_SSL_REDIRECT=1`

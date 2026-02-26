@@ -6,40 +6,43 @@
     <title>{{ student.display_name }} Portfolio</title>
   </head>
   <body>
-    <h1>{{ student.display_name }} Portfolio Export</h1>
-    <p class="muted">Class: {{ classroom.name }}</p>
-    <p class="muted">Generated: {{ generated_at|date:"Y-m-d H:i T" }}</p>
-    <p class="muted">Submissions: {{ included_count }} included / {{ submission_count }} total</p>
+    <main>
+      <h1>{{ student.display_name }} Portfolio Export</h1>
+      <p class="muted">Class: {{ classroom.name }}</p>
+      <p class="muted">Generated: {{ generated_at|date:"Y-m-d H:i T" }}</p>
+      <p class="muted">Submissions: {{ included_count }} included / {{ submission_count }} total</p>
 
-    {% if rows %}
-      <table>
-        <thead>
-          <tr>
-            <th>When</th>
-            <th>Module</th>
-            <th>Material</th>
-            <th>Original file</th>
-            <th>Archive path</th>
-            <th>Status</th>
-            <th>Note</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in rows %}
+      {% if rows %}
+        <table>
+          <caption>Submission export rows for {{ student.display_name }}</caption>
+          <thead>
             <tr>
-              <td>{{ row.uploaded_at|date:"Y-m-d H:i" }}</td>
-              <td>{{ row.module_title }}</td>
-              <td>{{ row.material_title }}</td>
-              <td>{{ row.original_filename }}</td>
-              <td><code>{{ row.archive_path }}</code></td>
-              <td>{% if row.included %}Included{% else %}Missing source file{% endif %}</td>
-              <td>{{ row.note|default:"" }}</td>
+              <th scope="col">When</th>
+              <th scope="col">Module</th>
+              <th scope="col">Material</th>
+              <th scope="col">Original file</th>
+              <th scope="col">Archive path</th>
+              <th scope="col">Status</th>
+              <th scope="col">Note</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>No submissions yet.</p>
-    {% endif %}
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td>{{ row.uploaded_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ row.module_title }}</td>
+                <td>{{ row.material_title }}</td>
+                <td>{{ row.original_filename }}</td>
+                <td><code>{{ row.archive_path }}</code></td>
+                <td>{% if row.included %}Included{% else %}Missing source file{% endif %}</td>
+                <td>{{ row.note|default:"" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>No submissions yet.</p>
+      {% endif %}
+    </main>
   </body>
 </html>

@@ -19,6 +19,13 @@ flowchart TD
 - Student access: class code + display name.
 - Teacher portal: staff-only (`is_staff=True`) Django users.
 - Django admin: usually superusers (`is_superuser=True`).
+- Class visibility:
+  - superusers can access all classes.
+  - staff with active org memberships can access classes in those orgs.
+  - staff with no active org memberships follow `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF`:
+    - `0` (default): legacy fallback allows global class access.
+    - `1`: no class access until an active org membership exists.
+- Assigned classes appear first in `/teach` and `/teach/lessons`, but assignments do not reduce org-level access.
 
 Use superusers for setup and operations. Use staff (non-superuser) for daily teaching.
 
@@ -112,14 +119,19 @@ bash scripts/examples/teacher_accounts.sh
 
 ## Changing personnel (new or different teachers)
 
-Current behavior: any staff user can access any class in `/teach`. We do not
-yet have per-class teacher assignment/ownership.
+Current behavior:
+
+- Superusers can access every class.
+- Staff access follows org memberships and `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF`.
+- Class assignments are a priority hint ("Assigned" badge, sorted first), not an access boundary.
 
 When a new person joins:
 
 1. Create a new staff account.
-2. Ask them to sign in and verify `/teach` + `/teach/lessons`.
-3. Keep old account active briefly during transition, then disable it.
+2. Add active `OrganizationMembership` rows in Django admin for the orgs they should teach.
+3. Optional: add `ClassStaffAssignment` rows in Django admin for classes that should appear first.
+4. Ask them to sign in and verify `/teach` + `/teach/lessons`.
+5. Keep old account active briefly during transition, then disable it.
 
 Commands:
 
@@ -193,11 +205,26 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
   - module/material editor
   - `Copy` join code
   - `Printable join card` shortcut for in-room posting
+  - enrollment mode control: `Open`, `Invite only`, `Closed`
+  - student invite-link management:
+    - create links with optional label, expiry, and seat cap
+    - copy full invite URL for distribution
+    - disable links
+  - class exports:
+    - outcomes CSV (`/teach/class/<id>/export-outcomes-csv`)
+    - summary CSV (`/teach/class/<id>/export-summary-csv`)
   - inline student rename controls
   - roster reset action (clears student identities + submissions, invalidates active student sessions, optional join-code rotation)
 - `/teach/class/<id>/join-card`:
   - print-friendly join instructions + class code
   - prefilled join URL (`/?class_code=<JOIN_CODE>`)
+- `/teach/class/<id>/certificate-eligibility`:
+  - per-student session/artifact/milestone rollup
+  - teacher/admin-only `Mark session completed` action for offline completions
+  - issue/re-issue certificate for eligible students
+  - download issued certificates:
+    - PDF (`/teach/class/<id>/certificate/<student_id>/download.pdf`)
+    - TXT (`/teach/class/<id>/certificate/<student_id>/download`)
 - `/teach/material/<id>/submissions`:
   - submitted vs missing filters
   - bulk download latest submissions as ZIP
@@ -215,6 +242,39 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
 4. Use `Manage videos` on a lesson row to add/update that lesson's video list.
 5. Use `Review missing now` to jump to students who still owe uploads.
 6. Use `ZIP latest` for batch review/download.
+
+## Enrollment + invite workflow
+
+Use this when a cohort needs controlled joins without student login accounts.
+
+1. Open `/teach/class/<id>`.
+2. Set enrollment mode:
+   - `Open`: class code or invite link can join.
+   - `Invite only`: class code joins are blocked; invite link required.
+   - `Closed`: all new joins blocked.
+3. In `Student Invite Links`, create links as needed:
+   - optional expiry (`expires in hours`)
+   - optional seat cap (`seat cap`)
+4. Copy links and distribute to students/families.
+5. Disable links after enrollment window closes.
+
+Student join behavior:
+
+- "This invite is full right now..." means seat cap was reached.
+- "Invite required" means class is `Invite only` and class-code join was attempted.
+
+## Outcomes + certificate workflow
+
+1. Open `/teach/class/<id>/certificate-eligibility`.
+2. Review threshold summary (`CLASSHUB_CERTIFICATE_MIN_SESSIONS` + `CLASSHUB_CERTIFICATE_MIN_ARTIFACTS`).
+3. If a session was completed offline, use `Mark session completed` (teacher/admin roles only).
+4. Export rollups with `Export outcomes CSV` (counts only; no student response bodies).
+5. For eligible students, issue/re-issue certificate.
+6. Download PDF or TXT certificate from the student row.
+
+Role note:
+
+- `viewer` can open eligibility pages but cannot submit mark/issue actions.
 
 ## Lesson video workflow
 

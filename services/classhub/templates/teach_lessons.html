@@ -106,7 +106,15 @@
                                   <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
                                   <input type="hidden" name="action" value="set_date" />
                                   <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
-                                  <input type="date" name="available_on" value="{% if release.override_available_on %}{{ release.override_available_on|date:'Y-m-d' }}{% endif %}" />
+                                  <label class="visually-hidden" for="release-date-{{ group.classroom.id }}-{{ forloop.counter0 }}">
+                                    Availability date for {{ row.lesson_title }}
+                                  </label>
+                                  <input
+                                    id="release-date-{{ group.classroom.id }}-{{ forloop.counter0 }}"
+                                    type="date"
+                                    name="available_on"
+                                    value="{% if release.override_available_on %}{{ release.override_available_on|date:'Y-m-d' }}{% endif %}"
+                                  />
                                   <button type="submit">Set date</button>
                                 </form>
                                 <form method="post" action="/teach/lessons/release">

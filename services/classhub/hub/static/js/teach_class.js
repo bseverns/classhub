@@ -70,18 +70,20 @@
     setMasked(target);
     btn.addEventListener("click", async () => {
       const shown = target.getAttribute("data-shown") === "1";
+      const showLabel = btn.getAttribute("data-show-label") || "Show return code";
+      const hideLabel = btn.getAttribute("data-hide-label") || "Hide return code";
       if (shown) {
         setMasked(target);
         btn.textContent = "Show";
         btn.setAttribute("aria-pressed", "false");
-        btn.setAttribute("aria-label", "Show return code");
+        btn.setAttribute("aria-label", showLabel);
         setStatus("Return code hidden.");
       } else {
         try {
           await setShown(target);
           btn.textContent = "Hide";
           btn.setAttribute("aria-pressed", "true");
-          btn.setAttribute("aria-label", "Hide return code");
+          btn.setAttribute("aria-label", hideLabel);
           setStatus("Return code shown.");
         } catch (_err) {
           setStatus("Could not load return code. Refresh and try again.");

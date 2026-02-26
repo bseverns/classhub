@@ -25,6 +25,14 @@
     border-color: var(--focus, #0f7c8b);
     box-shadow: 0 0 0 3px rgba(15, 124, 139, 0.16);
   }
+  .helper-widget textarea:focus-visible,
+  .helper-widget .helper-submit:focus-visible,
+  .helper-widget .helper-reset:focus-visible,
+  .helper-followup-action:focus-visible,
+  .helper-quick-action:focus-visible {
+    outline: 3px solid var(--focus-ring, #0a6379);
+    outline-offset: 2px;
+  }
   .helper-widget .helper-submit {
     margin-top: 10px;
     padding: 10px 14px;

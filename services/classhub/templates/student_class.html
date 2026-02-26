@@ -32,6 +32,8 @@
                 type="button"
                 class="inline-copy"
                 data-secret-target="student-return-code"
+                data-show-label="Show return code"
+                data-hide-label="Hide return code"
                 aria-controls="student-return-code"
                 aria-pressed="false"
                 aria-label="Show return code"
@@ -251,8 +253,11 @@
                             <div class="muted">Rate each criterion from 1 to {{ spec.scale_max }}.</div>
                             {% for criterion in spec.criteria %}
                               {% with criterion_index=forloop.counter0 selected_score=state.rubric_scores|get_item:forloop.counter0 %}
-                                <label class="muted stacked-rubric-label">{{ criterion }}</label>
-                                <select name="criterion_{{ criterion_index }}">
+                                <label
+                                  for="rubric-criterion-{{ mat.id }}-{{ criterion_index }}"
+                                  class="muted stacked-rubric-label"
+                                >{{ criterion }}</label>
+                                <select id="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" name="criterion_{{ criterion_index }}">
                                   <option value="">Not scored</option>
                                   {% for score in spec.scale_values %}
                                     <option value="{{ score }}" {% if selected_score == score %}selected{% endif %}>{{ score }}</option>

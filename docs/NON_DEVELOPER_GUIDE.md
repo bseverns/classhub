@@ -22,9 +22,10 @@ flowchart LR
 
 1. Open the site homepage.
 2. Open `/teach` and confirm your teacher login works.
-3. Open your class and confirm students can join.
-4. Open one lesson and test the Helper once.
-5. Confirm submission inbox is visible for your upload lesson.
+3. Open your class and confirm enrollment mode matches today (`Open`, `Invite only`, or `Closed`).
+4. If using invite-only enrollment, verify at least one active invite link is ready.
+5. Open one lesson and test the Helper once.
+6. Confirm submission inbox is visible for your upload lesson.
 
 If any step fails, use [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
@@ -35,6 +36,7 @@ If any step fails, use [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 3. Adjust lesson release (open/lock/date) as needed.
 4. Use `Helper tuning` in that lesson row if you want to narrow helper focus.
 5. Review missing submissions from the dropbox links.
+6. For paid/limited cohorts, monitor invite seat usage and disable links when full.
 
 Deep walkthrough: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 
@@ -43,12 +45,16 @@ Deep walkthrough: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 1. Review missing submissions.
 2. Rename student entries if needed.
 3. Lock lessons or set next lesson date.
-4. Export/check submissions if this is an assessment day.
+4. Export outcomes/summary CSVs for parent/funder reporting if needed.
+5. For eligible students, issue certificates from `Certificate Eligibility`.
 
 ## Common problems (plain language)
 
 - "Students cannot join":
-  check class code and whether class is locked.
+  check enrollment mode and class lock status:
+  - `Invite only` requires an invite link.
+  - `Closed` blocks all new joins.
+  - "This invite is full" means the seat cap is reached.
 - "Helper is not responding":
   check `/helper/healthz` and follow [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 - "Teacher page looks empty":

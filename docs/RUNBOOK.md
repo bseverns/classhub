@@ -120,6 +120,8 @@ cd /srv/lms/app
 bash scripts/golden_path_smoke.sh
 ```
 
+`golden_path_smoke.sh` also validates invite-only enrollment behavior and class summary CSV export (teacher session path).
+
 ## Public domain deployment notes
 
 When running behind Caddy on a real domain, use these defaults to avoid false rate-limit identity and upload mismatches:

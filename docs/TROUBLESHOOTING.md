@@ -56,6 +56,7 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 | Admin blocked by OTP | admin device enrollment | Auth hardening |
 | Content missing after reset/rebuild | class/module records | Data reset/reseed |
 | Deploy shows `The "<token>" variable is not set` warnings | `compose/.env` secrets with `$` | Docker Compose interpolation |
+| Student join says "invite required" or "invite is full" | class enrollment mode + invite status | Enrollment controls |
 
 ## Symptom: site does not load over HTTPS
 
@@ -289,6 +290,33 @@ Behavior:
 
 - `strict` intentionally short-circuits out-of-scope prompts
 - `soft` is less restrictive
+
+## Symptom: student join fails with invite-related error
+
+Example failure signals:
+
+- `"error":"invite_required"` when posting to `/join` with class code
+- `"error":"invite_seat_cap_reached"` when using invite link
+
+Common causes:
+
+- class is set to `invite_only` and student used class code flow
+- invite link seat cap (`max_uses`) was reached
+- invite was disabled or expired
+
+Checks:
+
+```bash
+cd /srv/lms/app/compose
+docker compose exec -T classhub_web python manage.py shell -c \
+"from hub.models import Class, ClassInviteLink; print(list(Class.objects.values_list('id','name','enrollment_mode')[:20])); print(list(ClassInviteLink.objects.order_by('-id').values_list('id','classroom_id','is_active','max_uses','use_count','expires_at')[:20]))"
+```
+
+Fix pattern:
+
+1. For class-code joins, set class mode back to `open` if appropriate.
+2. For invite-only cohorts, create a fresh invite link or raise seat cap.
+3. Disable stale/accidentally shared links and distribute the new link.
 
 ## Symptom: admin login blocked by OTP requirement
 
