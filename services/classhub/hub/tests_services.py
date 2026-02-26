@@ -478,6 +478,52 @@ class TeacherTrackerServiceTests(TestCase):
         )
         self.assertEqual(refreshed["total_events"], 2)
 
+    @override_settings(CLASSHUB_TEACHER_PANEL_CACHE_TTL_SECONDS=30)
+    def test_class_digest_cache_payload_uses_classroom_id_not_model_instance(self):
+        classroom = Class.objects.create(name="Digest Payload", join_code="TRK10010")
+        classes = [classroom]
+        since = timezone.now()
+
+        with patch.object(cache, "set", wraps=cache.set) as cache_set_mock:
+            rows = _build_class_digest_rows(classes, since=since)
+
+        self.assertEqual(rows[0]["classroom"].id, classroom.id)
+        cached_payload = cache_set_mock.call_args.args[1]
+        self.assertIsInstance(cached_payload, list)
+        self.assertTrue(cached_payload)
+        self.assertIn("classroom_id", cached_payload[0])
+        self.assertNotIn("classroom", cached_payload[0])
+
+    @override_settings(CLASSHUB_TEACHER_PANEL_CACHE_TTL_SECONDS=30)
+    def test_lesson_tracker_cache_payload_uses_module_id_not_model_instance(self):
+        classroom = Class.objects.create(name="Lesson Payload", join_code="TRK10011")
+        module = classroom.modules.create(title="Session 1", order_index=0)
+        module.materials.create(
+            title="Lesson Link",
+            type=Material.TYPE_LINK,
+            url="/course/piper_scratch_12_session/01-welcome-private-workflow",
+            order_index=0,
+        )
+        modules = list(classroom.modules.prefetch_related("materials").all())
+        modules.sort(key=lambda m: (m.order_index, m.id))
+
+        with patch.object(cache, "set", wraps=cache.set) as cache_set_mock:
+            rows = _build_lesson_tracker_rows(
+                self._request_stub(),
+                classroom.id,
+                modules,
+                student_count=0,
+                class_session_epoch=classroom.session_epoch,
+            )
+
+        self.assertTrue(rows)
+        self.assertEqual(rows[0]["module"].id, module.id)
+        cached_payload = cache_set_mock.call_args.args[1]
+        self.assertIsInstance(cached_payload, list)
+        self.assertTrue(cached_payload)
+        self.assertIn("module_id", cached_payload[0])
+        self.assertNotIn("module", cached_payload[0])
+
 
 class UploadValidationServiceTests(SimpleTestCase):
     def test_validate_upload_content_accepts_valid_sb3_archive(self):

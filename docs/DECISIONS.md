@@ -1102,6 +1102,7 @@ Historical implementation logs and superseded decisions are archived by month in
   - helper signal snapshot (`/teach/class/<id>`)
 - New setting: `CLASSHUB_TEACHER_PANEL_CACHE_TTL_SECONDS` (default `0`, disabled).
 - Cache keys are panel-scoped and include classroom/session context so classes do not share panel snapshots.
+- Cache storage uses primitive payloads (`classroom_id`, `module_id`, counters, timestamps, URLs) and rehydrates model references per request, avoiding ORM-object pickling in shared caches.
 - Cache behavior fails open: if cache get/set errors occur, panel generation continues uncached.
 
 **Why this remains active:**

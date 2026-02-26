@@ -188,6 +188,51 @@ def _compute_class_digest_rows(classes: list[Class], *, since: timezone.datetime
     return rows
 
 
+def _serialize_class_digest_rows(rows: list[ClassDigestRow]) -> list[dict[str, object]]:
+    payload: list[dict[str, object]] = []
+    for row in rows:
+        classroom = row.get("classroom")
+        if not classroom or not getattr(classroom, "id", None):
+            continue
+        payload.append(
+            {
+                "classroom_id": int(classroom.id),
+                "student_total": int(row.get("student_total") or 0),
+                "new_students_since": int(row.get("new_students_since") or 0),
+                "submission_total_since": int(row.get("submission_total_since") or 0),
+                "helper_access_total_since": int(row.get("helper_access_total_since") or 0),
+                "students_without_submissions": int(row.get("students_without_submissions") or 0),
+                "last_submission_at": row.get("last_submission_at"),
+            }
+        )
+    return payload
+
+
+def _hydrate_class_digest_rows(payload: list[dict[str, object]], classes: list[Class]) -> list[ClassDigestRow]:
+    classes_by_id = {int(classroom.id): classroom for classroom in classes if getattr(classroom, "id", None)}
+    hydrated: list[ClassDigestRow] = []
+    for cached in payload:
+        try:
+            classroom_id = int(cached.get("classroom_id") or 0)
+        except Exception:
+            classroom_id = 0
+        classroom = classes_by_id.get(classroom_id)
+        if classroom is None:
+            continue
+        hydrated.append(
+            {
+                "classroom": classroom,
+                "student_total": int(cached.get("student_total") or 0),
+                "new_students_since": int(cached.get("new_students_since") or 0),
+                "submission_total_since": int(cached.get("submission_total_since") or 0),
+                "helper_access_total_since": int(cached.get("helper_access_total_since") or 0),
+                "students_without_submissions": int(cached.get("students_without_submissions") or 0),
+                "last_submission_at": cached.get("last_submission_at"),
+            }
+        )
+    return hydrated
+
+
 def _build_class_digest_rows(classes: list[Class], *, since: timezone.datetime) -> list[ClassDigestRow]:
     class_signature = ",".join(
         f"{int(classroom.id)}:{int(getattr(classroom, 'session_epoch', 0) or 0)}"
@@ -196,11 +241,14 @@ def _build_class_digest_rows(classes: list[Class], *, since: timezone.datetime) 
     )
     # Cache in minute windows so near-identical requests coalesce.
     since_bucket = int(since.timestamp()) // 60
-    return _cache_get_or_build(
+    cached_payload = _cache_get_or_build(
         "class-digest",
         key_parts=[class_signature, str(since_bucket)],
-        builder=lambda: _compute_class_digest_rows(classes, since=since),
+        builder=lambda: _serialize_class_digest_rows(_compute_class_digest_rows(classes, since=since)),
     )
+    if not isinstance(cached_payload, list):
+        return _compute_class_digest_rows(classes, since=since)
+    return _hydrate_class_digest_rows(cached_payload, classes)
 
 
 def _local_day_window() -> tuple[timezone.datetime, timezone.datetime]:
@@ -480,6 +528,59 @@ def _compute_lesson_tracker_rows(
     return rows
 
 
+def _serialize_lesson_tracker_rows(rows: list[LessonTrackerRow]) -> list[dict[str, object]]:
+    payload: list[dict[str, object]] = []
+    for row in rows:
+        module = row.get("module")
+        if not module or not getattr(module, "id", None):
+            continue
+        payload.append(
+            {
+                "module_id": int(module.id),
+                "lesson_title": str(row.get("lesson_title") or ""),
+                "lesson_url": str(row.get("lesson_url") or ""),
+                "course_slug": str(row.get("course_slug") or ""),
+                "lesson_slug": str(row.get("lesson_slug") or ""),
+                "dropboxes": [dict(dropbox) for dropbox in row.get("dropboxes") or []],
+                "review_url": str(row.get("review_url") or ""),
+                "review_label": str(row.get("review_label") or ""),
+                "teacher_material_html": str(row.get("teacher_material_html") or ""),
+                "release_state": dict(row.get("release_state") or {}),
+                "helper_tuning": dict(row.get("helper_tuning") or {}),
+            }
+        )
+    return payload
+
+
+def _hydrate_lesson_tracker_rows(payload: list[dict[str, object]], modules: list[Module]) -> list[LessonTrackerRow]:
+    modules_by_id = {int(module.id): module for module in modules if getattr(module, "id", None)}
+    hydrated: list[LessonTrackerRow] = []
+    for cached in payload:
+        try:
+            module_id = int(cached.get("module_id") or 0)
+        except Exception:
+            module_id = 0
+        module = modules_by_id.get(module_id)
+        if module is None:
+            continue
+        hydrated.append(
+            {
+                "module": module,
+                "lesson_title": str(cached.get("lesson_title") or ""),
+                "lesson_url": str(cached.get("lesson_url") or ""),
+                "course_slug": str(cached.get("course_slug") or ""),
+                "lesson_slug": str(cached.get("lesson_slug") or ""),
+                "dropboxes": [dict(dropbox) for dropbox in cached.get("dropboxes") or []],
+                "review_url": str(cached.get("review_url") or ""),
+                "review_label": str(cached.get("review_label") or ""),
+                "teacher_material_html": str(cached.get("teacher_material_html") or ""),
+                "release_state": dict(cached.get("release_state") or {}),
+                "helper_tuning": dict(cached.get("helper_tuning") or {}),
+            }
+        )
+    return hydrated
+
+
 def _build_lesson_tracker_rows(
     request,
     classroom_id: int,
@@ -497,7 +598,7 @@ def _build_lesson_tracker_rows(
             )
         module_signature_parts.append(f"{int(module.id)}:{int(module.order_index)}:{len(prefetched)}")
 
-    return _cache_get_or_build(
+    cached_payload = _cache_get_or_build(
         "lesson-tracker",
         key_parts=[
             str(int(classroom_id)),
@@ -505,8 +606,13 @@ def _build_lesson_tracker_rows(
             str(int(student_count)),
             ",".join(module_signature_parts),
         ],
-        builder=lambda: _compute_lesson_tracker_rows(request, classroom_id, modules, student_count),
+        builder=lambda: _serialize_lesson_tracker_rows(
+            _compute_lesson_tracker_rows(request, classroom_id, modules, student_count)
+        ),
     )
+    if not isinstance(cached_payload, list):
+        return _compute_lesson_tracker_rows(request, classroom_id, modules, student_count)
+    return _hydrate_lesson_tracker_rows(cached_payload, modules)
 
 
 __all__ = [
