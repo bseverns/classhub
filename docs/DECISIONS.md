@@ -466,6 +466,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Lint workflow now enforces service-layer import direction (`scripts/check_no_service_imports_from_views.py`) so service modules cannot import from `views.*`.
 - Lint workflow now enforces explicit service exports (`scripts/check_no_dynamic_service_all_exports.py`) to block dynamic `__all__` patterns that leak internal helpers as accidental API.
 - CI now runs Django `check --deploy --fail-level WARNING` for both services in prod-like env via `.github/workflows/deploy-check.yml`.
+  - Expected baseline-specific warnings `security.W019` (`X_FRAME_OPTIONS != DENY`) and `security.W021` (`SECURE_HSTS_PRELOAD != True`) are explicitly silenced in both Django settings modules because framing is controlled by CSP `frame-ancestors 'self'` and HSTS preload ownership is at the edge.
 - `docs/ENDPOINT_CHECKLIST.md` is the required baseline for new endpoints (cache, CSP, download hardening, throttling, logging minimization, and error-handling expectations).
 - CI now writes concise human-readable summaries to `$GITHUB_STEP_SUMMARY`:
   - Ruff advisory stats in `lint`.

@@ -365,6 +365,10 @@ SECURITY_REFERRER_POLICY = (
     or "strict-origin-when-cross-origin"
 )
 X_FRAME_OPTIONS = (env("DJANGO_X_FRAME_OPTIONS", default="SAMEORIGIN").strip() or "SAMEORIGIN").upper()
+# Security baseline intentionally uses SAMEORIGIN + edge-owned HSTS preload policy.
+# Keep deploy checks strict for other warnings while suppressing these expected
+# Django deploy-check findings.
+SILENCED_SYSTEM_CHECKS = ["security.W019", "security.W021"]
 SITE_MODE = env("CLASSHUB_SITE_MODE", default="normal").strip().lower()
 if SITE_MODE in {"readonly", "read_only"}:
     SITE_MODE = "read-only"
