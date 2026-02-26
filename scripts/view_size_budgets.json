@@ -4,7 +4,6 @@
     "services/classhub/hub/views/student.py": 480,
     "services/classhub/hub/views/teacher_parts/roster.py": 920,
     "services/classhub/hub/views/teacher_parts/roster_class.py": 420,
-    "services/classhub/hub/views/teacher_parts/videos.py": 520,
     "services/homework_helper/tutor/views.py": 700
   }
 }
