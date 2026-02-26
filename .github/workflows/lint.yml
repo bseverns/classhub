@@ -44,3 +44,5 @@ jobs:
         run: python scripts/check_no_inline_template_css.py
       - name: Guard view modules to use shared security header helpers
         run: python scripts/check_view_header_helpers.py
+      - name: Guard dense view module size budgets
+        run: python scripts/check_view_size_budgets.py

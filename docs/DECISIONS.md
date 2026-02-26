@@ -457,6 +457,7 @@ Historical implementation logs and superseded decisions are archived by month in
   - `<style>` blocks
   - inline style attributes (`style=...`)
 - Lint workflow now enforces a view security-header helper guard (`scripts/check_view_header_helpers.py`) that fails on direct `Cache-Control` / `Pragma` / CSP / `nosniff` / `Referrer-Policy` assignments inside view modules.
+- Lint workflow now enforces dense-view line budgets (`scripts/check_view_size_budgets.py` + `scripts/view_size_budgets.json`) so large view modules cannot grow without an intentional, reviewed budget change.
 - `docs/ENDPOINT_CHECKLIST.md` is the required baseline for new endpoints (cache, CSP, download hardening, throttling, logging minimization, and error-handling expectations).
 - CI now writes concise human-readable summaries to `$GITHUB_STEP_SUMMARY`:
   - Ruff advisory stats in `lint`.
@@ -470,6 +471,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Prevents CSP regressions by blocking inline JS reintroduction in templates.
 - Prevents CSP regressions by blocking inline CSS reintroduction in templates.
 - Keeps security-header behavior centralized and reviewable via shared helpers.
+- Adds a ratchet on view-file growth so service-layer extraction progress cannot silently regress.
 - Prevents silent CI gate loss from workflow syntax regressions.
 
 ## Non-root Django runtime containers
