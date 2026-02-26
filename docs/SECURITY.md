@@ -111,6 +111,8 @@ Optional Caddy controls for `/admin*` and `/teach*`:
   - `CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1`
 - Optional upstream app health endpoint exposure:
   - `CADDY_EXPOSE_UPSTREAM_HEALTHZ=1` to expose `/upstream-healthz` publicly.
+- Optional Caddy root FS hardening:
+  - `CADDY_READ_ONLY=true` (recommended only after deploy/smoke validation on your host).
 
 These controls are additive to Django auth + OTP.
 
@@ -133,6 +135,10 @@ Field-level lifecycle details (exact fields, TTL knobs, deletion controls): [PRI
 - Files use randomized server-side names; original filename is metadata only.
 - Upload checks now include lightweight content validation (for example `.sb3` must be a valid zip with `project.json`).
 - File cleanup signals remove stored files on row delete/cascade delete and file replacement.
+- Helper reset archives (`/uploads/helper_reset_exports`) are operator-only artifacts:
+  - not publicly served by Caddy routes,
+  - not included in student-facing portfolio exports,
+  - intended access scope is teachers + createMPLS admins only.
 
 #### Upload flow (Map D2)
 

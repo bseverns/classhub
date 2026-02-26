@@ -133,6 +133,12 @@ else
   fail "/helper/internal/reset-class-conversations returned ${code} (expected 404 or 405 deny)"
 fi
 
+archive_code="$(http_code "${BASE_URL}/uploads/helper_reset_exports/")"
+if [[ "${archive_code}" == "200" ]]; then
+  fail "/uploads/helper_reset_exports/ returned 200 (helper reset archives must not be publicly served)"
+fi
+echo "[smoke] helper reset archive path not publicly served (${archive_code})"
+
 admin_login_code="$(
   curl "${CURL_FLAGS[@]}" -D "${TMP_HEADERS}" -o /dev/null -w "%{http_code}" "${BASE_URL}/admin/login/"
 )"

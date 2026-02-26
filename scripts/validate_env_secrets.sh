@@ -287,6 +287,14 @@ CADDY_EXPOSE_UPSTREAM_HEALTHZ="${CADDY_EXPOSE_UPSTREAM_HEALTHZ:-}"
 if [[ -n "${CADDY_EXPOSE_UPSTREAM_HEALTHZ}" && "${CADDY_EXPOSE_UPSTREAM_HEALTHZ}" != "0" && "${CADDY_EXPOSE_UPSTREAM_HEALTHZ}" != "1" ]]; then
   fail "CADDY_EXPOSE_UPSTREAM_HEALTHZ must be 0 or 1 when set"
 fi
+CADDY_READ_ONLY="$(env_file_value CADDY_READ_ONLY)"
+CADDY_READ_ONLY="${CADDY_READ_ONLY:-false}"
+case "${CADDY_READ_ONLY}" in
+  0|1|true|false) ;;
+  *)
+    fail "CADDY_READ_ONLY must be one of: true, false, 0, 1"
+    ;;
+esac
 require_compose_safe_dollars "CADDY_ADMIN_BASIC_AUTH_HASH"
 if [[ "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" == "1" ]]; then
   require_nonempty "CADDY_ADMIN_BASIC_AUTH_USER"

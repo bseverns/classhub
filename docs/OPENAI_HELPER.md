@@ -78,6 +78,8 @@ Archive access + audit:
 - Teacher-triggered reset actions create audit metadata in Class Hub, including archive path/count when export occurs.
 - Ops should keep archive filesystem access restricted to trusted teacher/admin operators.
 - Default archive retention is 30 days (`RETENTION_HELPER_EXPORT_DAYS=30`) via `scripts/retention_maintenance.sh`.
+- `scripts/retention_maintenance.sh` now enforces helper archive path containment under `/uploads` and tightens permissions (`0700` directory, `0600` archive files) during scheduled retention runs.
+- Helper reset archives are internal-only and excluded from student-facing portfolio exports.
 
 ### Ollama (local)
 

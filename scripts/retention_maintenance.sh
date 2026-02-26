@@ -34,6 +34,7 @@ Options:
                                   (default: 30; 0 skips)
   --helper-export-dir <path>      In-container helper export dir override
                                   (default: HELPER_CLASS_RESET_ARCHIVE_DIR or /uploads/helper_reset_exports)
+                                  Must remain under /uploads; script enforces dir/file perms (0700/0600).
   --scavenge <report|delete|off>  Orphan upload cleanup mode (default: report)
   --alert-webhook-url <url>       Optional webhook for failure/success alerts
   --alert-on-success              Send success alert in addition to failures
@@ -199,10 +200,16 @@ if (( RETENTION_HELPER_EXPORT_DAYS > 0 )); then
       set -eu
       days="${RETENTION_HELPER_EXPORT_DAYS:-30}"
       dir="${RETENTION_HELPER_EXPORT_DIR:-${HELPER_CLASS_RESET_ARCHIVE_DIR:-/uploads/helper_reset_exports}}"
-      if [ ! -d "${dir}" ]; then
-        echo "[retention] helper export dir not found: ${dir} (skip)"
-        exit 0
-      fi
+      case "${dir}" in
+        /uploads/*) ;;
+        *)
+          echo "[retention] helper export dir must be under /uploads: ${dir}" >&2
+          exit 1
+          ;;
+      esac
+      mkdir -p "${dir}"
+      chmod 700 "${dir}" || true
+      find "${dir}" -type f -name "class_*_helper_reset_*.json" -exec chmod 600 {} + >/dev/null 2>&1 || true
       if [ "${days}" -le 0 ]; then
         echo "[retention] skipping helper export prune (helper-export-days=0)"
         exit 0

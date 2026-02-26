@@ -91,6 +91,8 @@ flowchart LR
   - `RETENTION_HELPER_EXPORT_DAYS=30` (set `0` to skip age-based cleanup)
   - `RETENTION_HELPER_EXPORT_DIR=/uploads/helper_reset_exports`
   - Access expectation: archives are operator-only artifacts for teachers/createMPLS admins and are not public web routes.
+  - `scripts/retention_maintenance.sh` enforces helper archive path scope under `/uploads` and applies conservative permissions (`0700` dir, `0600` files).
+  - Helper reset archives are not included in student-facing portfolio exports.
 - Backups should be pruned with the same policy window used for live data.
 
 ## Data That Stays Local

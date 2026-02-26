@@ -3,6 +3,7 @@ services:
     image: ${CADDY_IMAGE:-caddy:2.10.2}
     container_name: classhub_caddy
     restart: unless-stopped
+    read_only: ${CADDY_READ_ONLY:-false}
     ports: ["80:80", "443:443"]
     security_opt:
       - no-new-privileges:true

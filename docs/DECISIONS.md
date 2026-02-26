@@ -469,6 +469,7 @@ Historical implementation logs and superseded decisions are archived by month in
   - or escape each `$` as `$$`
 - `scripts/validate_env_secrets.sh` enforces this for `CADDY_ADMIN_BASIC_AUTH_HASH` to prevent interpolation drift and noisy deploy warnings.
 - Caddy now fail-closes (`503`) when `CADDY_ADMIN_BASIC_AUTH_ENABLED=1` is set with shipped/default admin basic-auth credentials.
+- `compose/.env.example.domain` intentionally keeps `CADDY_ADMIN_BASIC_AUTH_ENABLED=1` and blank credentials as a secure-but-not-usable default until operators set real values.
 
 **Why this remains active:**
 - Docker Compose treats bare `$...` as interpolation, which can silently mutate secrets and spam warnings during deploy.
@@ -523,7 +524,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - Regression coverage is required for helper auth/admin hardening and backend retry/circuit behavior.
 - `ops/systemd/classhub-retention.service` now refuses root execution by default unless `CLASSHUB_ALLOW_ROOT_MAINTENANCE=1` is explicitly set as a break-glass override.
 - `ops/systemd/classhub-retention.service` now pins explicit non-root runtime identity (`User=lms`, `Group=docker`) and baseline systemd hardening flags (`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem`, `ProtectHome`, etc.).
-- Compose app services (`classhub_web`, `helper_web`) now run with `read_only: true` root filesystems plus explicit writable mounts/tmpfs; `caddy` remains writable for compatibility with runtime state handling.
+- Compose app services (`classhub_web`, `helper_web`) now run with `read_only: true` root filesystems plus explicit writable mounts/tmpfs.
+- Caddy read-only root filesystem is available as an opt-in hardening toggle (`CADDY_READ_ONLY=true`), with default off until operators validate deploy/smoke behavior on their host.
 
 **Why this remains active:**
 - Prevents avoidable outages from config drift.
@@ -716,6 +718,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - Helper responses include bounded `follow_up_suggestions` so student UI can present one-tap next prompts per assistant turn.
 - Teacher class dashboard includes a `Reset helper conversations` action (`POST /teach/class/<id>/reset-helper-conversations`) that calls helper internal endpoint `POST /helper/internal/reset-class-conversations`.
 - Class-level helper reset now exports a JSON archive snapshot (`HELPER_CLASS_RESET_ARCHIVE_DIR`) before deletion when `HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE=1` and `HELPER_CLASS_RESET_ARCHIVE_ENABLED=1`.
+- Helper reset archive retention is managed by `scripts/retention_maintenance.sh` (`RETENTION_HELPER_EXPORT_DAYS`, default 30), with path guardrails (`/uploads/*`) and periodic permission tightening (`0700` dir, `0600` files).
+- Helper reset archives are operator-only artifacts: not served as public Caddy routes and not included in student-facing portfolio exports.
 - Helper chat access events now include summarized telemetry fields (`intent`, `follow_up_suggestions_count`, `conversation_compacted`) and `/teach/class/<id>` renders a “Helper Signals” panel for the last `CLASSHUB_HELPER_SIGNAL_WINDOW_HOURS`.
 - Internal helper reset endpoint requires `Authorization: Bearer <HELPER_INTERNAL_API_TOKEN>` and clears only indexed student conversation keys for the target class.
 
