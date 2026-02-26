@@ -15,9 +15,9 @@ from ..models import (
     Submission,
 )
 from .content_links import parse_course_lesson_url
+from .helper_topics import build_allowed_topics, build_lesson_topics
 from .markdown_content import load_lesson_markdown, load_teacher_material_html
 from .release_state import lesson_release_override_map, lesson_release_state
-from ..views.content import _build_allowed_topics, _build_lesson_topics
 
 _SAFE_INTENT_RE = re.compile(r"^[a-z0-9_-]{1,32}$")
 
@@ -315,8 +315,8 @@ def _build_lesson_tracker_rows(request, classroom_id: int, modules: list[Module]
                 )
                 helper_defaults_by_lesson[lesson_key] = {
                     "context": str(front_matter.get("title") or lesson_slug).strip() or lesson_slug,
-                    "topics": _build_lesson_topics(front_matter),
-                    "allowed_topics": _build_allowed_topics(front_matter),
+                    "topics": build_lesson_topics(front_matter),
+                    "allowed_topics": build_allowed_topics(front_matter),
                     "reference": str(lesson_meta.get("helper_reference") or "").strip(),
                 }
                 lesson_release_by_lesson[lesson_key] = lesson_release_state(

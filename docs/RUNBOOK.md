@@ -488,6 +488,15 @@ sudo systemctl status classhub-retention.timer
 ```
 
 Before enabling, edit `/etc/systemd/system/classhub-retention.service` if your app path or runtime user differs from `/srv/lms/app`.
+Set a non-root runtime user/group explicitly, for example:
+
+```ini
+[Service]
+User=lms
+Group=docker
+```
+
+The shipped unit now refuses to run as root unless `CLASSHUB_ALLOW_ROOT_MAINTENANCE=1` is set as an explicit break-glass override.
 
 Review last run:
 

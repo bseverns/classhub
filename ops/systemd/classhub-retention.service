@@ -6,8 +6,11 @@ After=network-online.target docker.service
 [Service]
 Type=oneshot
 # Run as a user that can execute docker compose on this host.
+# Preferred: set User=/Group= in the deployed unit copy to a non-root account
+# that is allowed to run `docker compose` (typically via docker group).
 WorkingDirectory=/srv/lms/app
 EnvironmentFile=/srv/lms/app/compose/.env
+ExecStartPre=/usr/bin/env bash -lc 'if [[ "$(id -u)" -eq 0 && "${CLASSHUB_ALLOW_ROOT_MAINTENANCE:-0}" != "1" ]]; then echo "Refusing to run classhub-retention as root. Set User=/Group= in the unit (preferred) or set CLASSHUB_ALLOW_ROOT_MAINTENANCE=1 for temporary break-glass."; exit 1; fi'
 ExecStart=/usr/bin/env bash /srv/lms/app/scripts/retention_maintenance.sh --compose-mode prod
 
 # Lower priority so live traffic wins under contention.

@@ -26,6 +26,11 @@ from ..services.markdown_content import (
     render_markdown_to_safe_html,
     split_lesson_markdown_for_audiences,
 )
+from ..services.helper_topics import (
+    build_allowed_topics,
+    build_lesson_topics,
+    split_helper_topics_text,
+)
 from ..services.release_state import lesson_release_override_map, lesson_release_state
 from ..services.upload_policy import front_matter_submission
 
@@ -102,68 +107,6 @@ def _find_lesson_upload_material(classroom_id: int, course_slug: str, lesson_slu
         .order_by("module__order_index", "order_index", "id")
         .first()
     )
-
-
-def _build_lesson_topics(front_matter: dict) -> list[str]:
-    if not isinstance(front_matter, dict):
-        return []
-
-    topics = []
-    makes = front_matter.get("makes")
-    if makes:
-        topics.append(f"Makes: {makes}")
-
-    needs = front_matter.get("needs") or []
-    if needs:
-        joined = ", ".join(str(item).strip() for item in needs if item)
-        if joined:
-            topics.append(f"Needs: {joined}")
-
-    videos = front_matter.get("videos") or []
-    if videos:
-        labels = []
-        for video in videos:
-            if isinstance(video, dict):
-                label = video.get("id") or video.get("title")
-                if label:
-                    labels.append(label)
-        if labels:
-            topics.append("Videos: " + ", ".join(labels))
-
-    session = front_matter.get("session")
-    if session:
-        topics.append(f"Session: {session}")
-
-    helper_notes = front_matter.get("helper_notes") or []
-    if helper_notes:
-        notes = ", ".join(str(item).strip() for item in helper_notes if item)
-        if notes:
-            topics.append("Notes: " + notes)
-
-    return topics
-
-
-def _build_allowed_topics(front_matter: dict) -> list[str]:
-    if not isinstance(front_matter, dict):
-        return []
-    allowed = front_matter.get("helper_allowed_topics") or front_matter.get("allowed_topics") or []
-    if isinstance(allowed, str):
-        parts = [p.strip() for p in allowed.split("|") if p.strip()]
-        return parts
-    if isinstance(allowed, list):
-        return [str(p).strip() for p in allowed if str(p).strip()]
-    return []
-
-
-def _split_helper_topics_text(raw: str) -> list[str]:
-    parts: list[str] = []
-    normalized = (raw or "").replace("\r\n", "\n").replace("\r", "\n")
-    for line in normalized.split("\n"):
-        for segment in line.split("|"):
-            token = segment.strip()
-            if token:
-                parts.append(token)
-    return parts
 
 
 def _normalize_stored_lesson_videos(course_slug: str, lesson_slug: str) -> list[dict]:
@@ -270,8 +213,8 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
     next_l = lessons[idx + 1] if isinstance(idx, int) and idx + 1 < len(lessons) else None
 
     helper_context = fm.get("title") or lesson_slug
-    helper_topics = _build_lesson_topics(fm)
-    helper_allowed_topics = _build_allowed_topics(fm)
+    helper_topics = build_lesson_topics(fm)
+    helper_allowed_topics = build_allowed_topics(fm)
     lesson_submission = front_matter_submission(fm)
     lesson_upload_material = None
     lesson_upload_status = {}
@@ -299,8 +242,8 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
     helper_reference = lesson_meta.get("helper_reference") or manifest.get("helper_reference") or ""
     if release_override:
         helper_context_override = (release_override.helper_context_override or "").strip()
-        helper_topics_override = _split_helper_topics_text(release_override.helper_topics_override)
-        helper_allowed_topics_override = _split_helper_topics_text(release_override.helper_allowed_topics_override)
+        helper_topics_override = split_helper_topics_text(release_override.helper_topics_override)
+        helper_allowed_topics_override = split_helper_topics_text(release_override.helper_allowed_topics_override)
         helper_reference_override = (release_override.helper_reference_override or "").strip()
         if helper_context_override:
             helper_context = helper_context_override
