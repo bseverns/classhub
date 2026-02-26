@@ -10,11 +10,9 @@ New code should import endpoints from submodules by concern:
 from .content import course_lesson, course_overview, iter_course_lesson_options
 from .internal import internal_helper_chat_access_event
 from .media import lesson_asset_download, lesson_video_stream
+from .student_join import index, invite_join, join_class
 from .student import (
     healthz,
-    index,
-    invite_join,
-    join_class,
     material_upload,
     student_delete_work,
     student_end_session,
