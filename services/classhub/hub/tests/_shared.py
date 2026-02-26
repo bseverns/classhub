@@ -13,7 +13,9 @@ from django.core import mail, signing
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.db import connection
 from django.test import Client, SimpleTestCase, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django_otp.oath import totp
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django.utils import timezone

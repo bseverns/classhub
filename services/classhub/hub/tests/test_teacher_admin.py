@@ -18,6 +18,51 @@ class RetentionSettingParsingTests(SimpleTestCase):
         self.assertEqual(content_retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180), 180)
 
 
+class TeacherRosterClassServiceTests(TestCase):
+    def test_material_submission_counts_uses_distinct_student_aggregation(self):
+        from ..services.teacher_roster_class import _material_submission_counts
+
+        classroom = Class.objects.create(name="Period Svc", join_code="SVCCOUNT")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        upload = Material.objects.create(
+            module=module,
+            title="Upload your project file",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        student_a = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        student_b = StudentIdentity.objects.create(classroom=classroom, display_name="Ben")
+
+        # Ada submits twice; count should still be 1 for Ada + 1 for Ben.
+        Submission.objects.create(
+            material=upload,
+            student=student_a,
+            original_filename="ada_first.sb3",
+            file=SimpleUploadedFile("ada_first.sb3", b"first"),
+        )
+        Submission.objects.create(
+            material=upload,
+            student=student_a,
+            original_filename="ada_second.sb3",
+            file=SimpleUploadedFile("ada_second.sb3", b"second"),
+        )
+        Submission.objects.create(
+            material=upload,
+            student=student_b,
+            original_filename="ben.sb3",
+            file=SimpleUploadedFile("ben.sb3", b"third"),
+        )
+
+        with CaptureQueriesContext(connection) as queries:
+            counts = _material_submission_counts([upload.id])
+
+        self.assertEqual(counts.get(upload.id), 2)
+        sql_text = "\n".join(q["sql"] for q in queries.captured_queries).upper()
+        self.assertIn("COUNT(DISTINCT", sql_text)
+
+
 class TeacherPortalTests(TestCase):
     def setUp(self):
         self.staff = get_user_model().objects.create_user(
@@ -1212,5 +1257,4 @@ class LessonReleaseTests(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertContains(resp, "Upload blocked by malware scan", status_code=400)
         self.assertEqual(Submission.objects.filter(material=self.upload).count(), 0)
-
 

@@ -22,12 +22,12 @@ def _material_submission_counts(upload_material_ids: list[int]) -> dict[int, int
         return submission_counts
     rows = (
         Submission.objects.filter(material_id__in=upload_material_ids)
-        .values("material_id", "student_id")
-        .distinct()
+        .values("material_id")
+        .annotate(total=models.Count("student_id", distinct=True))
     )
     for row in rows:
         material_id = int(row["material_id"])
-        submission_counts[material_id] = submission_counts.get(material_id, 0) + 1
+        submission_counts[material_id] = int(row["total"])
     return submission_counts
 
 
