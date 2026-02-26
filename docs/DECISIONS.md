@@ -463,6 +463,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Lint workflow now enforces dense-view function budgets (`scripts/check_view_function_budgets.py` + `scripts/view_function_budgets.json`) so large endpoint callables and helper functions cannot grow without explicit review.
 - Lint workflow now enforces service-layer import direction (`scripts/check_no_service_imports_from_views.py`) so service modules cannot import from `views.*`.
 - Lint workflow now enforces explicit service exports (`scripts/check_no_dynamic_service_all_exports.py`) to block dynamic `__all__` patterns that leak internal helpers as accidental API.
+- CI now runs Django `check --deploy --fail-level WARNING` for both services in prod-like env via `.github/workflows/deploy-check.yml`.
 - `docs/ENDPOINT_CHECKLIST.md` is the required baseline for new endpoints (cache, CSP, download hardening, throttling, logging minimization, and error-handling expectations).
 - CI now writes concise human-readable summaries to `$GITHUB_STEP_SUMMARY`:
   - Ruff advisory stats in `lint`.
@@ -480,6 +481,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Adds a second ratchet at function granularity so dense endpoint callables keep trending smaller over time.
 - Prevents service/view layering inversion from reappearing during refactors.
 - Prevents accidental service API surface expansion from broad dynamic exports.
+- Catches production security-setting drift earlier than unit/integration tests.
 - Prevents silent CI gate loss from workflow syntax regressions.
 
 ## Non-root Django runtime containers
