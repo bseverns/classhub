@@ -41,7 +41,8 @@
 
 		@internal_routes path /internal /internal/*
 		respond @internal_routes "not found" 404
-		handle /helper/internal* {
+		@helper_internal_routes path /helper/internal /helper/internal/*
+		handle @helper_internal_routes {
 			respond "not found" 404
 		}
 
