@@ -4,10 +4,10 @@ from unittest.mock import MagicMock, patch
 
 from django.test import SimpleTestCase
 
-from .engine import auth
-from .engine import backends
-from .engine import heuristics
-from .engine import runtime
+from ..engine import auth
+from ..engine import backends
+from ..engine import heuristics
+from ..engine import runtime
 
 
 class BackendEngineTests(SimpleTestCase):
