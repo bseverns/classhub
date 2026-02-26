@@ -4,6 +4,8 @@ from .shared import (
     FileResponse,
     HttpResponse,
     Path,
+    Organization,
+    OrganizationMembership,
     Submission,
     _AUTHORING_TEMPLATE_SUFFIXES,
     _TEMPLATE_SLUG_RE,
@@ -30,6 +32,54 @@ from .shared import (
 )
 
 
+def _read_org_admin_state(request):
+    org_name = (request.GET.get("org_name") or "").strip()
+    org_membership_org_id = (request.GET.get("org_membership_org_id") or "").strip()
+    org_membership_user_id = (request.GET.get("org_membership_user_id") or "").strip()
+    org_membership_role = (request.GET.get("org_membership_role") or "").strip()
+    org_membership_active = (request.GET.get("org_membership_active") or "").strip()
+    org_admin_active = (
+        (request.GET.get("org_admin") or "").strip() == "1"
+        or bool(org_name or org_membership_org_id or org_membership_user_id or org_membership_role)
+    )
+    return {
+        "org_name": org_name,
+        "org_membership_org_id": org_membership_org_id,
+        "org_membership_user_id": org_membership_user_id,
+        "org_membership_role": org_membership_role,
+        "org_membership_active": org_membership_active if org_membership_active in {"0", "1"} else "1",
+        "org_admin_active": org_admin_active,
+    }
+
+
+def _build_org_admin_context(*, user, user_model):
+    if not user.is_superuser:
+        return {
+            "organizations": [],
+            "org_memberships": [],
+            "staff_users": [],
+            "org_role_choices": OrganizationMembership.ROLE_CHOICES,
+        }
+    organizations = list(
+        Organization.objects.order_by("name", "id").only("id", "name", "is_active")
+    )
+    org_memberships = list(
+        OrganizationMembership.objects.select_related("organization", "user")
+        .order_by("organization__name", "user__username", "id")
+    )
+    staff_users = list(
+        user_model.objects.filter(is_staff=True)
+        .order_by("username", "id")
+        .only("id", "username", "is_active", "is_superuser")
+    )
+    return {
+        "organizations": organizations,
+        "org_memberships": org_memberships,
+        "staff_users": staff_users,
+        "org_role_choices": OrganizationMembership.ROLE_CHOICES,
+    }
+
+
 @staff_member_required
 def teach_home(request):
     """Teacher landing page (outside /admin)."""
@@ -43,9 +93,15 @@ def teach_home(request):
     teacher_email = (request.GET.get("teacher_email") or "").strip()
     teacher_first_name = (request.GET.get("teacher_first_name") or "").strip()
     teacher_last_name = (request.GET.get("teacher_last_name") or "").strip()
+    org_state = _read_org_admin_state(request)
     teacher_invite_active = bool(
         teacher_username or teacher_email or teacher_first_name or teacher_last_name
     )
+    initial_tab = "quick-actions"
+    if request.user.is_superuser and org_state["org_admin_active"]:
+        initial_tab = "org-admin"
+    elif request.user.is_superuser and teacher_invite_active:
+        initial_tab = "invite-teacher"
 
     classes, assigned_class_ids = staff_accessible_classes_ranked(request.user)
     digest_since = timezone.now() - timedelta(days=1)
@@ -87,6 +143,8 @@ def teach_home(request):
                 }
             )
 
+    org_admin_context = _build_org_admin_context(user=request.user, user_model=User)
+
     response = render(
         request,
         "teach_home.html",
@@ -110,7 +168,14 @@ def teach_home(request):
             "teacher_first_name": teacher_first_name,
             "teacher_last_name": teacher_last_name,
             "teacher_invite_active": teacher_invite_active,
+            "initial_top_tab": initial_tab,
+            "org_name": org_state["org_name"],
+            "org_membership_org_id": org_state["org_membership_org_id"],
+            "org_membership_user_id": org_state["org_membership_user_id"],
+            "org_membership_role": org_state["org_membership_role"] or OrganizationMembership.ROLE_TEACHER,
+            "org_membership_active": org_state["org_membership_active"],
             "org_membership_mode": staff_has_explicit_memberships(request.user),
+            **org_admin_context,
         },
     )
     apply_no_store(response, private=True, pragma=True)

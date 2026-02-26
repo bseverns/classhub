@@ -28,6 +28,8 @@ from ...models import (
     LessonVideo,
     Material,
     Module,
+    Organization,
+    OrganizationMembership,
     StudentEvent,
     StudentIdentity,
     Submission,

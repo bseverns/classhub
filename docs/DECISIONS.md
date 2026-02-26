@@ -113,6 +113,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Add first-class `Organization` and `OrganizationMembership` models in ClassHub.
 - `Class.organization` is optional during rollout so existing data can migrate safely.
 - Staff role choices are `owner`, `admin`, `teacher`, `viewer`.
+- Superusers can manage organizations and org memberships directly in the teacher portal (`/teach`) without using Django admin.
 - Teacher portal class visibility now uses org memberships when present:
   - superusers keep full visibility.
   - staff with no memberships keep legacy global class visibility.

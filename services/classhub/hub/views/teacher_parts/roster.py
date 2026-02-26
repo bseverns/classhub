@@ -23,6 +23,11 @@ from .roster_invites import (
     teach_export_class_summary_csv,
     teach_set_enrollment_mode,
 )
+from .roster_orgs import (
+    teach_create_organization,
+    teach_set_organization_active,
+    teach_upsert_organization_membership,
+)
 from .roster_materials import (
     teach_add_material,
     teach_add_module,
@@ -47,6 +52,9 @@ __all__ = [
     "teach_disable_invite_link",
     "teach_export_class_outcomes_csv",
     "teach_set_enrollment_mode",
+    "teach_create_organization",
+    "teach_set_organization_active",
+    "teach_upsert_organization_membership",
     "teach_student_return_code",
     "teach_rename_student",
     "teach_merge_students",

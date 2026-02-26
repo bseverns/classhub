@@ -175,6 +175,10 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
   - class list
   - one-click `Copy` for class join codes
   - superuser-only teacher onboarding card (create account + send 2FA invite email)
+  - superuser-only organization management tab:
+    - create organizations
+    - set organization active/inactive
+    - assign/update org memberships for staff users (`owner` / `admin` / `teacher` / `viewer`)
   - create class
   - generate authoring templates (`.md` + `.docx`) by setting:
     - `course slug`

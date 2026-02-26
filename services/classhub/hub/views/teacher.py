@@ -15,6 +15,7 @@ from .teacher_parts.roster import (
     teach_class_dashboard,
     teach_class_join_card,
     teach_create_invite_link,
+    teach_create_organization,
     teach_create_class,
     teach_delete_student_data,
     teach_download_certificate,
@@ -36,8 +37,10 @@ from .teacher_parts.roster import (
     teach_reset_roster,
     teach_rotate_code,
     teach_set_enrollment_mode,
+    teach_set_organization_active,
     teach_student_return_code,
     teach_toggle_lock,
+    teach_upsert_organization_membership,
 )
 from .teacher_parts.videos import teach_assets, teach_videos
 
@@ -55,12 +58,14 @@ __all__ = [
     "teach_class_dashboard",
     "teach_class_join_card",
     "teach_create_invite_link",
+    "teach_create_organization",
     "teach_issue_certificate",
     "teach_download_certificate",
     "teach_download_certificate_pdf",
     "teach_disable_invite_link",
     "teach_export_class_outcomes_csv",
     "teach_set_enrollment_mode",
+    "teach_set_organization_active",
     "teach_student_return_code",
     "teach_rename_student",
     "teach_merge_students",
@@ -82,4 +87,5 @@ __all__ = [
     "teach_move_material",
     "teach_material_submissions",
     "teach_mark_session_completed",
+    "teach_upsert_organization_membership",
 ]

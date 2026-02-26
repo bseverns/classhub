@@ -102,7 +102,6 @@ async function main() {
         name: "sessionid",
         value: teacherSessionKey,
         url: baseUrl,
-        path: "/",
         sameSite: "Lax",
       },
     ]);

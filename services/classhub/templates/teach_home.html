@@ -31,7 +31,7 @@
           <div class="error" role="alert" aria-live="assertive">{{ error }}</div>
         {% endif %}
 
-        <div class="card" data-tabs data-initial-tab="{% if teacher_invite_active %}invite-teacher{% else %}quick-actions{% endif %}">
+        <div class="card" data-tabs data-initial-tab="{{ initial_top_tab|default:'quick-actions' }}">
           <div class="top-tabs" role="tablist" aria-label="Teacher top actions">
             <button type="button" class="top-tab" id="tab-quick-actions" role="tab" aria-controls="panel-quick-actions" aria-selected="true">
               Class setup
@@ -39,6 +39,9 @@
             {% if request.user.is_superuser %}
               <button type="button" class="top-tab" id="tab-invite-teacher" role="tab" aria-controls="panel-invite-teacher" aria-selected="false">
                 Invite teacher
+              </button>
+              <button type="button" class="top-tab" id="tab-org-admin" role="tab" aria-controls="panel-org-admin" aria-selected="false">
+                Organizations
               </button>
             {% endif %}
           </div>
@@ -138,6 +141,150 @@
                     </tbody>
                   </table>
                 </div>
+              {% endif %}
+            </section>
+
+            <section class="top-tab-panel" id="panel-org-admin" role="tabpanel" aria-labelledby="tab-org-admin" hidden>
+              <h2 class="section-title">Organizations + Staff Memberships</h2>
+              <div class="muted section-subtitle">
+                Superuser-only controls for organization boundaries and org role membership.
+              </div>
+
+              <h3 class="section-title-compact">Create organization</h3>
+              <form method="post" action="/teach/create-organization">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="org-name">Organization name</label>
+                    <input id="org-name" name="org_name" value="{{ org_name }}" placeholder="e.g., createMPLS" required />
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Create organization</button>
+                </div>
+              </form>
+
+              {% if organizations %}
+                <div class="table-wrap org-table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Organizations</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Organization</th>
+                        <th scope="col">Status</th>
+                        <th scope="col"><span class="visually-hidden">Action</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for org in organizations %}
+                        <tr>
+                          <th scope="row"><strong>{{ org.name }}</strong></th>
+                          <td>
+                            {% if org.is_active %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Inactive</span>
+                            {% endif %}
+                          </td>
+                          <td>
+                            <form method="post" action="/teach/org/{{ org.id }}/set-active" class="inline-form">
+                              {% csrf_token %}
+                              {% if org.is_active %}
+                                <input type="hidden" name="is_active" value="0" />
+                                <button type="submit" class="mini">Set inactive</button>
+                              {% else %}
+                                <input type="hidden" name="is_active" value="1" />
+                                <button type="submit" class="mini">Set active</button>
+                              {% endif %}
+                            </form>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted">No organizations yet.</p>
+              {% endif %}
+
+              <h3 class="section-title-compact">Set organization membership</h3>
+              <form method="post" action="/teach/org-membership/upsert">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="org-membership-org">Organization</label>
+                    <select id="org-membership-org" name="org_membership_org_id" required>
+                      <option value="">Select an organization</option>
+                      {% for org in organizations %}
+                        <option value="{{ org.id }}" {% if org_membership_org_id == org.id|stringformat:"s" %}selected{% endif %}>
+                          {{ org.name }}{% if not org.is_active %} (inactive){% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="org-membership-user">Staff user</label>
+                    <select id="org-membership-user" name="org_membership_user_id" required>
+                      <option value="">Select a staff user</option>
+                      {% for account in staff_users %}
+                        <option value="{{ account.id }}" {% if org_membership_user_id == account.id|stringformat:"s" %}selected{% endif %}>
+                          {{ account.username }}{% if account.is_superuser %} (superuser){% endif %}{% if not account.is_active %} (inactive){% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="org-membership-role">Role</label>
+                    <select id="org-membership-role" name="org_membership_role" required>
+                      {% for value, label in org_role_choices %}
+                        <option value="{{ value }}" {% if org_membership_role == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
+                      <input type="checkbox" name="org_membership_active" value="1" {% if org_membership_active == "1" %}checked{% endif %} />
+                      Membership active
+                    </label>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Save membership</button>
+                </div>
+              </form>
+
+              {% if org_memberships %}
+                <div class="table-wrap org-membership-table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Organization memberships</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Organization</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for membership in org_memberships %}
+                        <tr>
+                          <th scope="row"><strong>{{ membership.organization.name }}</strong></th>
+                          <td>{{ membership.user.username }}</td>
+                          <td>{{ membership.get_role_display }}</td>
+                          <td>
+                            {% if membership.is_active %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Inactive</span>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted">No organization memberships yet.</p>
               {% endif %}
             </section>
           {% endif %}

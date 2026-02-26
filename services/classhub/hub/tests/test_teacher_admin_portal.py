@@ -1123,6 +1123,84 @@ class TeacherPortalTests(TestCase):
         self.assertIn("/teach?error=", resp["Location"])
         self.assertFalse(get_user_model().objects.filter(username="blocked").exists())
 
+    def test_superuser_teach_home_shows_org_admin_controls(self):
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.get("/teach")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Organizations + Staff Memberships")
+        self.assertContains(resp, "/teach/create-organization")
+        self.assertContains(resp, "/teach/org-membership/upsert")
+
+    def test_superuser_can_create_organization_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.post(
+            "/teach/create-organization",
+            {"org_name": "createMPLS Programs"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+        created = Organization.objects.filter(name="createMPLS Programs").first()
+        self.assertIsNotNone(created)
+
+        event = AuditEvent.objects.filter(action="organization.create", target_id=str(created.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_superuser_can_upsert_organization_membership_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+        org = Organization.objects.create(name="Org Membership Lab")
+        teacher = get_user_model().objects.create_user(
+            username="membership_teacher",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+
+        create_resp = self.client.post(
+            "/teach/org-membership/upsert",
+            {
+                "org_membership_org_id": str(org.id),
+                "org_membership_user_id": str(teacher.id),
+                "org_membership_role": OrganizationMembership.ROLE_ADMIN,
+                "org_membership_active": "1",
+            },
+        )
+        self.assertEqual(create_resp.status_code, 302)
+        membership = OrganizationMembership.objects.get(organization=org, user=teacher)
+        self.assertEqual(membership.role, OrganizationMembership.ROLE_ADMIN)
+        self.assertTrue(membership.is_active)
+
+        update_resp = self.client.post(
+            "/teach/org-membership/upsert",
+            {
+                "org_membership_org_id": str(org.id),
+                "org_membership_user_id": str(teacher.id),
+                "org_membership_role": OrganizationMembership.ROLE_VIEWER,
+                # unchecked checkbox -> inactive
+            },
+        )
+        self.assertEqual(update_resp.status_code, 302)
+        membership.refresh_from_db()
+        self.assertEqual(membership.role, OrganizationMembership.ROLE_VIEWER)
+        self.assertFalse(membership.is_active)
+
+        event = AuditEvent.objects.filter(action="organization.membership.upsert", target_id=str(membership.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_superuser_can_toggle_organization_active_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+        org = Organization.objects.create(name="Org Toggle Lab", is_active=True)
+
+        resp = self.client.post(f"/teach/org/{org.id}/set-active", {"is_active": "0"})
+        self.assertEqual(resp.status_code, 302)
+        org.refresh_from_db()
+        self.assertFalse(org.is_active)
+
+        event = AuditEvent.objects.filter(action="organization.set_active", target_id=str(org.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
 
 class TeacherOrganizationAccessTests(TestCase):
     def setUp(self):
@@ -1275,3 +1353,23 @@ class TeacherOrganizationAccessTests(TestCase):
         resp = self.client.post("/teach/create-class", {"name": "Should Not Create"})
         self.assertEqual(resp.status_code, 403)
         self.assertFalse(Class.objects.filter(name="Should Not Create").exists())
+
+    def test_non_superuser_staff_cannot_manage_organizations_from_teach(self):
+        resp = self.client.post("/teach/create-organization", {"org_name": "Blocked Org"})
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?error=", resp["Location"])
+        self.assertFalse(Organization.objects.filter(name="Blocked Org").exists())
+
+        org = Organization.objects.create(name="Blocked Membership Org")
+        resp_membership = self.client.post(
+            "/teach/org-membership/upsert",
+            {
+                "org_membership_org_id": str(org.id),
+                "org_membership_user_id": str(self.staff.id),
+                "org_membership_role": OrganizationMembership.ROLE_TEACHER,
+                "org_membership_active": "1",
+            },
+        )
+        self.assertEqual(resp_membership.status_code, 302)
+        self.assertIn("/teach?error=", resp_membership["Location"])
+        self.assertFalse(OrganizationMembership.objects.filter(organization=org, user=self.staff).exists())
