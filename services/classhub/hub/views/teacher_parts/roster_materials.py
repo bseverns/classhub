@@ -120,7 +120,16 @@ def teach_add_material(request, module_id: int):
     if not staff_can_manage_classroom(request.user, module.classroom):
         return HttpResponse("Forbidden", status=403)
 
+    allowed_types = {
+        Material.TYPE_LINK,
+        Material.TYPE_TEXT,
+        Material.TYPE_UPLOAD,
+        Material.TYPE_CHECKLIST,
+        Material.TYPE_REFLECTION,
+    }
     mtype = (request.POST.get("type") or Material.TYPE_LINK).strip()
+    if mtype not in allowed_types:
+        mtype = Material.TYPE_LINK
     title = (request.POST.get("title") or "").strip()[:200]
     if not title:
         return _safe_internal_redirect(request, _teach_module_path(module.id), fallback=_teach_class_path(module.classroom_id))
@@ -143,6 +152,12 @@ def teach_add_material(request, module_id: int):
         except Exception:
             mat.max_upload_mb = 50
         mat.save(update_fields=["accepted_extensions", "max_upload_mb"])
+    elif mtype == Material.TYPE_CHECKLIST:
+        mat.body = (request.POST.get("checklist_items") or "").strip()
+        mat.save(update_fields=["body"])
+    elif mtype == Material.TYPE_REFLECTION:
+        mat.body = (request.POST.get("reflection_prompt") or "").strip()
+        mat.save(update_fields=["body"])
     _audit(
         request,
         action="material.add",

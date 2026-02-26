@@ -623,6 +623,10 @@
                             <pre class="module-text-preview">{{ mat.body|truncatechars:280 }}</pre>
                           {% elif mat.type == 'upload' %}
                             <div class="muted mini">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
+                          {% elif mat.type == 'checklist' and mat.body %}
+                            <pre class="module-text-preview">{{ mat.body|truncatechars:280 }}</pre>
+                          {% elif mat.type == 'reflection' and mat.body %}
+                            <pre class="module-text-preview">{{ mat.body|truncatechars:280 }}</pre>
                           {% endif %}
                         </div>
                       {% endfor %}

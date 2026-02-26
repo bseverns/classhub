@@ -15,6 +15,7 @@ from .models import (
     OrganizationMembership,
     StudentEvent,
     StudentIdentity,
+    StudentMaterialResponse,
     StudentOutcomeEvent,
     Submission,
 )
@@ -119,6 +120,14 @@ class SubmissionAdmin(admin.ModelAdmin):
         return format_html('<a href="/submission/{}/download">Download</a>', obj.id)
 
     download_link.short_description = "Download"
+
+
+@admin.register(StudentMaterialResponse)
+class StudentMaterialResponseAdmin(admin.ModelAdmin):
+    list_display = ("id", "student", "material", "updated_at")
+    list_filter = ("material__module__classroom", "material")
+    search_fields = ("student__display_name", "material__title")
+    readonly_fields = ("created_at", "updated_at")
 
 
 @admin.register(LessonVideo)

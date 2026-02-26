@@ -16,14 +16,17 @@ from common.helper_scope import issue_scope_token
 
 from ..forms import SubmissionUploadForm
 from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
-from ..models import Class, Material, StudentEvent, StudentIdentity, Submission
+from ..models import Class, Material, StudentEvent, StudentIdentity, StudentMaterialResponse, StudentOutcomeEvent, Submission
 from ..services.export_service import build_student_portfolio_export_response
 from ..services.ip_privacy import minimize_student_event_ip
 from ..services.join_flow_service import clear_device_hint_cookie
 from ..services.student_home import (
     build_material_access_map,
+    build_material_checklist_items_map,
+    build_material_response_map,
     build_submissions_by_material,
     helper_backend_label,
+    parse_checklist_items,
     privacy_meta_context,
 )
 from ..services.submission_service import (
@@ -76,6 +79,42 @@ def _end_student_session_response(request):
     return response
 
 
+def _safe_student_return_path(request, fallback: str = "/student") -> str:
+    candidate = (request.POST.get("return_to") or request.GET.get("return_to") or "").strip()
+    if candidate.startswith("/") and not candidate.startswith("//"):
+        return candidate
+    return fallback
+
+
+def _normalize_checked_indexes(raw_values: list[str], *, total_items: int) -> list[int]:
+    checked: list[int] = []
+    for raw in raw_values:
+        try:
+            idx = int(raw)
+        except Exception:
+            continue
+        if idx < 0 or idx >= total_items or idx in checked:
+            continue
+        checked.append(idx)
+    checked.sort()
+    return checked
+
+
+def _record_material_milestone_event(*, request, material: Material, trigger: str, source: str) -> None:
+    try:
+        StudentOutcomeEvent.objects.create(
+            classroom=request.classroom,
+            student=request.student,
+            module=material.module,
+            material=material,
+            event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
+            source=source,
+            details={"trigger": trigger, "material_id": material.id},
+        )
+    except Exception:
+        logger.exception("student_milestone_event_write_failed material_id=%s trigger=%s", material.id, trigger)
+
+
 def healthz(request):
     # Used by Caddy/ops checks to confirm the app process is alive.
     return HttpResponse("ok", content_type="text/plain")
@@ -92,6 +131,8 @@ def student_home(request):
     modules = list(classroom.modules.prefetch_related("materials").all())
     material_ids, material_access = build_material_access_map(request, classroom=classroom, modules=modules)
     submissions_by_material = build_submissions_by_material(student=request.student, material_ids=material_ids)
+    material_checklist_items = build_material_checklist_items_map(modules=modules)
+    material_responses = build_material_response_map(student=request.student, material_ids=material_ids)
 
     privacy_meta = privacy_meta_context()
     helper_widget = render_to_string(
@@ -125,6 +166,8 @@ def student_home(request):
             "classroom": classroom,
             "modules": modules,
             "submissions_by_material": submissions_by_material,
+            "material_checklist_items": material_checklist_items,
+            "material_responses": material_responses,
             "material_access": material_access,
             "helper_widget": helper_widget,
             **privacy_meta,
@@ -197,6 +240,10 @@ def student_delete_work(request):
     )
     deleted_submissions = submissions_qs.count()
     submissions_qs.delete()
+    StudentMaterialResponse.objects.filter(
+        student=request.student,
+        material__module__classroom=request.classroom,
+    ).delete()
 
     deleted_events, _details = StudentEvent.objects.filter(
         student=request.student,
@@ -210,6 +257,87 @@ def student_delete_work(request):
 @require_POST
 def student_end_session(request):
     return _end_student_session_response(request)
+
+
+@require_POST
+def material_checklist(request, material_id: int):
+    if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
+        return redirect("/")
+
+    material = Material.objects.select_related("module__classroom").filter(id=material_id).first()
+    if not material or material.module.classroom_id != request.classroom.id or material.type != Material.TYPE_CHECKLIST:
+        return HttpResponse("Not found", status=404)
+    _material_ids, access_map = build_material_access_map(
+        request,
+        classroom=request.classroom,
+        modules=[material.module],
+    )
+    if access_map.get(material.id, {}).get("is_locked"):
+        return HttpResponse("Checklist is locked for this lesson.", status=403)
+
+    checklist_items = parse_checklist_items(material.body)
+    checked_indexes = _normalize_checked_indexes(
+        request.POST.getlist("checked_item"),
+        total_items=len(checklist_items),
+    )
+    response_obj, _created = StudentMaterialResponse.objects.get_or_create(
+        material=material,
+        student=request.student,
+        defaults={"checklist_checked": checked_indexes},
+    )
+    previously_complete = bool(checklist_items) and len(response_obj.checklist_checked or []) >= len(checklist_items)
+    if response_obj.checklist_checked != checked_indexes:
+        response_obj.checklist_checked = checked_indexes
+        response_obj.save(update_fields=["checklist_checked", "updated_at"])
+
+    now_complete = bool(checklist_items) and len(checked_indexes) >= len(checklist_items)
+    if not previously_complete and now_complete:
+        _record_material_milestone_event(
+            request=request,
+            material=material,
+            trigger="checklist_completed",
+            source="classhub.material_checklist",
+        )
+
+    return redirect(_safe_student_return_path(request))
+
+
+@require_POST
+def material_reflection(request, material_id: int):
+    if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
+        return redirect("/")
+
+    material = Material.objects.select_related("module__classroom").filter(id=material_id).first()
+    if not material or material.module.classroom_id != request.classroom.id or material.type != Material.TYPE_REFLECTION:
+        return HttpResponse("Not found", status=404)
+    _material_ids, access_map = build_material_access_map(
+        request,
+        classroom=request.classroom,
+        modules=[material.module],
+    )
+    if access_map.get(material.id, {}).get("is_locked"):
+        return HttpResponse("Reflection is locked for this lesson.", status=403)
+
+    reflection_text = (request.POST.get("reflection_text") or "").strip()[:2000]
+    response_obj, _created = StudentMaterialResponse.objects.get_or_create(
+        material=material,
+        student=request.student,
+        defaults={"reflection_text": reflection_text},
+    )
+    previously_had_text = bool((response_obj.reflection_text or "").strip())
+    if response_obj.reflection_text != reflection_text:
+        response_obj.reflection_text = reflection_text
+        response_obj.save(update_fields=["reflection_text", "updated_at"])
+
+    if not previously_had_text and reflection_text:
+        _record_material_milestone_event(
+            request=request,
+            material=material,
+            trigger="reflection_submitted",
+            source="classhub.material_reflection",
+        )
+
+    return redirect(_safe_student_return_path(request))
 
 
 def material_upload(request, material_id: int):

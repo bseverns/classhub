@@ -680,6 +680,118 @@ class StudentEventSubmissionTests(TestCase):
         self.assertEqual(Submission.objects.filter(material=self.material, student=self.student).count(), 0)
 
 
+class StudentChecklistReflectionTests(TestCase):
+    def setUp(self):
+        self.classroom = Class.objects.create(name="Checklist Reflection Class", join_code="CFR12345")
+        self.module = Module.objects.create(classroom=self.classroom, title="Session 1", order_index=0)
+        self.checklist = Material.objects.create(
+            module=self.module,
+            title="Class checklist",
+            type=Material.TYPE_CHECKLIST,
+            body="I completed the warm-up\nI tested my code",
+            order_index=0,
+        )
+        self.reflection = Material.objects.create(
+            module=self.module,
+            title="Reflection journal",
+            type=Material.TYPE_REFLECTION,
+            body="What changed in your code today?",
+            order_index=1,
+        )
+        self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+
+    def _login_student(self):
+        session = self.client.session
+        session["student_id"] = self.student.id
+        session["class_id"] = self.classroom.id
+        session.save()
+
+    def test_student_home_renders_checklist_and_reflection_forms(self):
+        self._login_student()
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, f"/material/{self.checklist.id}/checklist")
+        self.assertContains(resp, f"/material/{self.reflection.id}/reflection")
+        self.assertContains(resp, "Class checklist")
+        self.assertContains(resp, "Reflection journal")
+
+    def test_student_can_save_checklist_and_emit_completion_milestone(self):
+        self._login_student()
+        resp = self.client.post(
+            f"/material/{self.checklist.id}/checklist",
+            {"checked_item": ["0", "1"]},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/student")
+
+        saved = StudentMaterialResponse.objects.filter(student=self.student, material=self.checklist).first()
+        self.assertIsNotNone(saved)
+        self.assertEqual(saved.checklist_checked, [0, 1])
+
+        milestone = StudentOutcomeEvent.objects.filter(
+            student=self.student,
+            classroom=self.classroom,
+            material=self.checklist,
+            event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
+        ).order_by("-id").first()
+        self.assertIsNotNone(milestone)
+        self.assertEqual(milestone.details.get("trigger"), "checklist_completed")
+        self.assertNotIn("warm-up", json.dumps(milestone.details))
+
+    def test_student_can_save_reflection_without_event_content_leak(self):
+        self._login_student()
+        reflection_text = "I fixed my loop and tested with a partner."
+        resp = self.client.post(
+            f"/material/{self.reflection.id}/reflection",
+            {"reflection_text": reflection_text},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/student")
+
+        saved = StudentMaterialResponse.objects.filter(student=self.student, material=self.reflection).first()
+        self.assertIsNotNone(saved)
+        self.assertEqual(saved.reflection_text, reflection_text)
+
+        milestone = StudentOutcomeEvent.objects.filter(
+            student=self.student,
+            classroom=self.classroom,
+            material=self.reflection,
+            event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
+        ).order_by("-id").first()
+        self.assertIsNotNone(milestone)
+        self.assertEqual(milestone.details.get("trigger"), "reflection_submitted")
+        self.assertNotIn("loop and tested", json.dumps(milestone.details))
+
+    def test_checklist_and_reflection_posts_are_blocked_when_lesson_locked(self):
+        Material.objects.create(
+            module=self.module,
+            title="Session 1 lesson",
+            type=Material.TYPE_LINK,
+            url="/course/piper_scratch_12_session/s01-welcome-private-workflow",
+            order_index=99,
+        )
+        LessonRelease.objects.create(
+            classroom=self.classroom,
+            course_slug="piper_scratch_12_session",
+            lesson_slug="s01-welcome-private-workflow",
+            available_on=timezone.localdate() + timedelta(days=2),
+        )
+        self._login_student()
+
+        checklist_resp = self.client.post(
+            f"/material/{self.checklist.id}/checklist",
+            {"checked_item": ["0", "1"]},
+        )
+        self.assertEqual(checklist_resp.status_code, 403)
+
+        reflection_resp = self.client.post(
+            f"/material/{self.reflection.id}/reflection",
+            {"reflection_text": "Locked write should fail."},
+        )
+        self.assertEqual(reflection_resp.status_code, 403)
+        self.assertEqual(StudentMaterialResponse.objects.filter(student=self.student).count(), 0)
+
+
 class SubmissionDownloadHardeningTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Download Class", join_code="DL123456")
@@ -973,6 +1085,29 @@ class StudentDataControlsTests(TestCase):
         self.assertEqual(Submission.objects.filter(student=self.student).count(), 0)
         self.assertEqual(
             StudentEvent.objects.filter(student=self.student, event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD).count(),
+            0,
+        )
+
+    def test_student_delete_work_now_clears_material_responses(self):
+        checklist = Material.objects.create(
+            module=self.module,
+            title="Checklist",
+            type=Material.TYPE_CHECKLIST,
+            body="I did the thing",
+            order_index=1,
+        )
+        StudentMaterialResponse.objects.create(
+            material=checklist,
+            student=self.student,
+            checklist_checked=[0],
+            reflection_text="",
+        )
+        self._login_student()
+
+        resp = self.client.post("/student/delete-work")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            StudentMaterialResponse.objects.filter(student=self.student, material=checklist).count(),
             0,
         )
 

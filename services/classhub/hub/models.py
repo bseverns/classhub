@@ -162,15 +162,21 @@ class Material(models.Model):
     - link: points to lesson/content URL
     - text: short instructions/reminders
     - upload: student dropbox for file submission
+    - checklist: student self-report checklist
+    - reflection: private journal prompt/response
     """
 
     TYPE_LINK = "link"
     TYPE_TEXT = "text"
     TYPE_UPLOAD = "upload"
+    TYPE_CHECKLIST = "checklist"
+    TYPE_REFLECTION = "reflection"
     TYPE_CHOICES = [
         (TYPE_LINK, "Link"),
         (TYPE_TEXT, "Text"),
         (TYPE_UPLOAD, "Upload"),
+        (TYPE_CHECKLIST, "Checklist"),
+        (TYPE_REFLECTION, "Reflection"),
     ]
 
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="materials")
@@ -236,6 +242,33 @@ class Submission(models.Model):
 
     def __str__(self) -> str:
         return f"Submission {self.id} ({self.student.display_name} → {self.material.title})"
+
+
+class StudentMaterialResponse(models.Model):
+    """Student-authored response data for non-file material interactions."""
+
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name="student_responses")
+    student = models.ForeignKey("StudentIdentity", on_delete=models.CASCADE, related_name="material_responses")
+    checklist_checked = models.JSONField(default=list, blank=True)
+    reflection_text = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["material", "student"],
+                name="uniq_material_response_per_student",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["material", "student"], name="hub_matresp_matstu_3a9b_idx"),
+            models.Index(fields=["student", "updated_at"], name="hub_matresp_stupd_7f2c_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"Response {self.id} ({self.student.display_name} → {self.material.title})"
 
 
 class StudentIdentity(models.Model):

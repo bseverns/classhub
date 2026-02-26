@@ -135,6 +135,68 @@
                           </div>
                         {% endif %}
                       {% endwith %}
+                    {% elif mat.type == 'checklist' %}
+                      {% with access=material_access|get_item:mat.id items=material_checklist_items|get_item:mat.id state=material_responses|get_item:mat.id %}
+                        {% if access.is_lesson_activity and access.is_locked %}
+                          <div class="status-row">
+                            <span class="state-pill state-pill--locked">Checklist locked</span>
+                          </div>
+                          <div class="muted">Checklist opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+                        {% elif items %}
+                          <form method="post" action="/material/{{ mat.id }}/checklist" class="checklist-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="return_to" value="/student" />
+                            {% for item in items %}
+                              <label class="checklist-item-row">
+                                <input
+                                  type="checkbox"
+                                  name="checked_item"
+                                  value="{{ forloop.counter0 }}"
+                                  {% if state and forloop.counter0 in state.checklist_checked %}checked{% endif %}
+                                />
+                                <span>{{ item }}</span>
+                              </label>
+                            {% endfor %}
+                            <button type="submit">Save checklist</button>
+                          </form>
+                          <div class="status-row">
+                            {% if state and state.checklist_checked|length >= items|length %}
+                              <span class="state-pill state-pill--done">Done for now</span>
+                            {% else %}
+                              <span class="state-pill state-pill--open">In progress</span>
+                            {% endif %}
+                          </div>
+                        {% else %}
+                          <div class="muted empty-state">(Checklist has no items yet.)</div>
+                        {% endif %}
+                      {% endwith %}
+                    {% elif mat.type == 'reflection' %}
+                      {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id %}
+                        {% if access.is_lesson_activity and access.is_locked %}
+                          <div class="status-row">
+                            <span class="state-pill state-pill--locked">Reflection locked</span>
+                          </div>
+                          <div class="muted">Reflection opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+                        {% else %}
+                          {% if mat.body %}
+                            <pre class="text-material-preview">{{ mat.body }}</pre>
+                          {% endif %}
+                          <form method="post" action="/material/{{ mat.id }}/reflection" class="reflection-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="return_to" value="/student" />
+                            <label for="reflection-{{ mat.id }}" class="muted">Your private reflection</label>
+                            <textarea id="reflection-{{ mat.id }}" name="reflection_text" rows="5" placeholder="Write a short reflection.">{{ state.reflection_text|default:'' }}</textarea>
+                            <button type="submit">Save reflection</button>
+                          </form>
+                          <div class="status-row">
+                            {% if state and state.reflection_text %}
+                              <span class="state-pill state-pill--done">Saved</span>
+                            {% else %}
+                              <span class="state-pill state-pill--open">Not saved yet</span>
+                            {% endif %}
+                          </div>
+                        {% endif %}
+                      {% endwith %}
                     {% else %}
                       <div class="muted empty-state">(Empty material — teacher will fill this in.)</div>
                     {% endif %}

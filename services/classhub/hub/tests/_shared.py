@@ -36,6 +36,7 @@ from ..models import (
     OrganizationMembership,
     StudentEvent,
     StudentIdentity,
+    StudentMaterialResponse,
     StudentOutcomeEvent,
     Submission,
 )

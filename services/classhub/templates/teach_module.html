@@ -59,6 +59,10 @@
                   <pre class="material-text-preview">{{ mat.body|truncatechars:800 }}</pre>
                 {% elif mat.type == 'upload' %}
                   <div class="muted material-upload-meta">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
+                {% elif mat.type == 'checklist' and mat.body %}
+                  <pre class="material-text-preview">{{ mat.body|truncatechars:800 }}</pre>
+                {% elif mat.type == 'reflection' and mat.body %}
+                  <pre class="material-text-preview">{{ mat.body|truncatechars:800 }}</pre>
                 {% else %}
                   <div class="muted material-empty-meta">(Empty details)</div>
                 {% endif %}
@@ -91,6 +95,32 @@
               <label for="text-body" class="stacked-label">Body</label>
               <textarea id="text-body" name="body" placeholder="Short instructions, reminders, links, etc."></textarea>
               <button type="submit" class="submit-spaced">Add text</button>
+            </form>
+          </details>
+
+          <details>
+            <summary>Add a checklist</summary>
+            <form method="post" action="/teach/module/{{ module.id }}/add-material" class="material-form">
+              {% csrf_token %}
+              <input type="hidden" name="type" value="checklist" />
+              <label for="checklist-title">Title</label>
+              <input id="checklist-title" name="title" value="Class checklist" />
+              <label for="checklist-items" class="stacked-label">Checklist items (one per line)</label>
+              <textarea id="checklist-items" name="checklist_items" placeholder="I completed the warm-up&#10;I tested my code&#10;I am ready to submit"></textarea>
+              <button type="submit" class="submit-spaced">Add checklist</button>
+            </form>
+          </details>
+
+          <details>
+            <summary>Add a reflection prompt</summary>
+            <form method="post" action="/teach/module/{{ module.id }}/add-material" class="material-form">
+              {% csrf_token %}
+              <input type="hidden" name="type" value="reflection" />
+              <label for="reflection-title">Title</label>
+              <input id="reflection-title" name="title" value="Reflection journal" />
+              <label for="reflection-prompt" class="stacked-label">Prompt</label>
+              <textarea id="reflection-prompt" name="reflection_prompt" placeholder="What was hard today, what changed, and what will you try next?"></textarea>
+              <button type="submit" class="submit-spaced">Add reflection prompt</button>
             </form>
           </details>
 

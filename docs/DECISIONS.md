@@ -66,6 +66,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Teacher daily digest + closeout workflow](#teacher-daily-digest-and-closeout-workflow)
 - [Submission query composite indexes](#submission-query-composite-indexes)
 - [Student portfolio export](#student-portfolio-export)
+- [Checklist and reflection material types](#checklist-and-reflection-material-types)
 - [Outcome events and certificate rollups](#outcome-events-and-certificate-rollups)
 - [Automated retention maintenance](#automated-retention-maintenance)
 - [Release verdict: 2026-02-21 hardening/polish push](#release-verdict-2026-02-21-hardeningpolish-push)
@@ -1048,6 +1049,20 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Gives students a take-home artifact without requiring full accounts.
 - Supports portability and parent/mentor sharing while preserving class privacy boundaries.
+
+## Checklist and reflection material types
+
+**Current decision:**
+- Extend `Material.type` with:
+  - `checklist`: line-based self-report checklist
+  - `reflection`: private journal prompt + student response
+- Student responses are stored in `StudentMaterialResponse` keyed by student+material.
+- Checklist/reflection responses are excluded from CSV outcome/detail exports by default.
+- Milestone-only outcome events are emitted (`milestone_earned`) without storing reflection body/checklist text in event payloads.
+
+**Why this remains active:**
+- Adds low-friction non-grade evidence of engagement for paid cohorts and funder reporting.
+- Preserves privacy-forward defaults by keeping detailed student writing out of event streams and exports.
 
 ## Outcome events and certificate rollups
 

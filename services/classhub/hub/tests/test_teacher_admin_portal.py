@@ -414,6 +414,44 @@ class TeacherPortalTests(TestCase):
         self.assertNotContains(resp, "<style>", html=False)
         self.assertNotContains(resp, 'style="margin:0"', html=False)
 
+    def test_teach_module_can_add_checklist_material(self):
+        classroom = Class.objects.create(name="Checklist Class", join_code="CHK12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/module/{module.id}/add-material",
+            {
+                "type": Material.TYPE_CHECKLIST,
+                "title": "Class checklist",
+                "checklist_items": "I completed the warm-up\nI tested my code",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        created = Material.objects.filter(module=module, type=Material.TYPE_CHECKLIST).first()
+        self.assertIsNotNone(created)
+        self.assertEqual(created.title, "Class checklist")
+        self.assertIn("I completed the warm-up", created.body)
+
+    def test_teach_module_can_add_reflection_material(self):
+        classroom = Class.objects.create(name="Reflection Class", join_code="RFL12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/module/{module.id}/add-material",
+            {
+                "type": Material.TYPE_REFLECTION,
+                "title": "Reflection journal",
+                "reflection_prompt": "What changed in your code today?",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        created = Material.objects.filter(module=module, type=Material.TYPE_REFLECTION).first()
+        self.assertIsNotNone(created)
+        self.assertEqual(created.title, "Reflection journal")
+        self.assertIn("What changed in your code today?", created.body)
+
     def test_teach_videos_uses_external_css_without_inline_styles(self):
         _force_login_staff_verified(self.client, self.staff)
 
