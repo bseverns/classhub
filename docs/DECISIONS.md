@@ -22,6 +22,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Request safety and helper access posture](#request-safety-and-helper-access-posture)
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
 - [Deployment guardrails](#deployment-guardrails)
+- [View wildcard import guardrail](#view-wildcard-import-guardrail)
 - [CI speed and signal quality](#ci-speed-and-signal-quality)
 - [Non-root Django runtime containers](#non-root-django-runtime-containers)
 - [Compose least-privilege flags](#compose-least-privilege-flags)
@@ -1110,6 +1111,17 @@ Historical implementation logs and superseded decisions are archived by month in
 - During class, teachers often refresh the same dashboard repeatedly in short bursts.
 - A 15–30 second cache window can cut repeated DB/aggregation load without changing long-term data behavior.
 - Keeping default `0` preserves strict real-time behavior unless an operator explicitly opts in.
+
+## View wildcard import guardrail
+
+**Current decision:**
+- CI lint runs `scripts/check_no_new_wildcard_view_imports.py`.
+- The guard blocks any new `from ... import *` under `services/classhub/hub/views/**`.
+- A temporary path-based baseline allows only known legacy wildcard imports while those modules are being incrementally split/refactored.
+
+**Why this remains active:**
+- Prevents wildcard imports from spreading back into new files after the recent explicit-import cleanup.
+- Keeps cleanup incremental without breaking CI on legacy compatibility surfaces that are still in-flight.
 
 ## Submission query composite indexes
 

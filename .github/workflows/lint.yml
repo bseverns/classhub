@@ -52,3 +52,5 @@ jobs:
         run: python scripts/check_no_service_imports_from_views.py
       - name: Guard dynamic __all__ exports in service modules
         run: python scripts/check_no_dynamic_service_all_exports.py
+      - name: Guard new wildcard imports in ClassHub view modules
+        run: python scripts/check_no_new_wildcard_view_imports.py
