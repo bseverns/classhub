@@ -485,6 +485,39 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Ada")
         self.assertContains(resp, "2 chats")
 
+    @override_settings(
+        CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,
+        CLASSHUB_CERTIFICATE_MIN_ARTIFACTS=1,
+    )
+    def test_teach_class_shows_outcomes_snapshot_panel(self):
+        classroom = Class.objects.create(name="Period Outcomes", join_code="OUT12345")
+        ada = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        StudentOutcomeEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+            source="test",
+            details={},
+        )
+        StudentOutcomeEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            source="test",
+            details={},
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Outcomes Snapshot")
+        self.assertContains(resp, "session completions")
+        self.assertContains(resp, "artifact submissions")
+        self.assertContains(resp, "certificate eligible")
+        self.assertContains(resp, "Top outcome students")
+        self.assertContains(resp, "Ada")
+        self.assertContains(resp, "eligible")
+
     def test_teach_delete_student_data_removes_submissions_and_detaches_events(self):
         classroom = Class.objects.create(name="Delete Data Class", join_code="DEL12345")
         module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)

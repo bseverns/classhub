@@ -51,6 +51,99 @@ def _submission_counts_by_student(*, classroom, students: list) -> dict[int, int
     return submission_counts
 
 
+def _build_outcome_snapshot(*, classroom, students: list[StudentIdentity]) -> dict:
+    window_days = _int_setting("CLASSHUB_OUTCOME_WINDOW_DAYS", 30)
+    top_students_limit = _int_setting("CLASSHUB_OUTCOME_TOP_STUDENTS", 5)
+    certificate_min_sessions = _int_setting("CLASSHUB_CERTIFICATE_MIN_SESSIONS", 8)
+    certificate_min_artifacts = _int_setting("CLASSHUB_CERTIFICATE_MIN_ARTIFACTS", 6)
+    active_since = timezone.now() - timedelta(days=window_days)
+
+    student_ids = [int(student.id) for student in students]
+    sessions_by_student: dict[int, int] = {}
+    artifacts_by_student: dict[int, int] = {}
+    milestones_by_student: dict[int, int] = {}
+    if student_ids:
+        for row in (
+            StudentOutcomeEvent.objects.filter(student_id__in=student_ids)
+            .values("student_id", "event_type")
+            .annotate(total=models.Count("id"))
+        ):
+            student_id = int(row["student_id"])
+            total = int(row["total"] or 0)
+            event_type = str(row["event_type"] or "")
+            if event_type == StudentOutcomeEvent.EVENT_SESSION_COMPLETED:
+                sessions_by_student[student_id] = total
+            elif event_type == StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED:
+                artifacts_by_student[student_id] = total
+            elif event_type == StudentOutcomeEvent.EVENT_MILESTONE_EARNED:
+                milestones_by_student[student_id] = total
+
+    total_sessions = StudentOutcomeEvent.objects.filter(
+        classroom=classroom,
+        event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+    ).count()
+    total_artifacts = StudentOutcomeEvent.objects.filter(
+        classroom=classroom,
+        event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+    ).count()
+    total_milestones = StudentOutcomeEvent.objects.filter(
+        classroom=classroom,
+        event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
+    ).count()
+    active_students = (
+        StudentOutcomeEvent.objects.filter(
+            classroom=classroom,
+            created_at__gte=active_since,
+            student__isnull=False,
+        )
+        .values("student_id")
+        .distinct()
+        .count()
+    )
+
+    eligible_students = 0
+    rows: list[dict] = []
+    for student in students:
+        sid = int(student.id)
+        sessions = sessions_by_student.get(sid, 0)
+        artifacts = artifacts_by_student.get(sid, 0)
+        milestones = milestones_by_student.get(sid, 0)
+        eligible = sessions >= certificate_min_sessions and artifacts >= certificate_min_artifacts
+        if eligible:
+            eligible_students += 1
+        if sessions or artifacts or milestones:
+            rows.append(
+                {
+                    "display_name": student.display_name,
+                    "session_count": sessions,
+                    "artifact_count": artifacts,
+                    "milestone_count": milestones,
+                    "certificate_eligible": eligible,
+                }
+            )
+    rows.sort(
+        key=lambda row: (
+            -int(row["session_count"]),
+            -int(row["artifact_count"]),
+            -int(row["milestone_count"]),
+            str(row["display_name"]).lower(),
+        )
+    )
+
+    return {
+        "window_days": window_days,
+        "total_sessions": int(total_sessions),
+        "total_artifacts": int(total_artifacts),
+        "total_milestones": int(total_milestones),
+        "active_students": int(active_students),
+        "eligible_students": int(eligible_students),
+        "total_students": len(students),
+        "certificate_min_sessions": certificate_min_sessions,
+        "certificate_min_artifacts": certificate_min_artifacts,
+        "top_students": rows[:top_students_limit],
+    }
+
+
 def build_dashboard_context(*, request, classroom, normalize_order_fn) -> dict:
     modules = list(classroom.modules.prefetch_related("materials").all())
     modules.sort(key=lambda module: (module.order_index, module.id))
@@ -90,6 +183,7 @@ def build_dashboard_context(*, request, classroom, normalize_order_fn) -> dict:
         ),
         "lesson_rows": lesson_rows,
         "helper_signals": helper_signals,
+        "outcome_snapshot": _build_outcome_snapshot(classroom=classroom, students=students),
     }
 
 
