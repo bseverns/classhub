@@ -282,7 +282,9 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Replace single-file `hub/tests.py` with package-based tests under `hub/tests/`.
 - Split by feature area:
-  - `test_teacher_admin.py`
+  - `test_teacher_admin_portal.py`
+  - `test_teacher_admin_auth.py`
+  - `test_teacher_admin_release.py`
   - `test_student_ops.py`
   - `test_security_integration.py`
 - Keep backwards-compatible test target imports via `hub/tests/__init__.py` so commands targeting `hub.tests.<ClassName>` remain valid.

@@ -18,16 +18,18 @@ from .test_student_ops import (
     TeacherAuditTests,
     OrphanUploadScavengerCommandTests,
 )
-from .test_teacher_admin import (
+from .test_teacher_admin_auth import (
     Admin2FATests,
     BootstrapAdminOTPCommandTests,
     CreateTeacherCommandTests,
-    LessonReleaseTests,
-    RetentionSettingParsingTests,
     Teacher2FASetupTests,
     TeacherOTPEnforcementTests,
+)
+from .test_teacher_admin_portal import (
+    RetentionSettingParsingTests,
     TeacherPortalTests,
 )
+from .test_teacher_admin_release import LessonReleaseTests
 
 __all__ = [
     "Admin2FATests",
