@@ -80,6 +80,10 @@ urlpatterns = [
         "teach/class/<int:class_id>/certificate/<int:student_id>/download",
         views.teach_download_certificate,
     ),
+    path(
+        "teach/class/<int:class_id>/certificate/<int:student_id>/download.pdf",
+        views.teach_download_certificate_pdf,
+    ),
     path("teach/class/<int:class_id>/rotate-code", views.teach_rotate_code),
     path("teach/class/<int:class_id>/add-module", views.teach_add_module),
     path("teach/class/<int:class_id>/move-module", views.teach_move_module),

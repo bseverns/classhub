@@ -1103,7 +1103,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Certificate issuance uses signed class records (`CertificateIssuance`):
   - one record per class+student (re-issuable in place)
   - captures counts/threshold snapshot at issue time
-  - downloadable as signed `.txt` via `/teach/class/<id>/certificate/<student_id>/download`
+  - downloadable as signed `.pdf` or `.txt` via `/teach/class/<id>/certificate/<student_id>/download.pdf` and `/teach/class/<id>/certificate/<student_id>/download`
 - Certificate eligibility is threshold-based:
   - `CLASSHUB_CERTIFICATE_MIN_SESSIONS` (default 8)
   - `CLASSHUB_CERTIFICATE_MIN_ARTIFACTS` (default 6)

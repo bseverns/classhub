@@ -5,7 +5,11 @@ from django.views.decorators.http import require_POST
 
 from ...http.headers import apply_no_store, safe_attachment_filename
 from ...models import CertificateIssuance, StudentIdentity
-from ...services.certificates import certificate_download_text, sign_certificate_payload
+from ...services.certificates import (
+    certificate_download_pdf_bytes,
+    certificate_download_text,
+    sign_certificate_payload,
+)
 from ...services.filenames import safe_filename
 from ...services.teacher_roster_class import build_certificate_eligibility_rows
 from .shared_auth import (
@@ -140,4 +144,30 @@ def teach_download_certificate(request, class_id: int, student_id: int):
     return response
 
 
-__all__ = ["teach_download_certificate", "teach_issue_certificate"]
+@staff_member_required
+def teach_download_certificate_pdf(request, class_id: int, student_id: int):
+    classroom = staff_classroom_or_none(request.user, class_id)
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+    if not staff_can_access_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
+
+    issuance = (
+        CertificateIssuance.objects.select_related("classroom", "student", "issued_by")
+        .filter(classroom=classroom, student_id=student_id)
+        .first()
+    )
+    if issuance is None:
+        return HttpResponse("Not found", status=404)
+
+    body = certificate_download_pdf_bytes(issuance=issuance)
+    filename = safe_attachment_filename(
+        f"{safe_filename(classroom.name)}_{safe_filename(issuance.student.display_name)}_certificate_{issuance.code}.pdf"
+    )
+    response = HttpResponse(body, content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    apply_no_store(response, private=True, pragma=True)
+    return response
+
+
+__all__ = ["teach_download_certificate", "teach_download_certificate_pdf", "teach_issue_certificate"]

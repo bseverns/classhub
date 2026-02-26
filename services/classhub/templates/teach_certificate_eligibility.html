@@ -103,7 +103,9 @@
                             Code <strong>{{ row.certificate_code }}</strong>
                             {% if row.certificate_issued_at %} · {{ row.certificate_issued_at|date:"M j, Y g:i A" }}{% endif %}
                           </div>
-                          <a href="/teach/class/{{ classroom.id }}/certificate/{{ row.student_id }}/download">Download</a>
+                          <a href="/teach/class/{{ classroom.id }}/certificate/{{ row.student_id }}/download.pdf">Download PDF</a>
+                          ·
+                          <a href="/teach/class/{{ classroom.id }}/certificate/{{ row.student_id }}/download">TXT</a>
                         {% elif row.certificate_eligible %}
                           <span class="muted mini">Not issued</span>
                         {% else %}

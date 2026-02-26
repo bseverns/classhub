@@ -11,7 +11,11 @@ from .roster_class import (
     teach_rotate_code,
     teach_toggle_lock,
 )
-from .roster_certificates import teach_download_certificate, teach_issue_certificate
+from .roster_certificates import (
+    teach_download_certificate,
+    teach_download_certificate_pdf,
+    teach_issue_certificate,
+)
 from .roster_invites import (
     teach_create_invite_link,
     teach_disable_invite_link,
@@ -64,4 +68,5 @@ __all__ = [
     "teach_mark_session_completed",
     "teach_issue_certificate",
     "teach_download_certificate",
+    "teach_download_certificate_pdf",
 ]

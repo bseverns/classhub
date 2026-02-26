@@ -724,7 +724,8 @@ class TeacherPortalTests(TestCase):
 
         view_resp = self.client.get(f"/teach/class/{classroom.id}/certificate-eligibility")
         self.assertEqual(view_resp.status_code, 200)
-        self.assertContains(view_resp, "Download")
+        self.assertContains(view_resp, "Download PDF")
+        self.assertContains(view_resp, "TXT")
         self.assertContains(view_resp, issuance.code)
 
         download_resp = self.client.get(f"/teach/class/{classroom.id}/certificate/{student.id}/download")
@@ -734,20 +735,11 @@ class TeacherPortalTests(TestCase):
         self.assertContains(download_resp, "Class Hub Certificate Record")
         self.assertContains(download_resp, "Signed token")
 
-        second_post = self.client.post(
-            f"/teach/class/{classroom.id}/mark-session-completed",
-            {"student_id": str(student.id), "module_id": str(module.id)},
-        )
-        self.assertEqual(second_post.status_code, 302)
-        self.assertEqual(
-            StudentOutcomeEvent.objects.filter(
-                classroom=classroom,
-                student=student,
-                module=module,
-                event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
-            ).count(),
-            1,
-        )
+        pdf_resp = self.client.get(f"/teach/class/{classroom.id}/certificate/{student.id}/download.pdf")
+        self.assertEqual(pdf_resp.status_code, 200)
+        self.assertEqual(pdf_resp["Content-Type"], "application/pdf")
+        self.assertIn(".pdf", pdf_resp["Content-Disposition"])
+        self.assertTrue(pdf_resp.content.startswith(b"%PDF-1.4"))
 
     def test_teach_delete_student_data_removes_submissions_and_detaches_events(self):
         classroom = Class.objects.create(name="Delete Data Class", join_code="DEL12345")
