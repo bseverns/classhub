@@ -453,6 +453,9 @@ Historical implementation logs and superseded decisions are archived by month in
 - Lint workflow now enforces a template inline-JS guard (`scripts/check_no_inline_template_js.py`) that fails on:
   - `<script>` tags without `src`
   - inline event handler attributes (`onclick=`, `onsubmit=`, etc.)
+- Lint workflow now enforces a template inline-CSS guard (`scripts/check_no_inline_template_css.py`) that fails on:
+  - `<style>` blocks
+  - inline style attributes (`style=...`)
 - CI now writes concise human-readable summaries to `$GITHUB_STEP_SUMMARY`:
   - Ruff advisory stats in `lint`.
   - Coverage totals for `classhub-tests` and `helper-tests` in `test-suite`.
@@ -463,6 +466,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Improves review ergonomics by surfacing key quality signals without opening artifacts.
 - Catches frontend wiring regressions with a lightweight check while keeping the stack Python-first.
 - Prevents CSP regressions by blocking inline JS reintroduction in templates.
+- Prevents CSP regressions by blocking inline CSS reintroduction in templates.
 - Prevents silent CI gate loss from workflow syntax regressions.
 
 ## Non-root Django runtime containers

@@ -25,7 +25,7 @@ jobs:
           import yaml
 
           workflow_dir = Path(".github/workflows")
-          files = sorted(workflow_dir.glob("*.yml"))
+          files = sorted({*workflow_dir.glob("*.yml"), *workflow_dir.glob("*.yaml")})
           if not files:
               print("[workflow-lint] FAIL: no workflow files found", file=sys.stderr)
               raise SystemExit(1)
