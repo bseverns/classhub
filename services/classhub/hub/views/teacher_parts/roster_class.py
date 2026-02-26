@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from ...http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
-from ...models import Class, ClassInviteLink, StudentIdentity, Submission
+from ...models import Class, ClassInviteLink, ClassStaffAssignment, StudentIdentity, Submission
 from ...services.filenames import safe_filename
 from ...services.helper_control import reset_class_conversations as _reset_helper_class_conversations
 from ...services.teacher_roster_class import (
@@ -44,6 +44,12 @@ def teach_create_class(request):
         name=name,
         join_code=join_code,
     )
+    if not request.user.is_superuser:
+        ClassStaffAssignment.objects.update_or_create(
+            classroom=classroom,
+            user=request.user,
+            defaults={"is_active": True},
+        )
     _audit(
         request,
         action="class.create",

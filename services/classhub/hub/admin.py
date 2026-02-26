@@ -5,6 +5,7 @@ from .models import (
     AuditEvent,
     Class,
     ClassInviteLink,
+    ClassStaffAssignment,
     LessonAsset,
     LessonAssetFolder,
     LessonRelease,
@@ -39,6 +40,14 @@ class ClassAdmin(admin.ModelAdmin):
     list_display = ("name", "organization", "join_code", "enrollment_mode", "is_locked")
     search_fields = ("name", "join_code", "organization__name")
     list_filter = ("organization", "enrollment_mode", "is_locked")
+
+
+@admin.register(ClassStaffAssignment)
+class ClassStaffAssignmentAdmin(admin.ModelAdmin):
+    list_display = ("classroom", "user", "is_active", "updated_at")
+    list_filter = ("classroom", "is_active")
+    search_fields = ("classroom__name", "classroom__join_code", "user__username", "user__email")
+
 
 @admin.register(Module)
 class ModuleAdmin(admin.ModelAdmin):

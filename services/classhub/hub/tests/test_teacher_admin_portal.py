@@ -1077,6 +1077,37 @@ class TeacherOrganizationAccessTests(TestCase):
         created = Class.objects.filter(name="New Alpha Class").order_by("-id").first()
         self.assertIsNotNone(created)
         self.assertEqual(created.organization_id, self.org_a.id)
+        self.assertTrue(
+            ClassStaffAssignment.objects.filter(
+                classroom=created,
+                user=self.staff,
+                is_active=True,
+            ).exists()
+        )
+
+    def test_teach_home_prioritizes_assigned_classes_within_org_access(self):
+        Class.objects.create(name="Alpha Unassigned", join_code="ALUN1234", organization=self.org_a)
+        assigned = Class.objects.create(name="Zulu Assigned", join_code="ZUAS1234", organization=self.org_a)
+        ClassStaffAssignment.objects.create(classroom=assigned, user=self.staff, is_active=True)
+
+        resp = self.client.get("/teach")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Alpha Unassigned")
+        self.assertContains(resp, "Zulu Assigned")
+
+        html = resp.content.decode("utf-8")
+        self.assertLess(html.find("Zulu Assigned"), html.find("Alpha Unassigned"))
+        self.assertIn("Assigned", html)
+
+    def test_teach_lessons_class_filter_lists_assigned_first(self):
+        Class.objects.create(name="Alpha Unassigned", join_code="ALUN5678", organization=self.org_a)
+        assigned = Class.objects.create(name="Zulu Assigned", join_code="ZUAS5678", organization=self.org_a)
+        ClassStaffAssignment.objects.create(classroom=assigned, user=self.staff, is_active=True)
+
+        resp = self.client.get("/teach/lessons")
+        self.assertEqual(resp.status_code, 200)
+        html = resp.content.decode("utf-8")
+        self.assertLess(html.find("Zulu Assigned"), html.find("Alpha Unassigned"))
 
     def test_legacy_staff_without_membership_keeps_global_access(self):
         legacy_staff = get_user_model().objects.create_user(

@@ -26,6 +26,7 @@ from ..models import (
     AuditEvent,
     Class,
     ClassInviteLink,
+    ClassStaffAssignment,
     LessonAsset,
     LessonAssetFolder,
     LessonVideo,

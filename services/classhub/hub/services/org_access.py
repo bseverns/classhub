@@ -7,7 +7,7 @@ Legacy compatibility:
 
 from django.db.models import QuerySet
 
-from ..models import Class, Organization, OrganizationMembership
+from ..models import Class, ClassStaffAssignment, Organization, OrganizationMembership
 
 _MANAGE_ROLES = {
     OrganizationMembership.ROLE_OWNER,
@@ -45,6 +45,27 @@ def staff_accessible_classes_queryset(user) -> QuerySet[Class]:
         return Class.objects.all()
     org_ids = memberships.values_list("organization_id", flat=True)
     return Class.objects.filter(organization_id__in=org_ids)
+
+
+def staff_assigned_class_ids(user, *, class_ids: list[int] | None = None) -> set[int]:
+    if not getattr(user, "is_authenticated", False):
+        return set()
+    if not getattr(user, "is_staff", False):
+        return set()
+    queryset = ClassStaffAssignment.objects.filter(user=user, is_active=True)
+    if class_ids is not None:
+        queryset = queryset.filter(classroom_id__in=class_ids)
+    return set(int(cid) for cid in queryset.values_list("classroom_id", flat=True))
+
+
+def staff_accessible_classes_ranked(user) -> tuple[list[Class], set[int]]:
+    classes = list(staff_accessible_classes_queryset(user).order_by("name", "id"))
+    if not classes:
+        return classes, set()
+    class_ids = [int(c.id) for c in classes]
+    assigned_ids = staff_assigned_class_ids(user, class_ids=class_ids)
+    classes.sort(key=lambda c: (0 if c.id in assigned_ids else 1, c.name.lower(), c.id))
+    return classes, assigned_ids
 
 
 def staff_classroom_or_none(user, class_id: int) -> Class | None:
@@ -119,7 +140,9 @@ def staff_can_manage_classroom(user, classroom: Class | None) -> bool:
 
 
 __all__ = [
+    "staff_assigned_class_ids",
     "staff_accessible_classes_queryset",
+    "staff_accessible_classes_ranked",
     "staff_can_access_classroom",
     "staff_can_create_classes",
     "staff_can_manage_classroom",

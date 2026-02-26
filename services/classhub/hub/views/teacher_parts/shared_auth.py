@@ -17,7 +17,9 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 from qrcode.image.svg import SvgPathImage
 
 from ...services.org_access import (
+    staff_accessible_classes_ranked,
     staff_accessible_classes_queryset,
+    staff_assigned_class_ids,
     staff_can_access_classroom,
     staff_can_create_classes,
     staff_can_manage_classroom,

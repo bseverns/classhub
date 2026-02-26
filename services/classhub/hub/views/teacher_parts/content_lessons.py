@@ -13,7 +13,7 @@ from .shared import (
     parse_release_date,
     render,
     require_POST,
-    staff_accessible_classes_queryset,
+    staff_accessible_classes_ranked,
     staff_can_manage_classroom,
     staff_classroom_or_none,
     staff_member_required,
@@ -22,7 +22,7 @@ from .shared import (
 
 @staff_member_required
 def teach_lessons(request):
-    classes = list(staff_accessible_classes_queryset(request.user).order_by("name", "id"))
+    classes, _assigned_class_ids = staff_accessible_classes_ranked(request.user)
     try:
         class_id = int((request.GET.get("class_id") or "0").strip())
     except Exception:

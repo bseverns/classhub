@@ -7,6 +7,7 @@ Historical implementation logs and superseded decisions are archived by month in
 
 - [Auth model: student access](#auth-model-student-access)
 - [Organization boundary and staff roles](#organization-boundary-and-staff-roles)
+- [Class assignments and teacher-first class ordering](#class-assignments-and-teacher-first-class-ordering)
 - [Paid cohort enrollment controls](#paid-cohort-enrollment-controls)
 - [Service boundary: Homework Helper separate service](#service-boundary-homework-helper-separate-service)
 - [Helper engine modularization seam](#helper-engine-modularization-seam)
@@ -121,6 +122,18 @@ Historical implementation logs and superseded decisions are archived by month in
 - Establishes a concrete multi-program boundary without forcing a one-shot data migration.
 - Preserves backward compatibility for existing single-tenant deployments.
 - Provides a clear path to paid cohort partitioning and partner-org separation.
+
+## Class assignments and teacher-first class ordering
+
+**Current decision:**
+- Add `ClassStaffAssignment` to represent teacher-to-class assignment within the classes they can already access.
+- Keep org membership as the access boundary; assignments do not reduce org class visibility.
+- Teacher-facing class lists (`/teach` and `/teach/lessons`) now rank assigned classes first.
+- New classes created by non-superuser staff auto-create an active assignment for the creator.
+
+**Why this remains active:**
+- Preserves org-wide course/syllabus access while making daily “my classes” workflows faster.
+- Gives a clean foundation for future per-class staffing controls without changing student auth/join UX.
 
 ## Paid cohort enrollment controls
 

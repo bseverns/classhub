@@ -141,6 +141,40 @@ class OrganizationMembership(models.Model):
         return f"{self.organization.name}: {self.user} ({self.role})"
 
 
+class ClassStaffAssignment(models.Model):
+    """Explicit class assignment for staff prioritization and ownership views."""
+
+    classroom = models.ForeignKey(
+        Class,
+        on_delete=models.CASCADE,
+        related_name="staff_assignments",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="classhub_class_assignments",
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["classroom_id", "user_id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["classroom", "user"],
+                name="uniq_class_staff_assignment",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["classroom", "is_active"], name="hub_clsasg_clsact_91f3_idx"),
+            models.Index(fields=["user", "is_active"], name="hub_clsasg_usract_b03a_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.classroom.name}: {self.user}"
+
+
 class Module(models.Model):
     """An ordered group of materials (usually one lesson/session)."""
 

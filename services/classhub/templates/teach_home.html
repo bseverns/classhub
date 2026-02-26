@@ -191,7 +191,7 @@
         <div class="card">
           <div class="row">
             <h2 class="section-title-tight">Classes</h2>
-            <div class="muted">Tip: keep codes visible in-room, not in email.</div>
+            <div class="muted">Assigned classes appear first. Tip: keep codes visible in-room, not in email.</div>
           </div>
           <p id="copy-status" class="muted copy-status" role="status" aria-live="polite"></p>
 
@@ -209,7 +209,12 @@
                 <tbody>
                   {% for c in classes %}
                     <tr>
-                      <td><strong>{{ c.name }}</strong></td>
+                      <td>
+                        <strong>{{ c.name }}</strong>
+                        {% if c.id in assigned_class_ids %}
+                          <span class="state-pill state-pill--open">Assigned</span>
+                        {% endif %}
+                      </td>
                       <td>
                         <span class="pill">{{ c.join_code }}</span>
                         <button type="button" class="inline-copy" data-copy-value="{{ c.join_code }}">Copy</button>

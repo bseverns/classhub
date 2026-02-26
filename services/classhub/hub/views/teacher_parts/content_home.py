@@ -22,7 +22,7 @@ from .shared import (
     require_POST,
     safe_attachment_filename,
     settings,
-    staff_accessible_classes_queryset,
+    staff_accessible_classes_ranked,
     staff_member_required,
     staff_has_explicit_memberships,
     timedelta,
@@ -47,7 +47,7 @@ def teach_home(request):
         teacher_username or teacher_email or teacher_first_name or teacher_last_name
     )
 
-    classes = list(staff_accessible_classes_queryset(request.user).order_by("name", "id"))
+    classes, assigned_class_ids = staff_accessible_classes_ranked(request.user)
     digest_since = timezone.now() - timedelta(days=1)
     class_digest_rows = _build_class_digest_rows(classes, since=digest_since)
     User = get_user_model()
@@ -92,6 +92,7 @@ def teach_home(request):
         "teach_home.html",
         {
             "classes": classes,
+            "assigned_class_ids": assigned_class_ids,
             "class_digest_rows": class_digest_rows,
             "digest_since": digest_since,
             "recent_submissions": recent_submissions,
