@@ -7,13 +7,15 @@ from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.db import connection
 from django.http import HttpResponse
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 
 from common.request_safety import fixed_window_allow, token_bucket_allow
 
 from .middleware import StudentSessionMiddleware
-from .models import Class, StudentIdentity
+from .models import Class, Material, StudentIdentity
 from .services.markdown_content import (
     load_course_manifest,
     load_lesson_markdown,
@@ -32,6 +34,7 @@ from .services.release_state import (
     lesson_release_state,
     parse_release_date,
 )
+from .services.teacher_tracker import _build_lesson_tracker_rows
 from .services.upload_policy import (
     front_matter_submission,
     parse_extensions,
@@ -291,6 +294,49 @@ class UploadScanServiceTests(SimpleTestCase):
             run_mock.return_value.stderr = ""
             result = scan_uploaded_file(upload)
         self.assertEqual(result.status, "infected")
+
+
+class TeacherTrackerServiceTests(TestCase):
+    def _request_stub(self):
+        return SimpleNamespace(user=SimpleNamespace(is_authenticated=False, is_staff=False))
+
+    def _build_class_with_modules(self, *, name: str, join_code: str, module_count: int) -> Class:
+        classroom = Class.objects.create(name=name, join_code=join_code)
+        for idx in range(module_count):
+            module = classroom.modules.create(title=f"Session {idx + 1}", order_index=idx)
+            module.materials.create(
+                title=f"Upload {idx + 1}",
+                type=Material.TYPE_UPLOAD,
+                accepted_extensions=".sb3",
+                max_upload_mb=50,
+                order_index=idx,
+            )
+        return classroom
+
+    def _tracker_query_count(self, classroom: Class) -> int:
+        modules = list(classroom.modules.prefetch_related("materials").all())
+        modules.sort(key=lambda m: (m.order_index, m.id))
+        request = self._request_stub()
+        with CaptureQueriesContext(connection) as ctx:
+            _build_lesson_tracker_rows(request, classroom.id, modules, student_count=0)
+        return len(ctx.captured_queries)
+
+    def test_lesson_tracker_query_count_is_stable_across_module_count(self):
+        one = self._build_class_with_modules(name="One Module", join_code="TRK10001", module_count=1)
+        many = self._build_class_with_modules(name="Many Modules", join_code="TRK10002", module_count=5)
+
+        one_count = self._tracker_query_count(one)
+        many_count = self._tracker_query_count(many)
+
+        self.assertEqual(one_count, many_count)
+
+    def test_lesson_tracker_requires_prefetched_materials(self):
+        classroom = self._build_class_with_modules(name="No Prefetch", join_code="TRK10003", module_count=2)
+        modules = list(classroom.modules.all())
+        modules.sort(key=lambda m: (m.order_index, m.id))
+
+        with self.assertRaisesMessage(ValueError, "prefetch_related('materials')"):
+            _build_lesson_tracker_rows(self._request_stub(), classroom.id, modules, student_count=0)
 
 
 class UploadValidationServiceTests(SimpleTestCase):

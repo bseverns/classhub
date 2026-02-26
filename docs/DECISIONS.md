@@ -462,6 +462,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Lint workflow now enforces dense-view line budgets (`scripts/check_view_size_budgets.py` + `scripts/view_size_budgets.json`) so large view modules cannot grow without an intentional, reviewed budget change.
 - Lint workflow now enforces dense-view function budgets (`scripts/check_view_function_budgets.py` + `scripts/view_function_budgets.json`) so large endpoint callables and helper functions cannot grow without explicit review.
 - Lint workflow now enforces service-layer import direction (`scripts/check_no_service_imports_from_views.py`) so service modules cannot import from `views.*`.
+- Lint workflow now enforces explicit service exports (`scripts/check_no_dynamic_service_all_exports.py`) to block dynamic `__all__` patterns that leak internal helpers as accidental API.
 - `docs/ENDPOINT_CHECKLIST.md` is the required baseline for new endpoints (cache, CSP, download hardening, throttling, logging minimization, and error-handling expectations).
 - CI now writes concise human-readable summaries to `$GITHUB_STEP_SUMMARY`:
   - Ruff advisory stats in `lint`.
@@ -478,6 +479,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Adds a ratchet on view-file growth so service-layer extraction progress cannot silently regress.
 - Adds a second ratchet at function granularity so dense endpoint callables keep trending smaller over time.
 - Prevents service/view layering inversion from reappearing during refactors.
+- Prevents accidental service API surface expansion from broad dynamic exports.
 - Prevents silent CI gate loss from workflow syntax regressions.
 
 ## Non-root Django runtime containers
@@ -668,6 +670,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Student portfolio export logic now runs via `hub/services/export_service.py`.
 - Teacher digest/tracker logic now runs via `hub/services/teacher_tracker.py`, with a thin compatibility wrapper in `views/teacher_parts/shared_tracker.py`.
 - Helper topic/default parsing now runs via `hub/services/helper_topics.py` and is shared by both lesson rendering and teacher tracker services.
+- Lesson tracker service now requires prefetched module materials (`prefetch_related("materials")`) to prevent accidental N+1 query regressions.
 - Join/upload flows use explicit service facades:
   - `hub/services/join_flow_service.py`
   - `hub/services/submission_service.py`

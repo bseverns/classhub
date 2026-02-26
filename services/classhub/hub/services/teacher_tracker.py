@@ -249,7 +249,12 @@ def _build_lesson_tracker_rows(request, classroom_id: int, modules: list[Module]
     release_override_map = lesson_release_override_map(classroom_id)
 
     for module in modules:
-        mats = list(module.materials.all())
+        prefetched = getattr(module, "_prefetched_objects_cache", {}).get("materials")
+        if prefetched is None:
+            raise ValueError(
+                "lesson tracker requires modules prefetched with materials; use prefetch_related('materials')"
+            )
+        mats = list(prefetched)
         mats.sort(key=lambda m: (m.order_index, m.id))
         module_materials_map[module.id] = mats
         for mat in mats:
@@ -375,4 +380,11 @@ def _build_lesson_tracker_rows(request, classroom_id: int, modules: list[Module]
     return rows
 
 
-__all__ = [name for name in globals() if not name.startswith("__")]
+__all__ = [
+    "_material_submission_counts",
+    "_material_latest_upload_map",
+    "_build_class_digest_rows",
+    "_local_day_window",
+    "_build_helper_signal_snapshot",
+    "_build_lesson_tracker_rows",
+]
