@@ -138,6 +138,11 @@ class Submission(models.Model):
 
     class Meta:
         ordering = ["-uploaded_at", "-id"]
+        indexes = [
+            models.Index(fields=["material", "uploaded_at"], name="hub_submis_matup_2a3bf4_idx"),
+            models.Index(fields=["student", "uploaded_at"], name="hub_submiss_student_4f0ac8_idx"),
+            models.Index(fields=["material", "student"], name="hub_submis_matstu_91b9f2_idx"),
+        ]
 
     def __str__(self) -> str:
         return f"Submission {self.id} ({self.student.display_name} → {self.material.title})"
@@ -168,6 +173,7 @@ class StudentIdentity(models.Model):
         indexes = [
             models.Index(fields=["classroom", "display_name"], name="hub_studeni_classro_11dfba_idx"),
             models.Index(fields=["classroom", "return_code"], name="hub_studeni_classro_3c11ef_idx"),
+            models.Index(fields=["classroom", "created_at"], name="hub_studid_clscrt_a1d2_idx"),
         ]
 
     def __str__(self) -> str:
@@ -222,6 +228,7 @@ class StudentEvent(models.Model):
             models.Index(fields=["event_type", "created_at"], name="hub_student_event_t_387746_idx"),
             models.Index(fields=["classroom", "created_at"], name="hub_student_classro_a0c234_idx"),
             models.Index(fields=["student", "created_at"], name="hub_student_student_01e0d2_idx"),
+            models.Index(fields=["classroom", "event_type", "created_at"], name="hub_ste_cl_evtcr_b2e3_idx"),
         ]
 
     def save(self, *args, **kwargs):

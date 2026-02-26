@@ -56,6 +56,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Deployment timezone by environment](#deployment-timezone-by-environment)
 - [Migration execution at deploy time](#migration-execution-at-deploy-time)
 - [Teacher daily digest + closeout workflow](#teacher-daily-digest-and-closeout-workflow)
+- [Submission query composite indexes](#submission-query-composite-indexes)
 - [Student portfolio export](#student-portfolio-export)
 - [Automated retention maintenance](#automated-retention-maintenance)
 - [Release verdict: 2026-02-21 hardening/polish push](#release-verdict-2026-02-21-hardeningpolish-push)
@@ -1109,3 +1110,20 @@ Historical implementation logs and superseded decisions are archived by month in
 - During class, teachers often refresh the same dashboard repeatedly in short bursts.
 - A 15–30 second cache window can cut repeated DB/aggregation load without changing long-term data behavior.
 - Keeping default `0` preserves strict real-time behavior unless an operator explicitly opts in.
+
+## Submission query composite indexes
+
+**Current decision:**
+- Add composite indexes on `Submission` for:
+  - `("material", "uploaded_at")`
+  - `("student", "uploaded_at")`
+  - `("material", "student")`
+- Add composite index on `StudentIdentity` for:
+  - `("classroom", "created_at")`
+- Add composite index on `StudentEvent` for:
+  - `("classroom", "event_type", "created_at")`
+- Keep existing behavior and query shapes unchanged; this is a storage-level performance optimization only.
+
+**Why this remains active:**
+- Teacher tracker and export paths frequently query latest uploads and distinct submitters by material/student.
+- Composite keys reduce row-scan and sort pressure as classroom data volume grows.
