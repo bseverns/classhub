@@ -6,16 +6,18 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.cache import cache
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.db import connection
 from django.http import HttpResponse
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
+from django.utils import timezone
 
 from common.request_safety import fixed_window_allow, token_bucket_allow
 
 from .middleware import StudentSessionMiddleware
-from .models import Class, Material, StudentIdentity
+from .models import Class, Material, StudentEvent, StudentIdentity
 from .services.markdown_content import (
     load_course_manifest,
     load_lesson_markdown,
@@ -34,7 +36,11 @@ from .services.release_state import (
     lesson_release_state,
     parse_release_date,
 )
-from .services.teacher_tracker import _build_lesson_tracker_rows
+from .services.teacher_tracker import (
+    _build_class_digest_rows,
+    _build_helper_signal_snapshot,
+    _build_lesson_tracker_rows,
+)
 from .services.upload_policy import (
     front_matter_submission,
     parse_extensions,
@@ -297,6 +303,14 @@ class UploadScanServiceTests(SimpleTestCase):
 
 
 class TeacherTrackerServiceTests(TestCase):
+    def setUp(self):
+        super().setUp()
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+        super().tearDown()
+
     def _request_stub(self):
         return SimpleNamespace(user=SimpleNamespace(is_authenticated=False, is_staff=False))
 
@@ -337,6 +351,132 @@ class TeacherTrackerServiceTests(TestCase):
 
         with self.assertRaisesMessage(ValueError, "prefetch_related('materials')"):
             _build_lesson_tracker_rows(self._request_stub(), classroom.id, modules, student_count=0)
+
+    def test_class_digest_cache_disabled_returns_fresh_data(self):
+        classroom = Class.objects.create(name="Digest Fresh", join_code="TRK10004")
+        classes = [classroom]
+        since = timezone.now()
+
+        rows_before = _build_class_digest_rows(classes, since=since)
+        self.assertEqual(rows_before[0]["student_total"], 0)
+
+        StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        rows_after = _build_class_digest_rows(classes, since=since)
+        self.assertEqual(rows_after[0]["student_total"], 1)
+
+    @override_settings(CLASSHUB_TEACHER_PANEL_CACHE_TTL_SECONDS=30)
+    def test_class_digest_cache_enabled_holds_value_until_evicted(self):
+        classroom = Class.objects.create(name="Digest Cached", join_code="TRK10005")
+        classes = [classroom]
+        since = timezone.now()
+
+        rows_before = _build_class_digest_rows(classes, since=since)
+        self.assertEqual(rows_before[0]["student_total"], 0)
+
+        StudentIdentity.objects.create(classroom=classroom, display_name="Lin")
+        rows_cached = _build_class_digest_rows(classes, since=since)
+        self.assertEqual(rows_cached[0]["student_total"], 0)
+
+        cache.clear()
+        rows_after_clear = _build_class_digest_rows(classes, since=since)
+        self.assertEqual(rows_after_clear[0]["student_total"], 1)
+
+    @override_settings(CLASSHUB_TEACHER_PANEL_CACHE_TTL_SECONDS=30)
+    def test_helper_signal_cache_isolated_per_classroom(self):
+        class_a = Class.objects.create(name="Signals A", join_code="TRK10006")
+        class_b = Class.objects.create(name="Signals B", join_code="TRK10007")
+        student_a = StudentIdentity.objects.create(classroom=class_a, display_name="Alex")
+        student_b = StudentIdentity.objects.create(classroom=class_b, display_name="Blair")
+
+        StudentEvent.objects.create(
+            classroom=class_a,
+            student=student_a,
+            event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+            details={"intent": "hint"},
+        )
+
+        snapshot_a = _build_helper_signal_snapshot(
+            classroom=class_a,
+            students=[student_a],
+            window_hours=24,
+            top_students=5,
+        )
+        snapshot_b = _build_helper_signal_snapshot(
+            classroom=class_b,
+            students=[student_b],
+            window_hours=24,
+            top_students=5,
+        )
+        self.assertEqual(snapshot_a["total_events"], 1)
+        self.assertEqual(snapshot_b["total_events"], 0)
+
+    def test_helper_signal_cache_disabled_returns_fresh_data(self):
+        classroom = Class.objects.create(name="Signals Fresh", join_code="TRK10008")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Casey")
+
+        first = _build_helper_signal_snapshot(
+            classroom=classroom,
+            students=[student],
+            window_hours=24,
+            top_students=5,
+        )
+        self.assertEqual(first["total_events"], 0)
+
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=student,
+            event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+            details={"intent": "hint"},
+        )
+        second = _build_helper_signal_snapshot(
+            classroom=classroom,
+            students=[student],
+            window_hours=24,
+            top_students=5,
+        )
+        self.assertEqual(second["total_events"], 1)
+
+    @override_settings(CLASSHUB_TEACHER_PANEL_CACHE_TTL_SECONDS=30)
+    def test_helper_signal_cache_enabled_holds_value_until_evicted(self):
+        classroom = Class.objects.create(name="Signals Cached", join_code="TRK10009")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Dana")
+
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=student,
+            event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+            details={"intent": "hint"},
+        )
+        first = _build_helper_signal_snapshot(
+            classroom=classroom,
+            students=[student],
+            window_hours=24,
+            top_students=5,
+        )
+        self.assertEqual(first["total_events"], 1)
+
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=student,
+            event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
+            details={"intent": "hint"},
+        )
+        cached = _build_helper_signal_snapshot(
+            classroom=classroom,
+            students=[student],
+            window_hours=24,
+            top_students=5,
+        )
+        self.assertEqual(cached["total_events"], 1)
+
+        cache.clear()
+        refreshed = _build_helper_signal_snapshot(
+            classroom=classroom,
+            students=[student],
+            window_hours=24,
+            top_students=5,
+        )
+        self.assertEqual(refreshed["total_events"], 2)
 
 
 class UploadValidationServiceTests(SimpleTestCase):

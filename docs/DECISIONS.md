@@ -1091,3 +1091,19 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Prevents repeated same-name joins (for example smoke/rehearsal cycles or classroom cookie churn) from creating unbounded duplicate student rows.
 - Keeps behavior deterministic when duplicate-name rows already exist.
+
+## Optional short-lived teacher panel cache
+
+**Current decision:**
+- Add an opt-in cache window for expensive teacher tracker panels:
+  - class digest rows (`/teach`)
+  - lesson tracker rows (`/teach/lessons`, `/teach/class/<id>`)
+  - helper signal snapshot (`/teach/class/<id>`)
+- New setting: `CLASSHUB_TEACHER_PANEL_CACHE_TTL_SECONDS` (default `0`, disabled).
+- Cache keys are panel-scoped and include classroom/session context so classes do not share panel snapshots.
+- Cache behavior fails open: if cache get/set errors occur, panel generation continues uncached.
+
+**Why this remains active:**
+- During class, teachers often refresh the same dashboard repeatedly in short bursts.
+- A 15–30 second cache window can cut repeated DB/aggregation load without changing long-term data behavior.
+- Keeping default `0` preserves strict real-time behavior unless an operator explicitly opts in.

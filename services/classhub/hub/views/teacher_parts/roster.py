@@ -58,7 +58,13 @@ def teach_class_dashboard(request, class_id: int):
 
     student_count = classroom.students.count()
     students = list(classroom.students.all().order_by("created_at", "id"))
-    lesson_rows = _build_lesson_tracker_rows(request, classroom.id, modules, student_count)
+    lesson_rows = _build_lesson_tracker_rows(
+        request,
+        classroom.id,
+        modules,
+        student_count,
+        class_session_epoch=classroom.session_epoch,
+    )
     helper_signals = _build_helper_signal_snapshot(
         classroom=classroom,
         students=students,

@@ -1,8 +1,13 @@
 """Teacher tracker service helpers."""
 
+import hashlib
+import logging
 from datetime import datetime, time as dt_time, timedelta
 import re
+from typing import Callable, TypeVar
 
+from django.conf import settings
+from django.core.cache import cache
 from django.db import models
 from django.utils import timezone
 
@@ -29,6 +34,45 @@ from .teacher_tracker_types import (
 )
 
 _SAFE_INTENT_RE = re.compile(r"^[a-z0-9_-]{1,32}$")
+_CACHE_KEY_PREFIX = "classhub:teacher-panel:v1"
+_CACHE_KEY_LENGTH = 32
+_CacheValue = TypeVar("_CacheValue")
+logger = logging.getLogger(__name__)
+
+
+def _teacher_panel_cache_ttl_seconds() -> int:
+    try:
+        ttl = int(getattr(settings, "CLASSHUB_TEACHER_PANEL_CACHE_TTL_SECONDS", 0) or 0)
+    except Exception:
+        ttl = 0
+    return max(ttl, 0)
+
+
+def _panel_signature_digest(parts: list[str]) -> str:
+    joined = "|".join(str(part or "") for part in parts)
+    return hashlib.sha256(joined.encode("utf-8")).hexdigest()[:_CACHE_KEY_LENGTH]
+
+
+def _cache_get_or_build(panel: str, *, key_parts: list[str], builder: Callable[[], _CacheValue]) -> _CacheValue:
+    ttl = _teacher_panel_cache_ttl_seconds()
+    if ttl <= 0:
+        return builder()
+
+    key = f"{_CACHE_KEY_PREFIX}:{panel}:{_panel_signature_digest(key_parts)}"
+    try:
+        cached = cache.get(key)
+    except Exception:
+        logger.warning("teacher_panel_cache_get_failed panel=%s", panel)
+        return builder()
+    if cached is not None:
+        return cached
+
+    value = builder()
+    try:
+        cache.set(key, value, timeout=ttl)
+    except Exception:
+        logger.warning("teacher_panel_cache_set_failed panel=%s", panel)
+    return value
 
 
 def _material_submission_counts(material_ids: list[int]) -> dict[int, int]:
@@ -60,7 +104,7 @@ def _material_latest_upload_map(material_ids: list[int]) -> dict[int, timezone.d
     return latest
 
 
-def _build_class_digest_rows(classes: list[Class], *, since: timezone.datetime) -> list[ClassDigestRow]:
+def _compute_class_digest_rows(classes: list[Class], *, since: timezone.datetime) -> list[ClassDigestRow]:
     class_ids = [int(c.id) for c in classes if c and c.id]
     if not class_ids:
         return []
@@ -144,6 +188,21 @@ def _build_class_digest_rows(classes: list[Class], *, since: timezone.datetime) 
     return rows
 
 
+def _build_class_digest_rows(classes: list[Class], *, since: timezone.datetime) -> list[ClassDigestRow]:
+    class_signature = ",".join(
+        f"{int(classroom.id)}:{int(getattr(classroom, 'session_epoch', 0) or 0)}"
+        for classroom in classes
+        if getattr(classroom, "id", None)
+    )
+    # Cache in minute windows so near-identical requests coalesce.
+    since_bucket = int(since.timestamp()) // 60
+    return _cache_get_or_build(
+        "class-digest",
+        key_parts=[class_signature, str(since_bucket)],
+        builder=lambda: _compute_class_digest_rows(classes, since=since),
+    )
+
+
 def _local_day_window() -> tuple[timezone.datetime, timezone.datetime]:
     today = timezone.localdate()
     zone = timezone.get_current_timezone()
@@ -152,7 +211,7 @@ def _local_day_window() -> tuple[timezone.datetime, timezone.datetime]:
     return start, end
 
 
-def _build_helper_signal_snapshot(
+def _compute_helper_signal_snapshot(
     *,
     classroom: Class,
     students: list[StudentIdentity],
@@ -247,7 +306,37 @@ def _build_helper_signal_snapshot(
     }
 
 
-def _build_lesson_tracker_rows(
+def _build_helper_signal_snapshot(
+    *,
+    classroom: Class,
+    students: list[StudentIdentity],
+    window_hours: int = 24,
+    top_students: int = 5,
+) -> HelperSignalSnapshot:
+    student_signature = ",".join(
+        f"{int(student.id)}:{student.display_name}"
+        for student in students
+        if getattr(student, "id", None)
+    )
+    return _cache_get_or_build(
+        "helper-signals",
+        key_parts=[
+            str(int(getattr(classroom, "id", 0) or 0)),
+            str(int(getattr(classroom, "session_epoch", 0) or 0)),
+            str(max(int(window_hours), 1)),
+            str(max(int(top_students), 1)),
+            student_signature,
+        ],
+        builder=lambda: _compute_helper_signal_snapshot(
+            classroom=classroom,
+            students=students,
+            window_hours=window_hours,
+            top_students=top_students,
+        ),
+    )
+
+
+def _compute_lesson_tracker_rows(
     request, classroom_id: int, modules: list[Module], student_count: int
 ) -> list[LessonTrackerRow]:
     rows: list[LessonTrackerRow] = []
@@ -389,6 +478,35 @@ def _build_lesson_tracker_rows(
             )
 
     return rows
+
+
+def _build_lesson_tracker_rows(
+    request,
+    classroom_id: int,
+    modules: list[Module],
+    student_count: int,
+    *,
+    class_session_epoch: int | None = None,
+) -> list[LessonTrackerRow]:
+    module_signature_parts: list[str] = []
+    for module in modules:
+        prefetched = getattr(module, "_prefetched_objects_cache", {}).get("materials")
+        if prefetched is None:
+            raise ValueError(
+                "lesson tracker requires modules prefetched with materials; use prefetch_related('materials')"
+            )
+        module_signature_parts.append(f"{int(module.id)}:{int(module.order_index)}:{len(prefetched)}")
+
+    return _cache_get_or_build(
+        "lesson-tracker",
+        key_parts=[
+            str(int(classroom_id)),
+            str(int(class_session_epoch or 0)),
+            str(int(student_count)),
+            ",".join(module_signature_parts),
+        ],
+        builder=lambda: _compute_lesson_tracker_rows(request, classroom_id, modules, student_count),
+    )
 
 
 __all__ = [

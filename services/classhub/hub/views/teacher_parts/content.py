@@ -234,7 +234,13 @@ def teach_lessons(request):
         student_count = classroom.students.count()
         modules = list(classroom.modules.prefetch_related("materials").all())
         modules.sort(key=lambda m: (m.order_index, m.id))
-        lesson_rows = _build_lesson_tracker_rows(request, classroom.id, modules, student_count)
+        lesson_rows = _build_lesson_tracker_rows(
+            request,
+            classroom.id,
+            modules,
+            student_count,
+            class_session_epoch=classroom.session_epoch,
+        )
         class_rows.append(
             {
                 "classroom": classroom,
