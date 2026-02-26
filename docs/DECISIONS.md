@@ -298,6 +298,20 @@ Historical implementation logs and superseded decisions are archived by month in
 - Reduces monolithic test-file gravity in ClassHub and makes feature-specific test review/runs faster.
 - Preserves existing CI/server invocation patterns while enabling incremental test-module refactors.
 
+## Teacher auth view split seam
+
+**Current decision:**
+- Keep `hub/views/teacher_parts/auth.py` as a compatibility re-export module.
+- Split teacher auth endpoints by concern:
+  - `auth_login.py` for login/logout flow.
+  - `auth_teacher_accounts.py` for superuser teacher account creation + onboarding invite.
+  - `auth_teacher_2fa.py` for invite-token/session resolution and teacher 2FA setup/verification.
+- Keep existing import surfaces and route wiring stable via re-exports from `teacher_parts/auth.py`.
+
+**Why this remains active:**
+- Reduces dense-function pressure and review overhead in one auth-heavy file.
+- Preserves endpoint behavior and patch/import stability while enabling smaller, safer auth changes.
+
 ## Student join service seam
 
 **Current decision:**
