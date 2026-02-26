@@ -11,52 +11,41 @@ from ...models import Class, ClassInviteLink
 from ...services.filenames import safe_filename
 from ...services.teacher_roster_class import export_class_summary_csv
 from .shared_auth import staff_member_required
-from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
+from .shared_routing import (
+    _audit,
+    _parse_positive_int,
+    _safe_internal_redirect,
+    _teach_class_path,
+    _with_notice,
+)
 
 
-@staff_member_required
-@require_POST
-def teach_create_invite_link(request, class_id: int):
-    classroom = Class.objects.filter(id=class_id).first()
-    if not classroom:
-        return HttpResponse("Not found", status=404)
+def _class_notice_redirect(request, classroom: Class, *, notice: str = "", error: str = ""):
+    class_path = _teach_class_path(classroom.id)
+    return _safe_internal_redirect(
+        request,
+        _with_notice(class_path, notice=notice, error=error),
+        fallback=class_path,
+    )
 
+
+def _parse_invite_link_fields(request) -> tuple[str, int | None, int | None, str]:
     label = (request.POST.get("label") or "").strip()[:120]
     expires_hours_raw = (request.POST.get("expires_in_hours") or "").strip()
     seat_cap_raw = (request.POST.get("seat_cap") or "").strip()
 
-    expires_in_hours = None
-    if expires_hours_raw:
-        try:
-            expires_in_hours = int(expires_hours_raw)
-        except Exception:
-            expires_in_hours = None
-        if expires_in_hours is None or expires_in_hours <= 0 or expires_in_hours > 24 * 90:
-            return _safe_internal_redirect(
-                request,
-                _with_notice(
-                    _teach_class_path(classroom.id),
-                    error="Expiry must be between 1 and 2160 hours.",
-                ),
-                fallback=_teach_class_path(classroom.id),
-            )
+    expires_in_hours = _parse_positive_int(expires_hours_raw, min_value=1, max_value=24 * 90)
+    if expires_hours_raw and expires_in_hours is None:
+        return label, None, None, "Expiry must be between 1 and 2160 hours."
 
-    seat_cap = None
-    if seat_cap_raw:
-        try:
-            seat_cap = int(seat_cap_raw)
-        except Exception:
-            seat_cap = None
-        if seat_cap is None or seat_cap <= 0 or seat_cap > 5000:
-            return _safe_internal_redirect(
-                request,
-                _with_notice(
-                    _teach_class_path(classroom.id),
-                    error="Seat cap must be between 1 and 5000.",
-                ),
-                fallback=_teach_class_path(classroom.id),
-            )
+    seat_cap = _parse_positive_int(seat_cap_raw, min_value=1, max_value=5000)
+    if seat_cap_raw and seat_cap is None:
+        return label, None, None, "Seat cap must be between 1 and 5000."
 
+    return label, expires_in_hours, seat_cap, ""
+
+
+def _create_invite_link(request, *, classroom: Class, label: str, expires_in_hours: int | None, seat_cap: int | None):
     expires_at = timezone.now() + timedelta(hours=expires_in_hours) if expires_in_hours else None
     invite = ClassInviteLink.objects.create(
         classroom=classroom,
@@ -66,6 +55,27 @@ def teach_create_invite_link(request, class_id: int):
         created_by=request.user if request.user.is_authenticated else None,
     )
     invite_url = request.build_absolute_uri(f"/invite/{invite.token}")
+    return invite, invite_url, expires_at
+
+
+@staff_member_required
+@require_POST
+def teach_create_invite_link(request, class_id: int):
+    classroom = Class.objects.filter(id=class_id).first()
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+
+    label, expires_in_hours, seat_cap, validation_error = _parse_invite_link_fields(request)
+    if validation_error:
+        return _class_notice_redirect(request, classroom, error=validation_error)
+
+    invite, invite_url, expires_at = _create_invite_link(
+        request,
+        classroom=classroom,
+        label=label,
+        expires_in_hours=expires_in_hours,
+        seat_cap=seat_cap,
+    )
     _audit(
         request,
         action="class.invite_link_create",
@@ -79,14 +89,7 @@ def teach_create_invite_link(request, class_id: int):
             "max_uses": seat_cap,
         },
     )
-    return _safe_internal_redirect(
-        request,
-        _with_notice(
-            _teach_class_path(classroom.id),
-            notice=f"Invite created. Share link: {invite_url}",
-        ),
-        fallback=_teach_class_path(classroom.id),
-    )
+    return _class_notice_redirect(request, classroom, notice=f"Invite created. Share link: {invite_url}")
 
 
 @staff_member_required

@@ -2,7 +2,6 @@
   "max_lines_by_function": {
     "services/classhub/hub/views/content.py::course_lesson": 165,
     "services/classhub/hub/views/media.py::_stream_file_with_range": 85,
-    "services/classhub/hub/views/student.py::join_class": 105,
     "services/classhub/hub/views/student.py::material_upload": 90,
     "services/classhub/hub/views/teacher_parts/auth_teacher_accounts.py::teach_create_teacher": 130,
     "services/classhub/hub/views/teacher_parts/auth_teacher_2fa.py::teach_teacher_2fa_setup": 155,

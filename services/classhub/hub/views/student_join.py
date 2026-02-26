@@ -58,6 +58,139 @@ def _json_no_store_response(payload: dict, *, status: int = 200, private: bool =
     return response
 
 
+def _join_rate_limit_exceeded(request, *, client_ip: str) -> bool:
+    request_id = (request.META.get("HTTP_X_REQUEST_ID", "") or "").strip()
+    join_limit = int(getattr(settings, "JOIN_RATE_LIMIT_PER_MINUTE", 20))
+    return not fixed_window_allow(
+        f"join:ip:{client_ip}:m",
+        limit=join_limit,
+        window_seconds=60,
+        request_id=request_id,
+    )
+
+
+def _parse_join_request(request) -> tuple[dict, str, JsonResponse | None]:
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        return {}, "", _json_no_store_response({"error": "bad_json"}, status=400)
+
+    client_ip = client_ip_from_request(
+        request,
+        trust_proxy_headers=getattr(settings, "REQUEST_SAFETY_TRUST_PROXY_HEADERS", False),
+        xff_index=getattr(settings, "REQUEST_SAFETY_XFF_INDEX", 0),
+    )
+    if _join_rate_limit_exceeded(request, client_ip=client_ip):
+        return {}, client_ip, _json_no_store_response({"error": "rate_limited"}, status=429)
+
+    fields = {
+        "code": (payload.get("class_code") or "").strip().upper(),
+        "name": (payload.get("display_name") or "").strip()[:80],
+        "return_code": (payload.get("return_code") or "").strip().upper(),
+        "invite_token": (payload.get("invite_token") or "").strip(),
+    }
+    if not fields["name"] or (not fields["code"] and not fields["invite_token"]):
+        return {}, client_ip, _json_no_store_response({"error": "missing_fields"}, status=400)
+    return fields, client_ip, None
+
+
+def _resolve_join_target(*, code: str, invite_token: str) -> tuple[Class | None, ClassInviteLink | None, str, int]:
+    if invite_token:
+        invite, invite_error = _resolve_invite_link(invite_token, enforce_seat_cap=False)
+        if invite is None:
+            return None, None, invite_error, 403
+        return invite.classroom, invite, "", 200
+
+    classroom = Class.objects.filter(join_code=code).first()
+    if classroom is None:
+        return None, None, "invalid_code", 404
+    return classroom, None, "", 200
+
+
+def _lock_invite_for_join(invite: ClassInviteLink | None) -> tuple[ClassInviteLink | None, str]:
+    if invite is None:
+        return None, ""
+    invite = (
+        ClassInviteLink.objects.select_for_update()
+        .select_related("classroom")
+        .filter(id=invite.id)
+        .first()
+    )
+    if invite is None:
+        return None, "invite_invalid"
+    if not invite.is_active:
+        return None, "invite_inactive"
+    if invite.is_expired():
+        return None, "invite_expired"
+    return invite, ""
+
+
+def _complete_join_transaction(
+    request,
+    *,
+    classroom: Class,
+    invite: ClassInviteLink | None,
+    display_name: str,
+    return_code: str,
+) -> tuple[StudentIdentity | None, Class | None, ClassInviteLink | None, bool, str, str, int]:
+    with transaction.atomic():
+        invite, invite_error = _lock_invite_for_join(invite)
+        if invite_error:
+            return None, None, None, False, "", invite_error, 403
+        if invite is not None:
+            classroom = invite.classroom
+
+        classroom = Class.objects.select_for_update().filter(id=classroom.id).first()
+        if classroom is None:
+            return None, None, invite, False, "", "invalid_code", 404
+        if classroom.is_locked:
+            return None, classroom, invite, False, "", "class_locked", 403
+
+        try:
+            join_result = resolve_join_student(
+                request=request,
+                classroom=classroom,
+                display_name=display_name,
+                return_code=return_code,
+            )
+        except JoinValidationError as exc:
+            return None, classroom, invite, False, "", exc.code, 400
+
+        if invite is not None:
+            now = timezone.now()
+            if join_result.join_mode == "new":
+                if not invite.has_seat_available():
+                    return None, classroom, invite, False, "", "invite_seat_cap_reached", 400
+                invite.use_count = int(invite.use_count or 0) + 1
+                invite.last_used_at = now
+                invite.save(update_fields=["use_count", "last_used_at"])
+            else:
+                invite.last_used_at = now
+                invite.save(update_fields=["last_used_at"])
+
+        student = join_result.student
+        student.last_seen_at = timezone.now()
+        student.save(update_fields=["last_seen_at"])
+
+    return student, classroom, invite, join_result.rejoined, join_result.join_mode, "", 200
+
+
+def _establish_student_session(request, *, student: StudentIdentity, classroom: Class) -> None:
+    request.session.cycle_key()
+    request.session["student_id"] = student.id
+    request.session["class_id"] = classroom.id
+    request.session["class_epoch"] = int(getattr(classroom, "session_epoch", 1) or 1)
+    rotate_token(request)
+
+
+def _join_event_type(join_mode: str) -> str:
+    if join_mode == "return_code":
+        return StudentEvent.EVENT_REJOIN_RETURN_CODE
+    if join_mode in {"device_hint", "name_match"}:
+        return StudentEvent.EVENT_REJOIN_DEVICE_HINT
+    return StudentEvent.EVENT_CLASS_JOIN
+
+
 def _emit_student_event(
     *,
     event_type: str,
@@ -116,110 +249,32 @@ def index(request):
 @require_POST
 def join_class(request):
     """Join via class code + display name, optionally using invite token."""
-    try:
-        payload = json.loads(request.body.decode("utf-8"))
-    except Exception:
-        return _json_no_store_response({"error": "bad_json"}, status=400)
+    fields, client_ip, parse_error = _parse_join_request(request)
+    if parse_error is not None:
+        return parse_error
 
-    client_ip = client_ip_from_request(
-        request,
-        trust_proxy_headers=getattr(settings, "REQUEST_SAFETY_TRUST_PROXY_HEADERS", False),
-        xff_index=getattr(settings, "REQUEST_SAFETY_XFF_INDEX", 0),
+    classroom, invite, resolve_error, resolve_status = _resolve_join_target(
+        code=fields["code"],
+        invite_token=fields["invite_token"],
     )
-    request_id = (request.META.get("HTTP_X_REQUEST_ID", "") or "").strip()
-    join_limit = int(getattr(settings, "JOIN_RATE_LIMIT_PER_MINUTE", 20))
-    if not fixed_window_allow(
-        f"join:ip:{client_ip}:m",
-        limit=join_limit,
-        window_seconds=60,
-        request_id=request_id,
-    ):
-        return _json_no_store_response({"error": "rate_limited"}, status=429)
+    if resolve_error:
+        return _json_no_store_response({"error": resolve_error}, status=resolve_status)
 
-    code = (payload.get("class_code") or "").strip().upper()
-    name = (payload.get("display_name") or "").strip()[:80]
-    return_code = (payload.get("return_code") or "").strip().upper()
-    invite_token = (payload.get("invite_token") or "").strip()
+    student, classroom, invite, rejoined, join_mode, txn_error, txn_status = _complete_join_transaction(
+        request,
+        classroom=classroom,
+        invite=invite,
+        display_name=fields["name"],
+        return_code=fields["return_code"],
+    )
+    if txn_error:
+        return _json_no_store_response({"error": txn_error}, status=txn_status)
 
-    if not name or (not code and not invite_token):
-        return _json_no_store_response({"error": "missing_fields"}, status=400)
-
-    invite = None
-    if invite_token:
-        invite, invite_error = _resolve_invite_link(invite_token, enforce_seat_cap=False)
-        if invite is None:
-            return _json_no_store_response({"error": invite_error}, status=403)
-        classroom = invite.classroom
-    else:
-        classroom = Class.objects.filter(join_code=code).first()
-        if not classroom:
-            return _json_no_store_response({"error": "invalid_code"}, status=404)
-    if classroom is None:
-        return _json_no_store_response({"error": "invalid_code"}, status=404)
-
-    with transaction.atomic():
-        if invite is not None:
-            invite = (
-                ClassInviteLink.objects.select_for_update()
-                .select_related("classroom")
-                .filter(id=invite.id)
-                .first()
-            )
-            if invite is None:
-                return _json_no_store_response({"error": "invite_invalid"}, status=403)
-            if not invite.is_active:
-                return _json_no_store_response({"error": "invite_inactive"}, status=403)
-            if invite.is_expired():
-                return _json_no_store_response({"error": "invite_expired"}, status=403)
-            classroom = invite.classroom
-
-        classroom = Class.objects.select_for_update().filter(id=classroom.id).first()
-        if classroom is None:
-            return _json_no_store_response({"error": "invalid_code"}, status=404)
-        if classroom.is_locked:
-            return _json_no_store_response({"error": "class_locked"}, status=403)
-
-        try:
-            join_result = resolve_join_student(
-                request=request,
-                classroom=classroom,
-                display_name=name,
-                return_code=return_code,
-            )
-            if invite is not None and join_result.join_mode == "new":
-                if not invite.has_seat_available():
-                    raise JoinValidationError("invite_seat_cap_reached")
-                invite.use_count = int(invite.use_count or 0) + 1
-                invite.last_used_at = timezone.now()
-                invite.save(update_fields=["use_count", "last_used_at"])
-            elif invite is not None:
-                invite.last_used_at = timezone.now()
-                invite.save(update_fields=["last_used_at"])
-        except JoinValidationError as exc:
-            return _json_no_store_response({"error": exc.code}, status=400)
-        student = join_result.student
-        rejoined = join_result.rejoined
-        join_mode = join_result.join_mode
-
-        student.last_seen_at = timezone.now()
-        student.save(update_fields=["last_seen_at"])
-
-    request.session.cycle_key()
-    request.session["student_id"] = student.id
-    request.session["class_id"] = classroom.id
-    request.session["class_epoch"] = int(getattr(classroom, "session_epoch", 1) or 1)
-    rotate_token(request)
-
+    _establish_student_session(request, student=student, classroom=classroom)
     response = _json_no_store_response({"ok": True, "return_code": student.return_code, "rejoined": rejoined})
     apply_device_hint_cookie(response, classroom=classroom, student=student)
-    if join_mode == "return_code":
-        event_type = StudentEvent.EVENT_REJOIN_RETURN_CODE
-    elif join_mode in {"device_hint", "name_match"}:
-        event_type = StudentEvent.EVENT_REJOIN_DEVICE_HINT
-    else:
-        event_type = StudentEvent.EVENT_CLASS_JOIN
     _emit_student_event(
-        event_type=event_type,
+        event_type=_join_event_type(join_mode),
         classroom=classroom,
         student=student,
         source="classhub.join_class",
