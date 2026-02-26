@@ -504,7 +504,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Regression coverage is required for helper auth/admin hardening and backend retry/circuit behavior.
 - `ops/systemd/classhub-retention.service` now refuses root execution by default unless `CLASSHUB_ALLOW_ROOT_MAINTENANCE=1` is explicitly set as a break-glass override.
 - `ops/systemd/classhub-retention.service` now pins explicit non-root runtime identity (`User=lms`, `Group=docker`) and baseline systemd hardening flags (`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem`, `ProtectHome`, etc.).
-- Compose web-facing services (`caddy`, `classhub_web`, `helper_web`) now run with `read_only: true` root filesystems plus explicit writable mounts/tmpfs.
+- Compose app services (`classhub_web`, `helper_web`) now run with `read_only: true` root filesystems plus explicit writable mounts/tmpfs; `caddy` remains writable for compatibility with runtime state handling.
 
 **Why this remains active:**
 - Prevents avoidable outages from config drift.
