@@ -1,10 +1,25 @@
 """Teacher class-level roster and dashboard endpoints."""
 
-from .shared import *  # noqa: F401,F403,F405
+from urllib.parse import urlencode
+
+from django.conf import settings
+from django.http import FileResponse, HttpResponse
+from django.shortcuts import redirect, render
+from django.utils import timezone
+from django.views.decorators.http import require_POST
+
+from ...http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
+from ...models import Class, StudentIdentity, Submission
+from ...services.filenames import safe_filename
+from ...services.helper_control import reset_class_conversations as _reset_helper_class_conversations
 from ...services.teacher_roster_class import (
     build_dashboard_context,
     export_submissions_today_archive,
 )
+from .shared_auth import staff_member_required
+from .shared_ordering import _next_unique_class_join_code, _normalize_order
+from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
+from .shared_tracker import _local_day_window
 
 @staff_member_required
 @require_POST
