@@ -224,10 +224,6 @@ flowchart TB
   H12 ==> RC
 ```
 
-How to read connection styles:
-
-| Connection style | Meaning in this map |
-| --- | --- |
-| `A --> B` | Request/control flow between app layers |
-| `A -.-> B` | Render path or token-gated internal event flow |
-| `A ==> B` | Data/cache/file access |
+Reading note: arrows indicate directional dependencies/flow between modules.
+Where a connection has special meaning, it is labeled directly on the edge
+(for example, `token-gated internal POST`).
