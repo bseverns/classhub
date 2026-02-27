@@ -6,7 +6,10 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Active Decisions Snapshot
 
 - [Auth model: student access](#auth-model-student-access)
+- [Stability freeze and change budget](#stability-freeze-and-change-budget)
+- [Decision ownership and review cadence](#decision-ownership-and-review-cadence)
 - [Organization boundary and staff roles](#organization-boundary-and-staff-roles)
+- [Org boundary deployment policy](#org-boundary-deployment-policy)
 - [Class assignments and teacher-first class ordering](#class-assignments-and-teacher-first-class-ordering)
 - [Paid cohort enrollment controls](#paid-cohort-enrollment-controls)
 - [Service boundary: Homework Helper separate service](#service-boundary-homework-helper-separate-service)
@@ -31,6 +34,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
 - [Deployment guardrails](#deployment-guardrails)
 - [Accessibility smoke gate](#accessibility-smoke-gate)
+- [Accessibility runtime contract](#accessibility-runtime-contract)
 - [View wildcard import guardrail](#view-wildcard-import-guardrail)
 - [CI speed and signal quality](#ci-speed-and-signal-quality)
 - [Non-root Django runtime containers](#non-root-django-runtime-containers)
@@ -49,6 +53,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Error-response redaction](#error-response-redaction)
 - [Teacher authoring templates](#teacher-authoring-templates)
 - [Teacher UI comfort mode](#teacher-ui-comfort-mode)
+- [Teacher portal complexity budget](#teacher-portal-complexity-budget)
 - [Helper scope signing](#helper-scope-signing)
 - [Helper event ingestion boundary](#helper-event-ingestion-boundary)
 - [Edge block for internal endpoints](#edge-block-for-internal-endpoints)
@@ -70,6 +75,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Student portfolio export](#student-portfolio-export)
 - [Checklist, reflection, and rubric material types](#checklist-reflection-and-rubric-material-types)
 - [Outcome events and certificate rollups](#outcome-events-and-certificate-rollups)
+- [Outcomes and certificate semantics contract](#outcomes-and-certificate-semantics-contract)
 - [Automated retention maintenance](#automated-retention-maintenance)
 - [Release verdict: 2026-02-21 hardening/polish push](#release-verdict-2026-02-21-hardeningpolish-push)
 
@@ -107,6 +113,36 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keeps student friction low while limiting impersonation risk.
 - Maintains minimal student PII collection in MVP.
 
+## Stability freeze and change budget
+
+**Current decision:**
+- Adopt a 30-day stability freeze focused on survivability and maintenance risk reduction.
+- During the freeze, allow only:
+  - UX smoothing on existing workflows
+  - docs clarity improvements
+  - scenario testing and rehearsal coverage
+  - observability/hardening work that adds no new product primitives
+- Do not ship new features, new analytics primitives, or schema expansion unless delay is riskier than a minimal fix.
+- Freeze exceptions require explicit justification (`Freeze exception`), smallest-change rationale, and named reviewer sign-off.
+
+**Why this remains active:**
+- Keeps scope pressure from eroding reliability during high-change periods.
+- Makes maintenance debt visible and governable instead of implicit.
+
+## Decision ownership and review cadence
+
+**Current decision:**
+- Every policy-level operational decision must have:
+  - an owner role (`ED`, `OD`, `maintainer`, or shared ownership),
+  - a review cadence (`monthly` or `quarterly`),
+  - a linked artifact where the check happens (runbook, risk register, or rehearsal record).
+- `MAINTENANCE_RISK_REGISTER.md` is the canonical list of currently accepted maintenance risks and owners.
+- Policy choices that affect security/privacy/runtime behavior must be written in docs, not only PR/chat context.
+
+**Why this remains active:**
+- Prevents silent policy drift when contributors or staff roles change.
+- Reduces single-maintainer dependency by making review ownership explicit.
+
 ## Organization boundary and staff roles
 
 **Current decision:**
@@ -126,6 +162,21 @@ Historical implementation logs and superseded decisions are archived by month in
 - Establishes a concrete multi-program boundary without forcing a one-shot data migration.
 - Preserves backward compatibility for existing single-tenant deployments.
 - Provides a clear path to paid cohort partitioning and partner-org separation.
+
+## Org boundary deployment policy
+
+**Current decision:**
+- Keep `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0` only for transitional or low-risk deployments where org memberships are not fully established.
+- For production programs with multiple organizations or partner boundaries, target `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`.
+- Any deployment running `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0` must document:
+  - why fallback remains necessary,
+  - who approved the exception,
+  - when the setting will be reviewed.
+- Verify this setting during quarterly restore rehearsal and monthly staff-access review.
+
+**Why this remains active:**
+- Makes boundary posture a conscious operational policy instead of an inherited default.
+- Prevents accidental over-broad staff class visibility as programs grow.
 
 ## Class assignments and teacher-first class ordering
 
@@ -612,6 +663,21 @@ Historical implementation logs and superseded decisions are archived by month in
 - Reuses the same stack fixtures/session setup as smoke checks, reducing separate test harness drift.
 - Keeps the gate low-friction and repeatable for local/operator runs (`bash scripts/a11y_smoke.sh`).
 
+## Accessibility runtime contract
+
+**Current decision:**
+- `scripts/a11y_smoke.sh` is an operator-facing host tool and requires:
+  - `node`
+  - `npm`
+  - `docker`
+- Preferred baseline for operator hosts is Node 20 LTS.
+- First-run browser provisioning is explicit (`--install-browsers`) and should be treated as normal setup, not an optional extra.
+- Do not silently downgrade by skipping a11y smoke when node/npm are missing; fix host prerequisites or run in CI before release.
+
+**Why this remains active:**
+- Prevents false assumptions that a11y smoke is Docker-only.
+- Keeps accessibility checks reliable and repeatable across server and CI environments.
+
 ## CI speed and signal quality
 
 **Current decision:**
@@ -930,6 +996,21 @@ Historical implementation logs and superseded decisions are archived by month in
 - Reduces visual fatigue during long grading/planning sessions.
 - Improves scanability of dense teacher workflows without a full redesign.
 
+## Teacher portal complexity budget
+
+**Current decision:**
+- During stability windows, teacher portal changes must not add new top-level tabs or workflow primitives.
+- Preferred change order for `/teach` and `/teach/class/*`:
+  1. clarify copy,
+  2. reduce simultaneous visible controls,
+  3. reorder existing controls for safer defaults,
+  4. add or adjust warning language for destructive actions.
+- Keep growth pressure visible via existing view/file budget guards; large UI/view expansions require explicit budget justification.
+
+**Why this remains active:**
+- Keeps the primary staff interface from expanding faster than support/training capacity.
+- Reduces regression risk in dense teacher surfaces where many workflows converge.
+
 ## Helper scope signing
 
 **Current decision:**
@@ -1131,6 +1212,22 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Produces funder/parent-facing outcome summaries without adding grades or surveillance patterns.
 - Keeps privacy boundary intact by exporting only aggregate counts + display names (no raw details payloads).
+
+## Outcomes and certificate semantics contract
+
+**Current decision:**
+- Certificate eligibility is an event-threshold contract, not a competency-grade contract.
+- Event semantics are:
+  - `artifact_submitted`: one event per successful submission
+  - `session_completed`: one event per student+module from first artifact, or teacher manual mark for offline completion
+  - `milestone_earned`: material-triggered engagement signal (checklist/reflection/rubric)
+- Certificate issuance records are signed snapshots of threshold counts at issue time.
+- Reporting/export language must not claim hidden analytics or transcript-based evidence.
+- Threshold settings (`CLASSHUB_CERTIFICATE_MIN_SESSIONS`, `CLASSHUB_CERTIFICATE_MIN_ARTIFACTS`) should be treated as cycle-level policy and changed intentionally between reporting windows, not ad hoc mid-cycle.
+
+**Why this remains active:**
+- Keeps instructors, operations, and fundraising aligned on what certificate/output data means.
+- Reduces reporting drift where technically valid exports are interpreted inconsistently.
 
 ## Automated retention maintenance
 
