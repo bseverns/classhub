@@ -36,9 +36,12 @@ If any step fails, use [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 1. Open your class in `/teach`.
 2. In `Lesson Tracker`, open only the lesson you are teaching now.
 3. Adjust lesson release (open/lock/date) as needed.
-4. Use `Helper tuning` in that lesson row if you want to narrow helper focus.
-5. Review missing submissions from the dropbox links.
-6. For paid/limited cohorts, monitor invite seat usage and disable links when full.
+4. Keep the student home clear:
+   - `This week` should point to the current lesson.
+   - `Course links` should have the expected sequence.
+5. Use `Helper tuning` in that lesson row if you want to narrow helper focus.
+6. Review missing submissions from the dropbox links.
+7. For paid/limited cohorts, monitor invite seat usage and disable links when full.
 
 Deep walkthrough: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 

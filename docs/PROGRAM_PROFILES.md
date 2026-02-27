@@ -68,6 +68,19 @@ HELPER_TOPIC_FILTER_MODE=soft
 - If you need strict helper boundaries in any profile, set helper toggles explicitly; profile defaults are only a baseline.
 - Keep privacy posture unchanged across profiles: no prompt archive, no surveillance analytics.
 
+## UI density behaviors (current student structure)
+
+All profiles use the same core student layout and permissions:
+- class landing with `This week`, `Course links`, and `Account` blocks
+- module cards are collapsible
+- helper widget is collapsed by default
+- checklist/reflection/rubric editors are shown via details-on-demand
+
+Density mode changes text and visual complexity, not security/privacy boundaries:
+- `compact`: shortest status copy and reduced instructional text
+- `standard`: balanced detail for most middle/high cohorts
+- `expanded`: more explanatory copy for advanced/project contexts
+
 ## Course-level UI override (optional)
 
 If a specific course needs a different learner-facing UI density than the global profile, add `ui_level` in that course manifest:

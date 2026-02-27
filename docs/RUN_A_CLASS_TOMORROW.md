@@ -11,15 +11,18 @@ Use this checklist when you need a first-time teacher flow that works end-to-end
 5. If needed, set an invite expiration time and seat cap.
 6. Share the class code or invite link with students through your normal communication channel.
 7. Before class starts, open the materials/lesson view you plan to use.
-8. As students join, confirm that the roster is filling as expected.
-9. During class, direct students to submit their work through the normal class materials flow.
-10. If a student cannot join, check whether the invite is expired/full or whether the class is accidentally `Closed`.
-11. At the end of the session, review submissions and confirm the roster reflects who participated.
-12. Use the teacher action to mark session completion where appropriate.
-13. Generate the `Outcomes export` or class summary export for reporting.
-14. Open `Certificate eligibility/issuance` and issue certificates for students who meet the threshold.
-15. Download the certificate output you need and store it according to your organization's process.
-16. If anything looked off, document it the same day and hand it to ops while details are still fresh.
+8. Preview student home (`/student`) from a classroom/student session and confirm the landing page is clear:
+   - `This week` points to the right lesson.
+   - `Course links` lists the expected lesson sequence.
+9. As students join, confirm that the roster is filling as expected.
+10. During class, direct students to submit their work through the normal class materials flow.
+11. If a student cannot join, check whether the invite is expired/full or whether the class is accidentally `Closed`.
+12. At the end of the session, review submissions and confirm the roster reflects who participated.
+13. Use the teacher action to mark session completion where appropriate.
+14. Generate the `Outcomes export` or class summary export for reporting.
+15. Open `Certificate eligibility/issuance` and issue certificates for students who meet the threshold.
+16. Download the certificate output you need and store it according to your organization's process.
+17. If anything looked off, document it the same day and hand it to ops while details are still fresh.
 
 ## Before you leave for the day
 

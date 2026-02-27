@@ -212,6 +212,9 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
   - module/material editor
   - `Copy` join code
   - `Printable join card` shortcut for in-room posting
+  - student landing editor:
+    - landing title, message, and optional hero image URL
+    - weekly highlight is derived from class lesson release dates and appears first on `/student`
   - enrollment mode control: `Open`, `Invite only`, `Closed`
   - student invite-link management:
     - create links with optional label, expiry, and seat cap
@@ -249,6 +252,20 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
 4. Use `Manage videos` on a lesson row to add/update that lesson's video list.
 5. Use `Review missing now` to jump to students who still owe uploads.
 6. Use `ZIP latest` for batch review/download.
+
+## Student experience structure (what teachers should expect)
+
+- `/student` now opens to a class landing page with three clear blocks:
+  - `This week` (calendar-linked highlighted lesson + primary start action)
+  - `Course links` (full lesson list in a collapsible panel)
+  - `Account` (My Data + export/session controls)
+- Module cards on `/student` are collapsible, and the highlighted module opens by default.
+- Checklist/reflection/rubric materials show status first (`Done`/`Open`/`Locked`) and keep edit forms inside collapsible details.
+- The helper widget is collapsed by default on student pages; students open it when needed.
+- Lesson videos are collapsed by default on lesson pages.
+- Density defaults are profile-driven (`compact`/`standard`/`expanded`) and can be course-overridden via `ui_level`; see [PROGRAM_PROFILES.md](PROGRAM_PROFILES.md).
+
+If a teacher says “the page looks empty,” first confirm collapsed sections are expanded where needed.
 
 ## Enrollment + invite workflow
 
