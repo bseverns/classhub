@@ -1,4 +1,32 @@
-# Self-Hosted Class Hub + Homework Helper (Django)
+# ClassHub
+
+ClassHub is open learning infrastructure built for privacy-forward educational programs.
+
+It intentionally limits data collection while enabling structured cohort delivery, outcome capture, and certificate issuance — designed to survive staff turnover and vendor drift.
+
+## What It Is
+
+- Cohort-based learning container
+- Organization-scoped access boundaries
+- Invite-only enrollment with seat controls
+- Outcome tracking and export
+- Certificate eligibility and issuance
+
+## What It Is Not
+
+- Not a marketing website
+- Not a payment processor
+- Not a CRM
+- Not a behavioral analytics system
+- Not a surveillance-based LMS
+
+## Design Principles
+
+- Data minimization
+- Role-based access control
+- Append-only audit events
+- Exportable artifacts
+- Operational resilience
 
 [![test-suite](https://github.com/bseverns/ClassHub/actions/workflows/test-suite.yml/badge.svg)](https://github.com/bseverns/ClassHub/actions/workflows/test-suite.yml)
 [![security](https://github.com/bseverns/ClassHub/actions/workflows/security.yml/badge.svg)](https://github.com/bseverns/ClassHub/actions/workflows/security.yml)
