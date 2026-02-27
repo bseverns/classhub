@@ -27,33 +27,30 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
 - Reliability checks: `/healthz`, `/helper/healthz`, join flow, helper flow, teacher route checks.
 
 ## Optional: screenshots
-<details>
-<summary>Open press screenshots</summary>
+??? info "Open press screenshots"
+    Synced from `press/screenshots/` for wiki/docs browsing.
 
-Synced from `press/screenshots/` for wiki/docs browsing.
+    ![Student join](images/press/01-student-join.png)
 
-![Student join](images/press/01-student-join.png)
+    ![Student class view](images/press/02-student-class-view.png)
 
-![Student class view](images/press/02-student-class-view.png)
+    ![Teacher dashboard](images/press/03-teacher-dashboard.png)
 
-![Teacher dashboard](images/press/03-teacher-dashboard.png)
+    ![Teacher lesson tracker](images/press/04-teacher-lesson-tracker.png)
 
-![Teacher lesson tracker](images/press/04-teacher-lesson-tracker.png)
+    ![Lesson with helper](images/press/05-lesson-with-helper.png)
 
-![Lesson with helper](images/press/05-lesson-with-helper.png)
+    ![Submission dropbox](images/press/06-submission-dropbox.png)
 
-![Submission dropbox](images/press/06-submission-dropbox.png)
+    ![Admin login](images/press/07-admin-login.png)
 
-![Admin login](images/press/07-admin-login.png)
+    ![Health checks terminal](images/press/08-health-checks-terminal.png)
 
-![Health checks terminal](images/press/08-health-checks-terminal.png)
+    Planned next captures (placeholders):
+    - `09-teacher-profile-tab.png`
+    - `10-org-management-tab.png`
+    - `11-invite-only-enrollment.png`
+    - `12-certificate-eligibility.png`
+    - `13-a11y-smoke-terminal.png`
 
-Planned next captures (placeholders):
-- `09-teacher-profile-tab.png`
-- `10-org-management-tab.png`
-- `11-invite-only-enrollment.png`
-- `12-certificate-eligibility.png`
-- `13-a11y-smoke-terminal.png`
-
-See `press/screenshots/PLACEHOLDERS.md` and `press/screenshots/SHOTLIST.md`.
-</details>
+    See `press/screenshots/PLACEHOLDERS.md` and `press/screenshots/SHOTLIST.md`.
