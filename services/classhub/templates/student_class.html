@@ -76,63 +76,71 @@
             <p class="muted">{{ class_landing.landing_message|linebreaksbr }}</p>
           {% endif %}
 
-          {% if class_landing.highlight_lesson %}
-            <div class="landing-highlight">
-              <div class="muted">
-                {% if class_landing.highlight_lesson.is_this_week %}
-                  This week's highlighted lesson
-                {% else %}
-                  Highlighted lesson
-                {% endif %}
+          <section class="landing-section">
+            <h3>This week</h3>
+            {% if class_landing.highlight_lesson %}
+              <div class="landing-highlight">
+                <div class="muted">
+                  {% if class_landing.highlight_lesson.is_this_week %}
+                    This week's highlighted lesson
+                  {% else %}
+                    Highlighted lesson
+                  {% endif %}
+                </div>
+                <p class="landing-highlight-title">
+                  <a href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank" rel="noopener">
+                    {{ class_landing.highlight_lesson.module_title }}
+                  </a>
+                </p>
+                <p class="landing-primary-action-wrap">
+                  <a class="landing-primary-action" href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank" rel="noopener">
+                    Start this week's lesson
+                  </a>
+                </p>
+                <div class="muted">
+                  {% if class_landing.highlight_lesson.is_locked %}
+                    <span class="state-pill state-pill--locked">Locked</span>
+                  {% else %}
+                    <span class="state-pill state-pill--open">Open</span>
+                  {% endif %}
+                  {% if class_landing.highlight_lesson.available_on %}
+                    · {{ class_landing.highlight_lesson.available_on|date:"M j, Y" }}
+                  {% endif %}
+                </div>
               </div>
-              <p class="landing-highlight-title">
-                <a href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank" rel="noopener">
-                  {{ class_landing.highlight_lesson.module_title }}
-                </a>
-              </p>
-              <p class="landing-primary-action-wrap">
-                <a class="landing-primary-action" href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank" rel="noopener">
-                  Start this week's lesson
-                </a>
-              </p>
-              <div class="muted">
-                {% if class_landing.highlight_lesson.is_locked %}
-                  <span class="state-pill state-pill--locked">Locked</span>
-                {% else %}
-                  <span class="state-pill state-pill--open">Open</span>
-                {% endif %}
-                {% if class_landing.highlight_lesson.available_on %}
-                  · {{ class_landing.highlight_lesson.available_on|date:"M j, Y" }}
-                {% endif %}
-              </div>
-            </div>
-          {% else %}
-            <p class="muted">No calendar-linked lessons yet. Ask your teacher when your first lesson opens.</p>
-          {% endif %}
+            {% else %}
+              <p class="muted">No calendar-linked lessons yet. Ask your teacher when your first lesson opens.</p>
+            {% endif %}
+          </section>
 
-          {% if class_landing.course_lesson_links %}
-            <details class="landing-course-map">
-              <summary>View full course lesson links</summary>
-              <ul>
-                {% for row in class_landing.course_lesson_links %}
-                  <li>
-                    <a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.module_title }}</a>
-                    {% if row.is_highlight %}
-                      <span class="muted">(highlighted)</span>
-                    {% endif %}
-                    {% if row.is_locked %}
-                      <span class="state-pill state-pill--locked">Locked</span>
-                    {% else %}
-                      <span class="state-pill state-pill--open">Open</span>
-                    {% endif %}
-                    {% if row.available_on %}
-                      <span class="muted">· {{ row.available_on|date:"M j, Y" }}</span>
-                    {% endif %}
-                  </li>
-                {% endfor %}
-              </ul>
-            </details>
-          {% endif %}
+          <section class="landing-section">
+            <h3>Course links</h3>
+            {% if class_landing.course_lesson_links %}
+              <details class="landing-course-map">
+                <summary>View full course lesson links</summary>
+                <ul>
+                  {% for row in class_landing.course_lesson_links %}
+                    <li>
+                      <a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.module_title }}</a>
+                      {% if row.is_highlight %}
+                        <span class="muted">(highlighted)</span>
+                      {% endif %}
+                      {% if row.is_locked %}
+                        <span class="state-pill state-pill--locked">Locked</span>
+                      {% else %}
+                        <span class="state-pill state-pill--open">Open</span>
+                      {% endif %}
+                      {% if row.available_on %}
+                        <span class="muted">· {{ row.available_on|date:"M j, Y" }}</span>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              </details>
+            {% else %}
+              <p class="muted">Course lesson links will appear here after your teacher connects a course.</p>
+            {% endif %}
+          </section>
         </div>
 
         <div class="card done-guide">
@@ -269,21 +277,6 @@
                           </div>
                           <div class="muted">Checklist opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
                         {% elif items %}
-                          <form method="post" action="/material/{{ mat.id }}/checklist" class="checklist-form">
-                            {% csrf_token %}
-                            {% for item in items %}
-                              <label class="checklist-item-row">
-                                <input
-                                  type="checkbox"
-                                  name="checked_item"
-                                  value="{{ forloop.counter0 }}"
-                                  {% if state and forloop.counter0 in state.checklist_checked %}checked{% endif %}
-                                />
-                                <span>{{ item }}</span>
-                              </label>
-                            {% endfor %}
-                            <button type="submit">Save checklist</button>
-                          </form>
                           <div class="status-row">
                             {% if state and state.checklist_checked|length >= items|length %}
                               <span class="state-pill state-pill--done">Done</span>
@@ -291,6 +284,24 @@
                               <span class="state-pill state-pill--open">Open</span>
                             {% endif %}
                           </div>
+                          <details class="material-action-details">
+                            <summary>{% if state and state.checklist_checked|length >= items|length %}Review checklist{% else %}Open checklist{% endif %}</summary>
+                            <form method="post" action="/material/{{ mat.id }}/checklist" class="checklist-form">
+                              {% csrf_token %}
+                              {% for item in items %}
+                                <label class="checklist-item-row">
+                                  <input
+                                    type="checkbox"
+                                    name="checked_item"
+                                    value="{{ forloop.counter0 }}"
+                                    {% if state and forloop.counter0 in state.checklist_checked %}checked{% endif %}
+                                  />
+                                  <span>{{ item }}</span>
+                                </label>
+                              {% endfor %}
+                              <button type="submit">Save checklist</button>
+                            </form>
+                          </details>
                         {% else %}
                           <div class="muted empty-state">(Checklist has no items yet.)</div>
                         {% endif %}
@@ -306,12 +317,6 @@
                           {% if mat.body %}
                             <pre class="text-material-preview">{{ mat.body }}</pre>
                           {% endif %}
-                          <form method="post" action="/material/{{ mat.id }}/reflection" class="reflection-form">
-                            {% csrf_token %}
-                            <label for="reflection-{{ mat.id }}" class="muted">Your private reflection</label>
-                            <textarea id="reflection-{{ mat.id }}" name="reflection_text" rows="5" placeholder="Write a short reflection.">{{ state.reflection_text|default:'' }}</textarea>
-                            <button type="submit">Save reflection</button>
-                          </form>
                           <div class="status-row">
                             {% if state and state.reflection_text %}
                               <span class="state-pill state-pill--done">Done</span>
@@ -319,6 +324,15 @@
                               <span class="state-pill state-pill--open">Open</span>
                             {% endif %}
                           </div>
+                          <details class="material-action-details">
+                            <summary>{% if state and state.reflection_text %}Review reflection{% else %}Open reflection{% endif %}</summary>
+                            <form method="post" action="/material/{{ mat.id }}/reflection" class="reflection-form">
+                              {% csrf_token %}
+                              <label for="reflection-{{ mat.id }}" class="muted">Your private reflection</label>
+                              <textarea id="reflection-{{ mat.id }}" name="reflection_text" rows="5" placeholder="Write a short reflection.">{{ state.reflection_text|default:'' }}</textarea>
+                              <button type="submit">Save reflection</button>
+                            </form>
+                          </details>
                         {% endif %}
                       {% endwith %}
                     {% elif mat.type == 'rubric' %}
@@ -329,27 +343,6 @@
                           </div>
                           <div class="muted">Rubric opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
                         {% elif spec and spec.criteria %}
-                          <form method="post" action="/material/{{ mat.id }}/rubric" class="reflection-form">
-                            {% csrf_token %}
-                            <div class="muted">Rate each criterion from 1 to {{ spec.scale_max }}.</div>
-                            {% for criterion in spec.criteria %}
-                              {% with criterion_index=forloop.counter0 selected_score=state.rubric_scores|get_item:forloop.counter0 %}
-                                <label
-                                  for="rubric-criterion-{{ mat.id }}-{{ criterion_index }}"
-                                  class="muted stacked-rubric-label"
-                                >{{ criterion }}</label>
-                                <select id="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" name="criterion_{{ criterion_index }}">
-                                  <option value="">Not scored</option>
-                                  {% for score in spec.scale_values %}
-                                    <option value="{{ score }}" {% if selected_score == score %}selected{% endif %}>{{ score }}</option>
-                                  {% endfor %}
-                                </select>
-                              {% endwith %}
-                            {% endfor %}
-                            <label for="rubric-feedback-{{ mat.id }}" class="muted">Optional feedback</label>
-                            <textarea id="rubric-feedback-{{ mat.id }}" name="rubric_feedback" rows="4" placeholder="Short note to your teacher (optional).">{{ state.rubric_feedback|default:'' }}</textarea>
-                            <button type="submit">Save rubric</button>
-                          </form>
                           <div class="status-row">
                             {% if state and state.rubric_scores %}
                               <span class="state-pill state-pill--done">Done</span>
@@ -357,6 +350,30 @@
                               <span class="state-pill state-pill--open">Open</span>
                             {% endif %}
                           </div>
+                          <details class="material-action-details">
+                            <summary>{% if state and state.rubric_scores %}Review rubric{% else %}Open rubric{% endif %}</summary>
+                            <form method="post" action="/material/{{ mat.id }}/rubric" class="reflection-form">
+                              {% csrf_token %}
+                              <div class="muted">Rate each criterion from 1 to {{ spec.scale_max }}.</div>
+                              {% for criterion in spec.criteria %}
+                                {% with criterion_index=forloop.counter0 selected_score=state.rubric_scores|get_item:forloop.counter0 %}
+                                  <label
+                                    for="rubric-criterion-{{ mat.id }}-{{ criterion_index }}"
+                                    class="muted stacked-rubric-label"
+                                  >{{ criterion }}</label>
+                                  <select id="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" name="criterion_{{ criterion_index }}">
+                                    <option value="">Not scored</option>
+                                    {% for score in spec.scale_values %}
+                                      <option value="{{ score }}" {% if selected_score == score %}selected{% endif %}>{{ score }}</option>
+                                    {% endfor %}
+                                  </select>
+                                {% endwith %}
+                              {% endfor %}
+                              <label for="rubric-feedback-{{ mat.id }}" class="muted">Optional feedback</label>
+                              <textarea id="rubric-feedback-{{ mat.id }}" name="rubric_feedback" rows="4" placeholder="Short note to your teacher (optional).">{{ state.rubric_feedback|default:'' }}</textarea>
+                              <button type="submit">Save rubric</button>
+                            </form>
+                          </details>
                         {% else %}
                           <div class="muted empty-state">(Rubric criteria not configured yet.)</div>
                         {% endif %}
@@ -379,7 +396,7 @@
         {% endif %}
 
         <div class="card done-guide{% if ui_density_mode == 'compact' %} done-guide--compact{% endif %}">
-          <h2>My Data</h2>
+          <h2>Account</h2>
           {% if ui_density_mode == "compact" %}
             <p class="muted">Need account/data controls? Open your My Data page.</p>
             <div class="my-data-actions">

@@ -29,6 +29,13 @@
 .class-landing h2 {
   margin: 0 0 8px 0;
 }
+.landing-section {
+  margin-top: 12px;
+}
+.landing-section h3 {
+  margin: 0 0 6px 0;
+  font-size: 0.96rem;
+}
 .landing-hero-wrap {
   margin-bottom: 10px;
 }
@@ -172,6 +179,14 @@
 .reflection-form textarea {
   margin-top: 6px;
   min-height: 110px;
+}
+.material-action-details {
+  margin-top: 8px;
+}
+.material-action-details > summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #17384d;
 }
 .stacked-rubric-label {
   display: block;

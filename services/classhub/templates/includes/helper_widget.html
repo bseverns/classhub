@@ -6,43 +6,50 @@
   data-helper-context="{{ helper_context|default:'' }}"
   data-helper-topics="{{ helper_topics|default:'' }}"
 >
-  <div class="helper-title-row">
-    <h2 class="helper-title">{{ helper_title|default:"Homework Helper" }}</h2>
-    <span class="helper-backend-badge">{{ helper_backend_label|default:"Local model (Ollama)" }}</span>
-  </div>
-  <p class="helper-description">{{ helper_description|default:"Ask the helper for hints, steps, or feedback." }}</p>
-  <div class="helper-privacy">
-    <p class="muted helper-privacy-line">Stored: helper access timestamps, lesson-scope metadata, and short-lived chat context used for follow-up help.</p>
-    <p class="muted helper-privacy-line">If teachers reset helper conversations, a class snapshot may be exported for internal research and quality review before cache clear.</p>
-    <p class="muted helper-privacy-line">Access: only your teachers and createMPLS administrators can access helper records and exports.</p>
-    <p class="muted helper-privacy-line">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
-    <p class="muted helper-privacy-line">
-      Retention:
-      {% if student_event_retention_days %}
-        helper access events are kept up to {{ student_event_retention_days }} day{{ student_event_retention_days|pluralize }}.
-      {% else %}
-        helper access events stay until admin retention cleanup is run.
-      {% endif %}
-    </p>
-    <p class="muted helper-privacy-line">Delete now: <a href="{{ helper_delete_url|default:'/student/my-data' }}">My Data</a>. {{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
-  </div>
-  <div class="helper-quick-wrap">
-    <div class="helper-quick-title">Quick asks (tap to send):</div>
-    <div class="helper-quick-actions" role="group" aria-label="Quick helper prompts"></div>
-  </div>
+  <details class="helper-shell">
+    <summary class="helper-shell-summary">
+      <span class="helper-shell-summary-title">{{ helper_title|default:"Homework Helper" }}</span>
+      <span class="helper-shell-summary-hint">Open helper</span>
+    </summary>
 
-  <label class="visually-hidden helper-label" for="helper-input-0">Question for helper</label>
-  <textarea id="helper-input-0" class="helper-input" placeholder="Ask for help…"></textarea>
-  <div class="helper-controls">
-    <button class="helper-submit" type="button">{{ helper_button_label|default:"Ask" }}</button>
-    <button class="helper-reset" type="button">Reset chat</button>
-  </div>
-  <div class="helper-transcript" role="log" aria-live="polite" aria-relevant="additions text" aria-atomic="false"></div>
-  <pre class="helper-output" role="status" aria-live="polite"></pre>
-  <div class="helper-citations" hidden>
-    <div class="helper-citations-title">Lesson references used</div>
-    <ul class="helper-citations-list"></ul>
-  </div>
+    <div class="helper-title-row">
+      <h2 class="helper-title">{{ helper_title|default:"Homework Helper" }}</h2>
+      <span class="helper-backend-badge">{{ helper_backend_label|default:"Local model (Ollama)" }}</span>
+    </div>
+    <p class="helper-description">{{ helper_description|default:"Ask the helper for hints, steps, or feedback." }}</p>
+    <div class="helper-privacy">
+      <p class="muted helper-privacy-line">Stored: helper access timestamps, lesson-scope metadata, and short-lived chat context used for follow-up help.</p>
+      <p class="muted helper-privacy-line">If teachers reset helper conversations, a class snapshot may be exported for internal research and quality review before cache clear.</p>
+      <p class="muted helper-privacy-line">Access: only your teachers and createMPLS administrators can access helper records and exports.</p>
+      <p class="muted helper-privacy-line">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
+      <p class="muted helper-privacy-line">
+        Retention:
+        {% if student_event_retention_days %}
+          helper access events are kept up to {{ student_event_retention_days }} day{{ student_event_retention_days|pluralize }}.
+        {% else %}
+          helper access events stay until admin retention cleanup is run.
+        {% endif %}
+      </p>
+      <p class="muted helper-privacy-line">Delete now: <a href="{{ helper_delete_url|default:'/student/my-data' }}">My Data</a>. {{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
+    </div>
+    <div class="helper-quick-wrap">
+      <div class="helper-quick-title">Quick asks (tap to send):</div>
+      <div class="helper-quick-actions" role="group" aria-label="Quick helper prompts"></div>
+    </div>
+
+    <label class="visually-hidden helper-label" for="helper-input-0">Question for helper</label>
+    <textarea id="helper-input-0" class="helper-input" placeholder="Ask for help…"></textarea>
+    <div class="helper-controls">
+      <button class="helper-submit" type="button">{{ helper_button_label|default:"Ask" }}</button>
+      <button class="helper-reset" type="button">Reset chat</button>
+    </div>
+    <div class="helper-transcript" role="log" aria-live="polite" aria-relevant="additions text" aria-atomic="false"></div>
+    <pre class="helper-output" role="status" aria-live="polite"></pre>
+    <div class="helper-citations" hidden>
+      <div class="helper-citations-title">Lesson references used</div>
+      <ul class="helper-citations-list"></ul>
+    </div>
+  </details>
 </div>
 
 

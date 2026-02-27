@@ -168,7 +168,7 @@ class LessonReleaseTests(TestCase):
 
         resp = self.client.get("/student")
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Full lesson locked")
+        self.assertContains(resp, "Full lesson unlocks on")
         self.assertContains(resp, "Preview intro-only page")
         self.assertNotContains(resp, "Open lesson", status_code=200)
 
@@ -194,6 +194,17 @@ class LessonReleaseTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Open My Data")
         self.assertNotContains(resp, "End my session on this device")
+
+    def test_student_pages_render_helper_collapsed_by_default(self):
+        self._login_student()
+
+        student_home_resp = self.client.get("/student")
+        self.assertEqual(student_home_resp.status_code, 200)
+        self.assertContains(student_home_resp, '<details class="helper-shell">', html=False)
+
+        lesson_resp = self.client.get("/course/piper_scratch_12_session/s01-welcome-private-workflow")
+        self.assertEqual(lesson_resp.status_code, 200)
+        self.assertContains(lesson_resp, '<details class="helper-shell">', html=False)
 
     def test_course_overview_uses_external_css_without_inline_styles(self):
         self._login_student()

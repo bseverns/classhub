@@ -9,6 +9,47 @@
     box-shadow: var(--shadow, 0 20px 44px rgba(14, 42, 62, 0.16));
     max-width: none;
   }
+  .helper-shell > summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .helper-shell > summary::-webkit-details-marker {
+    display: none;
+  }
+  .helper-shell-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: 700;
+  }
+  .helper-shell-summary-title {
+    font-size: 1rem;
+    color: #17384d;
+  }
+  .helper-shell-summary-hint {
+    font-size: 12px;
+    color: #4e6f80;
+    font-weight: 600;
+  }
+  .helper-shell[open] .helper-shell-summary-hint {
+    color: #2f617a;
+  }
+  .helper-shell:not([open]) .helper-title-row,
+  .helper-shell:not([open]) .helper-description,
+  .helper-shell:not([open]) .helper-privacy,
+  .helper-shell:not([open]) .helper-quick-wrap,
+  .helper-shell:not([open]) .helper-label,
+  .helper-shell:not([open]) .helper-input,
+  .helper-shell:not([open]) .helper-controls,
+  .helper-shell:not([open]) .helper-transcript,
+  .helper-shell:not([open]) .helper-output,
+  .helper-shell:not([open]) .helper-citations {
+    display: none;
+  }
+  .helper-shell[open] .helper-title-row {
+    margin-top: 10px;
+  }
   .helper-widget textarea {
     width: 100%;
     min-height: 90px;
@@ -28,6 +69,7 @@
   .helper-widget textarea:focus-visible,
   .helper-widget .helper-submit:focus-visible,
   .helper-widget .helper-reset:focus-visible,
+  .helper-shell-summary:focus-visible,
   .helper-followup-action:focus-visible,
   .helper-quick-action:focus-visible {
     outline: 3px solid var(--focus-ring, #0a6379);
