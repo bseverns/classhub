@@ -1,4 +1,8 @@
 # ClassHub
+[![test-suite](https://github.com/bseverns/ClassHub/actions/workflows/test-suite.yml/badge.svg)](https://github.com/bseverns/ClassHub/actions/workflows/test-suite.yml)
+[![security](https://github.com/bseverns/ClassHub/actions/workflows/security.yml/badge.svg)](https://github.com/bseverns/ClassHub/actions/workflows/security.yml)
+[![docs](https://github.com/bseverns/ClassHub/actions/workflows/docs.yml/badge.svg)](https://github.com/bseverns/ClassHub/actions/workflows/docs.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ClassHub is open learning infrastructure built for privacy-forward educational programs.
 
@@ -27,11 +31,6 @@ It intentionally limits data collection while enabling structured cohort deliver
 - Append-only audit events
 - Exportable artifacts
 - Operational resilience
-
-[![test-suite](https://github.com/bseverns/ClassHub/actions/workflows/test-suite.yml/badge.svg)](https://github.com/bseverns/ClassHub/actions/workflows/test-suite.yml)
-[![security](https://github.com/bseverns/ClassHub/actions/workflows/security.yml/badge.svg)](https://github.com/bseverns/ClassHub/actions/workflows/security.yml)
-[![docs](https://github.com/bseverns/ClassHub/actions/workflows/docs.yml/badge.svg)](https://github.com/bseverns/ClassHub/actions/workflows/docs.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Class Hub is a classroom-first, self-hosted micro-LMS with a separate Homework Helper service.
 
