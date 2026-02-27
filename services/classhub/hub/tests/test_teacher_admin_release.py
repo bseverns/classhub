@@ -184,8 +184,16 @@ class LessonReleaseTests(TestCase):
         resp = self.client.get("/student")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "highlighted lesson")
+        self.assertContains(resp, "Start this")
         self.assertContains(resp, "Session 1")
         self.assertContains(resp, "View full course lesson links")
+
+    def test_student_home_compact_mode_shows_single_my_data_link(self):
+        self._login_student()
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Open My Data")
+        self.assertNotContains(resp, "End my session on this device")
 
     def test_course_overview_uses_external_css_without_inline_styles(self):
         self._login_student()

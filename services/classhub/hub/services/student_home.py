@@ -314,6 +314,7 @@ def _pick_highlight_lesson(*, lesson_links: list[dict], today):
 
 def build_class_landing_context(*, classroom: Class, modules: list[Module], material_access: dict[int, dict]) -> dict:
     lesson_links: list[dict] = []
+    module_release_map: dict[int, dict] = {}
     for module in modules:
         for material in _sorted_module_materials(module):
             if material.type != Material.TYPE_LINK or not material.url:
@@ -332,6 +333,10 @@ def build_class_landing_context(*, classroom: Class, modules: list[Module], mate
                     "available_on": access.get("available_on"),
                 }
             )
+            module_release_map[module.id] = {
+                "is_locked": bool(access.get("is_locked")),
+                "available_on": access.get("available_on"),
+            }
             break
 
     today = timezone.localdate()
@@ -350,5 +355,7 @@ def build_class_landing_context(*, classroom: Class, modules: list[Module], mate
         "landing_message": landing_message,
         "landing_hero_url": _normalize_landing_hero_url(getattr(classroom, "student_landing_hero_url", "")),
         "highlight_lesson": highlight,
+        "highlight_module_id": highlight_module_id,
+        "module_release_map": module_release_map,
         "course_lesson_links": lesson_links,
     }
