@@ -50,6 +50,40 @@ class ChatDeps:
     build_follow_up_suggestions: Callable[..., list[str]]
 
 
+PROFILE_ENV_DEFAULTS = {
+    "elementary": {
+        "HELPER_STRICTNESS": "strict",
+        "HELPER_SCOPE_MODE": "strict",
+        "HELPER_TOPIC_FILTER_MODE": "strict",
+    },
+    "secondary": {
+        "HELPER_STRICTNESS": "light",
+        "HELPER_SCOPE_MODE": "soft",
+        "HELPER_TOPIC_FILTER_MODE": "soft",
+    },
+    "advanced": {
+        "HELPER_STRICTNESS": "light",
+        "HELPER_SCOPE_MODE": "soft",
+        "HELPER_TOPIC_FILTER_MODE": "soft",
+    },
+}
+
+
+def _program_profile() -> str:
+    value = (os.getenv("CLASSHUB_PROGRAM_PROFILE", "secondary") or "secondary").strip().lower()
+    if value in PROFILE_ENV_DEFAULTS:
+        return value
+    return "secondary"
+
+
+def _env_or_profile_default(env_name: str, fallback: str) -> str:
+    explicit = (os.getenv(env_name, "") or "").strip()
+    if explicit:
+        return explicit
+    profile_defaults = PROFILE_ENV_DEFAULTS.get(_program_profile(), {})
+    return str(profile_defaults.get(env_name, fallback))
+
+
 def handle_chat(
     *,
     request,
@@ -208,8 +242,8 @@ def handle_chat(
         model_message = f"{conversation_prompt}\n\nStudent (latest):\n{message}"
 
     backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
-    strictness = (os.getenv("HELPER_STRICTNESS", "light") or "light").lower()
-    scope_mode = (os.getenv("HELPER_SCOPE_MODE", "soft") or "soft").lower()
+    strictness = _env_or_profile_default("HELPER_STRICTNESS", "light").lower()
+    scope_mode = _env_or_profile_default("HELPER_SCOPE_MODE", "soft").lower()
     if backend == "openai" and not bool(getattr(settings, "HELPER_REMOTE_MODE_ACKNOWLEDGED", False)):
         deps.log_chat_event(
             "warning",
@@ -244,9 +278,9 @@ def handle_chat(
     if deps.contains_text_language(message, lang_keywords) and deps.is_scratch_context(context_value or "", topics, reference_text):
         deps.log_chat_event("info", "policy_redirect_text_language", request_id=request_id, actor_type=actor_type, backend=backend)
         redirect_text = (
-            "We’re using Scratch blocks in this class, not text programming languages. "
-            "Tell me which Scratch block or part of your project you’re stuck on, "
-            "and I’ll help you with the Scratch version."
+            "We're using Scratch blocks in this class, not text programming languages. "
+            "Tell me which Scratch block or part of your project you're stuck on, "
+            "and I'll help you with the Scratch version."
         )
         _persist_turns(redirect_text)
         return _response(
@@ -292,11 +326,11 @@ def handle_chat(
             }
         )
     if allowed_topics:
-        filter_mode = (os.getenv("HELPER_TOPIC_FILTER_MODE", "soft") or "soft").lower()
+        filter_mode = _env_or_profile_default("HELPER_TOPIC_FILTER_MODE", "soft").lower()
         if filter_mode == "strict" and not deps.allowed_topic_overlap(message, allowed_topics):
             deps.log_chat_event("info", "policy_redirect_allowed_topics", request_id=request_id, actor_type=actor_type, backend=backend)
             redirect_text = (
-                "Let’s keep this focused on today’s lesson topics: "
+                "Let's keep this focused on today's lesson topics: "
                 + ", ".join(allowed_topics)
                 + ". Which part of that do you need help with?"
             )

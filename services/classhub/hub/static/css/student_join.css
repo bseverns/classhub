@@ -24,6 +24,55 @@
 .actions {
   margin-top: 16px;
 }
+.return-code-help {
+  margin: 6px 0 0 0;
+}
+.return-code-tools {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.icon-tool-btn {
+  border-radius: 9px;
+  font-size: 13px;
+  padding: 6px 10px;
+}
+.return-code-icon-preview {
+  margin-top: 8px;
+  min-height: 24px;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+}
+.icon-bank {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
+  gap: 6px;
+}
+.icon-bank-btn {
+  border-radius: 10px;
+  border: 1px solid rgba(22, 59, 80, 0.22);
+  padding: 6px 4px;
+  min-height: 50px;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.72);
+}
+.icon-bank-glyph {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+.icon-bank-code {
+  font-size: 10px;
+  color: #304f64;
+}
+.icon-bank-btn:focus-visible {
+  outline: 2px solid #0b6fa4;
+  outline-offset: 1px;
+}
 .entry-note {
   margin-top: 16px;
 }

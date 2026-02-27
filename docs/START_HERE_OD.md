@@ -17,6 +17,7 @@ ClassHub is an operations-friendly learning hub for running cohorts, managing st
 3. Teachers can set `Enrollment mode` to `Open`, `Invite only`, or `Closed`.
 4. Invite links can expire and enforce seat caps.
 5. Ops can rely on exports, backup/restore rehearsal, and documented smoke checks.
+6. Program defaults can be selected with `CLASSHUB_PROGRAM_PROFILE` (`elementary`, `secondary`, `advanced`) and overridden as needed.
 
 ## What success looks like
 
@@ -59,4 +60,5 @@ The operational question is not "Can the software sell?" It is "Can staff run a 
 - Revenue-oriented program framing: [PROGRAM_LIFECYCLE.md](PROGRAM_LIFECYCLE.md), [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
 - Restore and recovery process: [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 - Security baseline and staff/org boundary controls: [SECURITY.md](SECURITY.md)
+- Program profile defaults and overrides: [PROGRAM_PROFILES.md](PROGRAM_PROFILES.md)
 - Common break/fix playbooks: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)

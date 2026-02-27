@@ -28,6 +28,12 @@ class JoinResolution:
     join_mode: str
 
 
+def normalize_display_name(raw: str, *, max_length: int = 80) -> str:
+    # Collapse repeated whitespace/newlines into single spaces for stable matching.
+    value = " ".join(str(raw or "").split())
+    return value[:max_length]
+
+
 def _device_hint_signing_key() -> str:
     return getattr(settings, "DEVICE_HINT_SIGNING_KEY", settings.SECRET_KEY)
 
@@ -123,6 +129,10 @@ def clear_device_hint_cookie(response) -> None:
     )
 
 
+def require_return_code_for_rejoin() -> bool:
+    return bool(getattr(settings, "CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN", False))
+
+
 def resolve_join_student(
     *,
     request,
@@ -142,15 +152,22 @@ def resolve_join_student(
         rejoined = True
         join_mode = "return_code"
     else:
-        student = load_device_hint_student(request, classroom, display_name)
-        if student is not None:
-            rejoined = True
-            join_mode = "device_hint"
+        if require_return_code_for_rejoin():
+            rejoin_candidate = load_device_hint_student(request, classroom, display_name)
+            if rejoin_candidate is None:
+                rejoin_candidate = load_name_match_student(classroom, display_name)
+            if rejoin_candidate is not None:
+                raise JoinValidationError("return_code_required")
         else:
-            student = load_name_match_student(classroom, display_name)
+            student = load_device_hint_student(request, classroom, display_name)
             if student is not None:
                 rejoined = True
-                join_mode = "name_match"
+                join_mode = "device_hint"
+            else:
+                student = load_name_match_student(classroom, display_name)
+                if student is not None:
+                    rejoined = True
+                    join_mode = "name_match"
 
     if student is None:
         student = create_student_identity(classroom, display_name)

@@ -15,6 +15,18 @@ HELPER_STRICTNESS=light
 HELPER_STRICTNESS=strict
 ```
 
+Or use profile defaults:
+
+```dotenv
+CLASSHUB_PROGRAM_PROFILE=elementary
+```
+
+When helper env vars are unset, profile defaults apply:
+- `elementary`: strictness/scope/topic filter default to `strict`
+- `secondary` and `advanced`: default to `light` + `soft` scope/topic filtering
+
+Explicit helper env vars always override profile defaults. See [PROGRAM_PROFILES.md](PROGRAM_PROFILES.md).
+
 ### Light (default)
 
 - May provide direct answers when appropriate.

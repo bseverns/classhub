@@ -185,6 +185,18 @@ class JoinClassTests(TestCase):
         self.assertEqual(resp.json().get("error"), "invalid_return_code")
         self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 0)
 
+    @override_settings(CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=True)
+    def test_join_requires_return_code_for_existing_name_when_strict_rejoin_enabled(self):
+        StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+        resp = self.client.post(
+            "/join",
+            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "Ada"}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json().get("error"), "return_code_required")
+        self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 1)
+
     def test_join_event_details_do_not_store_display_name_or_class_code(self):
         payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
         resp = self.client.post("/join", data=json.dumps(payload), content_type="application/json")
@@ -1301,6 +1313,7 @@ class OperatorProfileTemplateTests(TestCase):
         self.assertContains(join_resp, "this server is hosted by Northside Public Schools.")
         self.assertContains(join_resp, "No surveillance analytics. No ad-tech. No data broker sharing.")
         self.assertContains(join_resp, "/static/css/student_join.css")
+        self.assertContains(join_resp, "/static/js/return_code_icons.js")
         self.assertContains(join_resp, "/static/js/student_join.js")
         self.assertNotContains(join_resp, "<style>", html=False)
         self.assertNotContains(join_resp, 'style="display:none"', html=False)

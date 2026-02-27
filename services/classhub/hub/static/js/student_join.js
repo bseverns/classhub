@@ -6,6 +6,11 @@
   const nameInput = document.getElementById("name");
   const returnCodeInput = document.getElementById("return_code");
   const inviteTokenInput = document.getElementById("invite_token");
+  const iconToggleBtn = document.getElementById("return-code-icon-toggle");
+  const clearReturnCodeBtn = document.getElementById("return-code-clear");
+  const iconPreview = document.getElementById("return-code-icon-preview");
+  const iconBank = document.getElementById("return-code-icon-bank");
+  const iconTools = window.ClassHubReturnCodeIcons || null;
 
   if (!msg || !joinForm || !joinBtn || !codeInput || !nameInput || !returnCodeInput) return;
 
@@ -30,6 +35,65 @@
   };
 
   const csrfToken = () => getCookie("csrftoken") || "";
+  const maxReturnCodeLength = Math.max(1, Number(returnCodeInput.getAttribute("maxlength") || "12"));
+  const normalizeReturnCode = (value) => {
+    if (iconTools && iconTools.normalizeCode) return iconTools.normalizeCode(value).slice(0, maxReturnCodeLength);
+    return String(value || "").trim().toUpperCase().slice(0, maxReturnCodeLength);
+  };
+  const updateReturnCodePreview = () => {
+    if (!iconPreview) return;
+    const normalized = normalizeReturnCode(returnCodeInput.value);
+    returnCodeInput.value = normalized;
+    if (!normalized) {
+      iconPreview.textContent = "";
+      iconPreview.removeAttribute("aria-label");
+      return;
+    }
+    if (iconTools && iconTools.renderIconString) {
+      iconPreview.textContent = iconTools.renderIconString(normalized);
+      if (iconTools.renderLabelString) {
+        iconPreview.setAttribute("aria-label", `Icon code: ${iconTools.renderLabelString(normalized)}`);
+      }
+      return;
+    }
+    iconPreview.textContent = normalized;
+  };
+  const setIconBankVisible = (visible) => {
+    if (!iconBank) return;
+    iconBank.classList.toggle("hidden", !visible);
+    if (iconToggleBtn) {
+      iconToggleBtn.setAttribute("aria-expanded", visible ? "true" : "false");
+      iconToggleBtn.textContent = visible ? "Hide icon keypad" : "Show icon keypad";
+    }
+  };
+
+  if (iconTools && iconBank && iconTools.buildIconBank) {
+    iconTools.buildIconBank(iconBank, (code) => {
+      const current = normalizeReturnCode(returnCodeInput.value);
+      if (current.length >= maxReturnCodeLength) return;
+      returnCodeInput.value = `${current}${code}`;
+      updateReturnCodePreview();
+      returnCodeInput.focus();
+    });
+  } else if (iconToggleBtn) {
+    iconToggleBtn.classList.add("hidden");
+  }
+
+  if (iconToggleBtn) {
+    iconToggleBtn.addEventListener("click", () => {
+      const isOpen = iconBank && !iconBank.classList.contains("hidden");
+      setIconBankVisible(!isOpen);
+    });
+  }
+  if (clearReturnCodeBtn) {
+    clearReturnCodeBtn.addEventListener("click", () => {
+      returnCodeInput.value = "";
+      updateReturnCodePreview();
+      returnCodeInput.focus();
+    });
+  }
+  returnCodeInput.addEventListener("input", updateReturnCodePreview);
+  updateReturnCodePreview();
 
   const params = new URLSearchParams(window.location.search || "");
   const prefillCode = (params.get("class_code") || params.get("code") || "").trim();
@@ -43,7 +107,7 @@
     msg.style.display = "none";
     const class_code = (codeInput.value || "").trim();
     const display_name = (nameInput.value || "").trim();
-    const return_code = (returnCodeInput.value || "").trim();
+    const return_code = normalizeReturnCode(returnCodeInput.value);
     const invite_token = inviteTokenInput ? (inviteTokenInput.value || "").trim() : "";
 
     joinBtn.disabled = true;
@@ -66,6 +130,7 @@
         const errorCode = data.error || "join_failed";
         if (errorCode === "invalid_code") return showErr("That class code is not recognized.");
         if (errorCode === "invalid_return_code") return showErr("That return code is not valid for this class.");
+        if (errorCode === "return_code_required") return showErr("Enter your return code to rejoin this saved name.");
         if (errorCode === "class_locked") return showErr("This class is locked right now.");
         if (errorCode === "class_enrollment_closed") return showErr("Enrollment for this class is closed.");
         if (errorCode === "invite_required") return showErr("This class accepts joins by invite link only.");

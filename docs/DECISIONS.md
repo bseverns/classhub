@@ -6,6 +6,7 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Active Decisions Snapshot
 
 - [Auth model: student access](#auth-model-student-access)
+- [Program profiles for cohort age bands](#program-profiles-for-cohort-age-bands)
 - [Stability freeze and change budget](#stability-freeze-and-change-budget)
 - [Decision ownership and review cadence](#decision-ownership-and-review-cadence)
 - [Organization boundary and staff roles](#organization-boundary-and-staff-roles)
@@ -112,6 +113,21 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Keeps student friction low while limiting impersonation risk.
 - Maintains minimal student PII collection in MVP.
+
+## Program profiles for cohort age bands
+
+**Current decision:**
+- Keep one platform and one data model across elementary, secondary, and advanced cohorts.
+- Add `CLASSHUB_PROGRAM_PROFILE` (`elementary`, `secondary`, `advanced`) as a defaults layer only.
+- Preserve explicit env override precedence:
+  - profile defaults may set baseline behavior,
+  - explicit env vars (`HELPER_STRICTNESS`, `HELPER_SCOPE_MODE`, `HELPER_TOPIC_FILTER_MODE`, `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN`) always win.
+- Use profile defaults to reduce pilot setup variance without adding new product primitives.
+
+**Why this remains active:**
+- Supports younger learners without forking operations or code paths.
+- Keeps middle/high school behavior stable by default (`secondary`).
+- Maintains privacy-forward posture while lowering operator misconfiguration risk.
 
 ## Stability freeze and change budget
 

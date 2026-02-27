@@ -77,6 +77,54 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp.json().get("text"), "Hint")
         self.assertTrue(resp.json().get("conversation_id"))
 
+    def test_program_profile_elementary_defaults_helper_strictness_when_unset(self):
+        self._set_student_session()
+        previous_profile = os.environ.get("CLASSHUB_PROGRAM_PROFILE")
+        previous_strictness = os.environ.get("HELPER_STRICTNESS")
+        previous_filter_mode = os.environ.get("HELPER_TOPIC_FILTER_MODE")
+        os.environ["CLASSHUB_PROGRAM_PROFILE"] = "elementary"
+        os.environ.pop("HELPER_STRICTNESS", None)
+        os.environ.pop("HELPER_TOPIC_FILTER_MODE", None)
+
+        self.addCleanup(
+            lambda: (
+                os.environ.__setitem__("CLASSHUB_PROGRAM_PROFILE", previous_profile)
+                if previous_profile is not None
+                else os.environ.pop("CLASSHUB_PROGRAM_PROFILE", None)
+            )
+        )
+        self.addCleanup(
+            lambda: (
+                os.environ.__setitem__("HELPER_STRICTNESS", previous_strictness)
+                if previous_strictness is not None
+                else os.environ.pop("HELPER_STRICTNESS", None)
+            )
+        )
+        self.addCleanup(
+            lambda: (
+                os.environ.__setitem__("HELPER_TOPIC_FILTER_MODE", previous_filter_mode)
+                if previous_filter_mode is not None
+                else os.environ.pop("HELPER_TOPIC_FILTER_MODE", None)
+            )
+        )
+
+        # Off-topic message should be redirected when elementary profile defaults topic filter to strict.
+        resp = self._post_chat({"message": "Can we talk about weather today?"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("strictness"), "strict")
+        self.assertIn("Let's keep this focused on today's lesson topics", resp.json().get("text", ""))
+
+    def test_explicit_helper_strictness_overrides_program_profile_default(self):
+        self._set_student_session()
+        with patch.dict(
+            "os.environ",
+            {"CLASSHUB_PROGRAM_PROFILE": "elementary", "HELPER_STRICTNESS": "light"},
+            clear=False,
+        ):
+            resp = self._post_chat({"message": "How do I move a sprite?"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("strictness"), "light")
+
     @patch("tutor.engine.backends.invoke_backend")
     def test_chat_reuses_recent_turns_when_conversation_id_is_reused(self, invoke_backend_mock):
         self._set_student_session()
@@ -658,4 +706,3 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.json().get("truncated"))
         self.assertEqual(len(resp.json().get("text") or ""), 220)
-

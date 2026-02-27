@@ -57,6 +57,9 @@ These are deltas for `compose/.env`. Keep your secrets and host values intact.
 # Keep the site usable under classroom conditions.
 CLASSHUB_SITE_MODE=normal
 
+# Cohort profile baseline (use elementary for younger learners).
+CLASSHUB_PROGRAM_PROFILE=secondary
+
 # Student privacy posture (pilot-safe defaults).
 CLASSHUB_PORTFOLIO_FILENAME_MODE=generic
 CLASSHUB_STUDENT_EVENT_IP_MODE=truncate
@@ -80,6 +83,8 @@ HELPER_CLASS_RESET_ARCHIVE_DIR=/uploads/helper_reset_exports
 
 # Join rate limit (protect against accidental hammering / refresh storms).
 CLASSHUB_JOIN_RATE_LIMIT_PER_MINUTE=20
+# Optional explicit override (default is profile-driven):
+# CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=0
 
 # Retention maintenance script defaults (safe starting point).
 RETENTION_SUBMISSION_DAYS=90
@@ -91,6 +96,8 @@ RETENTION_SCAVENGE_MODE=report
 # DJANGO_CSP_MODE=strict
 # DJANGO_CSP_POLICY=default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https:;
 ```
+
+Profile map and overrides: [PROGRAM_PROFILES.md](PROGRAM_PROFILES.md)
 
 Research note:
 - When teachers reset class helper conversations, a JSON snapshot can be exported before cache clear for internal research.

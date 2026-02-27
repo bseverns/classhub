@@ -28,6 +28,7 @@
                 class="pill secret-code"
                 data-shown="0"
               >••••••</span>
+              <span id="student-return-code-icons" class="return-code-icons hidden" aria-live="polite"></span>
               <button
                 type="button"
                 class="inline-copy"
@@ -301,6 +302,7 @@
         {% endif %}
       </main>
     </div>
+    <script src="{% static 'js/return_code_icons.js' %}" defer></script>
     <script src="{% static 'js/student_class.js' %}" defer></script>
   </body>
 </html>

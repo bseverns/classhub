@@ -19,6 +19,7 @@ from ..services.ip_privacy import minimize_student_event_ip
 from ..services.join_flow_service import (
     JoinValidationError,
     apply_device_hint_cookie,
+    normalize_display_name,
     resolve_join_student,
 )
 from ..services.student_home import privacy_meta_context
@@ -85,7 +86,7 @@ def _parse_join_request(request) -> tuple[dict, str, JsonResponse | None]:
 
     fields = {
         "code": (payload.get("class_code") or "").strip().upper(),
-        "name": (payload.get("display_name") or "").strip()[:80],
+        "name": normalize_display_name(payload.get("display_name") or ""),
         "return_code": (payload.get("return_code") or "").strip().upper(),
         "invite_token": (payload.get("invite_token") or "").strip(),
     }

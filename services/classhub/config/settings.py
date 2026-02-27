@@ -225,6 +225,9 @@ CLASSHUB_OPERATOR_PROFILE = {
     "admin_label": CLASSHUB_ADMIN_LABEL,
 }
 REQUIRE_ORG_MEMBERSHIP_FOR_STAFF = env.bool("REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", default=False)
+CLASSHUB_PROGRAM_PROFILE = (env("CLASSHUB_PROGRAM_PROFILE", default="secondary").strip().lower() or "secondary")
+if CLASSHUB_PROGRAM_PROFILE not in {"elementary", "secondary", "advanced"}:
+    raise RuntimeError("CLASSHUB_PROGRAM_PROFILE must be one of: elementary, secondary, advanced")
 
 _DEFAULT_CSP_POLICY_RELAXED = (
     "default-src 'self'; "
@@ -297,6 +300,11 @@ JOIN_RATE_LIMIT_PER_MINUTE = env.int("CLASSHUB_JOIN_RATE_LIMIT_PER_MINUTE", defa
 # Cookie used for same-device student rejoin hints.
 DEVICE_REJOIN_COOKIE_NAME = env("CLASSHUB_DEVICE_REJOIN_COOKIE_NAME", default="classhub_student_hint")
 DEVICE_REJOIN_MAX_AGE_DAYS = env.int("CLASSHUB_DEVICE_REJOIN_MAX_AGE_DAYS", default=30)
+_default_require_return_code_for_rejoin = CLASSHUB_PROGRAM_PROFILE == "elementary"
+CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN = env.bool(
+    "CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN",
+    default=_default_require_return_code_for_rejoin,
+)
 # Retention defaults shown in learner-facing privacy microcopy.
 CLASSHUB_SUBMISSION_RETENTION_DAYS = env.int("CLASSHUB_SUBMISSION_RETENTION_DAYS", default=0)
 CLASSHUB_STUDENT_EVENT_RETENTION_DAYS = env.int("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", default=0)

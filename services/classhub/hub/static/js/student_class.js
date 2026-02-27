@@ -1,8 +1,10 @@
 (function () {
   const status = document.getElementById("copy-status");
+  const iconTarget = document.getElementById("student-return-code-icons");
   const copyButtons = document.querySelectorAll("[data-copy-value], [data-copy-secret-target]");
   const toggleButtons = document.querySelectorAll("[data-secret-target]");
   const returnCodeUrl = "/student/return-code";
+  const iconTools = window.ClassHubReturnCodeIcons || null;
   let returnCodeValue = "";
   let returnCodePromise = null;
 
@@ -41,14 +43,30 @@
   };
 
   const maskFor = (value) => "•".repeat(Math.max(value.length, 6));
+  const hideIconCode = () => {
+    if (!iconTarget) return;
+    iconTarget.textContent = "";
+    iconTarget.classList.add("hidden");
+    iconTarget.removeAttribute("aria-label");
+  };
+  const showIconCode = (value) => {
+    if (!iconTarget || !value || !(iconTools && iconTools.renderIconString)) return;
+    iconTarget.textContent = iconTools.renderIconString(value);
+    if (iconTools.renderLabelString) {
+      iconTarget.setAttribute("aria-label", `Icon code: ${iconTools.renderLabelString(value)}`);
+    }
+    iconTarget.classList.remove("hidden");
+  };
   const setMasked = (el) => {
     el.textContent = maskFor(returnCodeValue);
     el.setAttribute("data-shown", "0");
+    hideIconCode();
   };
   const setShown = async (el) => {
     const plain = await fetchReturnCode();
     el.textContent = plain || maskFor("");
     el.setAttribute("data-shown", "1");
+    showIconCode(plain);
   };
 
   toggleButtons.forEach((btn) => {
