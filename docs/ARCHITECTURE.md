@@ -124,7 +124,7 @@ See:
 ## ClassHub module graph (Map C)
 
 ```mermaid
-%%{init: {"themeVariables": {"fontSize": "11px"}, "flowchart": {"nodeSpacing": 18, "rankSpacing": 18}}}%%
+%%{init: {"themeVariables": {"fontSize": "11px"}, "flowchart": {"nodeSpacing": 24, "rankSpacing": 22}}}%%
 flowchart TB
   subgraph URL["URLs / Routing"]
     U[config/urls.py<br/>route table]
@@ -145,6 +145,7 @@ flowchart TB
     V5[hub/views/teacher.py<br/>teacher portal • roster • materials]
     V6[hub/views/internal.py<br/>token-gated internal events]
     V7[hub/views/media.py<br/>asset/video download + stream]
+    VALL{{ClassHub view layer}}
   end
 
   subgraph S["Services"]
@@ -155,6 +156,7 @@ flowchart TB
     S5[hub/services/audit.py]
     S6[hub/services/upload_scan.py]
     S7[hub/services/release_state.py]
+    SALL{{Service layer}}
   end
 
   subgraph T["Templates"]
@@ -182,62 +184,59 @@ flowchart TB
     H10[tutor/policy.py]
     H11[tutor/classhub_events.py]
     H12[common/request_safety]
+    HALL{{Helper endpoint layer}}
   end
 
-  U --> M1 --> M2 --> M3 --> M4 --> V1
-  M4 --> V2
-  M4 --> V3
-  M4 --> V4
-  M4 --> V5
-  M4 --> V6
-  M4 --> V7
+  subgraph K["Connection key"]
+    KREQ[request/control]
+    KREN[render path]
+    KDAT[data/cache/file access]
+    KEVT[token-gated internal event]
+  end
 
-  V2 --> S1
-  V2 --> S2
-  V2 --> S3
-  V2 --> S4
-  V2 --> S5
-  V2 --> S6
+  U --> M1 --> M2 --> M3 --> M4 --> VALL
 
-  V5 --> S1
-  V5 --> S3
-  V5 --> S5
-  V5 --> S7
+  VALL --> V1
+  VALL --> V2
+  VALL --> V3
+  VALL --> V4
+  VALL --> V5
+  VALL --> V6
+  VALL --> V7
 
-  V6 --> S4
+  VALL --> SALL
+  SALL --> S1
+  SALL --> S2
+  SALL --> S3
+  SALL --> S4
+  SALL --> S5
+  SALL --> S6
+  SALL --> S7
 
-  V1 --> MD
-  V2 --> MD
-  V3 --> MD
-  V4 --> MD
-  V5 --> MD
-  V6 --> MD
-  V7 --> MD
-  MD --> DB
+  VALL ==> MD
+  MD ==> DB
+  VALL ==> RC
+  VALL ==> FS
 
-  V1 --> RC
-  V2 --> RC
-  V5 --> RC
-  V2 --> FS
-  V5 --> FS
-  V7 --> FS
+  VALL -.-> TP
+  TP -.-> TT
 
-  V2 --> TP
-  V4 --> TP
-  V5 --> TP
-  TP --> TT
-
-  H1 --> H2
-  H1 --> H3
-  H1 --> H4
-  H1 --> H5
-  H1 --> H6
+  H1 --> HALL
+  HALL --> H2
+  HALL --> H3
+  HALL --> H4
+  HALL --> H5
+  HALL --> H6
   H6 --> H7
   H6 --> H8
   H6 --> H9
   H6 --> H10
-  H1 --> H11
+  HALL --> H11
   H2 --> H12
-  H11 -->|token-gated internal POST| V6
-  H12 --> RC
+  H11 -. token-gated internal POST .-> V6
+  H12 ==> RC
+
+  KREQ --> KREN
+  KREN -.-> KDAT
+  KDAT ==> KEVT
 ```
