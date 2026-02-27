@@ -6,7 +6,7 @@ edit_uri: edit/main/docs/
 theme:
   name: material
   features:
-    - navigation.sections
+    - navigation.prune
     - navigation.indexes
     - content.code.copy
     - search.suggest
@@ -29,7 +29,7 @@ markdown_extensions:
 
 extra_javascript:
   - https://unpkg.com/mermaid@10/dist/mermaid.min.js
-  - javascripts/nav-accordion.js
+  - javascripts/nav-accordion.js?v=2
   - javascripts/mermaid-init.js
 extra_css:
   - stylesheets/extra.css
