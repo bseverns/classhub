@@ -124,7 +124,7 @@ See:
 ## ClassHub module graph (Map C)
 
 ```mermaid
-%%{init: {"themeVariables": {"fontSize": "11px"}, "flowchart": {"nodeSpacing": 24, "rankSpacing": 22}}}%%
+%%{init: {"themeVariables": {"fontSize": "11px"}, "flowchart": {"nodeSpacing": 24, "rankSpacing": 22, "defaultRenderer": "elk"}}}%%
 flowchart TB
   subgraph URL["URLs / Routing"]
     U[config/urls.py<br/>route table]
@@ -138,11 +138,12 @@ flowchart TB
   end
 
   subgraph V["Views"]
-    V1[hub/views/student_join.py<br/>join • invite bridge • join/index pages]
-    V2[hub/views/student.py<br/>session/home • upload • my-data • exports]
-    V3[hub/views/student_materials.py<br/>checklist • reflection • rubric]
-    V4[hub/views/content.py<br/>course + lesson rendering]
-    V5[hub/views/teacher.py<br/>teacher portal • roster • materials]
+    direction TB
+    V1[hub/views/student_join.py<br/>join + invite bridge + join/index]
+    V2[hub/views/student.py<br/>session/home + upload + my-data + exports]
+    V3[hub/views/student_materials.py<br/>checklist + reflection + rubric]
+    V4[hub/views/content.py<br/>course + lesson render]
+    V5[hub/views/teacher.py<br/>portal + roster + materials]
     V6[hub/views/internal.py<br/>token-gated internal events]
     V7[hub/views/media.py<br/>asset/video download + stream]
     VALL{{ClassHub view layer}}
@@ -156,6 +157,7 @@ flowchart TB
   end
 
   subgraph H["Homework Helper service"]
+    direction TB
     H1[tutor/views.py<br/>/helper/chat]
     H2[tutor/views_chat_request.py<br/>request shaping]
     H3[tutor/views_chat_deps.py<br/>dependency wiring]
@@ -172,21 +174,16 @@ flowchart TB
   end
 
   subgraph B["Support layers (below)"]
-    direction LR
+    direction TB
+    BSUP{{Support layer}}
+
     subgraph S["Services"]
-      S1[hub/services/content_links.py]
-      S2[hub/services/upload_validation.py]
-      S3[hub/services/filenames.py]
-      S4[hub/services/ip_privacy.py]
-      S5[hub/services/audit.py]
-      S6[hub/services/upload_scan.py]
-      S7[hub/services/release_state.py]
-      SALL{{Service layer}}
+      SALL[hub/services/*<br/>content_links + upload_validation + filenames<br/>ip_privacy + audit + upload_scan + release_state]
     end
 
     subgraph T["Templates"]
-      TT[hub/templatetags/hub_extras.py]
       TP[templates/student_* + teach_* + includes/helper_widget]
+      TT[hub/templatetags/hub_extras.py]
     end
   end
 
@@ -200,21 +197,15 @@ flowchart TB
   VALL --> V6
   VALL --> V7
 
-  VALL --> SALL
-  SALL --> S1
-  SALL --> S2
-  SALL --> S3
-  SALL --> S4
-  SALL --> S5
-  SALL --> S6
-  SALL --> S7
+  VALL --> BSUP
+  BSUP --> SALL
+  BSUP -.-> TP
 
   VALL ==> MD
   MD ==> DB
   VALL ==> RC
   VALL ==> FS
 
-  VALL -.-> TP
   TP -.-> TT
 
   H1 --> HALL

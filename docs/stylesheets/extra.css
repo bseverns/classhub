@@ -20,7 +20,9 @@
 
 /* Architecture.md Map C is intentionally dense; render it at a smaller baseline. */
 .md-typeset #classhub-module-graph-map-c + .mermaid > svg {
-  min-width: 600px;
+  max-width: 100%;
+  min-width: 0;
+  width: 100%;
 }
 
 @media (max-width: 1200px) {
@@ -29,6 +31,6 @@
   }
 
   .md-typeset #classhub-module-graph-map-c + .mermaid > svg {
-    min-width: 520px;
+    min-width: 0;
   }
 }
