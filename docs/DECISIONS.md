@@ -353,6 +353,10 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keep concrete backend provider implementations (`ollama_chat`, `openai_chat`, `mock_chat`) in `tutor/engine/backends.py`; `tutor/views.py` keeps thin compatibility shims only.
 - Keep policy heuristics in dedicated engine modules (`tutor/engine/heuristics.py`, `reference.py`, `circuit.py`) and call them through thin view wrappers.
 - Keep auth/session boundary checks and runtime request plumbing in engine modules (`tutor/engine/auth.py`, `runtime.py`) and call them via wrapper functions in `tutor/views.py`.
+- Keep scope and configuration contracts explicit in engine modules:
+  - `tutor/engine/context_envelope.py` for signed scope/context resolution,
+  - `tutor/engine/runtime_config.py` for profile-aware policy defaults,
+  - `tutor/engine/execution_config.py` for execution/runtime tuning defaults.
 - Keep `tutor.views` helper function names stable as compatibility wrappers during extraction.
 - Helper endpoint tests default to the real `/helper/chat` path with `HELPER_LLM_BACKEND=mock`; fault-injection tests patch engine-level seams (`tutor.engine.backends.*`) instead of view wrappers.
 

@@ -99,6 +99,10 @@ flowchart LR
 - Owns helper chat policy, prompt shaping, and model backends.
 - Uses Postgres + Redis for auth/session/rate-limit integration.
 - Uses Ollama by default; OpenAI is optional by environment config.
+- Runtime behavior is resolved through explicit contracts:
+  - scope/context envelope (`engine/context_envelope.py`)
+  - policy bundle (`engine/runtime_config.py`)
+  - execution config (`engine/execution_config.py`)
 
 ## Why two Django services
 
@@ -165,9 +169,17 @@ flowchart TB
 
   subgraph H["Homework Helper service"]
     H1[tutor/views.py<br/>/helper/chat]
-    H2[tutor/policy.py]
-    H3[tutor/classhub_events.py]
-    H4[common/request_safety]
+    H2[tutor/views_chat_request.py<br/>request shaping]
+    H3[tutor/views_chat_deps.py<br/>dependency wiring]
+    H4[tutor/views_chat_runtime.py<br/>runtime wrappers]
+    H5[tutor/views_chat_helpers.py<br/>helper adapters]
+    H6[tutor/engine/service.py<br/>chat orchestration]
+    H7[tutor/engine/context_envelope.py<br/>scope contract]
+    H8[tutor/engine/runtime_config.py<br/>policy contract]
+    H9[tutor/engine/execution_config.py<br/>execution contract]
+    H10[tutor/policy.py]
+    H11[tutor/classhub_events.py]
+    H12[common/request_safety]
   end
 
   U --> M1 --> M2 --> M3 --> M4 --> V1
@@ -208,8 +220,16 @@ flowchart TB
   TP --> TT
 
   H1 --> H2
-  H1 --> H4
   H1 --> H3
-  H3 -->|token-gated internal POST| V4
-  H4 --> RC
+  H1 --> H4
+  H1 --> H5
+  H1 --> H6
+  H6 --> H7
+  H6 --> H8
+  H6 --> H9
+  H6 --> H10
+  H1 --> H11
+  H2 --> H12
+  H11 -->|token-gated internal POST| V4
+  H12 --> RC
 ```

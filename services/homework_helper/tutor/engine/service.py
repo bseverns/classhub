@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-import os
 import time
 import urllib.error
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
+
+from .context_envelope import ScopeResolutionError, resolve_context_envelope
+from .execution_config import resolve_execution_config
+from .runtime_config import resolve_policy_bundle
 
 
 @dataclass(frozen=True)
@@ -50,40 +53,6 @@ class ChatDeps:
     build_follow_up_suggestions: Callable[..., list[str]]
 
 
-PROFILE_ENV_DEFAULTS = {
-    "elementary": {
-        "HELPER_STRICTNESS": "strict",
-        "HELPER_SCOPE_MODE": "strict",
-        "HELPER_TOPIC_FILTER_MODE": "strict",
-    },
-    "secondary": {
-        "HELPER_STRICTNESS": "light",
-        "HELPER_SCOPE_MODE": "soft",
-        "HELPER_TOPIC_FILTER_MODE": "soft",
-    },
-    "advanced": {
-        "HELPER_STRICTNESS": "light",
-        "HELPER_SCOPE_MODE": "soft",
-        "HELPER_TOPIC_FILTER_MODE": "soft",
-    },
-}
-
-
-def _program_profile() -> str:
-    value = (os.getenv("CLASSHUB_PROGRAM_PROFILE", "secondary") or "secondary").strip().lower()
-    if value in PROFILE_ENV_DEFAULTS:
-        return value
-    return "secondary"
-
-
-def _env_or_profile_default(env_name: str, fallback: str) -> str:
-    explicit = (os.getenv(env_name, "") or "").strip()
-    if explicit:
-        return explicit
-    profile_defaults = PROFILE_ENV_DEFAULTS.get(_program_profile(), {})
-    return str(profile_defaults.get(env_name, fallback))
-
-
 def handle_chat(
     *,
     request,
@@ -114,51 +83,57 @@ def handle_chat(
             payload_with_conversation["conversation_compacted"] = conversation_compacted
         return deps.json_response(payload_with_conversation, status=status, request_id=request_id)
 
-    scope_token = str(payload.get("scope_token") or "").strip()
-    context_value = ""
-    topics: list[str] = []
-    allowed_topics: list[str] = []
-    reference_key = ""
-    scope_verified = False
+    execution_config = resolve_execution_config(
+        env_int=deps.env_int,
+        env_float=deps.env_float,
+        env_bool=deps.env_bool,
+        parse_csv_list=deps.parse_csv_list,
+        default_text_language_keywords=default_text_language_keywords,
+    )
 
-    if scope_token:
-        try:
-            scope = deps.load_scope_from_token(
-                scope_token,
-                max_age_seconds=max(deps.env_int("HELPER_SCOPE_TOKEN_MAX_AGE_SECONDS", 7200), 60),
-            )
-            context_value = scope.get("context", "")
-            topics = scope.get("topics", [])
-            allowed_topics = scope.get("allowed_topics", [])
-            reference_key = scope.get("reference", "")
-            scope_verified = True
-        except signature_expired_exc:
-            deps.log_chat_event("warning", "scope_token_expired", request_id=request_id, actor_type=actor_type, ip=client_ip)
-            return _response({"error": "invalid_scope_token"}, status=400)
-        except (bad_signature_exc, ValueError):
-            deps.log_chat_event("warning", "scope_token_invalid", request_id=request_id, actor_type=actor_type, ip=client_ip)
-            return _response({"error": "invalid_scope_token"}, status=400)
-    else:
-        require_scope_for_staff = bool(getattr(settings, "HELPER_REQUIRE_SCOPE_TOKEN_FOR_STAFF", False))
-        if actor_type == "student" or (actor_type == "staff" and require_scope_for_staff):
-            deps.log_chat_event("warning", "scope_token_missing", request_id=request_id, actor_type=actor_type, ip=client_ip)
-            return _response({"error": "missing_scope_token"}, status=400)
-        if any(payload.get(k) for k in ("context", "topics", "allowed_topics", "reference")):
-            deps.log_chat_event(
-                "info",
-                "unsigned_scope_fields_ignored",
-                request_id=request_id,
-                actor_type=actor_type,
-                ip=client_ip,
-            )
+    try:
+        envelope = resolve_context_envelope(
+            payload=payload,
+            actor_type=actor_type,
+            require_scope_for_staff=bool(getattr(settings, "HELPER_REQUIRE_SCOPE_TOKEN_FOR_STAFF", False)),
+            max_scope_token_age_seconds=execution_config.scope_token_max_age_seconds,
+            load_scope_from_token=deps.load_scope_from_token,
+            signature_expired_exc=signature_expired_exc,
+            bad_signature_exc=bad_signature_exc,
+        )
+    except ScopeResolutionError as exc:
+        deps.log_chat_event(
+            exc.log_level,
+            exc.log_event,
+            request_id=request_id,
+            actor_type=actor_type,
+            ip=client_ip,
+        )
+        return _response({"error": exc.response_error}, status=400)
 
-    conversation_enabled = deps.env_bool("HELPER_CONVERSATION_ENABLED", True) and bool(actor_key)
+    if envelope.ignored_unsigned_scope_fields:
+        deps.log_chat_event(
+            "info",
+            "unsigned_scope_fields_ignored",
+            request_id=request_id,
+            actor_type=actor_type,
+            ip=client_ip,
+        )
+
+    scope_token = envelope.scope_token
+    context_value = envelope.context
+    topics = envelope.topics
+    allowed_topics = envelope.allowed_topics
+    reference_key = envelope.reference_key
+    scope_verified = envelope.scope_verified
+
+    conversation_enabled = execution_config.conversation_enabled and bool(actor_key)
     conversation_scope_fp = deps.scope_fingerprint(scope_token)
-    max_conversation_messages = max(deps.env_int("HELPER_CONVERSATION_MAX_MESSAGES", 8), 0)
-    conversation_ttl_seconds = max(deps.env_int("HELPER_CONVERSATION_TTL_SECONDS", 3600), 60)
-    conversation_turn_max_chars = max(deps.env_int("HELPER_CONVERSATION_TURN_MAX_CHARS", 800), 80)
-    conversation_history_max_chars = max(deps.env_int("HELPER_CONVERSATION_HISTORY_MAX_CHARS", 2400), 300)
-    conversation_summary_max_chars = max(deps.env_int("HELPER_CONVERSATION_SUMMARY_MAX_CHARS", 900), 200)
+    max_conversation_messages = execution_config.conversation_max_messages
+    conversation_ttl_seconds = execution_config.conversation_ttl_seconds
+    conversation_turn_max_chars = execution_config.conversation_turn_max_chars
+    conversation_history_max_chars = execution_config.conversation_history_max_chars
+    conversation_summary_max_chars = execution_config.conversation_summary_max_chars
     if max_conversation_messages <= 0:
         conversation_enabled = False
 
@@ -193,7 +168,7 @@ def handle_chat(
         topics=topics,
         allowed_topics=allowed_topics,
         history_summary=history_summary,
-        max_items=max(deps.env_int("HELPER_FOLLOW_UP_SUGGESTIONS_MAX", 3), 1),
+        max_items=execution_config.follow_up_suggestions_max,
     )
 
     def _persist_turns(assistant_text: str) -> None:
@@ -226,7 +201,7 @@ def handle_chat(
                 "conversation_compacted",
                 request_id=request_id,
                 actor_type=actor_type,
-                backend=(os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower(),
+                backend=execution_config.backend,
                 conversation_id=conversation_id,
             )
 
@@ -241,9 +216,10 @@ def handle_chat(
     if conversation_prompt:
         model_message = f"{conversation_prompt}\n\nStudent (latest):\n{message}"
 
-    backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
-    strictness = _env_or_profile_default("HELPER_STRICTNESS", "light").lower()
-    scope_mode = _env_or_profile_default("HELPER_SCOPE_MODE", "soft").lower()
+    backend = execution_config.backend
+    policy_bundle = resolve_policy_bundle()
+    strictness = policy_bundle.strictness
+    scope_mode = policy_bundle.scope_mode
     if backend == "openai" and not bool(getattr(settings, "HELPER_REMOTE_MODE_ACKNOWLEDGED", False)):
         deps.log_chat_event(
             "warning",
@@ -254,9 +230,9 @@ def handle_chat(
         )
         return _response({"error": "remote_backend_not_acknowledged"}, status=503)
 
-    reference_dir = os.getenv("HELPER_REFERENCE_DIR", "/app/tutor/reference").strip()
-    reference_map_raw = os.getenv("HELPER_REFERENCE_MAP", "").strip()
-    default_reference_file = os.getenv("HELPER_REFERENCE_FILE", "").strip()
+    reference_dir = execution_config.reference_dir
+    reference_map_raw = execution_config.reference_map_raw
+    default_reference_file = execution_config.default_reference_file
     if reference_key:
         reference_file = deps.resolve_reference_file(reference_key, reference_dir, reference_map_raw)
     else:
@@ -270,11 +246,10 @@ def handle_chat(
         topics=topics,
         reference_chunks=reference_chunks,
         source_label=reference_source,
-        max_items=max(deps.env_int("HELPER_REFERENCE_MAX_CITATIONS", 3), 1),
+        max_items=execution_config.reference_max_citations,
     )
     reference_citations = deps.format_reference_citations_for_prompt(citations)
-    env_keywords = deps.parse_csv_list(os.getenv("HELPER_TEXT_LANGUAGE_KEYWORDS", ""))
-    lang_keywords = env_keywords or default_text_language_keywords
+    lang_keywords = execution_config.text_language_keywords
     if deps.contains_text_language(message, lang_keywords) and deps.is_scratch_context(context_value or "", topics, reference_text):
         deps.log_chat_event("info", "policy_redirect_text_language", request_id=request_id, actor_type=actor_type, backend=backend)
         redirect_text = (
@@ -297,7 +272,7 @@ def handle_chat(
             }
         )
     if (
-        deps.env_bool("HELPER_PIPER_HARDWARE_TRIAGE_ENABLED", True)
+        execution_config.piper_hardware_triage_enabled
         and deps.is_piper_context(context_value or "", topics, reference_text, reference_key)
         and deps.is_piper_hardware_question(message)
         and not citations
@@ -326,7 +301,7 @@ def handle_chat(
             }
         )
     if allowed_topics:
-        filter_mode = _env_or_profile_default("HELPER_TOPIC_FILTER_MODE", "soft").lower()
+        filter_mode = policy_bundle.topic_filter_mode
         if filter_mode == "strict" and not deps.allowed_topic_overlap(message, allowed_topics):
             deps.log_chat_event("info", "policy_redirect_allowed_topics", request_id=request_id, actor_type=actor_type, backend=backend)
             redirect_text = (
@@ -362,10 +337,10 @@ def handle_chat(
         deps.log_chat_event("warning", "backend_circuit_open", request_id=request_id, backend=backend)
         return _response({"error": "backend_unavailable"}, status=503)
 
-    max_concurrency = deps.env_int("HELPER_MAX_CONCURRENCY", 2)
-    max_wait = deps.env_float("HELPER_QUEUE_MAX_WAIT_SECONDS", 10.0)
-    poll = deps.env_float("HELPER_QUEUE_POLL_SECONDS", 0.2)
-    ttl = deps.env_int("HELPER_QUEUE_SLOT_TTL_SECONDS", 120)
+    max_concurrency = execution_config.queue_max_concurrency
+    max_wait = execution_config.queue_max_wait_seconds
+    poll = execution_config.queue_poll_seconds
+    ttl = execution_config.queue_slot_ttl_seconds
     queue_started_at = time.monotonic()
     slot_key, token = None, None
     queue_error = False

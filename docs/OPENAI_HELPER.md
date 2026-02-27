@@ -22,6 +22,28 @@ flowchart TD
   H --> I[JSON response + request_id]
 ```
 
+## Runtime module layout (current)
+
+`/helper/chat` stays in `tutor/views.py` as the HTTP boundary. Internals are split into focused modules:
+
+| Module | Role |
+|---|---|
+| `tutor/views.py` | endpoint adapter, auth/rate-limit gate, dependency wiring |
+| `tutor/views_chat_request.py` | actor/client derivation, payload parse, rate-limit request shaping |
+| `tutor/views_chat_deps.py` | `ChatDeps` construction (wiring patch-sensitive callables) |
+| `tutor/views_chat_runtime.py` | runtime wrappers for backend/auth/circuit seams |
+| `tutor/views_chat_helpers.py` | reference loading, memory helpers, runtime env wrappers, event detail shaping |
+| `tutor/engine/service.py` | chat orchestration core (`handle_chat`) |
+| `tutor/engine/context_envelope.py` | signed scope token resolution into normalized context envelope |
+| `tutor/engine/runtime_config.py` | profile-aware policy defaults (`strictness`, `scope_mode`, topic filter) |
+| `tutor/engine/execution_config.py` | execution knobs (backend, queue, conversation limits, references, keyword caps) |
+| `tutor/engine/backends.py` | backend registry + retry adapter |
+| `tutor/engine/heuristics.py` | intent/follow-up/topic/text-language/Piper heuristics |
+| `tutor/engine/memory.py` | conversation cache state and compaction |
+| `tutor/engine/reference.py` | reference-file resolution + citation extraction |
+| `tutor/engine/auth.py` | actor and class-table/session boundary checks |
+| `tutor/engine/circuit.py` | cache-backed backend failure circuit state |
+
 ## Backend selection
 
 Set the backend in `compose/.env`:
@@ -63,6 +85,15 @@ HELPER_CLASS_RESET_ARCHIVE_ENABLED=1
 HELPER_CLASS_RESET_ARCHIVE_DIR=/uploads/helper_reset_exports
 HELPER_CLASS_RESET_ARCHIVE_MAX_MESSAGES=120
 ```
+
+Config resolution model:
+- `ContextEnvelope`: derives trusted lesson context from signed `scope_token`.
+- `PolicyBundle`: derives helper policy stance (`strictness`, `scope_mode`, topic filter) with profile defaults.
+- `ExecutionConfig`: derives runtime execution knobs (queue/backoff/conversation/reference settings).
+
+Precedence:
+- explicit env value wins,
+- otherwise profile/default contract applies.
 
 Conversation behavior:
 - Each chat request can include a `conversation_id`; the helper now returns one on every response.
@@ -245,8 +276,10 @@ python scripts/generate_lesson_references.py \
 
 Use `HELPER_SCOPE_MODE` to control how strictly the helper stays within the lesson:
 
-- `soft` (default): prefer lesson scope, gently redirect off-topic requests
+- `soft`: prefer lesson scope, gently redirect off-topic requests
 - `strict`: refuse unrelated questions and ask students to rephrase
+
+If `HELPER_SCOPE_MODE` is unset, profile defaults apply (see [PROGRAM_PROFILES.md](PROGRAM_PROFILES.md)).
 
 ## Queue / concurrency limits
 
