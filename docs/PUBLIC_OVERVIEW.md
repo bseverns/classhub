@@ -19,7 +19,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 
 ## Organization and place acknowledgment
 - createMPLS is a Minneapolis-based 501(c)(3) nonprofit organization.
-- Minneapolis is located on land ceded by treaty and has historically been home to the Anishinaabe, Dakota, and Oceti Sakowin peoples.
+- Minneapolis is located on the ancestral and contemporary homeland of the Dakota Nation (specifically the Mdewakanton, Wahpeton, and Sisseton bands of the Očhéthi Šakówiŋ). The area is known as Mni Sota Makoce and is also a significant territory for the Anishinaabe/Ojibwe people, following their migration to the region.
 
 ## What it is
 - A self-hosted learning hub for classes, modules, and lesson materials.
@@ -34,8 +34,10 @@ If this page is useful, you should be able to answer: who this is for, what it d
 ## What makes it different
 - Privacy-first defaults (minimal student identity model, explicit retention controls).
 - Calm student join model (no student email/password in MVP).
+- Student home starts with a clear weekly launch path (`This week` + `Course links` + `Account`).
 - Public-domain hardening options (CSP, site-mode degradation, proxy guardrails).
 - Self-hosted architecture with boring, inspectable components (Django, Postgres, Redis, Caddy).
+- Helper support is lesson-scoped and does not archive student prompts.
 
 ## What it will not do
 - No surveillance analytics posture.
@@ -48,8 +50,9 @@ If this page is useful, you should be able to answer: who this is for, what it d
 
 ## Screenshots (placeholders)
 - Student join screen: `press/screenshots/01-student-join.png`
-- Teacher dashboard: `press/screenshots/03-teacher-dashboard.png`
+- Student class landing (`This week` + `Course links`): `press/screenshots/02-student-class-view.png`
 - Lesson page with helper: `press/screenshots/05-lesson-with-helper.png`
+- Teacher dashboard: `press/screenshots/03-teacher-dashboard.png`
 - Teacher profile tab: `press/screenshots/09-teacher-profile-tab.png` (planned placeholder)
 - Organization management tab: `press/screenshots/10-org-management-tab.png` (planned placeholder)
 - Invite-only enrollment controls: `press/screenshots/11-invite-only-enrollment.png` (planned placeholder)

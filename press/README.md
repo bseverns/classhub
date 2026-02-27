@@ -24,3 +24,4 @@ If this press kit is complete for your use case, you can assemble a short extern
 - Use demo screenshots only.
 - Keep claims factual and tied to current docs.
 - Keep screenshot filenames stable once published so docs links stay valid.
+- When UI structure changes, refresh existing captures before adding net-new shots.

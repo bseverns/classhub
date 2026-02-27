@@ -12,6 +12,9 @@ This file tracks planned screenshot filenames that are not yet captured.
 Each placeholder entry below has a real `.png` with the same filename in both screenshot folders.
 
 ## Planned files
+- `02-student-class-view.png` (refresh capture to show current landing structure)
+- `05-lesson-with-helper.png` (refresh capture to show helper collapsed/open behavior)
+- `06-submission-dropbox.png` (refresh capture for simplified status copy)
 - `09-teacher-profile-tab.png`
 - `10-org-management-tab.png`
 - `11-invite-only-enrollment.png`

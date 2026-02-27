@@ -19,7 +19,8 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 
 2. `02-student-class-view.png`
 - Screen: student class page (`/student`)
-- Include: module list and helper widget region
+- Include: class landing sections (`This week`, `Course links`, `Account`)
+- Include: one open module + one collapsed module
 - Redact: return codes
 
 3. `03-teacher-dashboard.png`
@@ -34,12 +35,12 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 
 5. `05-lesson-with-helper.png`
 - Screen: lesson page with helper panel visible
-- Include: lesson section + helper box
+- Include: lesson section + helper opened from collapsed state
 - Redact: student-specific text
 
 6. `06-submission-dropbox.png`
 - Screen: upload/dropbox flow
-- Include: accepted file types and submit action
+- Include: accepted file types, submit action, and simplified status pill (`Done` or `Open`)
 - Redact: filenames if they include personal info
 
 7. `07-admin-login.png`
@@ -77,6 +78,13 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 - Screen: terminal running `scripts/a11y_smoke.sh`
 - Include: pass/fail summary lines
 - Redact: hostnames/IPs if non-local
+
+## Priority order (refresh first)
+1. `02-student-class-view.png`
+2. `05-lesson-with-helper.png`
+3. `06-submission-dropbox.png`
+4. `11-invite-only-enrollment.png`
+5. `12-certificate-eligibility.png`
 
 ## Placeholders
 - If these new screenshots are not captured yet, keep placeholders in

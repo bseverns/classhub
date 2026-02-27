@@ -22,6 +22,8 @@ A reader should understand the system scope, deployment shape, and privacy stanc
 
 ## Key features
 - Student join by class code + display name (no student password accounts in MVP).
+- Student home centered on `This week`, `Course links`, and `Account` so first actions are obvious.
+- Progressive disclosure in student UI (collapsed modules/helper/forms) to reduce overload.
 - Teacher/admin auth with OTP support and teacher self-service profile updates.
 - Organization-aware staff access with optional hard org boundary mode.
 - Invite-only enrollment controls with expiring/seat-capped invite links.
@@ -38,9 +40,11 @@ A reader should understand the system scope, deployment shape, and privacy stanc
 ## Privacy and safety stance
 - Minimal student identity model.
 - No surveillance analytics posture.
+- No helper prompt archive.
 - Explicit retention and cleanup operations.
 - Hardened download and no-store patterns on sensitive routes.
 - Export and certificate/report surfaces avoid helper prompt content by design.
+- UI density can be configured by cohort (`compact` / `standard` / `expanded`) without changing privacy boundaries.
 
 ## Try it locally
 - `docs/TRY_IT_LOCAL.md`
