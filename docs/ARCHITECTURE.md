@@ -148,22 +148,6 @@ flowchart TB
     VALL{{ClassHub view layer}}
   end
 
-  subgraph S["Services"]
-    S1[hub/services/content_links.py]
-    S2[hub/services/upload_validation.py]
-    S3[hub/services/filenames.py]
-    S4[hub/services/ip_privacy.py]
-    S5[hub/services/audit.py]
-    S6[hub/services/upload_scan.py]
-    S7[hub/services/release_state.py]
-    SALL{{Service layer}}
-  end
-
-  subgraph T["Templates"]
-    TT[hub/templatetags/hub_extras.py]
-    TP[templates/student_* + teach_* + includes/helper_widget]
-  end
-
   subgraph D["Data layer"]
     MD[hub/models.py]
     DB[(Postgres)]
@@ -192,6 +176,22 @@ flowchart TB
     KREN[render path]
     KDAT[data/cache/file access]
     KEVT[token-gated internal event]
+  end
+
+  subgraph S["Services"]
+    S1[hub/services/content_links.py]
+    S2[hub/services/upload_validation.py]
+    S3[hub/services/filenames.py]
+    S4[hub/services/ip_privacy.py]
+    S5[hub/services/audit.py]
+    S6[hub/services/upload_scan.py]
+    S7[hub/services/release_state.py]
+    SALL{{Service layer}}
+  end
+
+  subgraph T["Templates"]
+    TT[hub/templatetags/hub_extras.py]
+    TP[templates/student_* + teach_* + includes/helper_widget]
   end
 
   U --> M1 --> M2 --> M3 --> M4 --> VALL
