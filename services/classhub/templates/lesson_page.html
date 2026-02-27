@@ -49,7 +49,7 @@
             <h2 class="card-title">Lesson schedule</h2>
             <p><span class="state-pill state-pill--locked">Intro-only mode</span></p>
             <p class="muted">
-              This lesson is in intro-only mode. Full activities and submissions unlock on
+              Full activities and submissions unlock on
               <strong>{{ lesson_available_on|date:"M j, Y" }}</strong>.
             </p>
           </div>
@@ -129,9 +129,9 @@
             {% if student and lesson_upload_material %}
               <p class="muted dropbox-state">
                 {% if lesson_upload_status %}
-                  <span class="state-pill state-pill--done">Done for now</span> Your file is saved. Re-upload if you need to replace it.
+                  <span class="state-pill state-pill--done">Done</span> File saved. Re-upload to replace.
                 {% else %}
-                  <span class="state-pill state-pill--open">Not submitted yet</span> You are done when at least one upload appears below.
+                  <span class="state-pill state-pill--open">Open</span> Upload at least one file to finish.
                 {% endif %}
               </p>
               <div class="nav dropbox-actions">

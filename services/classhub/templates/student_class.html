@@ -51,7 +51,7 @@
                 data-copy-secret-target="student-return-code"
                 aria-label="Copy return code"
               >Copy return code</button>
-              (use it if you ever need to rejoin)
+              (for rejoin)
             </div>
             <div id="copy-status" class="muted copy-status" role="status" aria-live="polite"></div>
           </div>
@@ -146,13 +146,9 @@
         <div class="card done-guide">
           <h2>How to tell you are done</h2>
           {% if ui_density_mode == "compact" %}
-            <p class="muted"><span class="state-pill state-pill--done">Done</span> means your work saved correctly.</p>
-            <p class="muted"><span class="state-pill state-pill--open">Open</span> means do this now.</p>
-            <p class="muted"><span class="state-pill state-pill--locked">Locked</span> means wait for your teacher.</p>
+            <p class="muted"><span class="state-pill state-pill--done">Done</span> saved · <span class="state-pill state-pill--open">Open</span> do now · <span class="state-pill state-pill--locked">Locked</span> wait</p>
           {% else %}
-            <p class="muted"><span class="state-pill state-pill--done">Done</span> means your upload is saved and visible.</p>
-            <p class="muted"><span class="state-pill state-pill--open">Open</span> means you can work/submit now.</p>
-            <p class="muted"><span class="state-pill state-pill--locked">Locked</span> means wait until the listed date.</p>
+            <p class="muted"><span class="state-pill state-pill--done">Done</span> saved and visible · <span class="state-pill state-pill--open">Open</span> ready now · <span class="state-pill state-pill--locked">Locked</span> opens on date shown</p>
           {% endif %}
         </div>
 
@@ -398,12 +394,12 @@
         <div class="card done-guide{% if ui_density_mode == 'compact' %} done-guide--compact{% endif %}">
           <h2>Account</h2>
           {% if ui_density_mode == "compact" %}
-            <p class="muted">Need account/data controls? Open your My Data page.</p>
+            <p class="muted">Open My Data for account controls.</p>
             <div class="my-data-actions">
               <a href="/student/my-data">Open My Data</a>
             </div>
           {% else %}
-            <p class="muted">Manage your class data on this device in one place.</p>
+            <p class="muted">Manage account + device data.</p>
             <div class="my-data-actions">
               <a href="/student/my-data">Open My Data</a>
               <a href="/student/portfolio-export">Download my work</a>
