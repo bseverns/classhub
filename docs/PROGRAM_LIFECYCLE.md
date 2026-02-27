@@ -2,6 +2,17 @@
 
 This page explains how ClassHub supports a program from first outreach through renewal reporting. It is written for fundraising, partnerships, and operations staff who need a realistic picture of what the platform produces.
 
+## Revenue lens
+
+If your organization runs earned-income programs, the relevant value is operational leverage:
+
+- `Invite link` controls make paid or limited-seat cohorts easier to manage.
+- `Outcomes export` reduces the work needed for sponsor, payer, or parent-facing reporting.
+- `Certificate eligibility/issuance` gives programs a concrete completion artifact.
+- org and role controls reduce the need for shared accounts when multiple staff or partner teams are involved.
+
+ClassHub does not include billing. It does reduce the amount of manual coordination around enrollment, delivery evidence, and repeat-program setup.
+
 ## Recruit
 
 - Features in ClassHub:
@@ -26,6 +37,8 @@ This page explains how ClassHub supports a program from first outreach through r
   - invite records usable for operational follow-up
 - Staff effort saved:
   - reduces manual account creation and one-off onboarding support
+- Revenue support:
+  - makes limited-seat or paid cohorts easier to gate and audit operationally
 
 ## Deliver
 
@@ -51,6 +64,8 @@ This page explains how ClassHub supports a program from first outreach through r
   - submission records; verify any archive or portfolio-style workflow in the teacher portal for your deployment
 - Staff effort saved:
   - reduces manual attendance and artifact reconciliation after each session
+- Revenue support:
+  - makes sponsor or payer reporting faster when proof of participation is required
 
 ## Certify
 
@@ -62,6 +77,8 @@ This page explains how ClassHub supports a program from first outreach through r
   - downloadable certificate files
 - Staff effort saved:
   - reduces separate spreadsheet and mail-merge workflows
+- Revenue support:
+  - gives paid or sponsored programs a clear completion artifact families and partners can understand
 
 ## Report
 
@@ -73,6 +90,8 @@ This page explains how ClassHub supports a program from first outreach through r
   - bounded reporting packet built from exports and issued certificates
 - Staff effort saved:
   - reduces manual counting for funder updates, board summaries, and partner check-ins
+- Revenue support:
+  - shortens the gap between program delivery and invoice, renewal, or sponsor follow-up materials
 
 ## Renew
 
@@ -84,6 +103,8 @@ This page explains how ClassHub supports a program from first outreach through r
   - reusable class setup pattern for the next cycle
 - Staff effort saved:
   - reduces rework when a partner or funder asks, "Can you run this again next term?"
+- Revenue support:
+  - improves repeat-program readiness, which matters if earned revenue depends on offering the same cohort reliably
 
 ## Go deeper
 
