@@ -8,6 +8,49 @@
 .module {
   margin-top: 16px;
 }
+.class-landing {
+  margin-top: 12px;
+}
+.class-landing h2 {
+  margin: 0 0 8px 0;
+}
+.landing-hero-wrap {
+  margin-bottom: 10px;
+}
+.landing-hero-image {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(22, 59, 80, 0.14);
+  background: rgba(255, 255, 255, 0.5);
+}
+.landing-highlight {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(22, 59, 80, 0.14);
+  background: rgba(255, 255, 255, 0.46);
+}
+.landing-highlight-title {
+  margin: 4px 0 6px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.landing-course-map {
+  margin-top: 12px;
+}
+.landing-course-map summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.landing-course-map ul {
+  margin: 8px 0 0 0;
+  padding-left: 18px;
+}
+.landing-course-map li {
+  margin: 6px 0;
+}
 .module h2 {
   margin: 0;
 }
@@ -116,4 +159,20 @@
 }
 .gallery-shared-list li {
   margin: 4px 0;
+}
+
+body.ui-density-compact .shell {
+  max-width: 900px;
+}
+
+body.ui-density-compact .top h1 {
+  font-size: clamp(1.7rem, 2.2vw, 2.1rem);
+}
+
+body.ui-density-compact .mat {
+  padding: 10px;
+}
+
+body.ui-density-expanded .shell {
+  max-width: 1060px;
 }

@@ -1496,3 +1496,39 @@ Historical implementation logs and superseded decisions are archived by month in
 - Supports paid/cohort onboarding flows without introducing student logins.
 - Gives staff a low-friction operational export with minimal PII and no helper prompt content.
 - Reduces blast radius by decoupling helper scope token signing from Django’s primary secret.
+
+## Learner UI density by program/course level
+
+**Current decision:**
+- Keep a single product surface, but vary learner-facing UI density via three modes:
+  - `compact` for elementary cohorts,
+  - `standard` for secondary cohorts,
+  - `expanded` for advanced cohorts.
+- Source of truth order:
+  1) lesson metadata (`ui_level` / `learner_level`),
+  2) course manifest metadata (`ui_level` / `learner_level` / `program_profile`),
+  3) global env default (`CLASSHUB_PROGRAM_PROFILE`).
+- No database schema changes. Resolution is computed at render time from existing settings/content metadata.
+- This mode only adjusts copy density and layout complexity in learner pages (`/`, `/student`, `/course/*`).
+
+**Why this remains active:**
+- Supports mixed-age delivery without forking the platform or duplicating templates.
+- Keeps operations boring: one deploy, one data model, one permission system.
+- Preserves non-negotiables (privacy posture, no prompt archiving, no surveillance analytics) while improving age-appropriate usability.
+
+## Student class landing page + weekly lesson highlight
+
+**Current decision:**
+- Keep `/student` as the single student home entry point, but add a landing section that:
+  - shows teacher-managed class intro content (title, message, optional hero image),
+  - highlights one lesson for the current week using existing lesson release dates,
+  - keeps full course lesson links available from the same page.
+- Landing content is stored on `Class` (`student_landing_title`, `student_landing_message`, `student_landing_hero_url`) and managed in the existing teacher class dashboard.
+- Hero URL validation allows only:
+  - same-origin paths starting with `/` (for local assets), or
+  - absolute `http/https` URLs.
+
+**Why this remains active:**
+- Gives young learners a clear “start here” focus without removing access to the rest of the course.
+- Reuses existing scheduling primitives (`LessonRelease.available_on`) rather than adding new calendar models.
+- Keeps operations centralized: teachers edit landing content in the same class dashboard they already use for invites, roster, and releases.

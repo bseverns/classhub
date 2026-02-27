@@ -11,6 +11,7 @@ from .roster_class import (
     teach_rotate_code,
     teach_toggle_lock,
 )
+from .roster_landing import teach_update_class_landing
 from .roster_certificates import (
     teach_download_certificate,
     teach_download_certificate_pdf,
@@ -48,6 +49,7 @@ __all__ = [
     "teach_create_class",
     "teach_class_dashboard",
     "teach_class_join_card",
+    "teach_update_class_landing",
     "teach_create_invite_link",
     "teach_disable_invite_link",
     "teach_export_class_outcomes_csv",

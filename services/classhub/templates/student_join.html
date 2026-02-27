@@ -8,7 +8,7 @@
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/student_join.css' %}" />
   </head>
-  <body class="glass-theme">
+  <body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="shell">
       <main id="main-content">
@@ -17,10 +17,18 @@
           {% if invite_join_classroom %}
             <p class="muted">You are joining <strong>{{ invite_join_classroom.name }}</strong> by invite link.</p>
           {% else %}
-            <p class="muted">Enter the class code your teacher gives you. Pick a name your teacher will recognize.</p>
+            {% if ui_density_mode == "compact" %}
+              <p class="muted">Enter your class code and your name.</p>
+            {% else %}
+              <p class="muted">Enter the class code your teacher gives you. Pick a name your teacher will recognize.</p>
+            {% endif %}
           {% endif %}
-          <p class="muted">If this is the same classroom computer/browser, you can usually leave return code blank.</p>
-          <p class="muted">On shared devices, use your own return code to avoid signing in as someone else.</p>
+          {% if ui_density_mode == "compact" %}
+            <p class="muted">On shared devices, enter your return code so you do not join as another student.</p>
+          {% else %}
+            <p class="muted">If this is the same classroom computer/browser, you can usually leave return code blank.</p>
+            <p class="muted">On shared devices, use your own return code to avoid signing in as someone else.</p>
+          {% endif %}
         </div>
 
         <div class="card">
@@ -69,14 +77,16 @@
             <p class="muted"><strong>Privacy at a glance:</strong></p>
             <p class="muted">We store your display name, class submissions, and event timestamps needed to run class.</p>
             <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
-            <p class="muted">
-              Retention:
-              {% if submission_retention_days %}
-                submissions are kept up to {{ submission_retention_days }} day{{ submission_retention_days|pluralize }} unless deleted sooner.
-              {% else %}
-                submissions stay until a teacher or admin removes them.
-              {% endif %}
-            </p>
+            {% if ui_density_mode != "compact" %}
+              <p class="muted">
+                Retention:
+                {% if submission_retention_days %}
+                  submissions are kept up to {{ submission_retention_days }} day{{ submission_retention_days|pluralize }} unless deleted sooner.
+                {% else %}
+                  submissions stay until a teacher or admin removes them.
+                {% endif %}
+              </p>
+            {% endif %}
             <p class="muted">Delete now: after joining, open <a href="/student/my-data">My Data</a> to delete your work or end this device session.</p>
             <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
           </div>

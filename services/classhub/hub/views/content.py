@@ -33,6 +33,7 @@ from ..services.helper_topics import (
 )
 from ..services.release_state import lesson_release_override_map, lesson_release_state
 from ..services.upload_policy import front_matter_submission
+from ..services.ui_density import resolve_ui_density_mode
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,11 @@ def course_overview(request, course_slug: str):
     if not manifest:
         return HttpResponse("Course not found", status=404)
 
+    ui_density_mode = resolve_ui_density_mode(
+        program_profile=getattr(settings, "CLASSHUB_PROGRAM_PROFILE", "secondary"),
+        course_manifest=manifest,
+    )
+
     return render(
         request,
         "course_overview.html",
@@ -74,6 +80,7 @@ def course_overview(request, course_slug: str):
             "course_slug": course_slug,
             "course": manifest,
             "lessons": manifest.get("lessons") or [],
+            "ui_density_mode": ui_density_mode,
         },
     )
 
@@ -184,6 +191,12 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
     if not body_md:
         return HttpResponse("Lesson not found", status=404)
 
+    ui_density_mode = resolve_ui_density_mode(
+        program_profile=getattr(settings, "CLASSHUB_PROGRAM_PROFILE", "secondary"),
+        course_manifest=manifest,
+        lesson_front_matter=fm,
+    )
+
     learner_body_md, _teacher_body_md = split_lesson_markdown_for_audiences(body_md)
     classroom_id = getattr(getattr(request, "classroom", None), "id", 0) or 0
     release_override_map = lesson_release_override_map(classroom_id) if classroom_id else {}
@@ -273,11 +286,16 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
     if not lesson_locked and can_use_helper:
         get_token(request)
         helper_delete_url = "/student/my-data" if getattr(request, "student", None) is not None else "/teach"
+        helper_description = "Need a hint for this lesson? Ask the helper to guide you without handing out answers."
+        if ui_density_mode == "compact":
+            helper_description = "Need help? Ask for one small next step at a time."
+        elif ui_density_mode == "expanded":
+            helper_description = "Ask for strategy, debugging, or extension ideas without asking for direct answers."
         helper_widget = render_to_string(
             "includes/helper_widget.html",
             {
                 "helper_title": "Lesson helper",
-                "helper_description": "Need a hint for this lesson? Ask the helper to guide you without handing out answers.",
+                "helper_description": helper_description,
                 "helper_context": helper_context,
                 "helper_topics": " | ".join(helper_topics),
                 "helper_reference": helper_reference,
@@ -309,6 +327,7 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
             "lesson_upload_status": lesson_upload_status,
             "lesson_locked": lesson_locked,
             "lesson_available_on": lesson_available_on,
+            "ui_density_mode": ui_density_mode,
         },
     )
 

@@ -172,14 +172,37 @@ class LessonReleaseTests(TestCase):
         self.assertContains(resp, "Preview intro-only page")
         self.assertNotContains(resp, "Open lesson", status_code=200)
 
+    def test_student_home_landing_highlights_this_weeks_lesson(self):
+        LessonRelease.objects.create(
+            classroom=self.classroom,
+            course_slug="piper_scratch_12_session",
+            lesson_slug="s01-welcome-private-workflow",
+            available_on=timezone.localdate(),
+        )
+        self._login_student()
+
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "highlighted lesson")
+        self.assertContains(resp, "Session 1")
+        self.assertContains(resp, "View full course lesson links")
+
     def test_course_overview_uses_external_css_without_inline_styles(self):
         self._login_student()
 
         resp = self.client.get("/course/piper_scratch_12_session")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "/static/css/course_overview.css")
+        self.assertContains(resp, "ui-density-compact")
         self.assertNotContains(resp, "<style>", html=False)
         self.assertNotContains(resp, 'style="margin:0"', html=False)
+
+    @override_settings(CLASSHUB_PROGRAM_PROFILE="advanced")
+    def test_student_home_prefers_course_ui_level_over_global_profile(self):
+        self._login_student()
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "ui-density-compact")
 
     def test_student_home_masks_return_code_by_default(self):
         self._login_student()

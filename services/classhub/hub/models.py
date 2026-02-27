@@ -67,6 +67,10 @@ class Class(models.Model):
     )
     name = models.CharField(max_length=200)
     join_code = models.CharField(max_length=16, unique=True, default=gen_class_code)
+    student_landing_title = models.CharField(max_length=200, blank=True, default="")
+    student_landing_message = models.TextField(blank=True, default="")
+    # Accept either an absolute URL or a same-origin path (for /lesson-asset/*).
+    student_landing_hero_url = models.CharField(max_length=500, blank=True, default="")
     enrollment_mode = models.CharField(
         max_length=20,
         choices=ENROLLMENT_MODE_CHOICES,

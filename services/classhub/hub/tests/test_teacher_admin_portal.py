@@ -361,6 +361,49 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(event.classroom_id, classroom.id)
         self.assertEqual(event.metadata.get("enrollment_mode"), Class.ENROLLMENT_INVITE_ONLY)
 
+    def test_teach_class_can_update_student_landing_page(self):
+        classroom = Class.objects.create(name="Paid Cohort", join_code="LND12345")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/update-landing-page",
+            {
+                "student_landing_title": "Week 4: Cutscene polish",
+                "student_landing_message": "Start with your highlighted lesson, then open course links below.",
+                "student_landing_hero_url": "https://example.org/landing.png",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        classroom.refresh_from_db()
+        self.assertEqual(classroom.student_landing_title, "Week 4: Cutscene polish")
+        self.assertEqual(
+            classroom.student_landing_message,
+            "Start with your highlighted lesson, then open course links below.",
+        )
+        self.assertEqual(classroom.student_landing_hero_url, "https://example.org/landing.png")
+
+        event = AuditEvent.objects.filter(action="class.update_student_landing").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.classroom_id, classroom.id)
+
+    def test_teach_class_rejects_invalid_student_landing_hero_url(self):
+        classroom = Class.objects.create(name="Paid Cohort", join_code="LND12346")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/update-landing-page",
+            {
+                "student_landing_title": "Week 4",
+                "student_landing_message": "Message",
+                "student_landing_hero_url": "ftp://example.org/image.png",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/class/", resp["Location"])
+        self.assertIn("error=", resp["Location"])
+        classroom.refresh_from_db()
+        self.assertEqual(classroom.student_landing_hero_url, "")
+
     def test_teach_class_export_summary_csv_contains_class_student_and_lesson_rows(self):
         classroom, upload = self._build_lesson_with_submission()
         student = StudentIdentity.objects.filter(classroom=classroom, display_name="Ada").first()

@@ -15,11 +15,11 @@ This does not create a separate product mode. It only sets safer defaults for ex
 
 ## Default map
 
-| Profile | Join/rejoin default | Helper strictness default | Helper scope default | Helper topic filter default |
-|---|---|---|---|---|
-| `elementary` | `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1` | `HELPER_STRICTNESS=strict` | `HELPER_SCOPE_MODE=strict` | `HELPER_TOPIC_FILTER_MODE=strict` |
-| `secondary` | `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=0` | `HELPER_STRICTNESS=light` | `HELPER_SCOPE_MODE=soft` | `HELPER_TOPIC_FILTER_MODE=soft` |
-| `advanced` | `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=0` | `HELPER_STRICTNESS=light` | `HELPER_SCOPE_MODE=soft` | `HELPER_TOPIC_FILTER_MODE=soft` |
+| Profile | Join/rejoin default | Helper strictness default | Helper scope default | Helper topic filter default | UI density default |
+|---|---|---|---|---|---|
+| `elementary` | `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1` | `HELPER_STRICTNESS=strict` | `HELPER_SCOPE_MODE=strict` | `HELPER_TOPIC_FILTER_MODE=strict` | `compact` |
+| `secondary` | `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=0` | `HELPER_STRICTNESS=light` | `HELPER_SCOPE_MODE=soft` | `HELPER_TOPIC_FILTER_MODE=soft` | `standard` |
+| `advanced` | `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=0` | `HELPER_STRICTNESS=light` | `HELPER_SCOPE_MODE=soft` | `HELPER_TOPIC_FILTER_MODE=soft` | `expanded` |
 
 ## Override precedence
 
@@ -67,6 +67,22 @@ HELPER_TOPIC_FILTER_MODE=soft
 - For shared elementary devices, keep `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1` to reduce accidental identity reuse.
 - If you need strict helper boundaries in any profile, set helper toggles explicitly; profile defaults are only a baseline.
 - Keep privacy posture unchanged across profiles: no prompt archive, no surveillance analytics.
+
+## Course-level UI override (optional)
+
+If a specific course needs a different learner-facing UI density than the global profile, add `ui_level` in that course manifest:
+
+```yaml
+# services/classhub/content/courses/<course_slug>/course.yaml
+ui_level: elementary  # elementary | secondary | advanced
+```
+
+Resolution order:
+1. Lesson front matter `ui_level` / `learner_level` (if present),
+2. Course manifest `ui_level` / `learner_level` / `program_profile`,
+3. `CLASSHUB_PROGRAM_PROFILE`.
+
+This only changes learner UI density text/layout (`compact`, `standard`, `expanded`). It does not alter privacy, retention, or permission boundaries.
 
 ## Related docs
 

@@ -64,6 +64,7 @@ urlpatterns = [
     path("teach/create-class", views.teach_create_class),
     path("teach/class/<int:class_id>", views.teach_class_dashboard),
     path("teach/class/<int:class_id>/join-card", views.teach_class_join_card),
+    path("teach/class/<int:class_id>/update-landing-page", views.teach_update_class_landing),
     path("teach/class/<int:class_id>/create-invite-link", views.teach_create_invite_link),
     path("teach/class/<int:class_id>/disable-invite-link", views.teach_disable_invite_link),
     path("teach/class/<int:class_id>/set-enrollment-mode", views.teach_set_enrollment_mode),

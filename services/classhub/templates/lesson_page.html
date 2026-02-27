@@ -8,7 +8,7 @@
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/lesson_page.css' %}" />
   </head>
-  <body class="glass-theme">
+  <body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="shell">
       <main id="main-content">
@@ -17,7 +17,13 @@
             <div class="muted">Course: <a href="/course/{{ course_slug }}">{{ course.title|default:course_slug }}</a></div>
             <h1>{{ front_matter.title|default:lesson_slug }}</h1>
             {% if front_matter.makes %}
-              <div class="muted">Makes: {{ front_matter.makes }}</div>
+              <div class="muted">
+                {% if ui_density_mode == "compact" %}
+                  Goal: {{ front_matter.makes }}
+                {% else %}
+                  Makes: {{ front_matter.makes }}
+                {% endif %}
+              </div>
             {% endif %}
             <div class="lesson-status">
               {% if lesson_locked %}
@@ -154,7 +160,13 @@
           {{ helper_widget|safe }}
         {% endif %}
 
-        <p class="muted">If something feels unsafe to share, keep your work private and submit only the file. You control what leaves your device.</p>
+        <p class="muted">
+          {% if ui_density_mode == "compact" %}
+            If something feels unsafe to share, keep it private and tell your teacher.
+          {% else %}
+            If something feels unsafe to share, keep your work private and submit only the file. You control what leaves your device.
+          {% endif %}
+        </p>
       </main>
     </div>
     <script src="{% static 'js/lesson_page.js' %}" defer></script>

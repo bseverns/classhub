@@ -1301,6 +1301,27 @@ class OperatorProfileTemplateTests(TestCase):
         session["class_id"] = self.classroom.id
         session.save()
 
+    @override_settings(CLASSHUB_PROGRAM_PROFILE="advanced")
+    def test_join_page_uses_profile_ui_density_default(self):
+        join_resp = self.client.get("/")
+        self.assertEqual(join_resp.status_code, 200)
+        self.assertContains(join_resp, "ui-density-expanded")
+
+    def test_student_home_renders_class_landing_content(self):
+        self.classroom.student_landing_title = "Week 5 Landing"
+        self.classroom.student_landing_message = "Start here, then open your course links."
+        self.classroom.student_landing_hero_url = "/lesson-asset/42/download"
+        self.classroom.save(
+            update_fields=["student_landing_title", "student_landing_message", "student_landing_hero_url"]
+        )
+        self._login_student()
+
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Week 5 Landing")
+        self.assertContains(resp, "Start here, then open your course links.")
+        self.assertContains(resp, "/lesson-asset/42/download")
+
     @override_settings(
         CLASSHUB_PRODUCT_NAME="Northside Learning Hub",
         CLASSHUB_STORAGE_LOCATION_TEXT="this server is hosted by Northside Public Schools.",

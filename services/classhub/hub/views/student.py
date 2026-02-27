@@ -21,6 +21,7 @@ from ..services.export_service import build_student_portfolio_export_response
 from ..services.ip_privacy import minimize_student_event_ip
 from ..services.join_flow_service import clear_device_hint_cookie
 from ..services.student_home import (
+    build_class_landing_context,
     build_material_access_map,
     build_material_checklist_items_map,
     build_gallery_entries_map,
@@ -37,6 +38,7 @@ from ..services.submission_service import (
     scan_uploaded_file,
     validate_upload_content,
 )
+from ..services.ui_density import resolve_ui_density_mode_for_modules
 
 logger = logging.getLogger(__name__)
 
@@ -94,15 +96,13 @@ def student_home(request):
 
     classroom = request.classroom
     modules = list(classroom.modules.prefetch_related("materials").all())
+    ui_density_mode = resolve_ui_density_mode_for_modules(modules=modules, program_profile=getattr(settings, "CLASSHUB_PROGRAM_PROFILE", "secondary"))
     material_ids, material_access = build_material_access_map(request, classroom=classroom, modules=modules)
+    class_landing = build_class_landing_context(classroom=classroom, modules=modules, material_access=material_access)
     submissions_by_material = build_submissions_by_material(student=request.student, material_ids=material_ids)
     material_checklist_items = build_material_checklist_items_map(modules=modules); material_rubric_specs = build_material_rubric_specs_map(modules=modules)
     material_responses = build_material_response_map(student=request.student, material_ids=material_ids)
-    gallery_entries_by_material = build_gallery_entries_map(
-        classroom=classroom,
-        viewer_student=request.student,
-        material_ids=material_ids,
-    )
+    gallery_entries_by_material = build_gallery_entries_map(classroom=classroom, viewer_student=request.student, material_ids=material_ids)
     privacy_meta = privacy_meta_context()
     helper_widget = render_to_string(
         "includes/helper_widget.html",
@@ -139,7 +139,9 @@ def student_home(request):
             "material_responses": material_responses,
             "gallery_entries_by_material": gallery_entries_by_material,
             "material_access": material_access,
+            "class_landing": class_landing,
             "helper_widget": helper_widget,
+            "ui_density_mode": ui_density_mode,
             **privacy_meta,
         },
     )

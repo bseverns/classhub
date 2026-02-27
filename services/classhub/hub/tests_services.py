@@ -47,6 +47,7 @@ from .services.upload_policy import (
 )
 from .services.upload_scan import scan_uploaded_file
 from .services.upload_validation import validate_upload_content
+from .services.ui_density import default_ui_density_mode, resolve_ui_density_mode
 from .services.zip_exports import (
     reserve_archive_path,
     temporary_zip_archive,
@@ -264,6 +265,20 @@ class MarkdownContentServiceTests(SimpleTestCase):
         self.assertEqual(fm, {})
         self.assertEqual(body, "")
         self.assertEqual(meta.get("slug"), "lesson-1")
+
+
+class UiDensityServiceTests(SimpleTestCase):
+    def test_default_ui_density_mode_maps_program_profiles(self):
+        self.assertEqual(default_ui_density_mode("elementary"), "compact")
+        self.assertEqual(default_ui_density_mode("secondary"), "standard")
+        self.assertEqual(default_ui_density_mode("advanced"), "expanded")
+
+    def test_course_manifest_ui_level_overrides_program_profile(self):
+        mode = resolve_ui_density_mode(
+            program_profile="advanced",
+            course_manifest={"ui_level": "elementary"},
+        )
+        self.assertEqual(mode, "compact")
 
 
 class UploadScanServiceTests(SimpleTestCase):

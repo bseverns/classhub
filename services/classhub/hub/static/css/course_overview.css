@@ -18,3 +18,11 @@
 .section-title-tight {
   margin: 0;
 }
+
+body.ui-density-compact .shell {
+  max-width: 840px;
+}
+
+body.ui-density-expanded .shell {
+  max-width: 980px;
+}

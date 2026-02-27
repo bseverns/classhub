@@ -8,7 +8,7 @@
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/course_overview.css' %}" />
   </head>
-  <body class="glass-theme">
+  <body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="shell">
       <main id="main-content">
@@ -18,6 +18,11 @@
             <h1>{{ course.title|default:course_slug }}</h1>
             {% if course.privacy %}
               <p class="muted">{{ course.privacy|join:" · " }}</p>
+            {% endif %}
+            {% if ui_density_mode == "compact" %}
+              <p class="muted">Elementary mode: simpler student language and fewer simultaneous controls.</p>
+            {% elif ui_density_mode == "expanded" %}
+              <p class="muted">Advanced mode: denser controls and richer helper guidance.</p>
             {% endif %}
           </div>
         </div>

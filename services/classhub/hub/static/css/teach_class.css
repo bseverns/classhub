@@ -264,6 +264,12 @@
 .section-body {
   margin-top: 12px;
 }
+.landing-edit-form {
+  max-width: 740px;
+}
+.landing-edit-form textarea {
+  min-height: 100px;
+}
 .invite-create-form {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

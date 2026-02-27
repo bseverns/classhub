@@ -62,6 +62,43 @@
           {% endif %}
           <details class="section-toggle">
             <summary>
+              <span class="section-title">Student Landing Page</span>
+              <span class="section-subtitle">Set the title, message, and optional hero image students see first at /student.</span>
+            </summary>
+            <div class="section-body">
+              <form method="post" action="/teach/class/{{ classroom.id }}/update-landing-page" class="landing-edit-form">
+                {% csrf_token %}
+                <label for="student-landing-title">Landing title</label>
+                <input
+                  id="student-landing-title"
+                  name="student_landing_title"
+                  maxlength="200"
+                  value="{{ classroom.student_landing_title }}"
+                  placeholder="e.g., Week 3: Story + Motion"
+                />
+                <label for="student-landing-message">Landing message</label>
+                <textarea
+                  id="student-landing-message"
+                  name="student_landing_message"
+                  rows="4"
+                  maxlength="4000"
+                  placeholder="Optional notes for students, families, or assistants."
+                >{{ classroom.student_landing_message }}</textarea>
+                <label for="student-landing-hero-url">Hero image URL (optional)</label>
+                <input
+                  id="student-landing-hero-url"
+                  name="student_landing_hero_url"
+                  maxlength="500"
+                  value="{{ classroom.student_landing_hero_url }}"
+                  placeholder="/lesson-asset/123/download or https://example.org/banner.png"
+                />
+                <p class="muted mini no-top-margin">Use a same-origin path or an http/https URL. The weekly highlighted lesson is still controlled by lesson release dates.</p>
+                <button type="submit">Save landing page</button>
+              </form>
+            </div>
+          </details>
+          <details class="section-toggle">
+            <summary>
               <span class="section-title">Student Invite Links</span>
               <span class="section-subtitle">Generate no-login links with optional expiry and seat caps.</span>
             </summary>

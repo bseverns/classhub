@@ -8,13 +8,20 @@
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/student_class.css' %}" />
   </head>
-  <body class="glass-theme">
+  <body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="shell">
       <main id="main-content">
         <div class="top">
           <div>
-            <div class="muted"><a href="/">Join page</a> · <a href="/student">Student home</a> · <a href="/student/my-data">My Data</a> · <a href="/student/portfolio-export">Export my portfolio</a></div>
+            <div class="muted">
+              <a href="/student">Student home</a>
+              · <a href="/student/my-data">My Data</a>
+              {% if ui_density_mode != "compact" %}
+                · <a href="/">Join page</a>
+                · <a href="/student/portfolio-export">Export my portfolio</a>
+              {% endif %}
+            </div>
             <h1>{{ classroom.name }}</h1>
             <div class="muted">
               Signed in as <strong>{{ student.display_name }}</strong>
@@ -54,23 +61,107 @@
           </div>
         </div>
 
-        <div class="card done-guide">
-          <h2>How to tell you are done</h2>
-          <p class="muted"><span class="state-pill state-pill--done">Done for now</span> means your upload is saved and visible.</p>
-          <p class="muted"><span class="state-pill state-pill--open">Open</span> means you can work/submit now.</p>
-          <p class="muted"><span class="state-pill state-pill--locked">Locked</span> means wait until the listed date.</p>
+        <div class="card class-landing">
+          {% if class_landing.landing_hero_url %}
+            <div class="landing-hero-wrap">
+              <img
+                src="{{ class_landing.landing_hero_url }}"
+                alt="Class landing image"
+                class="landing-hero-image"
+                loading="lazy"
+              />
+            </div>
+          {% endif %}
+          <h2>{{ class_landing.landing_title }}</h2>
+          {% if class_landing.landing_message %}
+            <p class="muted">{{ class_landing.landing_message|linebreaksbr }}</p>
+          {% endif %}
+
+          {% if class_landing.highlight_lesson %}
+            <div class="landing-highlight">
+              <div class="muted">
+                {% if class_landing.highlight_lesson.is_this_week %}
+                  This week's highlighted lesson
+                {% else %}
+                  Highlighted lesson
+                {% endif %}
+              </div>
+              <p class="landing-highlight-title">
+                <a href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank" rel="noopener">
+                  {{ class_landing.highlight_lesson.module_title }}
+                </a>
+              </p>
+              <div class="muted">
+                {% if class_landing.highlight_lesson.is_locked %}
+                  <span class="state-pill state-pill--locked">Locked</span>
+                {% else %}
+                  <span class="state-pill state-pill--open">Open</span>
+                {% endif %}
+                {% if class_landing.highlight_lesson.available_on %}
+                  · {{ class_landing.highlight_lesson.available_on|date:"M j, Y" }}
+                {% endif %}
+              </div>
+            </div>
+          {% else %}
+            <p class="muted">No calendar-linked lessons yet. Ask your teacher when your first lesson opens.</p>
+          {% endif %}
+
+          {% if class_landing.course_lesson_links %}
+            <details class="landing-course-map">
+              <summary>View full course lesson links</summary>
+              <ul>
+                {% for row in class_landing.course_lesson_links %}
+                  <li>
+                    <a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.module_title }}</a>
+                    {% if row.is_highlight %}
+                      <span class="muted">(highlighted)</span>
+                    {% endif %}
+                    {% if row.is_locked %}
+                      <span class="state-pill state-pill--locked">Locked</span>
+                    {% else %}
+                      <span class="state-pill state-pill--open">Open</span>
+                    {% endif %}
+                    {% if row.available_on %}
+                      <span class="muted">· {{ row.available_on|date:"M j, Y" }}</span>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            </details>
+          {% endif %}
         </div>
 
         <div class="card done-guide">
+          <h2>How to tell you are done</h2>
+          {% if ui_density_mode == "compact" %}
+            <p class="muted"><span class="state-pill state-pill--done">Done for now</span> means your work saved correctly.</p>
+            <p class="muted"><span class="state-pill state-pill--open">Open</span> means do this now.</p>
+            <p class="muted"><span class="state-pill state-pill--locked">Locked</span> means wait for your teacher.</p>
+          {% else %}
+            <p class="muted"><span class="state-pill state-pill--done">Done for now</span> means your upload is saved and visible.</p>
+            <p class="muted"><span class="state-pill state-pill--open">Open</span> means you can work/submit now.</p>
+            <p class="muted"><span class="state-pill state-pill--locked">Locked</span> means wait until the listed date.</p>
+          {% endif %}
+        </div>
+
+        <div class="card done-guide{% if ui_density_mode == 'compact' %} done-guide--compact{% endif %}">
           <h2>My Data</h2>
-          <p class="muted">Manage your class data on this device in one place.</p>
+          <p class="muted">
+            {% if ui_density_mode == "compact" %}
+              Your teacher can help with data settings. You can still open your own data page here.
+            {% else %}
+              Manage your class data on this device in one place.
+            {% endif %}
+          </p>
           <div class="my-data-actions">
             <a href="/student/my-data">Show my submissions</a>
-            <a href="/student/portfolio-export">Download my work</a>
-            <form method="post" action="/student/delete-work" data-confirm="Delete all of your submissions now?">
-              {% csrf_token %}
-              <button type="submit" class="danger-inline">Delete my work now</button>
-            </form>
+            {% if ui_density_mode != "compact" %}
+              <a href="/student/portfolio-export">Download my work</a>
+              <form method="post" action="/student/delete-work" data-confirm="Delete all of your submissions now?">
+                {% csrf_token %}
+                <button type="submit" class="danger-inline">Delete my work now</button>
+              </form>
+            {% endif %}
             <form method="post" action="/student/end-session">
               {% csrf_token %}
               <button type="submit">End my session on this device</button>

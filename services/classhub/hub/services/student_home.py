@@ -1,11 +1,13 @@
 """Student home page service helpers."""
 
 import re
+from datetime import timedelta
 
 from django.conf import settings
+from django.utils import timezone
 
 from ..models import Class, Material, Module, StudentIdentity, StudentMaterialResponse, Submission
-from .content_links import parse_course_lesson_url
+from .content_links import build_asset_url, parse_course_lesson_url, safe_external_url
 from .markdown_content import load_lesson_markdown
 from .release_state import lesson_release_override_map, lesson_release_state
 
@@ -257,3 +259,96 @@ def build_submissions_by_material(*, student: StudentIdentity, material_ids: lis
             }
         by_material[submission.material_id]["count"] += 1
     return by_material
+
+
+def _normalize_landing_hero_url(raw: str) -> str:
+    value = str(raw or "").strip()
+    if not value:
+        return ""
+    if value.startswith("/") and not value.startswith("//"):
+        return build_asset_url(value)
+    return safe_external_url(value)
+
+
+def _pick_highlight_lesson(*, lesson_links: list[dict], today):
+    if not lesson_links:
+        return None
+    week_start = today - timedelta(days=today.weekday())
+    week_end = week_start + timedelta(days=6)
+
+    this_week = [
+        row for row in lesson_links
+        if row.get("available_on") and week_start <= row["available_on"] <= week_end
+    ]
+    if this_week:
+        this_week.sort(
+            key=lambda row: (
+                abs((row["available_on"] - today).days),
+                row["available_on"],
+                row["module_order"],
+                row["module_id"],
+            )
+        )
+        highlight = dict(this_week[0])
+        highlight["is_this_week"] = True
+        return highlight
+
+    open_now = [row for row in lesson_links if not row.get("is_locked")]
+    if open_now:
+        open_now.sort(key=lambda row: (row["module_order"], row["module_id"]))
+        highlight = dict(open_now[0])
+        highlight["is_this_week"] = False
+        return highlight
+
+    upcoming = [row for row in lesson_links if row.get("available_on") and row["available_on"] >= today]
+    if upcoming:
+        upcoming.sort(key=lambda row: (row["available_on"], row["module_order"], row["module_id"]))
+        highlight = dict(upcoming[0])
+        highlight["is_this_week"] = False
+        return highlight
+
+    fallback = dict(lesson_links[0])
+    fallback["is_this_week"] = False
+    return fallback
+
+
+def build_class_landing_context(*, classroom: Class, modules: list[Module], material_access: dict[int, dict]) -> dict:
+    lesson_links: list[dict] = []
+    for module in modules:
+        for material in _sorted_module_materials(module):
+            if material.type != Material.TYPE_LINK or not material.url:
+                continue
+            parsed = parse_course_lesson_url(material.url)
+            if not parsed:
+                continue
+            access = material_access.get(material.id) or {}
+            lesson_links.append(
+                {
+                    "module_id": module.id,
+                    "module_order": int(module.order_index or 0),
+                    "module_title": module.title,
+                    "lesson_url": material.url,
+                    "is_locked": bool(access.get("is_locked")),
+                    "available_on": access.get("available_on"),
+                }
+            )
+            break
+
+    today = timezone.localdate()
+    highlight = _pick_highlight_lesson(lesson_links=lesson_links, today=today)
+
+    highlight_module_id = int(highlight["module_id"]) if highlight else 0
+    for row in lesson_links:
+        row["is_highlight"] = bool(highlight and int(row["module_id"]) == highlight_module_id)
+
+    default_title = f"Welcome to {classroom.name}"
+    landing_title = str(getattr(classroom, "student_landing_title", "") or "").strip() or default_title
+    landing_message = str(getattr(classroom, "student_landing_message", "") or "").strip()
+
+    return {
+        "landing_title": landing_title,
+        "landing_message": landing_message,
+        "landing_hero_url": _normalize_landing_hero_url(getattr(classroom, "student_landing_hero_url", "")),
+        "highlight_lesson": highlight,
+        "course_lesson_links": lesson_links,
+    }

@@ -124,6 +124,8 @@ def teach_class_join_card(request, class_id: int):
     apply_no_store(response, private=True, pragma=True)
     return response
 
+
+
 @staff_member_required
 @require_POST
 def teach_reset_roster(request, class_id: int):
