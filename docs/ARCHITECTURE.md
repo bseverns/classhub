@@ -224,7 +224,10 @@ flowchart TB
   H12 ==> RC
 ```
 
-Connection key:
-- `-->` request/control flow
-- `-.->` render path or token-gated event flow
-- `==>` data/cache/file access
+How to read connection styles:
+
+| Connection style | Meaning in this map |
+| --- | --- |
+| `A --> B` | Request/control flow between app layers |
+| `A -.-> B` | Render path or token-gated internal event flow |
+| `A ==> B` | Data/cache/file access |
