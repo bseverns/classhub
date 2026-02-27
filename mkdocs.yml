@@ -75,6 +75,11 @@ nav:
       - Runbook: RUNBOOK.md
       - Troubleshooting: TROUBLESHOOTING.md
       - Releasing: RELEASING.md
+      - Stability & Survivability:
+          - Stability Charter: STABILITY_CHARTER.md
+          - Maintenance Risk Register: MAINTENANCE_RISK_REGISTER.md
+          - 30-Day Stability Plan: 30_DAY_STABILITY_PLAN.md
+          - Staff Turnover Survivability: STAFF_TURNOVER_SURVIVABILITY.md
 
   - Security & Privacy:
       - Security Baseline: SECURITY_BASELINE.md
