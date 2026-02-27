@@ -7,7 +7,7 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
 
 ## Organization and place acknowledgment
 - createMPLS is a Minneapolis-based 501(c)(3) nonprofit organization.
-- Minneapolis is located on land ceded by treaty and has historically been home to the Anishinaabe, Dakota, and Oceti Sakowin peoples.
+- Minneapolis is located on the ancestral and contemporary homeland of the Dakota Nation (specifically the Mdewakanton, Wahpeton, and Sisseton bands of the Očhéthi Šakówiŋ). The area is known as Mni Sota Makoce and is also a significant territory for the Anishinaabe/Ojibwe people, following their migration to the region.
 
 ## Quick links
 - [Start Here](START_HERE.md)
