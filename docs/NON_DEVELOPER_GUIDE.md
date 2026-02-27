@@ -4,6 +4,8 @@ If you are not writing code, start here.
 
 You do not need to read every docs file. For normal classroom use, this page plus [TEACHER_PORTAL.md](TEACHER_PORTAL.md) is enough.
 
+If you want the shortest role-based path, open [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md). If you need an action-only checklist for tomorrow's class, use [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md).
+
 ```mermaid
 flowchart LR
   A[Before class<br/>5-min check] --> B[During class<br/>Teach + monitor]
@@ -64,6 +66,8 @@ Deep walkthrough: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 
 ## Read only what you need next
 
+- First-time teacher checklist: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
+- Short playbooks for common issues: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md)
 - Teacher workflow and screen-by-screen guide: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - Day-1 setup (operators/admins): [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
 - Incident recovery: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)

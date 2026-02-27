@@ -8,6 +8,12 @@ Class Hub is a classroom-first, self-hosted micro-LMS with a separate Homework H
 2. Try the local demo path in [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md).
 3. If you plan public deployment, read [SECURITY.md](SECURITY.md), then [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) and [RUNBOOK.md](RUNBOOK.md).
 
+If you are reading this as leadership rather than as a technical evaluator, start with:
+- [START_HERE_ED.md](START_HERE_ED.md)
+- [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
+- [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md)
+- [PROGRAM_LIFECYCLE.md](PROGRAM_LIFECYCLE.md)
+
 ## Verification signal
 If this page is useful, you should be able to answer: who this is for, what it deliberately does not do, and the next 2 docs to read for an evaluation.
 

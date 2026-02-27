@@ -11,6 +11,13 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
 
 ## Quick links
 - [Start Here](START_HERE.md)
+- [Executive Director Start Here](START_HERE_ED.md)
+- [Ops Director Start Here](START_HERE_OD.md)
+- [Fundraising Start Here](START_HERE_FUNDRAISING.md)
+- [Instructor / Assistant Start Here](START_HERE_INSTRUCTOR.md)
+- [Run a Class Tomorrow](RUN_A_CLASS_TOMORROW.md)
+- [Risk & Data Posture](RISK_AND_DATA_POSTURE.md)
+- [Program Lifecycle](PROGRAM_LIFECYCLE.md)
 - [Things to Install First](START_HERE.md#things-you-need-to-install-first)
 - [Public Overview](PUBLIC_OVERVIEW.md)
 - [Tool Charter](TOOL_CHARTER.md)
@@ -31,6 +38,14 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
 - Reliability signal: strict smoke passes (`/healthz`, `/helper/healthz`, join, helper, teacher route checks).
 - Measure without surveillance: onboarding time, submissions per session, and teacher minutes saved on closeout.
 - Pilot guide: [Pilot Playbook](PILOT_PLAYBOOK.md).
+
+## Human entry points
+- Executive Director: [START_HERE_ED.md](START_HERE_ED.md)
+- Ops Director: [START_HERE_OD.md](START_HERE_OD.md)
+- Fundraising: [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
+- Instructor / assistant: [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md)
+- First-time class launch: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
+- Common day-of-class issues: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md)
 
 ## Press screenshots
 Synced from `press/screenshots/` for wiki/docs browsing.
