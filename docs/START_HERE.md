@@ -10,6 +10,19 @@ Evaluating whether this fits your org? Start with [PUBLIC_OVERVIEW.md](PUBLIC_OV
 2. Open only the listed starting pages.
 3. Use the common URLs/commands section once the stack is running.
 
+## Start Here for Humans
+
+If you need the shortest role-specific briefing, use one of these pages:
+
+- Executive Director: [START_HERE_ED.md](START_HERE_ED.md)
+- Ops Director: [START_HERE_OD.md](START_HERE_OD.md)
+- Fundraising: [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
+- Instructor / Assistant: [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md)
+- First-time class run: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
+- Plain-language data handling: [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md)
+- Program narrative for partners/funders: [PROGRAM_LIFECYCLE.md](PROGRAM_LIFECYCLE.md)
+- Short instructor/ops playbooks: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md)
+
 ## Verification signal
 You should be able to pick a role path in under 30 seconds and identify the exact next doc to open.
 

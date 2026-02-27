@@ -15,6 +15,10 @@ A new reader should be able to find their role path without opening more than on
 
 | Role | Start here | Then read |
 |---|---|---|
+| Executive Director | [START_HERE_ED.md](START_HERE_ED.md) | [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md), [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) |
+| Ops Director | [START_HERE_OD.md](START_HERE_OD.md) | [RUNBOOK.md](RUNBOOK.md), [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md) |
+| Fundraising | [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md) | [PROGRAM_LIFECYCLE.md](PROGRAM_LIFECYCLE.md), [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) |
+| Instructor / assistant | [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md) | [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md), [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md) |
 | Evaluator / decision-maker | [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md) | [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md), [SECURITY.md](SECURITY.md) |
 | Teacher / school staff | [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md) | [TEACHER_PORTAL.md](TEACHER_PORTAL.md) |
 | Operator / admin | [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) | [SECURITY.md](SECURITY.md), [RUNBOOK.md](RUNBOOK.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
