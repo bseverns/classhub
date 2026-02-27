@@ -26,7 +26,7 @@ flowchart LR
 
   subgraph D["Data Stores"]
     D1["Postgres: students, classes, submissions metadata, student events"]
-    D2["File storage: submissions and portfolio zips"]
+    D2["File storage: submissions and temporary export archives"]
     D3["Redis cache: rate limits, queue state, session helpers"]
   end
 
@@ -48,7 +48,7 @@ flowchart LR
   J4 -->|metadata| D1
 
   J5 -->|list submissions| D1
-  J5 -->|download zip| D2
+  J5 -->|build/stream export zip| D2
   J5 -->|delete now| D1
   J5 -->|delete now| D2
 

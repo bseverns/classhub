@@ -18,8 +18,17 @@
   min-width: 1200px;
 }
 
+/* Architecture.md Map C is intentionally dense; render it at a smaller baseline. */
+.md-typeset #classhub-module-graph-map-c + .mermaid > svg {
+  min-width: 600px;
+}
+
 @media (max-width: 1200px) {
   .md-typeset .mermaid > svg {
     min-width: 960px;
+  }
+
+  .md-typeset #classhub-module-graph-map-c + .mermaid > svg {
+    min-width: 520px;
   }
 }

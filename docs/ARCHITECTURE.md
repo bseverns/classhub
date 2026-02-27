@@ -19,8 +19,7 @@ flowchart TD
   H --> R[(Redis db1)]
 
   W --> F[(Local upload volume<br/>/uploads)]
-  H --> O[Ollama]
-  H -. optional .-> A[OpenAI Responses API]
+  H --> L[LLM backend<br/>mock, local, or remote]
 
   M[(MinIO)] -. reserved / optional .- W
 ```
@@ -125,6 +124,7 @@ See:
 ## ClassHub module graph (Map C)
 
 ```mermaid
+%%{init: {"themeVariables": {"fontSize": "11px"}, "flowchart": {"nodeSpacing": 18, "rankSpacing": 18}}}%%
 flowchart TB
   subgraph URL["URLs / Routing"]
     U[config/urls.py<br/>route table]
@@ -138,11 +138,13 @@ flowchart TB
   end
 
   subgraph V["Views"]
-    V1[hub/views/student.py<br/>join • lesson • upload • my-data • exports]
-    V2[hub/views/teacher.py<br/>teacher portal • roster • materials]
-    V3[hub/views/content.py<br/>content rendering helpers]
-    V4[hub/views/internal.py<br/>token-gated internal events]
-    V5[hub/views/media.py<br/>asset/video download + stream]
+    V1[hub/views/student_join.py<br/>join • invite bridge • join/index pages]
+    V2[hub/views/student.py<br/>session/home • upload • my-data • exports]
+    V3[hub/views/student_materials.py<br/>checklist • reflection • rubric]
+    V4[hub/views/content.py<br/>course + lesson rendering]
+    V5[hub/views/teacher.py<br/>teacher portal • roster • materials]
+    V6[hub/views/internal.py<br/>token-gated internal events]
+    V7[hub/views/media.py<br/>asset/video download + stream]
   end
 
   subgraph S["Services"]
@@ -187,36 +189,42 @@ flowchart TB
   M4 --> V3
   M4 --> V4
   M4 --> V5
-
-  V1 --> S1
-  V1 --> S2
-  V1 --> S3
-  V1 --> S4
-  V1 --> S5
-  V1 --> S6
+  M4 --> V6
+  M4 --> V7
 
   V2 --> S1
+  V2 --> S2
   V2 --> S3
+  V2 --> S4
   V2 --> S5
-  V2 --> S7
+  V2 --> S6
 
-  V4 --> S4
+  V5 --> S1
+  V5 --> S3
+  V5 --> S5
+  V5 --> S7
+
+  V6 --> S4
 
   V1 --> MD
   V2 --> MD
   V3 --> MD
   V4 --> MD
   V5 --> MD
+  V6 --> MD
+  V7 --> MD
   MD --> DB
 
   V1 --> RC
   V2 --> RC
-  V1 --> FS
+  V5 --> RC
   V2 --> FS
   V5 --> FS
+  V7 --> FS
 
-  V1 --> TP
   V2 --> TP
+  V4 --> TP
+  V5 --> TP
   TP --> TT
 
   H1 --> H2
@@ -230,6 +238,6 @@ flowchart TB
   H6 --> H10
   H1 --> H11
   H2 --> H12
-  H11 -->|token-gated internal POST| V4
+  H11 -->|token-gated internal POST| V6
   H12 --> RC
 ```
