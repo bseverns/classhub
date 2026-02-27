@@ -7,7 +7,6 @@ theme:
   name: material
   features:
     - navigation.sections
-    - navigation.expand
     - navigation.indexes
     - content.code.copy
     - search.suggest
@@ -30,6 +29,7 @@ markdown_extensions:
 
 extra_javascript:
   - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+  - javascripts/nav-accordion.js
   - javascripts/mermaid-init.js
 extra_css:
   - stylesheets/extra.css
@@ -38,7 +38,6 @@ exclude_docs: README.md
 
 nav:
   - Home: index.md
-  - Docs Map: DOCS_MAP.md
   - Start Here:
       - Overview: START_HERE.md
       - Executive Director: START_HERE_ED.md
@@ -46,41 +45,27 @@ nav:
       - Fundraising: START_HERE_FUNDRAISING.md
       - Instructor / Assistant: START_HERE_INSTRUCTOR.md
       - Run a Class Tomorrow: RUN_A_CLASS_TOMORROW.md
-      - Risk & Data Posture: RISK_AND_DATA_POSTURE.md
-      - Program Profiles: PROGRAM_PROFILES.md
-      - Program Lifecycle: PROGRAM_LIFECYCLE.md
       - Common Scenarios: COMMON_SCENARIOS.md
+      - Risk & Data Posture: RISK_AND_DATA_POSTURE.md
+      - Program Lifecycle: PROGRAM_LIFECYCLE.md
+      - Program Profiles: PROGRAM_PROFILES.md
 
-  - Role Paths:
-      - Evaluator / Decision-maker:
-          - Public Overview: PUBLIC_OVERVIEW.md
-          - Try It Local: TRY_IT_LOCAL.md
-          - Security: SECURITY.md
-      - Teacher / Staff:
-          - Non-Developer Guide: NON_DEVELOPER_GUIDE.md
-          - Teacher Portal: TEACHER_PORTAL.md
-          - Course Authoring: COURSE_AUTHORING.md
-          - Teacher Handoff Checklist: TEACHER_HANDOFF_CHECKLIST.md
-          - Teacher Handoff Record Template: TEACHER_HANDOFF_RECORD_TEMPLATE.md
-      - Operator / Admin:
-          - Day 1 Checklist: DAY1_DEPLOY_CHECKLIST.md
-          - Runbook: RUNBOOK.md
-          - Troubleshooting: TROUBLESHOOTING.md
-      - Developer:
-          - Development: DEVELOPMENT.md
-          - Architecture: ARCHITECTURE.md
-          - Decisions: DECISIONS.md
+  - Teaching:
+      - Non-Developer Guide: NON_DEVELOPER_GUIDE.md
+      - Teacher Portal: TEACHER_PORTAL.md
+      - Course Authoring: COURSE_AUTHORING.md
+      - Teaching Playbook: TEACHING_PLAYBOOK.md
+      - Learning Paths: LEARNING_PATHS.md
+      - Pilot Playbook: PILOT_PLAYBOOK.md
+      - Teacher Handoff Checklist: TEACHER_HANDOFF_CHECKLIST.md
+      - Teacher Handoff Record Template: TEACHER_HANDOFF_RECORD_TEMPLATE.md
 
   - Operations:
       - Day 1 Checklist: DAY1_DEPLOY_CHECKLIST.md
       - Runbook: RUNBOOK.md
       - Troubleshooting: TROUBLESHOOTING.md
+      - Disaster Recovery: DISASTER_RECOVERY.md
       - Releasing: RELEASING.md
-      - Stability & Survivability:
-          - Stability Charter: STABILITY_CHARTER.md
-          - Maintenance Risk Register: MAINTENANCE_RISK_REGISTER.md
-          - 30-Day Stability Plan: 30_DAY_STABILITY_PLAN.md
-          - Staff Turnover Survivability: STAFF_TURNOVER_SURVIVABILITY.md
 
   - Security & Privacy:
       - Security Baseline: SECURITY_BASELINE.md
@@ -89,36 +74,34 @@ nav:
       - Privacy Addendum: PRIVACY-ADDENDUM.md
       - Helper Policy: HELPER_POLICY.md
 
-  - Recovery:
-      - Disaster Recovery: DISASTER_RECOVERY.md
-
   - Engineering:
       - Development: DEVELOPMENT.md
       - Architecture: ARCHITECTURE.md
       - Helper Internals: OPENAI_HELPER.md
       - Request Safety: REQUEST_SAFETY.md
       - Helper Evals: HELPER_EVALS.md
-      - Decisions: DECISIONS.md
-      - Docs Maintenance: CONTRIBUTING_DOCS.md
       - Merge Readiness: MERGE_READINESS.md
       - Bootstrap Server: BOOTSTRAP_SERVER.md
+      - Docs Maintenance: CONTRIBUTING_DOCS.md
 
-  - Teaching & Curriculum:
-      - Teacher Portal: TEACHER_PORTAL.md
-      - Course Authoring: COURSE_AUTHORING.md
-      - Teacher Handoff Checklist: TEACHER_HANDOFF_CHECKLIST.md
-      - Teacher Handoff Record Template: TEACHER_HANDOFF_RECORD_TEMPLATE.md
-      - Teaching Playbook: TEACHING_PLAYBOOK.md
-      - Learning Paths: LEARNING_PATHS.md
-      - Pilot Playbook: PILOT_PLAYBOOK.md
+  - Governance:
+      - Tool Charter: TOOL_CHARTER.md
+      - Stability Charter: STABILITY_CHARTER.md
+      - Maintenance Risk Register: MAINTENANCE_RISK_REGISTER.md
+      - 30-Day Stability Plan: 30_DAY_STABILITY_PLAN.md
+      - Staff Turnover Survivability: STAFF_TURNOVER_SURVIVABILITY.md
+      - Decisions: DECISIONS.md
+      - Decision Archive:
+          - 2026-02: decisions/archive/2026-02.md
+          - 2026-01: decisions/archive/2026-01.md
 
   - Reference:
+      - Docs Map: DOCS_MAP.md
+      - Public Overview: PUBLIC_OVERVIEW.md
+      - Try It Local: TRY_IT_LOCAL.md
+      - Accessibility: ACCESSIBILITY.md
       - What, Where, Why: WHAT_WHERE_WHY.md
       - Class Code Auth: CLASS_CODE_AUTH.md
-
-  - Decision Archive:
-      - 2026-02: decisions/archive/2026-02.md
-      - 2026-01: decisions/archive/2026-01.md
 
   - Examples:
       - Public Overview Template Example: examples/course_authoring/example_slug-public-overview-template.md

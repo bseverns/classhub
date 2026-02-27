@@ -5,49 +5,31 @@ fast student join → lesson → submission → teacher review, with a quarantin
 
 Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [Try It Local](TRY_IT_LOCAL.md).
 
+## Choose one path
+- Leadership and strategy: [START_HERE_ED.md](START_HERE_ED.md), [START_HERE_OD.md](START_HERE_OD.md), [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
+- Instructors and assistants: [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md), [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
+- Daily teaching operations: [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md), [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
+- Technical operations: [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md), [RUNBOOK.md](RUNBOOK.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+
 ## Organization and place acknowledgment
 - createMPLS is a Minneapolis-based 501(c)(3) nonprofit organization.
 - Minneapolis is located on the ancestral and contemporary homeland of the Dakota Nation (specifically the Mdewakanton, Wahpeton, and Sisseton bands of the Očhéthi Šakówiŋ). The area is known as Mni Sota Makoce and is also a significant territory for the Anishinaabe/Ojibwe people, following their migration to the region.
 
-## Quick links
-- [Start Here](START_HERE.md)
-- [Executive Director Start Here](START_HERE_ED.md)
-- [Ops Director Start Here](START_HERE_OD.md)
-- [Fundraising Start Here](START_HERE_FUNDRAISING.md)
-- [Instructor / Assistant Start Here](START_HERE_INSTRUCTOR.md)
-- [Run a Class Tomorrow](RUN_A_CLASS_TOMORROW.md)
+## Core links
+- [Start Here Overview](START_HERE.md)
 - [Risk & Data Posture](RISK_AND_DATA_POSTURE.md)
 - [Program Lifecycle](PROGRAM_LIFECYCLE.md)
-- [Things to Install First](START_HERE.md#things-you-need-to-install-first)
-- [Public Overview](PUBLIC_OVERVIEW.md)
-- [Tool Charter](TOOL_CHARTER.md)
-- [Try It Local](TRY_IT_LOCAL.md)
-- [Day 1 Checklist](DAY1_DEPLOY_CHECKLIST.md)
-- [Runbook](RUNBOOK.md)
-- [Accessibility](ACCESSIBILITY.md)
-- [Security Baseline](SECURITY_BASELINE.md)
-- [Endpoint Checklist](ENDPOINT_CHECKLIST.md)
-- [Privacy Addendum](PRIVACY-ADDENDUM.md)
-- [Disaster Recovery](DISASTER_RECOVERY.md)
+- [Docs Map](DOCS_MAP.md)
 
 ## Pilot in a box
-- Time to deploy: local demo in minutes; domain pilot typically in a single setup session.
-- Week 1 success: students can join, submit once, and teachers can review from `/teach` without manual triage.
-- Deliberate non-goals: no gradebook, no surveillance analytics, no ad-tech stack.
-- Student control is visible: `/student/my-data` export/delete/end-session works in rehearsal before class day.
-- Reliability signal: strict smoke passes (`/healthz`, `/helper/healthz`, join, helper, teacher route checks).
-- Measure without surveillance: onboarding time, submissions per session, and teacher minutes saved on closeout.
-- Pilot guide: [Pilot Playbook](PILOT_PLAYBOOK.md).
+- Pilot guide: [PILOT_PLAYBOOK.md](PILOT_PLAYBOOK.md)
+- Week 1 target: students can join, submit, and teachers can review from `/teach` without manual triage.
+- Reliability checks: `/healthz`, `/helper/healthz`, join flow, helper flow, teacher route checks.
 
-## Human entry points
-- Executive Director: [START_HERE_ED.md](START_HERE_ED.md)
-- Ops Director: [START_HERE_OD.md](START_HERE_OD.md)
-- Fundraising: [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
-- Instructor / assistant: [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md)
-- First-time class launch: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
-- Common day-of-class issues: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md)
+## Optional: screenshots
+<details>
+<summary>Open press screenshots</summary>
 
-## Press screenshots
 Synced from `press/screenshots/` for wiki/docs browsing.
 
 ![Student join](images/press/01-student-join.png)
@@ -74,3 +56,4 @@ Planned next captures (placeholders):
 - `13-a11y-smoke-terminal.png`
 
 See `press/screenshots/PLACEHOLDERS.md` and `press/screenshots/SHOTLIST.md`.
+</details>
