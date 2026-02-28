@@ -5,6 +5,7 @@
     "services/classhub/hub/views/teacher_parts/content_home.py": 500,
     "services/classhub/hub/views/teacher_parts/roster.py": 920,
     "services/classhub/hub/views/teacher_parts/roster_class.py": 420,
+    "services/classhub/hub/views/api_teacher.py": 400,
     "services/homework_helper/tutor/views.py": 700
   }
 }
