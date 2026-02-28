@@ -19,6 +19,7 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - Teacher write API: toggle-lock, rotate-code, set-enrollment-mode via JSON POST endpoints.
 - Stateless bearer token auth for student API (issued at join, `Authorization: Bearer` header on `/api/` paths).
 - CodeQL workflow for Python static analysis in CI.
+- API test suites: 55 tests across `test_api_tokens.py`, `test_api_student.py`, and `test_api_teacher.py`.
 - Bandit high-confidence/high-severity SAST scan in CI.
 
 ### Fixed
