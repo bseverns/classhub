@@ -2,6 +2,7 @@
   "max_lines_by_file": {
     "services/classhub/hub/views/content.py": 430,
     "services/classhub/hub/views/student.py": 480,
+    "services/classhub/hub/views/teacher_parts/content_home.py": 500,
     "services/classhub/hub/views/teacher_parts/roster.py": 920,
     "services/classhub/hub/views/teacher_parts/roster_class.py": 420,
     "services/homework_helper/tutor/views.py": 700

@@ -541,6 +541,18 @@ systemctl list-timers | grep classhub-retention
 journalctl -u classhub-retention.service -n 200 --no-pager
 ```
 
+## Disk Space Management
+
+ClassHub is designed to be operationally calm and run on a single host. If disk space exceeds 85%, take these steps:
+
+1. **Verify automated backups aren't ballooning**
+   Check your `backups/` directory. Are old backups being rotated out? If you use the bundled `backup_*.sh` scripts, consider adding a `find ./backups -type f -mtime +30 -delete` step to your cron jobs.
+2. **Check for abandoned or completed classroom data**
+   Navigate to the Django `/admin` surface. Identify classrooms from previous academic terms or completed workshops.
+   Use the Teacher Dashboard or `/admin` to bulk-export their portfolios, then use the "Reset Roster" and "Delete Student Data" actions to clear the uploaded assets for those classes.
+3. **Quota Policies**
+   ClassHub sets a default `CLASSHUB_CLASSROOM_QUOTA_MB` (default 2048 MB, or 2GB) per classroom to prevent large video uploads from exhausting the server. Adjust this environment variable as necessary based on your host's capacity.
+
 ## Escalate when
 
 Move to incident workflow ([TROUBLESHOOTING.md](TROUBLESHOOTING.md), then [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)) when any of these are true:

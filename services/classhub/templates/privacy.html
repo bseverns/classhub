@@ -1,0 +1,134 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy Information | {{ operator_profile.product_name }}</title>
+    {% include "includes/glass_theme.html" %}
+    <style>
+        .shell {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            color: var(--text-color);
+        }
+
+        .top {
+            margin-bottom: 2rem;
+        }
+
+        .top h1 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-box {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .warning-box {
+            border-left: 4px solid var(--accent-orange, orange);
+        }
+
+        .footer-note {
+            margin-top: 3rem;
+            font-size: 0.9em;
+            opacity: 0.7;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+
+        ul,
+        ol {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+            line-height: 1.6;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+
+<body class="glass-theme">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="shell">
+        <main id="main-content">
+            <div class="top">
+                <div class="muted"><a href="javascript:history.back()">&larr; Back</a></div>
+                <h1>Privacy Information</h1>
+                <p class="muted">How we handle your data on {{ operator_profile.product_name }}.</p>
+            </div>
+
+            <section class="section-box">
+                <h2>1. What data is collected</h2>
+                <p>We design this platform to collect as little about you as possible.</p>
+                <ul>
+                    <li><strong>No Accounts:</strong> You don't create an account or provide an email. You log in using
+                        an anonymous class code and a display name you choose.</li>
+                    <li><strong>Your Uploads:</strong> Files, reflections, and checklist items you submit for class
+                        activities are saved so your teacher can review them.</li>
+                    <li><strong>System Logs:</strong> We keep minimal system logs (like basic diagnostic events when
+                        joining/uploading). These are metadata only and do not contain student identifying details.</li>
+                </ul>
+            </section>
+
+            <section class="section-box warning-box">
+                <h2>Don't upload sensitive documents</h2>
+                <p>
+                    <strong>Never upload personal, sensitive, or confidential documents</strong> (such as medical
+                    records, social security cards, passwords, or financial information). We do not require this
+                    information for any workshop.
+                </p>
+            </section>
+
+            <section class="section-box">
+                <h2>2. How to export or delete your work</h2>
+                <p>You own your artifacts. While you are in an active session, you can export or delete your files at
+                    any time.</p>
+                <ol>
+                    <li>From the classroom dashboard, click the <strong>"My Data"</strong> link or navigate to
+                        <code>/student/my-data</code>.</li>
+                    <li>Click <strong>"Download my work"</strong> to get a ZIP archive containing everything you've
+                        uploaded.</li>
+                    <li>Click <strong>"Delete my work now"</strong> to immediately erase your uploads and responses from
+                        our servers.</li>
+                </ol>
+            </section>
+
+            <section class="section-box">
+                <h2>3. What gets deleted and when</h2>
+                <p>We don't hold on to your data forever.</p>
+                <ul>
+                    <li><strong>Automated Cleanup:</strong> If enabled by the operator, student submissions and system
+                        events are automatically deleted after a specified retention period (often 90 to 180 days after
+                        a workshop ends).</li>
+                    <li><strong>Teacher Actions:</strong> Teachers can manually clear rosters and delete student data at
+                        the end of a session.</li>
+                    <li><strong>Your Actions:</strong> As described above, you can delete your own work at any time via
+                        the "My Data" portal.</li>
+                </ul>
+            </section>
+
+            <div class="footer-note">
+                <p>{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}
+                </p>
+                <p>{{ operator_profile.storage_location_text|default:"This server is hosted locally." }}</p>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -87,6 +87,17 @@ def healthz(request):
     return HttpResponse("ok", content_type="text/plain")
 
 
+@require_GET
+def privacy_policy(request):
+    response = render(
+        request,
+        "privacy.html",
+        {**privacy_meta_context()},
+    )
+    apply_no_store(response, private=False, pragma=True)
+    return response
+
+
 def _student_home_helper_widget(*, classroom: Class, ui_density_mode: str, privacy_meta: dict) -> str:
     helper_description = "This is a Day-1 wire-up. It will become smarter once it can cite your class materials."
     if ui_density_mode == "compact":
@@ -368,6 +379,7 @@ def student_logout(request):
     return _end_student_session_response(request)
 __all__ = [
     "healthz",
+    "privacy_policy",
     "student_home",
     "student_return_code",
     "student_portfolio_export",

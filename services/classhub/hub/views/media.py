@@ -36,21 +36,23 @@ def _asset_allows_inline(content_type: str) -> bool:
     return normalized in _INLINE_ASSET_MIME_TYPES
 
 
-def _request_can_view_lesson_video(request) -> bool:
+def _request_can_view_course_lesson(request, course_slug: str, lesson_slug: str) -> bool:
     if request.user.is_authenticated and request.user.is_staff:
         return True
-    if getattr(request, "student", None) is not None:
+    student = getattr(request, "student", None)
+    if not student:
+        return False
+        
+    if not course_slug and not lesson_slug:
         return True
-    return False
 
-
-def _request_can_view_lesson_asset(request) -> bool:
-    # Mirrors video access: active classroom students + staff can open assets.
-    if request.user.is_authenticated and request.user.is_staff:
-        return True
-    if getattr(request, "student", None) is not None:
-        return True
-    return False
+    from ..models import Material
+    expected_path = f"/course/{course_slug}/{lesson_slug}"
+    return Material.objects.filter(
+        module__classroom=student.classroom,
+        type=Material.TYPE_LINK,
+        url__endswith=expected_path
+    ).exists()
 
 
 def _stream_file_with_range(request, file_path: Path, content_type: str):
@@ -135,7 +137,7 @@ def lesson_video_stream(request, video_id: int):
     if not video.is_active and not is_staff_user:
         return HttpResponse("Not found", status=404)
 
-    if not _request_can_view_lesson_video(request):
+    if not _request_can_view_course_lesson(request, video.course_slug, video.lesson_slug):
         return HttpResponse("Forbidden", status=403)
 
     try:
@@ -163,7 +165,7 @@ def lesson_asset_download(request, asset_id: int):
     if not asset.is_active and not is_staff_user:
         return HttpResponse("Not found", status=404)
 
-    if not _request_can_view_lesson_asset(request):
+    if not _request_can_view_course_lesson(request, asset.course_slug, asset.lesson_slug):
         return HttpResponse("Forbidden", status=403)
 
     try:

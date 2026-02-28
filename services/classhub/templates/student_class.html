@@ -1,471 +1,475 @@
 {% load static hub_extras %}
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ classroom.name }}</title>
-    {% include "includes/glass_theme.html" %}
-    <link rel="stylesheet" href="{% static 'css/student_class.css' %}" />
-  </head>
-  <body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
-    <div class="shell">
-      <main id="main-content">
-        <div class="top">
-          <div>
-            <div class="muted">
-              <a href="/student">Student home</a>
-              {% if ui_density_mode != "compact" %}
-                · <a href="/">Join page</a>
-                · <a href="/student/portfolio-export">Export my portfolio</a>
-                {% if ui_density_mode == "expanded" %}
-                  · <a href="#studio-handles">Studio handles</a>
-                {% endif %}
-              {% endif %}
-            </div>
-            <h1>{{ classroom.name }}</h1>
-            <div class="muted">
-              Signed in as <strong>{{ student.display_name }}</strong>
-              · Code <span class="pill">{{ classroom.join_code }}</span>
-              <button type="button" class="inline-copy" data-copy-value="{{ classroom.join_code }}">Copy class code</button>
-            </div>
-            <div class="muted">
-              Your return code:
-              <span
-                id="student-return-code"
-                class="pill secret-code"
-                data-shown="0"
-              >••••••</span>
-              <span id="student-return-code-icons" class="return-code-icons hidden" aria-live="polite"></span>
-              <button
-                type="button"
-                class="inline-copy"
-                data-secret-target="student-return-code"
-                data-show-label="Show return code"
-                data-hide-label="Hide return code"
-                aria-controls="student-return-code"
-                aria-pressed="false"
-                aria-label="Show return code"
-              >Show</button>
-              <button
-                type="button"
-                class="inline-copy"
-                data-copy-secret-target="student-return-code"
-                aria-label="Copy return code"
-              >Copy return code</button>
-              (for rejoin)
-            </div>
-            <div id="copy-status" class="muted copy-status" role="status" aria-live="polite"></div>
-          </div>
-          <div>
-            <a class="muted" href="/logout">Log out</a>
-          </div>
-        </div>
 
-        <div class="card class-landing">
-          {% if class_landing.landing_hero_url %}
-            <div class="landing-hero-wrap">
-              <img
-                src="{{ class_landing.landing_hero_url }}"
-                alt="Class landing image"
-                class="landing-hero-image"
-                loading="lazy"
-              />
-            </div>
-          {% endif %}
-          <h2>{{ class_landing.landing_title }}</h2>
-          {% if class_landing.landing_message %}
-            <p class="muted">{{ class_landing.landing_message|linebreaksbr }}</p>
-          {% endif %}
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ classroom.name }}</title>
+  {% include "includes/glass_theme.html" %}
+  <link rel="stylesheet" href="{% static 'css/student_class.css' %}" />
+</head>
 
-          <section class="landing-section">
-            <h3>This week</h3>
-            {% if class_landing.highlight_lesson %}
-              <div class="landing-highlight">
-                <div class="muted">
-                  {% if class_landing.highlight_lesson.is_this_week %}
-                    This week's highlighted lesson
-                  {% else %}
-                    Highlighted lesson
-                  {% endif %}
-                </div>
-                <p class="landing-highlight-title">
-                  <a href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank" rel="noopener">
-                    {{ class_landing.highlight_lesson.module_title }}
-                  </a>
-                </p>
-                <p class="landing-primary-action-wrap">
-                  <a class="landing-primary-action" href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank" rel="noopener">
-                    Start this week's lesson
-                  </a>
-                </p>
-                <div class="muted">
-                  {% if class_landing.highlight_lesson.is_locked %}
-                    <span class="state-pill state-pill--locked">Locked</span>
-                  {% else %}
-                    <span class="state-pill state-pill--open">Open</span>
-                  {% endif %}
-                  {% if class_landing.highlight_lesson.available_on %}
-                    · {{ class_landing.highlight_lesson.available_on|date:"M j, Y" }}
-                  {% endif %}
-                </div>
-              </div>
-            {% else %}
-              <p class="muted">No calendar-linked lessons yet. Ask your teacher when your first lesson opens.</p>
+<body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <div class="shell">
+    <main id="main-content">
+      <div class="top">
+        <div>
+          <div class="muted">
+            <a href="/student">Student home</a>
+            {% if ui_density_mode != "compact" %}
+            · <a href="/">Join page</a>
+            · <a href="/student/portfolio-export">Export my portfolio</a>
+            · <a href="/privacy">Privacy</a>
+            {% if ui_density_mode == "expanded" %}
+            · <a href="#studio-handles">Studio handles</a>
             {% endif %}
-          </section>
-
-          <section class="landing-section">
-            <h3>Course links</h3>
-            {% if class_landing.course_lesson_links %}
-              <details class="landing-course-map" {% if ui_density_mode == "expanded" %}open{% endif %}>
-                <summary>View full course lesson links</summary>
-                <ul>
-                  {% for row in class_landing.course_lesson_links %}
-                    <li>
-                      <a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.module_title }}</a>
-                      {% if row.is_highlight %}
-                        <span class="muted">(highlighted)</span>
-                      {% endif %}
-                      {% if row.is_locked %}
-                        <span class="state-pill state-pill--locked">Locked</span>
-                      {% else %}
-                        <span class="state-pill state-pill--open">Open</span>
-                      {% endif %}
-                      {% if row.available_on %}
-                        <span class="muted">· {{ row.available_on|date:"M j, Y" }}</span>
-                      {% endif %}
-                    </li>
-                  {% endfor %}
-                </ul>
-              </details>
             {% else %}
-              <p class="muted">Course lesson links will appear here after your teacher connects a course.</p>
+            · <a href="/privacy">Privacy</a>
             {% endif %}
-          </section>
-        </div>
-
-        {% if ui_density_mode == "expanded" %}
-          <div id="studio-handles" class="card studio-handles">
-            <h2>Studio handles</h2>
-            <p class="muted">Advanced mode keeps core controls visible for autonomy and accountability.</p>
-            <div class="studio-handle-row">
-              <a class="landing-primary-action" href="/student/portfolio-export">Export portfolio snapshot</a>
-            </div>
-
-            <div class="studio-handle-grid">
-              <section>
-                <h3>Rubric links</h3>
-                <ul>
-                  {% for m in modules %}
-                    {% for mat in m.materials.all %}
-                      {% if mat.type == 'rubric' %}
-                        <li><a href="#rubric-{{ mat.id }}">{{ m.title }} · {{ mat.title }}</a></li>
-                      {% endif %}
-                    {% endfor %}
-                  {% endfor %}
-                </ul>
-              </section>
-              <section>
-                <h3>Gallery share toggles</h3>
-                <ul>
-                  {% for m in modules %}
-                    {% for mat in m.materials.all %}
-                      {% if mat.type == 'gallery' %}
-                        <li><a href="/material/{{ mat.id }}/upload">{{ m.title }} · {{ mat.title }}</a></li>
-                      {% endif %}
-                    {% endfor %}
-                  {% endfor %}
-                </ul>
-              </section>
-            </div>
           </div>
+          <h1>{{ classroom.name }}</h1>
+          <div class="muted">
+            Signed in as <strong>{{ student.display_name }}</strong>
+            · Code <span class="pill">{{ classroom.join_code }}</span>
+            <button type="button" class="inline-copy" data-copy-value="{{ classroom.join_code }}">Copy class
+              code</button>
+          </div>
+          <div class="muted">
+            Your return code:
+            <span id="student-return-code" class="pill secret-code" data-shown="0">••••••</span>
+            <span id="student-return-code-icons" class="return-code-icons hidden" aria-live="polite"></span>
+            <button type="button" class="inline-copy" data-secret-target="student-return-code"
+              data-show-label="Show return code" data-hide-label="Hide return code" aria-controls="student-return-code"
+              aria-pressed="false" aria-label="Show return code">Show</button>
+            <button type="button" class="inline-copy" data-copy-secret-target="student-return-code"
+              aria-label="Copy return code">Copy return code</button>
+            (for rejoin)
+          </div>
+          <div id="copy-status" class="muted copy-status" role="status" aria-live="polite"></div>
+        </div>
+        <div>
+          <a class="muted" href="/logout">Log out</a>
+        </div>
+      </div>
+
+      <div class="card class-landing">
+        {% if class_landing.landing_hero_url %}
+        <div class="landing-hero-wrap">
+          <img src="{{ class_landing.landing_hero_url }}" alt="Class landing image" class="landing-hero-image"
+            loading="lazy" />
+        </div>
+        {% endif %}
+        <h2>{{ class_landing.landing_title }}</h2>
+        {% if class_landing.landing_message %}
+        <p class="muted">{{ class_landing.landing_message|linebreaksbr }}</p>
         {% endif %}
 
-        <div class="card done-guide">
-          <h2>How to tell you are done</h2>
-          {% if ui_density_mode == "compact" %}
-            <p class="muted"><span class="state-pill state-pill--done">Done</span> saved · <span class="state-pill state-pill--open">Open</span> do now · <span class="state-pill state-pill--locked">Locked</span> wait</p>
-          {% elif ui_density_mode == "expanded" %}
-            <p class="muted"><span class="state-pill state-pill--done">Done</span> saved and reviewable · <span class="state-pill state-pill--open">Open</span> active now · <span class="state-pill state-pill--locked">Locked</span> date-gated</p>
-            <p class="muted">Studio accountability: add design-log notes, a short changelog, and release notes for finished builds.</p>
-          {% else %}
-            <p class="muted"><span class="state-pill state-pill--done">Done</span> saved and visible · <span class="state-pill state-pill--open">Open</span> ready now · <span class="state-pill state-pill--locked">Locked</span> opens on date shown</p>
-          {% endif %}
-        </div>
-
-        {% if modules %}
-          {% for m in modules %}
-            {% with module_release=class_landing.module_release_map|get_item:m.id %}
-            <details class="card module" id="module-{{ m.id }}" {% if class_landing.highlight_module_id == m.id or ui_density_mode == "expanded" %}open{% endif %}>
-              <summary class="module-summary">
-                <span class="module-title">{{ m.title }}</span>
-                {% if module_release %}
-                  {% if module_release.is_locked %}
-                    <span class="state-pill state-pill--locked">Locked</span>
-                  {% else %}
-                    <span class="state-pill state-pill--open">Open</span>
-                  {% endif %}
-                {% endif %}
-              </summary>
-
-              {% if m.materials.all %}
-                {% for mat in m.materials.all %}
-                  <div class="mat">
-                    <strong>{{ mat.title }}</strong>
-                    {% if mat.type == 'link' and mat.url %}
-                      {% with access=material_access|get_item:mat.id %}
-                        {% if access.is_lesson_link and access.is_locked %}
-                          <div class="status-row">
-                            <span class="state-pill state-pill--locked">Locked</span>
-                          </div>
-                        {% elif access.is_lesson_link %}
-                          <div class="status-row">
-                            <span class="state-pill state-pill--open">Open</span>
-                          </div>
-                        {% endif %}
-                        {% if access.is_lesson_link and access.is_locked %}
-                          <div class="mat-link"><span class="state-pill state-pill--locked">Locked</span></div>
-                          <div class="mat-link muted-link"><a href="{{ mat.url }}" target="_blank" rel="noopener">Preview intro-only page</a></div>
-                          <div class="muted">Full lesson unlocks on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
-                        {% else %}
-                          <div class="mat-link"><a href="{{ mat.url }}" target="_blank" rel="noopener">Open lesson</a></div>
-                        {% endif %}
-                      {% endwith %}
-                    {% elif mat.type == 'text' and mat.body %}
-                      <pre class="text-material-preview">{{ mat.body }}</pre>
-                    {% elif mat.type == 'upload' %}
-                      {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id %}
-                        {% if access.is_lesson_upload and access.is_locked %}
-                          <div class="status-row">
-                            <span class="state-pill state-pill--locked">Locked</span>
-                          </div>
-                        {% elif access.is_lesson_upload %}
-                          <div class="status-row">
-                            <span class="state-pill state-pill--open">Open</span>
-                          </div>
-                        {% endif %}
-                        <div class="muted">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
-                        {% if access.is_lesson_upload and access.is_locked %}
-                          <div class="muted">Submissions open on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
-                        {% else %}
-                          <div class="status-row">
-                            {% if s %}
-                              <span class="state-pill state-pill--done">Done</span>
-                            {% else %}
-                              <span class="state-pill state-pill--open">Open</span>
-                            {% endif %}
-                          </div>
-                          <div class="mat-link">
-                            <a href="/material/{{ mat.id }}/upload">Upload / view submissions</a>
-                            {% if s %}
-                              <span class="muted">· {{ s.count }} uploaded (latest saved)</span>
-                            {% endif %}
-                          </div>
-                        {% endif %}
-                      {% endwith %}
-                    {% elif mat.type == 'gallery' %}
-                      {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id gallery_entries=gallery_entries_by_material|get_item:mat.id %}
-                        {% if access.is_lesson_upload and access.is_locked %}
-                          <div class="status-row">
-                            <span class="state-pill state-pill--locked">Locked</span>
-                          </div>
-                        {% elif access.is_lesson_upload %}
-                          <div class="status-row">
-                            <span class="state-pill state-pill--open">Open</span>
-                          </div>
-                        {% endif %}
-                        <div class="muted">Accepted: {{ mat.accepted_extensions|default:'.png,.jpg,.jpeg,.webp,.gif,.pdf,.sb3' }} · Max {{ mat.max_upload_mb }}MB</div>
-                        {% if access.is_lesson_upload and access.is_locked %}
-                          <div class="muted">Gallery opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
-                        {% else %}
-                          <div class="status-row">
-                            {% if s %}
-                              <span class="state-pill state-pill--done">Done</span>
-                            {% else %}
-                              <span class="state-pill state-pill--open">Open</span>
-                            {% endif %}
-                          </div>
-                          <div class="mat-link">
-                            <a href="/material/{{ mat.id }}/upload">Upload / manage gallery</a>
-                            {% if s %}
-                              <span class="muted">· {{ s.count }} uploaded</span>
-                            {% endif %}
-                          </div>
-                        {% endif %}
-                        {% if gallery_entries %}
-                          <div class="gallery-shared-wrap">
-                            <div class="muted">Shared gallery</div>
-                            <ul class="gallery-shared-list">
-                              {% for g in gallery_entries %}
-                                <li>
-                                  <a href="/submission/{{ g.submission_id }}/download">{{ g.original_filename }}</a>
-                                  <span class="muted">· {{ g.display_name }}{% if g.is_owner %} (you){% endif %} · {{ g.uploaded_at|date:"M j, g:i a" }}</span>
-                                </li>
-                              {% endfor %}
-                            </ul>
-                          </div>
-                        {% endif %}
-                      {% endwith %}
-                    {% elif mat.type == 'checklist' %}
-                      {% with access=material_access|get_item:mat.id items=material_checklist_items|get_item:mat.id state=material_responses|get_item:mat.id %}
-                        {% if access.is_lesson_activity and access.is_locked %}
-                          <div class="status-row">
-                            <span class="state-pill state-pill--locked">Locked</span>
-                          </div>
-                          <div class="muted">Checklist opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
-                        {% elif items %}
-                          <div class="status-row">
-                            {% if state and state.checklist_checked|length >= items|length %}
-                              <span class="state-pill state-pill--done">Done</span>
-                            {% else %}
-                              <span class="state-pill state-pill--open">Open</span>
-                            {% endif %}
-                          </div>
-                          <details class="material-action-details">
-                            <summary>{% if state and state.checklist_checked|length >= items|length %}Review checklist{% else %}Open checklist{% endif %}</summary>
-                            <form method="post" action="/material/{{ mat.id }}/checklist" class="checklist-form">
-                              {% csrf_token %}
-                              {% for item in items %}
-                                <label class="checklist-item-row">
-                                  <input
-                                    type="checkbox"
-                                    name="checked_item"
-                                    value="{{ forloop.counter0 }}"
-                                    {% if state and forloop.counter0 in state.checklist_checked %}checked{% endif %}
-                                  />
-                                  <span>{{ item }}</span>
-                                </label>
-                              {% endfor %}
-                              <button type="submit">Save checklist</button>
-                            </form>
-                          </details>
-                        {% else %}
-                          <div class="muted empty-state">(Checklist has no items yet.)</div>
-                        {% endif %}
-                      {% endwith %}
-                    {% elif mat.type == 'reflection' %}
-                      {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id %}
-                        {% if access.is_lesson_activity and access.is_locked %}
-                          <div class="status-row">
-                            <span class="state-pill state-pill--locked">Locked</span>
-                          </div>
-                          <div class="muted">Reflection opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
-                        {% else %}
-                          {% if mat.body %}
-                            <pre class="text-material-preview">{{ mat.body }}</pre>
-                          {% endif %}
-                          {% if ui_density_mode == "expanded" %}
-                            <div class="muted">Design log prompt: note what you changed, why you changed it, and what evidence shows improvement.</div>
-                          {% endif %}
-                          <div class="status-row">
-                            {% if state and state.reflection_text %}
-                              <span class="state-pill state-pill--done">Done</span>
-                            {% else %}
-                              <span class="state-pill state-pill--open">Open</span>
-                            {% endif %}
-                          </div>
-                          <details class="material-action-details">
-                            <summary>{% if state and state.reflection_text %}Review reflection{% else %}Open reflection{% endif %}</summary>
-                            <form method="post" action="/material/{{ mat.id }}/reflection" class="reflection-form">
-                              {% csrf_token %}
-                              <label for="reflection-{{ mat.id }}" class="muted">Your private reflection</label>
-                              <textarea id="reflection-{{ mat.id }}" name="reflection_text" rows="5" placeholder="Write a short reflection.">{{ state.reflection_text|default:'' }}</textarea>
-                              <button type="submit">Save reflection</button>
-                            </form>
-                          </details>
-                        {% endif %}
-                      {% endwith %}
-                    {% elif mat.type == 'rubric' %}
-                      {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id spec=material_rubric_specs|get_item:mat.id %}
-                        {% if access.is_lesson_activity and access.is_locked %}
-                          <div class="status-row">
-                            <span class="state-pill state-pill--locked">Locked</span>
-                          </div>
-                          <div class="muted">Rubric opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
-                        {% elif spec and spec.criteria %}
-                          <div class="status-row">
-                            {% if state and state.rubric_scores %}
-                              <span class="state-pill state-pill--done">Done</span>
-                            {% else %}
-                              <span class="state-pill state-pill--open">Open</span>
-                            {% endif %}
-                          </div>
-                          <details id="rubric-{{ mat.id }}" class="material-action-details">
-                            <summary>{% if state and state.rubric_scores %}Review rubric{% else %}Open rubric{% endif %}</summary>
-                            <form method="post" action="/material/{{ mat.id }}/rubric" class="reflection-form">
-                              {% csrf_token %}
-                              <div class="muted">Rate each criterion from 1 to {{ spec.scale_max }}.</div>
-                              {% if ui_density_mode == "expanded" %}
-                                <div class="muted">Studio expectation: scores should line up with your changelog and release-note claims.</div>
-                              {% endif %}
-                              {% for criterion in spec.criteria %}
-                                {% with criterion_index=forloop.counter0 selected_score=state.rubric_scores|get_item:forloop.counter0 %}
-                                  <label
-                                    for="rubric-criterion-{{ mat.id }}-{{ criterion_index }}"
-                                    class="muted stacked-rubric-label"
-                                  >{{ criterion }}</label>
-                                  <select id="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" name="criterion_{{ criterion_index }}">
-                                    <option value="">Not scored</option>
-                                    {% for score in spec.scale_values %}
-                                      <option value="{{ score }}" {% if selected_score == score %}selected{% endif %}>{{ score }}</option>
-                                    {% endfor %}
-                                  </select>
-                                {% endwith %}
-                              {% endfor %}
-                              <label for="rubric-feedback-{{ mat.id }}" class="muted">Optional feedback</label>
-                              <textarea id="rubric-feedback-{{ mat.id }}" name="rubric_feedback" rows="4" placeholder="Short note to your teacher (optional).">{{ state.rubric_feedback|default:'' }}</textarea>
-                              <button type="submit">Save rubric</button>
-                            </form>
-                          </details>
-                        {% else %}
-                          <div class="muted empty-state">(Rubric criteria not configured yet.)</div>
-                        {% endif %}
-                      {% endwith %}
-                    {% else %}
-                      <div class="muted empty-state">(Empty material — teacher will fill this in.)</div>
-                    {% endif %}
-                  </div>
-                {% endfor %}
+        <section class="landing-section">
+          <h3>This week</h3>
+          {% if class_landing.highlight_lesson %}
+          <div class="landing-highlight">
+            <div class="muted">
+              {% if class_landing.highlight_lesson.is_this_week %}
+              This week's highlighted lesson
               {% else %}
-                <div class="muted empty-state">No materials yet.</div>
+              Highlighted lesson
               {% endif %}
-            </details>
-            {% endwith %}
-          {% endfor %}
-        {% else %}
-          <div class="card">
-            <p class="muted">No modules yet. A teacher/admin can add them in /admin.</p>
+            </div>
+            <p class="landing-highlight-title">
+              <a href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank" rel="noopener">
+                {{ class_landing.highlight_lesson.module_title }}
+              </a>
+            </p>
+            <p class="landing-primary-action-wrap">
+              <a class="landing-primary-action" href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank"
+                rel="noopener">
+                Start this week's lesson
+              </a>
+            </p>
+            <div class="muted">
+              {% if class_landing.highlight_lesson.is_locked %}
+              <span class="state-pill state-pill--locked">Locked</span>
+              {% else %}
+              <span class="state-pill state-pill--open">Open</span>
+              {% endif %}
+              {% if class_landing.highlight_lesson.available_on %}
+              · {{ class_landing.highlight_lesson.available_on|date:"M j, Y" }}
+              {% endif %}
+            </div>
           </div>
-        {% endif %}
-
-        <div class="card done-guide{% if ui_density_mode == 'compact' %} done-guide--compact{% endif %}">
-          <h2>Account</h2>
-          {% if ui_density_mode == "compact" %}
-            <p class="muted">Open My Data for account controls.</p>
-            <div class="my-data-actions">
-              <a href="/student/my-data">Open My Data</a>
-            </div>
           {% else %}
-            <p class="muted">Manage account + device data.</p>
-            <div class="my-data-actions">
-              <a href="/student/my-data">Open My Data</a>
-              <a href="/student/portfolio-export">Download my work</a>
-              <form method="post" action="/student/end-session">
-                {% csrf_token %}
-                <button type="submit">End my session on this device</button>
-              </form>
-            </div>
+          <p class="muted">No calendar-linked lessons yet. Ask your teacher when your first lesson opens.</p>
           {% endif %}
+        </section>
+
+        <section class="landing-section">
+          <h3>Course links</h3>
+          {% if class_landing.course_lesson_links %}
+          <details class="landing-course-map" {% if ui_density_mode=="expanded" %}open{% endif %}>
+            <summary>View full course lesson links</summary>
+            <ul>
+              {% for row in class_landing.course_lesson_links %}
+              <li>
+                <a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.module_title }}</a>
+                {% if row.is_highlight %}
+                <span class="muted">(highlighted)</span>
+                {% endif %}
+                {% if row.is_locked %}
+                <span class="state-pill state-pill--locked">Locked</span>
+                {% else %}
+                <span class="state-pill state-pill--open">Open</span>
+                {% endif %}
+                {% if row.available_on %}
+                <span class="muted">· {{ row.available_on|date:"M j, Y" }}</span>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          </details>
+          {% else %}
+          <p class="muted">Course lesson links will appear here after your teacher connects a course.</p>
+          {% endif %}
+        </section>
+      </div>
+
+      {% if ui_density_mode == "expanded" %}
+      <div id="studio-handles" class="card studio-handles">
+        <h2>Studio handles</h2>
+        <p class="muted">Advanced mode keeps core controls visible for autonomy and accountability.</p>
+        <div class="studio-handle-row">
+          <a class="landing-primary-action" href="/student/portfolio-export">Export portfolio snapshot</a>
         </div>
 
-        {% if helper_widget %}
-          {{ helper_widget|safe }}
+        <div class="studio-handle-grid">
+          <section>
+            <h3>Rubric links</h3>
+            <ul>
+              {% for m in modules %}
+              {% for mat in m.materials.all %}
+              {% if mat.type == 'rubric' %}
+              <li><a href="#rubric-{{ mat.id }}">{{ m.title }} · {{ mat.title }}</a></li>
+              {% endif %}
+              {% endfor %}
+              {% endfor %}
+            </ul>
+          </section>
+          <section>
+            <h3>Gallery share toggles</h3>
+            <ul>
+              {% for m in modules %}
+              {% for mat in m.materials.all %}
+              {% if mat.type == 'gallery' %}
+              <li><a href="/material/{{ mat.id }}/upload">{{ m.title }} · {{ mat.title }}</a></li>
+              {% endif %}
+              {% endfor %}
+              {% endfor %}
+            </ul>
+          </section>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="card done-guide">
+        <h2>How to tell you are done</h2>
+        {% if ui_density_mode == "compact" %}
+        <p class="muted"><span class="state-pill state-pill--done">Done</span> saved · <span
+            class="state-pill state-pill--open">Open</span> do now · <span
+            class="state-pill state-pill--locked">Locked</span> wait</p>
+        {% elif ui_density_mode == "expanded" %}
+        <p class="muted"><span class="state-pill state-pill--done">Done</span> saved and reviewable · <span
+            class="state-pill state-pill--open">Open</span> active now · <span
+            class="state-pill state-pill--locked">Locked</span> date-gated</p>
+        <p class="muted">Studio accountability: add design-log notes, a short changelog, and release notes for finished
+          builds.</p>
+        {% else %}
+        <p class="muted"><span class="state-pill state-pill--done">Done</span> saved and visible · <span
+            class="state-pill state-pill--open">Open</span> ready now · <span
+            class="state-pill state-pill--locked">Locked</span> opens on date shown</p>
         {% endif %}
-      </main>
-    </div>
-    <script src="{% static 'js/return_code_icons.js' %}" defer></script>
-    <script src="{% static 'js/student_class.js' %}" defer></script>
-  </body>
+      </div>
+
+      {% if modules %}
+      {% for m in modules %}
+      {% with module_release=class_landing.module_release_map|get_item:m.id %}
+      <details class="card module" id="module-{{ m.id }}" {% if class_landing.highlight_module_id==m.id or
+        ui_density_mode=="expanded" %}open{% endif %}>
+        <summary class="module-summary">
+          <span class="module-title">{{ m.title }}</span>
+          {% if module_release %}
+          {% if module_release.is_locked %}
+          <span class="state-pill state-pill--locked">Locked</span>
+          {% else %}
+          <span class="state-pill state-pill--open">Open</span>
+          {% endif %}
+          {% endif %}
+        </summary>
+
+        {% if m.materials.all %}
+        {% for mat in m.materials.all %}
+        <div class="mat">
+          <strong>{{ mat.title }}</strong>
+          {% if mat.type == 'link' and mat.url %}
+          {% with access=material_access|get_item:mat.id %}
+          {% if access.is_lesson_link and access.is_locked %}
+          <div class="status-row">
+            <span class="state-pill state-pill--locked">Locked</span>
+          </div>
+          {% elif access.is_lesson_link %}
+          <div class="status-row">
+            <span class="state-pill state-pill--open">Open</span>
+          </div>
+          {% endif %}
+          {% if access.is_lesson_link and access.is_locked %}
+          <div class="mat-link"><span class="state-pill state-pill--locked">Locked</span></div>
+          <div class="mat-link muted-link"><a href="{{ mat.url }}" target="_blank" rel="noopener">Preview intro-only
+              page</a></div>
+          <div class="muted">Full lesson unlocks on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          {% else %}
+          <div class="mat-link"><a href="{{ mat.url }}" target="_blank" rel="noopener">Open lesson</a></div>
+          {% endif %}
+          {% endwith %}
+          {% elif mat.type == 'text' and mat.body %}
+          <pre class="text-material-preview">{{ mat.body }}</pre>
+          {% elif mat.type == 'upload' %}
+          {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id %}
+          {% if access.is_lesson_upload and access.is_locked %}
+          <div class="status-row">
+            <span class="state-pill state-pill--locked">Locked</span>
+          </div>
+          {% elif access.is_lesson_upload %}
+          <div class="status-row">
+            <span class="state-pill state-pill--open">Open</span>
+          </div>
+          {% endif %}
+          <div class="muted">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB
+          </div>
+          {% if access.is_lesson_upload and access.is_locked %}
+          <div class="muted">Submissions open on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          {% else %}
+          <div class="status-row">
+            {% if s %}
+            <span class="state-pill state-pill--done">Done</span>
+            {% else %}
+            <span class="state-pill state-pill--open">Open</span>
+            {% endif %}
+          </div>
+          <div class="mat-link">
+            <a href="/material/{{ mat.id }}/upload">Upload / view submissions</a>
+            {% if s %}
+            <span class="muted">· {{ s.count }} uploaded (latest saved)</span>
+            {% endif %}
+          </div>
+          {% endif %}
+          {% endwith %}
+          {% elif mat.type == 'gallery' %}
+          {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id
+          gallery_entries=gallery_entries_by_material|get_item:mat.id %}
+          {% if access.is_lesson_upload and access.is_locked %}
+          <div class="status-row">
+            <span class="state-pill state-pill--locked">Locked</span>
+          </div>
+          {% elif access.is_lesson_upload %}
+          <div class="status-row">
+            <span class="state-pill state-pill--open">Open</span>
+          </div>
+          {% endif %}
+          <div class="muted">Accepted: {{ mat.accepted_extensions|default:'.png,.jpg,.jpeg,.webp,.gif,.pdf,.sb3' }} ·
+            Max {{ mat.max_upload_mb }}MB</div>
+          {% if access.is_lesson_upload and access.is_locked %}
+          <div class="muted">Gallery opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          {% else %}
+          <div class="status-row">
+            {% if s %}
+            <span class="state-pill state-pill--done">Done</span>
+            {% else %}
+            <span class="state-pill state-pill--open">Open</span>
+            {% endif %}
+          </div>
+          <div class="mat-link">
+            <a href="/material/{{ mat.id }}/upload">Upload / manage gallery</a>
+            {% if s %}
+            <span class="muted">· {{ s.count }} uploaded</span>
+            {% endif %}
+          </div>
+          {% endif %}
+          {% if gallery_entries %}
+          <div class="gallery-shared-wrap">
+            <div class="muted">Shared gallery</div>
+            <ul class="gallery-shared-list">
+              {% for g in gallery_entries %}
+              <li>
+                <a href="/submission/{{ g.submission_id }}/download">{{ g.original_filename }}</a>
+                <span class="muted">· {{ g.display_name }}{% if g.is_owner %} (you){% endif %} · {{
+                  g.uploaded_at|date:"M j, g:i a" }}</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          {% endwith %}
+          {% elif mat.type == 'checklist' %}
+          {% with access=material_access|get_item:mat.id items=material_checklist_items|get_item:mat.id
+          state=material_responses|get_item:mat.id %}
+          {% if access.is_lesson_activity and access.is_locked %}
+          <div class="status-row">
+            <span class="state-pill state-pill--locked">Locked</span>
+          </div>
+          <div class="muted">Checklist opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          {% elif items %}
+          <div class="status-row">
+            {% if state and state.checklist_checked|length >= items|length %}
+            <span class="state-pill state-pill--done">Done</span>
+            {% else %}
+            <span class="state-pill state-pill--open">Open</span>
+            {% endif %}
+          </div>
+          <details class="material-action-details">
+            <summary>{% if state and state.checklist_checked|length >= items|length %}Review checklist{% else %}Open
+              checklist{% endif %}</summary>
+            <form method="post" action="/material/{{ mat.id }}/checklist" class="checklist-form">
+              {% csrf_token %}
+              {% for item in items %}
+              <label class="checklist-item-row">
+                <input type="checkbox" name="checked_item" value="{{ forloop.counter0 }}" {% if state and
+                  forloop.counter0 in state.checklist_checked %}checked{% endif %} />
+                <span>{{ item }}</span>
+              </label>
+              {% endfor %}
+              <button type="submit">Save checklist</button>
+            </form>
+          </details>
+          {% else %}
+          <div class="muted empty-state">(Checklist has no items yet.)</div>
+          {% endif %}
+          {% endwith %}
+          {% elif mat.type == 'reflection' %}
+          {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id %}
+          {% if access.is_lesson_activity and access.is_locked %}
+          <div class="status-row">
+            <span class="state-pill state-pill--locked">Locked</span>
+          </div>
+          <div class="muted">Reflection opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          {% else %}
+          {% if mat.body %}
+          <pre class="text-material-preview">{{ mat.body }}</pre>
+          {% endif %}
+          {% if ui_density_mode == "expanded" %}
+          <div class="muted">Design log prompt: note what you changed, why you changed it, and what evidence shows
+            improvement.</div>
+          {% endif %}
+          <div class="status-row">
+            {% if state and state.reflection_text %}
+            <span class="state-pill state-pill--done">Done</span>
+            {% else %}
+            <span class="state-pill state-pill--open">Open</span>
+            {% endif %}
+          </div>
+          <details class="material-action-details">
+            <summary>{% if state and state.reflection_text %}Review reflection{% else %}Open reflection{% endif %}
+            </summary>
+            <form method="post" action="/material/{{ mat.id }}/reflection" class="reflection-form">
+              {% csrf_token %}
+              <label for="reflection-{{ mat.id }}" class="muted">Your private reflection</label>
+              <textarea id="reflection-{{ mat.id }}" name="reflection_text" rows="5"
+                placeholder="Write a short reflection.">{{ state.reflection_text|default:'' }}</textarea>
+              <button type="submit">Save reflection</button>
+            </form>
+          </details>
+          {% endif %}
+          {% endwith %}
+          {% elif mat.type == 'rubric' %}
+          {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id
+          spec=material_rubric_specs|get_item:mat.id %}
+          {% if access.is_lesson_activity and access.is_locked %}
+          <div class="status-row">
+            <span class="state-pill state-pill--locked">Locked</span>
+          </div>
+          <div class="muted">Rubric opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          {% elif spec and spec.criteria %}
+          <div class="status-row">
+            {% if state and state.rubric_scores %}
+            <span class="state-pill state-pill--done">Done</span>
+            {% else %}
+            <span class="state-pill state-pill--open">Open</span>
+            {% endif %}
+          </div>
+          <details id="rubric-{{ mat.id }}" class="material-action-details">
+            <summary>{% if state and state.rubric_scores %}Review rubric{% else %}Open rubric{% endif %}</summary>
+            <form method="post" action="/material/{{ mat.id }}/rubric" class="reflection-form">
+              {% csrf_token %}
+              <div class="muted">Rate each criterion from 1 to {{ spec.scale_max }}.</div>
+              {% if ui_density_mode == "expanded" %}
+              <div class="muted">Studio expectation: scores should line up with your changelog and release-note claims.
+              </div>
+              {% endif %}
+              {% for criterion in spec.criteria %}
+              {% with criterion_index=forloop.counter0 selected_score=state.rubric_scores|get_item:forloop.counter0 %}
+              <label for="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" class="muted stacked-rubric-label">{{
+                criterion }}</label>
+              <select id="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" name="criterion_{{ criterion_index }}">
+                <option value="">Not scored</option>
+                {% for score in spec.scale_values %}
+                <option value="{{ score }}" {% if selected_score==score %}selected{% endif %}>{{ score }}</option>
+                {% endfor %}
+              </select>
+              {% endwith %}
+              {% endfor %}
+              <label for="rubric-feedback-{{ mat.id }}" class="muted">Optional feedback</label>
+              <textarea id="rubric-feedback-{{ mat.id }}" name="rubric_feedback" rows="4"
+                placeholder="Short note to your teacher (optional).">{{ state.rubric_feedback|default:'' }}</textarea>
+              <button type="submit">Save rubric</button>
+            </form>
+          </details>
+          {% else %}
+          <div class="muted empty-state">(Rubric criteria not configured yet.)</div>
+          {% endif %}
+          {% endwith %}
+          {% else %}
+          <div class="muted empty-state">(Empty material — teacher will fill this in.)</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="muted empty-state">No materials yet.</div>
+        {% endif %}
+      </details>
+      {% endwith %}
+      {% endfor %}
+      {% else %}
+      <div class="card">
+        <p class="muted">No modules yet. A teacher/admin can add them in /admin.</p>
+      </div>
+      {% endif %}
+
+      <div class="card done-guide{% if ui_density_mode == 'compact' %} done-guide--compact{% endif %}">
+        <h2>Account</h2>
+        {% if ui_density_mode == "compact" %}
+        <p class="muted">Open My Data for account controls.</p>
+        <div class="my-data-actions">
+          <a href="/student/my-data">Open My Data</a>
+        </div>
+        {% else %}
+        <p class="muted">Manage account + device data.</p>
+        <div class="my-data-actions">
+          <a href="/student/my-data">Open My Data</a>
+          <a href="/student/portfolio-export">Download my work</a>
+          <form method="post" action="/student/end-session">
+            {% csrf_token %}
+            <button type="submit">End my session on this device</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if helper_widget %}
+      {{ helper_widget|safe }}
+      {% endif %}
+    </main>
+  </div>
+  <script src="{% static 'js/return_code_icons.js' %}" defer></script>
+  <script src="{% static 'js/student_class.js' %}" defer></script>
+</body>
+
 </html>

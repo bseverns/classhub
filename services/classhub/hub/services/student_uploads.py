@@ -71,6 +71,13 @@ def process_material_upload_form(
     if getattr(uploaded_file, "size", 0) and uploaded_file.size > max_bytes:
         return UploadAttemptResult(error=f"File too large. Max size: {material.max_upload_mb}MB")
 
+    quota_mb = int(getattr(settings, "CLASSHUB_CLASSROOM_QUOTA_MB", 2048))
+    if quota_mb > 0:
+        class_dir = Path(settings.MEDIA_ROOT) / "submissions" / f"class_{request.classroom.id}"
+        total_bytes = sum(f.stat().st_size for f in class_dir.rglob('*') if f.is_file()) if class_dir.exists() else 0
+        if total_bytes + getattr(uploaded_file, "size", 0) > quota_mb * 1024 * 1024:
+            return UploadAttemptResult(error=f"Classroom storage quota exceeded ({quota_mb}MB limit). Ask your teacher for help.", response_status=400)
+
     content_error = validate_upload_content_fn(uploaded_file, ext)
     if content_error:
         logger.info(

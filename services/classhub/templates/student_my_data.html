@@ -1,87 +1,94 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>My Data</title>
-    {% include "includes/glass_theme.html" %}
-    <link rel="stylesheet" href="{% static 'css/student_my_data.css' %}" />
-  </head>
-  <body class="glass-theme">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
-    <div class="shell">
-      <main id="main-content">
-        <div class="top">
-          <div class="muted"><a href="/student">Back to class</a> · <a href="/logout">Log out</a></div>
-          <h1>My Data</h1>
-          <div class="muted">Signed in as <strong>{{ student.display_name }}</strong> · {{ classroom.name }}</div>
-        </div>
 
-        {% if notice %}
-          <p class="notice" role="status" aria-live="polite">{{ notice }}</p>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Data</title>
+  {% include "includes/glass_theme.html" %}
+  <link rel="stylesheet" href="{% static 'css/student_my_data.css' %}" />
+</head>
+
+<body class="glass-theme">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <div class="shell">
+    <main id="main-content">
+      <div class="top">
+        <div class="muted"><a href="/student">Back to class</a> · <a href="/privacy">Privacy</a> · <a href="/logout">Log
+            out</a></div>
+        <h1>My Data</h1>
+        <div class="muted">Signed in as <strong>{{ student.display_name }}</strong> · {{ classroom.name }}</div>
+      </div>
+
+      {% if notice %}
+      <p class="notice" role="status" aria-live="polite">{{ notice }}</p>
+      {% endif %}
+
+      <div class="card">
+        <h2 class="section-title-tight">Privacy at a glance</h2>
+        <div class="privacy-note">
+          <p class="muted">Stored data: your display name, submissions, and class event timestamps.</p>
+          <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted
+            locally by your school or organization." }}</p>
+          <p class="muted">
+            Retention:
+            {% if submission_retention_days %}
+            submissions are kept up to {{ submission_retention_days }} day{{ submission_retention_days|pluralize }}
+            unless deleted sooner.
+            {% else %}
+            submissions stay until a teacher or admin removes them.
+            {% endif %}
+          </p>
+          <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker
+            sharing." }}</p>
+        </div>
+        <div class="actions">
+          <a href="/student/portfolio-export">Download my work</a>
+          <form method="post" action="/student/delete-work" data-confirm="Delete all of your submissions now?">
+            {% csrf_token %}
+            <button type="submit" class="danger">Delete my work now</button>
+          </form>
+          <form method="post" action="/student/end-session">
+            {% csrf_token %}
+            <button type="submit">End my session on this device</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title-tight">My submissions</h2>
+        {% if submissions %}
+        <table class="table-top-gap">
+          <caption class="visually-hidden">Stored submissions for {{ student.display_name }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">When</th>
+              <th scope="col">Module</th>
+              <th scope="col">Material</th>
+              <th scope="col">File</th>
+              <th scope="col">Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in submissions %}
+            <tr>
+              <td class="muted">{{ s.uploaded_at }}</td>
+              <td>{{ s.material.module.title }}</td>
+              <td>{{ s.material.title }}</td>
+              <th scope="row">{{ s.original_filename }}</th>
+              <td><a href="/submission/{{ s.id }}/download">Download</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="muted top-gap-10">No submissions stored yet.</p>
         {% endif %}
+      </div>
+    </main>
+  </div>
+  <script src="{% static 'js/confirm_forms.js' %}" defer></script>
+</body>
 
-        <div class="card">
-          <h2 class="section-title-tight">Privacy at a glance</h2>
-          <div class="privacy-note">
-            <p class="muted">Stored data: your display name, submissions, and class event timestamps.</p>
-            <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
-            <p class="muted">
-              Retention:
-              {% if submission_retention_days %}
-                submissions are kept up to {{ submission_retention_days }} day{{ submission_retention_days|pluralize }} unless deleted sooner.
-              {% else %}
-                submissions stay until a teacher or admin removes them.
-              {% endif %}
-            </p>
-            <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
-          </div>
-          <div class="actions">
-            <a href="/student/portfolio-export">Download my work</a>
-            <form method="post" action="/student/delete-work" data-confirm="Delete all of your submissions now?">
-              {% csrf_token %}
-              <button type="submit" class="danger">Delete my work now</button>
-            </form>
-            <form method="post" action="/student/end-session">
-              {% csrf_token %}
-              <button type="submit">End my session on this device</button>
-            </form>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2 class="section-title-tight">My submissions</h2>
-          {% if submissions %}
-            <table class="table-top-gap">
-              <caption class="visually-hidden">Stored submissions for {{ student.display_name }}</caption>
-              <thead>
-                <tr>
-                  <th scope="col">When</th>
-                  <th scope="col">Module</th>
-                  <th scope="col">Material</th>
-                  <th scope="col">File</th>
-                  <th scope="col">Download</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for s in submissions %}
-                  <tr>
-                    <td class="muted">{{ s.uploaded_at }}</td>
-                    <td>{{ s.material.module.title }}</td>
-                    <td>{{ s.material.title }}</td>
-                    <th scope="row">{{ s.original_filename }}</th>
-                    <td><a href="/submission/{{ s.id }}/download">Download</a></td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          {% else %}
-            <p class="muted top-gap-10">No submissions stored yet.</p>
-          {% endif %}
-        </div>
-      </main>
-    </div>
-    <script src="{% static 'js/confirm_forms.js' %}" defer></script>
-  </body>
 </html>

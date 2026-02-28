@@ -1,0 +1,36 @@
+# Example Crontab for ClassHub
+
+# This file provides an example cron schedule for automating ClassHub backups and retention cleanup.
+# To install, copy these lines into the appropriate maintenance user's crontab using `crontab -e`.
+# Make sure to update the `/srv/lms/app` path to match your deployment directory.
+
+# Export PATH so scripts find Docker and other binaries
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# =========================================================
+# System Diagnostics (Smoke Checks)
+# =========================================================
+# Run a system doctor smoke check every Monday morning at 6:00 AM
+0 6 * * 1 cd /srv/lms/app && bash scripts/system_doctor.sh --smoke-mode golden >> /var/log/classhub_smoke.log 2>&1
+
+# =========================================================
+# Backups 
+# =========================================================
+# Run a nightly database, minio, and uploads backup at 2:00 AM
+0 2 * * * cd /srv/lms/app && bash scripts/backup_postgres.sh >> /var/log/classhub_backup_db.log 2>&1
+0 2 * * * cd /srv/lms/app && bash scripts/backup_uploads.sh >> /var/log/classhub_backup_upl.log 2>&1
+0 2 * * * cd /srv/lms/app && bash scripts/backup_minio.sh >> /var/log/classhub_backup_minio.log 2>&1
+
+# =========================================================
+# Restore Rehearsals (Disaster Recovery Proof)
+# =========================================================
+# Run a full automated backup AND restore rehearsal every Sunday at 3:00 AM.
+# This proves that our backups actually work by restoring them to a temporary database 
+# and running Django assertions against the restored data.
+0 3 * * 0 cd /srv/lms/app && bash scripts/backup_restore_rehearsal.sh --compose-mode prod >> /var/log/classhub_restore_rehearsal.log 2>&1
+
+# =========================================================
+# Cleanup (Orphan and old backups)
+# =========================================================
+# Clean out local backup tarballs/SQL dumps older than 30 days every night at 4:00 AM
+0 4 * * * find /srv/lms/app/backups -type f -mtime +30 -delete
