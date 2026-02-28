@@ -2,6 +2,9 @@
 
 Student tokens contain {sid, cid, epoch} signed with a dedicated key.
 They are validated in StudentSessionMiddleware for /api/ paths.
+
+Optional operator lever: set CLASSHUB_API_TOKEN_MAX_AGE_SECONDS to enforce
+a hard TTL on tokens (default: None = no expiry, epoch-based only).
 """
 
 from django.conf import settings
@@ -12,6 +15,11 @@ _SALT = "classhub.api-token.v1"
 
 def _signing_key() -> str:
     return getattr(settings, "CLASSHUB_API_TOKEN_SIGNING_KEY", None) or settings.SECRET_KEY
+
+
+def _max_age() -> int | None:
+    age = getattr(settings, "CLASSHUB_API_TOKEN_MAX_AGE_SECONDS", None)
+    return int(age) if age is not None else None
 
 
 def issue_student_token(*, student_id: int, class_id: int, epoch: int) -> str:
@@ -29,6 +37,6 @@ def verify_student_token(token: str) -> dict | None:
     Returns the payload dict on success, or None on failure.
     """
     try:
-        return signing.loads(token, key=_signing_key(), salt=_SALT)
-    except signing.BadSignature:
+        return signing.loads(token, key=_signing_key(), salt=_SALT, max_age=_max_age())
+    except (signing.BadSignature, signing.SignatureExpired):
         return None

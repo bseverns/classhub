@@ -553,6 +553,28 @@ ClassHub is designed to be operationally calm and run on a single host. If disk 
 3. **Quota Policies**
    ClassHub sets a default `CLASSHUB_CLASSROOM_QUOTA_MB` (default 2048 MB, or 2GB) per classroom to prevent large video uploads from exhausting the server. Adjust this environment variable as necessary based on your host's capacity.
 
+## Log rotation
+
+Cron jobs (`crontab.example`) write to:
+- `/var/log/classhub_backup.log` — nightly backup script
+- `/var/log/classhub_rehearsal.log` — backup restore rehearsal
+- `/var/log/classhub_retention.log` — submission/event retention pruning
+
+Install the rotation config:
+
+```bash
+sudo cp ops/logrotate/classhub /etc/logrotate.d/classhub
+sudo chown root:root /etc/logrotate.d/classhub
+```
+
+Verify (dry run):
+
+```bash
+sudo logrotate -d /etc/logrotate.d/classhub
+```
+
+Rotation runs weekly, keeps 4 compressed archives. Check `/var/log/classhub_*.log*` weekly to confirm rotation is working.
+
 ## Escalate when
 
 Move to incident workflow ([TROUBLESHOOTING.md](TROUBLESHOOTING.md), then [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)) when any of these are true:

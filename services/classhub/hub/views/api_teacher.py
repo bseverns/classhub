@@ -31,11 +31,18 @@ def _json_no_store_response(payload: dict, *, status: int = 200, private: bool =
 
 
 def _staff_required(view_func):
-    """Reject non-staff requests with a 401 JSON response instead of a redirect."""
+    """Reject non-staff or OTP-unverified requests with a 401 JSON response."""
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         if not (request.user.is_authenticated and request.user.is_staff):
             return _json_no_store_response({"error": "unauthorized"}, status=401, private=True)
+        if getattr(settings, "TEACHER_2FA_REQUIRED", True):
+            is_verified_attr = getattr(request.user, "is_verified", None)
+            is_verified = bool(
+                is_verified_attr() if callable(is_verified_attr) else is_verified_attr
+            )
+            if not is_verified:
+                return _json_no_store_response({"error": "otp_required"}, status=401, private=True)
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
@@ -76,20 +83,35 @@ def api_teacher_classes(request):
     classes, assigned_class_ids = staff_accessible_classes_ranked(request.user)
     digest_since = timezone.now() - timedelta(days=1)
 
+    # Annotate counts in bulk to avoid N+1 per-class queries.
+    from django.db.models import Count, Q
+    class_ids = [c.id for c in classes]
+    student_counts = dict(
+        Class.objects.filter(id__in=class_ids)
+        .annotate(sc=Count("students"))
+        .values_list("id", "sc")
+    )
+    submission_counts = dict(
+        Class.objects.filter(id__in=class_ids)
+        .annotate(
+            rc=Count(
+                "modules__materials__submissions",
+                filter=Q(modules__materials__submissions__uploaded_at__gte=digest_since),
+            )
+        )
+        .values_list("id", "rc")
+    )
+
     classes_payload = []
     for c in classes:
-        student_count = c.students.count()
-        recent_submissions = Submission.objects.filter(
-            material__module__classroom=c,
-            uploaded_at__gte=digest_since,
-        ).count()
         classes_payload.append({
             "id": c.id,
             "name": c.name,
             "join_code": c.join_code,
             "is_locked": c.is_locked,
-            "student_count": student_count,
-            "submissions_24h": recent_submissions,
+            "enrollment_mode": c.enrollment_mode,
+            "student_count": student_counts.get(c.id, 0),
+            "submissions_24h": submission_counts.get(c.id, 0),
             "is_assigned": c.id in assigned_class_ids,
         })
 
@@ -170,6 +192,7 @@ def api_teacher_class_roster(request, class_id: int):
                 "name": classroom.name,
                 "join_code": classroom.join_code,
                 "is_locked": classroom.is_locked,
+                "enrollment_mode": classroom.enrollment_mode,
             },
             "student_count": ctx["student_count"],
             "students": students_payload,

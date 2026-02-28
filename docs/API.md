@@ -51,7 +51,12 @@ Authorization: Bearer <token>
 - Signed with `CLASSHUB_API_TOKEN_SIGNING_KEY` (falls back to `SECRET_KEY`).
 - Contains `{sid, cid, epoch}`. Automatically invalidated when a teacher
   resets the class roster (bumps `session_epoch`).
-- No hard expiry. Invalidated by roster reset or student deletion.
+- Optional hard TTL: set `CLASSHUB_API_TOKEN_MAX_AGE_SECONDS` to enforce
+  expiry (default: `None` = no expiry, epoch-based only).
+- **Fail-closed:** If an `Authorization: Bearer` header is present on `/api/`
+  but invalid (tampered, expired, or epoch mismatch), the request fails
+  immediately with `401 {"error": "invalid_token"}`. It does **not** fall
+  through to session auth.
 
 ### Student: Session Cookie (browser fallback)
 
@@ -60,7 +65,9 @@ The middleware checks bearer tokens first, then falls back to session auth.
 
 ### Teacher: Session Cookie + OTP
 
-Teacher endpoints require Django staff authentication with verified OTP.
+Teacher endpoints require Django staff authentication with verified OTP
+(`TEACHER_2FA_REQUIRED=True` by default). Requests from staff users
+who haven't completed 2FA verification receive `401 {"error": "otp_required"}`.
 There is no bearer token flow for teachers (OTP is inherently stateful).
 
 Authenticate via `/admin/login/` → complete 2FA → session cookie is set.
@@ -361,6 +368,8 @@ All errors follow a consistent shape:
 | Code                      | HTTP | Meaning |
 |---------------------------|------|---------|
 | `unauthorized`            | 401  | Missing or invalid credentials |
+| `otp_required`            | 401  | Staff authenticated but 2FA not verified |
+| `invalid_token`           | 401  | Bearer header present but token invalid/expired |
 | `rate_limited`            | 429  | Too many requests |
 | `not_found`               | 404  | Class not found or not accessible |
 | `forbidden`               | 403  | Insufficient permissions (not a manager) |

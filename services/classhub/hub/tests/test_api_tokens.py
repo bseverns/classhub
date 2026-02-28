@@ -74,22 +74,24 @@ class BearerTokenMiddlewareTests(TestCase):
         resp = self.client.get("/api/v1/student/session")
         self.assertEqual(resp.status_code, 401)
 
-    def test_invalid_token_returns_401(self):
+    def test_invalid_token_returns_401_with_invalid_token_error(self):
         resp = self.client.get(
             "/api/v1/student/session",
             HTTP_AUTHORIZATION="Bearer garbage-token",
         )
         self.assertEqual(resp.status_code, 401)
+        self.assertEqual(resp.json()["error"], "invalid_token")
 
-    def test_tampered_token_returns_401(self):
+    def test_tampered_token_returns_401_with_invalid_token_error(self):
         resp = self.client.get(
             "/api/v1/student/session",
             HTTP_AUTHORIZATION=f"Bearer {self.token}TAMPERED",
         )
         self.assertEqual(resp.status_code, 401)
+        self.assertEqual(resp.json()["error"], "invalid_token")
 
-    def test_epoch_mismatch_rejects_token(self):
-        """When teacher resets roster (bumps epoch), old tokens should fail."""
+    def test_epoch_mismatch_rejects_token_fail_closed(self):
+        """When teacher resets roster (bumps epoch), old tokens should fail-closed."""
         self.classroom.session_epoch = 2
         self.classroom.save(update_fields=["session_epoch"])
         resp = self.client.get(
@@ -97,14 +99,16 @@ class BearerTokenMiddlewareTests(TestCase):
             HTTP_AUTHORIZATION=f"Bearer {self.token}",
         )
         self.assertEqual(resp.status_code, 401)
+        self.assertEqual(resp.json()["error"], "invalid_token")
 
-    def test_deleted_student_rejects_token(self):
+    def test_deleted_student_rejects_token_fail_closed(self):
         self.student.delete()
         resp = self.client.get(
             "/api/v1/student/session",
             HTTP_AUTHORIZATION=f"Bearer {self.token}",
         )
         self.assertEqual(resp.status_code, 401)
+        self.assertEqual(resp.json()["error"], "invalid_token")
 
     def test_session_auth_still_works_on_api_paths(self):
         session = self.client.session

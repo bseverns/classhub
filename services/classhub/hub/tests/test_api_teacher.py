@@ -69,9 +69,17 @@ class TeacherClassesEndpointTests(_TeacherAPIBase):
         self.assertIn("name", cls)
         self.assertIn("join_code", cls)
         self.assertIn("is_locked", cls)
+        self.assertIn("enrollment_mode", cls)
         self.assertIn("student_count", cls)
         self.assertIn("submissions_24h", cls)
         self.assertIn("is_assigned", cls)
+
+    def test_staff_without_otp_returns_401(self):
+        """Staff who haven't completed 2FA should be rejected."""
+        self.client.force_login(self.teacher)  # No OTP setup
+        resp = self.client.get("/api/v1/teacher/classes")
+        self.assertEqual(resp.status_code, 401)
+        self.assertEqual(resp.json()["error"], "otp_required")
 
     def test_only_get_allowed(self):
         self._login_teacher()
@@ -102,6 +110,7 @@ class TeacherClassRosterEndpointTests(_TeacherAPIBase):
         self.assertIn("modules", data)
         self.assertIn("student_count", data)
         self.assertEqual(data["classroom"]["id"], self.classroom.id)
+        self.assertIn("enrollment_mode", data["classroom"])
         self.assertEqual(data["student_count"], 1)
         self.assertEqual(len(data["students"]), 1)
         self.assertEqual(data["students"][0]["display_name"], "Ada")

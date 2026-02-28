@@ -29,14 +29,17 @@ def _clear_student_session(session) -> None:
     session.pop("class_epoch", None)
 
 
-def _resolve_bearer_token(request) -> bool:
+def _resolve_bearer_token(request):
     """Try to authenticate via Authorization: Bearer <token>.
 
-    Returns True if request.student/classroom were set, False otherwise.
+    Returns:
+      True  — request.student/classroom set successfully.
+      False — bearer header present but invalid (fail-closed).
+      None  — no bearer header present (fallback to session).
     """
     auth_header = request.META.get("HTTP_AUTHORIZATION", "")
     if not auth_header.startswith("Bearer "):
-        return False
+        return None  # No bearer header — allow session fallback.
 
     token = auth_header[7:].strip()
     if not token:
@@ -85,6 +88,8 @@ class StudentSessionMiddleware:
       - `request.student`
       - `request.classroom`
     - For /api/ paths, a signed bearer token is also accepted.
+      If a bearer header is present but invalid, /api/ paths fail-closed
+      (return 401) instead of silently falling through to session auth.
     """
 
     def __init__(self, get_response):
@@ -99,8 +104,22 @@ class StudentSessionMiddleware:
             return self.get_response(request)
 
         # For API paths, try bearer token first.
-        if path.startswith("/api/") and _resolve_bearer_token(request):
-            return self.get_response(request)
+        if path.startswith("/api/"):
+            result = _resolve_bearer_token(request)
+            if result is True:
+                return self.get_response(request)
+            if result is False:
+                # Bearer header present but invalid — fail-closed.
+                from django.http import JsonResponse
+                return JsonResponse(
+                    {"error": "invalid_token"},
+                    status=401,
+                    headers={
+                        "Cache-Control": "no-store, private",
+                        "Pragma": "no-cache",
+                    },
+                )
+            # result is None — no bearer header, fall through to session.
 
         # Student identity is stored in the session after `/join`.
         sid = request.session.get("student_id")
