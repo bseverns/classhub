@@ -278,7 +278,17 @@ def join_class(request):
         return _json_no_store_response({"error": txn_error}, status=txn_status)
 
     _establish_student_session(request, student=student, classroom=classroom)
-    response = _json_no_store_response({"ok": True, "return_code": student.return_code, "rejoined": rejoined})
+    epoch = int(getattr(classroom, "session_epoch", 1) or 1)
+
+    from ..services.api_tokens import issue_student_token
+    api_token = issue_student_token(student_id=student.id, class_id=classroom.id, epoch=epoch)
+
+    response = _json_no_store_response({
+        "ok": True,
+        "return_code": student.return_code,
+        "rejoined": rejoined,
+        "api_token": api_token,
+    })
     apply_device_hint_cookie(response, classroom=classroom, student=student)
     _emit_student_event(
         event_type=_join_event_type(join_mode),
