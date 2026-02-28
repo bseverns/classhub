@@ -36,7 +36,7 @@ Content-Type: application/json
   "ok": true,
   "return_code": "XYZW",
   "rejoined": false,
-  "api_token": "eyJzaWQiOjEsImNpZCI6..."
+  "api_token": "<token>"
 }
 ```
 
@@ -44,7 +44,7 @@ Use the token on all subsequent API requests:
 
 ```
 GET /api/v1/student/session
-Authorization: Bearer eyJzaWQiOjEsImNpZCI6...
+Authorization: Bearer <token>
 ```
 
 **Token properties:**
