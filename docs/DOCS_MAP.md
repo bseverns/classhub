@@ -22,7 +22,7 @@ A new reader should be able to find their role path without opening more than on
 | Evaluator / decision-maker | [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md) | [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md), [SECURITY.md](SECURITY.md) |
 | Teacher / school staff | [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md) | [TEACHER_PORTAL.md](TEACHER_PORTAL.md) |
 | Operator / admin | [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) | [SECURITY.md](SECURITY.md), [RUNBOOK.md](RUNBOOK.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
-| Developer | [DEVELOPMENT.md](DEVELOPMENT.md) | [ARCHITECTURE.md](ARCHITECTURE.md), [DECISIONS.md](DECISIONS.md) |
+| Developer | [DEVELOPMENT.md](DEVELOPMENT.md) | [ARCHITECTURE.md](ARCHITECTURE.md), [API.md](API.md), [DECISIONS.md](DECISIONS.md) |
 
 ## Core docs map
 
@@ -50,6 +50,7 @@ A new reader should be able to find their role path without opening more than on
 - [OPENAI_HELPER.md](OPENAI_HELPER.md)
 - [HELPER_POLICY.md](HELPER_POLICY.md)
 - [REQUEST_SAFETY.md](REQUEST_SAFETY.md)
+- [API.md](API.md)
 - [HELPER_EVALS.md](HELPER_EVALS.md)
 
 ### Public sharing

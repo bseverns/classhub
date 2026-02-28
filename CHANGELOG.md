@@ -20,6 +20,7 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - Stateless bearer token auth for student API (issued at join, `Authorization: Bearer` header on `/api/` paths).
 - CodeQL workflow for Python static analysis in CI.
 - API test suites: 55 tests across `test_api_tokens.py`, `test_api_student.py`, and `test_api_teacher.py`.
+- `docs/API.md`: Full JSON API reference (authentication, endpoints, rate limits, error codes).
 - Bandit high-confidence/high-severity SAST scan in CI.
 
 ### Fixed
