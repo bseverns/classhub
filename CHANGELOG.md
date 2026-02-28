@@ -16,6 +16,8 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - `ops/logrotate/classhub` config to rotate cron job logs.
 - Privacy flow E2E test suite (`test_privacy_flow.py`, 9 tests).
 - Headless Teacher API endpoints (`/api/v1/teacher/*`) with staff auth, rate limiting, and paginated submissions.
+- Teacher write API: toggle-lock, rotate-code, set-enrollment-mode via JSON POST endpoints.
+- Stateless bearer token auth for student API (issued at join, `Authorization: Bearer` header on `/api/` paths).
 - CodeQL workflow for Python static analysis in CI.
 - Bandit high-confidence/high-severity SAST scan in CI.
 
