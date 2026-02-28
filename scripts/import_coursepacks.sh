@@ -31,7 +31,7 @@ if command -v docker >/dev/null 2>&1; then
     for course_slug in "${COURSES[@]}"; do
       echo "[import] Importing $course_slug via docker compose..."
       docker compose "${COMPOSE_ARGS[@]}" exec "${SERVICE}" \
-        python manage.py import_coursepack --course-slug "${course_slug}" --create-class
+        python3 manage.py import_coursepack --course-slug "${course_slug}" --create-class --replace
     done
     echo "[import] Done!"
     exit 0
@@ -49,7 +49,7 @@ fi
 cd "${ROOT_DIR}/services/classhub"
 for course_slug in "${COURSES[@]}"; do
   echo "[import] Importing $course_slug locally..."
-  python manage.py import_coursepack --course-slug "${course_slug}" --create-class
+  python3 manage.py import_coursepack --course-slug "${course_slug}" --create-class --replace
 done
 
 echo "[import] Done!"
