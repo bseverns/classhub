@@ -23,7 +23,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 
 ## What it is
 - A self-hosted learning hub for classes, modules, and lesson materials.
-- A simple student join flow (`class code + display name`) without student password accounts in MVP.
+- A simple student join flow (`class code + pseudonym display name`) without student password accounts in MVP.
 - A teacher/admin workflow built on Django auth, with safety controls for public-domain operation.
 
 ## Who it is for
@@ -35,6 +35,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 - Privacy-first defaults (minimal student identity model, explicit retention controls).
 - Calm student join model (no student email/password in MVP).
 - Student home starts with a clear weekly launch path (`This week` + `Course links` + `Account`).
+- Multi-lingual UI support on student-facing content.
 - Public-domain hardening options (CSP, site-mode degradation, proxy guardrails).
 - Self-hosted architecture with boring, inspectable components (Django, Postgres, Redis, Caddy).
 - Helper support is lesson-scoped and does not archive student prompts.
