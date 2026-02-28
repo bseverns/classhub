@@ -41,7 +41,13 @@ fi
 echo "[import] Docker container '${SERVICE}' not found or not running."
 echo "[import] Falling back to local python environment..."
 
-if [[ ! -d "${ROOT_DIR}/services/classhub/.venv" ]] && [[ ! -d "${ROOT_DIR}/services/classhub/.venv_test" ]]; then
+if [[ -d "${ROOT_DIR}/.venv" ]]; then
+  echo "[import] Activating virtual environment at ${ROOT_DIR}/.venv"
+  source "${ROOT_DIR}/.venv/bin/activate"
+elif [[ -d "${ROOT_DIR}/services/classhub/.venv" ]]; then
+  echo "[import] Activating virtual environment at ${ROOT_DIR}/services/classhub/.venv"
+  source "${ROOT_DIR}/services/classhub/.venv/bin/activate"
+else
    echo "[import] Warning: No obvious virtual environment found in services/classhub."
    echo "[import] Assuming your current python environment has Django installed."
 fi
