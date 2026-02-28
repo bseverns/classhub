@@ -3,19 +3,17 @@ from ._shared import *  # noqa: F401,F403
 class RetentionSettingParsingTests(SimpleTestCase):
     @override_settings(CLASSHUB_SUBMISSION_RETENTION_DAYS=0, CLASSHUB_STUDENT_EVENT_RETENTION_DAYS=0)
     def test_retention_days_preserves_explicit_zero(self):
-        from ..views.content import _retention_days as content_retention_days
-        from ..views.student import _retention_days as student_retention_days
+        from ..services.student_home import _retention_days
 
-        self.assertEqual(student_retention_days("CLASSHUB_SUBMISSION_RETENTION_DAYS", 90), 0)
-        self.assertEqual(content_retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180), 0)
+        self.assertEqual(_retention_days("CLASSHUB_SUBMISSION_RETENTION_DAYS", 90), 0)
+        self.assertEqual(_retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180), 0)
 
     @override_settings(CLASSHUB_SUBMISSION_RETENTION_DAYS="bad", CLASSHUB_STUDENT_EVENT_RETENTION_DAYS="bad")
     def test_retention_days_falls_back_to_default_on_invalid_values(self):
-        from ..views.content import _retention_days as content_retention_days
-        from ..views.student import _retention_days as student_retention_days
+        from ..services.student_home import _retention_days
 
-        self.assertEqual(student_retention_days("CLASSHUB_SUBMISSION_RETENTION_DAYS", 90), 90)
-        self.assertEqual(content_retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180), 180)
+        self.assertEqual(_retention_days("CLASSHUB_SUBMISSION_RETENTION_DAYS", 90), 90)
+        self.assertEqual(_retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180), 180)
 
 
 class TeacherRosterClassServiceTests(TestCase):
