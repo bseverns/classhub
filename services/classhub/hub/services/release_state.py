@@ -11,6 +11,9 @@ from ..models import LessonRelease
 def parse_release_date(raw) -> date | None:
     if raw is None:
         return None
+    from datetime import datetime
+    if isinstance(raw, datetime):
+        return raw.date()
     if isinstance(raw, date):
         return raw
     text = str(raw).strip()

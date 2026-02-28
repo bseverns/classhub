@@ -13,7 +13,7 @@ ClassHub is a self-hosted learning hub for running classes, enrolling students w
 
 ## 5-minute overview
 
-1. Students join a `Class` with a class code or an `Invite link`, plus a display name.
+1. Students join a `Class` with a class code or an `Invite link`, plus a pseudonym display name.
 2. Staff sign in through `/teach` and work inside their `Organization` and assigned classes.
 3. Teachers can control `Enrollment mode`, seat caps, invite expiration, and certificate issuance.
 4. The system supports `Outcomes export` and certificate eligibility/issuance for reporting and follow-up.
@@ -30,6 +30,7 @@ ClassHub is a self-hosted learning hub for running classes, enrolling students w
 ## What success looks like
 
 - Programs can run with low login friction for students.
+- Multi-lingual UI support on student-facing content.
 - Staff can see who joined, what was submitted, and which students completed sessions.
 - Funders and partners can receive bounded exports instead of anecdotal updates.
 - The organization owns its own infrastructure, backups, and recovery path.

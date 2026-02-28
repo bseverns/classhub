@@ -21,7 +21,8 @@ A reader should understand the system scope, deployment shape, and privacy stanc
 - Teams that prefer low-complexity, inspectable infrastructure.
 
 ## Key features
-- Student join by class code + display name (no student password accounts in MVP).
+- Student join by class code + pseudonym display name (no student password accounts in MVP).
+- Multi-lingual UI support on student-facing content.
 - Student home centered on `This week`, `Course links`, and `Account` so first actions are obvious.
 - Progressive disclosure in student UI (collapsed modules/helper/forms) to reduce overload.
 - Teacher/admin auth with OTP support and teacher self-service profile updates.
