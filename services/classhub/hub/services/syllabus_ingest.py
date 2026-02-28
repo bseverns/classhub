@@ -9,7 +9,8 @@ import zipfile
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
-from xml.etree import ElementTree as ET
+
+import defusedxml.ElementTree as ET
 
 from .content_links import courses_dir
 

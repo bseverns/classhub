@@ -94,6 +94,8 @@ def ollama_chat(
     num_predict: int,
 ) -> tuple[str, str]:
     """Execute a non-streaming Ollama chat completion and return `(text, model_used)`."""
+    if not base_url.lower().startswith(("http://", "https://")):
+        raise ValueError("Invalid base URL scheme")
     url = base_url.rstrip("/") + "/api/chat"
     options: dict[str, float | int] = {
         "temperature": temperature,
@@ -112,7 +114,7 @@ def ollama_chat(
     }
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=int(timeout_seconds)) as resp:
+    with urllib.request.urlopen(req, timeout=int(timeout_seconds)) as resp:  # nosec B310
         body = resp.read().decode("utf-8")
     parsed = json.loads(body)
     text = ""

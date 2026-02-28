@@ -54,6 +54,8 @@ def emit_helper_chat_access_event(
     if not url or not token:
         _log_missing_config_once(bool(url), bool(token))
         return
+    if not url.lower().startswith(("http://", "https://")):
+        return
 
     payload = {
         "classroom_id": classroom_id or None,
@@ -74,7 +76,7 @@ def emit_helper_chat_access_event(
 
     request_id = str((details or {}).get("request_id") or "").strip() or "unknown"
     try:
-        with urllib.request.urlopen(req, timeout=_events_timeout_seconds()) as resp:
+        with urllib.request.urlopen(req, timeout=_events_timeout_seconds()) as resp:  # nosec B310
             status = getattr(resp, "status", None) or resp.getcode()
             if not (200 <= int(status) < 300):
                 logger.warning(

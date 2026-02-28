@@ -32,6 +32,8 @@ def reset_class_conversations(
         return HelperResetResult(ok=False, error_code="helper_endpoint_not_configured")
     if not internal_token:
         return HelperResetResult(ok=False, error_code="helper_token_not_configured")
+    if not endpoint_url.lower().startswith(("http://", "https://")):
+        return HelperResetResult(ok=False, error_code="invalid_endpoint_url_scheme")
 
     payload = json.dumps(
         {"class_id": int(class_id), "export_before_reset": bool(export_before_reset)}
@@ -48,7 +50,7 @@ def reset_class_conversations(
     timeout = max(float(timeout_seconds), 0.2)
 
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        with urllib.request.urlopen(request, timeout=timeout) as response:  # nosec B310
             status = int(getattr(response, "status", 200) or 200)
             body = response.read().decode("utf-8", errors="replace")
     except urllib.error.HTTPError as exc:
