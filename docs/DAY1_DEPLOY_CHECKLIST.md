@@ -18,7 +18,7 @@ flowchart TD
 - Enable firewall (SSH/80/443 only)
 - Install Docker + Compose
 - Set Docker log limits
-- Create `/srv/classhub` directory spine
+- Create `/srv/lms/app` directory spine (or set `PROJECT_ROOT` and keep docs/systemd paths consistent)
 - Put backups off-server
 - Plan container UID/GID mapping for bind-mounted writes (`APP_UID`/`APP_GID`)
 

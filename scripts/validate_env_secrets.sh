@@ -32,10 +32,18 @@ fail() {
   exit 1
 }
 
+to_lower() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
 contains_icase() {
   local haystack="$1"
   local needle="$2"
-  if [[ "${haystack,,}" == *"${needle,,}"* ]]; then
+  local haystack_lower
+  local needle_lower
+  haystack_lower="$(to_lower "${haystack}")"
+  needle_lower="$(to_lower "${needle}")"
+  if [[ "${haystack_lower}" == *"${needle_lower}"* ]]; then
     return 0
   fi
   return 1
@@ -43,7 +51,8 @@ contains_icase() {
 
 is_unsafe_secret() {
   local v="$1"
-  local lower="${v,,}"
+  local lower
+  lower="$(to_lower "${v}")"
 
   if [[ -z "${v}" ]]; then
     return 0
@@ -212,7 +221,8 @@ if [[ "${APP_GID}" -le 0 ]]; then
 fi
 
 HELPER_LLM_BACKEND="$(env_file_value HELPER_LLM_BACKEND)"
-if [[ "${HELPER_LLM_BACKEND,,}" == "openai" ]]; then
+HELPER_LLM_BACKEND_LOWER="$(to_lower "${HELPER_LLM_BACKEND}")"
+if [[ "${HELPER_LLM_BACKEND_LOWER}" == "openai" ]]; then
   require_strong_secret "OPENAI_API_KEY" 20
 fi
 
@@ -225,7 +235,7 @@ OLLAMA_TIMEOUT_SECONDS="$(number_or_default "$(env_file_value OLLAMA_TIMEOUT_SEC
 HELPER_QUEUE_MAX_WAIT_SECONDS="$(number_or_default "$(env_file_value HELPER_QUEUE_MAX_WAIT_SECONDS)" "10")"
 HELPER_BACKOFF_SECONDS="$(number_or_default "$(env_file_value HELPER_BACKOFF_SECONDS)" "0.4")"
 
-if [[ "${HELPER_LLM_BACKEND,,}" == "ollama" ]]; then
+if [[ "${HELPER_LLM_BACKEND_LOWER}" == "ollama" ]]; then
   # Worst-case helper request budget:
   # queue wait + retries * ollama timeout + exponential backoff + safety margin.
   helper_backoff_total="0"

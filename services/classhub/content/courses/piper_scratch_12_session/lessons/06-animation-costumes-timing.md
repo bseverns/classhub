@@ -105,4 +105,3 @@ helper_allowed_topics:
 - Add an instructions screen from the menu.
 - Add a settings toggle (sound on/off).
 - Add a title animation on the menu.
-

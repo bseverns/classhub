@@ -7,7 +7,7 @@ It will:
 - enable UFW + fail2ban
 - install Docker + Compose
 - set Docker log rotation limits
-- create `/srv/classhub` folder structure
+- create `/srv/lms/app` folder structure (override with `PROJECT_ROOT=...` if needed)
 
 After bootstrapping:
 - add SSH keys for deploy user

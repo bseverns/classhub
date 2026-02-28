@@ -7,6 +7,27 @@ STAMP="$(date +%Y%m%d_%H%M%S)"
 GIT_SHA="$(git -C "${ROOT_DIR}" rev-parse --short HEAD 2>/dev/null || echo "nogit")"
 
 DEFAULT_OUT="${OUT_DIR}/classhub_release_${STAMP}_${GIT_SHA}.zip"
+
+usage() {
+  cat <<'EOF'
+Usage: bash scripts/make_release_zip.sh [output.zip]
+
+Creates a zip from tracked git files only and runs release artifact lint checks.
+EOF
+}
+
+case "${1:-}" in
+  -h|--help)
+    usage
+    exit 0
+    ;;
+esac
+
+if [[ $# -gt 1 ]]; then
+  usage >&2
+  exit 1
+fi
+
 OUT_PATH="${1:-${DEFAULT_OUT}}"
 
 if ! command -v zip >/dev/null 2>&1; then
@@ -14,8 +35,18 @@ if ! command -v zip >/dev/null 2>&1; then
   exit 1
 fi
 
-mkdir -p "$(dirname "${OUT_PATH}")"
-OUT_ABS="$(cd "$(dirname "${OUT_PATH}")" && pwd)/$(basename "${OUT_PATH}")"
+OUT_PARENT="${OUT_PATH%/*}"
+if [[ "${OUT_PARENT}" == "${OUT_PATH}" ]]; then
+  OUT_PARENT="."
+fi
+OUT_BASE="$(basename "${OUT_PATH}")"
+if [[ -z "${OUT_BASE}" || "${OUT_BASE}" == "." || "${OUT_BASE}" == ".." ]]; then
+  echo "invalid output path: ${OUT_PATH}" >&2
+  exit 1
+fi
+
+mkdir -p "${OUT_PARENT}"
+OUT_ABS="$(cd "${OUT_PARENT}" && pwd)/${OUT_BASE}"
 rm -f "${OUT_ABS}"
 
 if ! git -C "${ROOT_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then

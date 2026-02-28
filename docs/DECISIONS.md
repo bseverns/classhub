@@ -1532,3 +1532,15 @@ Historical implementation logs and superseded decisions are archived by month in
 - Gives young learners a clear “start here” focus without removing access to the rest of the course.
 - Reuses existing scheduling primitives (`LessonRelease.available_on`) rather than adding new calendar models.
 - Keeps operations centralized: teachers edit landing content in the same class dashboard they already use for invites, roster, and releases.
+
+## Script stack hardening for local + CI parity
+
+**Current decision:**
+- Keep script behavior stable, but remove Bash 4-only lowercase expansion from `scripts/validate_env_secrets.sh` so it runs on macOS default Bash 3.2 and Linux.
+- Add explicit `--help` handling to `scripts/make_release_zip.sh` and validate argument count/path parsing before file operations.
+- Standardize day-1 bootstrap default project root to `/srv/lms/app` to match runbook/systemd conventions.
+
+**Why this remains active:**
+- Local operators and developers run deploy/ops scripts from macOS as well as Linux; env validation must be portable.
+- Script UX should fail clearly on bad arguments instead of treating flags as filesystem paths.
+- Keeping one canonical server path reduces drift between bootstrap docs, runbooks, and systemd units.

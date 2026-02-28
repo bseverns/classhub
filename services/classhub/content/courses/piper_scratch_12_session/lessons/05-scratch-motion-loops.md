@@ -107,4 +107,3 @@ helper_allowed_topics:
 - Add a checkpoint halfway through Level 1.
 - Add a tutorial hint (text bubble) triggered after 5 seconds.
 - Add a bonus collectible that’s risky to reach.
-

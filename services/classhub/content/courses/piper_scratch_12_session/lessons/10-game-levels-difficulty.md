@@ -105,4 +105,3 @@ helper_allowed_topics:
 - Add sound toggle in menu.
 - Add a score summary on win screen.
 - Add a “play again” button.
-

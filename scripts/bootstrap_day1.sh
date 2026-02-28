@@ -8,7 +8,7 @@ set -euo pipefail
 #   sudo DOMAIN="lms.example.org" DEPLOY_USER="deploy" ./bootstrap_day1.sh
 
 DEPLOY_USER="${DEPLOY_USER:-deploy}"
-PROJECT_ROOT="${PROJECT_ROOT:-/srv/classhub}"
+PROJECT_ROOT="${PROJECT_ROOT:-/srv/lms/app}"
 TIMEZONE="${TIMEZONE:-Etc/UTC}"
 HARDEN_SSH="${HARDEN_SSH:-0}"
 
@@ -89,4 +89,4 @@ if [[ "$HARDEN_SSH" == "1" ]]; then
 fi
 
 log "Done"
-echo "Next: copy this repo's compose/* into $PROJECT_ROOT/compose and set .env"
+echo "Next: sync this repo into $PROJECT_ROOT and set $PROJECT_ROOT/compose/.env"

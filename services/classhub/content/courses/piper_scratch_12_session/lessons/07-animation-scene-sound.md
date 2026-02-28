@@ -107,4 +107,3 @@ helper_allowed_topics:
 - Add camera tricks: fade (change brightness effect), zoom illusion (sprite size), dramatic pause.
 - Add a second character entering/exiting.
 - Add a short sound cue between beats.
-

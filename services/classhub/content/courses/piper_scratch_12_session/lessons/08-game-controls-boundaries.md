@@ -105,4 +105,3 @@ helper_allowed_topics:
 - Add an optional secret room.
 - Add a second cutscene (very short) triggered by a mid-level event.
 - Add a countdown timer for Level 2.
-

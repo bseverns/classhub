@@ -107,4 +107,3 @@ helper_allowed_topics:
 - Add a final cutscene or cinematic win moment.
 - Improve balancing (speed, spawn rate, timer).
 - Add accessibility: slower mode or hints.
-

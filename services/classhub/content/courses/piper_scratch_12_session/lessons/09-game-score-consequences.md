@@ -103,4 +103,3 @@ helper_allowed_topics:
 - Add a boss phase (enemy with 3 hits).
 - Add enemy animations (costumes).
 - Add enemy sound cues.
-

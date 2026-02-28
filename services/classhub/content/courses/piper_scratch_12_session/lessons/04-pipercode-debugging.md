@@ -105,4 +105,3 @@ helper_allowed_topics:
 - Add invincibility blink for 1 second after hit.
 - Add moving hazard (patrol left/right).
 - Add health hearts UI (icons).
-

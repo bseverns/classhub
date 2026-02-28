@@ -106,4 +106,3 @@ helper_allowed_topics:
 - Add a credits screen.
 - Add a sequel hook (“To be continued…”).
 - Add a speedrun timer.
-
