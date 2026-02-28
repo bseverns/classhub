@@ -58,6 +58,8 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 | Content missing after reset/rebuild | class/module records | Data reset/reseed |
 | Deploy shows `The "<token>" variable is not set` warnings | `compose/.env` secrets with `$` | Docker Compose interpolation |
 | Student join says "invite required" or "invite is full" | class enrollment mode + invite status | Enrollment controls |
+| 500 Internal Server Error on a page load | Django log stack trace (`TemplateSyntaxError`) | UI/Template formatting |
+| Script fails with "DJANGO_SECRET_KEY is required" | Active virtual environment or Docker status | Environment/Secret sourcing |
 
 ## Symptom: site does not load over HTTPS
 
@@ -442,6 +444,33 @@ docker compose up -d --build classhub_web helper_web
 docker compose exec -T classhub_web python manage.py test hub.tests hub.tests_services
 docker compose exec -T helper_web python manage.py test tutor.tests
 ```
+
+## Symptom: 500 Internal Server Error on a page load
+
+Example failure signal: Browser shows a "500 Internal Server Error", and logs show `django.template.exceptions.TemplateSyntaxError` (e.g. `Invalid block tag`).
+
+Common cause:
+- A code formatter automatically inserted newlines inside a Django template tag (e.g., `{% if ... %}`).
+- A code formatter removed required padding spaces around operators (e.g., `{% if var=="value" %}`).
+
+Fix pattern:
+1. Identify the file from the stack trace in the logs.
+2. Flatten the broken `{% ... %}` tag back onto a single line.
+3. Ensure there are spaces immediately around `==` operators.
+4. Disable or configure your IDE's HTML formatter for that specific file.
+
+## Symptom: Script fails with "DJANGO_SECRET_KEY is required"
+
+Example failure signal: `RuntimeError: DJANGO_SECRET_KEY is required` or `ModuleNotFoundError: No module named 'django'` when running a python script or `manage.py`.
+
+Common cause:
+- The script fell back to the local system Python instead of activating the `.venv` that contains Django.
+- The command was not sourced and run inside a `.env` shell.
+
+Fix pattern:
+1. Ensure you are running within Docker (where variables are bound automatically), OR
+2. Explicitly activate your virtual environment (e.g. `source services/classhub/.venv/bin/activate`) before executing the script.
+3. If running scripts locally, prefix the command with environment variables (or rely on `scripts/import_coursepacks.sh` which auto-resolves the `.venv`).
 
 ## Escalation criteria
 

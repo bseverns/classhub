@@ -30,6 +30,7 @@ A new reader should be able to find their role path without opening more than on
 - [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md)
 - [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - [COURSE_AUTHORING.md](COURSE_AUTHORING.md)
+- [CURRICULUM_OPS.md](CURRICULUM_OPS.md)
 - [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.md)
 
 ### Operations
