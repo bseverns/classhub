@@ -79,12 +79,40 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 - Include: pass/fail summary lines
 - Redact: hostnames/IPs if non-local
 
+14. `14-student-compact-view.png`
+- Screen: student class page (`/student`) in `compact` density mode
+- Include: shortened copy, reduced helper/form emphasis, clear `This week` launch action
+- Redact: return codes and student-specific text
+
+15. `15-lesson-helper-collapsed.png`
+- Screen: lesson page (`/course/...`) before opening helper
+- Include: helper affordance in collapsed state plus lesson context
+- Redact: student-specific content
+
+16. `16-student-standard-view.png`
+- Screen: student class page (`/student`) in `standard` density mode
+- Include: default balance of copy and controls
+- Redact: return codes
+
+17. `17-student-expanded-view.png`
+- Screen: student class page (`/student`) in `expanded` density mode
+- Include: richer instructional/context copy with same core action path
+- Redact: return codes
+
+18. `18-teacher-landing-editor.png`
+- Screen: teacher class page (`/teach/class/<id>`) landing-page editor
+- Include: title/message/hero-url fields + save action
+- Redact: real class names and real external image URLs if needed
+
 ## Priority order (refresh first)
 1. `02-student-class-view.png`
 2. `05-lesson-with-helper.png`
 3. `06-submission-dropbox.png`
 4. `11-invite-only-enrollment.png`
 5. `12-certificate-eligibility.png`
+6. `14-student-compact-view.png`
+7. `16-student-standard-view.png`
+8. `17-student-expanded-view.png`
 
 ## Placeholders
 - If these new screenshots are not captured yet, keep placeholders in

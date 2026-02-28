@@ -20,6 +20,11 @@ Each placeholder entry below has a real `.png` with the same filename in both sc
 - `11-invite-only-enrollment.png`
 - `12-certificate-eligibility.png`
 - `13-a11y-smoke-terminal.png`
+- `14-student-compact-view.png`
+- `15-lesson-helper-collapsed.png`
+- `16-student-standard-view.png`
+- `17-student-expanded-view.png`
+- `18-teacher-landing-editor.png`
 
 ## Notes
 - Do not use production or real student/staff data.
