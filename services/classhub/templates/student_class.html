@@ -107,7 +107,7 @@
         <section class="landing-section">
           <h3>Course links</h3>
           {% if class_landing.course_lesson_links %}
-          <details class="landing-course-map" {% if ui_density_mode=="expanded" %}open{% endif %}>
+          <details class="landing-course-map" {% if ui_density_mode == "expanded" %}open{% endif %}>
             <summary>View full course lesson links</summary>
             <ul>
               {% for row in class_landing.course_lesson_links %}
@@ -193,8 +193,7 @@
       {% if modules %}
       {% for m in modules %}
       {% with module_release=class_landing.module_release_map|get_item:m.id %}
-      <details class="card module" id="module-{{ m.id }}" {% if class_landing.highlight_module_id==m.id or
-        ui_density_mode=="expanded" %}open{% endif %}>
+      <details class="card module" id="module-{{ m.id }}" {% if class_landing.highlight_module_id == m.id or ui_density_mode == "expanded" %}open{% endif %}>
         <summary class="module-summary">
           <span class="module-title">{{ m.title }}</span>
           {% if module_release %}
@@ -264,8 +263,7 @@
           {% endif %}
           {% endwith %}
           {% elif mat.type == 'gallery' %}
-          {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id
-          gallery_entries=gallery_entries_by_material|get_item:mat.id %}
+          {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id gallery_entries=gallery_entries_by_material|get_item:mat.id %}
           {% if access.is_lesson_upload and access.is_locked %}
           <div class="status-row">
             <span class="state-pill state-pill--locked">Locked</span>
@@ -310,8 +308,7 @@
           {% endif %}
           {% endwith %}
           {% elif mat.type == 'checklist' %}
-          {% with access=material_access|get_item:mat.id items=material_checklist_items|get_item:mat.id
-          state=material_responses|get_item:mat.id %}
+          {% with access=material_access|get_item:mat.id items=material_checklist_items|get_item:mat.id state=material_responses|get_item:mat.id %}
           {% if access.is_lesson_activity and access.is_locked %}
           <div class="status-row">
             <span class="state-pill state-pill--locked">Locked</span>
@@ -332,8 +329,7 @@
               {% csrf_token %}
               {% for item in items %}
               <label class="checklist-item-row">
-                <input type="checkbox" name="checked_item" value="{{ forloop.counter0 }}" {% if state and
-                  forloop.counter0 in state.checklist_checked %}checked{% endif %} />
+                <input type="checkbox" name="checked_item" value="{{ forloop.counter0 }}" {% if state and forloop.counter0 in state.checklist_checked %}checked{% endif %} />
                 <span>{{ item }}</span>
               </label>
               {% endfor %}
@@ -380,8 +376,7 @@
           {% endif %}
           {% endwith %}
           {% elif mat.type == 'rubric' %}
-          {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id
-          spec=material_rubric_specs|get_item:mat.id %}
+          {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id spec=material_rubric_specs|get_item:mat.id %}
           {% if access.is_lesson_activity and access.is_locked %}
           <div class="status-row">
             <span class="state-pill state-pill--locked">Locked</span>
@@ -411,7 +406,7 @@
               <select id="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" name="criterion_{{ criterion_index }}">
                 <option value="">Not scored</option>
                 {% for score in spec.scale_values %}
-                <option value="{{ score }}" {% if selected_score==score %}selected{% endif %}>{{ score }}</option>
+                <option value="{{ score }}" {% if selected_score == score %}selected{% endif %}>{{ score }}</option>
                 {% endfor %}
               </select>
               {% endwith %}
