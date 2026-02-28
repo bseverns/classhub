@@ -20,6 +20,11 @@ urlpatterns = [
     path("healthz", views.healthz),
     path("internal/events/helper-chat-access", views.internal_helper_chat_access_event),
 
+    # Headless JSON API
+    path("api/v1/student/session", views.api_student_session),
+    path("api/v1/student/modules", views.api_student_modules),
+    path("api/v1/student/submissions", views.api_student_submissions),
+
     # Student flow (class-code login and classroom page).
     path("", views.index),
     path("privacy", views.privacy_policy),

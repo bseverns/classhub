@@ -7,6 +7,7 @@ New code should import endpoints from submodules by concern:
 - hub.views.media
 """
 
+from .api_student import api_student_modules, api_student_session, api_student_submissions
 from .content import course_lesson, course_overview, iter_course_lesson_options
 from .internal import internal_helper_chat_access_event
 from .media import lesson_asset_download, lesson_video_stream
@@ -77,6 +78,9 @@ from .teacher import (
 )
 
 __all__ = [
+    "api_student_modules",
+    "api_student_session",
+    "api_student_submissions",
     "course_lesson",
     "course_overview",
     "healthz",
