@@ -17,6 +17,7 @@
     "services/classhub/hub/views/teacher_parts/videos_lessons.py::teach_videos": 285,
     "services/classhub/hub/views/teacher_parts/videos_assets.py::teach_assets": 240,
     "services/homework_helper/tutor/views.py::chat": 155,
-    "services/classhub/hub/views/api_teacher.py::api_teacher_class_roster": 85
+    "services/classhub/hub/views/api_teacher.py::api_teacher_class_roster": 85,
+    "services/classhub/hub/views/student_join.py::join_class": 75
   }
 }
