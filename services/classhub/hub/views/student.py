@@ -243,10 +243,11 @@ def student_delete_work(request):
         material__module__classroom=request.classroom,
     ).delete()
 
-    deleted_events, _details = StudentEvent.objects.filter(
-        student=request.student,
-        event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
-    ).delete()
+    with StudentEvent.allow_retention_delete():
+        deleted_events, _details = StudentEvent.objects.filter(
+            student=request.student,
+            event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
+        ).delete()
 
     notice = f"Deleted {deleted_submissions} submission(s) and {deleted_events} upload event record(s)."
     return redirect("/student/my-data?" + urlencode({"notice": notice}))

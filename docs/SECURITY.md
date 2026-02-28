@@ -272,6 +272,30 @@ Optional operator message override:
 
 - `CLASSHUB_SITE_MODE_MESSAGE`
 
+## Content visibility model
+
+Class Hub follows a **public curriculum, private artifacts** design:
+
+| Content type | Visibility | Enforcement |
+|---|---|---|
+| Lesson page body (`/course/<slug>/<lesson>`) | **Public** — any visitor can read the rendered markdown | Date-locked lessons show intro excerpt only; full body unlocks on `available_on` date |
+| Course overview (`/course/<slug>`) | **Public** — anyone can see the lesson index | No gate |
+| Lesson assets (`/lesson-asset/<id>/download`) | **Class-gated** — student's class must link to the lesson | `media.py` checks `Material(TYPE_LINK)` membership |
+| Lesson videos (`/lesson-video/<id>/stream`) | **Class-gated** — same check as assets | `media.py` checks `Material(TYPE_LINK)` membership |
+| Student uploads (`/submission/<id>/download`) | **Owner + staff only** | View checks `student_id` or `is_staff` |
+
+**Design rationale:** Open-education nonprofits benefit from discoverable curriculum.
+Making lesson text public lets partner orgs preview content before onboarding,
+and lets teachers share lesson links freely. Private artifacts (uploads, assets,
+videos) protect student work and licensed media that may live alongside the
+open curriculum.
+
+**If your deployment requires private lesson bodies** (partner-only curricula,
+sensitive material), you can gate the lesson view behind student/staff
+authentication by adding a session check to `course_lesson()` in
+`hub/views/content.py`. This is a one-line change but is intentionally not the
+default.
+
 ## Future hardening candidates
 
 - Google SSO for teacher accounts.
