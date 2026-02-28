@@ -1,0 +1,48 @@
+slug: scratch_intro_games_code_grade9_6_session
+title: "9th Grade - Intro to Games and Code with Scratch"
+ui_level: secondary
+program_profile: secondary
+grade_band: "Grades 9-9"
+age_band: "Ages 14-15"
+sessions: 6
+default_duration_minutes: 60
+needs:
+  - "Scratch (web)"
+  - "Projector"
+  - "Chromebooks or laptops"
+  - "Headphones (optional)"
+privacy:
+  - "Student account uses class code + display name; no student email required."
+  - "Share links are optional; screenshot + reflection is acceptable when sharing is restricted."
+helper_reference: grade9_scratch_games
+lessons:
+  - session: 1
+    slug: s01-what-is-a-game-what-is-scratch
+    title: "What Is a Game? What Is Scratch?"
+    file: lessons/01-what-is-a-game-what-is-scratch.md
+    helper_reference: grade9_scratch_games
+  - session: 2
+    slug: s02-inputs-and-controls
+    title: "Inputs and Controls: Make It Feel Better"
+    file: lessons/02-inputs-and-controls.md
+    helper_reference: grade9_scratch_games
+  - session: 3
+    slug: s03-conditions-win-lose-logic
+    title: "Conditions: Win and Lose Logic"
+    file: lessons/03-conditions-win-lose-logic.md
+    helper_reference: grade9_scratch_games
+  - session: 4
+    slug: s04-variables-score-lives-timer
+    title: "Variables: Score, Lives, Timer"
+    file: lessons/04-variables-score-lives-timer.md
+    helper_reference: grade9_scratch_games
+  - session: 5
+    slug: s05-feedback-and-polish
+    title: "Feedback and Polish: Make It Readable"
+    file: lessons/05-feedback-and-polish.md
+    helper_reference: grade9_scratch_games
+  - session: 6
+    slug: s06-release-day-show-and-explain
+    title: "Release Day: Show and Explain"
+    file: lessons/06-release-day-show-and-explain.md
+    helper_reference: grade9_scratch_games

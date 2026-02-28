@@ -79,7 +79,21 @@ All profiles use the same core student layout and permissions:
 Density mode changes text and visual complexity, not security/privacy boundaries:
 - `compact`: shortest status copy and reduced instructional text
 - `standard`: balanced detail for most middle/high cohorts
-- `expanded`: more explanatory copy for advanced/project contexts
+- `expanded`: studio-mode structure for advanced/project contexts
+
+## Advanced Studio Contract
+
+When `ui_density_mode=expanded`, ClassHub should bias toward structured autonomy:
+
+- Keep core handles visible:
+  - rubric access links,
+  - portfolio export link,
+  - gallery-share controls.
+- Add explicit articulation prompts:
+  - design-log prompt each lesson,
+  - changelog and release-note expectations.
+- Expose challenge branches as clear optional blocks when lesson `extend` items exist.
+- Emphasize reading/explaining code paths, not only remix completion.
 
 ## Course-level UI override (optional)
 

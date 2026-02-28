@@ -64,6 +64,7 @@ from .shared_auth import (
     staff_assigned_class_ids,
     staff_can_access_classroom,
     staff_can_create_classes,
+    staff_can_export_syllabi,
     staff_can_manage_classroom,
     staff_classroom_or_none,
     staff_default_organization,

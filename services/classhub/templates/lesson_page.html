@@ -25,6 +25,9 @@
                 {% endif %}
               </div>
             {% endif %}
+            {% if ui_density_mode == "expanded" %}
+              <div class="muted">Studio mode: be ready to explain why your code choices improve clarity, fairness, or reliability.</div>
+            {% endif %}
             <div class="lesson-status">
               {% if lesson_locked %}
                 <span class="state-pill state-pill--locked">Lesson locked</span>
@@ -35,6 +38,9 @@
           </div>
           <div class="nav">
             <a class="btn" href="/student">Back to class</a>
+            {% if ui_density_mode == "expanded" %}
+              <a class="btn" href="/student/portfolio-export">Export portfolio</a>
+            {% endif %}
             {% if prev %}
               <a class="btn" href="/course/{{ course_slug }}/{{ prev.slug }}">← Prev</a>
             {% endif %}
@@ -146,6 +152,28 @@
               <div class="nav dropbox-actions">
                 <a class="btn" href="/">Join your class to upload homework</a>
               </div>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if ui_density_mode == "expanded" and not lesson_locked %}
+          <div class="card studio-expectations">
+            <h2 class="card-title">Design log prompt</h2>
+            <p class="muted">Before you leave this session, record what changed, why you changed it, and what you would improve next.</p>
+            <ul class="studio-checklist">
+              <li>Update your design log with one intentional decision and rationale.</li>
+              <li>Add a short changelog entry for this session.</li>
+              <li>Draft release notes for what a tester should notice.</li>
+              <li>Explain one block/script path in plain language.</li>
+            </ul>
+            {% if front_matter.extend %}
+              <h3 class="card-title">Challenge branches</h3>
+              <p class="muted">Choose one branch and document why you picked it.</p>
+              <ul class="studio-branch-list">
+                {% for option in front_matter.extend|slice:":3" %}
+                  <li class="studio-branch-item">{{ option }}</li>
+                {% endfor %}
+              </ul>
             {% endif %}
           </div>
         {% endif %}

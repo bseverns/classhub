@@ -87,6 +87,37 @@ def healthz(request):
     return HttpResponse("ok", content_type="text/plain")
 
 
+def _student_home_helper_widget(*, classroom: Class, ui_density_mode: str, privacy_meta: dict) -> str:
+    helper_description = "This is a Day-1 wire-up. It will become smarter once it can cite your class materials."
+    if ui_density_mode == "compact":
+        helper_description = "Need help? Ask for one small next step at a time."
+    elif ui_density_mode == "expanded":
+        helper_description = "Use studio mode: ask for strategy, code-reading checks, and release-quality feedback."
+
+    helper_context = f"Classroom summary: {classroom.name}"
+    return render_to_string(
+        "includes/helper_widget.html",
+        {
+            "helper_title": "Class helper",
+            "helper_description": helper_description,
+            "helper_context": helper_context,
+            "helper_topics": "Classroom overview",
+            "helper_reference": "",
+            "helper_allowed_topics": "",
+            "helper_backend_label": helper_backend_label(),
+            "helper_delete_url": "/student/my-data",
+            **privacy_meta,
+            "helper_scope_token": issue_scope_token(
+                context=helper_context,
+                topics=["Classroom overview"],
+                allowed_topics=[],
+                reference="",
+                signing_key=_helper_scope_signing_key(),
+            ),
+        },
+    )
+
+
 def student_home(request):
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
         return redirect("/")
@@ -104,26 +135,10 @@ def student_home(request):
     material_responses = build_material_response_map(student=request.student, material_ids=material_ids)
     gallery_entries_by_material = build_gallery_entries_map(classroom=classroom, viewer_student=request.student, material_ids=material_ids)
     privacy_meta = privacy_meta_context()
-    helper_widget = render_to_string(
-        "includes/helper_widget.html",
-        {
-            "helper_title": "Class helper",
-            "helper_description": "This is a Day-1 wire-up. It will become smarter once it can cite your class materials.",
-            "helper_context": f"Classroom summary: {classroom.name}",
-            "helper_topics": "Classroom overview",
-            "helper_reference": "",
-            "helper_allowed_topics": "",
-            "helper_backend_label": helper_backend_label(),
-            "helper_delete_url": "/student/my-data",
-            **privacy_meta,
-            "helper_scope_token": issue_scope_token(
-                context=f"Classroom summary: {classroom.name}",
-                topics=["Classroom overview"],
-                allowed_topics=[],
-                reference="",
-                signing_key=_helper_scope_signing_key(),
-            ),
-        },
+    helper_widget = _student_home_helper_widget(
+        classroom=classroom,
+        ui_density_mode=ui_density_mode,
+        privacy_meta=privacy_meta,
     )
     get_token(request)
     response = render(

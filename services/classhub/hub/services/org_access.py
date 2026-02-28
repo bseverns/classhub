@@ -15,6 +15,10 @@ _MANAGE_ROLES = {
     OrganizationMembership.ROLE_ADMIN,
     OrganizationMembership.ROLE_TEACHER,
 }
+_SYLLABUS_EXPORT_ROLES = {
+    OrganizationMembership.ROLE_OWNER,
+    OrganizationMembership.ROLE_ADMIN,
+}
 
 
 def _require_org_membership_for_staff() -> bool:
@@ -150,10 +154,24 @@ def staff_can_manage_classroom(user, classroom: Class | None) -> bool:
     ).exists()
 
 
+def staff_can_export_syllabi(user) -> bool:
+    if not getattr(user, "is_authenticated", False):
+        return False
+    if not getattr(user, "is_staff", False):
+        return False
+    if getattr(user, "is_superuser", False):
+        return True
+    memberships = _active_memberships_queryset(user)
+    if not memberships.exists():
+        return False
+    return memberships.filter(role__in=_SYLLABUS_EXPORT_ROLES).exists()
+
+
 __all__ = [
     "staff_assigned_class_ids",
     "staff_accessible_classes_queryset",
     "staff_accessible_classes_ranked",
+    "staff_can_export_syllabi",
     "staff_can_access_classroom",
     "staff_can_create_classes",
     "staff_can_manage_classroom",

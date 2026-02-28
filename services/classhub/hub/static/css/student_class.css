@@ -85,6 +85,29 @@
 .landing-course-map li {
   margin: 6px 0;
 }
+.studio-handles {
+  margin-top: 12px;
+}
+.studio-handle-row {
+  margin-top: 10px;
+}
+.studio-handle-grid {
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.studio-handle-grid h3 {
+  margin: 0 0 8px 0;
+  font-size: 0.96rem;
+}
+.studio-handle-grid ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.studio-handle-grid li {
+  margin: 6px 0;
+}
 .module h2 {
   margin: 0;
 }

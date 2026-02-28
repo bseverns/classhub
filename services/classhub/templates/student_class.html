@@ -19,6 +19,9 @@
               {% if ui_density_mode != "compact" %}
                 · <a href="/">Join page</a>
                 · <a href="/student/portfolio-export">Export my portfolio</a>
+                {% if ui_density_mode == "expanded" %}
+                  · <a href="#studio-handles">Studio handles</a>
+                {% endif %}
               {% endif %}
             </div>
             <h1>{{ classroom.name }}</h1>
@@ -116,7 +119,7 @@
           <section class="landing-section">
             <h3>Course links</h3>
             {% if class_landing.course_lesson_links %}
-              <details class="landing-course-map">
+              <details class="landing-course-map" {% if ui_density_mode == "expanded" %}open{% endif %}>
                 <summary>View full course lesson links</summary>
                 <ul>
                   {% for row in class_landing.course_lesson_links %}
@@ -143,10 +146,50 @@
           </section>
         </div>
 
+        {% if ui_density_mode == "expanded" %}
+          <div id="studio-handles" class="card studio-handles">
+            <h2>Studio handles</h2>
+            <p class="muted">Advanced mode keeps core controls visible for autonomy and accountability.</p>
+            <div class="studio-handle-row">
+              <a class="landing-primary-action" href="/student/portfolio-export">Export portfolio snapshot</a>
+            </div>
+
+            <div class="studio-handle-grid">
+              <section>
+                <h3>Rubric links</h3>
+                <ul>
+                  {% for m in modules %}
+                    {% for mat in m.materials.all %}
+                      {% if mat.type == 'rubric' %}
+                        <li><a href="#rubric-{{ mat.id }}">{{ m.title }} · {{ mat.title }}</a></li>
+                      {% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                </ul>
+              </section>
+              <section>
+                <h3>Gallery share toggles</h3>
+                <ul>
+                  {% for m in modules %}
+                    {% for mat in m.materials.all %}
+                      {% if mat.type == 'gallery' %}
+                        <li><a href="/material/{{ mat.id }}/upload">{{ m.title }} · {{ mat.title }}</a></li>
+                      {% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                </ul>
+              </section>
+            </div>
+          </div>
+        {% endif %}
+
         <div class="card done-guide">
           <h2>How to tell you are done</h2>
           {% if ui_density_mode == "compact" %}
             <p class="muted"><span class="state-pill state-pill--done">Done</span> saved · <span class="state-pill state-pill--open">Open</span> do now · <span class="state-pill state-pill--locked">Locked</span> wait</p>
+          {% elif ui_density_mode == "expanded" %}
+            <p class="muted"><span class="state-pill state-pill--done">Done</span> saved and reviewable · <span class="state-pill state-pill--open">Open</span> active now · <span class="state-pill state-pill--locked">Locked</span> date-gated</p>
+            <p class="muted">Studio accountability: add design-log notes, a short changelog, and release notes for finished builds.</p>
           {% else %}
             <p class="muted"><span class="state-pill state-pill--done">Done</span> saved and visible · <span class="state-pill state-pill--open">Open</span> ready now · <span class="state-pill state-pill--locked">Locked</span> opens on date shown</p>
           {% endif %}
@@ -155,7 +198,7 @@
         {% if modules %}
           {% for m in modules %}
             {% with module_release=class_landing.module_release_map|get_item:m.id %}
-            <details class="card module" {% if class_landing.highlight_module_id == m.id %}open{% endif %}>
+            <details class="card module" id="module-{{ m.id }}" {% if class_landing.highlight_module_id == m.id or ui_density_mode == "expanded" %}open{% endif %}>
               <summary class="module-summary">
                 <span class="module-title">{{ m.title }}</span>
                 {% if module_release %}
@@ -313,6 +356,9 @@
                           {% if mat.body %}
                             <pre class="text-material-preview">{{ mat.body }}</pre>
                           {% endif %}
+                          {% if ui_density_mode == "expanded" %}
+                            <div class="muted">Design log prompt: note what you changed, why you changed it, and what evidence shows improvement.</div>
+                          {% endif %}
                           <div class="status-row">
                             {% if state and state.reflection_text %}
                               <span class="state-pill state-pill--done">Done</span>
@@ -346,11 +392,14 @@
                               <span class="state-pill state-pill--open">Open</span>
                             {% endif %}
                           </div>
-                          <details class="material-action-details">
+                          <details id="rubric-{{ mat.id }}" class="material-action-details">
                             <summary>{% if state and state.rubric_scores %}Review rubric{% else %}Open rubric{% endif %}</summary>
                             <form method="post" action="/material/{{ mat.id }}/rubric" class="reflection-form">
                               {% csrf_token %}
                               <div class="muted">Rate each criterion from 1 to {{ spec.scale_max }}.</div>
+                              {% if ui_density_mode == "expanded" %}
+                                <div class="muted">Studio expectation: scores should line up with your changelog and release-note claims.</div>
+                              {% endif %}
                               {% for criterion in spec.criteria %}
                                 {% with criterion_index=forloop.counter0 selected_score=state.rubric_scores|get_item:forloop.counter0 %}
                                   <label

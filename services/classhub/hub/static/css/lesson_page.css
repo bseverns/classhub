@@ -127,6 +127,29 @@
 .dropbox-actions {
   margin-top: 8px;
 }
+.studio-expectations {
+  margin-top: 12px;
+}
+.studio-checklist {
+  margin: 8px 0 0 0;
+  padding-left: 18px;
+}
+.studio-checklist li {
+  margin: 6px 0;
+}
+.studio-branch-list {
+  list-style: none;
+  margin: 10px 0 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.studio-branch-item {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(22, 59, 80, 0.14);
+  background: rgba(255, 255, 255, 0.52);
+}
 
 body.ui-density-compact .shell {
   max-width: 940px;

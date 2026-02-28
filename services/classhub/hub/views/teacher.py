@@ -10,6 +10,7 @@ from .teacher_parts.auth import (
 )
 from .teacher_parts.content import (
     teach_download_authoring_template,
+    teach_export_syllabus,
     teach_generate_authoring_templates,
     teach_home,
     teach_lessons,
@@ -58,6 +59,7 @@ __all__ = [
     "teach_update_profile",
     "teach_change_password",
     "teach_home",
+    "teach_export_syllabus",
     "teach_teacher_2fa_setup",
     "teach_generate_authoring_templates",
     "teach_download_authoring_template",

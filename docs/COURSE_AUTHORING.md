@@ -38,7 +38,8 @@ python3 scripts/ingest_syllabus_md.py \
   --sessions-md /path/to/teacher_plan.md \
   --overview-md /path/to/public_syllabus.md \
   --slug scratch_game_design \
-  --title "Scratch Game Design + Cutscenes Lab"
+  --title "Scratch Game Design + Cutscenes Lab" \
+  --default-ui-level secondary
 ```
 
 Dry run (no files written):
@@ -49,11 +50,16 @@ python3 scripts/ingest_syllabus_md.py \
   --overview-md /path/to/public_syllabus.docx \
   --slug scratch_game_design \
   --title "Scratch Game Design + Cutscenes Lab" \
+  --default-ui-level secondary \
   --dry-run
 ```
 
 Notes:
-- The script looks for headings like `# Session 01: Title` (or `Session 01: Title` in DOCX).
+- The script supports both template-style and verbose session headers:
+  - `# Session 01: Title`
+  - `## Session 1: Title`
+  - `Session 01: Title` (DOCX/plain)
+- Use `--session-parse-mode auto|template|verbose` if you need stricter matching.
 - It maps sections to lesson front matter:
   - **Mission** → `makes`
   - **Materials** → `needs`
@@ -66,7 +72,13 @@ Notes:
   They are hidden on learner lesson pages and shown in teacher tools (`/teach/lessons`
   and class dashboard rows).
 - DOCX works best if section titles are on their own line (e.g., “Materials”, “Agenda”).
-- The script prints a warning if no `Session 01: Title` headers are found.
+- The script prints a warning if no session headers are found.
+- It now writes `ui_level` and `program_profile` into `course.yaml`.
+  - Resolution order is:
+    1. explicit metadata (`UI Level`, `Program Profile`, `Learner Level`)
+    2. inferred from `Grade level` / `Age band`
+    3. `--default-ui-level` (fallback `secondary`)
+- Per-session overrides are supported by adding `UI Level: ...` near the top of a session body.
 
 ## Generate teacher templates (`.md` + `.docx`)
 

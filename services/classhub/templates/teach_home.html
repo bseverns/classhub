@@ -390,6 +390,46 @@
           {% endif %}
         </div>
 
+        {% if syllabus_export_enabled %}
+          <div class="card">
+            <h2 class="section-title">Syllabus Exports</h2>
+            <div class="muted section-subtitle">
+              Admin/superuser backup and catalog downloads for repo-authored course syllabi.
+            </div>
+            <div class="closeout-actions">
+              <a class="button mini" href="/teach/syllabus-export?kind=catalog_csv">Download catalog CSV</a>
+              <a class="button mini" href="/teach/syllabus-export?kind=backup_zip">Download full backup ZIP</a>
+            </div>
+
+            {% if syllabus_export_courses %}
+              <h3 class="section-title-compact">Single-course backup ZIP</h3>
+              <form method="get" action="/teach/syllabus-export">
+                <input type="hidden" name="kind" value="course_zip" />
+                <div class="grid-2">
+                  <div>
+                    <label for="syllabus-course-slug">Course</label>
+                    <select id="syllabus-course-slug" name="course_slug" required>
+                      {% for course_row in syllabus_export_courses %}
+                        <option
+                          value="{{ course_row.slug }}"
+                          {% if syllabus_export_selected_course_slug == course_row.slug %}selected{% endif %}
+                        >
+                          {{ course_row.title }} ({{ course_row.slug }}) · {{ course_row.lesson_count }} lessons
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Download course ZIP</button>
+                </div>
+              </form>
+            {% else %}
+              <p class="muted">No syllabus courses found.</p>
+            {% endif %}
+          </div>
+        {% endif %}
+
         <div class="card">
           <div class="row">
             <h2 class="section-title-tight">Classes</h2>

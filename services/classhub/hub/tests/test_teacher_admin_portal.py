@@ -153,8 +153,41 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Recent submissions")
         self.assertContains(resp, "Ada")
         self.assertContains(resp, "Generate Course Authoring Templates")
+        self.assertContains(resp, "Syllabus Exports")
         self.assertContains(resp, "Invite teacher")
         self.assertContains(resp, "My profile")
+
+    def test_superuser_can_export_syllabus_catalog_csv(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach/syllabus-export?kind=catalog_csv")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("attachment;", resp["Content-Disposition"])
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+        body = resp.content.decode("utf-8")
+        self.assertIn("course_slug,course_title", body)
+        self.assertIn("piper_scratch_12_session", body)
+
+        event = AuditEvent.objects.filter(action="syllabus_export.catalog_csv").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_superuser_can_export_syllabus_backup_zip(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach/syllabus-export?kind=backup_zip")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("attachment;", resp["Content-Disposition"])
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+
+        zip_bytes = b"".join(resp.streaming_content)
+        with zipfile.ZipFile(BytesIO(zip_bytes), "r") as archive:
+            names = archive.namelist()
+        self.assertTrue(any(name.startswith("courses/") for name in names))
+
+        event = AuditEvent.objects.filter(action="syllabus_export.backup_zip").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
 
     def test_teacher_can_update_own_profile_from_teach(self):
         _force_login_staff_verified(self.client, self.staff)
@@ -1351,6 +1384,28 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Alpha Cohort")
         self.assertNotContains(resp, "Beta Cohort")
+
+    def test_teach_home_hides_syllabus_exports_for_teacher_role(self):
+        resp = self.client.get("/teach")
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, "Syllabus Exports")
+
+    def test_teacher_role_cannot_export_syllabus(self):
+        resp = self.client.get("/teach/syllabus-export?kind=catalog_csv")
+        self.assertEqual(resp.status_code, 403)
+
+    def test_org_admin_membership_can_export_syllabus(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+
+        home_resp = self.client.get("/teach")
+        self.assertEqual(home_resp.status_code, 200)
+        self.assertContains(home_resp, "Syllabus Exports")
+
+        resp = self.client.get("/teach/syllabus-export?kind=catalog_csv")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("attachment;", resp["Content-Disposition"])
 
     def test_teach_class_dashboard_blocks_other_org(self):
         resp = self.client.get(f"/teach/class/{self.class_b.id}")

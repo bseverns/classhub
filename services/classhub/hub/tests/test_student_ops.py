@@ -1307,6 +1307,18 @@ class OperatorProfileTemplateTests(TestCase):
         self.assertEqual(join_resp.status_code, 200)
         self.assertContains(join_resp, "ui-density-expanded")
 
+    @override_settings(CLASSHUB_PROGRAM_PROFILE="advanced")
+    def test_student_home_expanded_mode_shows_studio_handles(self):
+        self._login_student()
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "ui-density-expanded")
+        self.assertContains(resp, "Studio handles")
+        self.assertContains(resp, "Export portfolio snapshot")
+        self.assertContains(resp, "Rubric links")
+        self.assertContains(resp, "Gallery share toggles")
+        self.assertContains(resp, "Studio accountability")
+
     def test_student_home_renders_class_landing_content(self):
         self.classroom.student_landing_title = "Week 5 Landing"
         self.classroom.student_landing_message = "Start here, then open your course links."

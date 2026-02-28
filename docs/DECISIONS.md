@@ -53,6 +53,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Lesson file path containment](#lesson-file-path-containment)
 - [Error-response redaction](#error-response-redaction)
 - [Teacher authoring templates](#teacher-authoring-templates)
+- [Syllabus export access and backups](#syllabus-export-access-and-backups)
 - [Teacher UI comfort mode](#teacher-ui-comfort-mode)
 - [Teacher portal complexity budget](#teacher-portal-complexity-budget)
 - [Helper scope signing](#helper-scope-signing)
@@ -1005,6 +1006,23 @@ Historical implementation logs and superseded decisions are archived by month in
 - Teachers can author in familiar formats (Markdown or Word) while preserving deterministic ingestion.
 - Reduces onboarding friction and avoids repeated format mistakes in session-plan documents.
 
+## Syllabus export access and backups
+
+**Current decision:**
+- Add a staff-only syllabus export endpoint at `/teach/syllabus-export` with three download modes:
+  - catalog CSV of all repo-authored course + lesson metadata,
+  - full syllabus backup ZIP across all courses,
+  - single-course backup ZIP by course slug.
+- Restrict export access to:
+  - superusers, and
+  - staff with active org memberships in `owner` or `admin` roles.
+- Expose export controls in the teacher portal (`/teach`) only when the current staff user has export permission.
+- Keep export responses as attachment downloads with `no-store` caching and audit events for traceability.
+
+**Why this remains active:**
+- Gives operators a low-friction backup/catalog mechanism without shell access.
+- Keeps coursepack export rights aligned with org administration boundaries.
+
 ## Teacher UI comfort mode
 
 **Current decision:**
@@ -1510,6 +1528,10 @@ Historical implementation logs and superseded decisions are archived by month in
   3) global env default (`CLASSHUB_PROGRAM_PROFILE`).
 - No database schema changes. Resolution is computed at render time from existing settings/content metadata.
 - This mode only adjusts copy density and layout complexity in learner pages (`/`, `/student`, `/course/*`).
+- `expanded` is treated as studio mode (not just "more text"):
+  - keep accountability handles visible (rubric links, portfolio export, gallery-share controls),
+  - include per-lesson design-log/changelog/release-note prompts,
+  - show challenge branches clearly when lesson `extend` options are present.
 
 **Why this remains active:**
 - Supports mixed-age delivery without forking the platform or duplicating templates.
@@ -1544,3 +1566,15 @@ Historical implementation logs and superseded decisions are archived by month in
 - Local operators and developers run deploy/ops scripts from macOS as well as Linux; env validation must be portable.
 - Script UX should fail clearly on bad arguments instead of treating flags as filesystem paths.
 - Keeping one canonical server path reduces drift between bootstrap docs, runbooks, and systemd units.
+
+## Secondary track pilot coursepack (Grade 9, 6 sessions)
+
+**Current decision:**
+- Add a new repo-authored coursepack at `services/classhub/content/courses/scratch_intro_games_code_grade9_6_session/`.
+- Set manifest metadata to `program_profile: secondary` and `ui_level: secondary` for density testing beyond elementary pacing.
+- Keep assessment completion-forward, with short reflections and vocabulary checks.
+- Add dedicated helper reference `grade9_scratch_games` for course-aligned tutoring context.
+
+**Why this remains active:**
+- Enables testing with a second pacing profile while preserving the same platform primitives (class code login, module import, helper boundary).
+- Supports mixed classroom cohorts without creating a separate product mode.

@@ -1,5 +1,6 @@
 """Teacher home and authoring template endpoints."""
 
+from .content_syllabus_exports import build_syllabus_export_state
 from .shared import (
     FileResponse,
     HttpResponse,
@@ -30,6 +31,7 @@ from .shared import (
     timedelta,
     timezone,
 )
+
 
 def _read_org_admin_state(request):
     org_name = (request.GET.get("org_name") or "").strip()
@@ -166,6 +168,7 @@ def teach_home(request):
     recent_submissions = _recent_submissions_for_class_ids(class_ids)
     output_dir = _authoring_template_output_dir()
     template_download_rows = _build_template_download_rows(template_slug, output_dir)
+    syllabus_export_state = build_syllabus_export_state(request)
 
     org_admin_context = _build_org_admin_context(user=request.user, user_model=User)
 
@@ -202,6 +205,7 @@ def teach_home(request):
             "org_membership_role": org_state["org_membership_role"] or OrganizationMembership.ROLE_TEACHER,
             "org_membership_active": org_state["org_membership_active"],
             "org_membership_mode": staff_has_explicit_memberships(request.user),
+            **syllabus_export_state,
             **org_admin_context,
         },
     )
