@@ -1578,3 +1578,24 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Enables testing with a second pacing profile while preserving the same platform primitives (class code login, module import, helper boundary).
 - Supports mixed classroom cohorts without creating a separate product mode.
+
+## Teacher syllabus source import (.md/.docx/.zip)
+
+**Current decision:**
+- Add a staff endpoint at `/teach/import-syllabus-source` to ingest curriculum source files into coursepacks.
+- Support three source types:
+  - single `.md` session plan,
+  - single `.docx` session plan,
+  - `.zip` bundles containing multiple `.md`/`.docx` files (including `sessions/` style archives).
+- Move parsing/writing logic into `hub/services/syllabus_ingest.py` so the teacher UI and script stack can share one ingest contract over time.
+- Keep ingestion conservative:
+  - explicit slug validation (`[a-z0-9_-]+`),
+  - parser modes (`auto` / `template` / `verbose`),
+  - bounded zip parsing (file count/size guardrails),
+  - overwrite only when explicitly requested.
+- Persist imported output in standard coursepack layout under `CONTENT_ROOT/courses/<slug>/` with generated `course.yaml` + `lessons/*.md`.
+
+**Why this remains active:**
+- Teachers and operators can onboard externally authored curricula without manual file surgery in the repo tree.
+- ZIP-first support matches real inbound package formats (multi-file session folders, course descriptions, templates).
+- Centralized ingest rules reduce drift between authoring scripts and portal behavior while preserving inspectable disk artifacts.

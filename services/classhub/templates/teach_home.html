@@ -345,6 +345,59 @@
         </div>
 
         <div class="card">
+          <h2 class="section-title">Import Syllabus Source</h2>
+          <div class="muted section-subtitle">
+            Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`).
+          </div>
+          <form method="post" action="/teach/import-syllabus-source" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="grid-2">
+              <div>
+                <label for="import-course-slug">Course slug (optional)</label>
+                <input id="import-course-slug" name="import_course_slug" value="{{ import_course_slug }}" placeholder="swarm_aesthetics" />
+              </div>
+              <div>
+                <label for="import-course-title">Course title override (optional)</label>
+                <input id="import-course-title" name="import_course_title" value="{{ import_course_title }}" placeholder="Swarm Aesthetics: Perceptual Drift Studio" />
+              </div>
+              <div>
+                <label for="import-default-ui-level">Default UI level</label>
+                <select id="import-default-ui-level" name="import_default_ui_level">
+                  <option value="elementary" {% if import_default_ui_level == "elementary" %}selected{% endif %}>elementary</option>
+                  <option value="secondary" {% if import_default_ui_level == "secondary" %}selected{% endif %}>secondary</option>
+                  <option value="advanced" {% if import_default_ui_level == "advanced" %}selected{% endif %}>advanced</option>
+                </select>
+              </div>
+              <div>
+                <label for="import-session-parse-mode">Session parser mode</label>
+                <select id="import-session-parse-mode" name="import_session_parse_mode">
+                  <option value="auto" {% if import_session_parse_mode == "auto" %}selected{% endif %}>auto</option>
+                  <option value="template" {% if import_session_parse_mode == "template" %}selected{% endif %}>template</option>
+                  <option value="verbose" {% if import_session_parse_mode == "verbose" %}selected{% endif %}>verbose</option>
+                </select>
+              </div>
+              <div>
+                <label for="import-source-file">Source file (.md, .docx, or .zip)</label>
+                <input id="import-source-file" name="syllabus_source" type="file" accept=".md,.docx,.zip" required />
+              </div>
+              <div>
+                <label for="import-overview-file">Optional overview (.md or .docx)</label>
+                <input id="import-overview-file" name="syllabus_overview" type="file" accept=".md,.docx" />
+              </div>
+              <div class="teacher-invite-checkbox-wrap">
+                <label class="teacher-invite-checkbox-label">
+                  <input type="checkbox" name="import_overwrite" value="1" {% if import_overwrite %}checked{% endif %} />
+                  Overwrite existing course folder
+                </label>
+              </div>
+            </div>
+            <div class="submit-wrap">
+              <button type="submit">Import source</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
           <h2 class="section-title">Generate Course Authoring Templates</h2>
           <div class="muted section-subtitle">
             Create pre-formatted `.md` and `.docx` starter files for teachers.

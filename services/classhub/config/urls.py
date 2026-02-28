@@ -56,6 +56,7 @@ urlpatterns = [
     path("teach/org-membership/upsert", views.teach_upsert_organization_membership),
     path("teach/org/<int:org_id>/set-active", views.teach_set_organization_active),
     path("teach/generate-authoring-templates", views.teach_generate_authoring_templates),
+    path("teach/import-syllabus-source", views.teach_import_syllabus_source),
     path("teach/authoring-template/download", views.teach_download_authoring_template),
     path("teach/syllabus-export", views.teach_export_syllabus),
     path("teach/logout", views.teacher_logout),

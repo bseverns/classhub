@@ -1,0 +1,57 @@
+slug: swarm_aesthetics
+title: "Swarm Aesthetics: Perceptual Drift Studio"
+ui_level: advanced
+program_profile: advanced
+sessions: 12
+default_duration_minutes: 75
+age_band: "5th-7th"
+helper_reference: swarm_aesthetics
+lessons:
+  - session: 1
+    slug: s01-swarms-systems
+    title: "Swarms & Systems"
+    file: lessons/01-swarms-systems.md
+  - session: 2
+    slug: s02-reading-perceptual-drift
+    title: "Reading Perceptual Drift"
+    file: lessons/02-reading-perceptual-drift.md
+  - session: 3
+    slug: s03-recipes-roles
+    title: "Recipes & Roles"
+    file: lessons/03-recipes-roles.md
+  - session: 4
+    slug: s04-telemetry-as-material
+    title: "Telemetry as Material"
+    file: lessons/04-telemetry-as-material.md
+  - session: 5
+    slug: s05-mappings-assumptions-ethics
+    title: "Mappings, Assumptions, Ethics"
+    file: lessons/05-mappings-assumptions-ethics.md
+  - session: 6
+    slug: s06-prototype-0-screen-tabletop-swarm
+    title: "Prototype 0: Screen / Tabletop Swarm"
+    file: lessons/06-prototype-0-screen-tabletop-swarm.md
+  - session: 7
+    slug: s07-designing-a-drift
+    title: "Designing a Drift"
+    file: lessons/07-designing-a-drift.md
+  - session: 8
+    slug: s08-rehearsal-lab
+    title: "Rehearsal Lab"
+    file: lessons/08-rehearsal-lab.md
+  - session: 9
+    slug: s09-interfaces-signage-scripts
+    title: "Interfaces, Signage, Scripts"
+    file: lessons/09-interfaces-signage-scripts.md
+  - session: 10
+    slug: s10-event-internal-showing
+    title: "Event / Internal Showing"
+    file: lessons/10-event-internal-showing.md
+  - session: 11
+    slug: s11-debrief-documentation
+    title: "Debrief & Documentation"
+    file: lessons/11-debrief-documentation.md
+  - session: 12
+    slug: s12-final-crit-futures
+    title: "Final Crit & Futures"
+    file: lessons/12-final-crit-futures.md

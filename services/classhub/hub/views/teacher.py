@@ -13,6 +13,7 @@ from .teacher_parts.content import (
     teach_export_syllabus,
     teach_generate_authoring_templates,
     teach_home,
+    teach_import_syllabus_source,
     teach_lessons,
     teach_set_lesson_release,
 )
@@ -63,6 +64,7 @@ __all__ = [
     "teach_teacher_2fa_setup",
     "teach_generate_authoring_templates",
     "teach_download_authoring_template",
+    "teach_import_syllabus_source",
     "teach_create_teacher",
     "teach_lessons",
     "teach_set_lesson_release",

@@ -205,6 +205,10 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
     - set organization active/inactive
     - assign/update org memberships for staff users (`owner` / `admin` / `teacher` / `viewer`)
   - create class
+  - import syllabus sources into coursepacks:
+    - accepts `.md`, `.docx`, and `.zip`
+    - supports optional overview file (`.md`/`.docx`) and parser mode (`auto`/`template`/`verbose`)
+    - can overwrite an existing slug when updating a course
   - generate authoring templates (`.md` + `.docx`) by setting:
     - `course slug`
     - `course title`

@@ -152,6 +152,7 @@ class TeacherPortalTests(TestCase):
         self.assertNotContains(resp, "const tabRoot = document.querySelector", html=False)
         self.assertContains(resp, "Recent submissions")
         self.assertContains(resp, "Ada")
+        self.assertContains(resp, "Import Syllabus Source")
         self.assertContains(resp, "Generate Course Authoring Templates")
         self.assertContains(resp, "Syllabus Exports")
         self.assertContains(resp, "Invite teacher")
@@ -990,6 +991,156 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertIn("/teach?error=", resp["Location"])
         mock_generate.assert_not_called()
+
+    def test_teacher_can_import_markdown_syllabus_source(self):
+        _force_login_staff_verified(self.client, self.staff)
+        source_md = """# Field Systems Studio
+
+Program Profile: advanced
+Grade Band: Grades 11-12
+Meeting Time: 90 minutes
+
+Session 01: Signals + Baselines
+## Materials
+- notebook
+
+Session 02: Drift Tests
+## Materials
+- laptop
+"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/import-syllabus-source",
+                    {
+                        "import_course_slug": "field_systems_studio",
+                        "import_course_title": "",
+                        "import_default_ui_level": "secondary",
+                        "import_session_parse_mode": "auto",
+                        "import_overwrite": "1",
+                        "syllabus_source": SimpleUploadedFile("field_systems.md", source_md.encode("utf-8")),
+                    },
+                )
+
+                course_yaml_path = content_root / "courses" / "field_systems_studio" / "course.yaml"
+                self.assertTrue(course_yaml_path.exists())
+                course_yaml = course_yaml_path.read_text(encoding="utf-8")
+                self.assertIn('title: "Field Systems Studio"', course_yaml)
+                self.assertIn("ui_level: advanced", course_yaml)
+                lesson_files = sorted((course_yaml_path.parent / "lessons").glob("*.md"))
+                self.assertEqual(len(lesson_files), 2)
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+        event = AuditEvent.objects.filter(action="teacher_syllabus_import.upload").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.target_id, "field_systems_studio")
+
+    def test_teacher_can_import_docx_syllabus_source(self):
+        from ..services.authoring_templates import generate_authoring_templates
+
+        _force_login_staff_verified(self.client, self.staff)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            template_dir = Path(temp_dir) / "templates"
+            template_result = generate_authoring_templates(
+                slug="docx_source",
+                title="DOCX Source",
+                sessions=2,
+                duration=60,
+                age_band="Grades 7-8",
+                out_dir=template_dir,
+                overwrite=True,
+            )
+            docx_bytes = template_result.teacher_plan_docx_path.read_bytes()
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/import-syllabus-source",
+                    {
+                        "import_course_slug": "docx_source",
+                        "import_course_title": "DOCX Source",
+                        "import_default_ui_level": "secondary",
+                        "import_session_parse_mode": "template",
+                        "import_overwrite": "1",
+                        "syllabus_source": SimpleUploadedFile(
+                            "docx_source.docx",
+                            docx_bytes,
+                            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        ),
+                    },
+                )
+
+                course_yaml_path = content_root / "courses" / "docx_source" / "course.yaml"
+                self.assertTrue(course_yaml_path.exists())
+                course_yaml = course_yaml_path.read_text(encoding="utf-8")
+                self.assertIn('title: "DOCX Source"', course_yaml)
+                lesson_files = sorted((course_yaml_path.parent / "lessons").glob("*.md"))
+                self.assertEqual(len(lesson_files), 2)
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+
+    def test_teacher_can_import_zip_syllabus_source(self):
+        _force_login_staff_verified(self.client, self.staff)
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr(
+                "swarm/COURSE_DESCRIPTION.md",
+                "# Swarm Aesthetics\n\nA studio course for drift and systems.",
+            )
+            archive.writestr(
+                "swarm/sessions/session01_swarms_systems.md",
+                "# Session 01 - Swarms & Systems\n\n## Materials\n- paper\n",
+            )
+            archive.writestr(
+                "swarm/sessions/session02_drift.md",
+                "# Session 02 - Drift Studies\n\n## Materials\n- laptop\n",
+            )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/import-syllabus-source",
+                    {
+                        "import_course_slug": "swarm_aesthetics",
+                        "import_course_title": "",
+                        "import_default_ui_level": "advanced",
+                        "import_session_parse_mode": "verbose",
+                        "import_overwrite": "1",
+                        "syllabus_source": SimpleUploadedFile("swarm.zip", zip_buffer.getvalue(), content_type="application/zip"),
+                    },
+                )
+
+                course_yaml_path = content_root / "courses" / "swarm_aesthetics" / "course.yaml"
+                self.assertTrue(course_yaml_path.exists())
+                course_yaml = course_yaml_path.read_text(encoding="utf-8")
+                self.assertIn('title: "Swarm Aesthetics"', course_yaml)
+                self.assertIn("ui_level: advanced", course_yaml)
+                lesson_files = sorted((course_yaml_path.parent / "lessons").glob("*.md"))
+                self.assertEqual(len(lesson_files), 2)
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+
+    def test_teacher_syllabus_import_rejects_unsupported_extension(self):
+        _force_login_staff_verified(self.client, self.staff)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/import-syllabus-source",
+                    {
+                        "import_course_slug": "bad_source",
+                        "import_default_ui_level": "secondary",
+                        "import_session_parse_mode": "auto",
+                        "syllabus_source": SimpleUploadedFile("bad_source.txt", b"hello"),
+                    },
+                )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?error=", resp["Location"])
+        self.assertEqual(AuditEvent.objects.filter(action="teacher_syllabus_import.upload").count(), 0)
 
     def test_teach_home_shows_template_download_links_for_selected_slug(self):
         _force_login_staff_verified(self.client, self.staff)

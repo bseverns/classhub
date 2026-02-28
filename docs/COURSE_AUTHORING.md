@@ -109,6 +109,31 @@ Teacher UI option:
   by filling in the same four fields: slug, title, sessions, duration.
 - The same card shows direct download links for any generated files for that slug.
 
+## Teacher portal import (`.md`, `.docx`, `.zip`)
+
+Staff users can ingest syllabus sources directly from `/teach` using **Import Syllabus Source**.
+
+Accepted source types:
+- `.md` session plan file
+- `.docx` session plan file
+- `.zip` bundle containing source docs
+
+Optional inputs:
+- `Course slug` (if blank, derived from title)
+- `Course title override`
+- `Default UI level` (`elementary`, `secondary`, `advanced`)
+- `Session parser mode` (`auto`, `template`, `verbose`)
+- `Overview file` (`.md`/`.docx`) when the source is a standalone session plan
+- `Overwrite existing course folder`
+
+ZIP handling rules:
+- The importer scans `.md`/`.docx` files in the archive.
+- It prioritizes `sessions/` (or `lessons/`) files and filenames like `session01_*`.
+- It derives overview/title metadata from files like `COURSE_DESCRIPTION.md`, `*overview*`, `*syllabus*`, or `README`.
+- Output is written as a standard coursepack under:
+  - `services/classhub/content/courses/<course_slug>/course.yaml`
+  - `services/classhub/content/courses/<course_slug>/lessons/*.md`
+
 ## Change the course title after scaffolding
 
 1) Update the course manifest:

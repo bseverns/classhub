@@ -1,5 +1,9 @@
 """Teacher home and authoring template endpoints."""
 
+from ...services.syllabus_ingest import (
+    SyllabusIngestError,
+    ingest_uploaded_syllabus_files,
+)
 from .content_syllabus_exports import build_syllabus_export_state
 from .shared import (
     FileResponse,
@@ -139,6 +143,11 @@ def teach_home(request):
     template_title = (request.GET.get("template_title") or "").strip()
     template_sessions = (request.GET.get("template_sessions") or "").strip()
     template_duration = (request.GET.get("template_duration") or "").strip()
+    import_course_slug = (request.GET.get("import_course_slug") or "").strip()
+    import_course_title = (request.GET.get("import_course_title") or "").strip()
+    import_default_ui_level = (request.GET.get("import_default_ui_level") or "secondary").strip().lower()
+    import_session_parse_mode = (request.GET.get("import_session_parse_mode") or "auto").strip().lower()
+    import_overwrite = (request.GET.get("import_overwrite") or "").strip() == "1"
     teacher_username = (request.GET.get("teacher_username") or "").strip()
     teacher_email = (request.GET.get("teacher_email") or "").strip()
     teacher_first_name = (request.GET.get("teacher_first_name") or "").strip()
@@ -187,6 +196,11 @@ def teach_home(request):
             "template_title": template_title,
             "template_sessions": template_sessions or "12",
             "template_duration": template_duration or "75",
+            "import_course_slug": import_course_slug,
+            "import_course_title": import_course_title,
+            "import_default_ui_level": import_default_ui_level if import_default_ui_level in {"elementary", "secondary", "advanced"} else "secondary",
+            "import_session_parse_mode": import_session_parse_mode if import_session_parse_mode in {"auto", "template", "verbose"} else "auto",
+            "import_overwrite": import_overwrite,
             "template_output_dir": str(output_dir),
             "template_download_rows": template_download_rows,
             "teacher_accounts": teacher_accounts,
@@ -211,6 +225,117 @@ def teach_home(request):
     )
     apply_no_store(response, private=True, pragma=True)
     return response
+
+def _syllabus_import_form_state(request):
+    source_upload = request.FILES.get("syllabus_source")
+    overview_upload = request.FILES.get("syllabus_overview")
+    slug = (request.POST.get("import_course_slug") or "").strip().lower()
+    title = (request.POST.get("import_course_title") or "").strip()
+    default_ui_level = (request.POST.get("import_default_ui_level") or "secondary").strip().lower()
+    session_parse_mode = (request.POST.get("import_session_parse_mode") or "auto").strip().lower()
+    overwrite = (request.POST.get("import_overwrite") or "").strip() == "1"
+    return {
+        "source_upload": source_upload,
+        "overview_upload": overview_upload,
+        "slug": slug,
+        "title": title,
+        "default_ui_level": default_ui_level,
+        "session_parse_mode": session_parse_mode,
+        "overwrite": overwrite,
+        "form_values": {
+            "import_course_slug": slug,
+            "import_course_title": title,
+            "import_default_ui_level": default_ui_level,
+            "import_session_parse_mode": session_parse_mode,
+            "import_overwrite": "1" if overwrite else "0",
+        },
+    }
+
+
+def _syllabus_import_error(request, *, form_values, message: str):
+    return _safe_internal_redirect(
+        request,
+        _with_notice("/teach", error=message, extra=form_values),
+        fallback="/teach",
+    )
+
+
+def _validate_syllabus_import_state(state: dict) -> str:
+    source_upload = state.get("source_upload")
+    slug = state.get("slug") or ""
+    default_ui_level = state.get("default_ui_level") or ""
+    session_parse_mode = state.get("session_parse_mode") or ""
+    if source_upload is None:
+        return "Select a syllabus source file (.md, .docx, or .zip)."
+    if slug and not _TEMPLATE_SLUG_RE.match(slug):
+        return "Course slug can use lowercase letters, numbers, underscores, and dashes."
+    if default_ui_level not in {"elementary", "secondary", "advanced"}:
+        return "Default UI level must be elementary, secondary, or advanced."
+    if session_parse_mode not in {"auto", "template", "verbose"}:
+        return "Session parse mode must be auto, template, or verbose."
+    return ""
+
+
+def _audit_syllabus_import(request, *, result, overwrite: bool):
+    _audit(
+        request,
+        action="teacher_syllabus_import.upload",
+        target_type="CourseSyllabus",
+        target_id=result.course_slug,
+        summary=f"Imported syllabus source into {result.course_slug}",
+        metadata={
+            "course_slug": result.course_slug,
+            "course_title": result.course_title,
+            "course_dir": str(result.course_dir),
+            "lesson_count": result.lesson_count,
+            "source_kind": result.source_kind,
+            "source_files": result.source_files,
+            "ui_level": result.ui_level,
+            "overwrite": overwrite,
+        },
+    )
+
+
+@staff_member_required
+@require_POST
+def teach_import_syllabus_source(request):
+    state = _syllabus_import_form_state(request)
+    form_values = state["form_values"]
+    error = _validate_syllabus_import_state(state)
+    if error:
+        return _syllabus_import_error(request, form_values=form_values, message=error)
+
+    try:
+        result = ingest_uploaded_syllabus_files(
+            source_upload=state["source_upload"],
+            course_slug=state["slug"],
+            course_title=state["title"],
+            overview_upload=state["overview_upload"],
+            default_ui_level=state["default_ui_level"],
+            session_parse_mode=state["session_parse_mode"],
+            overwrite=state["overwrite"],
+        )
+    except (SyllabusIngestError, OSError, ValueError) as exc:
+        return _syllabus_import_error(
+            request,
+            form_values=form_values,
+            message=f"Syllabus import failed: {exc}",
+        )
+
+    _audit_syllabus_import(request, result=result, overwrite=state["overwrite"])
+    notice = f"Imported course '{result.course_slug}' with {result.lesson_count} lessons."
+    success_values = {
+        "import_course_slug": result.course_slug,
+        "import_course_title": result.course_title,
+        "import_default_ui_level": state["default_ui_level"],
+        "import_session_parse_mode": state["session_parse_mode"],
+        "import_overwrite": "1" if state["overwrite"] else "0",
+    }
+    return _safe_internal_redirect(
+        request,
+        _with_notice("/teach", notice=notice, extra=success_values),
+        fallback="/teach",
+    )
 
 
 @staff_member_required
@@ -345,6 +470,7 @@ def teach_download_authoring_template(request):
 
 __all__ = [
     "teach_home",
+    "teach_import_syllabus_source",
     "teach_generate_authoring_templates",
     "teach_download_authoring_template",
 ]
