@@ -172,3 +172,205 @@ msgstr "Considera usar un apodo en lugar de información personal."
 #, python-format
 msgid "You are joining <strong>%(class_name)s</strong> by invite link."
 msgstr "Te estás uniendo a <strong>%(class_name)s</strong> por enlace de invitación."
+
+msgid "Storage location:"
+msgstr "Ubicación del almacenamiento:"
+
+msgid "day(s). Deleted sooner on request."
+msgstr "día(s). Se eliminan antes si se solicita."
+
+msgid "Delete now:"
+msgstr "Eliminar ahora:"
+
+msgid "My Data"
+msgstr "Mis datos"
+
+msgid "delete your work or end session."
+msgstr "eliminar tu trabajo o terminar sesión."
+
+#
+# ── Student class dashboard ──────────────────────────────────────────
+#
+
+msgid "Student home"
+msgstr "Inicio del estudiante"
+
+msgid "Join page"
+msgstr "Página de unirse"
+
+msgid "Export my portfolio"
+msgstr "Exportar mi portafolio"
+
+msgid "Privacy"
+msgstr "Privacidad"
+
+msgid "Signed in as"
+msgstr "Conectado como"
+
+msgid "Code"
+msgstr "Código"
+
+msgid "Copy class code"
+msgstr "Copiar código de clase"
+
+msgid "Your return code:"
+msgstr "Tu código de retorno:"
+
+msgid "Show return code"
+msgstr "Mostrar código de retorno"
+
+msgid "Hide return code"
+msgstr "Ocultar código de retorno"
+
+msgid "Show"
+msgstr "Mostrar"
+
+msgid "Copy return code"
+msgstr "Copiar código de retorno"
+
+msgid "for rejoin"
+msgstr "para reunirse"
+
+msgid "Log out"
+msgstr "Cerrar sesión"
+
+msgid "This week"
+msgstr "Esta semana"
+
+msgid "This week's highlighted lesson"
+msgstr "Lección destacada de esta semana"
+
+msgid "Highlighted lesson"
+msgstr "Lección destacada"
+
+msgid "Start this week's lesson"
+msgstr "Comenzar la lección de esta semana"
+
+msgid "Locked"
+msgstr "Bloqueado"
+
+msgid "Open"
+msgstr "Abierto"
+
+msgid "No calendar-linked lessons yet. Ask your teacher when your first lesson opens."
+msgstr "Aún no hay lecciones vinculadas al calendario. Pregunta a tu maestro cuándo abre tu primera lección."
+
+msgid "Course links"
+msgstr "Enlaces del curso"
+
+msgid "View full course lesson links"
+msgstr "Ver todos los enlaces de lecciones del curso"
+
+msgid "Course lesson links will appear here after your teacher connects a course."
+msgstr "Los enlaces de lecciones del curso aparecerán aquí después de que tu maestro conecte un curso."
+
+msgid "How to tell you are done"
+msgstr "Cómo saber que terminaste"
+
+msgid "Open lesson"
+msgstr "Abrir lección"
+
+msgid "Upload / view submissions"
+msgstr "Subir / ver entregas"
+
+msgid "Upload / manage gallery"
+msgstr "Subir / administrar galería"
+
+msgid "Save checklist"
+msgstr "Guardar lista de verificación"
+
+msgid "Save reflection"
+msgstr "Guardar reflexión"
+
+msgid "Save rubric"
+msgstr "Guardar rúbrica"
+
+msgid "Account"
+msgstr "Cuenta"
+
+msgid "End my session on this device"
+msgstr "Terminar mi sesión en este dispositivo"
+
+#
+# ── Student My Data page ─────────────────────────────────────────────
+#
+
+msgid "Back to class"
+msgstr "Volver a la clase"
+
+msgid "Privacy at a glance"
+msgstr "Privacidad en resumen"
+
+msgid "Stored data: your display name, submissions, and class event timestamps."
+msgstr "Datos almacenados: tu nombre para mostrar, entregas y marcas de tiempo de clase."
+
+msgid "Download my work"
+msgstr "Descargar mi trabajo"
+
+msgid "Delete all of your submissions now?"
+msgstr "¿Eliminar todas tus entregas ahora?"
+
+msgid "Delete my work now"
+msgstr "Eliminar mi trabajo ahora"
+
+msgid "My submissions"
+msgstr "Mis entregas"
+
+msgid "When"
+msgstr "Cuándo"
+
+msgid "Module"
+msgstr "Módulo"
+
+msgid "Material"
+msgstr "Material"
+
+msgid "File"
+msgstr "Archivo"
+
+msgid "Download"
+msgstr "Descargar"
+
+msgid "No submissions stored yet."
+msgstr "Aún no hay entregas almacenadas."
+
+#
+# ── Privacy page ─────────────────────────────────────────────────────
+#
+
+msgid "Privacy Information"
+msgstr "Información de privacidad"
+
+msgid "How we handle your data on"
+msgstr "Cómo manejamos tus datos en"
+
+msgid "1. What data is collected"
+msgstr "1. Qué datos se recopilan"
+
+msgid "We design this platform to collect as little about you as possible."
+msgstr "Diseñamos esta plataforma para recopilar lo menos posible sobre ti."
+
+msgid "Don't upload sensitive documents"
+msgstr "No subas documentos confidenciales"
+
+msgid "2. How to export or delete your work"
+msgstr "2. Cómo exportar o eliminar tu trabajo"
+
+msgid "You own your artifacts. While in an active session, you can export or delete your files at any time."
+msgstr "Eres dueño de tus archivos. Mientras tengas una sesión activa, puedes exportar o eliminar tus archivos en cualquier momento."
+
+msgid "3. What gets deleted and when"
+msgstr "3. Qué se elimina y cuándo"
+
+msgid "We don't hold on to your data forever."
+msgstr "No guardamos tus datos para siempre."
+
+#
+# ── Course overview page ─────────────────────────────────────────────
+#
+
+msgid "Lessons"
+msgstr "Lecciones"
+
+msgid "Back to join"
+msgstr "Volver a unirse"

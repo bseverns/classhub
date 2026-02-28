@@ -1,6 +1,6 @@
-{% load static hub_extras %}
+{% load static hub_extras i18n %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 
 <head>
   <meta charset="utf-8" />
@@ -11,46 +11,47 @@
 </head>
 
 <body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
   <div class="shell">
     <main id="main-content">
       <div class="top">
         <div>
           <div class="muted">
-            <a href="/student">Student home</a>
+            <a href="/student">{% trans "Student home" %}</a>
             {% if ui_density_mode != "compact" %}
-            · <a href="/">Join page</a>
-            · <a href="/student/portfolio-export">Export my portfolio</a>
-            · <a href="/privacy">Privacy</a>
+            · <a href="/">{% trans "Join page" %}</a>
+            · <a href="/student/portfolio-export">{% trans "Export my portfolio" %}</a>
+            · <a href="/privacy">{% trans "Privacy" %}</a>
             {% if ui_density_mode == "expanded" %}
             · <a href="#studio-handles">Studio handles</a>
             {% endif %}
             {% else %}
-            · <a href="/privacy">Privacy</a>
+            · <a href="/privacy">{% trans "Privacy" %}</a>
             {% endif %}
           </div>
           <h1>{{ classroom.name }}</h1>
           <div class="muted">
-            Signed in as <strong>{{ student.display_name }}</strong>
-            · Code <span class="pill">{{ classroom.join_code }}</span>
-            <button type="button" class="inline-copy" data-copy-value="{{ classroom.join_code }}">Copy class
-              code</button>
+            {% trans "Signed in as" %} <strong>{{ student.display_name }}</strong>
+            · {% trans "Code" %} <span class="pill">{{ classroom.join_code }}</span>
+            <button type="button" class="inline-copy" data-copy-value="{{ classroom.join_code }}">{% trans "Copy class
+              code" %}</button>
           </div>
           <div class="muted">
-            Your return code:
+            {% trans "Your return code:" %}
             <span id="student-return-code" class="pill secret-code" data-shown="0">••••••</span>
             <span id="student-return-code-icons" class="return-code-icons hidden" aria-live="polite"></span>
             <button type="button" class="inline-copy" data-secret-target="student-return-code"
-              data-show-label="Show return code" data-hide-label="Hide return code" aria-controls="student-return-code"
-              aria-pressed="false" aria-label="Show return code">Show</button>
+              data-show-label="{% trans 'Show return code' %}" data-hide-label="{% trans 'Hide return code' %}"
+              aria-controls="student-return-code" aria-pressed="false" aria-label="{% trans 'Show return code' %}">{%
+              trans "Show" %}</button>
             <button type="button" class="inline-copy" data-copy-secret-target="student-return-code"
-              aria-label="Copy return code">Copy return code</button>
-            (for rejoin)
+              aria-label="{% trans 'Copy return code' %}">{% trans "Copy return code" %}</button>
+            ({% trans "for rejoin" %})
           </div>
           <div id="copy-status" class="muted copy-status" role="status" aria-live="polite"></div>
         </div>
         <div>
-          <a class="muted" href="/logout">Log out</a>
+          <a class="muted" href="/logout">{% trans "Log out" %}</a>
         </div>
       </div>
 
@@ -67,14 +68,14 @@
         {% endif %}
 
         <section class="landing-section">
-          <h3>This week</h3>
+          <h3>{% trans "This week" %}</h3>
           {% if class_landing.highlight_lesson %}
           <div class="landing-highlight">
             <div class="muted">
               {% if class_landing.highlight_lesson.is_this_week %}
-              This week's highlighted lesson
+              {% trans "This week's highlighted lesson" %}
               {% else %}
-              Highlighted lesson
+              {% trans "Highlighted lesson" %}
               {% endif %}
             </div>
             <p class="landing-highlight-title">
@@ -85,14 +86,14 @@
             <p class="landing-primary-action-wrap">
               <a class="landing-primary-action" href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank"
                 rel="noopener">
-                Start this week's lesson
+                {% trans "Start this week's lesson" %}
               </a>
             </p>
             <div class="muted">
               {% if class_landing.highlight_lesson.is_locked %}
-              <span class="state-pill state-pill--locked">Locked</span>
+              <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
               {% else %}
-              <span class="state-pill state-pill--open">Open</span>
+              <span class="state-pill state-pill--open">{% trans "Open" %}</span>
               {% endif %}
               {% if class_landing.highlight_lesson.available_on %}
               · {{ class_landing.highlight_lesson.available_on|date:"M j, Y" }}
@@ -100,14 +101,15 @@
             </div>
           </div>
           {% else %}
-          <p class="muted">No calendar-linked lessons yet. Ask your teacher when your first lesson opens.</p>
+          <p class="muted">{% trans "No calendar-linked lessons yet. Ask your teacher when your first lesson opens." %}
+          </p>
           {% endif %}
         </section>
 
         <section class="landing-section">
           <h3>Course links</h3>
           {% if class_landing.course_lesson_links %}
-          <details class="landing-course-map" {% if ui_density_mode == "expanded" %}open{% endif %}>
+          <details class="landing-course-map" {% if ui_density_mode=="expanded" %}open{% endif %}>
             <summary>View full course lesson links</summary>
             <ul>
               {% for row in class_landing.course_lesson_links %}
@@ -129,7 +131,7 @@
             </ul>
           </details>
           {% else %}
-          <p class="muted">Course lesson links will appear here after your teacher connects a course.</p>
+          <p class="muted">{% trans "Course lesson links will appear here after your teacher connects a course." %}</p>
           {% endif %}
         </section>
       </div>
@@ -172,7 +174,7 @@
       {% endif %}
 
       <div class="card done-guide">
-        <h2>How to tell you are done</h2>
+        <h2>{% trans "How to tell you are done" %}</h2>
         {% if ui_density_mode == "compact" %}
         <p class="muted"><span class="state-pill state-pill--done">Done</span> saved · <span
             class="state-pill state-pill--open">Open</span> do now · <span
@@ -193,7 +195,8 @@
       {% if modules %}
       {% for m in modules %}
       {% with module_release=class_landing.module_release_map|get_item:m.id %}
-      <details class="card module" id="module-{{ m.id }}" {% if class_landing.highlight_module_id == m.id or ui_density_mode == "expanded" %}open{% endif %}>
+      <details class="card module" id="module-{{ m.id }}" {% if class_landing.highlight_module_id==m.id or
+        ui_density_mode=="expanded" %}open{% endif %}>
         <summary class="module-summary">
           <span class="module-title">{{ m.title }}</span>
           {% if module_release %}
@@ -226,7 +229,8 @@
               page</a></div>
           <div class="muted">Full lesson unlocks on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
           {% else %}
-          <div class="mat-link"><a href="{{ mat.url }}" target="_blank" rel="noopener">Open lesson</a></div>
+          <div class="mat-link"><a href="{{ mat.url }}" target="_blank" rel="noopener">{% trans "Open lesson" %}</a>
+          </div>
           {% endif %}
           {% endwith %}
           {% elif mat.type == 'text' and mat.body %}
@@ -255,7 +259,7 @@
             {% endif %}
           </div>
           <div class="mat-link">
-            <a href="/material/{{ mat.id }}/upload">Upload / view submissions</a>
+            <a href="/material/{{ mat.id }}/upload">{% trans "Upload / view submissions" %}</a>
             {% if s %}
             <span class="muted">· {{ s.count }} uploaded (latest saved)</span>
             {% endif %}
@@ -263,7 +267,8 @@
           {% endif %}
           {% endwith %}
           {% elif mat.type == 'gallery' %}
-          {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id gallery_entries=gallery_entries_by_material|get_item:mat.id %}
+          {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id
+          gallery_entries=gallery_entries_by_material|get_item:mat.id %}
           {% if access.is_lesson_upload and access.is_locked %}
           <div class="status-row">
             <span class="state-pill state-pill--locked">Locked</span>
@@ -286,7 +291,7 @@
             {% endif %}
           </div>
           <div class="mat-link">
-            <a href="/material/{{ mat.id }}/upload">Upload / manage gallery</a>
+            <a href="/material/{{ mat.id }}/upload">{% trans "Upload / manage gallery" %}</a>
             {% if s %}
             <span class="muted">· {{ s.count }} uploaded</span>
             {% endif %}
@@ -308,7 +313,8 @@
           {% endif %}
           {% endwith %}
           {% elif mat.type == 'checklist' %}
-          {% with access=material_access|get_item:mat.id items=material_checklist_items|get_item:mat.id state=material_responses|get_item:mat.id %}
+          {% with access=material_access|get_item:mat.id items=material_checklist_items|get_item:mat.id
+          state=material_responses|get_item:mat.id %}
           {% if access.is_lesson_activity and access.is_locked %}
           <div class="status-row">
             <span class="state-pill state-pill--locked">Locked</span>
@@ -329,11 +335,12 @@
               {% csrf_token %}
               {% for item in items %}
               <label class="checklist-item-row">
-                <input type="checkbox" name="checked_item" value="{{ forloop.counter0 }}" {% if state and forloop.counter0 in state.checklist_checked %}checked{% endif %} />
+                <input type="checkbox" name="checked_item" value="{{ forloop.counter0 }}" {% if state and
+                  forloop.counter0 in state.checklist_checked %}checked{% endif %} />
                 <span>{{ item }}</span>
               </label>
               {% endfor %}
-              <button type="submit">Save checklist</button>
+              <button type="submit">{% trans "Save checklist" %}</button>
             </form>
           </details>
           {% else %}
@@ -370,13 +377,14 @@
               <label for="reflection-{{ mat.id }}" class="muted">Your private reflection</label>
               <textarea id="reflection-{{ mat.id }}" name="reflection_text" rows="5"
                 placeholder="Write a short reflection.">{{ state.reflection_text|default:'' }}</textarea>
-              <button type="submit">Save reflection</button>
+              <button type="submit">{% trans "Save reflection" %}</button>
             </form>
           </details>
           {% endif %}
           {% endwith %}
           {% elif mat.type == 'rubric' %}
-          {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id spec=material_rubric_specs|get_item:mat.id %}
+          {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id
+          spec=material_rubric_specs|get_item:mat.id %}
           {% if access.is_lesson_activity and access.is_locked %}
           <div class="status-row">
             <span class="state-pill state-pill--locked">Locked</span>
@@ -406,7 +414,7 @@
               <select id="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" name="criterion_{{ criterion_index }}">
                 <option value="">Not scored</option>
                 {% for score in spec.scale_values %}
-                <option value="{{ score }}" {% if selected_score == score %}selected{% endif %}>{{ score }}</option>
+                <option value="{{ score }}" {% if selected_score==score %}selected{% endif %}>{{ score }}</option>
                 {% endfor %}
               </select>
               {% endwith %}
@@ -414,7 +422,7 @@
               <label for="rubric-feedback-{{ mat.id }}" class="muted">Optional feedback</label>
               <textarea id="rubric-feedback-{{ mat.id }}" name="rubric_feedback" rows="4"
                 placeholder="Short note to your teacher (optional).">{{ state.rubric_feedback|default:'' }}</textarea>
-              <button type="submit">Save rubric</button>
+              <button type="submit">{% trans "Save rubric" %}</button>
             </form>
           </details>
           {% else %}
@@ -439,7 +447,7 @@
       {% endif %}
 
       <div class="card done-guide{% if ui_density_mode == 'compact' %} done-guide--compact{% endif %}">
-        <h2>Account</h2>
+        <h2>{% trans "Account" %}</h2>
         {% if ui_density_mode == "compact" %}
         <p class="muted">Open My Data for account controls.</p>
         <div class="my-data-actions">
@@ -452,7 +460,7 @@
           <a href="/student/portfolio-export">Download my work</a>
           <form method="post" action="/student/end-session">
             {% csrf_token %}
-            <button type="submit">End my session on this device</button>
+            <button type="submit">{% trans "End my session on this device" %}</button>
           </form>
         </div>
         {% endif %}
