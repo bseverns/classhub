@@ -7,13 +7,19 @@ from functools import wraps
 from django.conf import settings
 from django.http import JsonResponse
 from django.utils import timezone
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
 from common.request_safety import client_ip_from_request, fixed_window_allow
 from ..http.headers import apply_no_store
-from ..models import Submission
-from ..services.org_access import staff_accessible_classes_ranked, staff_classroom_or_none
+from ..models import Class, Submission
+from ..services.org_access import (
+    staff_accessible_classes_ranked,
+    staff_can_manage_classroom,
+    staff_classroom_or_none,
+)
 from ..services.teacher_roster_class import build_dashboard_context
+from .teacher_parts.shared_ordering import _next_unique_class_join_code
+from .teacher_parts.shared_routing import _audit
 
 logger = logging.getLogger(__name__)
 
@@ -239,8 +245,140 @@ def api_teacher_class_submissions(request, class_id: int):
     )
 
 
+# ---------------------------------------------------------------------------
+# Write endpoints
+# ---------------------------------------------------------------------------
+
+def _manage_or_403(request, classroom):
+    """Return a 403 JSON response if user cannot manage this class, else None."""
+    if not staff_can_manage_classroom(request.user, classroom):
+        return _json_no_store_response({"error": "forbidden"}, status=403, private=True)
+    return None
+
+
+@require_POST
+@_staff_required
+@_teacher_rate_limit(limit=30, window_seconds=60)
+def api_teacher_toggle_lock(request, class_id: int):
+    """POST /api/v1/teacher/class/<id>/toggle-lock
+
+    Toggles the class lock state. Returns the new state.
+    """
+    classroom = staff_classroom_or_none(request.user, class_id)
+    if not classroom:
+        return _json_no_store_response({"error": "not_found"}, status=404, private=True)
+    denied = _manage_or_403(request, classroom)
+    if denied:
+        return denied
+
+    classroom.is_locked = not classroom.is_locked
+    classroom.save(update_fields=["is_locked"])
+    _audit(
+        request,
+        action="class.toggle_lock",
+        classroom=classroom,
+        target_type="Class",
+        target_id=str(classroom.id),
+        summary=f"Toggled class lock to {classroom.is_locked}",
+        metadata={"is_locked": classroom.is_locked},
+    )
+    return _json_no_store_response(
+        {"classroom_id": classroom.id, "is_locked": classroom.is_locked},
+        private=True,
+    )
+
+
+@require_POST
+@_staff_required
+@_teacher_rate_limit(limit=30, window_seconds=60)
+def api_teacher_rotate_code(request, class_id: int):
+    """POST /api/v1/teacher/class/<id>/rotate-code
+
+    Generates a new join code for the class. Returns the new code.
+    """
+    classroom = staff_classroom_or_none(request.user, class_id)
+    if not classroom:
+        return _json_no_store_response({"error": "not_found"}, status=404, private=True)
+    denied = _manage_or_403(request, classroom)
+    if denied:
+        return denied
+
+    classroom.join_code = _next_unique_class_join_code()
+    classroom.save(update_fields=["join_code"])
+    _audit(
+        request,
+        action="class.rotate_code",
+        classroom=classroom,
+        target_type="Class",
+        target_id=str(classroom.id),
+        summary="Rotated class join code",
+        metadata={"join_code": classroom.join_code},
+    )
+    return _json_no_store_response(
+        {"classroom_id": classroom.id, "join_code": classroom.join_code},
+        private=True,
+    )
+
+
+_VALID_ENROLLMENT_MODES = {
+    Class.ENROLLMENT_OPEN,
+    Class.ENROLLMENT_INVITE_ONLY,
+    Class.ENROLLMENT_CLOSED,
+}
+
+
+@require_POST
+@_staff_required
+@_teacher_rate_limit(limit=30, window_seconds=60)
+def api_teacher_set_enrollment_mode(request, class_id: int):
+    """POST /api/v1/teacher/class/<id>/set-enrollment-mode
+
+    Sets the enrollment mode. Accepts JSON body: {"enrollment_mode": "open"}
+    """
+    classroom = staff_classroom_or_none(request.user, class_id)
+    if not classroom:
+        return _json_no_store_response({"error": "not_found"}, status=404, private=True)
+    denied = _manage_or_403(request, classroom)
+    if denied:
+        return denied
+
+    import json as _json
+    try:
+        body = _json.loads(request.body)
+        enrollment_mode = (body.get("enrollment_mode") or "").strip().lower()
+    except (ValueError, AttributeError):
+        enrollment_mode = (request.POST.get("enrollment_mode") or "").strip().lower()
+
+    if enrollment_mode not in _VALID_ENROLLMENT_MODES:
+        return _json_no_store_response(
+            {"error": "invalid_enrollment_mode", "valid_modes": sorted(_VALID_ENROLLMENT_MODES)},
+            status=400,
+            private=True,
+        )
+
+    old_mode = classroom.enrollment_mode
+    classroom.enrollment_mode = enrollment_mode
+    classroom.save(update_fields=["enrollment_mode"])
+    _audit(
+        request,
+        action="class.set_enrollment_mode",
+        classroom=classroom,
+        target_type="Class",
+        target_id=str(classroom.id),
+        summary=f"Set class enrollment mode to {enrollment_mode}",
+        metadata={"old_mode": old_mode, "enrollment_mode": enrollment_mode},
+    )
+    return _json_no_store_response(
+        {"classroom_id": classroom.id, "enrollment_mode": enrollment_mode},
+        private=True,
+    )
+
+
 __all__ = [
     "api_teacher_classes",
     "api_teacher_class_roster",
     "api_teacher_class_submissions",
+    "api_teacher_toggle_lock",
+    "api_teacher_rotate_code",
+    "api_teacher_set_enrollment_mode",
 ]

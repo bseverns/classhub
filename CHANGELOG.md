@@ -15,6 +15,7 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - "Content visibility model" section in `SECURITY.md` documenting public-curriculum / private-artifact stance.
 - `ops/logrotate/classhub` config to rotate cron job logs.
 - Privacy flow E2E test suite (`test_privacy_flow.py`, 9 tests).
+- Headless Teacher API endpoints (`/api/v1/teacher/*`) with staff auth, rate limiting, and paginated submissions.
 - CodeQL workflow for Python static analysis in CI.
 - Bandit high-confidence/high-severity SAST scan in CI.
 
