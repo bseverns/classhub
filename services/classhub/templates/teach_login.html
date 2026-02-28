@@ -1,24 +1,25 @@
-{% load static %}
+{% load static i18n %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Teacher Login · {{ operator_profile.product_name|default:"Class Hub" }}</title>
+    <title>{% trans "Teacher Login" %} · {{ operator_profile.product_name|default:"Class Hub" }}</title>
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/teach_login.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/language_chooser.css' %}" />
 </head>
 
 <body class="glass-theme teacher-comfort">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
     <div class="shell">
         <main id="main-content">
             <div class="top title-row login-header-row">
                 <div>
-                    <h1>Teacher Login</h1>
+                    <h1>{% trans "Teacher Login" %}</h1>
                     <div class="muted navline">
-                        <a href="/">Home</a>
+                        <a href="/">{% trans "Home" %}</a>
                     </div>
                 </div>
             </div>
@@ -36,7 +37,7 @@
             {% endif %}
 
             <div class="card">
-                <h2 class="login-card-title">Sign in to your account</h2>
+                <h2 class="login-card-title">{% trans "Sign in to your account" %}</h2>
                 <form method="post" autocomplete="on">
                     {% csrf_token %}
                     {% if next_path %}
@@ -58,10 +59,11 @@
                     </div>
                     {% endfor %}
                     <div class="submit-wrap">
-                        <button type="submit">Log in</button>
+                        <button type="submit">{% trans "Log in" %}</button>
                     </div>
                 </form>
             </div>
+            {% include "includes/language_chooser.html" %}
         </main>
     </div>
 </body>

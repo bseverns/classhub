@@ -1,0 +1,174 @@
+# ClassHub Spanish translations for core entry flows.
+# Copyright (C) 2026 createMPLS
+# This file is distributed under the same license as the ClassHub package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ClassHub 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-28 13:30-0600\n"
+"PO-Revision-Date: 2026-02-28 13:30-0600\n"
+"Last-Translator: ClassHub Contributors\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#
+# ── Join page ────────────────────────────────────────────────────────
+#
+
+msgid "Join Class"
+msgstr "Unirse a la clase"
+
+msgid "Skip to main content"
+msgstr "Ir al contenido principal"
+
+msgid "Join your class"
+msgstr "Únete a tu clase"
+
+msgid "Enter your class code and pick a display name."
+msgstr "Ingresa tu código de clase y elige un nombre para mostrar."
+
+msgid "Enter the class code from your teacher. Pick any display name you like."
+msgstr "Ingresa el código de clase de tu maestro. Elige el nombre que quieras."
+
+msgid "On shared devices, enter your return code so you do not join as another student."
+msgstr "En dispositivos compartidos, ingresa tu código de retorno para no unirte como otro estudiante."
+
+msgid "Same classroom device? You can usually leave return code blank."
+msgstr "\u00bfMismo dispositivo del sal\u00f3n? Generalmente puedes dejar el c\u00f3digo de retorno en blanco."
+
+msgid "On shared devices, use your own return code to avoid signing in as someone else."
+msgstr "En dispositivos compartidos, usa tu propio código de retorno para no iniciar sesión como otra persona."
+
+msgid "Class code"
+msgstr "Código de clase"
+
+msgid "Your display name"
+msgstr "Tu nombre para mostrar"
+
+msgid "A nickname or made-up name is fine — no need to use your real name."
+msgstr "Un apodo o nombre inventado está bien — no necesitas usar tu nombre real."
+
+msgid "Return code (optional)"
+msgstr "Código de retorno (opcional)"
+
+msgid "If your class uses icon codes, use the icon keypad below."
+msgstr "Si tu clase usa códigos de íconos, usa el teclado de íconos de abajo."
+
+msgid "Show icon keypad"
+msgstr "Mostrar teclado de íconos"
+
+msgid "Clear return code"
+msgstr "Borrar código de retorno"
+
+msgid "Return code icon keypad"
+msgstr "Teclado de íconos de código de retorno"
+
+msgid "Join class"
+msgstr "Unirse a la clase"
+
+msgid "Privacy at a glance:"
+msgstr "Privacidad en resumen:"
+
+msgid "We store your display name, class submissions, and event timestamps."
+msgstr "Almacenamos tu nombre para mostrar, entregas de clase y marcas de tiempo."
+
+#, python-format
+msgid "Storage location: %(location)s"
+msgstr "Ubicación del almacenamiento: %(location)s"
+
+msgid "Retention:"
+msgstr "Retención:"
+
+msgid "submissions are kept up to %(counter)s day unless deleted sooner."
+msgid_plural "submissions are kept up to %(counter)s days unless deleted sooner."
+msgstr[0] "las entregas se conservan hasta %(counter)s d\u00eda a menos que se eliminen antes."
+msgstr[1] "las entregas se conservan hasta %(counter)s d\u00edas a menos que se eliminen antes."
+
+msgid "submissions stay until a teacher or admin removes them."
+msgstr "las entregas permanecen hasta que un maestro o administrador las elimine."
+
+msgid "Delete now: after joining, open <a href=\"/student/my-data\">My Data</a> to delete your work or end this device session."
+msgstr "Eliminar ahora: despu\u00e9s de unirte, abre <a href=\"/student/my-data\">Mis datos</a>."
+
+msgid "Teacher? Use <a href=\"/teach\">/teach</a>."
+msgstr "¿Maestro? Usa <a href=\"/teach\">/teach</a>."
+
+#
+# ── Teacher login page ───────────────────────────────────────────────
+#
+
+msgid "Teacher Login"
+msgstr "Inicio de sesión del maestro"
+
+msgid "Home"
+msgstr "Inicio"
+
+msgid "Sign in to your account"
+msgstr "Inicia sesión en tu cuenta"
+
+msgid "Log in"
+msgstr "Iniciar sesión"
+
+#
+# ── Language chooser ─────────────────────────────────────────────────
+#
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Switch"
+msgstr "Cambiar"
+
+#
+# ── Invite error messages (Python) ───────────────────────────────────
+#
+
+msgid "That invite link is not valid."
+msgstr "Ese enlace de invitación no es válido."
+
+msgid "That invite link has been disabled."
+msgstr "Ese enlace de invitación ha sido desactivado."
+
+msgid "That invite link has expired."
+msgstr "Ese enlace de invitación ha expirado."
+
+msgid "This invite is full right now. Ask your teacher for a new invite link."
+msgstr "Esta invitación está llena en este momento. Pide a tu maestro un nuevo enlace de invitación."
+
+msgid "That invite link is not usable right now."
+msgstr "Ese enlace de invitación no se puede usar en este momento."
+
+#
+# ── Name-safety messages (Python) ────────────────────────────────────
+#
+
+msgid "That looks like an email address. Please use a nickname or display name instead."
+msgstr "Eso parece una dirección de correo electrónico. Por favor, usa un apodo o nombre para mostrar."
+
+msgid "That looks like a phone number. Please use a nickname or display name instead."
+msgstr "Eso parece un número de teléfono. Por favor, usa un apodo o nombre para mostrar."
+
+msgid "Please use a nickname or display name instead of personal information."
+msgstr "Por favor, usa un apodo o nombre para mostrar en lugar de información personal."
+
+msgid "Heads-up: that looks like an email address. A nickname is safer."
+msgstr "Aviso: eso parece una dirección de correo electrónico. Un apodo es más seguro."
+
+msgid "Heads-up: that looks like a phone number. A nickname is safer."
+msgstr "Aviso: eso parece un número de teléfono. Un apodo es más seguro."
+
+msgid "Consider using a nickname instead of personal information."
+msgstr "Considera usar un apodo en lugar de información personal."
+
+#
+# ── Invite join (blocktrans) ─────────────────────────────────────────
+#
+
+#, python-format
+msgid "You are joining <strong>%(class_name)s</strong> by invite link."
+msgstr "Te estás uniendo a <strong>%(class_name)s</strong> por enlace de invitación."

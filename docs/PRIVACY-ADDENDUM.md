@@ -130,6 +130,26 @@ flowchart LR
 - Log rotation/retention:
   - enforce at container runtime/host policy (for example Docker `max-size` + `max-file`) and align with school policy.
 
+## Display Name Privacy Controls
+
+### Pseudonym-First Defaults
+The student join page pre-fills the display name with a generated pseudonym (e.g., "Curious Otter 17") by default. Students may clear this and enter any display name they prefer, but the default makes it easy to participate without sharing real names.
+
+- `CLASSHUB_NAME_PSEUDONYM_DEFAULT` (default: `true`): set to `false` to disable pseudonym pre-fill.
+
+### Name-Safety Validation
+Server-side validation screens display names that look like email addresses or phone numbers, reducing accidental PII collection.
+
+- `CLASSHUB_NAME_SAFETY_MODE` (default: `warn`):
+  - `off`: no validation.
+  - `warn`: flag email/phone-like names with a non-blocking warning but allow the join to complete.
+  - `strict`: reject email/phone-like names outright with a friendly explanation.
+
+Name-safety checks apply only during the join POST. Existing students are not retroactively affected.
+
+### Why Pseudonyms? (Facilitator Script)
+> "In this class, you don't need to use your real name. When you join, you'll see a fun made-up name already filled in — something like 'Brave Falcon 23.' You can keep it, change it to another nickname, or pick anything you want. We do this so nobody accidentally shares personal information. Your teacher will see whatever name you choose, so pick something they can recognize you by if needed."
+
 ## Anti-Surveillance Statement
 - No ad-tech beacons.
 - No third-party analytics trackers by default.

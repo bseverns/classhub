@@ -16,8 +16,15 @@
 
   const showErr = (text) => {
     msg.textContent = text;
+    msg.classList.remove("warning");
     msg.style.display = "block";
     msg.focus();
+  };
+
+  const showWarning = (text) => {
+    msg.textContent = text;
+    msg.classList.add("warning");
+    msg.style.display = "block";
   };
 
   // Django CSRF: read csrftoken cookie and send it as X-CSRFToken.
@@ -135,6 +142,7 @@
         if (errorCode === "class_enrollment_closed") return showErr("Enrollment for this class is closed.");
         if (errorCode === "invite_required") return showErr("This class accepts joins by invite link only.");
         if (errorCode === "missing_fields") return showErr("Please enter a class code and your name.");
+        if (errorCode === "name_rejected") return showErr(data.message || "Please use a nickname or display name instead of personal information.");
         if (errorCode === "invite_invalid") return showErr("That invite link is not valid.");
         if (errorCode === "invite_inactive") return showErr("That invite link is disabled.");
         if (errorCode === "invite_expired") return showErr("That invite link has expired.");
@@ -144,6 +152,11 @@
         if (res.status === 403) return showErr("Security check blocked the join request. Reload and try again.");
         if (res.status >= 500) return showErr("Server error while joining. Please try again in a moment.");
         return showErr("Could not join. Try again.");
+      }
+
+      const data = await res.json().catch(() => ({}));
+      if (data.name_warning) {
+        showWarning(data.name_warning);
       }
 
       window.location.href = "/student";

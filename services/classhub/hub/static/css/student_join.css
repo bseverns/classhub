@@ -1,17 +1,21 @@
 .shell {
   max-width: 760px;
 }
+
 .hero {
   margin-top: 6px;
   margin-bottom: 14px;
 }
+
 .hero h1 {
   margin: 0;
   font-size: clamp(2rem, 2.8vw, 2.6rem);
 }
+
 .hero p {
   margin: 8px 0 0 0;
 }
+
 .error {
   margin-top: 10px;
   padding: 9px 11px;
@@ -21,35 +25,42 @@
   background: rgba(255, 224, 224, 0.55);
   font-size: 14px;
 }
+
 .actions {
   margin-top: 16px;
 }
+
 .return-code-help {
   margin: 6px 0 0 0;
 }
+
 .return-code-tools {
   margin-top: 8px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
+
 .icon-tool-btn {
   border-radius: 9px;
   font-size: 13px;
   padding: 6px 10px;
 }
+
 .return-code-icon-preview {
   margin-top: 8px;
   min-height: 24px;
   font-size: 1.05rem;
   letter-spacing: 0.08em;
 }
+
 .icon-bank {
   margin-top: 8px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
   gap: 6px;
 }
+
 .icon-bank-btn {
   border-radius: 10px;
   border: 1px solid rgba(22, 59, 80, 0.22);
@@ -61,21 +72,26 @@
   gap: 2px;
   background: rgba(255, 255, 255, 0.72);
 }
+
 .icon-bank-glyph {
   font-size: 1.2rem;
   line-height: 1;
 }
+
 .icon-bank-code {
   font-size: 10px;
   color: #304f64;
 }
+
 .icon-bank-btn:focus-visible {
   outline: 2px solid #0b6fa4;
   outline-offset: 1px;
 }
+
 .entry-note {
   margin-top: 16px;
 }
+
 .privacy-note {
   margin-top: 14px;
   border: 1px solid rgba(169, 46, 66, 0.35);
@@ -83,26 +99,47 @@
   padding: 12px;
   background: linear-gradient(180deg, rgba(255, 240, 242, 0.84), rgba(255, 248, 249, 0.72));
 }
+
 .privacy-note p {
   margin: 0 0 6px 0;
   text-align: center;
 }
+
 .privacy-note .muted {
   color: #7b2a39;
   font-weight: 350;
   letter-spacing: 0.004em;
 }
+
 .privacy-note p:last-child {
   margin-bottom: 0;
 }
+
 .privacy-note a {
   color: #8f2038;
   text-decoration-color: rgba(143, 32, 56, 0.45);
 }
+
 .privacy-note a:hover {
   color: #6e172b;
   text-decoration-color: rgba(110, 23, 43, 0.68);
 }
+
+.name-help {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+}
+
+.warning {
+  margin-top: 10px;
+  padding: 9px 11px;
+  border: 1px solid rgba(182, 142, 56, 0.45);
+  border-radius: 10px;
+  color: #6b5a1f;
+  background: rgba(255, 248, 220, 0.65);
+  font-size: 14px;
+}
+
 .hidden {
   display: none;
 }

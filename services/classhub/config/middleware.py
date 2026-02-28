@@ -177,9 +177,9 @@ class SiteModeMiddleware:
 
     _SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
     _JOIN_ONLY_ALLOWED_EXACT = {"/", "/join", "/student", "/logout", "/healthz"}
-    _JOIN_ONLY_ALLOWED_PREFIXES = ("/course/", "/lesson-video/", "/lesson-asset/", "/static/")
+    _JOIN_ONLY_ALLOWED_PREFIXES = ("/course/", "/lesson-video/", "/lesson-asset/", "/static/", "/i18n/")
     _MAINTENANCE_ALLOWED_EXACT = {"/healthz"}
-    _MAINTENANCE_ALLOWED_PREFIXES = ("/admin/", "/teach", "/static/")
+    _MAINTENANCE_ALLOWED_PREFIXES = ("/admin/", "/teach", "/static/", "/i18n/")
 
     def __init__(self, get_response):
         self.get_response = get_response

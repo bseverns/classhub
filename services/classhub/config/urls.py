@@ -9,12 +9,15 @@ Plain-language map:
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from hub import views
 
 urlpatterns = [
     # Admin surface (operations/configuration). Kept separate from daily teaching UI.
     path("admin/", admin.site.urls),
+
+    # Django i18n language switcher (POST /i18n/setlang/).
+    path("i18n/", include("django.conf.urls.i18n")),
 
     # Health endpoint for reverse proxy and uptime checks.
     path("healthz", views.healthz),

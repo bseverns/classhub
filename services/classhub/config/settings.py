@@ -133,6 +133,7 @@ MIDDLEWARE = [
     "config.middleware.SecurityHeadersMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -190,10 +191,17 @@ else:
         }
     }
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en"
 TIME_ZONE = env("DJANGO_TIME_ZONE", default="America/Chicago").strip() or "America/Chicago"
 USE_I18N = True
 USE_TZ = True
+
+# Supported UI languages.  Add entries here and create locale/<code>/LC_MESSAGES/django.po.
+LANGUAGES = [
+    ("en", "English"),
+    ("es", "Español"),
+]
+LOCALE_PATHS = [BASE_DIR / "locale"]
 
 CLASSHUB_PRODUCT_NAME = (env("CLASSHUB_PRODUCT_NAME", default="Class Hub").strip() or "Class Hub")
 CLASSHUB_OPERATOR_NAME = (env("CLASSHUB_OPERATOR_NAME", default="createMPLS").strip() or "createMPLS")
@@ -306,6 +314,15 @@ CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN = env.bool(
     "CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN",
     default=_default_require_return_code_for_rejoin,
 )
+# Name-safety validation mode for student display names:
+# - "off": no validation
+# - "warn": flag email/phone-like names with a warning but allow join
+# - "strict": reject email/phone-like names outright
+NAME_SAFETY_MODE = (env("CLASSHUB_NAME_SAFETY_MODE", default="warn").strip().lower() or "warn")
+if NAME_SAFETY_MODE not in {"off", "warn", "strict"}:
+    raise RuntimeError("CLASSHUB_NAME_SAFETY_MODE must be one of: off, warn, strict")
+# Whether the join page pre-fills a generated pseudonym as the default display name.
+NAME_PSEUDONYM_DEFAULT = env.bool("CLASSHUB_NAME_PSEUDONYM_DEFAULT", default=True)
 # Retention defaults shown in learner-facing privacy microcopy.
 CLASSHUB_SUBMISSION_RETENTION_DAYS = env.int("CLASSHUB_SUBMISSION_RETENTION_DAYS", default=0)
 CLASSHUB_STUDENT_EVENT_RETENTION_DAYS = env.int("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", default=0)

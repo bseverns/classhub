@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.middleware.csrf import get_token, rotate_token
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from common.request_safety import client_ip_from_request, fixed_window_allow
@@ -19,8 +20,10 @@ from ..services.ip_privacy import minimize_student_event_ip
 from ..services.join_flow_service import (
     JoinValidationError,
     apply_device_hint_cookie,
+    generate_pseudonym,
     normalize_display_name,
     resolve_join_student,
+    validate_display_name_safety,
 )
 from ..services.student_home import privacy_meta_context
 
@@ -29,12 +32,12 @@ logger = logging.getLogger(__name__)
 
 def _invite_error_message(code: str) -> str:
     messages = {
-        "invite_invalid": "That invite link is not valid.",
-        "invite_inactive": "That invite link has been disabled.",
-        "invite_expired": "That invite link has expired.",
-        "invite_seat_cap_reached": "This invite is full right now. Ask your teacher for a new invite link.",
+        "invite_invalid": _("That invite link is not valid."),
+        "invite_inactive": _("That invite link has been disabled."),
+        "invite_expired": _("That invite link has expired."),
+        "invite_seat_cap_reached": _("This invite is full right now. Ask your teacher for a new invite link."),
     }
-    return messages.get(code, "That invite link is not usable right now.")
+    return messages.get(code, _("That invite link is not usable right now."))
 
 
 def _resolve_invite_link(token: str, *, enforce_seat_cap: bool = True) -> tuple[ClassInviteLink | None, str]:
@@ -225,6 +228,11 @@ def _render_join_page(request, *, invite_token: str = ""):
     if invite is not None and not invite.has_seat_available():
         invite_error = "invite_seat_cap_reached"
     get_token(request)
+
+    default_display_name = ""
+    if getattr(settings, "NAME_PSEUDONYM_DEFAULT", True):
+        default_display_name = generate_pseudonym()
+
     response = render(
         request,
         "student_join.html",
@@ -233,6 +241,7 @@ def _render_join_page(request, *, invite_token: str = ""):
             "invite_join_token": invite.token if invite else "",
             "invite_join_error": invite_error,
             "invite_join_error_message": _invite_error_message(invite_error) if invite_error else "",
+            "default_display_name": default_display_name,
             **privacy_meta_context(),
         },
     )
@@ -260,6 +269,24 @@ def join_class(request):
     if parse_error is not None:
         return parse_error
 
+    # ── Name-safety check ─────────────────────────────────────────
+    safety_mode = getattr(settings, "NAME_SAFETY_MODE", "warn")
+    name_warning = ""
+    if safety_mode != "off":
+        is_flagged, reason = validate_display_name_safety(fields["name"])
+        if is_flagged:
+            if safety_mode == "strict":
+                friendly = {
+                    "email_pattern": _("That looks like an email address. Please use a nickname or display name instead."),
+                    "phone_pattern": _("That looks like a phone number. Please use a nickname or display name instead."),
+                }.get(reason, _("Please use a nickname or display name instead of personal information."))
+                return _json_no_store_response({"error": "name_rejected", "message": friendly}, status=400)
+            # warn mode: allow but attach warning to success response
+            name_warning = {
+                "email_pattern": _("Heads-up: that looks like an email address. A nickname is safer."),
+                "phone_pattern": _("Heads-up: that looks like a phone number. A nickname is safer."),
+            }.get(reason, _("Consider using a nickname instead of personal information."))
+
     classroom, invite, resolve_error, resolve_status = _resolve_join_target(
         code=fields["code"],
         invite_token=fields["invite_token"],
@@ -283,12 +310,16 @@ def join_class(request):
     from ..services.api_tokens import issue_student_token
     api_token = issue_student_token(student_id=student.id, class_id=classroom.id, epoch=epoch)
 
-    response = _json_no_store_response({
+    payload = {
         "ok": True,
         "return_code": student.return_code,
         "rejoined": rejoined,
         "api_token": api_token,
-    })
+    }
+    if name_warning:
+        payload["name_warning"] = name_warning
+
+    response = _json_no_store_response(payload)
     apply_device_hint_cookie(response, classroom=classroom, student=student)
     _emit_student_event(
         event_type=_join_event_type(join_mode),

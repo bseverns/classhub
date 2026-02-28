@@ -1,102 +1,110 @@
-{% load static %}
+{% load static i18n %}
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Join Class</title>
-    {% include "includes/glass_theme.html" %}
-    <link rel="stylesheet" href="{% static 'css/student_join.css' %}" />
-  </head>
-  <body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
-    <div class="shell">
-      <main id="main-content">
-        <div class="hero">
-          <h1>Join your class</h1>
+<html lang="{{ LANGUAGE_CODE }}">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% trans "Join Class" %}</title>
+  {% include "includes/glass_theme.html" %}
+  <link rel="stylesheet" href="{% static 'css/student_join.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/language_chooser.css' %}" />
+</head>
+
+<body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
+  <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
+  <div class="shell">
+    <main id="main-content">
+      <div class="hero">
+        <h1>{% trans "Join your class" %}</h1>
+        {% if invite_join_classroom %}
+        <p class="muted">{% blocktrans with class_name=invite_join_classroom.name %}You are joining <strong>{{
+            class_name }}</strong> by invite link.{% endblocktrans %}</p>
+        {% else %}
+        {% if ui_density_mode == "compact" %}
+        <p class="muted">{% trans "Enter your class code and pick a display name." %}</p>
+        {% else %}
+        <p class="muted">{% trans "Enter the class code from your teacher. Pick any display name you like." %}</p>
+        {% endif %}
+        {% endif %}
+        {% if ui_density_mode == "compact" %}
+        <p class="muted">{% trans "On shared devices, enter your return code so you do not join as another student." %}
+        </p>
+        {% else %}
+        <p class="muted">{% trans "Same classroom device? You can usually leave return code blank." %}</p>
+        <p class="muted">{% trans "On shared devices, use your own return code to avoid signing in as someone else." %}
+        </p>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <form id="join-form" novalidate>
+          {% if invite_join_error %}
+          <div class="error" role="alert">{{ invite_join_error_message }}</div>
+          {% endif %}
           {% if invite_join_classroom %}
-            <p class="muted">You are joining <strong>{{ invite_join_classroom.name }}</strong> by invite link.</p>
+          <input id="code" name="class_code" value="{{ invite_join_classroom.join_code }}" type="hidden" />
+          <input id="invite_token" name="invite_token" value="{{ invite_join_token }}" type="hidden" />
           {% else %}
-            {% if ui_density_mode == "compact" %}
-              <p class="muted">Enter your class code and your name.</p>
-            {% else %}
-              <p class="muted">Enter the class code your teacher gives you. Pick a name your teacher will recognize.</p>
-            {% endif %}
+          <label for="code">{% trans "Class code" %}</label>
+          <input id="code" name="class_code" placeholder="ABCD1234" autocomplete="off" required />
+          <input id="invite_token" name="invite_token" value="" type="hidden" />
           {% endif %}
-          {% if ui_density_mode == "compact" %}
-            <p class="muted">On shared devices, enter your return code so you do not join as another student.</p>
-          {% else %}
-            <p class="muted">If this is the same classroom computer/browser, you can usually leave return code blank.</p>
-            <p class="muted">On shared devices, use your own return code to avoid signing in as someone else.</p>
-          {% endif %}
-        </div>
 
-        <div class="card">
-          <form id="join-form" novalidate>
-            {% if invite_join_error %}
-              <div class="error" role="alert">
-                {{ invite_join_error_message }}
-              </div>
-            {% endif %}
-            {% if invite_join_classroom %}
-              <input id="code" name="class_code" value="{{ invite_join_classroom.join_code }}" type="hidden" />
-              <input id="invite_token" name="invite_token" value="{{ invite_join_token }}" type="hidden" />
-            {% else %}
-              <label for="code">Class code</label>
-              <input id="code" name="class_code" placeholder="ABCD1234" autocomplete="off" required />
-              <input id="invite_token" name="invite_token" value="" type="hidden" />
-            {% endif %}
+          <label for="name">{% trans "Your display name" %}</label>
+          <input id="name" name="display_name" value="{{ default_display_name }}" placeholder="Curious Otter 17"
+            autocomplete="off" required />
+          <p class="name-help muted">{% trans "A nickname or made-up name is fine — no need to use your real name." %}
+          </p>
 
-            <label for="name">Your name</label>
-            <input id="name" name="display_name" placeholder="Ada" autocomplete="name" required />
-
-            <label for="return_code">Return code (optional)</label>
-            <input
-              id="return_code"
-              name="return_code"
-              placeholder="ABC234"
-              autocomplete="one-time-code"
-              maxlength="12"
-              aria-describedby="return-code-help return-code-icon-preview"
-            />
-            <p id="return-code-help" class="muted return-code-help">If your class uses icon codes, use the icon keypad below.</p>
-            <div class="return-code-tools">
-              <button type="button" id="return-code-icon-toggle" class="icon-tool-btn" aria-expanded="false" aria-controls="return-code-icon-bank">Show icon keypad</button>
-              <button type="button" id="return-code-clear" class="icon-tool-btn">Clear return code</button>
-            </div>
-            <div id="return-code-icon-preview" class="muted return-code-icon-preview" aria-live="polite"></div>
-            <div id="return-code-icon-bank" class="icon-bank hidden" role="group" aria-label="Return code icon keypad"></div>
-
-            <div class="actions">
-              <button id="join" type="submit">Join class</button>
-            </div>
-            <div id="msg" class="error hidden" role="alert" aria-live="assertive" tabindex="-1"></div>
-          </form>
-
-          <div class="privacy-note" aria-live="polite">
-            <p class="muted"><strong>Privacy at a glance:</strong></p>
-            <p class="muted">We store your display name, class submissions, and event timestamps needed to run class.</p>
-            <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
-            {% if ui_density_mode != "compact" %}
-              <p class="muted">
-                Retention:
-                {% if submission_retention_days %}
-                  submissions are kept up to {{ submission_retention_days }} day{{ submission_retention_days|pluralize }} unless deleted sooner.
-                {% else %}
-                  submissions stay until a teacher or admin removes them.
-                {% endif %}
-              </p>
-            {% endif %}
-            <p class="muted">Delete now: after joining, open <a href="/student/my-data">My Data</a> to delete your work or end this device session.</p>
-            <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
+          <label for="return_code">{% trans "Return code (optional)" %}</label>
+          <input id="return_code" name="return_code" placeholder="ABC234" autocomplete="one-time-code" maxlength="12"
+            aria-describedby="return-code-help return-code-icon-preview" />
+          <p id="return-code-help" class="muted return-code-help">{% trans "If your class uses icon codes, use the icon
+            keypad below." %}</p>
+          <div class="return-code-tools">
+            <button type="button" id="return-code-icon-toggle" class="icon-tool-btn" aria-expanded="false"
+              aria-controls="return-code-icon-bank">{% trans "Show icon keypad" %}</button>
+            <button type="button" id="return-code-clear" class="icon-tool-btn">{% trans "Clear return code" %}</button>
           </div>
+          <div id="return-code-icon-preview" class="muted return-code-icon-preview" aria-live="polite"></div>
+          <div id="return-code-icon-bank" class="icon-bank hidden" role="group"
+            aria-label="{% trans 'Return code icon keypad' %}"></div>
+
+          <div class="actions">
+            <button id="join" type="submit">{% trans "Join class" %}</button>
+          </div>
+          <div id="msg" class="error hidden" role="alert" aria-live="assertive" tabindex="-1"></div>
+        </form>
+
+        <div class="privacy-note" aria-live="polite">
+          <p class="muted"><strong>{% trans "Privacy at a glance:" %}</strong></p>
+          <p class="muted">{% trans "We store your display name, class submissions, and event timestamps." %}</p>
+          <p class="muted">{% trans "Storage location:" %} {{ operator_profile.storage_location_text|default:"hosted
+            locally" }}</p>
+          {% if ui_density_mode != "compact" %}
+          <p class="muted">{% trans "Retention:" %}
+            {% if submission_retention_days %}
+            {{ submission_retention_days }} {% trans "day(s). Deleted sooner on request." %}
+            {% else %}
+            {% trans "submissions stay until a teacher or admin removes them." %}
+            {% endif %}
+          </p>
+          {% endif %}
+          <p class="muted">{% trans "Delete now:" %}
+            <a href="/student/my-data">{% trans "My Data" %}</a> &mdash;
+            {% trans "delete your work or end session." %}
+          </p>
+          <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads." }}</p>
         </div>
+      </div>
 
-        <p class="muted entry-note">Teacher? Use <a href="/teach">/teach</a>.</p>
-      </main>
-    </div>
+      <p class="muted entry-note">{% blocktrans %}Teacher? Use <a href="/teach">/teach</a>.{% endblocktrans %}</p>
+      {% include "includes/language_chooser.html" %}
+    </main>
+  </div>
+  <script src="{% static 'js/return_code_icons.js' %}" defer></script>
+  <script src="{% static 'js/student_join.js' %}" defer></script>
+</body>
 
-    <script src="{% static 'js/return_code_icons.js' %}" defer></script>
-    <script src="{% static 'js/student_join.js' %}" defer></script>
-  </body>
 </html>

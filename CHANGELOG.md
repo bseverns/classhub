@@ -7,6 +7,8 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 ## [Unreleased]
 
 ### Added
+- Pseudonym-first student join flow: display name prefilled with a generated pseudonym (e.g., "Curious Otter 17"), help text encouraging nicknames over real names, and configurable name-safety validation (`CLASSHUB_NAME_SAFETY_MODE`: off/warn/strict) that flags email/phone-like display names.
+- i18n scaffolding: Django internationalization enabled end-to-end with Spanish translations for join/login pages, language chooser widget (no inline JS), and `docs/LOCALIZATION.md` contributor guide.
 - `/privacy` page and student-facing privacy controls (export/delete/end session).
 - Cross-class media isolation for lesson assets/videos with test coverage.
 - Classroom storage quota (`CLASSHUB_CLASSROOM_QUOTA_MB`) to prevent disk exhaustion.

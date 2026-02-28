@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 from django.conf import settings
@@ -11,6 +12,10 @@ from django.core.signing import BadSignature, SignatureExpired
 from ..models import Class, StudentIdentity, gen_student_return_code
 
 DEVICE_HINT_SIGNING_SALT = "classhub.student-device-hint"
+
+# ── Name-safety patterns ─────────────────────────────────────────────
+_EMAIL_PATTERN = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
+_PHONE_PATTERN = re.compile(r"[\d][\d\s\-().]{5,}[\d]")
 
 
 class JoinValidationError(ValueError):
@@ -32,6 +37,23 @@ def normalize_display_name(raw: str, *, max_length: int = 80) -> str:
     # Collapse repeated whitespace/newlines into single spaces for stable matching.
     value = " ".join(str(raw or "").split())
     return value[:max_length]
+
+
+def validate_display_name_safety(name: str) -> tuple[bool, str]:
+    """Check whether *name* looks like PII (email or phone number).
+
+    Returns ``(is_flagged, reason)`` where *reason* is one of
+    ``"email_pattern"``, ``"phone_pattern"``, or ``""`` (not flagged).
+
+    The caller should consult ``settings.NAME_SAFETY_MODE`` to decide
+    whether to warn or reject.
+    """
+    trimmed = (name or "").strip()
+    if _EMAIL_PATTERN.search(trimmed):
+        return True, "email_pattern"
+    if _PHONE_PATTERN.search(trimmed):
+        return True, "phone_pattern"
+    return False, ""
 
 
 def _device_hint_signing_key() -> str:

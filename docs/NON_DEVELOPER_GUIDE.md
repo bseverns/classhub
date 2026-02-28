@@ -24,9 +24,16 @@ flowchart LR
 
 ## What this system does
 
-- Students join with a class code and display name.
+- Students join with a class code and a display name (a pseudonym is suggested by default — real names are not required).
 - Teachers run classes and review work in the Teacher Portal (`/teach`).
 - The Homework Helper gives hints inside lessons.
+
+### Why pseudonyms?
+
+To reduce accidental collection of personal information, the join page pre-fills each student's display name with a friendly pseudonym like "Curious Otter 17." Students can keep it, change it, or type any nickname. If your organization prefers real names, students can simply clear the suggestion and type their own.
+
+**Facilitator script** (read aloud if needed):
+> "You don't need to use your real name here. You'll see a fun made-up name already filled in. You can keep it or type your own nickname — just pick something your teacher can recognize."
 
 ## 5-minute startup check (before class)
 
