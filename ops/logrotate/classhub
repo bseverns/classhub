@@ -1,0 +1,18 @@
+# ClassHub Log Rotation
+#
+# Drop this file at /etc/logrotate.d/classhub on any server that runs the
+# crontab.example jobs (backup, rehearsal, retention).  Adjust paths if your
+# deployment writes logs elsewhere.
+
+/var/log/classhub_backup.log
+/var/log/classhub_rehearsal.log
+/var/log/classhub_retention.log
+{
+    weekly
+    rotate 4
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 root root
+}

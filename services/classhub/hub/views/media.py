@@ -46,12 +46,13 @@ def _request_can_view_course_lesson(request, course_slug: str, lesson_slug: str)
     if not course_slug and not lesson_slug:
         return True
 
+    from django.db.models import Q
     from ..models import Material
     expected_path = f"/course/{course_slug}/{lesson_slug}"
     return Material.objects.filter(
+        Q(url__endswith=expected_path) | Q(url__endswith=expected_path + "/"),
         module__classroom=student.classroom,
         type=Material.TYPE_LINK,
-        url__endswith=expected_path
     ).exists()
 
 

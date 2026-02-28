@@ -64,9 +64,11 @@ def api_student_session(request):
     classroom = request.classroom
     student = request.student
 
-    # Session Keep-alive Heartbeat
-    student.last_seen_at = timezone.now()
-    student.save(update_fields=["last_seen_at"])
+    # Session Keep-alive Heartbeat (throttled to avoid DB churn from polling)
+    now = timezone.now()
+    if not student.last_seen_at or (now - student.last_seen_at).total_seconds() > 60:
+        student.last_seen_at = now
+        student.save(update_fields=["last_seen_at"])
 
     return _json_no_store_response(
         {
