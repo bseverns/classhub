@@ -6,6 +6,14 @@ You do not need to read every docs file. For normal classroom use, this page plu
 
 If you want the shortest role-based path, open [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md). If you need an action-only checklist for tomorrow's class, use [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md).
 
+## Visual references
+
+![Student class landing](images/press/02-student-class-view.png)
+
+![Teacher lesson tracker](images/press/04-teacher-lesson-tracker.png)
+
+![Lesson with helper](images/press/05-lesson-with-helper.png)
+
 ```mermaid
 flowchart LR
   A[Before class<br/>5-min check] --> B[During class<br/>Teach + monitor]

@@ -19,6 +19,24 @@ ClassHub is an operations-friendly learning hub for running cohorts, managing st
 5. Ops can rely on exports, backup/restore rehearsal, and documented smoke checks.
 6. Program defaults can be selected with `CLASSHUB_PROGRAM_PROFILE` (`elementary`, `secondary`, `advanced`) and overridden as needed.
 
+## Visual references
+
+![Teacher dashboard](images/press/03-teacher-dashboard.png)
+
+![Teacher lesson tracker](images/press/04-teacher-lesson-tracker.png)
+
+![Health checks terminal](images/press/08-health-checks-terminal.png)
+
+Planned operations captures:
+
+![Org management tab (placeholder)](images/press/10-org-management-tab.png)
+
+![Invite-only enrollment (placeholder)](images/press/11-invite-only-enrollment.png)
+
+![Certificate eligibility (placeholder)](images/press/12-certificate-eligibility.png)
+
+![A11y smoke terminal (placeholder)](images/press/13-a11y-smoke-terminal.png)
+
 ## What success looks like
 
 - The right staff can access the right classes without sharing accounts.

@@ -19,6 +19,20 @@ ClassHub is a program delivery system that can produce bounded evidence of parti
 4. Staff can generate `Outcomes export` and class summary exports for reporting.
 5. Reporting stays privacy-forward: display names, counts, and completion evidence rather than helper prompt logs or student surveillance metrics.
 
+## Visual references
+
+![Student class landing](images/press/02-student-class-view.png)
+
+![Submission dropbox](images/press/06-submission-dropbox.png)
+
+![Teacher dashboard](images/press/03-teacher-dashboard.png)
+
+Planned reporting captures:
+
+![Invite-only enrollment (placeholder)](images/press/11-invite-only-enrollment.png)
+
+![Certificate eligibility (placeholder)](images/press/12-certificate-eligibility.png)
+
 ## What success looks like
 
 - Reports to funders can be assembled from exports instead of manual narrative reconstruction.

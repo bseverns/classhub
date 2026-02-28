@@ -48,16 +48,41 @@ If this page is useful, you should be able to answer: who this is for, what it d
 ## Try it in 10 minutes
 - Local demo path: [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md)
 
-## Screenshots (placeholders)
-- Student join screen: `press/screenshots/01-student-join.png`
-- Student class landing (`This week` + `Course links`): `press/screenshots/02-student-class-view.png`
-- Lesson page with helper: `press/screenshots/05-lesson-with-helper.png`
-- Teacher dashboard: `press/screenshots/03-teacher-dashboard.png`
-- Teacher profile tab: `press/screenshots/09-teacher-profile-tab.png` (planned placeholder)
-- Organization management tab: `press/screenshots/10-org-management-tab.png` (planned placeholder)
-- Invite-only enrollment controls: `press/screenshots/11-invite-only-enrollment.png` (planned placeholder)
-- Certificate eligibility page: `press/screenshots/12-certificate-eligibility.png` (planned placeholder)
-- Accessibility smoke terminal: `press/screenshots/13-a11y-smoke-terminal.png` (planned placeholder)
+## Visual reference
+
+Current captures:
+
+![Student join screen](images/press/01-student-join.png)
+
+![Student class landing](images/press/02-student-class-view.png)
+
+![Lesson page with helper](images/press/05-lesson-with-helper.png)
+
+![Teacher dashboard](images/press/03-teacher-dashboard.png)
+
+Planned placeholders:
+
+![Teacher profile tab (placeholder)](images/press/09-teacher-profile-tab.png)
+
+![Org management tab (placeholder)](images/press/10-org-management-tab.png)
+
+![Invite-only enrollment (placeholder)](images/press/11-invite-only-enrollment.png)
+
+![Certificate eligibility (placeholder)](images/press/12-certificate-eligibility.png)
+
+![A11y smoke terminal (placeholder)](images/press/13-a11y-smoke-terminal.png)
+
+![Student compact view (placeholder)](images/press/14-student-compact-view.png)
+
+![Lesson helper collapsed (placeholder)](images/press/15-lesson-helper-collapsed.png)
+
+![Student standard view (placeholder)](images/press/16-student-standard-view.png)
+
+![Student expanded view (placeholder)](images/press/17-student-expanded-view.png)
+
+![Teacher landing editor (placeholder)](images/press/18-teacher-landing-editor.png)
+
+Capture instructions live in `press/screenshots/SHOTLIST.md`.
 
 ## Ops and security links
 - [SECURITY.md](SECURITY.md)

@@ -2,6 +2,22 @@
 
 Use this checklist when you need a first-time teacher flow that works end-to-end without reading the entire manual.
 
+## Visual anchors
+
+![Teacher dashboard](images/press/03-teacher-dashboard.png)
+
+![Teacher lesson tracker](images/press/04-teacher-lesson-tracker.png)
+
+![Student class landing](images/press/02-student-class-view.png)
+
+![Submission dropbox](images/press/06-submission-dropbox.png)
+
+Planned workflow captures:
+
+![Invite-only enrollment (placeholder)](images/press/11-invite-only-enrollment.png)
+
+![Certificate eligibility (placeholder)](images/press/12-certificate-eligibility.png)
+
 ## Action checklist
 
 1. Sign in to `/teach` and verify you can see the correct `Organization` and `Class`.

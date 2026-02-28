@@ -5,6 +5,28 @@ This guide covers:
 - accessing the teacher portal
 - common day-to-day workflows
 
+## Visual references
+
+Current captures:
+
+![Teacher dashboard](images/press/03-teacher-dashboard.png)
+
+![Teacher lesson tracker](images/press/04-teacher-lesson-tracker.png)
+
+![Submission dropbox](images/press/06-submission-dropbox.png)
+
+Planned captures for newer teacher views:
+
+![Teacher profile tab (placeholder)](images/press/09-teacher-profile-tab.png)
+
+![Org management tab (placeholder)](images/press/10-org-management-tab.png)
+
+![Invite-only enrollment (placeholder)](images/press/11-invite-only-enrollment.png)
+
+![Certificate eligibility (placeholder)](images/press/12-certificate-eligibility.png)
+
+![Teacher landing editor (placeholder)](images/press/18-teacher-landing-editor.png)
+
 ```mermaid
 flowchart TD
   A[Superuser creates teacher] --> B[Invite link: /teach/2fa/setup]

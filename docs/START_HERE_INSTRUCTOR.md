@@ -10,6 +10,20 @@ ClassHub is the place where you run a class, share materials, control enrollment
 - It is not recording every student action for surveillance.
 - It is not a substitute for your lesson plan or facilitation judgment.
 
+## Quick visual
+
+![Student class landing](images/press/02-student-class-view.png)
+
+![Teacher dashboard](images/press/03-teacher-dashboard.png)
+
+Planned learner-view captures:
+
+![Student compact view (placeholder)](images/press/14-student-compact-view.png)
+
+![Student standard view (placeholder)](images/press/16-student-standard-view.png)
+
+![Student expanded view (placeholder)](images/press/17-student-expanded-view.png)
+
 ## 5-minute overview
 
 1. Sign in to `/teach`.

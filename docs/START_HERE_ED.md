@@ -19,6 +19,14 @@ ClassHub is a self-hosted learning hub for running classes, enrolling students w
 4. The system supports `Outcomes export` and certificate eligibility/issuance for reporting and follow-up.
 5. The Homework Helper stays privacy-forward: no prompt logging, no student profiling, no hidden analytics.
 
+## Visual references
+
+![Student join](images/press/01-student-join.png)
+
+![Student class landing](images/press/02-student-class-view.png)
+
+![Teacher dashboard](images/press/03-teacher-dashboard.png)
+
 ## What success looks like
 
 - Programs can run with low login friction for students.

@@ -1,7 +1,7 @@
 # Screenshot Placeholders
 
 ## Summary
-This file tracks planned screenshot filenames that are not yet captured.
+This file tracks planned screenshot filenames that are not yet captured with final UI images.
 
 ## What to do now
 1. Capture each target in a demo environment.
@@ -9,7 +9,11 @@ This file tracks planned screenshot filenames that are not yet captured.
 3. Copy finalized images into `docs/images/press/` when public docs should display them.
 
 ## Verification signal
-Each placeholder entry below has a real `.png` with the same filename in both screenshot folders.
+Each placeholder entry below has a `.png` present in both screenshot folders:
+- `press/screenshots/`
+- `docs/images/press/`
+
+During planning, these may be generated placeholder images. Replace them with real captures before external publication.
 
 ## Planned files
 - `02-student-class-view.png` (refresh capture to show current landing structure)

@@ -13,6 +13,26 @@ If your organization runs earned-income programs, the relevant value is operatio
 
 ClassHub does not include billing. It does reduce the amount of manual coordination around enrollment, delivery evidence, and repeat-program setup.
 
+## Lifecycle visuals
+
+Current captures:
+
+![Student join](images/press/01-student-join.png)
+
+![Student class landing](images/press/02-student-class-view.png)
+
+![Lesson with helper](images/press/05-lesson-with-helper.png)
+
+![Submission dropbox](images/press/06-submission-dropbox.png)
+
+![Teacher dashboard](images/press/03-teacher-dashboard.png)
+
+Planned lifecycle captures:
+
+![Invite-only enrollment (Enroll placeholder)](images/press/11-invite-only-enrollment.png)
+
+![Certificate eligibility (Certify/Report placeholder)](images/press/12-certificate-eligibility.png)
+
 ## Recruit
 
 - Features in ClassHub:
