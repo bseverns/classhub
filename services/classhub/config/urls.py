@@ -24,6 +24,9 @@ urlpatterns = [
     path("api/v1/student/session", views.api_student_session),
     path("api/v1/student/modules", views.api_student_modules),
     path("api/v1/student/submissions", views.api_student_submissions),
+    path("api/v1/teacher/classes", views.api_teacher_classes),
+    path("api/v1/teacher/class/<int:class_id>/roster", views.api_teacher_class_roster),
+    path("api/v1/teacher/class/<int:class_id>/submissions", views.api_teacher_class_submissions),
 
     # Student flow (class-code login and classroom page).
     path("", views.index),

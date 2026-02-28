@@ -8,6 +8,7 @@ New code should import endpoints from submodules by concern:
 """
 
 from .api_student import api_student_modules, api_student_session, api_student_submissions
+from .api_teacher import api_teacher_classes, api_teacher_class_roster, api_teacher_class_submissions
 from .content import course_lesson, course_overview, iter_course_lesson_options
 from .internal import internal_helper_chat_access_event
 from .media import lesson_asset_download, lesson_video_stream
@@ -81,6 +82,9 @@ __all__ = [
     "api_student_modules",
     "api_student_session",
     "api_student_submissions",
+    "api_teacher_classes",
+    "api_teacher_class_roster",
+    "api_teacher_class_submissions",
     "course_lesson",
     "course_overview",
     "healthz",
