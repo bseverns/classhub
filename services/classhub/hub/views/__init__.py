@@ -22,6 +22,7 @@ from .student import (
     student_portfolio_export,
     student_return_code,
     submission_download,
+    privacy_policy,
 )
 from .student_materials import material_checklist, material_reflection, material_rubric
 from .teacher import (
@@ -98,6 +99,7 @@ __all__ = [
     "student_portfolio_export",
     "student_return_code",
     "submission_download",
+    "privacy_policy",
     "teach_add_material",
     "teach_add_module",
     "teach_assets",

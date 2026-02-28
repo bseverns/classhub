@@ -7,59 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Privacy Information | {{ operator_profile.product_name }}</title>
     {% include "includes/glass_theme.html" %}
-    <style>
-        .shell {
-            padding: 2rem;
-            max-width: 800px;
-            margin: 0 auto;
-            color: var(--text-color);
-        }
-
-        .top {
-            margin-bottom: 2rem;
-        }
-
-        .top h1 {
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .section-box {
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .warning-box {
-            border-left: 4px solid var(--accent-orange, orange);
-        }
-
-        .footer-note {
-            margin-top: 3rem;
-            font-size: 0.9em;
-            opacity: 0.7;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1rem;
-        }
-
-        ul,
-        ol {
-            margin-left: 1.5rem;
-            margin-top: 0.5rem;
-            line-height: 1.6;
-        }
-
-        li {
-            margin-bottom: 0.5rem;
-        }
-
-        h2 {
-            margin-bottom: 1rem;
-            font-size: 1.25rem;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/privacy.css' %}" />
 </head>
 
 <body class="glass-theme">
@@ -100,7 +48,8 @@
                     any time.</p>
                 <ol>
                     <li>From the classroom dashboard, click the <strong>"My Data"</strong> link or navigate to
-                        <code>/student/my-data</code>.</li>
+                        <code>/student/my-data</code>.
+                    </li>
                     <li>Click <strong>"Download my work"</strong> to get a ZIP archive containing everything you've
                         uploaded.</li>
                     <li>Click <strong>"Delete my work now"</strong> to immediately erase your uploads and responses from
