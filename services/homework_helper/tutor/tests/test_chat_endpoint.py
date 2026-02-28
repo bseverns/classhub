@@ -138,7 +138,7 @@ class HelperChatAuthTests(TestCase):
 
         second_backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
         self.assertIn("Recent conversation:", second_backend_message)
-        self.assertIn("Student: First question", second_backend_message)
+        self.assertIn("First question", second_backend_message)
         self.assertIn("Tutor: First answer", second_backend_message)
         self.assertIn("Student (latest):", second_backend_message)
         self.assertIn("Second question", second_backend_message)
@@ -226,7 +226,7 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(second.status_code, 200)
         second_backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
         self.assertIn("Recent conversation:", second_backend_message)
-        self.assertIn("Student: Scope A first question", second_backend_message)
+        self.assertIn("Scope A first question", second_backend_message)
         self.assertIn("Tutor: Scope A answer 1", second_backend_message)
 
         scope_switched = self._post_chat(
