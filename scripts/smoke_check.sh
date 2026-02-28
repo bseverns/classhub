@@ -233,10 +233,38 @@ if [[ -n "${CLASS_CODE}" ]]; then
   done
 
   [[ "${code}" == "200" ]] || fail "/helper/chat returned ${code}: $(cat "${TMP_HELPER}")"
-  grep -Eq '"text"[[:space:]]*:' "${TMP_HELPER}" || fail "/helper/chat response missing text field: $(cat "${TMP_HELPER}")"
+  grep -Eq '\"text\"[[:space:]]*:' "${TMP_HELPER}" || fail "/helper/chat response missing text field: $(cat "${TMP_HELPER}")"
   grep -Eq '"intent"[[:space:]]*:[[:space:]]*"[a-z0-9_-]+"' "${TMP_HELPER}" || fail "/helper/chat response missing intent field: $(cat "${TMP_HELPER}")"
   grep -Eq '"follow_up_suggestions"[[:space:]]*:[[:space:]]*\[[[:space:]]*"' "${TMP_HELPER}" || fail "/helper/chat response missing non-empty follow_up_suggestions: $(cat "${TMP_HELPER}")"
   echo "[smoke] /helper/chat OK"
+
+  # ---- Student API smoke (bearer token) ----
+  API_TOKEN="$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('api_token',''))" "${TMP_JOIN}" 2>/dev/null || true)"
+  if [[ -n "${API_TOKEN}" ]]; then
+    TMP_API_SESSION="$(mktemp)"
+    api_session_code="$(curl "${CURL_FLAGS[@]}" -o "${TMP_API_SESSION}" -w "%{http_code}" \
+      -H "Authorization: Bearer ${API_TOKEN}" \
+      "${BASE_URL}/api/v1/student/session")"
+    [[ "${api_session_code}" == "200" ]] || fail "/api/v1/student/session returned ${api_session_code}: $(cat "${TMP_API_SESSION}")"
+    grep -Eq '"student"' "${TMP_API_SESSION}" || fail "/api/v1/student/session missing student field"
+    echo "[smoke] /api/v1/student/session (bearer) OK"
+
+    TMP_API_MODULES="$(mktemp)"
+    api_modules_code="$(curl "${CURL_FLAGS[@]}" -o "${TMP_API_MODULES}" -w "%{http_code}" \
+      -H "Authorization: Bearer ${API_TOKEN}" \
+      "${BASE_URL}/api/v1/student/modules")"
+    [[ "${api_modules_code}" == "200" ]] || fail "/api/v1/student/modules returned ${api_modules_code}: $(cat "${TMP_API_MODULES}")"
+    grep -Eq '"modules"' "${TMP_API_MODULES}" || fail "/api/v1/student/modules missing modules field"
+    echo "[smoke] /api/v1/student/modules (bearer) OK"
+    rm -f "${TMP_API_SESSION}" "${TMP_API_MODULES}"
+  else
+    echo "[smoke] /join did not return api_token; skipping student API bearer checks"
+  fi
+
+  # ---- Student API: unauthenticated should 401 ----
+  api_unauth_code="$(curl "${CURL_FLAGS[@]}" -o /dev/null -w "%{http_code}" "${BASE_URL}/api/v1/student/session")"
+  [[ "${api_unauth_code}" == "401" ]] || fail "/api/v1/student/session unauthenticated returned ${api_unauth_code} (expected 401)"
+  echo "[smoke] /api/v1/student/session unauthenticated 401 OK"
 fi
 
 if [[ -n "${TEACHER_SESSION_KEY}" || ( -n "${TEACHER_USERNAME}" && -n "${TEACHER_PASSWORD}" ) ]]; then
@@ -272,5 +300,22 @@ if [[ -n "${TEACHER_SESSION_KEY}" || ( -n "${TEACHER_USERNAME}" && -n "${TEACHER
     fi
   fi
 fi
+
+# ---- Teacher API smoke ----
+if [[ -n "${TEACHER_SESSION_KEY}" ]]; then
+  TMP_API_CLASSES="$(mktemp)"
+  api_classes_code="$(curl "${CURL_FLAGS[@]}" -o "${TMP_API_CLASSES}" -w "%{http_code}" \
+    -b "sessionid=${TEACHER_SESSION_KEY}" \
+    "${BASE_URL}/api/v1/teacher/classes")"
+  [[ "${api_classes_code}" == "200" ]] || fail "/api/v1/teacher/classes returned ${api_classes_code}: $(cat "${TMP_API_CLASSES}")"
+  grep -Eq '"classes"' "${TMP_API_CLASSES}" || fail "/api/v1/teacher/classes missing classes field"
+  echo "[smoke] /api/v1/teacher/classes (session) OK"
+  rm -f "${TMP_API_CLASSES}"
+fi
+
+# Teacher API: unauthenticated should 401
+api_teacher_unauth_code="$(curl "${CURL_FLAGS[@]}" -o /dev/null -w "%{http_code}" "${BASE_URL}/api/v1/teacher/classes")"
+[[ "${api_teacher_unauth_code}" == "401" ]] || fail "/api/v1/teacher/classes unauthenticated returned ${api_teacher_unauth_code} (expected 401)"
+echo "[smoke] /api/v1/teacher/classes unauthenticated 401 OK"
 
 echo "[smoke] ALL CHECKS PASSED"
