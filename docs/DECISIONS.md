@@ -30,6 +30,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Teacher roster code/reorder helper seam](#teacher-roster-codereorder-helper-seam)
 - [Shared zip export helper seam](#shared-zip-export-helper-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
+- [Cookie secure flags follow transport mode](#cookie-secure-flags-follow-transport-mode)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
 - [Secret handling: env-only secret sources](#secret-handling-env-only-secret-sources)
@@ -605,6 +606,17 @@ Execution runbook:
 **Why this remains active:**
 - Keeps local setup simple while preserving production-safe HTTPS behavior.
 - Reduces configuration drift during deployment.
+
+## Cookie secure flags follow transport mode
+
+**Current decision:**
+- `DJANGO_SESSION_COOKIE_SECURE` and `DJANGO_CSRF_COOKIE_SECURE` are explicit deployment settings.
+- Defaults remain secure when `DJANGO_DEBUG=0`, but local/day-1 HTTP presets set both to `0`.
+- Domain/TLS presets set both to `1`.
+
+**Why this remains active:**
+- Prevents join/session breakage when running HTTP in local mode with `DJANGO_DEBUG=0`.
+- Keeps HTTPS deployments strict by default without coupling cookie transport policy to debug mode.
 
 ## Documentation as first-class product surface
 

@@ -431,9 +431,11 @@ SITE_MODE_MESSAGE = env("CLASSHUB_SITE_MODE_MESSAGE", default="").strip()
 
 # When behind Caddy, Django should respect forwarded proto for secure cookies.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-# In production (DEBUG=False), session + CSRF cookies should only travel over HTTPS.
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
+# Cookie transport security must follow deploy transport mode, not DEBUG alone.
+# Local/day-1 deploys intentionally run HTTP with DEBUG=0, so keep these flags
+# operator-configurable via env vars.
+SESSION_COOKIE_SECURE = env.bool("DJANGO_SESSION_COOKIE_SECURE", default=not DEBUG)
+CSRF_COOKIE_SECURE = env.bool("DJANGO_CSRF_COOKIE_SECURE", default=not DEBUG)
 SESSION_COOKIE_DOMAIN = env("DJANGO_SESSION_COOKIE_DOMAIN", default="").strip() or None
 CSRF_COOKIE_DOMAIN = env("DJANGO_CSRF_COOKIE_DOMAIN", default="").strip() or None
 
