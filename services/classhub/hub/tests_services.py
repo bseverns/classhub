@@ -742,3 +742,6 @@ class SyllabusIngestSecurityTests(SimpleTestCase):
     def test_safe_zip_path_accepts_normalized_relative_paths(self):
         self.assertTrue(_safe_zip_path("sessions/01-intro.md"))
         self.assertTrue(_safe_zip_path("lessons/unit-a/02-build.docx"))
+
+    def test_safe_zip_path_rejects_null_byte_segment(self):
+        self.assertFalse(_safe_zip_path("sessions/\x00hidden.md"))

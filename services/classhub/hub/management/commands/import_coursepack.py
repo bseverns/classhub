@@ -24,6 +24,7 @@ import yaml
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.utils._os import safe_join
 
 from hub.models import Class, Module, Material
 
@@ -40,7 +41,14 @@ def _load_manifest(course_slug: str) -> dict:
 
 
 def _read_front_matter(course_slug: str, rel_path: str) -> dict:
-    lesson_path = (_courses_dir() / course_slug / rel_path).resolve()
+    course_dir = (_courses_dir() / course_slug).resolve()
+    try:
+        joined = safe_join(str(course_dir), str(rel_path or ""))
+    except Exception:
+        return {}
+    lesson_path = Path(joined).resolve()
+    if not lesson_path.is_relative_to(course_dir):
+        return {}
     if not lesson_path.exists():
         return {}
     raw = lesson_path.read_text(encoding="utf-8")

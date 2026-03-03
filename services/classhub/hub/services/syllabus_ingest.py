@@ -11,6 +11,7 @@ from io import BytesIO
 from pathlib import Path, PurePosixPath
 
 import defusedxml.ElementTree as ET
+from django.utils._os import safe_join
 
 from .content_links import courses_dir
 
@@ -700,6 +701,29 @@ def _normalize_zip_member_path(path: str) -> str:
     return "/".join(clean_parts)
 
 
+def _safe_child_path(base_dir: Path, child_name: str, *, error_message: str) -> Path:
+    token = str(child_name or "").strip()
+    if not token:
+        raise SyllabusIngestError(error_message)
+    if "/" in token or "\\" in token or "\x00" in token:
+        raise SyllabusIngestError(error_message)
+    try:
+        joined = safe_join(str(base_dir), token)
+    except Exception as exc:
+        raise SyllabusIngestError(error_message) from exc
+    candidate = Path(joined).resolve()
+    if not candidate.is_relative_to(base_dir):
+        raise SyllabusIngestError(error_message)
+    return candidate
+
+
+def _safe_lesson_filename(filename: str) -> str:
+    token = str(filename or "").strip().lower()
+    if not re.fullmatch(r"[a-z0-9_-]+\.md", token):
+        raise SyllabusIngestError("Generated lesson filename is unsafe.")
+    return token
+
+
 def _zip_text_documents(source_bytes: bytes) -> list[_ZipTextDoc]:
     docs: list[_ZipTextDoc] = []
     try:
@@ -812,28 +836,42 @@ def _write_course(
     safe_slug = str(slug or "").strip().lower()
     if not COURSE_SLUG_RE.fullmatch(safe_slug):
         raise SyllabusIngestError("Course slug can use lowercase letters, numbers, underscores, and dashes.")
-    root_dir.mkdir(parents=True, exist_ok=True)
-    destination = (root_dir / safe_slug).resolve()
-    root_resolved = root_dir.resolve()
-    if not destination.is_relative_to(root_resolved):
-        raise SyllabusIngestError("Resolved course path escapes configured courses root.")
+    root_resolved = Path(root_dir).resolve()
+    root_resolved.mkdir(parents=True, exist_ok=True)
+    destination = _safe_child_path(
+        root_resolved,
+        safe_slug,
+        error_message="Resolved course path escapes configured courses root.",
+    )
 
     if destination.exists():
         if not overwrite:
             raise SyllabusIngestError(f"Course '{slug}' already exists. Enable overwrite to replace it.")
         shutil.rmtree(destination)
 
-    tmp_dir = (root_dir / f".{safe_slug}.tmp-{uuid.uuid4().hex}").resolve()
-    if not tmp_dir.is_relative_to(root_resolved):
-        raise SyllabusIngestError("Temporary write path is unsafe.")
-    lessons_dir = tmp_dir / "lessons"
+    tmp_dir = _safe_child_path(
+        root_resolved,
+        f".tmp-{uuid.uuid4().hex}",
+        error_message="Temporary write path is unsafe.",
+    )
+    lessons_dir = _safe_child_path(
+        tmp_dir,
+        "lessons",
+        error_message="Temporary lessons path is unsafe.",
+    )
     tmp_dir.mkdir(parents=True, exist_ok=False)
     lessons_dir.mkdir(parents=True, exist_ok=False)
 
     try:
         for session in sessions:
             payload = _build_lesson_payload(slug, session, duration)
-            (lessons_dir / payload["filename"]).write_text(
+            lesson_filename = _safe_lesson_filename(payload.get("filename", ""))
+            lesson_path = _safe_child_path(
+                lessons_dir,
+                lesson_filename,
+                error_message="Generated lesson path is unsafe.",
+            )
+            lesson_path.write_text(
                 payload["front_matter"] + payload["body"],
                 encoding="utf-8",
             )

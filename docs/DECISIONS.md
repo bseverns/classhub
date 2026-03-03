@@ -1596,6 +1596,9 @@ Historical implementation logs and superseded decisions are archived by month in
   - explicit slug validation (`[a-z0-9_-]+`),
   - parser modes (`auto` / `template` / `verbose`),
   - bounded zip parsing (file count/size guardrails),
+  - normalized zip member paths (no traversal/absolute/null-byte segments),
+  - `safe_join`-backed child path construction for course/temp/lesson writes,
+  - temporary write paths independent of user-provided slug text,
   - overwrite only when explicitly requested.
 - Persist imported output in standard coursepack layout under `CONTENT_ROOT/courses/<slug>/` with generated `course.yaml` + `lessons/*.md`.
 
