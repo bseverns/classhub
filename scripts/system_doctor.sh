@@ -145,6 +145,13 @@ run_compose() {
   docker compose "${COMPOSE_ARGS[@]}" "$@"
 }
 
+print_compose_diagnostics() {
+  echo "[doctor] compose service state (for failure diagnosis):" >&2
+  run_compose ps >&2 || true
+  echo "[doctor] recent compose logs (tail=200):" >&2
+  run_compose logs --no-color --tail=200 classhub_web helper_web caddy postgres redis >&2 || true
+}
+
 health_state() {
   local container_name="$1"
   docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "${container_name}" 2>/dev/null || true
@@ -189,16 +196,14 @@ echo "[doctor] 5/6 compose health"
 if [[ "${BRING_UP}" == "1" ]]; then
   if [[ "${BUILD_STACK}" == "1" ]]; then
     if ! run_compose up -d --build; then
-      echo "[doctor] compose up failed; recent container logs:" >&2
-      run_compose ps >&2 || true
-      run_compose logs --no-color --tail=200 classhub_web helper_web classhub_postgres classhub_redis >&2 || true
+      echo "[doctor] compose up failed" >&2
+      print_compose_diagnostics
       exit 1
     fi
   else
     if ! run_compose up -d; then
-      echo "[doctor] compose up failed; recent container logs:" >&2
-      run_compose ps >&2 || true
-      run_compose logs --no-color --tail=200 classhub_web helper_web classhub_postgres classhub_redis >&2 || true
+      echo "[doctor] compose up failed" >&2
+      print_compose_diagnostics
       exit 1
     fi
   fi
@@ -231,7 +236,10 @@ if [[ "${SMOKE_MODE}" == "golden" ]]; then
   if [[ -n "${SMOKE_HELPER_MESSAGE}" ]]; then
     GOLDEN_ARGS+=(--helper-message "${SMOKE_HELPER_MESSAGE}")
   fi
-  "${GOLDEN_SMOKE}" "${GOLDEN_ARGS[@]}"
+  if ! "${GOLDEN_SMOKE}" "${GOLDEN_ARGS[@]}"; then
+    print_compose_diagnostics
+    exit 1
+  fi
 elif [[ "${SMOKE_MODE}" == "strict" ]]; then
   SMOKE_ENV=(
     "SMOKE_TIMEOUT_SECONDS=${SMOKE_TIMEOUT_SECONDS}"
@@ -243,7 +251,10 @@ elif [[ "${SMOKE_MODE}" == "strict" ]]; then
   if [[ -n "${SMOKE_HELPER_MESSAGE}" ]]; then
     SMOKE_ENV+=("SMOKE_HELPER_MESSAGE=${SMOKE_HELPER_MESSAGE}")
   fi
-  env "${SMOKE_ENV[@]}" "${SMOKE_CHECK}" --strict
+  if ! env "${SMOKE_ENV[@]}" "${SMOKE_CHECK}" --strict; then
+    print_compose_diagnostics
+    exit 1
+  fi
 elif [[ "${SMOKE_MODE}" == "basic" ]]; then
   SMOKE_ENV=(
     "SMOKE_TIMEOUT_SECONDS=${SMOKE_TIMEOUT_SECONDS}"
@@ -255,7 +266,10 @@ elif [[ "${SMOKE_MODE}" == "basic" ]]; then
   if [[ -n "${SMOKE_HELPER_MESSAGE}" ]]; then
     SMOKE_ENV+=("SMOKE_HELPER_MESSAGE=${SMOKE_HELPER_MESSAGE}")
   fi
-  env "${SMOKE_ENV[@]}" "${SMOKE_CHECK}"
+  if ! env "${SMOKE_ENV[@]}" "${SMOKE_CHECK}"; then
+    print_compose_diagnostics
+    exit 1
+  fi
 else
   echo "[doctor] smoke checks skipped (--smoke-mode off)"
 fi
