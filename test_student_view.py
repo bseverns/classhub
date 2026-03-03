@@ -27,11 +27,22 @@ if not _is_hub_installed():
     raise unittest.SkipTest("Class Hub smoke test skipped: 'hub' app is not installed in this settings module.")
 
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from hub.models import Class, StudentIdentity
 
 
+_SMOKE_TEST_STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+
+@override_settings(STORAGES=_SMOKE_TEST_STORAGES)
 class StudentHomeSmokeTests(TestCase):
     def test_student_join_then_student_home_returns_200(self):
         classroom = Class.objects.create(name="Smoke Class", join_code="SMOKE123")
