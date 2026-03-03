@@ -24,6 +24,7 @@ from .services.markdown_content import (
     render_markdown_to_safe_html,
     split_lesson_markdown_for_audiences,
 )
+from .services.syllabus_ingest import _safe_zip_path
 from .services.content_links import (
     build_asset_url,
     normalize_lesson_videos,
@@ -730,3 +731,14 @@ class IPPrivacyServiceTests(SimpleTestCase):
     @override_settings(CLASSHUB_STUDENT_EVENT_IP_MODE="none")
     def test_minimize_student_event_ip_can_disable_storage(self):
         self.assertEqual(minimize_student_event_ip("203.0.113.25"), "")
+
+
+class SyllabusIngestSecurityTests(SimpleTestCase):
+    def test_safe_zip_path_rejects_parent_traversal(self):
+        self.assertFalse(_safe_zip_path("../sessions/01.md"))
+        self.assertFalse(_safe_zip_path("sessions/../../etc/passwd"))
+        self.assertFalse(_safe_zip_path("/absolute/path.md"))
+
+    def test_safe_zip_path_accepts_normalized_relative_paths(self):
+        self.assertTrue(_safe_zip_path("sessions/01-intro.md"))
+        self.assertTrue(_safe_zip_path("lessons/unit-a/02-build.docx"))

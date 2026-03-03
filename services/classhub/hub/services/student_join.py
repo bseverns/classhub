@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 
 from django.conf import settings
@@ -13,9 +12,10 @@ from ..models import Class, StudentIdentity, gen_student_return_code
 
 DEVICE_HINT_SIGNING_SALT = "classhub.student-device-hint"
 
-# ── Name-safety patterns ─────────────────────────────────────────────
-_EMAIL_PATTERN = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
-_PHONE_PATTERN = re.compile(r"[\d][\d\s\-().]{5,}[\d]")
+# ── Name-safety checks (bounded, linear-time) ───────────────────────
+_MAX_NAME_SAFETY_SCAN_CHARS = 256
+_EMAIL_LOCAL_ALLOWED = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!#$%&'*+/=?^_`{|}~-")
+_PHONE_ALLOWED_CHARS = set("0123456789 -().+\t")
 
 
 class JoinValidationError(ValueError):
@@ -39,6 +39,60 @@ def normalize_display_name(raw: str, *, max_length: int = 80) -> str:
     return value[:max_length]
 
 
+def _bounded_name_for_safety(name: str) -> str:
+    return str(name or "").strip()[:_MAX_NAME_SAFETY_SCAN_CHARS]
+
+
+def _looks_like_email(value: str) -> bool:
+    token = (value or "").strip()
+    if not token or " " in token or token.count("@") != 1:
+        return False
+
+    local, domain = token.split("@", 1)
+    if not local or not domain:
+        return False
+    if local.startswith(".") or local.endswith(".") or ".." in local:
+        return False
+    if any(ch not in _EMAIL_LOCAL_ALLOWED for ch in local):
+        return False
+
+    if "." not in domain or domain.startswith(".") or domain.endswith("."):
+        return False
+    labels = domain.split(".")
+    if not labels or len(labels[-1]) < 2:
+        return False
+    for label in labels:
+        if not label or len(label) > 63:
+            return False
+        if label.startswith("-") or label.endswith("-"):
+            return False
+        if any(not (ch.isalnum() or ch == "-") for ch in label):
+            return False
+    return True
+
+
+def _looks_like_phone_number(value: str) -> bool:
+    token = (value or "").strip()
+    if not token:
+        return False
+
+    digits = 0
+    separators = 0
+    for ch in token:
+        if ch.isdigit():
+            digits += 1
+            continue
+        if ch in _PHONE_ALLOWED_CHARS:
+            if not ch.isspace():
+                separators += 1
+            continue
+        return False
+
+    if digits < 7 or digits > 15:
+        return False
+    return separators > 0 or digits >= 10
+
+
 def validate_display_name_safety(name: str) -> tuple[bool, str]:
     """Check whether *name* looks like PII (email or phone number).
 
@@ -48,10 +102,10 @@ def validate_display_name_safety(name: str) -> tuple[bool, str]:
     The caller should consult ``settings.NAME_SAFETY_MODE`` to decide
     whether to warn or reject.
     """
-    trimmed = (name or "").strip()
-    if _EMAIL_PATTERN.search(trimmed):
+    trimmed = _bounded_name_for_safety(name)
+    if _looks_like_email(trimmed):
         return True, "email_pattern"
-    if _PHONE_PATTERN.search(trimmed):
+    if _looks_like_phone_number(trimmed):
         return True, "phone_pattern"
     return False, ""
 

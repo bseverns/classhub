@@ -8,7 +8,7 @@ import uuid
 import zipfile
 from dataclasses import dataclass
 from io import BytesIO
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import defusedxml.ElementTree as ET
 
@@ -679,12 +679,25 @@ def _derive_duration_from_docs(docs: list[_ZipTextDoc]) -> int | None:
 
 
 def _safe_zip_path(path: str) -> bool:
-    normalized = path.replace("\\", "/").lstrip("/")
-    if not normalized or normalized.endswith("/"):
-        return False
-    if normalized.startswith("../") or "/../" in normalized:
-        return False
-    return True
+    return bool(_normalize_zip_member_path(path))
+
+
+def _normalize_zip_member_path(path: str) -> str:
+    normalized = str(path or "").replace("\\", "/").strip().lstrip("/")
+    if not normalized:
+        return ""
+    parts = PurePosixPath(normalized).parts
+    if not parts:
+        return ""
+    clean_parts: list[str] = []
+    for part in parts:
+        token = str(part or "").strip()
+        if not token or token in {".", ".."}:
+            return ""
+        if "\x00" in token:
+            return ""
+        clean_parts.append(token)
+    return "/".join(clean_parts)
 
 
 def _zip_text_documents(source_bytes: bytes) -> list[_ZipTextDoc]:
@@ -696,19 +709,21 @@ def _zip_text_documents(source_bytes: bytes) -> list[_ZipTextDoc]:
                 raise SyllabusIngestError("Zip archive has too many files to ingest safely.")
             total_size = 0
             for info in infos:
-                if not _safe_zip_path(info.filename):
+                normalized_member_path = _normalize_zip_member_path(info.filename)
+                if not normalized_member_path:
                     continue
                 total_size += int(info.file_size or 0)
                 if total_size > 30 * 1024 * 1024:
                     raise SyllabusIngestError("Zip archive is too large to ingest safely.")
-                suffix = Path(info.filename).suffix.lower()
+                suffix = PurePosixPath(normalized_member_path).suffix.lower()
                 if suffix not in TEXT_EXTENSIONS:
                     continue
-                raw = archive.read(info.filename)
+                with archive.open(info, "r") as stream:
+                    raw = stream.read()
                 text = _read_text_blob(suffix=suffix, raw=raw)
                 docs.append(
                     _ZipTextDoc(
-                        path=info.filename.replace("\\", "/"),
+                        path=normalized_member_path,
                         text=text,
                         size=int(info.file_size or len(raw)),
                         suffix=suffix,
@@ -794,8 +809,11 @@ def _write_course(
     program_profile: str,
     overwrite: bool,
 ) -> Path:
+    safe_slug = str(slug or "").strip().lower()
+    if not COURSE_SLUG_RE.fullmatch(safe_slug):
+        raise SyllabusIngestError("Course slug can use lowercase letters, numbers, underscores, and dashes.")
     root_dir.mkdir(parents=True, exist_ok=True)
-    destination = (root_dir / slug).resolve()
+    destination = (root_dir / safe_slug).resolve()
     root_resolved = root_dir.resolve()
     if not destination.is_relative_to(root_resolved):
         raise SyllabusIngestError("Resolved course path escapes configured courses root.")
@@ -805,7 +823,7 @@ def _write_course(
             raise SyllabusIngestError(f"Course '{slug}' already exists. Enable overwrite to replace it.")
         shutil.rmtree(destination)
 
-    tmp_dir = (root_dir / f".{slug}.tmp-{uuid.uuid4().hex}").resolve()
+    tmp_dir = (root_dir / f".{safe_slug}.tmp-{uuid.uuid4().hex}").resolve()
     if not tmp_dir.is_relative_to(root_resolved):
         raise SyllabusIngestError("Temporary write path is unsafe.")
     lessons_dir = tmp_dir / "lessons"

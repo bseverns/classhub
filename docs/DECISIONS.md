@@ -1618,3 +1618,15 @@ Historical implementation logs and superseded decisions are archived by month in
 - Guarding imports prevents false-negative failures (`app_label`/`INSTALLED_APPS` mismatch) in unrelated service test runs while preserving the Class Hub smoke signal when run in the correct settings context.
 - End-to-end learner smoke now catches runtime regressions in session establishment/middleware/template rendering that present as `/student` 500s after join.
 - The smoke remains focused on join/session/view behavior instead of static build pipeline artifacts.
+
+## Name-Safety + Syllabus Ingest Security Hardening
+
+**Current decision:**
+- Replace regex-based display-name PII checks with bounded, linear-time validators for email/phone-like patterns.
+- Normalize ZIP member paths during syllabus ingest, rejecting traversal/absolute/null-byte segments before parsing.
+- Read ZIP entries via the validated `ZipInfo` handle and re-validate course slug at the write boundary before composing destination paths.
+
+**Why this remains active:**
+- Removes static-analysis ReDoS findings from user-controlled display name checks.
+- Tightens syllabus ingest against path-expression/path-traversal style findings from ZIP member names.
+- Keeps ingestion behavior compatible for normal teacher-authored source files while reducing parser/path attack surface.

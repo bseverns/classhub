@@ -103,6 +103,13 @@ class NameSafetyValidationTests(SimpleTestCase):
         flagged, _ = validate_display_name_safety("Player 42")
         self.assertFalse(flagged)
 
+    def test_very_long_untrusted_input_is_bounded_and_does_not_error(self):
+        from ..services.student_join import validate_display_name_safety
+
+        flagged, reason = validate_display_name_safety("(" * 5000 + "A" * 5000)
+        self.assertFalse(flagged)
+        self.assertEqual(reason, "")
+
 
 class PseudonymAndNameSafetyViewTests(TestCase):
     """Integration tests for pseudonym prefill and name-safety in the join flow."""
