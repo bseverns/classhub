@@ -27,7 +27,12 @@ COPY classhub /app
 EXPOSE 8000
 
 # Build static assets once so container boot only has to migrate + start gunicorn.
-RUN DJANGO_SECRET_KEY=build-time-static-secret-key-aaaaaaaaaaaaaaaa DJANGO_DEBUG=1 \
+# Use production-mode static storage so runtime (DJANGO_DEBUG=0) sees a valid manifest.
+RUN DJANGO_SECRET_KEY=build-time-static-secret-key-aaaaaaaaaaaaaaaa \
+  DEVICE_HINT_SIGNING_KEY=build-time-device-hint-key-bbbbbbbbbbbbbbbb \
+  HELPER_SCOPE_SIGNING_KEY=build-time-helper-scope-key-cccccccccccccccc \
+  DJANGO_DEBUG=0 \
+  CLASSHUB_USE_MANIFEST_STATICFILES=1 \
   python manage.py collectstatic --noinput
 
 RUN mkdir -p /uploads/authoring_templates \
