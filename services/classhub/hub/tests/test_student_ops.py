@@ -756,7 +756,7 @@ class StudentEventSubmissionTests(TestCase):
         saved = Submission.objects.filter(material=gallery, student=self.student).order_by("-id").first()
         self.assertIsNotNone(saved)
         self.assertTrue(saved.is_published)
-        self.assertTrue(saved.is_gallery_shared)
+        self.assertFalse(saved.is_gallery_shared)
 
     def test_student_home_shows_shared_gallery_entries_only(self):
         gallery = Material.objects.create(
@@ -855,6 +855,46 @@ class StudentEventSubmissionTests(TestCase):
         saved.refresh_from_db()
         self.assertTrue(saved.is_published)
         self.assertFalse(saved.is_gallery_shared)
+
+    def test_student_unpublish_clears_teacher_approval_and_republish_requires_reapproval(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf,.sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        self._login_student()
+        saved = Submission.objects.create(
+            material=gallery,
+            student=self.student,
+            original_filename="project.sb3",
+            file=SimpleUploadedFile("project.sb3", _sample_sb3_bytes()),
+            is_published=True,
+            is_gallery_shared=True,
+            published_at=timezone.now(),
+        )
+
+        unpublish = self.client.post(
+            f"/student/submission/{saved.id}/publish",
+            {"publish": "0", "return_to": f"/material/{gallery.id}/upload"},
+        )
+        self.assertEqual(unpublish.status_code, 302)
+        saved.refresh_from_db()
+        self.assertFalse(saved.is_published)
+        self.assertFalse(saved.is_gallery_shared)
+        self.assertIsNone(saved.published_at)
+
+        republish = self.client.post(
+            f"/student/submission/{saved.id}/publish",
+            {"publish": "1", "return_to": f"/material/{gallery.id}/upload"},
+        )
+        self.assertEqual(republish.status_code, 302)
+        saved.refresh_from_db()
+        self.assertTrue(saved.is_published)
+        self.assertFalse(saved.is_gallery_shared)
+        self.assertIsNotNone(saved.published_at)
 
     def test_student_publish_ignores_external_return_to(self):
         gallery = Material.objects.create(

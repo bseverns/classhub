@@ -160,7 +160,7 @@ def process_material_upload_form(
 
     publish_requested = bool(share_with_class and material.type == Material.TYPE_GALLERY)
     module_gallery_enabled = bool(getattr(material.module, "gallery_enabled", True))
-    can_publish_now = bool(publish_requested and module_gallery_enabled)
+    student_published = bool(publish_requested and module_gallery_enabled)
 
     submission = Submission.objects.create(
         material=material,
@@ -170,9 +170,9 @@ def process_material_upload_form(
         note=(note or process_note),
         process_note=process_note,
         station_label=station_label,
-        is_gallery_shared=can_publish_now,
-        is_published=can_publish_now,
-        published_at=timezone.now() if can_publish_now else None,
+        is_gallery_shared=False,
+        is_published=student_published,
+        published_at=timezone.now() if student_published else None,
     )
     emit_student_event_fn(
         event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,

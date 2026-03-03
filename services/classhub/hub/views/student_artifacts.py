@@ -227,6 +227,10 @@ def student_set_submission_publish(request, submission_id: int):
     now = timezone.now()
 
     update_fields: list[str] = []
+
+    def mark_update(field: str) -> None:
+        if field not in update_fields:
+            update_fields.append(field)
     if publish_requested:
         if not module_gallery_enabled:
             redirect_to = _safe_student_return_path(
@@ -242,12 +246,21 @@ def student_set_submission_publish(request, submission_id: int):
         if not submission.is_published:
             submission.is_published = True
             submission.published_at = now
-            update_fields.extend(["is_published", "published_at"])
+            mark_update("is_published")
+            mark_update("published_at")
+            if submission.is_gallery_shared:
+                # Republish should always return to pending-approval state.
+                submission.is_gallery_shared = False
+                mark_update("is_gallery_shared")
     else:
         if submission.is_published or submission.published_at is not None:
             submission.is_published = False
             submission.published_at = None
-            update_fields.extend(["is_published", "published_at"])
+            mark_update("is_published")
+            mark_update("published_at")
+        if submission.is_gallery_shared:
+            submission.is_gallery_shared = False
+            mark_update("is_gallery_shared")
 
     if update_fields:
         submission.save(update_fields=update_fields)
