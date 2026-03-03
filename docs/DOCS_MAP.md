@@ -52,6 +52,7 @@ A new reader should be able to find their role path without opening more than on
 - [REQUEST_SAFETY.md](REQUEST_SAFETY.md)
 - [API.md](API.md)
 - [HELPER_EVALS.md](HELPER_EVALS.md)
+- [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md)
 
 ### Public sharing
 - [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md)

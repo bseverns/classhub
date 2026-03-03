@@ -7,6 +7,7 @@ Historical implementation logs and superseded decisions are archived by month in
 
 - [Auth model: student access](#auth-model-student-access)
 - [Trust primitives: student data controls](#trust-primitives-student-data-controls)
+- [Database workload split roadmap](#database-workload-split-roadmap)
 - [Artifact-first sharing defaults](#artifact-first-sharing-defaults)
 - [Program profiles for cohort age bands](#program-profiles-for-cohort-age-bands)
 - [Stability freeze and change budget](#stability-freeze-and-change-budget)
@@ -143,6 +144,24 @@ Historical implementation logs and superseded decisions are archived by month in
 - Gives students direct agency over identity/work without adding new PII collection.
 - Keeps deletion semantics explicit and auditable for programs that require staff-mediated removal.
 - Preserves a help-first, low-surveillance facilitation model with constrained metadata rather than narrative dossiers.
+
+## Database workload split roadmap
+
+**Current decision:**
+- Keep one core transactional database as the source of truth for class/auth/material/submission workflows.
+- Execute a phased telemetry split first:
+  - isolate append-only, high-churn event workloads from core transactional paths,
+  - use dual-write + read toggles for a near-zero-downtime migration,
+  - require parity checks before any telemetry-only write mode.
+- Do not split core submission/class metadata in Phase 1.
+
+Execution runbook:
+- [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md)
+
+**Why this remains active:**
+- Reduces blast radius from telemetry spikes and prune operations.
+- Improves restore/recovery posture for core LMS operations.
+- Preserves a reversible migration path via environment toggles.
 
 ## Artifact-first sharing defaults
 
