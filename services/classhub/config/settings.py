@@ -15,6 +15,7 @@ Reading order for non-developers:
 """
 
 import os
+import sys
 from pathlib import Path
 
 import environ
@@ -272,13 +273,23 @@ _DEFAULT_PERMISSIONS_POLICY = (
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+USE_MANIFEST_STATICFILES = (
+    not DEBUG
+    and "test" not in sys.argv
+    and env.bool("CLASSHUB_USE_MANIFEST_STATICFILES", default=True)
+)
+_staticfiles_backend = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    if USE_MANIFEST_STATICFILES
+    else "django.contrib.staticfiles.storage.StaticFilesStorage"
+)
 STORAGES = {
     # Default uploaded-file storage for submission and lesson media.
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": _staticfiles_backend,
     },
 }
 
