@@ -72,12 +72,13 @@ def material_checklist(request, material_id: int):
         checked_indexes.append(idx)
     checked_indexes.sort()
 
-    response_obj, _created = StudentMaterialResponse.objects.get_or_create(
+    response_obj, created = StudentMaterialResponse.objects.get_or_create(
         material=material,
         student=request.student,
         defaults={"checklist_checked": checked_indexes},
     )
-    previously_complete = bool(checklist_items) and len(response_obj.checklist_checked or []) >= len(checklist_items)
+    previous_checked = [] if created else (response_obj.checklist_checked or [])
+    previously_complete = bool(checklist_items) and len(previous_checked) >= len(checklist_items)
     if response_obj.checklist_checked != checked_indexes:
         response_obj.checklist_checked = checked_indexes
         response_obj.save(update_fields=["checklist_checked", "updated_at"])
@@ -104,12 +105,13 @@ def material_reflection(request, material_id: int):
         return error_response
 
     reflection_text = (request.POST.get("reflection_text") or "").strip()[:2000]
-    response_obj, _created = StudentMaterialResponse.objects.get_or_create(
+    response_obj, created = StudentMaterialResponse.objects.get_or_create(
         material=material,
         student=request.student,
         defaults={"reflection_text": reflection_text},
     )
-    previously_had_text = bool((response_obj.reflection_text or "").strip())
+    previous_text = "" if created else (response_obj.reflection_text or "")
+    previously_had_text = bool(previous_text.strip())
     if response_obj.reflection_text != reflection_text:
         response_obj.reflection_text = reflection_text
         response_obj.save(update_fields=["reflection_text", "updated_at"])
@@ -149,13 +151,14 @@ def material_rubric(request, material_id: int):
         rubric_scores.append(score)
     rubric_feedback = (request.POST.get("rubric_feedback") or "").strip()[:2000]
 
-    response_obj, _created = StudentMaterialResponse.objects.get_or_create(
+    response_obj, created = StudentMaterialResponse.objects.get_or_create(
         material=material,
         student=request.student,
         defaults={"rubric_scores": rubric_scores, "rubric_feedback": rubric_feedback},
     )
-    old_scores = response_obj.rubric_scores if isinstance(response_obj.rubric_scores, list) else []
-    previously_submitted = bool(any(int(v or 0) > 0 for v in old_scores) or (response_obj.rubric_feedback or "").strip())
+    old_scores = [] if created else (response_obj.rubric_scores if isinstance(response_obj.rubric_scores, list) else [])
+    old_feedback = "" if created else (response_obj.rubric_feedback or "")
+    previously_submitted = bool(any(int(v or 0) > 0 for v in old_scores) or old_feedback.strip())
     if response_obj.rubric_scores != rubric_scores or response_obj.rubric_feedback != rubric_feedback:
         response_obj.rubric_scores = rubric_scores
         response_obj.rubric_feedback = rubric_feedback
