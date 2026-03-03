@@ -274,9 +274,10 @@ _DEFAULT_PERMISSIONS_POLICY = (
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+RUNNING_TESTS = "test" in sys.argv
 USE_MANIFEST_STATICFILES = (
     not DEBUG
-    and "test" not in sys.argv
+    and not RUNNING_TESTS
     and env.bool("CLASSHUB_USE_MANIFEST_STATICFILES", default=True)
 )
 _staticfiles_backend = (
@@ -317,7 +318,10 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB (larger files stream to dis
 UPLOAD_REQUEST_MAX_MB = env.int("CLASSHUB_UPLOAD_MAX_MB", default=600)
 DATA_UPLOAD_MAX_MEMORY_SIZE = UPLOAD_REQUEST_MAX_MB * 1024 * 1024
 # Join endpoint throttling (protects classroom join flow from brute-force/abuse).
-JOIN_RATE_LIMIT_PER_MINUTE = env.int("CLASSHUB_JOIN_RATE_LIMIT_PER_MINUTE", default=20)
+JOIN_RATE_LIMIT_PER_MINUTE = env.int(
+    "CLASSHUB_JOIN_RATE_LIMIT_PER_MINUTE",
+    default=(0 if RUNNING_TESTS else 20),
+)
 # Cookie used for same-device student rejoin hints.
 DEVICE_REJOIN_COOKIE_NAME = env("CLASSHUB_DEVICE_REJOIN_COOKIE_NAME", default="classhub_student_hint")
 DEVICE_REJOIN_MAX_AGE_DAYS = env.int("CLASSHUB_DEVICE_REJOIN_MAX_AGE_DAYS", default=30)

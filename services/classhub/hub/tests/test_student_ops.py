@@ -249,12 +249,12 @@ class JoinClassTests(TestCase):
         )
         self.assertEqual(allowed.status_code, 200)
 
-    def test_invite_url_redirects_to_join_page_with_token(self):
+    def test_invite_url_renders_join_page_with_token(self):
         invite = ClassInviteLink.objects.create(classroom=self.classroom, label="Paid cohort")
 
         resp = self.client.get(f"/invite/{invite.token}")
-        self.assertEqual(resp.status_code, 302)
-        self.assertIn(f"/?invite={invite.token}", resp["Location"])
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, f'value="{invite.token}"')
 
     def test_join_allows_invite_token_without_class_code(self):
         invite = ClassInviteLink.objects.create(classroom=self.classroom, label="Paid cohort")

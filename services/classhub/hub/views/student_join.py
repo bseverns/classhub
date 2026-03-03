@@ -137,6 +137,11 @@ def _complete_join_transaction(
     display_name: str,
     return_code: str,
 ) -> tuple[StudentIdentity | None, Class | None, ClassInviteLink | None, bool, str, str, int]:
+    def _reject_new_join(code: str, status: int) -> tuple[StudentIdentity | None, Class | None, ClassInviteLink | None, bool, str, str, int]:
+        if join_result.join_mode == "new":
+            join_result.student.delete()
+        return None, classroom, invite, False, "", code, status
+
     with transaction.atomic():
         invite, invite_error = _lock_invite_for_join(invite)
         if invite_error:
@@ -162,15 +167,15 @@ def _complete_join_transaction(
 
         if join_result.join_mode == "new":
             if classroom.enrollment_mode == Class.ENROLLMENT_CLOSED:
-                return None, classroom, invite, False, "", "class_enrollment_closed", 403
+                return _reject_new_join("class_enrollment_closed", 403)
             if classroom.enrollment_mode == Class.ENROLLMENT_INVITE_ONLY and invite is None:
-                return None, classroom, invite, False, "", "invite_required", 403
+                return _reject_new_join("invite_required", 403)
 
         if invite is not None:
             now = timezone.now()
             if join_result.join_mode == "new":
                 if not invite.has_seat_available():
-                    return None, classroom, invite, False, "", "invite_seat_cap_reached", 400
+                    return _reject_new_join("invite_seat_cap_reached", 400)
                 invite.use_count = int(invite.use_count or 0) + 1
                 invite.last_used_at = now
                 invite.save(update_fields=["use_count", "last_used_at"])
