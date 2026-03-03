@@ -109,7 +109,7 @@
         <section class="landing-section">
           <h3>Course links</h3>
           {% if class_landing.course_lesson_links %}
-          <details class="landing-course-map" {% if ui_density_mode=="expanded" %}open{% endif %}>
+          <details class="landing-course-map" {% if ui_density_mode == "expanded" %}open{% endif %}>
             <summary>View full course lesson links</summary>
             <ul>
               {% for row in class_landing.course_lesson_links %}
@@ -195,8 +195,8 @@
       {% if modules %}
       {% for m in modules %}
       {% with module_release=class_landing.module_release_map|get_item:m.id %}
-      <details class="card module" id="module-{{ m.id }}" {% if class_landing.highlight_module_id==m.id or
-        ui_density_mode=="expanded" %}open{% endif %}>
+      <details class="card module" id="module-{{ m.id }}" {% if class_landing.highlight_module_id == m.id or
+        ui_density_mode == "expanded" %}open{% endif %}>
         <summary class="module-summary">
           <span class="module-title">{{ m.title }}</span>
           {% if module_release %}
@@ -414,7 +414,7 @@
               <select id="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" name="criterion_{{ criterion_index }}">
                 <option value="">Not scored</option>
                 {% for score in spec.scale_values %}
-                <option value="{{ score }}" {% if selected_score==score %}selected{% endif %}>{{ score }}</option>
+                <option value="{{ score }}" {% if selected_score == score %}selected{% endif %}>{{ score }}</option>
                 {% endfor %}
               </select>
               {% endwith %}
