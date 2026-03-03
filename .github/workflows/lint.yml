@@ -27,7 +27,11 @@ jobs:
           {
             echo "### Ruff advisory stats"
             echo '```text'
-            cat /tmp/ruff-advisory.txt
+            if [[ -f /tmp/ruff-advisory.txt ]]; then
+              cat /tmp/ruff-advisory.txt
+            else
+              echo "ruff advisory output unavailable (prior step did not complete)."
+            fi
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Repo hygiene guard
@@ -54,3 +58,5 @@ jobs:
         run: python scripts/check_no_dynamic_service_all_exports.py
       - name: Guard new wildcard imports in ClassHub view modules
         run: python scripts/check_no_new_wildcard_view_imports.py
+      - name: Guard critical CI workflow coverage
+        run: python scripts/check_ci_workflow_coverage.py

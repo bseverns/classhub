@@ -806,7 +806,10 @@ Execution runbook:
 - CI now writes concise human-readable summaries to `$GITHUB_STEP_SUMMARY`:
   - Ruff advisory stats in `lint`.
   - Coverage totals for `classhub-tests` and `helper-tests` in `test-suite`.
+  - Ruff summary now tolerates missing advisory output and prints a fallback message instead of cascading failure noise after a blocking Ruff error.
 - Workflow syntax is now protected by a dedicated YAML parse gate (`.github/workflows/workflow-lint.yml`) so malformed workflow files fail fast in CI.
+- Workflow semantics are now additionally linted with `actionlint` in `.github/workflows/workflow-lint.yml`.
+- CI surface coverage now includes a contract guard (`scripts/check_ci_workflow_coverage.py`) that fails when critical workflows/jobs/check commands disappear.
 
 **Why this remains active:**
 - Reduces repeated dependency download/install time across CI jobs.
@@ -821,6 +824,7 @@ Execution runbook:
 - Prevents accidental service API surface expansion from broad dynamic exports.
 - Catches production security-setting drift earlier than unit/integration tests.
 - Prevents silent CI gate loss from workflow syntax regressions.
+- Reduces false-negative confidence from silently dropped CI jobs/steps during rapid workflow edits.
 
 ## Non-root Django runtime containers
 
