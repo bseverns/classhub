@@ -183,7 +183,7 @@ print_compose_diagnostics() {
   echo "[golden-smoke] compose service state (for failure diagnosis):" >&2
   run_compose ps >&2 || true
   echo "[golden-smoke] recent compose logs (tail=200):" >&2
-  run_compose logs --no-color --tail=200 classhub_web helper_web caddy classhub_postgres classhub_redis >&2 || true
+  run_compose logs --no-color --tail=200 classhub_web helper_web caddy postgres redis >&2 || true
 }
 
 health_state() {

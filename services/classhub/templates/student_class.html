@@ -195,8 +195,7 @@
       {% if modules %}
       {% for m in modules %}
       {% with module_release=class_landing.module_release_map|get_item:m.id %}
-      <details class="card module" id="module-{{ m.id }}" {% if class_landing.highlight_module_id == m.id or
-        ui_density_mode == "expanded" %}open{% endif %}>
+      <details class="card module" id="module-{{ m.id }}" {% if class_landing.highlight_module_id == m.id or ui_density_mode == "expanded" %}open{% endif %}>
         <summary class="module-summary">
           <span class="module-title">{{ m.title }}</span>
           {% if module_release %}
