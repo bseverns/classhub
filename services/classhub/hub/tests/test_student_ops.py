@@ -1388,6 +1388,52 @@ class StudentDataControlsTests(TestCase):
             0,
         )
 
+    def test_student_rename_updates_display_name(self):
+        self._login_student()
+
+        resp = self.client.post("/student/rename", {"display_name": "Ada Star"})
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp["Location"].startswith("/student/my-data?notice="))
+        self.student.refresh_from_db()
+        self.assertEqual(self.student.display_name, "Ada Star")
+        self.assertEqual(
+            StudentEvent.objects.filter(
+                student=self.student,
+                event_type="student_rename_display_name",
+            ).count(),
+            1,
+        )
+
+    @override_settings(NAME_SAFETY_MODE="strict")
+    def test_student_rename_rejects_strict_name_safety_patterns(self):
+        self._login_student()
+
+        resp = self.client.post("/student/rename", {"display_name": "kid@example.org"})
+        self.assertEqual(resp.status_code, 302)
+        self.student.refresh_from_db()
+        self.assertEqual(self.student.display_name, "Ada")
+
+    @override_settings(CLASSHUB_STUDENT_SELF_DELETE_MODE="request")
+    def test_student_delete_work_request_mode_logs_request_and_keeps_data(self):
+        Submission.objects.create(
+            material=self.upload,
+            student=self.student,
+            original_filename="project.sb3",
+            file=SimpleUploadedFile("project.sb3", b"demo"),
+        )
+        self._login_student()
+
+        resp = self.client.post("/student/delete-work")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Submission.objects.filter(student=self.student).count(), 1)
+        self.assertEqual(
+            StudentEvent.objects.filter(
+                student=self.student,
+                event_type="student_delete_work_request",
+            ).count(),
+            1,
+        )
+
     def test_student_delete_work_now_clears_material_responses(self):
         checklist = Material.objects.create(
             module=self.module,
@@ -1408,6 +1454,28 @@ class StudentDataControlsTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             StudentMaterialResponse.objects.filter(student=self.student, material=checklist).count(),
+            0,
+        )
+
+    def test_student_delete_work_now_clears_artifact_outcome_events(self):
+        StudentOutcomeEvent.objects.create(
+            classroom=self.classroom,
+            student=self.student,
+            module=self.module,
+            material=self.upload,
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            source="test",
+            details={},
+        )
+        self._login_student()
+
+        resp = self.client.post("/student/delete-work")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            StudentOutcomeEvent.objects.filter(
+                student=self.student,
+                event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            ).count(),
             0,
         )
 

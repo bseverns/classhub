@@ -43,18 +43,43 @@
           <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker
             sharing." }}</p>
         </div>
+        <form method="post" action="/student/rename" class="rename-self-form">
+          {% csrf_token %}
+          <label for="student-display-name">{% trans "Display name" %}</label>
+          <div class="rename-self-controls">
+            <input
+              id="student-display-name"
+              name="display_name"
+              maxlength="80"
+              value="{{ student.display_name }}"
+              required
+            />
+            <button type="submit">{% trans "Update display name" %}</button>
+          </div>
+        </form>
         <div class="actions">
           <a href="/student/portfolio-export">{% trans "Download my work" %}</a>
           <form method="post" action="/student/delete-work"
-            data-confirm="{% trans 'Delete all of your submissions now?' %}">
+            data-confirm="{% if student_self_delete_mode == 'request' %}{% trans 'Send a deletion request to your teacher?' %}{% else %}{% trans 'Delete all of your submissions now?' %}{% endif %}">
             {% csrf_token %}
+            {% if student_self_delete_mode == 'request' %}
+            <button type="submit">{% trans "Request deletion" %}</button>
+            {% else %}
             <button type="submit" class="danger">{% trans "Delete my work now" %}</button>
+            {% endif %}
           </form>
           <form method="post" action="/student/end-session">
             {% csrf_token %}
             <button type="submit">{% trans "End my session on this device" %}</button>
           </form>
         </div>
+        <p class="muted top-gap-10">
+          {% if student_self_delete_mode == "request" %}
+          {% trans "Your program requires staff review before deletion. Your request is logged for your class team." %}
+          {% else %}
+          {% trans "Deletion is immediate and permanently removes your stored submissions and upload records." %}
+          {% endif %}
+        </p>
       </div>
 
       <div class="card">

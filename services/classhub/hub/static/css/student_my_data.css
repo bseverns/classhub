@@ -49,6 +49,18 @@
 .actions form {
   margin: 0;
 }
+.rename-self-form {
+  margin-top: 12px;
+}
+.rename-self-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.rename-self-controls input {
+  min-width: 220px;
+}
 .danger {
   background: linear-gradient(155deg, #7d2020, #631717);
 }

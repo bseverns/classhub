@@ -52,8 +52,12 @@
                     </li>
                     <li>Click <strong>"Download my work"</strong> to get a ZIP archive containing everything you've
                         uploaded.</li>
+                    {% if student_self_delete_mode == "request" %}
+                    <li>Click <strong>"Request deletion"</strong> to send a staff-reviewed deletion request for your uploads and responses.</li>
+                    {% else %}
                     <li>Click <strong>"Delete my work now"</strong> to immediately erase your uploads and responses from
                         our servers.</li>
+                    {% endif %}
                 </ol>
             </section>
 
@@ -66,8 +70,12 @@
                         a workshop ends).</li>
                     <li><strong>Teacher Actions:</strong> Teachers can manually clear rosters and delete student data at
                         the end of a session.</li>
+                    {% if student_self_delete_mode == "request" %}
+                    <li><strong>Your Actions:</strong> You can request deletion via the "My Data" portal. Staff review and apply deletion under program policy.</li>
+                    {% else %}
                     <li><strong>Your Actions:</strong> As described above, you can delete your own work at any time via
                         the "My Data" portal.</li>
+                    {% endif %}
                 </ul>
             </section>
 

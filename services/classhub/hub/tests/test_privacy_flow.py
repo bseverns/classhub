@@ -31,6 +31,12 @@ class PrivacyPageTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'href="/trust"')
 
+    @override_settings(CLASSHUB_STUDENT_SELF_DELETE_MODE="request")
+    def test_privacy_page_mentions_request_mode_when_enabled(self):
+        resp = self.client.get("/privacy")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Request deletion")
+
 
 class StudentDeleteWorkTests(TestCase):
     def setUp(self):

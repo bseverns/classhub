@@ -16,7 +16,15 @@ from common.helper_scope import issue_scope_token
 
 from ..forms import SubmissionUploadForm
 from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
-from ..models import Class, Material, StudentEvent, StudentIdentity, StudentMaterialResponse, Submission
+from ..models import (
+    Class,
+    Material,
+    StudentEvent,
+    StudentIdentity,
+    StudentMaterialResponse,
+    StudentOutcomeEvent,
+    Submission,
+)
 from ..services.export_service import build_student_portfolio_export_response
 from ..services.ip_privacy import minimize_student_event_ip
 from ..services.join_flow_service import clear_device_hint_cookie
@@ -31,6 +39,7 @@ from ..services.student_home import (
     build_submissions_by_material,
     helper_backend_label,
     privacy_meta_context,
+    student_self_delete_mode,
 )
 from ..services.submission_service import (
     parse_extensions,
@@ -43,6 +52,7 @@ from ..services.ui_density import resolve_ui_density_mode_for_modules
 from .student_micro_checks import latest_micro_check_state
 
 logger = logging.getLogger(__name__)
+_EVENT_STUDENT_DELETE_REQUEST = "student_delete_work_request"
 
 
 def _helper_scope_signing_key() -> str:
@@ -258,6 +268,17 @@ def student_delete_work(request):
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
         return redirect("/")
 
+    if student_self_delete_mode() == "request":
+        _emit_student_event(
+            event_type=_EVENT_STUDENT_DELETE_REQUEST,
+            classroom=request.classroom,
+            student=request.student,
+            source="classhub.student_my_data",
+            details={"delete_mode": "request"},
+        )
+        notice = _("Deletion request sent to your teacher.")
+        return redirect("/student/my-data?" + urlencode({"notice": notice}))
+
     submissions_qs = Submission.objects.filter(
         student=request.student,
         material__module__classroom=request.classroom,
@@ -274,8 +295,17 @@ def student_delete_work(request):
             student=request.student,
             event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
         ).delete()
+    with StudentOutcomeEvent.allow_retention_delete():
+        deleted_outcomes, _details = StudentOutcomeEvent.objects.filter(
+            student=request.student,
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+        ).delete()
 
-    notice = f"Deleted {deleted_submissions} submission(s) and {deleted_events} upload event record(s)."
+    notice = (
+        f"Deleted {deleted_submissions} submission(s), "
+        f"{deleted_events} upload event record(s), and "
+        f"{deleted_outcomes} artifact outcome record(s)."
+    )
     return redirect("/student/my-data?" + urlencode({"notice": notice}))
 
 

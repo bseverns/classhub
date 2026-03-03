@@ -43,6 +43,7 @@ urlpatterns = [
     path("student", views.student_home),
     path("student/return-code", views.student_return_code),
     path("student/my-data", views.student_my_data),
+    path("student/rename", views.student_rename_display_name),
     path("student/delete-work", views.student_delete_work),
     path("student/end-session", views.student_end_session),
     path("student/micro-check", views.student_micro_check),

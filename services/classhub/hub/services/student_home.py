@@ -23,6 +23,13 @@ def _retention_days(setting_name: str, default: int) -> int:
     return value if value > 0 else 0
 
 
+def student_self_delete_mode() -> str:
+    mode = str(getattr(settings, "CLASSHUB_STUDENT_SELF_DELETE_MODE", "direct") or "direct").strip().lower()
+    if mode == "request":
+        return "request"
+    return "direct"
+
+
 def privacy_meta_context(*, classroom: Class | None = None) -> dict:
     fallback_submission_days = _retention_days("CLASSHUB_SUBMISSION_RETENTION_DAYS", 90)
     fallback_event_days = _retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180)
@@ -35,6 +42,7 @@ def privacy_meta_context(*, classroom: Class | None = None) -> dict:
             classroom=classroom,
             fallback_days=fallback_event_days,
         ),
+        "student_self_delete_mode": student_self_delete_mode(),
     }
 
 

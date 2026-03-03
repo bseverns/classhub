@@ -20,6 +20,7 @@ from .content import course_lesson, course_overview, iter_course_lesson_options
 from .internal import internal_helper_chat_access_event
 from .media import lesson_asset_download, lesson_video_stream
 from .student_join import index, invite_join, join_class
+from .student_identity import student_rename_display_name
 from .student import (
     healthz,
     material_upload,
@@ -120,6 +121,7 @@ __all__ = [
     "student_micro_check",
     "student_my_data",
     "student_portfolio_export",
+    "student_rename_display_name",
     "student_return_code",
     "submission_download",
     "privacy_policy",
