@@ -18,6 +18,7 @@ _YOUTUBE_HOSTS = {
     "youtube-nocookie.com",
     "www.youtube-nocookie.com",
 }
+_YOUTUBE_ID_ALLOWED = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")
 _COURSE_LESSON_PATH_RE = re.compile(
     r"^/course/(?P<course_slug>[-a-zA-Z0-9_]+)/(?P<lesson_slug>[-a-zA-Z0-9_]+)$"
 )
@@ -34,6 +35,13 @@ _VIDEO_EXTENSIONS = {
 
 def courses_dir() -> Path:
     return Path(settings.CONTENT_ROOT) / "courses"
+
+
+def _is_safe_youtube_id(video_id: str) -> bool:
+    token = str(video_id or "").strip()
+    if len(token) < 6 or len(token) > 20:
+        return False
+    return all(ch in _YOUTUBE_ID_ALLOWED for ch in token)
 
 
 def extract_youtube_id(url: str) -> str:
@@ -60,14 +68,14 @@ def extract_youtube_id(url: str) -> str:
         if len(parts) >= 2:
             video_id = parts[1]
 
-    if re.fullmatch(r"[A-Za-z0-9_-]{6,20}", video_id or ""):
+    if _is_safe_youtube_id(video_id):
         return video_id
     return ""
 
 
 def youtube_embed_url(youtube_id: str) -> str:
     video_id = str(youtube_id or "").strip()
-    if not re.fullmatch(r"[A-Za-z0-9_-]{6,20}", video_id):
+    if not _is_safe_youtube_id(video_id):
         return ""
     return f"https://www.youtube-nocookie.com/embed/{video_id}"
 
@@ -145,7 +153,7 @@ def normalize_lesson_videos(front_matter: dict) -> list[dict]:
         outcome = str(video.get("outcome") or "").strip()
         url = safe_external_url(str(video.get("url") or "").strip())
         youtube_id = str(video.get("youtube_id") or "").strip()
-        if youtube_id and not re.fullmatch(r"[A-Za-z0-9_-]{6,20}", youtube_id):
+        if youtube_id and not _is_safe_youtube_id(youtube_id):
             youtube_id = ""
         if not youtube_id and url:
             youtube_id = extract_youtube_id(url)

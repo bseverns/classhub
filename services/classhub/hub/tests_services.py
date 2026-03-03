@@ -27,8 +27,10 @@ from .services.markdown_content import (
 from .services.syllabus_ingest import SyllabusIngestError, _safe_lesson_filename, _safe_zip_path
 from .services.content_links import (
     build_asset_url,
+    extract_youtube_id,
     normalize_lesson_videos,
     parse_course_lesson_url,
+    youtube_embed_url,
 )
 from .services.filenames import safe_filename
 from .services.ip_privacy import minimize_student_event_ip
@@ -653,6 +655,12 @@ class ContentLinksServiceTests(SimpleTestCase):
         self.assertEqual(videos[0]["embed_url"], "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ")
         self.assertEqual(videos[1]["source_type"], "native")
         self.assertEqual(videos[2]["source_type"], "link")
+
+    def test_extract_youtube_id_rejects_invalid_identifier_characters(self):
+        self.assertEqual(extract_youtube_id("https://www.youtube.com/watch?v=bad.id"), "")
+
+    def test_youtube_embed_url_rejects_invalid_identifier_characters(self):
+        self.assertEqual(youtube_embed_url("bad.id"), "")
 
     def test_safe_filename_strips_unsafe_characters(self):
         self.assertEqual(safe_filename("../../Ada Lovelace?.png"), "Ada_Lovelace_.png")

@@ -254,8 +254,12 @@ def _submission_upload_to(instance: "Submission", filename: str) -> str:
     We keep paths boring and segregated by class + material.
     """
     ext = Path(str(filename or "")).suffix.lower()
-    if not re.fullmatch(r"\.[a-z0-9]{1,16}", ext or ""):
+    if not ext.startswith("."):
         ext = ""
+    else:
+        ext_body = ext[1:]
+        if not ext_body or len(ext_body) > 16 or any(ch not in "abcdefghijklmnopqrstuvwxyz0123456789" for ch in ext_body):
+            ext = ""
     stored_name = f"{secrets.token_hex(16)}{ext}"
 
     classroom_id = instance.material.module.classroom_id

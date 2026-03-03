@@ -52,6 +52,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Coursepack validation gate](#coursepack-validation-gate)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
+- [Untrusted token validation without regex](#untrusted-token-validation-without-regex)
 - [Error-response redaction](#error-response-redaction)
 - [Teacher authoring templates](#teacher-authoring-templates)
 - [Syllabus export access and backups](#syllabus-export-access-and-backups)
@@ -936,6 +937,16 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Prevents path traversal from malformed or compromised lesson metadata.
 - Preserves predictable content loading boundaries for self-hosted operators.
+
+## Untrusted token validation without regex
+
+**Current decision:**
+- For short untrusted identifier checks (lesson filenames, YouTube IDs, upload file extensions), prefer bounded character-set scans over regex matching.
+- Keep checks explicit: min/max length, required suffix, and allowed-character whitelist.
+
+**Why this remains active:**
+- Reduces false-positive and performance risk from regex-on-input security scanners.
+- Keeps validation logic auditable and deterministic for maintainers.
 
 ## Service-layer extraction scaffold
 
