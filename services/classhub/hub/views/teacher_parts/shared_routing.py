@@ -52,7 +52,7 @@ def _safe_internal_redirect(request, to: str, fallback: str = "/teach"):
         candidate = fallback
     if not url_has_allowed_host_and_scheme(
         candidate,
-        allowed_hosts={request.get_host()},
+        allowed_hosts={host for host in settings.ALLOWED_HOSTS if host},
         require_https=request.is_secure(),
     ):
         candidate = fallback
