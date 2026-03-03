@@ -50,7 +50,7 @@ jobs:
           DJANGO_SECRET_KEY: ci-only-not-used-but-long-enough-for-guards
           CLASSHUB_UPLOAD_ROOT: /tmp/classhub_uploads
         run: |
-          coverage run --branch --source=services/classhub/hub services/classhub/manage.py test
+          coverage run --branch --source=services/classhub/hub services/classhub/manage.py test hub.tests
           coverage report -m
           coverage json -o coverage-classhub.json
           coverage xml -o coverage-classhub.xml
@@ -117,7 +117,7 @@ jobs:
           DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
           DJANGO_SECRET_KEY: ci-only-not-used-but-long-enough-for-guards
         run: |
-          coverage run --branch --source=services/homework_helper/tutor services/homework_helper/manage.py test
+          coverage run --branch --source=services/homework_helper/tutor services/homework_helper/manage.py test tutor.tests
           coverage report -m
           coverage json -o coverage-helper.json
           coverage xml -o coverage-helper.xml
