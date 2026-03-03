@@ -880,11 +880,15 @@ def _safe_zip_path(path: str) -> bool:
 
 
 def _normalize_zip_member_path(path: str) -> str:
-    normalized = str(path or "").replace("\\", "/").strip().lstrip("/")
+    normalized = str(path or "").replace("\\", "/").strip()
     if not normalized:
+        return ""
+    if normalized.startswith("/"):
         return ""
     parts = PurePosixPath(normalized).parts
     if not parts:
+        return ""
+    if parts[0].endswith(":"):
         return ""
     clean_parts: list[str] = []
     for part in parts:
