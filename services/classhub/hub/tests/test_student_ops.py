@@ -1142,9 +1142,9 @@ class StudentChecklistReflectionTests(TestCase):
         self._login_student()
         resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="es")
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Note que...")
+        self.assertContains(resp, "Noté que...")
         self.assertContains(resp, "Me pregunto...")
-        self.assertContains(resp, "Que pasaria si...")
+        self.assertContains(resp, "¿Qué pasaría si...?")
 
     def test_student_can_save_checklist_and_emit_completion_milestone(self):
         self._login_student()
@@ -1261,9 +1261,9 @@ class PeerFeedbackStarterServiceTests(SimpleTestCase):
         from ..services.peer_feedback import resolve_peer_feedback_starters
 
         starters = resolve_peer_feedback_starters(language_code="es", course_manifest={})
-        self.assertEqual(starters[0], "Note que...")
+        self.assertEqual(starters[0], "Noté que...")
         self.assertIn("Me pregunto...", starters)
-        self.assertIn("Que pasaria si...", starters)
+        self.assertIn("¿Qué pasaría si...?", starters)
 
     def test_course_manifest_override_wins(self):
         from ..services.peer_feedback import resolve_peer_feedback_starters

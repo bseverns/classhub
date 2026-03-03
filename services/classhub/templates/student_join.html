@@ -78,7 +78,14 @@
         <div class="privacy-note" aria-live="polite">
           <p class="muted"><strong>{% trans "Privacy at a glance:" %}</strong></p>
           <p class="muted">{% trans "We store your display name, class submissions, and event timestamps." %}</p>
-          <p class="muted">{% trans "Storage location:" %} {{ operator_profile.storage_location_text|default:"hosted locally" }}</p>
+          <p class="muted">
+            {% trans "Storage location:" %}
+            {% if operator_profile.storage_location_text %}
+              {{ operator_profile.storage_location_text }}
+            {% else %}
+              {% trans "hosted locally" %}
+            {% endif %}
+          </p>
           {% if ui_density_mode != "compact" %}
           <p class="muted">{% trans "Retention:" %}
             {% if submission_retention_days %}
@@ -93,7 +100,13 @@
             {% trans "delete your work or end session." %}
           </p>
           <p class="muted">{% trans "Learn more:" %} <a href="/trust">{% trans "What we store / never store" %}</a></p>
-          <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads." }}</p>
+          <p class="muted">
+            {% if operator_profile.privacy_promise_text %}
+              {{ operator_profile.privacy_promise_text }}
+            {% else %}
+              {% trans "No tracking. No ads." %}
+            {% endif %}
+          </p>
         </div>
       </div>
 

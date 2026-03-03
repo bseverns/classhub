@@ -8,7 +8,7 @@
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/material_upload.css' %}" />
   </head>
-  <body class="glass-theme">
+  <body class="glass-theme" data-i18n-status-starter-added="{% trans 'Sentence starter added.' %}">
     <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
     <div class="shell">
       <main id="main-content">
@@ -36,22 +36,38 @@
             <p class="muted top-gap-8">{% trans "Done means your file appears in" %} <strong>{% trans "Your uploads" %}</strong>.</p>
           {% endif %}
           <div class="privacy-note">
-            <p class="muted"><strong>Privacy at a glance:</strong> we store your display name, uploaded files, and upload timestamps for class progress.</p>
-            <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
             <p class="muted">
-              Retention:
-              {% if submission_retention_days %}
-                uploads are kept up to {{ submission_retention_days }} day{{ submission_retention_days|pluralize }} unless deleted sooner.
+              <strong>{% trans "Privacy at a glance:" %}</strong>
+              {% trans "we store your display name, uploaded files, and upload timestamps for class progress." %}
+            </p>
+            <p class="muted">
+              {% trans "Storage location:" %}
+              {% if operator_profile.storage_location_text %}
+                {{ operator_profile.storage_location_text }}
               {% else %}
-                uploads stay until a teacher or admin removes them.
+                {% trans "this server is hosted locally by your school or organization." %}
               {% endif %}
             </p>
-            <p class="muted">Delete now: open <a href="/student/my-data">My Data</a>.</p>
-            <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
+            <p class="muted">
+              {% trans "Retention:" %}
+              {% if submission_retention_days %}
+                {% blocktrans with days=submission_retention_days %}uploads are kept up to {{ days }} day(s) unless deleted sooner.{% endblocktrans %}
+              {% else %}
+                {% trans "uploads stay until a teacher or admin removes them." %}
+              {% endif %}
+            </p>
+            <p class="muted">{% blocktrans %}Delete now: open <a href="/student/my-data">My Data</a>.{% endblocktrans %}</p>
+            <p class="muted">
+              {% if operator_profile.privacy_promise_text %}
+                {{ operator_profile.privacy_promise_text }}
+              {% else %}
+                {% trans "No tracking. No ads. No data broker sharing." %}
+              {% endif %}
+            </p>
           </div>
           {% if upload_locked %}
             <p class="muted top-gap-8">
-              Submissions open on <strong>{{ upload_available_on|date:"M j, Y" }}</strong>. Prior uploads are still listed below.
+              {% blocktrans with available_on=upload_available_on|date:"M j, Y" %}Submissions open on <strong>{{ available_on }}</strong>. Prior uploads are still listed below.{% endblocktrans %}
             </p>
           {% endif %}
 
@@ -67,11 +83,11 @@
               {% csrf_token %}
               {{ form.file }}
               <div class="upload-note-field">
-                <label for="id_station_label" class="muted">Station (optional)</label>
+                <label for="id_station_label" class="muted">{% trans "Station (optional)" %}</label>
                 {{ form.station_label }}
               </div>
               <div class="upload-note-field">
-                <label for="id_process_note" class="muted">Process note (optional)</label>
+                <label for="id_process_note" class="muted">{% trans "Process note (optional)" %}</label>
                 <p class="muted top-gap-8">{% trans "What did you try? What did you change?" %}</p>
                 {% if process_note_starters %}
                   <div class="starter-row muted">

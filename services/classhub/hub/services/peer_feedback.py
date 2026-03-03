@@ -9,9 +9,9 @@ _DEFAULT_STARTERS_BY_LANGUAGE = {
         "What if...",
     ],
     "es": [
-        "Note que...",
+        "Noté que...",
         "Me pregunto...",
-        "Que pasaria si...",
+        "¿Qué pasaría si...?",
     ],
 }
 
@@ -52,7 +52,7 @@ def resolve_peer_feedback_starters(*, language_code: str, course_manifest: dict 
     peer_feedback_sentence_starters:
       default: ["I noticed...", "I wonder...", "What if..."]
       en: ["I noticed...", "I wonder...", "What if..."]
-      es: ["Note que...", "Me pregunto...", "Que pasaria si..."]
+      es: ["Noté que...", "Me pregunto...", "¿Qué pasaría si...?"]
     """
     normalized = _normalize_language_code(language_code)
     manifest = course_manifest if isinstance(course_manifest, dict) else {}

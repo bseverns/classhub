@@ -1760,3 +1760,23 @@ Execution runbook:
 - Keeps trust boundaries clear where student visibility and teacher moderation intersect.
 - Prevents stale approval flags from bypassing moderation on republish.
 - Makes deletion behavior honest and operationally actionable for both students and staff.
+
+## Translation pass for student upload/trust cues + JS status copy
+
+**Current decision:**
+- Wrap new student-facing upload labels and privacy copy in translation tags:
+  - `Station (optional)`,
+  - `Process note (optional)`,
+  - upload-page privacy/retention strings.
+- Pass student interaction status strings into `student_class.js` via `data-i18n-*` attributes (no inline JS, no framework dependency), including:
+  - show/hide return code,
+  - copy success/failure,
+  - sentence starter insertion notices.
+- Improve built-in Spanish peer-feedback starters to natural forms:
+  - `Noté que...`
+  - `Me pregunto...`
+  - `¿Qué pasaría si...?`
+
+**Why this remains active:**
+- Keeps student trust/safety instructions understandable in the same language as the rest of the UI.
+- Avoids hardcoded English in dynamic JS status paths without adding heavy i18n tooling.

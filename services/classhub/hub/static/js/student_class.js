@@ -1,5 +1,6 @@
 (function () {
   const status = document.getElementById("copy-status");
+  const i18nSource = document.body || document.documentElement;
   const iconTarget = document.getElementById("student-return-code-icons");
   const copyButtons = document.querySelectorAll("[data-copy-value], [data-copy-secret-target]");
   const toggleButtons = document.querySelectorAll("[data-secret-target]");
@@ -8,6 +9,27 @@
   const iconTools = window.ClassHubReturnCodeIcons || null;
   let returnCodeValue = "";
   let returnCodePromise = null;
+
+  const readI18n = (key, fallback) => {
+    const value = i18nSource ? String(i18nSource.getAttribute(`data-i18n-${key}`) || "").trim() : "";
+    return value || fallback;
+  };
+  const i18n = {
+    showLabel: readI18n("show-label", "Show return code"),
+    hideLabel: readI18n("hide-label", "Hide return code"),
+    showButton: readI18n("show-button", "Show"),
+    hideButton: readI18n("hide-button", "Hide"),
+    returnCodeHiddenStatus: readI18n("status-return-code-hidden", "Return code hidden."),
+    returnCodeShownStatus: readI18n("status-return-code-shown", "Return code shown."),
+    returnCodeLoadError: readI18n(
+      "status-return-code-load-error",
+      "Could not load return code. Refresh and try again.",
+    ),
+    copySuccessStatus: readI18n("status-copy-success", "Copied to clipboard."),
+    copyErrorStatus: readI18n("status-copy-error", "Copy failed. Please copy manually."),
+    starterAddedStatus: readI18n("status-starter-added", "Sentence starter added."),
+    iconCodePrefix: readI18n("icon-code-prefix", "Icon code: "),
+  };
 
   const setStatus = (message) => {
     if (status) status.textContent = message;
@@ -54,7 +76,7 @@
     if (!iconTarget || !value || !(iconTools && iconTools.renderIconString)) return;
     iconTarget.textContent = iconTools.renderIconString(value);
     if (iconTools.renderLabelString) {
-      iconTarget.setAttribute("aria-label", `Icon code: ${iconTools.renderLabelString(value)}`);
+      iconTarget.setAttribute("aria-label", `${i18n.iconCodePrefix}${iconTools.renderLabelString(value)}`);
     }
     iconTarget.classList.remove("hidden");
   };
@@ -76,23 +98,23 @@
     setMasked(target);
     btn.addEventListener("click", async () => {
       const shown = target.getAttribute("data-shown") === "1";
-      const showLabel = btn.getAttribute("data-show-label") || "Show return code";
-      const hideLabel = btn.getAttribute("data-hide-label") || "Hide return code";
+      const showLabel = btn.getAttribute("data-show-label") || i18n.showLabel;
+      const hideLabel = btn.getAttribute("data-hide-label") || i18n.hideLabel;
       if (shown) {
         setMasked(target);
-        btn.textContent = "Show";
+        btn.textContent = i18n.showButton;
         btn.setAttribute("aria-pressed", "false");
         btn.setAttribute("aria-label", showLabel);
-        setStatus("Return code hidden.");
+        setStatus(i18n.returnCodeHiddenStatus);
       } else {
         try {
           await setShown(target);
-          btn.textContent = "Hide";
+          btn.textContent = i18n.hideButton;
           btn.setAttribute("aria-pressed", "true");
           btn.setAttribute("aria-label", hideLabel);
-          setStatus("Return code shown.");
+          setStatus(i18n.returnCodeShownStatus);
         } catch (_err) {
-          setStatus("Could not load return code. Refresh and try again.");
+          setStatus(i18n.returnCodeLoadError);
         }
       }
     });
@@ -105,7 +127,7 @@
         try {
           value = await fetchReturnCode();
         } catch (_err) {
-          setStatus("Could not load return code. Refresh and try again.");
+          setStatus(i18n.returnCodeLoadError);
           return;
         }
       }
@@ -121,9 +143,9 @@
           document.execCommand("copy");
           document.body.removeChild(input);
         }
-        setStatus("Copied to clipboard.");
+        setStatus(i18n.copySuccessStatus);
       } catch (_err) {
-        setStatus("Copy failed. Please copy manually.");
+        setStatus(i18n.copyErrorStatus);
       }
     });
   });
@@ -145,7 +167,7 @@
       }
       target.focus();
       target.dispatchEvent(new Event("input", { bubbles: true }));
-      setStatus("Sentence starter added.");
+      setStatus(i18n.starterAddedStatus);
     });
   });
 })();

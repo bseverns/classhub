@@ -10,7 +10,20 @@
   <link rel="stylesheet" href="{% static 'css/student_class.css' %}" />
 </head>
 
-<body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
+<body
+  class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}"
+  data-i18n-show-label="{% trans 'Show return code' %}"
+  data-i18n-hide-label="{% trans 'Hide return code' %}"
+  data-i18n-show-button="{% trans 'Show' %}"
+  data-i18n-hide-button="{% trans 'Hide' %}"
+  data-i18n-status-return-code-hidden="{% trans 'Return code hidden.' %}"
+  data-i18n-status-return-code-shown="{% trans 'Return code shown.' %}"
+  data-i18n-status-return-code-load-error="{% trans 'Could not load return code. Refresh and try again.' %}"
+  data-i18n-status-copy-success="{% trans 'Copied to clipboard.' %}"
+  data-i18n-status-copy-error="{% trans 'Copy failed. Please copy manually.' %}"
+  data-i18n-status-starter-added="{% trans 'Sentence starter added.' %}"
+  data-i18n-icon-code-prefix="{% trans 'Icon code: ' %}"
+>
   <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
   <div class="shell">
     <main id="main-content">
