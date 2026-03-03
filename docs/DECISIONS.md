@@ -12,6 +12,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Organization boundary and staff roles](#organization-boundary-and-staff-roles)
 - [Org boundary deployment policy](#org-boundary-deployment-policy)
 - [Class assignments and teacher-first class ordering](#class-assignments-and-teacher-first-class-ordering)
+- [Syllabus import class provisioning](#syllabus-import-class-provisioning)
 - [Paid cohort enrollment controls](#paid-cohort-enrollment-controls)
 - [Service boundary: Homework Helper separate service](#service-boundary-homework-helper-separate-service)
 - [Helper engine modularization seam](#helper-engine-modularization-seam)
@@ -206,6 +207,18 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Preserves org-wide course/syllabus access while making daily “my classes” workflows faster.
 - Gives a clean foundation for future per-class staffing controls without changing student auth/join UX.
+
+## Syllabus import class provisioning
+
+**Current decision:**
+- Teacher portal syllabus imports (`/teach/import-syllabus-source`) now provision a class automatically.
+- The class is created in the uploader’s default organization scope and populated from the imported course pack.
+- Non-superuser staff uploaders receive an active `ClassStaffAssignment` on the newly created class.
+- If staff cannot create classes under current org policy, syllabus import returns an error instead of creating content without a class.
+
+**Why this remains active:**
+- Keeps teacher workflow one-step: upload source, then immediately have a runnable class.
+- Reduces setup drift where course content exists on disk but no class is attached for student use.
 
 ## Paid cohort enrollment controls
 

@@ -1,11 +1,16 @@
 """Teacher home and authoring template endpoints."""
 
+from django.core.management import call_command
+from django.core.management.base import CommandError
+
 from ...services.syllabus_ingest import (
     SyllabusIngestError,
     ingest_uploaded_syllabus_files,
 )
 from .content_syllabus_exports import build_syllabus_export_state
 from .shared import (
+    Class,
+    ClassStaffAssignment,
     FileResponse,
     HttpResponse,
     Path,
@@ -17,6 +22,7 @@ from .shared import (
     _audit,
     _authoring_template_output_dir,
     _build_class_digest_rows,
+    _next_unique_class_join_code,
     _parse_positive_int,
     _resolve_authoring_template_download_path,
     _safe_internal_redirect,
@@ -30,9 +36,12 @@ from .shared import (
     safe_attachment_filename,
     settings,
     staff_accessible_classes_ranked,
+    staff_can_create_classes,
+    staff_default_organization,
     staff_member_required,
     staff_has_explicit_memberships,
     timedelta,
+    transaction,
     timezone,
 )
 
@@ -276,7 +285,32 @@ def _validate_syllabus_import_state(state: dict) -> str:
     return ""
 
 
-def _audit_syllabus_import(request, *, result, overwrite: bool):
+def _create_class_from_import_result(request, *, result):
+    class_name = (result.course_title or result.course_slug).strip()[:200] or result.course_slug
+    join_code = _next_unique_class_join_code()
+    organization = staff_default_organization(request.user)
+    with transaction.atomic():
+        classroom = Class.objects.create(
+            organization=organization,
+            name=class_name,
+            join_code=join_code,
+        )
+        if not request.user.is_superuser:
+            ClassStaffAssignment.objects.update_or_create(
+                classroom=classroom,
+                user=request.user,
+                defaults={"is_active": True},
+            )
+        call_command(
+            "import_coursepack",
+            course_slug=result.course_slug,
+            class_code=join_code,
+            verbosity=0,
+        )
+    return classroom
+
+
+def _audit_syllabus_import(request, *, result, overwrite: bool, classroom):
     _audit(
         request,
         action="teacher_syllabus_import.upload",
@@ -292,6 +326,9 @@ def _audit_syllabus_import(request, *, result, overwrite: bool):
             "source_files": result.source_files,
             "ui_level": result.ui_level,
             "overwrite": overwrite,
+            "classroom_id": classroom.id,
+            "classroom_name": classroom.name,
+            "classroom_join_code": classroom.join_code,
         },
     )
 
@@ -301,6 +338,12 @@ def _audit_syllabus_import(request, *, result, overwrite: bool):
 def teach_import_syllabus_source(request):
     state = _syllabus_import_form_state(request)
     form_values = state["form_values"]
+    if not staff_can_create_classes(request.user):
+        return _syllabus_import_error(
+            request,
+            form_values=form_values,
+            message="Your account cannot create classes in the current organization scope.",
+        )
     error = _validate_syllabus_import_state(state)
     if error:
         return _syllabus_import_error(request, form_values=form_values, message=error)
@@ -315,15 +358,19 @@ def teach_import_syllabus_source(request):
             session_parse_mode=state["session_parse_mode"],
             overwrite=state["overwrite"],
         )
-    except (SyllabusIngestError, OSError, ValueError) as exc:
+        classroom = _create_class_from_import_result(request, result=result)
+    except (SyllabusIngestError, OSError, ValueError, CommandError) as exc:
         return _syllabus_import_error(
             request,
             form_values=form_values,
             message=f"Syllabus import failed: {exc}",
         )
 
-    _audit_syllabus_import(request, result=result, overwrite=state["overwrite"])
-    notice = f"Imported course '{result.course_slug}' with {result.lesson_count} lessons."
+    _audit_syllabus_import(request, result=result, overwrite=state["overwrite"], classroom=classroom)
+    notice = (
+        f"Imported course '{result.course_slug}' with {result.lesson_count} lessons. "
+        f"Created class '{classroom.name}' ({classroom.join_code})."
+    )
     success_values = {
         "import_course_slug": result.course_slug,
         "import_course_title": result.course_title,

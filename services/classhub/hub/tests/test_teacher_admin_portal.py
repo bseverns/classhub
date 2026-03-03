@@ -1035,6 +1035,60 @@ Session 02: Drift Tests
         self.assertIsNotNone(event)
         self.assertEqual(event.target_id, "field_systems_studio")
 
+    def test_staff_teacher_syllabus_import_creates_assigned_class_with_modules(self):
+        teacher = get_user_model().objects.create_user(
+            username="staff_teacher_import",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        _force_login_staff_verified(self.client, teacher)
+        source_md = """# Course Forge
+
+Session 01: Intro Builds
+## Materials
+- notebook
+
+Session 02: Final Build
+## Materials
+- laptop
+"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/import-syllabus-source",
+                    {
+                        "import_course_slug": "course_forge",
+                        "import_course_title": "",
+                        "import_default_ui_level": "secondary",
+                        "import_session_parse_mode": "auto",
+                        "import_overwrite": "1",
+                        "syllabus_source": SimpleUploadedFile("course_forge.md", source_md.encode("utf-8")),
+                    },
+                )
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+
+        classroom = Class.objects.filter(name="Course Forge").order_by("-id").first()
+        self.assertIsNotNone(classroom)
+        self.assertTrue(
+            ClassStaffAssignment.objects.filter(
+                classroom=classroom,
+                user=teacher,
+                is_active=True,
+            ).exists()
+        )
+        self.assertEqual(Module.objects.filter(classroom=classroom).count(), 2)
+        self.assertTrue(
+            Material.objects.filter(
+                module__classroom=classroom,
+                type=Material.TYPE_LINK,
+                url__startswith="/course/course_forge/",
+            ).exists()
+        )
+
     def test_teacher_can_import_docx_syllabus_source(self):
         from ..services.authoring_templates import generate_authoring_templates
 
