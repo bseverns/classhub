@@ -646,6 +646,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - `deploy_with_smoke.sh` now auto-retries with golden smoke when strict smoke fails specifically due stale `SMOKE_CLASS_CODE` (`/join` -> `invalid_code`).
 - `smoke_check.sh` now emits an explicit stale-code diagnostic for `/join invalid_code` failures, with remediation guidance.
 - `smoke_check.sh` now retries `/helper/chat` for transient backend startup failures (`502` + `ollama_error`) before failing deploy smoke.
+- `smoke_check.sh` now captures and prints `/student` response headers/body excerpts when the student page returns non-200, so CI output includes concrete failure context.
+- `golden_path_smoke.sh` and `system_doctor.sh` now print compose service state + recent logs when smoke fails, not only when `compose up` fails.
 - Regression coverage is required for helper auth/admin hardening and backend retry/circuit behavior.
 - `ops/systemd/classhub-retention.service` now refuses root execution by default unless `CLASSHUB_ALLOW_ROOT_MAINTENANCE=1` is explicitly set as a break-glass override.
 - `ops/systemd/classhub-retention.service` now pins explicit non-root runtime identity (`User=lms`, `Group=docker`) and baseline systemd hardening flags (`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem`, `ProtectHome`, etc.).
@@ -664,6 +666,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keeps strict smoke focused on route authorization outcomes instead of brittle intermediate login form internals.
 - Reduces deploy failures caused by class-code rotation between smoke runs without weakening strict smoke checks for other regressions.
 - Reduces false negative deploy smoke failures when local Ollama is healthy but still warming model execution for the first generation request.
+- Reduces time-to-root-cause for student-flow regressions by surfacing route-level failure payloads and backend traceback logs in the same CI run.
 - Reduces accidental privileged execution for unattended retention maintenance jobs.
 - Reduces host-level blast radius if the maintenance unit or script path is compromised.
 

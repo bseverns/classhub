@@ -82,12 +82,31 @@ TMP_HELPER="$(mktemp)"
 TMP_HEADERS="$(mktemp)"
 TMP_TEACH="$(mktemp)"
 TMP_STUDENT_PAGE="$(mktemp)"
+TMP_STUDENT_HEADERS="$(mktemp)"
 TMP_LOGIN="$(mktemp)"
-trap 'rm -f "${COOKIE_JAR}" "${TMP_JOIN}" "${TMP_HELPER}" "${TMP_HEADERS}" "${TMP_TEACH}" "${TMP_STUDENT_PAGE}" "${TMP_LOGIN}"' EXIT
+trap 'rm -f "${COOKIE_JAR}" "${TMP_JOIN}" "${TMP_HELPER}" "${TMP_HEADERS}" "${TMP_TEACH}" "${TMP_STUDENT_PAGE}" "${TMP_STUDENT_HEADERS}" "${TMP_LOGIN}"' EXIT
 
 fail() {
   echo "[smoke] FAIL: $*" >&2
   exit 1
+}
+
+print_response_excerpt() {
+  local label="$1"
+  local headers_file="$2"
+  local body_file="$3"
+  echo "[smoke] ${label} response headers (first 40 lines):" >&2
+  if [[ -s "${headers_file}" ]]; then
+    sed -n '1,40p' "${headers_file}" >&2 || true
+  else
+    echo "[smoke] (no headers captured)" >&2
+  fi
+  echo "[smoke] ${label} response body (first 120 lines):" >&2
+  if [[ -s "${body_file}" ]]; then
+    sed -n '1,120p' "${body_file}" >&2 || true
+  else
+    echo "[smoke] (empty body)" >&2
+  fi
 }
 
 require_field_if_strict() {
@@ -182,10 +201,13 @@ if [[ -n "${CLASS_CODE}" ]]; then
   CSRF_TOKEN="$(awk '$6=="csrftoken"{print $7}' "${COOKIE_JAR}" | tail -n1)"
   [[ -n "${CSRF_TOKEN}" ]] || fail "unable to refresh csrftoken after /join"
 
-  code="$(curl "${CURL_FLAGS[@]}" -o "${TMP_STUDENT_PAGE}" -w "%{http_code}" \
+  code="$(curl "${CURL_FLAGS[@]}" -D "${TMP_STUDENT_HEADERS}" -o "${TMP_STUDENT_PAGE}" -w "%{http_code}" \
     -c "${COOKIE_JAR}" -b "${COOKIE_JAR}" \
     "${BASE_URL}/student")"
-  [[ "${code}" == "200" ]] || fail "/student returned ${code}"
+  if [[ "${code}" != "200" ]]; then
+    print_response_excerpt "/student" "${TMP_STUDENT_HEADERS}" "${TMP_STUDENT_PAGE}"
+    fail "/student returned ${code}"
+  fi
 
   SCOPE_TOKEN="$(
     grep -oE 'data-helper-scope-token="[^"]*"' "${TMP_STUDENT_PAGE}" | head -n1 | sed -E 's/^data-helper-scope-token="(.*)"$/\1/'
