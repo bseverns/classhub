@@ -690,6 +690,14 @@ class StudentEventSubmissionTests(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertContains(resp, "does not match .sb3", status_code=400)
         self.assertEqual(Submission.objects.filter(material=self.material, student=self.student).count(), 0)
+        error_event = StudentEvent.objects.filter(
+            event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD_ERROR,
+            student=self.student,
+            classroom=self.classroom,
+        ).order_by("-id").first()
+        self.assertIsNotNone(error_event)
+        self.assertEqual(int((error_event.details or {}).get("material_id") or 0), self.material.id)
+        self.assertEqual((error_event.details or {}).get("reason_code"), "content_validation_failed")
 
     def test_gallery_upload_can_opt_in_to_class_sharing(self):
         gallery = Material.objects.create(

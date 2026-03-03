@@ -1631,3 +1631,27 @@ Historical implementation logs and superseded decisions are archived by month in
 - Teachers and operators can onboard externally authored curricula without manual file surgery in the repo tree.
 - ZIP-first support matches real inbound package formats (multi-file session folders, course descriptions, templates).
 - Centralized ingest rules reduce drift between authoring scripts and portal behavior while preserving inspectable disk artifacts.
+
+## Low-surveillance feedback mechanics (micro-checks + facilitator support board)
+
+**Current decision:**
+- Add three in-session micro-check signals on `/student`:
+  - `I can do this`
+  - `I'm stuck`
+  - `I taught someone`
+- Persist these as append-only `StudentEvent` records with classroom/student linkage and timestamps.
+- Add optional peer-feedback sentence starters in reflection/rubric forms:
+  - default starter set resolved by active language (`en` / `es`),
+  - optional per-course overrides via `course.yaml` key `peer_feedback_sentence_starters`.
+- Add a facilitator-first support board on `/teach/class/<id>` that prioritizes:
+  - unresolved stuck signals,
+  - recent upload error events,
+  - idle-time context (non-judgmental interpretation).
+- Keep updates lightweight:
+  - no continuous polling loop,
+  - manual refresh path on the dashboard.
+
+**Why this remains active:**
+- Preserves privacy-forward operations while still giving facilitators actionable support cues.
+- Favors “help requested/help offered” signals over ranking, points, or performance gamification.
+- Keeps implementation operationally boring by reusing existing event streams and teacher dashboard surfaces.

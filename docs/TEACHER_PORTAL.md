@@ -235,6 +235,11 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
   - copy markdown-ready link snippets like `[GPIO map](/lesson-asset/12/download)`
 - `/teach/class/<id>`:
   - lesson tracker for one class
+  - facilitator support board (help-first):
+    - active “I’m stuck” signals first, with `Mark resolved`
+    - recent upload-error feed
+    - idle-time context list (interpret carefully)
+    - manual refresh link (no high-frequency polling)
   - module/material editor
   - `Copy` join code
   - `Printable join card` shortcut for in-room posting
@@ -269,6 +274,21 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
   - supports signed invite links from onboarding emails
   - invite links are one-time use and expire after `TEACHER_2FA_INVITE_MAX_AGE_SECONDS` (default 24h)
   - shows QR + manual secret and verifies one-time code
+
+## Facilitation guide: respond without shame
+
+When using the **Facilitator Support Board** on `/teach/class/<id>`:
+
+- Start with private, practical support language:
+  - “Thanks for flagging this. Want me to sit with you for two minutes?”
+  - “Show me where it stopped making sense.”
+- Treat “I’m stuck” as a support request, not a deficit signal.
+- Use `Mark resolved` only after you have checked in, so the board stays trustworthy.
+- Treat upload errors as tool friction first:
+  - check file type, file size, and retry path before interpreting effort.
+- Treat idle signals as context only:
+  - students may be reading, planning, collaborating, or waiting for shared devices.
+- Avoid public call-outs tied to these signals. Keep the intervention one-on-one when possible.
 
 ## Common workflow
 

@@ -13,6 +13,7 @@ from django.utils import timezone
 from ..models import (
     CertificateIssuance,
     Material,
+    Module,
     StudentEvent,
     StudentIdentity,
     StudentMaterialResponse,
@@ -227,6 +228,140 @@ def _build_outcome_snapshot(*, classroom, students: list[StudentIdentity]) -> di
     }
 
 
+def _detail_int(details: dict, key: str) -> int:
+    try:
+        return int((details or {}).get(key) or 0)
+    except Exception:
+        return 0
+
+
+def _build_facilitator_support_snapshot(*, classroom, students: list[StudentIdentity], modules: list[Module]) -> dict:
+    now = timezone.now()
+    module_titles = {int(module.id): str(module.title) for module in modules}
+    material_rows = Material.objects.filter(module__classroom=classroom).values("id", "title", "module_id")
+    material_lookup: dict[int, dict] = {}
+    for row in material_rows:
+        material_lookup[int(row["id"])] = {
+            "title": str(row["title"] or ""),
+            "module_title": module_titles.get(int(row["module_id"] or 0), ""),
+        }
+    student_by_id = {int(student.id): student for student in students}
+
+    micro_event_types = {
+        StudentEvent.EVENT_MICRO_CHECK_CAN_DO_THIS,
+        StudentEvent.EVENT_MICRO_CHECK_STUCK,
+        StudentEvent.EVENT_MICRO_CHECK_TAUGHT_SOMEONE,
+    }
+    activity_events = StudentEvent.objects.filter(
+        classroom=classroom,
+        student__isnull=False,
+        event_type__in=list(micro_event_types | {StudentEvent.EVENT_MICRO_CHECK_STUCK_RESOLVED}),
+    ).only("student_id", "event_type", "details", "created_at").order_by("-created_at", "-id")
+
+    latest_signal_by_student: dict[int, StudentEvent] = {}
+    latest_stuck_by_student: dict[int, StudentEvent] = {}
+    latest_resolved_by_student: dict[int, StudentEvent] = {}
+    for event in activity_events:
+        student_id = int(event.student_id or 0)
+        if student_id <= 0:
+            continue
+        if event.event_type in micro_event_types and student_id not in latest_signal_by_student:
+            latest_signal_by_student[student_id] = event
+        if event.event_type == StudentEvent.EVENT_MICRO_CHECK_STUCK and student_id not in latest_stuck_by_student:
+            latest_stuck_by_student[student_id] = event
+        if event.event_type == StudentEvent.EVENT_MICRO_CHECK_STUCK_RESOLVED and student_id not in latest_resolved_by_student:
+            latest_resolved_by_student[student_id] = event
+
+    stuck_rows: list[dict] = []
+    for student_id, stuck_event in latest_stuck_by_student.items():
+        student = student_by_id.get(student_id)
+        if student is None:
+            continue
+        resolved_event = latest_resolved_by_student.get(student_id)
+        if resolved_event and resolved_event.created_at >= stuck_event.created_at:
+            continue
+        latest_signal = latest_signal_by_student.get(student_id)
+        if latest_signal and latest_signal.created_at > stuck_event.created_at and latest_signal.event_type != StudentEvent.EVENT_MICRO_CHECK_STUCK:
+            continue
+        module_id = _detail_int(stuck_event.details, "module_id")
+        waiting_minutes = max(int((now - stuck_event.created_at).total_seconds() // 60), 0)
+        stuck_rows.append(
+            {
+                "student_id": student_id,
+                "display_name": student.display_name,
+                "module_id": module_id,
+                "module_title": module_titles.get(module_id, ""),
+                "requested_at": stuck_event.created_at,
+                "waiting_minutes": waiting_minutes,
+            }
+        )
+    stuck_rows.sort(
+        key=lambda row: (
+            -int(row["waiting_minutes"]),
+            str(row["display_name"]).lower(),
+        )
+    )
+
+    upload_error_limit = _int_setting("CLASSHUB_UPLOAD_ERROR_FEED_LIMIT", 10)
+    upload_error_rows: list[dict] = []
+    recent_upload_errors = (
+        StudentEvent.objects.filter(
+            classroom=classroom,
+            event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD_ERROR,
+            student__isnull=False,
+        )
+        .only("student_id", "details", "created_at")
+        .order_by("-created_at", "-id")[:upload_error_limit]
+    )
+    for event in recent_upload_errors:
+        student_id = int(event.student_id or 0)
+        student = student_by_id.get(student_id)
+        if student is None:
+            continue
+        details = event.details if isinstance(event.details, dict) else {}
+        material_id = _detail_int(details, "material_id")
+        material_meta = material_lookup.get(material_id, {})
+        reason_code = str(details.get("reason_code") or "").strip() or "upload_error"
+        upload_error_rows.append(
+            {
+                "display_name": student.display_name,
+                "material_title": str(material_meta.get("title") or ""),
+                "module_title": str(material_meta.get("module_title") or ""),
+                "reason_code": reason_code.replace("_", " "),
+                "created_at": event.created_at,
+            }
+        )
+
+    idle_minutes_threshold = _int_setting("CLASSHUB_FACILITATOR_IDLE_MINUTES", 20)
+    idle_rows: list[dict] = []
+    for student in students:
+        if student.last_seen_at is None:
+            continue
+        idle_minutes = int((now - student.last_seen_at).total_seconds() // 60)
+        if idle_minutes < idle_minutes_threshold:
+            continue
+        idle_rows.append(
+            {
+                "student_id": int(student.id),
+                "display_name": student.display_name,
+                "idle_minutes": max(idle_minutes, 0),
+                "last_seen_at": student.last_seen_at,
+            }
+        )
+    idle_rows.sort(key=lambda row: (-int(row["idle_minutes"]), str(row["display_name"]).lower()))
+    idle_rows = idle_rows[: _int_setting("CLASSHUB_FACILITATOR_IDLE_LIST_LIMIT", 12)]
+
+    return {
+        "generated_at": now,
+        "stuck_rows": stuck_rows,
+        "stuck_count": len(stuck_rows),
+        "upload_error_rows": upload_error_rows,
+        "upload_error_count": len(upload_error_rows),
+        "idle_rows": idle_rows,
+        "idle_minutes_threshold": idle_minutes_threshold,
+    }
+
+
 def build_dashboard_context(*, request, classroom, normalize_order_fn) -> dict:
     modules = list(classroom.modules.prefetch_related("materials").all())
     modules.sort(key=lambda module: (module.order_index, module.id))
@@ -266,6 +401,11 @@ def build_dashboard_context(*, request, classroom, normalize_order_fn) -> dict:
         ),
         "lesson_rows": lesson_rows,
         "helper_signals": helper_signals,
+        "facilitator_support": _build_facilitator_support_snapshot(
+            classroom=classroom,
+            students=students,
+            modules=modules,
+        ),
         "outcome_snapshot": _build_outcome_snapshot(classroom=classroom, students=students),
     }
 

@@ -345,6 +345,29 @@
 .signal-list li {
   font-size: 13px;
 }
+.facilitator-block {
+  margin-top: 14px;
+  border: 1px solid rgba(22, 59, 80, 0.14);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.42);
+}
+.facilitator-block h3 {
+  margin: 0 0 8px 0;
+  font-size: 0.98rem;
+}
+.facilitator-list {
+  margin-top: 0;
+}
+.inline-resolve-form {
+  display: inline-block;
+  margin: 0 0 0 8px;
+}
+.inline-resolve-form button {
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 9px;
+}
 .flash-banner {
   margin: 0 0 12px 0;
 }

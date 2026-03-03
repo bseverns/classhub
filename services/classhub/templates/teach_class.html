@@ -342,6 +342,84 @@
         </div>
 
         <div class="card">
+          <details class="section-toggle" open>
+            <summary>
+              <span class="section-title">Facilitator Support Board</span>
+              <span class="section-subtitle">Help-first signals for this class (manual refresh)</span>
+            </summary>
+            <div class="section-body">
+              <p class="muted mini merge-note">
+                Use this board to respond quickly and quietly. These signals are prompts for check-ins, not behavior scores.
+                <a href="/teach/class/{{ classroom.id }}">Refresh now</a>.
+              </p>
+
+              <div class="facilitator-block">
+                <h3>Students asking for help ({{ facilitator_support.stuck_count }})</h3>
+                {% if facilitator_support.stuck_rows %}
+                  <ul class="signal-list facilitator-list">
+                    {% for row in facilitator_support.stuck_rows %}
+                      <li>
+                        <strong>{{ row.display_name }}</strong>
+                        {% if row.module_title %} · {{ row.module_title }}{% endif %}
+                        · {{ row.waiting_minutes }} min
+                        <form method="post" action="/teach/class/{{ classroom.id }}/resolve-stuck" class="inline-resolve-form">
+                          {% csrf_token %}
+                          <input type="hidden" name="student_id" value="{{ row.student_id }}" />
+                          {% if row.module_id %}
+                            <input type="hidden" name="module_id" value="{{ row.module_id }}" />
+                          {% endif %}
+                          <button type="submit">Mark resolved</button>
+                        </form>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="muted mini section-empty-note">No active “I’m stuck” signals right now.</p>
+                {% endif %}
+              </div>
+
+              <div class="facilitator-block">
+                <h3>Recent upload errors{% if facilitator_support.upload_error_count %} ({{ facilitator_support.upload_error_count }}){% endif %}</h3>
+                {% if facilitator_support.upload_error_rows %}
+                  <ul class="signal-list facilitator-list">
+                    {% for row in facilitator_support.upload_error_rows %}
+                      <li>
+                        <strong>{{ row.display_name }}</strong>
+                        {% if row.material_title %} · {{ row.material_title }}{% endif %}
+                        {% if row.module_title %} · {{ row.module_title }}{% endif %}
+                        · {{ row.reason_code }}
+                        · {{ row.created_at|date:"M j, g:i a" }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="muted mini section-empty-note">No recent upload errors were recorded.</p>
+                {% endif %}
+              </div>
+
+              <div class="facilitator-block">
+                <h3>Idle signals ({{ facilitator_support.idle_minutes_threshold }}+ min)</h3>
+                <p class="muted mini merge-note">
+                  Treat idle time as context only. Students may be reading, planning, discussing, or waiting for device access.
+                </p>
+                {% if facilitator_support.idle_rows %}
+                  <ul class="signal-list facilitator-list">
+                    {% for row in facilitator_support.idle_rows %}
+                      <li>
+                        <strong>{{ row.display_name }}</strong> · {{ row.idle_minutes }} min since activity
+                        · last seen {{ row.last_seen_at|date:"M j, g:i a" }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="muted mini section-empty-note">No students currently exceed the idle threshold.</p>
+                {% endif %}
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="card">
           <details class="section-toggle">
             <summary>
               <span class="section-title">Outcomes Snapshot</span>

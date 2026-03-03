@@ -60,6 +60,85 @@ class TeacherRosterClassServiceTests(TestCase):
         sql_text = "\n".join(q["sql"] for q in queries.captured_queries).upper()
         self.assertIn("COUNT(DISTINCT", sql_text)
 
+    def test_facilitator_snapshot_scopes_to_class_and_unresolved_stuck(self):
+        from ..services.teacher_roster_class import _build_facilitator_support_snapshot
+
+        classroom = Class.objects.create(name="Support Class", join_code="SUP12345")
+        other_class = Class.objects.create(name="Other Class", join_code="OTH12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        material = Material.objects.create(
+            module=module,
+            title="Upload Box",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+
+        ada = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        ben = StudentIdentity.objects.create(classroom=classroom, display_name="Ben")
+        zed = StudentIdentity.objects.create(classroom=other_class, display_name="Zed")
+        StudentIdentity.objects.filter(id=ada.id).update(last_seen_at=timezone.now() - timedelta(minutes=42))
+        StudentIdentity.objects.filter(id=ben.id).update(last_seen_at=timezone.now() - timedelta(minutes=4))
+        ada.refresh_from_db()
+        ben.refresh_from_db()
+
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="test",
+            details={"module_id": module.id},
+        )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ben,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="test",
+            details={"module_id": module.id},
+        )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ben,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK_RESOLVED,
+            source="test",
+            details={"module_id": module.id},
+        )
+        StudentEvent.objects.create(
+            classroom=other_class,
+            student=zed,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="test",
+            details={},
+        )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD_ERROR,
+            source="test",
+            details={"material_id": material.id, "reason_code": "content_validation_failed"},
+        )
+        StudentEvent.objects.create(
+            classroom=other_class,
+            student=zed,
+            event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD_ERROR,
+            source="test",
+            details={"reason_code": "content_validation_failed"},
+        )
+
+        snapshot = _build_facilitator_support_snapshot(
+            classroom=classroom,
+            students=[ada, ben],
+            modules=[module],
+        )
+
+        self.assertEqual(snapshot["stuck_count"], 1)
+        self.assertEqual(snapshot["stuck_rows"][0]["display_name"], "Ada")
+        self.assertEqual(snapshot["upload_error_count"], 1)
+        self.assertEqual(snapshot["upload_error_rows"][0]["display_name"], "Ada")
+        self.assertEqual(snapshot["upload_error_rows"][0]["material_title"], "Upload Box")
+        self.assertEqual([row["display_name"] for row in snapshot["idle_rows"]], ["Ada"])
+
 
 class TeacherPortalTests(TestCase):
     def setUp(self):
@@ -777,6 +856,71 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "concept")
         self.assertContains(resp, "Ada")
         self.assertContains(resp, "2 chats")
+
+    def test_teach_class_shows_facilitator_support_board(self):
+        classroom = Class.objects.create(name="Period Support", join_code="SUPP1234")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        material = Material.objects.create(
+            module=module,
+            title="Upload work",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        ada = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        StudentIdentity.objects.filter(id=ada.id).update(last_seen_at=timezone.now() - timedelta(minutes=31))
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="test",
+            details={"module_id": module.id},
+        )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD_ERROR,
+            source="test",
+            details={"material_id": material.id, "reason_code": "content_validation_failed"},
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Facilitator Support Board")
+        self.assertContains(resp, "Students asking for help (1)")
+        self.assertContains(resp, "Recent upload errors (1)")
+        self.assertContains(resp, "Idle signals (20+ min)")
+        self.assertContains(resp, f"/teach/class/{classroom.id}/resolve-stuck")
+
+    def test_teacher_can_resolve_stuck_flag(self):
+        classroom = Class.objects.create(name="Resolve Stuck Class", join_code="RSK12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        ada = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="test",
+            details={"module_id": module.id},
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/resolve-stuck",
+            {"student_id": str(ada.id), "module_id": str(module.id)},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/class/", resp["Location"])
+
+        event = StudentEvent.objects.filter(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK_RESOLVED,
+        ).order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(int((event.details or {}).get("module_id") or 0), module.id)
 
     @override_settings(
         CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,
@@ -1645,6 +1789,33 @@ class TeacherOrganizationAccessTests(TestCase):
             {"student_id": str(student.id), "module_id": str(module.id)},
         )
         self.assertEqual(resp.status_code, 403)
+
+    def test_viewer_membership_cannot_resolve_stuck_flag(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_VIEWER
+        membership.save(update_fields=["role"])
+        module = Module.objects.create(classroom=self.class_a, title="Session 1", order_index=0)
+        student = StudentIdentity.objects.create(classroom=self.class_a, display_name="Ada")
+        StudentEvent.objects.create(
+            classroom=self.class_a,
+            student=student,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="test",
+            details={"module_id": module.id},
+        )
+
+        resp = self.client.post(
+            f"/teach/class/{self.class_a.id}/resolve-stuck",
+            {"student_id": str(student.id), "module_id": str(module.id)},
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertFalse(
+            StudentEvent.objects.filter(
+                classroom=self.class_a,
+                student=student,
+                event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK_RESOLVED,
+            ).exists()
+        )
 
     def test_viewer_membership_certificate_page_hides_mark_completed_form(self):
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)

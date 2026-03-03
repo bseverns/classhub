@@ -65,18 +65,52 @@ def process_material_upload_form(
     name = (getattr(uploaded_file, "name", "") or "upload").strip()
     lower = name.lower()
     ext = "." + lower.rsplit(".", 1)[-1] if "." in lower else ""
+    size_bytes = int(getattr(uploaded_file, "size", 0) or 0)
+
+    def upload_error(*, reason_code: str, error: str, response_status: int = 400, scan_status: str = "") -> UploadAttemptResult:
+        emit_student_event_fn(
+            event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD_ERROR,
+            classroom=request.classroom,
+            student=request.student,
+            source="classhub.material_upload",
+            details={
+                "material_id": material.id,
+                "reason_code": reason_code,
+                "file_ext": ext[:16],
+                "size_bytes": size_bytes,
+                "scan_status": scan_status,
+            },
+            ip_address=client_ip_from_request(
+                request,
+                trust_proxy_headers=getattr(settings, "REQUEST_SAFETY_TRUST_PROXY_HEADERS", False),
+                xff_index=getattr(settings, "REQUEST_SAFETY_XFF_INDEX", 0),
+            ),
+        )
+        return UploadAttemptResult(error=error, response_status=response_status)
 
     if ext not in allowed_exts:
-        return UploadAttemptResult(error=f"File type not allowed. Allowed: {', '.join(allowed_exts)}")
-    if getattr(uploaded_file, "size", 0) and uploaded_file.size > max_bytes:
-        return UploadAttemptResult(error=f"File too large. Max size: {material.max_upload_mb}MB")
+        return upload_error(
+            reason_code="extension_not_allowed",
+            error=f"File type not allowed. Allowed: {', '.join(allowed_exts)}",
+            response_status=400,
+        )
+    if size_bytes and size_bytes > max_bytes:
+        return upload_error(
+            reason_code="file_too_large",
+            error=f"File too large. Max size: {material.max_upload_mb}MB",
+            response_status=400,
+        )
 
     quota_mb = int(getattr(settings, "CLASSHUB_CLASSROOM_QUOTA_MB", 2048))
     if quota_mb > 0:
         class_dir = Path(settings.MEDIA_ROOT) / "submissions" / f"class_{request.classroom.id}"
         total_bytes = sum(f.stat().st_size for f in class_dir.rglob('*') if f.is_file()) if class_dir.exists() else 0
-        if total_bytes + getattr(uploaded_file, "size", 0) > quota_mb * 1024 * 1024:
-            return UploadAttemptResult(error=f"Classroom storage quota exceeded ({quota_mb}MB limit). Ask your teacher for help.", response_status=400)
+        if total_bytes + size_bytes > quota_mb * 1024 * 1024:
+            return upload_error(
+                reason_code="classroom_quota_exceeded",
+                error=f"Classroom storage quota exceeded ({quota_mb}MB limit). Ask your teacher for help.",
+                response_status=400,
+            )
 
     content_error = validate_upload_content_fn(uploaded_file, ext)
     if content_error:
@@ -86,7 +120,11 @@ def process_material_upload_form(
             request.student.id,
             ext,
         )
-        return UploadAttemptResult(error=content_error, response_status=400)
+        return upload_error(
+            reason_code="content_validation_failed",
+            error=content_error,
+            response_status=400,
+        )
 
     scan_result = scan_uploaded_file_fn(uploaded_file)
     fail_closed = bool(getattr(settings, "CLASSHUB_UPLOAD_SCAN_FAIL_CLOSED", False))
@@ -97,9 +135,11 @@ def process_material_upload_form(
             request.student.id,
             scan_result.message,
         )
-        return UploadAttemptResult(
+        return upload_error(
+            reason_code="malware_scan_infected",
             error="Upload blocked by malware scan. Ask your teacher for help.",
             response_status=400,
+            scan_status=scan_result.status,
         )
     if scan_result.status == "error" and fail_closed:
         logger.warning(
@@ -108,9 +148,11 @@ def process_material_upload_form(
             request.student.id,
             scan_result.message,
         )
-        return UploadAttemptResult(
+        return upload_error(
+            reason_code="malware_scan_unavailable",
             error="Upload scanner unavailable right now. Please try again shortly.",
             response_status=503,
+            scan_status=scan_result.status,
         )
 
     submission = Submission.objects.create(
