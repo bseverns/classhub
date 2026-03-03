@@ -7,6 +7,7 @@ from urllib.parse import urlencode, urlparse
 
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
@@ -45,10 +46,14 @@ def _safe_student_return_path(raw: str, fallback: str) -> str:
     candidate = (raw or "").strip()
     if not candidate:
         return fallback
+    if candidate.startswith("//"):
+        return fallback
     parsed = urlparse(candidate)
     if parsed.scheme or parsed.netloc:
         return fallback
-    if not parsed.path.startswith("/student"):
+    if not parsed.path.startswith(("/student", "/material")):
+        return fallback
+    if not candidate.startswith("/"):
         return fallback
     return candidate
 
@@ -61,6 +66,31 @@ def _artifact_status(submission: Submission) -> str:
     except Exception:
         exists = False
     return "Available" if exists else "Tombstoned"
+
+
+def _safe_student_redirect(request, to: str, *, fallback: str = "/student"):
+    candidate = (to or "").strip() or fallback
+    if candidate.startswith("//"):
+        candidate = fallback
+    parsed = urlparse(candidate)
+    if parsed.scheme or parsed.netloc:
+        candidate = fallback
+    if not candidate.startswith("/"):
+        candidate = fallback
+    if not url_has_allowed_host_and_scheme(
+        candidate,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        candidate = fallback
+    response = HttpResponse(status=302)
+    response["Location"] = candidate
+    return response
+
+
+def _with_notice(path: str, *, notice: str) -> str:
+    separator = "&" if "?" in path else "?"
+    return f"{path}{separator}{urlencode({'notice': notice})}"
 
 
 @require_GET
@@ -203,7 +233,12 @@ def student_set_submission_publish(request, submission_id: int):
                 request.POST.get("return_to") or "",
                 fallback=f"/material/{submission.material_id}/upload",
             )
-            return redirect(redirect_to + "?" + urlencode({"notice": "Session gallery is disabled by your teacher."}))
+            message = "Session gallery is disabled by your teacher."
+            return _safe_student_redirect(
+                request,
+                _with_notice(redirect_to, notice=message),
+                fallback=_with_notice(f"/material/{submission.material_id}/upload", notice=message),
+            )
         if not submission.is_published:
             submission.is_published = True
             submission.published_at = now
@@ -225,7 +260,11 @@ def student_set_submission_publish(request, submission_id: int):
         notice = "Published to gallery." if submission.is_gallery_shared else "Published. Waiting for teacher approval."
     else:
         notice = "Removed from gallery."
-    return redirect(redirect_to + "?" + urlencode({"notice": notice}))
+    return _safe_student_redirect(
+        request,
+        _with_notice(redirect_to, notice=notice),
+        fallback=_with_notice(f"/material/{submission.material_id}/upload", notice=notice),
+    )
 
 
 __all__ = [

@@ -856,6 +856,61 @@ class StudentEventSubmissionTests(TestCase):
         self.assertTrue(saved.is_published)
         self.assertFalse(saved.is_gallery_shared)
 
+    def test_student_publish_ignores_external_return_to(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf,.sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        self._login_student()
+        upload = self.client.post(
+            f"/material/{gallery.id}/upload",
+            {
+                "file": SimpleUploadedFile("project.sb3", _sample_sb3_bytes()),
+            },
+        )
+        self.assertEqual(upload.status_code, 302)
+        saved = Submission.objects.filter(material=gallery, student=self.student).order_by("-id").first()
+        self.assertIsNotNone(saved)
+
+        publish_resp = self.client.post(
+            f"/student/submission/{saved.id}/publish",
+            {"publish": "1", "return_to": "https://evil.example.org/phish"},
+        )
+        self.assertEqual(publish_resp.status_code, 302)
+        self.assertTrue(publish_resp["Location"].startswith(f"/material/{gallery.id}/upload?notice="))
+        self.assertNotIn("evil.example.org", publish_resp["Location"])
+
+    def test_student_publish_allows_student_return_to_path(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf,.sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        self._login_student()
+        upload = self.client.post(
+            f"/material/{gallery.id}/upload",
+            {
+                "file": SimpleUploadedFile("project.sb3", _sample_sb3_bytes()),
+            },
+        )
+        self.assertEqual(upload.status_code, 302)
+        saved = Submission.objects.filter(material=gallery, student=self.student).order_by("-id").first()
+        self.assertIsNotNone(saved)
+
+        publish_resp = self.client.post(
+            f"/student/submission/{saved.id}/publish",
+            {"publish": "1", "return_to": "/student/gallery?module_id=1"},
+        )
+        self.assertEqual(publish_resp.status_code, 302)
+        self.assertTrue(publish_resp["Location"].startswith("/student/gallery?module_id=1&notice="))
+
     def test_material_upload_process_note_is_escaped_and_bounded(self):
         gallery = Material.objects.create(
             module=self.module,

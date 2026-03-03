@@ -999,6 +999,10 @@ Execution runbook:
 - Dynamic redirects in teacher/admin workflows must pass through a same-origin internal redirect guard.
 - Redirect targets are constrained to local paths (`/teach`, `/admin`, `/material`, etc.), with scheme/host and `//` checks.
 - Legacy teacher routes use the same redirect guard to avoid drift.
+- Student artifact publish redirects (`/student/submission/<id>/publish`) use the same local-only redirect pattern:
+  - same-origin `url_has_allowed_host_and_scheme` validation,
+  - `//`, scheme, and host rejection,
+  - constrained student return prefixes (`/student`, `/material`) with safe fallback.
 
 **Why this remains active:**
 - Prevents open-redirect regressions when request-derived query values are used to build redirect URLs.
