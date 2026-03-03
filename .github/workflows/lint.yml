@@ -60,3 +60,5 @@ jobs:
         run: python scripts/check_no_new_wildcard_view_imports.py
       - name: Guard critical CI workflow coverage
         run: python scripts/check_ci_workflow_coverage.py
+      - name: Guard subsystem test inventory coverage
+        run: python scripts/check_test_inventory_coverage.py

@@ -810,6 +810,10 @@ Execution runbook:
 - Workflow syntax is now protected by a dedicated YAML parse gate (`.github/workflows/workflow-lint.yml`) so malformed workflow files fail fast in CI.
 - Workflow semantics are now additionally linted with `actionlint` in `.github/workflows/workflow-lint.yml`.
 - CI surface coverage now includes a contract guard (`scripts/check_ci_workflow_coverage.py`) that fails when critical workflows/jobs/check commands disappear.
+- CI now enforces subsystem test inventory coverage (`scripts/check_test_inventory_coverage.py`) with:
+  - required high-signal test files across ClassHub + Helper,
+  - minimum test function counts by subsystem directory,
+  - required smoke/doctor script presence.
 
 **Why this remains active:**
 - Reduces repeated dependency download/install time across CI jobs.
@@ -825,6 +829,7 @@ Execution runbook:
 - Catches production security-setting drift earlier than unit/integration tests.
 - Prevents silent CI gate loss from workflow syntax regressions.
 - Reduces false-negative confidence from silently dropped CI jobs/steps during rapid workflow edits.
+- Prevents accidental erosion of test breadth while features ship quickly.
 
 ## Non-root Django runtime containers
 
