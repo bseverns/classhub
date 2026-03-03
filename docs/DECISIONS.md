@@ -1795,3 +1795,17 @@ Execution runbook:
 **Why this remains active:**
 - Keeps upload latency stable as class artifact counts grow.
 - Reduces remote storage round-trips on portfolio render while preserving an explicit strict mode.
+
+## CI inventory guard: anchor flows over raw test counts
+
+**Current decision:**
+- Refactor `scripts/check_test_inventory_coverage.py` to enforce:
+  - required test files,
+  - anchor test names per subsystem,
+  - suite/endpoint tokens for critical flows,
+  - required smoke script presence.
+- Remove raw per-file and per-directory minimum test-count thresholds from the guard.
+
+**Why this remains active:**
+- Keeps CI strict about coverage of critical behaviors while reducing false failures during healthy test refactors.
+- Makes guard failures easier to interpret: missing flow coverage rather than arbitrary count drift.

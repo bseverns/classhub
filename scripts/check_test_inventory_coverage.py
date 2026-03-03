@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Guardrail: maintain minimum automated test inventory across subsystems."""
+"""Guardrail: enforce key automated test flow coverage contracts.
+
+This guard intentionally checks for anchor suites/tests/endpoints rather than
+raw test counts so normal refactors do not trigger noisy CI failures.
+"""
 
 from __future__ import annotations
 
@@ -10,84 +14,122 @@ import sys
 from pathlib import Path
 
 
-TEST_DEF_RE = re.compile(r"^\s*def\s+test_[A-Za-z0-9_]*\s*\(", re.MULTILINE)
-
-
-def _count_tests(path: Path) -> int:
-    text = path.read_text(encoding="utf-8")
-    return len(TEST_DEF_RE.findall(text))
+TEST_NAME_RE = re.compile(r"^\s*def\s+(test_[A-Za-z0-9_]+)\s*\(", re.MULTILINE)
 
 
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def _discover_test_names(path: Path) -> set[str]:
+    return set(TEST_NAME_RE.findall(_read(path)))
+
+
 FILE_CONTRACTS: dict[str, dict] = {
     "test_student_view.py": {
-        "min_tests": 1,
+        "required_tests": ("test_student_join_then_student_home_returns_200",),
         "tokens": ("StudentHomeSmokeTests",),
     },
     "services/classhub/hub/tests/test_student_ops.py": {
-        "min_tests": 60,
+        "required_tests": (
+            "test_join_prefers_device_hint_cookie_with_dedicated_key",
+            "test_student_can_publish_later_and_wait_for_teacher_approval",
+            "test_student_delete_work_now_clears_submissions_and_upload_events",
+        ),
         "tokens": ("JoinClassTests", "StudentDataControlsTests", "/student/portfolio"),
     },
     "services/classhub/hub/tests/test_teacher_admin_portal.py": {
-        "min_tests": 70,
+        "required_tests": (
+            "test_teach_class_shows_facilitator_support_board",
+            "test_teacher_can_moderate_gallery_submission",
+            "test_teacher_can_resolve_delete_request",
+        ),
         "tokens": ("TeacherPortalTests", "/teach/material/", "/teach/module/"),
     },
     "services/classhub/hub/tests/test_teacher_admin_auth.py": {
-        "min_tests": 12,
+        "required_tests": (
+            "test_unverified_staff_redirects_to_teacher_2fa_setup",
+            "test_teacher_2fa_setup_post_is_rate_limited",
+        ),
         "tokens": ("Teacher2FASetupTests", "TeacherOTPEnforcementTests"),
     },
     "services/classhub/hub/tests/test_teacher_admin_release.py": {
-        "min_tests": 15,
+        "required_tests": (
+            "test_teacher_can_set_release_date_from_interface",
+            "test_student_home_shows_preview_link_for_locked_lesson",
+        ),
         "tokens": ("LessonReleaseTests",),
     },
     "services/classhub/hub/tests/test_privacy_flow.py": {
-        "min_tests": 10,
+        "required_tests": (
+            "test_delete_work_removes_submissions",
+            "test_trust_page_renders_for_anonymous_visitor",
+        ),
         "tokens": ("StudentDeleteWorkTests", "trust"),
     },
     "services/classhub/hub/tests/test_security_integration.py": {
-        "min_tests": 12,
+        "required_tests": (
+            "test_healthz_sets_security_headers",
+            "test_internal_event_endpoint_appends_student_event",
+        ),
         "tokens": ("ClassHubSecurityHeaderTests", "InternalHelperEventEndpointTests"),
     },
     "services/classhub/hub/tests/test_api_student.py": {
-        "min_tests": 10,
+        "required_tests": (
+            "test_authenticated_returns_200_with_correct_shape",
+            "test_returns_modules_with_materials",
+        ),
         "tokens": ("StudentSessionEndpointTests", "StudentModulesEndpointTests"),
     },
     "services/classhub/hub/tests/test_api_teacher.py": {
-        "min_tests": 20,
+        "required_tests": (
+            "test_authenticated_staff_returns_classes",
+            "test_returns_submissions_with_student_and_material_fields",
+        ),
         "tokens": ("TeacherClassesEndpointTests", "TeacherClassSubmissionsEndpointTests"),
     },
     "services/homework_helper/tutor/tests/test_chat_endpoint.py": {
-        "min_tests": 30,
+        "required_tests": (
+            "test_chat_requires_class_or_staff_session",
+            "test_chat_supports_mock_backend",
+        ),
         "tokens": ("HelperChatAuthTests", "/helper/chat"),
     },
     "services/homework_helper/tutor/tests/test_engine.py": {
-        "min_tests": 15,
+        "required_tests": (
+            "test_invoke_backend_dispatches_to_registry_interface",
+            "test_resolve_execution_config_applies_bounds_and_defaults",
+        ),
         "tokens": ("BackendEngineTests", "RuntimeConfigEngineTests"),
     },
     "services/homework_helper/tutor/tests/test_view_modules.py": {
-        "min_tests": 10,
+        "required_tests": (
+            "test_parse_chat_payload_accepts_dict",
+            "test_invoke_backend_uses_ollama_registry_entry",
+        ),
         "tokens": ("HelperChatRequestModuleTests", "HelperChatRuntimeModuleTests"),
     },
     "services/homework_helper/tutor/tests/test_access.py": {
-        "min_tests": 8,
+        "required_tests": (
+            "test_helper_admin_requires_superuser",
+            "test_healthz_sets_security_headers",
+        ),
         "tokens": ("HelperAdminAccessTests", "HelperSecurityHeaderTests"),
     },
     "services/homework_helper/tutor/tests/test_events.py": {
-        "min_tests": 4,
+        "required_tests": (
+            "test_emit_helper_chat_access_event_posts_to_internal_endpoint",
+            "test_emit_helper_chat_access_event_logs_request_id_without_payload",
+        ),
         "tokens": ("ClassHubEventForwardingTests",),
     },
     "services/homework_helper/tutor/tests/test_internal_reset.py": {
-        "min_tests": 4,
+        "required_tests": (
+            "test_internal_reset_clears_class_conversation_keys",
+            "test_internal_reset_exports_archive_before_clear",
+        ),
         "tokens": ("HelperInternalResetTests",),
     },
-}
-
-MIN_DIR_TEST_TOTALS: dict[str, int] = {
-    "services/classhub/hub/tests": 300,
-    "services/homework_helper/tutor/tests": 80,
 }
 
 REQUIRED_SMOKE_SCRIPTS: tuple[str, ...] = (
@@ -113,7 +155,6 @@ def main() -> int:
     args = _parse_args()
     failures: list[str] = []
     file_test_counts: dict[str, int] = {}
-    dir_test_totals: dict[str, int] = {}
     checked_files = 0
 
     for rel_path, contract in FILE_CONTRACTS.items():
@@ -122,25 +163,19 @@ def main() -> int:
             failures.append(f"missing required test file: {rel_path}")
             continue
         checked_files += 1
-        count = _count_tests(path)
-        file_test_counts[rel_path] = count
-        min_tests = int(contract.get("min_tests") or 0)
-        if count < min_tests:
-            failures.append(f"{rel_path}: {count} tests; expected at least {min_tests}")
         text = _read(path)
+        discovered = _discover_test_names(path)
+        file_test_counts[rel_path] = len(discovered)
+        if not discovered:
+            failures.append(f"{rel_path}: no test functions discovered")
+
+        for test_name in contract.get("required_tests") or ():
+            if test_name not in discovered:
+                failures.append(f"{rel_path}: missing required test {test_name!r}")
+
         for token in contract.get("tokens") or ():
             if token not in text:
                 failures.append(f"{rel_path}: missing required token {token!r}")
-
-    for rel_dir, min_total in MIN_DIR_TEST_TOTALS.items():
-        root = Path(rel_dir)
-        if not root.exists():
-            failures.append(f"missing required test directory: {rel_dir}")
-            continue
-        total = sum(_count_tests(path) for path in sorted(root.glob("test_*.py")))
-        dir_test_totals[rel_dir] = total
-        if total < min_total:
-            failures.append(f"{rel_dir}: {total} tests; expected at least {min_total}")
 
     for rel_script in REQUIRED_SMOKE_SCRIPTS:
         if not Path(rel_script).exists():
@@ -151,10 +186,8 @@ def main() -> int:
         "ok": not failures,
         "file_contracts": len(FILE_CONTRACTS),
         "checked_files": checked_files,
-        "directory_contracts": len(MIN_DIR_TEST_TOTALS),
         "smoke_script_contracts": len(REQUIRED_SMOKE_SCRIPTS),
         "file_test_counts": file_test_counts,
-        "directory_test_totals": dir_test_totals,
         "failures": failures,
     }
 
@@ -163,15 +196,15 @@ def main() -> int:
         return 1 if failures else 0
 
     if failures:
-        print("[test-inventory-guard] FAIL: test coverage inventory drift detected:", file=sys.stderr)
+        print("[test-inventory-guard] FAIL: key test flow coverage drift detected:", file=sys.stderr)
         for row in failures:
             print(f"  - {row}", file=sys.stderr)
-        print("[test-inventory-guard] update script thresholds/contracts only with intentional review.", file=sys.stderr)
+        print("[test-inventory-guard] update explicit flow contracts only with intentional review.", file=sys.stderr)
         return 1
 
     print(
         "[test-inventory-guard] OK "
-        f"({len(FILE_CONTRACTS)} file contracts, {len(MIN_DIR_TEST_TOTALS)} directories, {len(REQUIRED_SMOKE_SCRIPTS)} smoke scripts)"
+        f"({len(FILE_CONTRACTS)} file flow contracts, {len(REQUIRED_SMOKE_SCRIPTS)} smoke scripts)"
     )
     return 0
 
