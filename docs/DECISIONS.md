@@ -1599,3 +1599,13 @@ Historical implementation logs and superseded decisions are archived by month in
 - Teachers and operators can onboard externally authored curricula without manual file surgery in the repo tree.
 - ZIP-first support matches real inbound package formats (multi-file session folders, course descriptions, templates).
 - Centralized ingest rules reduce drift between authoring scripts and portal behavior while preserving inspectable disk artifacts.
+
+## Cross-service test discovery guard for `test_student_view.py`
+
+**Current decision:**
+- Keep `test_student_view.py` as a lightweight Class Hub smoke test, but make it explicitly skip when the active Django settings module does not install the `hub` app.
+- Avoid importing `hub` models/views at module import time unless `hub` is present in `INSTALLED_APPS`.
+
+**Why this remains active:**
+- CI and local commands for the Homework Helper service can still discover top-level `test_*.py` files.
+- Guarding imports prevents false-negative failures (`app_label`/`INSTALLED_APPS` mismatch) in unrelated service test runs while preserving the Class Hub smoke signal when run in the correct settings context.
