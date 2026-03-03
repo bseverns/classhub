@@ -1,62 +1,70 @@
-{% load static %}
+{% load static i18n %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% if is_rubric %}Responses{% else %}Submissions{% endif %} · {{ material.title }}</title>
+    <title>{% if is_rubric %}{% trans "Responses" %}{% else %}{% trans "Submissions" %}{% endif %} · {{ material.title }}</title>
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/teach_material_submissions.css' %}" />
   </head>
   <body class="glass-theme teacher-comfort">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
     <div class="shell">
       <main id="main-content">
         <div class="top">
           <div>
-            <div class="muted navline"><a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a> · <a href="/teach/assets">Lesson assets</a> · <a href="/teach/class/{{ classroom.id }}">{{ classroom.name }}</a> · <a href="/teach/module/{{ module.id }}">{{ module.title }}</a> · <a href="/teach/logout">Log out</a></div>
-            <h1>{% if is_rubric %}Responses{% else %}Submissions{% endif %}</h1>
+            <div class="muted navline"><a href="/teach">{% trans "Teacher" %}</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">{% trans "Lesson tracker" %}</a> · <a href="/teach/assets">{% trans "Lesson assets" %}</a> · <a href="/teach/class/{{ classroom.id }}">{{ classroom.name }}</a> · <a href="/teach/module/{{ module.id }}">{{ module.title }}</a> · <a href="/teach/logout">{% trans "Log out" %}</a></div>
+            <h1>{% if is_rubric %}{% trans "Responses" %}{% else %}{% trans "Submissions" %}{% endif %}</h1>
             {% if is_rubric %}
-              <div class="muted">Material: <strong>{{ material.title }}</strong> · Scale 1-{{ material.rubric_scale_max }} · Students {{ student_count }} · Missing {{ missing }}</div>
+              <div class="muted">
+                {% blocktrans with title=material.title scale_max=material.rubric_scale_max count=student_count missing_count=missing %}Material: <strong>{{ title }}</strong> · Scale 1-{{ scale_max }} · Students {{ count }} · Missing {{ missing_count }}{% endblocktrans %}
+              </div>
             {% else %}
-              <div class="muted">Material: <strong>{{ material.title }}</strong> · Accepted <span class="pill">{{ material.accepted_extensions|default:'.sb3' }}</span> · Students {{ student_count }} · Missing {{ missing }}</div>
+              <div class="muted">
+                {% blocktrans with title=material.title accepted_exts=material.accepted_extensions|default:'.sb3' count=student_count missing_count=missing %}Material: <strong>{{ title }}</strong> · Accepted <span class="pill">{{ accepted_exts }}</span> · Students {{ count }} · Missing {{ missing_count }}{% endblocktrans %}
+              </div>
               {% if is_gallery %}
-                <div class="muted">Gallery moderation: student publish is opt-in; staff can approve/unapprove visibility.</div>
+                <div class="muted">{% trans "Gallery moderation: student publish is opt-in; staff can approve/unapprove visibility." %}</div>
               {% endif %}
             {% endif %}
           </div>
           <div class="btnline">
             {% if not is_rubric %}
-              <a class="btn" href="?download=zip_latest">Download all latest (ZIP)</a>
-              <a href="/admin/hub/submission/?material__id__exact={{ material.id }}">Open in admin</a>
+              <a class="btn" href="?download=zip_latest">{% trans "Download all latest (ZIP)" %}</a>
+              <a href="/admin/hub/submission/?material__id__exact={{ material.id }}">{% trans "Open in admin" %}</a>
             {% else %}
-              <a href="/admin/hub/studentmaterialresponse/?material__id__exact={{ material.id }}">Open in admin</a>
+              <a href="/admin/hub/studentmaterialresponse/?material__id__exact={{ material.id }}">{% trans "Open in admin" %}</a>
             {% endif %}
           </div>
         </div>
 
         <div class="card">
           <div class="filters muted">
-            Filter:
-            <a class="filter-link{% if show == 'all' %} is-active{% endif %}" href="?show=all">All</a>
-            <a class="filter-link{% if show == 'submitted' %} is-active{% endif %}" href="?show=submitted">Submitted</a>
-            <a class="filter-link{% if show == 'missing' %} is-active{% endif %}" href="?show=missing">Missing</a>
+            {% trans "Filter:" %}
+            <a class="filter-link{% if show == 'all' %} is-active{% endif %}" href="?show=all">{% trans "All" %}</a>
+            <a class="filter-link{% if show == 'submitted' %} is-active{% endif %}" href="?show=submitted">{% trans "Submitted" %}</a>
+            <a class="filter-link{% if show == 'missing' %} is-active{% endif %}" href="?show=missing">{% trans "Missing" %}</a>
           </div>
 
           <table class="table-top-gap">
             <caption class="visually-hidden">
-              {% if is_rubric %}Rubric responses{% else %}Submission status{% endif %} for {{ material.title }}
+              {% if is_rubric %}
+                {% blocktrans with material_title=material.title %}Rubric responses for {{ material_title }}{% endblocktrans %}
+              {% else %}
+                {% blocktrans with material_title=material.title %}Submission status for {{ material_title }}{% endblocktrans %}
+              {% endif %}
             </caption>
             <thead>
               <tr>
-                <th scope="col">Student</th>
-                <th scope="col">{% if is_rubric %}Latest response{% else %}Latest upload{% endif %}</th>
-                <th scope="col">{% if is_rubric %}Rated criteria{% else %}Files{% endif %}</th>
-                <th scope="col">{% if is_rubric %}Feedback{% else %}Latest file{% endif %}</th>
+                <th scope="col">{% trans "Student" %}</th>
+                <th scope="col">{% if is_rubric %}{% trans "Latest response" %}{% else %}{% trans "Latest upload" %}{% endif %}</th>
+                <th scope="col">{% if is_rubric %}{% trans "Rated criteria" %}{% else %}{% trans "Files" %}{% endif %}</th>
+                <th scope="col">{% if is_rubric %}{% trans "Feedback" %}{% else %}{% trans "Latest file" %}{% endif %}</th>
                 {% if is_gallery and not is_rubric %}
-                  <th scope="col">Gallery</th>
+                  <th scope="col">{% trans "Gallery" %}</th>
                 {% endif %}
-                <th scope="col"><span class="visually-hidden">Actions</span></th>
+                <th scope="col"><span class="visually-hidden">{% trans "Actions" %}</span></th>
               </tr>
             </thead>
             <tbody>
@@ -68,18 +76,18 @@
                       <td class="muted">{{ r.latest.updated_at }}</td>
                       <td class="muted">{{ r.count }}</td>
                       <td class="muted">{{ r.latest.rubric_feedback|default:"—"|truncatechars:120 }}</td>
-                      <td class="muted">Saved</td>
+                      <td class="muted">{% trans "Saved" %}</td>
                     {% else %}
                       <td class="muted">{{ r.latest.uploaded_at }}</td>
                       <td class="muted">{{ r.count }}</td>
                       <td class="muted">{{ r.latest.original_filename|default:r.latest.file.name }}</td>
                       {% if is_gallery %}
                         <td class="muted">
-                          Student published: {% if r.latest.is_published %}Yes{% else %}No{% endif %}<br />
-                          Teacher approved: {% if r.latest.is_gallery_shared %}Yes{% else %}No{% endif %}
+                          {% trans "Student published:" %} {% if r.latest.is_published %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}<br />
+                          {% trans "Teacher approved:" %} {% if r.latest.is_gallery_shared %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}
                         </td>
                       {% endif %}
-                      <td><a href="/submission/{{ r.latest.id }}/download">Download latest</a></td>
+                      <td><a href="/submission/{{ r.latest.id }}/download">{% trans "Download latest" %}</a></td>
                     {% endif %}
                   {% else %}
                     <td class="muted">—</td>
@@ -96,9 +104,9 @@
                     <td></td>
                     <td colspan="3" class="muted">
                       {% if r.latest.process_note %}
-                        Process note: {{ r.latest.process_note }}
+                        {% trans "Process note:" %} {{ r.latest.process_note }}
                       {% else %}
-                        Process note: —
+                        {% trans "Process note:" %} —
                       {% endif %}
                     </td>
                     <td colspan="2" class="muted">
@@ -106,7 +114,7 @@
                         {% csrf_token %}
                         <input type="hidden" name="approve" value="{% if r.latest.is_gallery_shared %}0{% else %}1{% endif %}" />
                         <input type="hidden" name="return_to" value="/teach/material/{{ material.id }}/submissions?show={{ show }}" />
-                        <button type="submit">{% if r.latest.is_gallery_shared %}Unapprove{% else %}Approve{% endif %}</button>
+                        <button type="submit">{% if r.latest.is_gallery_shared %}{% trans "Unapprove" %}{% else %}{% trans "Approve" %}{% endif %}</button>
                       </form>
                     </td>
                   </tr>
@@ -116,7 +124,7 @@
           </table>
 
           {% if not is_rubric %}
-            <p class="muted download-note">Downloads are private: staff can download any submission; students can only download their own.</p>
+            <p class="muted download-note">{% trans "Downloads are private: staff can download any submission; students can only download their own." %}</p>
           {% endif %}
         </div>
       </main>

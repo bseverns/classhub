@@ -1781,6 +1781,17 @@ Execution runbook:
 - Keeps student trust/safety instructions understandable in the same language as the rest of the UI.
 - Avoids hardcoded English in dynamic JS status paths without adding heavy i18n tooling.
 
+## Join flow and teacher submissions i18n consistency
+
+**Current decision:**
+- Move `student_join.js` user-visible text to template-provided `data-i18n-*` values so all error/status copy remains translatable without inline JS.
+- Localize student gallery publish notices in `student_artifacts.py` (`Removed from gallery`, `Published...`, gallery-disabled notice).
+- Wrap teacher submissions page copy (`teach_material_submissions.html`) in translation tags and set `lang="{{ LANGUAGE_CODE }}"` for consistency.
+
+**Why this remains active:**
+- Closes remaining English-only islands in critical student join and teacher review flows.
+- Keeps static JS lightweight while preserving multilingual behavior under CSP constraints.
+
 ## Upload quota and portfolio status performance guardrails
 
 **Current decision:**

@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
 
 from ..http.headers import apply_no_store
@@ -61,14 +62,14 @@ def _safe_student_return_path(raw: str, fallback: str) -> str:
 
 def _artifact_status(submission: Submission) -> str:
     if not submission.file or not submission.file.name:
-        return "Tombstoned"
+        return _("Tombstoned")
     if not bool(getattr(settings, "CLASSHUB_PORTFOLIO_VERIFY_FILE_EXISTENCE", False)):
-        return "Available"
+        return _("Available")
     try:
         exists = bool(submission.file.storage.exists(submission.file.name))
     except Exception:
         exists = False
-    return "Available" if exists else "Tombstoned"
+    return _("Available") if exists else _("Tombstoned")
 
 
 def _safe_student_redirect(request, to: str, *, fallback: str = "/student"):
@@ -132,10 +133,10 @@ def _update_submission_publish_state(*, submission: Submission, publish_requeste
 
 def _publish_notice(*, submission: Submission, publish_requested: bool) -> str:
     if not publish_requested:
-        return "Removed from gallery."
+        return _("Removed from gallery.")
     if submission.is_gallery_shared:
-        return "Published to gallery."
-    return "Published. Waiting for teacher approval."
+        return _("Published to gallery.")
+    return _("Published. Waiting for teacher approval.")
 
 
 @require_GET
@@ -277,7 +278,7 @@ def student_set_submission_publish(request, submission_id: int):
     )
 
     if publish_requested and not module_gallery_enabled:
-        message = "Session gallery is disabled by your teacher."
+        message = _("Session gallery is disabled by your teacher.")
         return _safe_student_redirect(
             request,
             _with_notice(redirect_to, notice=message),

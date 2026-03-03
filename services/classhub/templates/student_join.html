@@ -11,7 +11,28 @@
   <link rel="stylesheet" href="{% static 'css/language_chooser.css' %}" />
 </head>
 
-<body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
+<body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}"
+  data-i18n-icon-code-prefix="{% trans 'Icon code:' %}"
+  data-i18n-keypad-show="{% trans 'Show icon keypad' %}"
+  data-i18n-keypad-hide="{% trans 'Hide icon keypad' %}"
+  data-i18n-err-invalid-code="{% trans 'That class code is not recognized.' %}"
+  data-i18n-err-invalid-return-code="{% trans 'That return code is not valid for this class.' %}"
+  data-i18n-err-return-code-required="{% trans 'Enter your return code to rejoin this saved name.' %}"
+  data-i18n-err-class-locked="{% trans 'This class is locked right now.' %}"
+  data-i18n-err-enrollment-closed="{% trans 'Enrollment for this class is closed.' %}"
+  data-i18n-err-invite-required="{% trans 'This class accepts joins by invite link only.' %}"
+  data-i18n-err-missing-fields="{% trans 'Please enter a class code and your name.' %}"
+  data-i18n-err-name-rejected-fallback="{% trans 'Please use a nickname or display name instead of personal information.' %}"
+  data-i18n-err-invite-invalid="{% trans 'That invite link is not valid.' %}"
+  data-i18n-err-invite-inactive="{% trans 'That invite link is disabled.' %}"
+  data-i18n-err-invite-expired="{% trans 'That invite link has expired.' %}"
+  data-i18n-err-invite-seat-cap="{% trans 'This invite is full right now. Ask your teacher for a new invite link.' %}"
+  data-i18n-err-rate-limited="{% trans 'Too many join attempts. Wait a minute and try again.' %}"
+  data-i18n-err-site-mode-restricted-fallback="{% trans 'Joining is temporarily unavailable.' %}"
+  data-i18n-err-security-blocked="{% trans 'Security check blocked the join request. Reload and try again.' %}"
+  data-i18n-err-server="{% trans 'Server error while joining. Please try again in a moment.' %}"
+  data-i18n-err-generic="{% trans 'Could not join. Try again.' %}"
+  data-i18n-err-network="{% trans 'Network error. Please try again.' %}">
   <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
   <div class="shell">
     <main id="main-content">
