@@ -15,21 +15,10 @@ from django.utils._os import safe_join
 
 from .content_links import courses_dir
 
-SESSION_TEMPLATE_RE = re.compile(
-    r"^\s{0,3}(?:#\s*)?session\s*(\d{1,2})\s*:\s*(.+?)\s*$",
-    re.IGNORECASE,
-)
-SESSION_VERBOSE_RE = re.compile(
-    r"^\s{0,3}(?:#{1,6}\s*)?session\s*(\d{1,2})\s*[:\-–—]\s*(.+?)\s*$",
-    re.IGNORECASE,
-)
-HEADING_RE = re.compile(r"^(#{2,6})\s+(.*)")
-BULLET_RE = re.compile(r"^\s*[-*•]\s+(.*)")
-NUMBERED_RE = re.compile(r"^\s*\d+[.)]\s+(.*)")
-META_RE = re.compile(r"^\*{0,2}(.+?)\*{0,2}\s*:\s*(.+)$")
-GRADE_RANGE_RE = re.compile(r"\b(k|\d{1,2})\s*(?:-|to|through|–|—)\s*(\d{1,2})\b", re.IGNORECASE)
-AGE_RANGE_RE = re.compile(r"\bages?\s*(\d{1,2})\s*(?:-|to|through|–|—)\s*(\d{1,2})\b", re.IGNORECASE)
-SESSION_COUNT_RE = re.compile(r"(\d{1,2})\s*(?:sessions?|meetings?|weeks?)\b", re.IGNORECASE)
+_SESSION_CONNECTORS_TEMPLATE = {":"}
+_SESSION_CONNECTORS_VERBOSE = {":", "-", "–", "—"}
+_GRADE_RANGE_CONNECTORS = {"-", "to", "through"}
+_SESSION_COUNT_UNITS = {"session", "sessions", "meeting", "meetings", "week", "weeks"}
 
 UI_LEVEL_VALUES = {"elementary", "secondary", "advanced"}
 UI_LEVEL_ALIASES = {
@@ -133,12 +122,133 @@ def _yaml_list(key: str, items: list[str], indent: int = 0) -> str:
     return out
 
 
+def _collapse_spaces(value: str) -> str:
+    return " ".join(str(value or "").split())
+
+
+def _extract_bullet_text(line: str) -> str:
+    stripped = str(line or "").lstrip()
+    if len(stripped) < 2:
+        return ""
+    if stripped[0] not in {"-", "*", "•"}:
+        return ""
+    if not stripped[1].isspace():
+        return ""
+    return stripped[1:].strip()
+
+
+def _extract_numbered_text(line: str) -> str:
+    stripped = str(line or "").lstrip()
+    if not stripped:
+        return ""
+    idx = 0
+    while idx < len(stripped) and stripped[idx].isdigit():
+        idx += 1
+    if idx == 0 or idx >= len(stripped):
+        return ""
+    if stripped[idx] not in {".", ")"}:
+        return ""
+    idx += 1
+    if idx >= len(stripped) or not stripped[idx].isspace():
+        return ""
+    return stripped[idx:].strip()
+
+
+def _strip_emphasis_token(token: str) -> str:
+    value = str(token or "").strip()
+    if value.startswith("**") and value.endswith("**") and len(value) > 4:
+        return value[2:-2].strip()
+    if value.startswith("*") and value.endswith("*") and len(value) > 2:
+        return value[1:-1].strip()
+    return value
+
+
+def _parse_metadata_line(line: str) -> tuple[str, str] | None:
+    stripped = str(line or "").strip()
+    if not stripped:
+        return None
+    colon = stripped.find(":")
+    if colon <= 0 or colon >= len(stripped) - 1:
+        return None
+    key = _strip_emphasis_token(stripped[:colon])
+    value = stripped[colon + 1 :].strip()
+    if not key or not value:
+        return None
+    return key, value
+
+
+def _parse_markdown_heading(line: str) -> tuple[int, str] | None:
+    stripped = str(line or "").lstrip()
+    if not stripped.startswith("#"):
+        return None
+    idx = 0
+    while idx < len(stripped) and stripped[idx] == "#":
+        idx += 1
+    if idx < 1 or idx > 6:
+        return None
+    if idx >= len(stripped) or not stripped[idx].isspace():
+        return None
+    title = stripped[idx:].strip()
+    if not title:
+        return None
+    return idx, title
+
+
+def _parse_session_header(line: str, *, mode: str) -> tuple[int, str] | None:
+    source = str(line or "")
+    idx = 0
+    indent = 0
+    while idx < len(source) and source[idx] in {" ", "\t"}:
+        indent += 1
+        idx += 1
+    if indent > 3:
+        return None
+    token = source[idx:]
+
+    hash_count = 0
+    while hash_count < len(token) and token[hash_count] == "#":
+        hash_count += 1
+    if hash_count:
+        if mode == "template" and hash_count != 1:
+            return None
+        if mode == "verbose" and not (1 <= hash_count <= 6):
+            return None
+        token = token[hash_count:].lstrip()
+
+    token_lower = token.lower()
+    if not token_lower.startswith("session"):
+        return None
+    token = token[len("session") :].lstrip()
+    if not token:
+        return None
+
+    idx = 0
+    while idx < len(token) and token[idx].isdigit() and idx < 2:
+        idx += 1
+    if idx == 0:
+        return None
+    if idx < len(token) and token[idx].isdigit():
+        return None
+    session_num = int(token[:idx])
+    token = token[idx:].lstrip()
+    if not token:
+        return None
+
+    connectors = _SESSION_CONNECTORS_TEMPLATE if mode == "template" else _SESSION_CONNECTORS_VERBOSE
+    if token[0] not in connectors:
+        return None
+    title = token[1:].strip()
+    if not title:
+        return None
+    return session_num, title
+
+
 def _extract_bullets(lines: list[str]) -> list[str]:
     items = []
     for line in lines:
-        m = BULLET_RE.match(line) or NUMBERED_RE.match(line)
-        if m:
-            items.append(m.group(1).strip())
+        bullet = _extract_bullet_text(line) or _extract_numbered_text(line)
+        if bullet:
+            items.append(bullet)
             continue
         stripped = line.strip()
         if stripped and not stripped.startswith("#") and not stripped.startswith("**"):
@@ -147,9 +257,9 @@ def _extract_bullets(lines: list[str]) -> list[str]:
 
 
 def _normalize_meta_key(raw: str) -> str:
-    token = re.sub(r"\s+", " ", str(raw or "").strip().lower())
+    token = _collapse_spaces(str(raw or "").strip().lower())
     token = token.replace("_", " ").replace("/", " ")
-    token = re.sub(r"\s+", " ", token).strip()
+    token = _collapse_spaces(token).strip()
     if not token:
         return ""
     if token in META_KEY_ALIASES:
@@ -189,10 +299,10 @@ def _read_text_blob(*, suffix: str, raw: bytes) -> str:
 def _session_header_match(line: str, session_parse_mode: str):
     mode = (session_parse_mode or "auto").strip().lower()
     if mode == "template":
-        return SESSION_TEMPLATE_RE.match(line)
+        return _parse_session_header(line, mode="template")
     if mode == "verbose":
-        return SESSION_VERBOSE_RE.match(line)
-    return SESSION_VERBOSE_RE.match(line) or SESSION_TEMPLATE_RE.match(line)
+        return _parse_session_header(line, mode="verbose")
+    return _parse_session_header(line, mode="verbose") or _parse_session_header(line, mode="template")
 
 
 def _parse_inline_metadata(
@@ -209,11 +319,11 @@ def _parse_inline_metadata(
             break
         if stop_on_session_header and _session_header_match(line, session_parse_mode):
             break
-        m = META_RE.match(line.strip())
-        if not m:
+        parsed = _parse_metadata_line(line)
+        if not parsed:
             continue
-        key = _normalize_meta_key(m.group(1))
-        value = m.group(2).strip()
+        key, value = parsed
+        key = _normalize_meta_key(key)
         if key and value:
             info[key] = value
     return info
@@ -231,9 +341,9 @@ def _collect_sections(lines: list[str]) -> dict[str, list[str]]:
     sections: dict[str, list[str]] = {}
     current = None
     for line in lines:
-        heading = HEADING_RE.match(line)
-        if heading:
-            title = heading.group(2).strip().lower()
+        heading = _parse_markdown_heading(line)
+        if heading and heading[0] >= 2:
+            title = heading[1].strip().lower()
             current = title
             sections.setdefault(current, [])
             continue
@@ -256,16 +366,17 @@ def _find_section(sections: dict[str, list[str]], keyword: str) -> list[str]:
 
 def _extract_session_ui_level(body_lines: list[str]) -> str:
     for line in body_lines[:30]:
-        m = META_RE.match(line.strip())
-        if not m:
+        parsed = _parse_metadata_line(line)
+        if not parsed:
             continue
-        key = _normalize_meta_key(m.group(1))
+        key_raw, value = parsed
+        key = _normalize_meta_key(key_raw)
         if key not in {"ui_level", "program_profile", "learner_level", "grade_band", "age_band"}:
             continue
-        normalized = _normalize_ui_level(m.group(2))
+        normalized = _normalize_ui_level(value)
         if normalized:
             return normalized
-        inferred = _infer_ui_level_from_grade_band(m.group(2)) or _infer_ui_level_from_age_band(m.group(2))
+        inferred = _infer_ui_level_from_grade_band(value) or _infer_ui_level_from_age_band(value)
         if inferred:
             return inferred
     return ""
@@ -274,18 +385,19 @@ def _extract_session_ui_level(body_lines: list[str]) -> str:
 def _parse_sessions(raw: str, *, session_parse_mode: str = "auto") -> list[dict]:
     lines = raw.splitlines()
     indices = []
+    headers: dict[int, tuple[int, str]] = {}
     for idx, line in enumerate(lines):
-        if _session_header_match(line, session_parse_mode):
+        parsed = _session_header_match(line, session_parse_mode)
+        if parsed:
             indices.append(idx)
+            headers[idx] = parsed
     sessions = []
     for i, start in enumerate(indices):
         end = indices[i + 1] if i + 1 < len(indices) else len(lines)
-        header = lines[start]
-        m = _session_header_match(header, session_parse_mode)
-        if not m:
+        parsed = headers.get(start) or _session_header_match(lines[start], session_parse_mode)
+        if not parsed:
             continue
-        session_num = int(m.group(1))
-        title = m.group(2).strip()
+        session_num, title = parsed
         body_lines = lines[start + 1 : end]
         ui_level_override = _extract_session_ui_level(body_lines)
         sessions.append(
@@ -307,33 +419,120 @@ def _parse_overview(raw: str) -> dict[str, str]:
     return info
 
 
+def _scan_number_before_units(text: str, units: tuple[str, ...]) -> int | None:
+    source = str(text or "").lower()
+    idx = 0
+    while idx < len(source):
+        if not source[idx].isdigit():
+            idx += 1
+            continue
+        start = idx
+        while idx < len(source) and source[idx].isdigit():
+            idx += 1
+        value = int(source[start:idx])
+        probe = idx
+        while probe < len(source) and source[probe].isspace():
+            probe += 1
+        for unit in units:
+            if source.startswith(unit, probe):
+                end = probe + len(unit)
+                if end == len(source) or not source[end].isalpha():
+                    return value
+    return None
+
+
+def _word_tokens(text: str) -> list[str]:
+    tokens: list[str] = []
+    current: list[str] = []
+    for ch in str(text or "").lower():
+        if ch.isalnum():
+            current.append(ch)
+            continue
+        if current:
+            tokens.append("".join(current))
+            current = []
+    if current:
+        tokens.append("".join(current))
+    return tokens
+
+
+def _range_tokens(text: str) -> list[str]:
+    normalized = str(text or "").lower().replace("–", "-").replace("—", "-")
+    tokens: list[str] = []
+    current: list[str] = []
+    for ch in normalized:
+        if ch.isalnum():
+            current.append(ch)
+            continue
+        if current:
+            tokens.append("".join(current))
+            current = []
+        if ch == "-":
+            tokens.append("-")
+    if current:
+        tokens.append("".join(current))
+    return tokens
+
+
+def _extract_grade_range(raw: str) -> tuple[int, int] | None:
+    tokens = _range_tokens(raw)
+    if len(tokens) < 3:
+        return None
+    for idx in range(len(tokens) - 2):
+        start = _grade_token_to_int(tokens[idx])
+        if start is None:
+            continue
+        connector = tokens[idx + 1]
+        if connector not in _GRADE_RANGE_CONNECTORS:
+            continue
+        end = _grade_token_to_int(tokens[idx + 2])
+        if end is None:
+            continue
+        return start, end
+    return None
+
+
+def _extract_age_range(raw: str) -> tuple[int, int] | None:
+    tokens = _range_tokens(raw)
+    age_markers = [idx for idx, token in enumerate(tokens) if token in {"age", "ages"}]
+    if not age_markers:
+        return None
+    for marker in age_markers:
+        for idx in range(marker + 1, len(tokens) - 2):
+            if not tokens[idx].isdigit():
+                continue
+            if tokens[idx + 1] not in _GRADE_RANGE_CONNECTORS:
+                continue
+            if not tokens[idx + 2].isdigit():
+                continue
+            return int(tokens[idx]), int(tokens[idx + 2])
+    return None
+
+
 def _extract_minutes(text: str) -> int | None:
     source = (text or "").lower()
     if not source:
         return None
     minutes = None
-    m = re.search(r"(\d+)\s*(hour|hours|hr|hrs)", source)
-    if m:
-        minutes = int(m.group(1)) * 60
-    m = re.search(r"(\d+)\s*(minute|minutes|min|mins)", source)
-    if m:
-        minutes = int(m.group(1))
+    hours = _scan_number_before_units(source, ("hour", "hours", "hr", "hrs"))
+    if hours is not None:
+        minutes = hours * 60
+    mins = _scan_number_before_units(source, ("minute", "minutes", "min", "mins"))
+    if mins is not None:
+        minutes = mins
     return minutes
 
 
 def _extract_session_count(text: str) -> int | None:
-    source = (text or "").lower()
-    if not source:
+    tokens = _word_tokens(text)
+    if not tokens:
         return None
-    sessions = None
-    m = re.search(r"for\s+(\d+)\s+weeks", source)
-    if m:
-        sessions = int(m.group(1))
-    if sessions:
-        return sessions
-    m = SESSION_COUNT_RE.search(source)
-    if m:
-        return int(m.group(1))
+    for idx in range(len(tokens) - 2):
+        if tokens[idx] == "for" and tokens[idx + 1].isdigit() and tokens[idx + 2] in {"week", "weeks"}:
+            return int(tokens[idx + 1])
+    for idx in range(len(tokens) - 1):
+        if tokens[idx].isdigit() and tokens[idx + 1] in _SESSION_COUNT_UNITS:
+            return int(tokens[idx])
     return None
 
 
@@ -342,7 +541,9 @@ def _normalize_ui_level(raw: str) -> str:
     if not token:
         return ""
     token = token.replace("/", "_").replace("-", "_").replace(" ", "_")
-    token = re.sub(r"_+", "_", token).strip("_")
+    while "__" in token:
+        token = token.replace("__", "_")
+    token = token.strip("_")
     if token in UI_LEVEL_VALUES:
         return token
     return UI_LEVEL_ALIASES.get(token, "")
@@ -354,19 +555,16 @@ def _grade_token_to_int(raw: str) -> int | None:
         return 0
     if token.isdigit():
         return int(token)
+    if len(token) > 2 and token[:-2].isdigit() and token[-2:] in {"st", "nd", "rd", "th"}:
+        return int(token[:-2])
     return None
 
 
 def _infer_ui_level_from_grade_band(raw: str) -> str:
-    text = str(raw or "").strip().lower().replace("–", "-").replace("—", "-")
-    text = re.sub(r"(st|nd|rd|th)", "", text)
-    match = GRADE_RANGE_RE.search(text)
-    if not match:
+    grade_range = _extract_grade_range(raw)
+    if not grade_range:
         return ""
-    start = _grade_token_to_int(match.group(1))
-    end = _grade_token_to_int(match.group(2))
-    if start is None or end is None:
-        return ""
+    start, end = grade_range
     high = max(start, end)
     if high <= 5:
         return "elementary"
@@ -376,12 +574,10 @@ def _infer_ui_level_from_grade_band(raw: str) -> str:
 
 
 def _infer_ui_level_from_age_band(raw: str) -> str:
-    text = str(raw or "").strip().lower().replace("–", "-").replace("—", "-")
-    match = AGE_RANGE_RE.search(text)
-    if not match:
+    age_range = _extract_age_range(raw)
+    if not age_range:
         return ""
-    low = int(match.group(1))
-    high = int(match.group(2))
+    low, high = age_range
     if high <= 10:
         return "elementary"
     if low >= 11 and high <= 18:
@@ -419,9 +615,9 @@ def _resolve_ui_level(meta: dict[str, str], *, default_ui_level: str) -> str:
 def _strip_session_config_lines(body_lines: list[str]) -> list[str]:
     out: list[str] = []
     for line in body_lines:
-        m = META_RE.match(line.strip())
-        if m:
-            key = _normalize_meta_key(m.group(1))
+        parsed = _parse_metadata_line(line)
+        if parsed:
+            key = _normalize_meta_key(parsed[0])
             if key in {"ui_level", "program_profile", "learner_level", "grade_band", "age_band"}:
                 continue
         out.append(line)

@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import csv
 import io
-import re
+from pathlib import Path
+
+from django.utils._os import safe_join
 
 from .content_links import courses_dir
 from .markdown_content import load_course_manifest
 from .zip_exports import temporary_zip_archive
 
-_COURSE_SLUG_RE = re.compile(r"^[A-Za-z0-9_-]+$")
+_COURSE_SLUG_ALLOWED = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-")
 
 CATALOG_FIELDS = [
     "course_slug",
@@ -114,9 +116,9 @@ def build_syllabus_backup_zip(*, course_slug: str = ""):
 
     selected_slug = (course_slug or "").strip()
     if selected_slug:
-        if not _COURSE_SLUG_RE.fullmatch(selected_slug):
+        if not _is_safe_course_slug(selected_slug):
             raise ValueError("Invalid course slug.")
-        selected_dir = root / selected_slug
+        selected_dir = _safe_course_child_dir(root, selected_slug)
         if not selected_dir.exists() or not selected_dir.is_dir():
             raise FileNotFoundError(f"Course not found: {selected_slug}")
         selected_dirs = [selected_dir]
@@ -132,6 +134,25 @@ def build_syllabus_backup_zip(*, course_slug: str = ""):
                 file_count += 1
         tmp.seek(0)
         return tmp, file_count, len(selected_dirs)
+
+
+def _is_safe_course_slug(value: str) -> bool:
+    token = str(value or "").strip()
+    if not token:
+        return False
+    return all(ch in _COURSE_SLUG_ALLOWED for ch in token)
+
+
+def _safe_course_child_dir(root: Path, slug: str) -> Path:
+    try:
+        joined = safe_join(str(root), slug)
+    except Exception as exc:
+        raise ValueError("Invalid course slug.") from exc
+    root_resolved = root.resolve()
+    candidate = Path(joined).resolve()
+    if not candidate.is_relative_to(root_resolved):
+        raise ValueError("Invalid course slug.")
+    return candidate
 
 
 __all__ = [

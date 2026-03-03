@@ -1010,6 +1010,7 @@ Execution runbook:
 - Course manifest and lesson file reads are resolved through a safe path join rooted at `CONTENT_ROOT/courses`.
 - Course slugs are validated before path resolution.
 - Lesson `file` values from manifest metadata are treated as untrusted and must remain inside the courses root.
+- Syllabus backup exports (`hub/services/syllabus_exports.py`) resolve optional `course_slug` selection through `safe_join` + resolved-root containment before reading any directory.
 
 **Why this remains active:**
 - Prevents path traversal from malformed or compromised lesson metadata.
@@ -1020,6 +1021,11 @@ Execution runbook:
 **Current decision:**
 - For short untrusted identifier checks (lesson filenames, YouTube IDs, upload file extensions), prefer bounded character-set scans over regex matching.
 - Keep checks explicit: min/max length, required suffix, and allowed-character whitelist.
+- Syllabus ingest parsing paths that consume uploaded text metadata now use deterministic token scanners for:
+  - session header detection,
+  - inline `key: value` metadata extraction,
+  - duration/session-count parsing,
+  - grade/age range inference.
 
 **Why this remains active:**
 - Reduces false-positive and performance risk from regex-on-input security scanners.
