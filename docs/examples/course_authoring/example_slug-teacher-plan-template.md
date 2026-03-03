@@ -10,7 +10,8 @@ Use `Session NN: Title` headings exactly so `scripts/ingest_syllabus_md.py` can 
 # Session 01: Session 01 Title
 
 Mission: <what students should build or demonstrate>
-Lesson slug example: s01-session-01-title
+Lesson slug (for course.yaml): s01-your-topic-slug
+Slug rule: start with s01- and use lowercase letters, numbers, and dashes only.
 
 Teacher prep
 - <what to set up before class starts>
@@ -35,7 +36,8 @@ Extensions
 # Session 02: Session 02 Title
 
 Mission: <what students should build or demonstrate>
-Lesson slug example: s02-session-02-title
+Lesson slug (for course.yaml): s02-your-topic-slug
+Slug rule: start with s02- and use lowercase letters, numbers, and dashes only.
 
 Teacher prep
 - <what to set up before class starts>
@@ -60,7 +62,8 @@ Extensions
 # Session 03: Session 03 Title
 
 Mission: <what students should build or demonstrate>
-Lesson slug example: s03-session-03-title
+Lesson slug (for course.yaml): s03-your-topic-slug
+Slug rule: start with s03- and use lowercase letters, numbers, and dashes only.
 
 Teacher prep
 - <what to set up before class starts>
@@ -85,7 +88,8 @@ Extensions
 # Session 04: Session 04 Title
 
 Mission: <what students should build or demonstrate>
-Lesson slug example: s04-session-04-title
+Lesson slug (for course.yaml): s04-your-topic-slug
+Slug rule: start with s04- and use lowercase letters, numbers, and dashes only.
 
 Teacher prep
 - <what to set up before class starts>

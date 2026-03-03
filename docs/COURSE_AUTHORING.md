@@ -104,6 +104,11 @@ These files are formatted to match the ingest parser in `scripts/ingest_syllabus
 (`Session NN: Title`, `Mission`, `Teacher prep`, `Materials`, `Checkpoints`,
 `Common stuck points + fixes`, `Extensions`).
 
+Slug convention in the generated session plan:
+- lesson slugs are written as `sNN-your-topic-slug` (for example `s03-loops-and-sprites`)
+- keep lesson slugs lowercase with numbers and dashes only
+- keep the `sNN-` prefix aligned with the session number
+
 Teacher UI option:
 - Staff users can generate the same templates from `/teach` (Teacher Portal home)
   by filling in the same four fields: slug, title, sessions, duration.

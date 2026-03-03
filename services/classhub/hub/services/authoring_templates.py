@@ -60,7 +60,8 @@ def _session_block(session_num: int) -> str:
     return f"""# Session {session_num:02d}: Session {session_num:02d} Title
 
 Mission: <what students should build or demonstrate>
-Lesson slug example: s{session_num:02d}-session-{session_num:02d}-title
+Lesson slug (for course.yaml): s{session_num:02d}-your-topic-slug
+Slug rule: start with s{session_num:02d}- and use lowercase letters, numbers, and dashes only.
 
 Teacher prep
 - <what to set up before class starts>

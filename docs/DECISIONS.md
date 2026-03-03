@@ -31,6 +31,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Shared zip export helper seam](#shared-zip-export-helper-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
 - [Cookie secure flags follow transport mode](#cookie-secure-flags-follow-transport-mode)
+- [Authoring template lesson slug convention](#authoring-template-lesson-slug-convention)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
 - [Secret handling: env-only secret sources](#secret-handling-env-only-secret-sources)
@@ -617,6 +618,16 @@ Execution runbook:
 **Why this remains active:**
 - Prevents join/session breakage when running HTTP in local mode with `DJANGO_DEBUG=0`.
 - Keeps HTTPS deployments strict by default without coupling cookie transport policy to debug mode.
+
+## Authoring template lesson slug convention
+
+**Current decision:**
+- Teacher authoring template session blocks now show lesson slug guidance as `sNN-your-topic-slug`.
+- Templates explicitly instruct teachers to keep lesson slugs lowercase with numbers/dashes and to keep the `sNN-` prefix aligned to session number.
+
+**Why this remains active:**
+- Makes the pre-built template files safer to copy into `course.yaml` without slug formatting drift.
+- Reduces import/validation mistakes caused by inconsistent lesson slug formatting.
 
 ## Documentation as first-class product surface
 
