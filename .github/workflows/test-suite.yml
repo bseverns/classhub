@@ -76,8 +76,10 @@ jobs:
               out.write(f"- Statements: {stmts}\n")
               out.write(f"- Missing lines: {missing}\n")
           PY
-          cat .github_step_summary_tmp >> "$GITHUB_STEP_SUMMARY"
-          rm -f .github_step_summary_tmp
+          if [[ -f .github_step_summary_tmp ]]; then
+            cat .github_step_summary_tmp >> "$GITHUB_STEP_SUMMARY"
+            rm -f .github_step_summary_tmp
+          fi
       - name: Upload classhub coverage artifact
         uses: actions/upload-artifact@v4
         with:
@@ -141,8 +143,10 @@ jobs:
               out.write(f"- Statements: {stmts}\n")
               out.write(f"- Missing lines: {missing}\n")
           PY
-          cat .github_step_summary_tmp >> "$GITHUB_STEP_SUMMARY"
-          rm -f .github_step_summary_tmp
+          if [[ -f .github_step_summary_tmp ]]; then
+            cat .github_step_summary_tmp >> "$GITHUB_STEP_SUMMARY"
+            rm -f .github_step_summary_tmp
+          fi
       - name: Upload helper coverage artifact
         uses: actions/upload-artifact@v4
         with:
