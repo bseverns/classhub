@@ -1072,6 +1072,7 @@ Historical implementation logs and superseded decisions are archived by month in
   3. reorder existing controls for safer defaults,
   4. add or adjust warning language for destructive actions.
 - Keep growth pressure visible via existing view/file budget guards; large UI/view expansions require explicit budget justification.
+- Syllabus import flow now lives in `views/teacher_parts/content_syllabus_import.py` so `content_home.py` stays within enforced view-size budget and import wiring remains explicit.
 
 **Why this remains active:**
 - Keeps the primary staff interface from expanding faster than support/training capacity.

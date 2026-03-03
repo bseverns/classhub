@@ -24,6 +24,7 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 from ...http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
 from ...models import (
     Class,
+    ClassStaffAssignment,
     LessonAsset,
     LessonAssetFolder,
     LessonRelease,
