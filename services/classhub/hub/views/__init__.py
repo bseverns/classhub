@@ -21,6 +21,11 @@ from .internal import internal_helper_chat_access_event
 from .media import lesson_asset_download, lesson_video_stream
 from .student_join import index, invite_join, join_class
 from .student_identity import student_rename_display_name
+from .student_artifacts import (
+    student_gallery_wall,
+    student_portfolio,
+    student_set_submission_publish,
+)
 from .student import (
     healthz,
     material_upload,
@@ -67,6 +72,7 @@ from .teacher import (
     teach_issue_certificate,
     teach_mark_session_completed,
     teach_material_submissions,
+    teach_moderate_gallery_submission,
     teach_merge_students,
     teach_module,
     teach_move_material,
@@ -80,6 +86,7 @@ from .teacher import (
     teach_remove_support_tag,
     teach_update_class_landing,
     teach_set_enrollment_mode,
+    teach_set_module_gallery_enabled,
     teach_set_organization_active,
     teach_set_retention_preset,
     teach_set_lesson_release,
@@ -122,8 +129,11 @@ __all__ = [
     "student_logout",
     "student_micro_check",
     "student_my_data",
+    "student_portfolio",
     "student_portfolio_export",
+    "student_gallery_wall",
     "student_rename_display_name",
+    "student_set_submission_publish",
     "student_return_code",
     "submission_download",
     "privacy_policy",
@@ -159,6 +169,7 @@ __all__ = [
     "teach_issue_certificate",
     "teach_mark_session_completed",
     "teach_material_submissions",
+    "teach_moderate_gallery_submission",
     "teach_merge_students",
     "teach_module",
     "teach_move_material",
@@ -170,6 +181,7 @@ __all__ = [
     "teach_reset_roster",
     "teach_rotate_code",
     "teach_set_enrollment_mode",
+    "teach_set_module_gallery_enabled",
     "teach_set_organization_active",
     "teach_set_retention_preset",
     "teach_set_lesson_release",

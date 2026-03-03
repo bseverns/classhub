@@ -58,6 +58,15 @@ If any step fails, use [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 6. Review missing submissions from the dropbox links.
 7. For paid/limited cohorts, monitor invite seat usage and disable links when full.
 
+## Student portfolio + gallery basics
+
+- Student artifacts are teacher-only by default.
+- Students can opt in per artifact from upload pages (`Publish to class gallery wall`).
+- Teachers can approve/unapprove gallery visibility from `/teach/material/<id>/submissions`.
+- Teachers can enable/disable a session gallery from `/teach/module/<id>`.
+- Students can review their own work history in `/student/portfolio`.
+- The public-in-class gallery page (`/student/gallery`) only shows student-published + teacher-approved artifacts.
+
 Deep walkthrough: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 
 ## End of class: quick closeout

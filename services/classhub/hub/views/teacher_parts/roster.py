@@ -39,6 +39,10 @@ from .roster_materials import (
     teach_move_material,
     teach_move_module,
 )
+from .roster_gallery import (
+    teach_moderate_gallery_submission,
+    teach_set_module_gallery_enabled,
+)
 from .roster_outcomes import teach_certificate_eligibility, teach_mark_session_completed
 from .roster_students import (
     teach_delete_student_data,
@@ -79,7 +83,9 @@ __all__ = [
     "teach_module",
     "teach_add_material",
     "teach_move_material",
+    "teach_set_module_gallery_enabled",
     "teach_material_submissions",
+    "teach_moderate_gallery_submission",
     "teach_certificate_eligibility",
     "teach_mark_session_completed",
     "teach_issue_certificate",

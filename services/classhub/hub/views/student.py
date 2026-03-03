@@ -10,6 +10,7 @@ from django.middleware.csrf import get_token
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
 
 from common.helper_scope import issue_scope_token
@@ -28,6 +29,7 @@ from ..models import (
 from ..services.export_service import build_student_portfolio_export_response
 from ..services.ip_privacy import minimize_student_event_ip
 from ..services.join_flow_service import clear_device_hint_cookie
+from ..services.peer_feedback import resolve_peer_feedback_starters
 from ..services.student_home import (
     build_class_landing_context,
     build_material_access_map,
@@ -337,6 +339,11 @@ def material_upload(request, material_id: int):
     error = ""
     response_status = 200
     form = SubmissionUploadForm()
+    notice = (request.GET.get("notice") or "").strip()
+    process_note_starters = resolve_peer_feedback_starters(
+        language_code=getattr(request, "LANGUAGE_CODE", "en"),
+        course_manifest={},
+    )
 
     if release_state.get("is_locked"):
         available_on = release_state.get("available_on")
@@ -366,6 +373,14 @@ def material_upload(request, material_id: int):
                 return redirect(upload_result.redirect_url)
             error = upload_result.error
             response_status = upload_result.response_status
+        else:
+            first_error = ""
+            for values in form.errors.values():
+                if values:
+                    first_error = str(values[0]).strip()
+                    break
+            error = first_error or "Please check your upload form and try again."
+            response_status = 400
     submissions = Submission.objects.filter(material=material, student=request.student).all()
 
     response = render(
@@ -378,8 +393,11 @@ def material_upload(request, material_id: int):
             "allowed_exts": allowed_exts,
             "form": form,
             "error": error,
+            "notice": notice,
             "submissions": submissions,
             "is_gallery_material": material.type == Material.TYPE_GALLERY,
+            "gallery_enabled": bool(getattr(material.module, "gallery_enabled", True)),
+            "process_note_starters": process_note_starters,
             "upload_locked": bool(release_state.get("is_locked")),
             "upload_available_on": release_state.get("available_on"),
             **privacy_meta_context(classroom=request.classroom),
@@ -413,6 +431,7 @@ def submission_download(request, submission_id: int):
         can_download_own = s.student_id == request.student.id
         can_download_shared_gallery = (
             s.material.type == Material.TYPE_GALLERY
+            and bool(s.is_published)
             and bool(s.is_gallery_shared)
             and request.student.classroom_id == s.material.module.classroom_id
         )

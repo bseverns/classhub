@@ -100,6 +100,14 @@ def teach_module(request, module_id: int):
     mats.sort(key=lambda m: (m.order_index, m.id))
     _normalize_order(mats)
     mats = list(module.materials.all())
+    notice = (request.GET.get("notice") or "").strip()
+    gallery_material_ids = [int(mat.id) for mat in mats if mat.type == Material.TYPE_GALLERY]
+    gallery_artifacts_published = 0
+    gallery_artifacts_approved = 0
+    if gallery_material_ids:
+        gallery_qs = Submission.objects.filter(material_id__in=gallery_material_ids)
+        gallery_artifacts_published = gallery_qs.filter(is_published=True).count()
+        gallery_artifacts_approved = gallery_qs.filter(is_gallery_shared=True).count()
 
     return render(
         request,
@@ -108,6 +116,10 @@ def teach_module(request, module_id: int):
             "classroom": module.classroom,
             "module": module,
             "materials": mats,
+            "notice": notice,
+            "gallery_material_count": len(gallery_material_ids),
+            "gallery_artifacts_published": gallery_artifacts_published,
+            "gallery_artifacts_approved": gallery_artifacts_approved,
         },
     )
 
@@ -313,6 +325,7 @@ def teach_material_submissions(request, material_id: int):
             "missing": missing,
             "student_count": len(students),
             "show": show,
+            "is_gallery": material.type == Material.TYPE_GALLERY,
         },
     )
 

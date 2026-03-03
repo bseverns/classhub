@@ -1,0 +1,26 @@
+.shell {
+  max-width: 1080px;
+}
+.top h1 {
+  margin: 6px 0 0 0;
+  font-size: clamp(1.85rem, 2.7vw, 2.3rem);
+}
+.filters {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+  align-items: end;
+}
+.filters a {
+  align-self: center;
+}
+.section-title-tight {
+  margin: 0;
+}
+.table-top-gap {
+  margin-top: 10px;
+}
+.top-gap-10 {
+  margin-top: 10px;
+}

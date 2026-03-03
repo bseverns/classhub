@@ -19,8 +19,25 @@
           </div>
           <div class="muted">Join code <span class="pill">{{ classroom.join_code }}</span></div>
         </div>
+        {% if notice %}
+          <div class="muted">{{ notice }}</div>
+        {% endif %}
 
         <div class="card">
+          {% if gallery_material_count %}
+            <div class="row">
+              <h2 class="section-title-tight">Session gallery wall</h2>
+              <div class="muted">
+                Student-published: {{ gallery_artifacts_published }} · Teacher-approved: {{ gallery_artifacts_approved }}
+              </div>
+            </div>
+            <form method="post" action="/teach/module/{{ module.id }}/set-gallery-enabled" class="material-form">
+              {% csrf_token %}
+              <input type="hidden" name="gallery_enabled" value="{% if module.gallery_enabled %}0{% else %}1{% endif %}" />
+              <button type="submit">{% if module.gallery_enabled %}Disable{% else %}Enable{% endif %} session gallery</button>
+            </form>
+          {% endif %}
+
           <div class="row">
             <h2 class="section-title-tight">Materials</h2>
             <div class="muted">Students see these in order.</div>

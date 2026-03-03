@@ -1,36 +1,39 @@
-{% load static %}
+{% load static i18n %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Upload - {{ material.title }}</title>
+    <title>{% trans "Upload" %} - {{ material.title }}</title>
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/material_upload.css' %}" />
   </head>
   <body class="glass-theme">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
     <div class="shell">
       <main id="main-content">
         <div class="top">
           <div>
-            <div class="muted"><a href="/student">Back to class</a> · <a href="/logout">Log out</a></div>
+            <div class="muted"><a href="/student">{% trans "Back to class" %}</a> · <a href="/student/portfolio">{% trans "What I made" %}</a> · <a href="/student/gallery">{% trans "Session gallery" %}</a> · <a href="/logout">{% trans "Log out" %}</a></div>
             <h1>{{ material.title }}</h1>
-            <div class="muted">Signed in as <strong>{{ student.display_name }}</strong> · {{ classroom.name }}</div>
+            <div class="muted">{% trans "Signed in as" %} <strong>{{ student.display_name }}</strong> · {{ classroom.name }}</div>
           </div>
         </div>
 
         <div class="card">
           {% if is_gallery_material %}
-            <h2 class="section-title-tight">Upload to gallery</h2>
+            <h2 class="section-title-tight">{% trans "Upload to gallery" %}</h2>
           {% else %}
-            <h2 class="section-title-tight">Upload your work</h2>
+            <h2 class="section-title-tight">{% trans "Upload your work" %}</h2>
           {% endif %}
-          <p class="muted top-gap-8">Allowed: <strong>{{ allowed_exts|join:", " }}</strong> · Max <strong>{{ material.max_upload_mb }}MB</strong></p>
+          <p class="muted top-gap-8">{% trans "Allowed:" %} <strong>{{ allowed_exts|join:", " }}</strong> · {% trans "Max" %} <strong>{{ material.max_upload_mb }}MB</strong></p>
           {% if is_gallery_material %}
-            <p class="muted top-gap-8">Only uploads you explicitly mark as shared appear in class gallery.</p>
+            <p class="muted top-gap-8">{% trans "Teacher-only by default. Only artifacts you explicitly publish appear in the session gallery wall." %}</p>
+            {% if not gallery_enabled %}
+              <p class="muted top-gap-8">{% trans "Session gallery is currently disabled by your teacher. You can still upload work." %}</p>
+            {% endif %}
           {% else %}
-            <p class="muted top-gap-8">Done means your file appears in <strong>Your uploads</strong>.</p>
+            <p class="muted top-gap-8">{% trans "Done means your file appears in" %} <strong>{% trans "Your uploads" %}</strong>.</p>
           {% endif %}
           <div class="privacy-note">
             <p class="muted"><strong>Privacy at a glance:</strong> we store your display name, uploaded files, and upload timestamps for class progress.</p>
@@ -55,39 +58,67 @@
           {% if error %}
             <div class="err" role="alert" aria-live="assertive">{{ error }}</div>
           {% endif %}
+          {% if notice %}
+            <div class="notice" role="status" aria-live="polite">{{ notice }}</div>
+          {% endif %}
 
           {% if not upload_locked %}
             <form method="post" enctype="multipart/form-data" class="upload-form">
               {% csrf_token %}
               {{ form.file }}
-              <div class="upload-note-field">{{ form.note }}</div>
+              <div class="upload-note-field">
+                <label for="id_station_label" class="muted">Station (optional)</label>
+                {{ form.station_label }}
+              </div>
+              <div class="upload-note-field">
+                <label for="id_process_note" class="muted">Process note (optional)</label>
+                <p class="muted top-gap-8">{% trans "What did you try? What did you change?" %}</p>
+                {% if process_note_starters %}
+                  <div class="starter-row muted">
+                    {% trans "Starters:" %}
+                    {% for starter in process_note_starters %}
+                      <button
+                        type="button"
+                        class="starter-pill"
+                        data-starter-target="id_process_note"
+                        data-feedback-starter="{{ starter }}"
+                      >{{ starter }}</button>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                {{ form.process_note }}
+              </div>
               {% if is_gallery_material %}
                 <label class="muted top-gap-8">
-                  <input type="checkbox" name="share_with_class" value="1" />
-                  Share this upload with class gallery
+                  <input type="checkbox" name="share_with_class" value="1" {% if not gallery_enabled %}disabled{% endif %} />
+                  {% trans "Publish to class gallery wall" %}
                 </label>
+                <p class="muted top-gap-8">{% trans "Teachers can approve or unapprove gallery visibility at any time." %}</p>
               {% endif %}
-              <button type="submit">Upload</button>
+              <button type="submit">{% trans "Upload" %}</button>
             </form>
           {% endif %}
         </div>
 
         <div class="card">
-          <h2 class="section-title-tight">Your uploads</h2>
+          <h2 class="section-title-tight">{% trans "Your uploads" %}</h2>
           {% if submissions %}
-            <p class="muted top-gap-8"><span class="state-pill state-pill--done">Done</span> Latest upload is saved.</p>
+            <p class="muted top-gap-8"><span class="state-pill state-pill--done">{% trans "Done" %}</span> {% trans "Latest upload is saved." %}</p>
           {% endif %}
           {% if submissions %}
             <table class="table-top-gap">
-              <caption class="visually-hidden">Your uploaded files</caption>
+              <caption class="visually-hidden">{% trans "Your uploaded files" %}</caption>
               <thead>
                 <tr>
-                  <th scope="col">When</th>
-                  <th scope="col">File</th>
+                  <th scope="col">{% trans "When" %}</th>
+                  <th scope="col">{% trans "File" %}</th>
+                  <th scope="col">{% trans "Station" %}</th>
                   {% if is_gallery_material %}
-                    <th scope="col">Shared</th>
+                    <th scope="col">{% trans "Published" %}</th>
+                    <th scope="col">{% trans "Teacher approved" %}</th>
+                    <th scope="col">{% trans "Publish action" %}</th>
                   {% endif %}
-                  <th scope="col">Download</th>
+                  <th scope="col">{% trans "Download" %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -95,25 +126,38 @@
                   <tr>
                     <td class="muted">{{ s.uploaded_at }}</td>
                     <th scope="row">{{ s.original_filename }}</th>
+                    <td class="muted">{{ s.station_label|default:"—" }}</td>
                     {% if is_gallery_material %}
-                      <td class="muted">{% if s.is_gallery_shared %}Yes{% else %}No{% endif %}</td>
+                      <td class="muted">{% if s.is_published %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</td>
+                      <td class="muted">{% if s.is_gallery_shared %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</td>
+                      <td class="muted">
+                        <form method="post" action="/student/submission/{{ s.id }}/publish" class="inline-publish-form">
+                          {% csrf_token %}
+                          <input type="hidden" name="publish" value="{% if s.is_published %}0{% else %}1{% endif %}" />
+                          <input type="hidden" name="return_to" value="/material/{{ material.id }}/upload" />
+                          <button type="submit">{% if s.is_published %}{% trans "Unpublish" %}{% else %}{% trans "Publish" %}{% endif %}</button>
+                        </form>
+                      </td>
                     {% endif %}
-                    <td><a href="/submission/{{ s.id }}/download">Download</a></td>
+                    <td><a href="/submission/{{ s.id }}/download">{% trans "Download" %}</a></td>
                   </tr>
-                  {% if s.note %}
+                  {% if s.process_note or s.note %}
                     <tr>
                       <td></td>
-                      <td colspan="{% if is_gallery_material %}3{% else %}2{% endif %}" class="muted">Note: {{ s.note }}</td>
+                      <td colspan="{% if is_gallery_material %}6{% else %}3{% endif %}" class="muted">
+                        {% trans "Process note:" %} {{ s.process_note|default:s.note }}
+                      </td>
                     </tr>
                   {% endif %}
                 {% endfor %}
               </tbody>
             </table>
           {% else %}
-            <p class="muted top-gap-10">No uploads yet.</p>
+            <p class="muted top-gap-10">{% trans "No uploads yet." %}</p>
           {% endif %}
         </div>
       </main>
     </div>
+    <script src="{% static 'js/student_class.js' %}" defer></script>
   </body>
 </html>

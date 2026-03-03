@@ -1,0 +1,107 @@
+{% load static i18n hub_extras %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% trans "What I made" %}</title>
+  {% include "includes/glass_theme.html" %}
+  <link rel="stylesheet" href="{% static 'css/student_portfolio.css' %}" />
+</head>
+
+<body class="glass-theme">
+  <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
+  <div class="shell">
+    <main id="main-content">
+      <div class="top">
+        <div class="muted">
+          <a href="/student">{% trans "Back to class" %}</a> ·
+          <a href="/student/my-data">{% trans "My Data" %}</a> ·
+          <a href="/student/gallery">{% trans "Session gallery" %}</a> ·
+          <a href="/logout">{% trans "Log out" %}</a>
+        </div>
+        <h1>{% trans "What I made" %}</h1>
+        <div class="muted">
+          {% trans "Signed in as" %} <strong>{{ student.display_name }}</strong> · {{ classroom.name }}
+        </div>
+        <div class="muted">
+          {% trans "Showing" %} {{ artifact_count_filtered }} {% trans "artifact(s) from" %} {{ artifact_count_total }} {% trans "total upload(s)." %}
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title-tight">{% trans "Filters" %}</h2>
+        <form method="get" class="filters">
+          <label for="filter-lesson">{% trans "Lesson" %}</label>
+          <select id="filter-lesson" name="lesson">
+            <option value="">{% trans "All lessons" %}</option>
+            {% for lesson in lesson_options %}
+              <option value="{{ lesson.id }}" {% if lesson.id == selected_lesson_id %}selected{% endif %}>{{ lesson.title }}</option>
+            {% endfor %}
+          </select>
+
+          <label for="filter-date">{% trans "Date" %}</label>
+          <input id="filter-date" type="date" name="date" value="{{ selected_date }}" />
+
+          <label for="filter-station">{% trans "Station (optional)" %}</label>
+          <select id="filter-station" name="station">
+            <option value="">{% trans "All stations" %}</option>
+            {% for station in station_options %}
+              <option value="{{ station }}" {% if station == selected_station %}selected{% endif %}>{{ station }}</option>
+            {% endfor %}
+          </select>
+
+          <button type="submit">{% trans "Apply filters" %}</button>
+          <a href="/student/portfolio">{% trans "Clear" %}</a>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title-tight">{% trans "Artifacts" %}</h2>
+        {% if artifacts %}
+          <table class="table-top-gap">
+            <caption class="visually-hidden">{% trans "Portfolio artifacts" %}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{% trans "When" %}</th>
+                <th scope="col">{% trans "Lesson" %}</th>
+                <th scope="col">{% trans "Material" %}</th>
+                <th scope="col">{% trans "File" %}</th>
+                <th scope="col">{% trans "Station" %}</th>
+                <th scope="col">{% trans "Gallery" %}</th>
+                <th scope="col">{% trans "Status" %}</th>
+                <th scope="col">{% trans "Download" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sub in artifacts %}
+                <tr>
+                  <td class="muted">{{ sub.uploaded_at|date:"M j, g:i a" }}</td>
+                  <td>{{ sub.material.module.title }}</td>
+                  <td>{{ sub.material.title }}</td>
+                  <th scope="row">{{ sub.original_filename }}</th>
+                  <td class="muted">{{ sub.station_label|default:"—" }}</td>
+                  <td class="muted">{% if sub.is_published %}{% trans "Published" %}{% else %}{% trans "Teacher-only" %}{% endif %}</td>
+                  <td class="muted">{{ artifact_statuses|get_item:sub.id|default:"Available" }}</td>
+                  <td><a href="/submission/{{ sub.id }}/download">{% trans "Download" %}</a></td>
+                </tr>
+                {% if sub.process_note %}
+                  <tr>
+                    <td></td>
+                    <td colspan="7" class="muted">{% trans "Process note:" %} {{ sub.process_note }}</td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="muted top-gap-10">{% trans "No artifacts match this filter yet." %}</p>
+          <p class="muted">{% trans "Older artifacts may have been removed by your class retention policy." %}</p>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+</body>
+
+</html>

@@ -7,6 +7,7 @@ Historical implementation logs and superseded decisions are archived by month in
 
 - [Auth model: student access](#auth-model-student-access)
 - [Trust primitives: student data controls](#trust-primitives-student-data-controls)
+- [Artifact-first sharing defaults](#artifact-first-sharing-defaults)
 - [Program profiles for cohort age bands](#program-profiles-for-cohort-age-bands)
 - [Stability freeze and change budget](#stability-freeze-and-change-budget)
 - [Decision ownership and review cadence](#decision-ownership-and-review-cadence)
@@ -142,6 +143,27 @@ Historical implementation logs and superseded decisions are archived by month in
 - Gives students direct agency over identity/work without adding new PII collection.
 - Keeps deletion semantics explicit and auditable for programs that require staff-mediated removal.
 - Preserves a help-first, low-surveillance facilitation model with constrained metadata rather than narrative dossiers.
+
+## Artifact-first sharing defaults
+
+**Current decision:**
+- Keep student artifact publishing opt-in and default OFF at artifact level:
+  - uploads are private to student + staff unless the student explicitly publishes.
+- Treat class gallery visibility as a two-part gate:
+  - student publish intent (`is_published`),
+  - teacher moderation approval (`is_gallery_shared`).
+- Keep session-level gallery control at module scope (`Module.gallery_enabled`) so facilitators can disable a session wall without deleting work.
+- Add student-facing artifact surfaces that preserve pseudonymous join:
+  - `/student/portfolio` for "What I made" with lesson/date/station filters,
+  - `/student/gallery` for session celebration, showing only published + approved artifacts.
+- Keep process logging optional and non-judgmental:
+  - optional `process_note` prompt ("What did you try? What did you change?")
+  - sentence starters remain language-aware and editable via course-manifest starter overrides.
+
+**Why this remains active:**
+- Supports celebration/inspiration while keeping privacy and teacher judgment in control.
+- Avoids ranking/leaderboard pressure and keeps feedback mechanics supportive.
+- Preserves storage and retention controls by reusing existing submission + prune pipelines.
 
 ## Program profiles for cohort age bands
 

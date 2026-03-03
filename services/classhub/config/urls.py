@@ -43,6 +43,9 @@ urlpatterns = [
     path("student", views.student_home),
     path("student/return-code", views.student_return_code),
     path("student/my-data", views.student_my_data),
+    path("student/portfolio", views.student_portfolio),
+    path("student/gallery", views.student_gallery_wall),
+    path("student/submission/<int:submission_id>/publish", views.student_set_submission_publish),
     path("student/rename", views.student_rename_display_name),
     path("student/delete-work", views.student_delete_work),
     path("student/end-session", views.student_end_session),
@@ -121,5 +124,10 @@ urlpatterns = [
     path("teach/module/<int:module_id>", views.teach_module),
     path("teach/module/<int:module_id>/add-material", views.teach_add_material),
     path("teach/module/<int:module_id>/move-material", views.teach_move_material),
+    path("teach/module/<int:module_id>/set-gallery-enabled", views.teach_set_module_gallery_enabled),
     path("teach/material/<int:material_id>/submissions", views.teach_material_submissions),
+    path(
+        "teach/material/<int:material_id>/submission/<int:submission_id>/moderate",
+        views.teach_moderate_gallery_submission,
+    ),
 ]

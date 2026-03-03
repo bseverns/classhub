@@ -187,11 +187,22 @@ def build_gallery_entries_map(
             material_id__in=material_ids,
             material__module__classroom=classroom,
             material__type=Material.TYPE_GALLERY,
+            material__module__gallery_enabled=True,
+            is_published=True,
             is_gallery_shared=True,
         )
         .select_related("student")
-        .only("id", "material_id", "student_id", "student__display_name", "uploaded_at", "original_filename")
-        .order_by("-uploaded_at", "-id")
+        .only(
+            "id",
+            "material_id",
+            "student_id",
+            "student__display_name",
+            "uploaded_at",
+            "original_filename",
+            "process_note",
+            "published_at",
+        )
+        .order_by("-published_at", "-uploaded_at", "-id")
     )
     for submission in qs:
         rows = by_material.setdefault(submission.material_id, [])
@@ -203,6 +214,7 @@ def build_gallery_entries_map(
                 "display_name": submission.student.display_name,
                 "uploaded_at": submission.uploaded_at,
                 "original_filename": submission.original_filename,
+                "process_note": submission.process_note or "",
                 "is_owner": submission.student_id == viewer_student.id,
             }
         )

@@ -755,6 +755,7 @@ class StudentEventSubmissionTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         saved = Submission.objects.filter(material=gallery, student=self.student).order_by("-id").first()
         self.assertIsNotNone(saved)
+        self.assertTrue(saved.is_published)
         self.assertTrue(saved.is_gallery_shared)
 
     def test_student_home_shows_shared_gallery_entries_only(self):
@@ -772,6 +773,7 @@ class StudentEventSubmissionTests(TestCase):
             student=other,
             original_filename="shared.sb3",
             file=SimpleUploadedFile("shared.sb3", _sample_sb3_bytes()),
+            is_published=True,
             is_gallery_shared=True,
         )
         Submission.objects.create(
@@ -779,6 +781,7 @@ class StudentEventSubmissionTests(TestCase):
             student=other,
             original_filename="private.sb3",
             file=SimpleUploadedFile("private.sb3", _sample_sb3_bytes()),
+            is_published=True,
             is_gallery_shared=False,
         )
         self._login_student()
@@ -788,6 +791,148 @@ class StudentEventSubmissionTests(TestCase):
         self.assertContains(resp, "Shared gallery")
         self.assertContains(resp, "shared.sb3")
         self.assertNotContains(resp, "private.sb3")
+
+    def test_student_gallery_page_hides_unapproved_artifacts(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf,.sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        other = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ben")
+        Submission.objects.create(
+            material=gallery,
+            student=other,
+            original_filename="approved.sb3",
+            file=SimpleUploadedFile("approved.sb3", _sample_sb3_bytes()),
+            is_published=True,
+            is_gallery_shared=True,
+        )
+        Submission.objects.create(
+            material=gallery,
+            student=other,
+            original_filename="pending.sb3",
+            file=SimpleUploadedFile("pending.sb3", _sample_sb3_bytes()),
+            is_published=True,
+            is_gallery_shared=False,
+        )
+        self._login_student()
+
+        resp = self.client.get(f"/student/gallery?module_id={self.module.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "approved.sb3")
+        self.assertNotContains(resp, "pending.sb3")
+
+    def test_student_can_publish_later_and_wait_for_teacher_approval(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf,.sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        self._login_student()
+        upload = self.client.post(
+            f"/material/{gallery.id}/upload",
+            {
+                "file": SimpleUploadedFile("project.sb3", _sample_sb3_bytes()),
+            },
+        )
+        self.assertEqual(upload.status_code, 302)
+        saved = Submission.objects.filter(material=gallery, student=self.student).order_by("-id").first()
+        self.assertIsNotNone(saved)
+        self.assertFalse(saved.is_published)
+        self.assertFalse(saved.is_gallery_shared)
+
+        publish_resp = self.client.post(
+            f"/student/submission/{saved.id}/publish",
+            {"publish": "1", "return_to": f"/material/{gallery.id}/upload"},
+        )
+        self.assertEqual(publish_resp.status_code, 302)
+        saved.refresh_from_db()
+        self.assertTrue(saved.is_published)
+        self.assertFalse(saved.is_gallery_shared)
+
+    def test_material_upload_process_note_is_escaped_and_bounded(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf,.sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        self._login_student()
+
+        resp = self.client.post(
+            f"/material/{gallery.id}/upload",
+            {
+                "file": SimpleUploadedFile("project.sb3", _sample_sb3_bytes()),
+                "process_note": "<script>alert(1)</script> tested with loops",
+                "station_label": " Station 3 ",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        saved = Submission.objects.filter(material=gallery, student=self.student).order_by("-id").first()
+        self.assertIsNotNone(saved)
+        self.assertEqual(saved.station_label, "Station 3")
+        self.assertIn("<script>alert(1)</script>", saved.process_note)
+
+        page = self.client.get(f"/material/{gallery.id}/upload")
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, "&lt;script&gt;alert(1)&lt;/script&gt;", html=False)
+        self.assertNotContains(page, "<script>alert(1)</script>", html=False)
+
+        too_long = "a" * 2001
+        bad = self.client.post(
+            f"/material/{gallery.id}/upload",
+            {
+                "file": SimpleUploadedFile("project2.sb3", _sample_sb3_bytes()),
+                "process_note": too_long,
+            },
+        )
+        self.assertEqual(bad.status_code, 400)
+        self.assertEqual(Submission.objects.filter(material=gallery, student=self.student).count(), 1)
+
+    def test_student_portfolio_filters_to_current_student_and_query(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf,.sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        other = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ben")
+        Submission.objects.create(
+            material=self.material,
+            student=self.student,
+            original_filename="mine.sb3",
+            file=SimpleUploadedFile("mine.sb3", _sample_sb3_bytes()),
+            station_label="Station A",
+        )
+        Submission.objects.create(
+            material=gallery,
+            student=other,
+            original_filename="other.sb3",
+            file=SimpleUploadedFile("other.sb3", _sample_sb3_bytes()),
+            station_label="Station A",
+            is_published=True,
+            is_gallery_shared=True,
+        )
+        self._login_student()
+
+        all_resp = self.client.get("/student/portfolio")
+        self.assertEqual(all_resp.status_code, 200)
+        self.assertContains(all_resp, "mine.sb3")
+        self.assertNotContains(all_resp, "other.sb3")
+
+        filtered = self.client.get("/student/portfolio?station=Station+A")
+        self.assertEqual(filtered.status_code, 200)
+        self.assertContains(filtered, "mine.sb3")
 
 
 class StudentMicroCheckTests(TestCase):
@@ -1106,6 +1251,7 @@ class SubmissionDownloadHardeningTests(TestCase):
             student=owner,
             original_filename="shared.sb3",
             file=SimpleUploadedFile("shared.sb3", _sample_sb3_bytes()),
+            is_published=True,
             is_gallery_shared=True,
         )
         viewer = StudentIdentity.objects.create(classroom=self.classroom, display_name="Viewer")

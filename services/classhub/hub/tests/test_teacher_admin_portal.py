@@ -756,6 +756,67 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(created.accepted_extensions, ".png,.jpg,.jpeg,.pdf")
         self.assertEqual(created.max_upload_mb, 20)
 
+    def test_teacher_can_toggle_module_session_gallery(self):
+        classroom = Class.objects.create(name="Gallery Toggle", join_code="GTL12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0, gallery_enabled=True)
+        Material.objects.create(
+            module=module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf",
+            max_upload_mb=20,
+            order_index=0,
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        disable = self.client.post(f"/teach/module/{module.id}/set-gallery-enabled", {"gallery_enabled": "0"})
+        self.assertEqual(disable.status_code, 302)
+        module.refresh_from_db()
+        self.assertFalse(module.gallery_enabled)
+
+        enable = self.client.post(f"/teach/module/{module.id}/set-gallery-enabled", {"gallery_enabled": "1"})
+        self.assertEqual(enable.status_code, 302)
+        module.refresh_from_db()
+        self.assertTrue(module.gallery_enabled)
+
+    def test_teacher_can_moderate_gallery_submission(self):
+        classroom = Class.objects.create(name="Gallery Moderate", join_code="GMD12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        gallery = Material.objects.create(
+            module=module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf,.sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        submission = Submission.objects.create(
+            material=gallery,
+            student=student,
+            original_filename="project.sb3",
+            file=SimpleUploadedFile("project.sb3", _sample_sb3_bytes()),
+            is_published=True,
+            is_gallery_shared=False,
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        approve = self.client.post(
+            f"/teach/material/{gallery.id}/submission/{submission.id}/moderate",
+            {"approve": "1", "return_to": f"/teach/material/{gallery.id}/submissions"},
+        )
+        self.assertEqual(approve.status_code, 302)
+        submission.refresh_from_db()
+        self.assertTrue(submission.is_gallery_shared)
+
+        unapprove = self.client.post(
+            f"/teach/material/{gallery.id}/submission/{submission.id}/moderate",
+            {"approve": "0", "return_to": f"/teach/material/{gallery.id}/submissions"},
+        )
+        self.assertEqual(unapprove.status_code, 302)
+        submission.refresh_from_db()
+        self.assertFalse(submission.is_gallery_shared)
+
     def test_teach_module_can_add_rubric_material(self):
         classroom = Class.objects.create(name="Rubric Class", join_code="RUB12345")
         module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)

@@ -20,6 +20,8 @@
             <a href="/student">{% trans "Student home" %}</a>
             {% if ui_density_mode != "compact" %}
             · <a href="/">{% trans "Join page" %}</a>
+            · <a href="/student/portfolio">{% trans "What I made" %}</a>
+            · <a href="/student/gallery">{% trans "Session gallery" %}</a>
             · <a href="/student/portfolio-export">{% trans "Export my portfolio" %}</a>
             · <a href="/privacy">{% trans "Privacy" %}</a>
             · <a href="/trust">{% trans "Trust notes" %}</a>
@@ -497,9 +499,11 @@
         {% else %}
         <p class="muted">Manage account + device data.</p>
         <div class="my-data-actions">
-          <a href="/student/my-data">Open My Data</a>
-          <a href="/student/portfolio-export">Download my work</a>
-          <form method="post" action="/student/end-session">
+            <a href="/student/my-data">Open My Data</a>
+            <a href="/student/portfolio">What I made</a>
+            <a href="/student/portfolio-export">Download my work</a>
+            <a href="/student/gallery">Session gallery</a>
+            <form method="post" action="/student/end-session">
             {% csrf_token %}
             <button type="submit">{% trans "End my session on this device" %}</button>
           </form>

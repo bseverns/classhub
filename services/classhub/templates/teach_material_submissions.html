@@ -20,6 +20,9 @@
               <div class="muted">Material: <strong>{{ material.title }}</strong> · Scale 1-{{ material.rubric_scale_max }} · Students {{ student_count }} · Missing {{ missing }}</div>
             {% else %}
               <div class="muted">Material: <strong>{{ material.title }}</strong> · Accepted <span class="pill">{{ material.accepted_extensions|default:'.sb3' }}</span> · Students {{ student_count }} · Missing {{ missing }}</div>
+              {% if is_gallery %}
+                <div class="muted">Gallery moderation: student publish is opt-in; staff can approve/unapprove visibility.</div>
+              {% endif %}
             {% endif %}
           </div>
           <div class="btnline">
@@ -50,6 +53,9 @@
                 <th scope="col">{% if is_rubric %}Latest response{% else %}Latest upload{% endif %}</th>
                 <th scope="col">{% if is_rubric %}Rated criteria{% else %}Files{% endif %}</th>
                 <th scope="col">{% if is_rubric %}Feedback{% else %}Latest file{% endif %}</th>
+                {% if is_gallery and not is_rubric %}
+                  <th scope="col">Gallery</th>
+                {% endif %}
                 <th scope="col"><span class="visually-hidden">Actions</span></th>
               </tr>
             </thead>
@@ -67,15 +73,44 @@
                       <td class="muted">{{ r.latest.uploaded_at }}</td>
                       <td class="muted">{{ r.count }}</td>
                       <td class="muted">{{ r.latest.original_filename|default:r.latest.file.name }}</td>
+                      {% if is_gallery %}
+                        <td class="muted">
+                          Student published: {% if r.latest.is_published %}Yes{% else %}No{% endif %}<br />
+                          Teacher approved: {% if r.latest.is_gallery_shared %}Yes{% else %}No{% endif %}
+                        </td>
+                      {% endif %}
                       <td><a href="/submission/{{ r.latest.id }}/download">Download latest</a></td>
                     {% endif %}
                   {% else %}
                     <td class="muted">—</td>
                     <td class="muted">0</td>
                     <td class="muted">—</td>
+                    {% if is_gallery %}
+                      <td class="muted">—</td>
+                    {% endif %}
                     <td class="muted">—</td>
                   {% endif %}
                 </tr>
+                {% if is_gallery and r.latest %}
+                  <tr>
+                    <td></td>
+                    <td colspan="3" class="muted">
+                      {% if r.latest.process_note %}
+                        Process note: {{ r.latest.process_note }}
+                      {% else %}
+                        Process note: —
+                      {% endif %}
+                    </td>
+                    <td colspan="2" class="muted">
+                      <form method="post" action="/teach/material/{{ material.id }}/submission/{{ r.latest.id }}/moderate">
+                        {% csrf_token %}
+                        <input type="hidden" name="approve" value="{% if r.latest.is_gallery_shared %}0{% else %}1{% endif %}" />
+                        <input type="hidden" name="return_to" value="/teach/material/{{ material.id }}/submissions?show={{ show }}" />
+                        <button type="submit">{% if r.latest.is_gallery_shared %}Unapprove{% else %}Approve{% endif %}</button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endif %}
               {% endfor %}
             </tbody>
           </table>

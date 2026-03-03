@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from django.conf import settings
+from django.utils import timezone
 
 from common.request_safety import client_ip_from_request
 
@@ -62,6 +63,8 @@ def process_material_upload_form(
 ) -> UploadAttemptResult:
     uploaded_file = form.cleaned_data["file"]
     note = (form.cleaned_data.get("note") or "").strip()
+    process_note = (form.cleaned_data.get("process_note") or "").strip()[:2000]
+    station_label = " ".join(str(form.cleaned_data.get("station_label") or "").split())[:80]
     name = (getattr(uploaded_file, "name", "") or "upload").strip()
     lower = name.lower()
     ext = "." + lower.rsplit(".", 1)[-1] if "." in lower else ""
@@ -155,13 +158,21 @@ def process_material_upload_form(
             scan_status=scan_result.status,
         )
 
+    publish_requested = bool(share_with_class and material.type == Material.TYPE_GALLERY)
+    module_gallery_enabled = bool(getattr(material.module, "gallery_enabled", True))
+    can_publish_now = bool(publish_requested and module_gallery_enabled)
+
     submission = Submission.objects.create(
         material=material,
         student=request.student,
         original_filename=name,
         file=uploaded_file,
-        note=note,
-        is_gallery_shared=bool(share_with_class and material.type == Material.TYPE_GALLERY),
+        note=(note or process_note),
+        process_note=process_note,
+        station_label=station_label,
+        is_gallery_shared=can_publish_now,
+        is_published=can_publish_now,
+        published_at=timezone.now() if can_publish_now else None,
     )
     emit_student_event_fn(
         event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
@@ -175,6 +186,8 @@ def process_material_upload_form(
             "size_bytes": int(getattr(uploaded_file, "size", 0) or 0),
             "scan_status": scan_result.status,
             "gallery_shared": bool(submission.is_gallery_shared),
+            "is_published": bool(submission.is_published),
+            "gallery_enabled_for_session": module_gallery_enabled,
         },
         ip_address=client_ip_from_request(
             request,

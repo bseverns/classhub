@@ -269,6 +269,12 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
 - `/teach/material/<id>/submissions`:
   - submitted vs missing filters
   - bulk download latest submissions as ZIP
+  - gallery materials add moderation controls:
+    - view `student published` and `teacher approved` state
+    - use `Approve` / `Unapprove` to control gallery visibility
+- `/teach/module/<id>`:
+  - if the module has gallery materials, use `Enable/Disable session gallery`
+  - disabling a session gallery hides gallery wall entries for that session without deleting submissions
 - `/teach/2fa/setup`:
   - teacher self-service TOTP enrollment
   - supports signed invite links from onboarding emails
@@ -305,6 +311,10 @@ When using the **Facilitator Support Board** on `/teach/class/<id>`:
   - `This week` (calendar-linked highlighted lesson + primary start action)
   - `Course links` (full lesson list in a collapsible panel)
   - `Account` (My Data + export/session controls)
+- Artifact sharing stays teacher-only by default.
+- Students can opt in per artifact on upload pages using `Publish to class gallery wall`.
+- `/student/portfolio` gives each student a "What I made" view with lesson/date/station filters.
+- `/student/gallery` only shows artifacts that are student-published and teacher-approved.
 - Module cards on `/student` are collapsible, and the highlighted module opens by default.
 - Checklist/reflection/rubric materials show status first (`Done`/`Open`/`Locked`) and keep edit forms inside collapsible details.
 - The helper widget is collapsed by default on student pages; students open it when needed.

@@ -198,6 +198,7 @@ class Module(models.Model):
     classroom = models.ForeignKey(Class, on_delete=models.CASCADE, related_name="modules")
     title = models.CharField(max_length=200)
     order_index = models.PositiveIntegerField(default=0)
+    gallery_enabled = models.BooleanField(default=True)
 
     class Meta:
         ordering = ["order_index", "id"]
@@ -293,6 +294,17 @@ class Submission(models.Model):
     file = models.FileField(upload_to=_submission_upload_to)
     note = models.TextField(blank=True, default="")
     is_gallery_shared = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+    remix_of = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="remixes",
+    )
+    process_note = models.TextField(blank=True, default="")
+    station_label = models.CharField(max_length=80, blank=True, default="")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -302,6 +314,7 @@ class Submission(models.Model):
             models.Index(fields=["student", "uploaded_at"], name="hub_submiss_student_4f0ac8_idx"),
             models.Index(fields=["material", "student"], name="hub_submis_matstu_91b9f2_idx"),
             models.Index(fields=["material", "is_gallery_shared", "uploaded_at"], name="hub_submis_matshr_90a5_idx"),
+            models.Index(fields=["material", "is_published", "published_at"], name="hub_submis_matpub_f4b5_idx"),
         ]
 
     def __str__(self) -> str:

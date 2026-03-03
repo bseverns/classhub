@@ -17,6 +17,14 @@ input[type="file"] {
   border: 1px solid rgba(182, 56, 56, 0.35);
   margin-top: 12px;
 }
+.notice {
+  color: #215a2f;
+  background: rgba(224, 248, 229, 0.75);
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(36, 128, 66, 0.25);
+  margin-top: 12px;
+}
 .privacy-note {
   margin-top: 12px;
   border: 1px solid rgba(169, 46, 66, 0.35);
@@ -55,6 +63,34 @@ input[type="file"] {
 }
 .upload-note-field {
   margin-top: 10px;
+}
+.starter-row {
+  margin: 6px 0 8px 0;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.starter-pill {
+  border: 1px solid rgba(25, 58, 93, 0.28);
+  background: rgba(245, 249, 255, 0.92);
+  color: #204a75;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.25;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.starter-pill:hover {
+  background: rgba(229, 240, 252, 0.96);
+}
+.inline-publish-form {
+  margin: 0;
+}
+.inline-publish-form button {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
 }
 .table-top-gap {
   margin-top: 10px;

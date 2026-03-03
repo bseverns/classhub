@@ -1,0 +1,83 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% trans "Session gallery" %}</title>
+  {% include "includes/glass_theme.html" %}
+  <link rel="stylesheet" href="{% static 'css/student_gallery.css' %}" />
+</head>
+
+<body class="glass-theme">
+  <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
+  <div class="shell">
+    <main id="main-content">
+      <div class="top">
+        <div class="muted">
+          <a href="/student">{% trans "Back to class" %}</a> ·
+          <a href="/student/portfolio">{% trans "What I made" %}</a> ·
+          <a href="/student/my-data">{% trans "My Data" %}</a> ·
+          <a href="/logout">{% trans "Log out" %}</a>
+        </div>
+        <h1>{% trans "Session gallery" %}</h1>
+        <div class="muted">
+          {% trans "Shared inspiration for" %} {{ classroom.name }}
+        </div>
+      </div>
+
+      {% if notice %}
+        <div class="notice" role="status">{{ notice }}</div>
+      {% endif %}
+
+      <div class="card">
+        <h2 class="section-title-tight">{% trans "Lesson" %}</h2>
+        {% if gallery_modules %}
+          <form method="get" class="filters">
+            <label for="module-id">{% trans "Choose session" %}</label>
+            <select id="module-id" name="module_id">
+              {% for module in gallery_modules %}
+                <option value="{{ module.id }}" {% if selected_module and module.id == selected_module.id %}selected{% endif %}>{{ module.title }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit">{% trans "View" %}</button>
+          </form>
+        {% else %}
+          <p class="muted top-gap-10">{% trans "No gallery lessons are available yet." %}</p>
+        {% endif %}
+      </div>
+
+      {% if selected_module %}
+        <div class="card">
+          <h2 class="section-title-tight">{{ selected_module.title }}</h2>
+          {% if gallery_disabled %}
+            <p class="muted top-gap-10">{% trans "This session gallery is disabled by your teacher right now." %}</p>
+          {% elif gallery_items %}
+            <ul class="gallery-list">
+              {% for sub in gallery_items %}
+                <li class="gallery-item">
+                  <div>
+                    <strong>{{ sub.student.display_name }}</strong>
+                    <span class="muted">· {{ sub.original_filename }}</span>
+                  </div>
+                  <div class="muted">{{ sub.uploaded_at|date:"M j, g:i a" }}</div>
+                  {% if sub.process_note %}
+                    <p class="muted">{% trans "Process note:" %} {{ sub.process_note }}</p>
+                  {% endif %}
+                  <div>
+                    <a href="/submission/{{ sub.id }}/download">{% trans "Download" %}</a>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="muted top-gap-10">{% trans "No published artifacts for this session yet." %}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </main>
+  </div>
+</body>
+
+</html>
