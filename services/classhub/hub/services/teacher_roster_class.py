@@ -18,6 +18,7 @@ from ..models import (
     StudentIdentity,
     StudentMaterialResponse,
     StudentOutcomeEvent,
+    StudentSupportTag,
     Submission,
 )
 from .content_links import parse_course_lesson_url
@@ -58,6 +59,30 @@ def _submission_counts_by_student(*, classroom, students: list) -> dict[int, int
     for row in rows:
         submission_counts[int(row["student_id"])] = int(row["total"])
     return submission_counts
+
+
+def _support_tag_choices() -> list[dict[str, str]]:
+    return [{"value": str(value), "label": str(label)} for value, label in StudentSupportTag.TAG_CHOICES]
+
+
+def _support_tags_by_student(*, classroom, students: list[StudentIdentity]) -> dict[int, list[dict[str, str]]]:
+    by_student: dict[int, list[dict[str, str]]] = {}
+    student_ids = [int(student.id) for student in students if getattr(student, "id", None) is not None]
+    if not student_ids:
+        return by_student
+    rows = (
+        StudentSupportTag.objects.filter(classroom=classroom, student_id__in=student_ids)
+        .values("student_id", "tag")
+        .order_by("student_id", "tag", "-id")
+    )
+    for row in rows:
+        student_id = int(row["student_id"])
+        tag = str(row["tag"] or "")
+        if not tag:
+            continue
+        bucket = by_student.setdefault(student_id, [])
+        bucket.append({"value": tag, "label": StudentSupportTag.label_for(tag)})
+    return by_student
 
 
 def build_certificate_eligibility_rows(
@@ -394,6 +419,11 @@ def build_dashboard_context(*, request, classroom, normalize_order_fn) -> dict:
         "modules": modules,
         "student_count": student_count,
         "students": students,
+        "support_tag_choices": _support_tag_choices(),
+        "support_tags_by_student": _support_tags_by_student(
+            classroom=classroom,
+            students=students,
+        ),
         "submission_counts": _material_submission_counts(upload_material_ids),
         "submission_counts_by_student": _submission_counts_by_student(
             classroom=classroom,

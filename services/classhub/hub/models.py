@@ -369,6 +369,67 @@ class StudentIdentity(models.Model):
         return f"{self.display_name} @ {self.classroom.join_code}"
 
 
+class StudentSupportTag(models.Model):
+    """Staff-only structured support tags for low-surveillance facilitation."""
+
+    TAG_NEEDS_EXTRA_TIME = "needs_extra_time"
+    TAG_PREFERS_QUIET = "prefers_quiet"
+    TAG_DEVICE_HELP = "device_help"
+    TAG_CHOICES = [
+        (TAG_NEEDS_EXTRA_TIME, "Needs extra time"),
+        (TAG_PREFERS_QUIET, "Prefers quiet"),
+        (TAG_DEVICE_HELP, "Device help"),
+    ]
+
+    classroom = models.ForeignKey(
+        Class,
+        on_delete=models.CASCADE,
+        related_name="student_support_tags",
+    )
+    student = models.ForeignKey(
+        "StudentIdentity",
+        on_delete=models.CASCADE,
+        related_name="support_tags",
+    )
+    tag = models.CharField(max_length=32, choices=TAG_CHOICES)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student_support_tags_created",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["student_id", "tag", "-id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["classroom", "student", "tag"],
+                name="uniq_student_support_tag_per_class",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["classroom", "tag"], name="hub_stutag_clstag_70a1_idx"),
+            models.Index(fields=["student", "tag"], name="hub_stutag_sttag_28f8_idx"),
+        ]
+
+    @classmethod
+    def label_for(cls, tag: str) -> str:
+        for value, label in cls.TAG_CHOICES:
+            if value == tag:
+                return str(label)
+        return str(tag or "").replace("_", " ").strip().title()
+
+    def save(self, *args, **kwargs):
+        if self.student_id and self.classroom_id and self.student.classroom_id != self.classroom_id:
+            raise ValueError("Student support tags must stay inside one class boundary.")
+        return super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f"{self.student.display_name}: {self.label_for(self.tag)}"
+
+
 class ClassInviteLink(models.Model):
     """Teacher-generated student invite bridge with optional expiry and seat cap."""
 

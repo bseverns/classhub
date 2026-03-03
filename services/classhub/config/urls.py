@@ -92,6 +92,8 @@ urlpatterns = [
     path("teach/class/<int:class_id>/student/<int:student_id>/return-code", views.teach_student_return_code),
     path("teach/class/<int:class_id>/rename-student", views.teach_rename_student),
     path("teach/class/<int:class_id>/merge-students", views.teach_merge_students),
+    path("teach/class/<int:class_id>/support-tag/add", views.teach_add_support_tag),
+    path("teach/class/<int:class_id>/support-tag/remove", views.teach_remove_support_tag),
     path("teach/class/<int:class_id>/resolve-stuck", views.teach_resolve_stuck_flag),
     path("teach/class/<int:class_id>/delete-student-data", views.teach_delete_student_data),
     path("teach/class/<int:class_id>/reset-roster", views.teach_reset_roster),

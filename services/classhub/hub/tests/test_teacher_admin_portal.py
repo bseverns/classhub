@@ -910,6 +910,9 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Recent upload errors (1)")
         self.assertContains(resp, "Idle signals (20+ min)")
         self.assertContains(resp, f"/teach/class/{classroom.id}/resolve-stuck")
+        self.assertContains(resp, "Support tags")
+        self.assertContains(resp, "Needs extra time")
+        self.assertContains(resp, f"/teach/class/{classroom.id}/support-tag/add")
 
     def test_teacher_can_resolve_stuck_flag(self):
         classroom = Class.objects.create(name="Resolve Stuck Class", join_code="RSK12345")
@@ -938,6 +941,62 @@ class TeacherPortalTests(TestCase):
         ).order_by("-id").first()
         self.assertIsNotNone(event)
         self.assertEqual(int((event.details or {}).get("module_id") or 0), module.id)
+
+    def test_teacher_can_add_and_remove_support_tag(self):
+        classroom = Class.objects.create(name="Support Tags Class", join_code="TAG12345")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        _force_login_staff_verified(self.client, self.staff)
+
+        add_resp = self.client.post(
+            f"/teach/class/{classroom.id}/support-tag/add",
+            {"student_id": str(student.id), "tag": StudentSupportTag.TAG_DEVICE_HELP},
+        )
+        self.assertEqual(add_resp.status_code, 302)
+        self.assertTrue(
+            StudentSupportTag.objects.filter(
+                classroom=classroom,
+                student=student,
+                tag=StudentSupportTag.TAG_DEVICE_HELP,
+            ).exists()
+        )
+
+        remove_resp = self.client.post(
+            f"/teach/class/{classroom.id}/support-tag/remove",
+            {"student_id": str(student.id), "tag": StudentSupportTag.TAG_DEVICE_HELP},
+        )
+        self.assertEqual(remove_resp.status_code, 302)
+        self.assertFalse(
+            StudentSupportTag.objects.filter(
+                classroom=classroom,
+                student=student,
+                tag=StudentSupportTag.TAG_DEVICE_HELP,
+            ).exists()
+        )
+
+        add_event = AuditEvent.objects.filter(action="student.support_tag_add").order_by("-id").first()
+        remove_event = AuditEvent.objects.filter(action="student.support_tag_remove").order_by("-id").first()
+        self.assertIsNotNone(add_event)
+        self.assertIsNotNone(remove_event)
+        self.assertEqual(add_event.classroom_id, classroom.id)
+        self.assertEqual(remove_event.classroom_id, classroom.id)
+
+    def test_teacher_cannot_add_support_tag_to_other_class_student(self):
+        classroom = Class.objects.create(name="Support Tags Scope A", join_code="TAGA1234")
+        other_classroom = Class.objects.create(name="Support Tags Scope B", join_code="TAGB1234")
+        other_student = StudentIdentity.objects.create(classroom=other_classroom, display_name="Ben")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/support-tag/add",
+            {"student_id": str(other_student.id), "tag": StudentSupportTag.TAG_NEEDS_EXTRA_TIME},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertFalse(
+            StudentSupportTag.objects.filter(
+                classroom=classroom,
+                student=other_student,
+            ).exists()
+        )
 
     @override_settings(
         CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,
@@ -1842,6 +1901,25 @@ class TeacherOrganizationAccessTests(TestCase):
                 classroom=self.class_a,
                 student=student,
                 event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK_RESOLVED,
+            ).exists()
+        )
+
+    def test_viewer_membership_cannot_add_support_tag(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_VIEWER
+        membership.save(update_fields=["role"])
+        student = StudentIdentity.objects.create(classroom=self.class_a, display_name="Ada")
+
+        resp = self.client.post(
+            f"/teach/class/{self.class_a.id}/support-tag/add",
+            {"student_id": str(student.id), "tag": StudentSupportTag.TAG_PREFERS_QUIET},
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertFalse(
+            StudentSupportTag.objects.filter(
+                classroom=self.class_a,
+                student=student,
+                tag=StudentSupportTag.TAG_PREFERS_QUIET,
             ).exists()
         )
 

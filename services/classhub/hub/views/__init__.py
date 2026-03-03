@@ -39,6 +39,7 @@ from .student_micro_checks import student_micro_check
 from .student_materials import material_checklist, material_reflection, material_rubric
 from .teacher import (
     teach_add_material,
+    teach_add_support_tag,
     teach_add_module,
     teach_assets,
     teach_certificate_eligibility,
@@ -76,6 +77,7 @@ from .teacher import (
     teach_reset_helper_conversations,
     teach_reset_roster,
     teach_rotate_code,
+    teach_remove_support_tag,
     teach_update_class_landing,
     teach_set_enrollment_mode,
     teach_set_organization_active,
@@ -132,6 +134,8 @@ __all__ = [
     "teach_certificate_eligibility",
     "teach_class_dashboard",
     "teach_class_join_card",
+    "teach_add_support_tag",
+    "teach_remove_support_tag",
     "teach_update_class_landing",
     "teach_create_invite_link",
     "teach_create_organization",

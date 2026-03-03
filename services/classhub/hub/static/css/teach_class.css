@@ -194,6 +194,37 @@
   text-transform: none;
   letter-spacing: normal;
 }
+.support-tag-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+.support-tag-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.inline-remove-tag {
+  margin: 0;
+}
+.inline-remove-tag button {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.support-tag-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.support-tag-row select {
+  min-width: 170px;
+}
 .danger-inline {
   padding: 6px 10px;
   border-radius: 9px;

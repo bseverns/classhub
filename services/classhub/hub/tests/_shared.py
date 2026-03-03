@@ -40,6 +40,7 @@ from ..models import (
     StudentIdentity,
     StudentMaterialResponse,
     StudentOutcomeEvent,
+    StudentSupportTag,
     Submission,
 )
 from ..services.helper_control import HelperResetResult

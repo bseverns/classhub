@@ -11,7 +11,7 @@ from .roster_class import (
     teach_rotate_code,
     teach_toggle_lock,
 )
-from .roster_support import teach_resolve_stuck_flag
+from .roster_support import teach_add_support_tag, teach_remove_support_tag, teach_resolve_stuck_flag
 from .roster_landing import teach_update_class_landing
 from .roster_certificates import (
     teach_download_certificate,
@@ -52,6 +52,8 @@ __all__ = [
     "teach_class_dashboard",
     "teach_class_join_card",
     "teach_resolve_stuck_flag",
+    "teach_add_support_tag",
+    "teach_remove_support_tag",
     "teach_update_class_landing",
     "teach_create_invite_link",
     "teach_disable_invite_link",

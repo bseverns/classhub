@@ -6,6 +6,7 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Active Decisions Snapshot
 
 - [Auth model: student access](#auth-model-student-access)
+- [Trust primitives: student data controls](#trust-primitives-student-data-controls)
 - [Program profiles for cohort age bands](#program-profiles-for-cohort-age-bands)
 - [Stability freeze and change budget](#stability-freeze-and-change-budget)
 - [Decision ownership and review cadence](#decision-ownership-and-review-cadence)
@@ -116,6 +117,31 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Keeps student friction low while limiting impersonation risk.
 - Maintains minimal student PII collection in MVP.
+
+## Trust primitives: student data controls
+
+**Current decision:**
+- Keep a plain-language trust page at `/trust` linked from join and student pages.
+- Treat class retention as a class-level preset (`erase_after_7_days`, `keep_for_semester`, `keep_until_student_deletes`) and apply it through existing prune commands rather than parallel cleanup systems.
+- Default new classes to the most privacy-preserving preset that still supports active classes: `erase_after_7_days`.
+- Keep student controls in `/student/my-data`:
+  - student can rename display name at any time, with existing display-name safety checks,
+  - student can export submissions,
+  - deletion is policy-aware via `CLASSHUB_STUDENT_SELF_DELETE_MODE`:
+    - `direct` (default): immediate deletion of student submissions/responses + related upload/artifact events,
+    - `request`: log a deletion request event for staff follow-up.
+- Support facilitation notes use structured staff-only tags (controlled vocabulary) instead of freeform notes by default:
+  - `needs_extra_time`
+  - `prefers_quiet`
+  - `device_help`
+- Support tags are class-bounded and permission-bounded:
+  - only staff with class manage rights can add/remove,
+  - tags are only shown in teacher class dashboard views.
+
+**Why this remains active:**
+- Gives students direct agency over identity/work without adding new PII collection.
+- Keeps deletion semantics explicit and auditable for programs that require staff-mediated removal.
+- Preserves a help-first, low-surveillance facilitation model with constrained metadata rather than narrative dossiers.
 
 ## Program profiles for cohort age bands
 
