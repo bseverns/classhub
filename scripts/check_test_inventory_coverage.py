@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -96,15 +98,32 @@ REQUIRED_SMOKE_SCRIPTS: tuple[str, ...] = (
 )
 
 
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit machine-readable JSON report.",
+    )
+    return parser.parse_args()
+
+
 def main() -> int:
+    args = _parse_args()
     failures: list[str] = []
+    file_test_counts: dict[str, int] = {}
+    dir_test_totals: dict[str, int] = {}
+    checked_files = 0
 
     for rel_path, contract in FILE_CONTRACTS.items():
         path = Path(rel_path)
         if not path.exists():
             failures.append(f"missing required test file: {rel_path}")
             continue
+        checked_files += 1
         count = _count_tests(path)
+        file_test_counts[rel_path] = count
         min_tests = int(contract.get("min_tests") or 0)
         if count < min_tests:
             failures.append(f"{rel_path}: {count} tests; expected at least {min_tests}")
@@ -119,12 +138,29 @@ def main() -> int:
             failures.append(f"missing required test directory: {rel_dir}")
             continue
         total = sum(_count_tests(path) for path in sorted(root.glob("test_*.py")))
+        dir_test_totals[rel_dir] = total
         if total < min_total:
             failures.append(f"{rel_dir}: {total} tests; expected at least {min_total}")
 
     for rel_script in REQUIRED_SMOKE_SCRIPTS:
         if not Path(rel_script).exists():
             failures.append(f"missing required smoke script: {rel_script}")
+
+    report = {
+        "guard": "test-inventory-coverage",
+        "ok": not failures,
+        "file_contracts": len(FILE_CONTRACTS),
+        "checked_files": checked_files,
+        "directory_contracts": len(MIN_DIR_TEST_TOTALS),
+        "smoke_script_contracts": len(REQUIRED_SMOKE_SCRIPTS),
+        "file_test_counts": file_test_counts,
+        "directory_test_totals": dir_test_totals,
+        "failures": failures,
+    }
+
+    if args.json_output:
+        print(json.dumps(report, sort_keys=True))
+        return 1 if failures else 0
 
     if failures:
         print("[test-inventory-guard] FAIL: test coverage inventory drift detected:", file=sys.stderr)

@@ -7,6 +7,8 @@ workflows evolve quickly.
 
 from __future__ import annotations
 
+import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -71,30 +73,67 @@ REQUIRED_TOKENS: dict[str, tuple[str, ...]] = {
     ),
 }
 
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit machine-readable JSON report.",
+    )
+    return parser.parse_args()
 
-def _load_workflow(path: Path) -> str:
+
+def _load_workflow(path: Path) -> tuple[str, str]:
     try:
-        return path.read_text(encoding="utf-8")
+        return path.read_text(encoding="utf-8"), ""
     except Exception as exc:
-        print(f"[ci-workflow-coverage] FAIL: could not read {path}: {exc}", file=sys.stderr)
-        raise SystemExit(1) from exc
+        return "", f"could not read {path}: {exc}"
 
 
 def main() -> int:
+    args = _parse_args()
     if not WORKFLOW_DIR.exists():
-        print(f"[ci-workflow-coverage] FAIL: missing workflow dir: {WORKFLOW_DIR}", file=sys.stderr)
+        report = {
+            "guard": "ci-workflow-coverage",
+            "ok": False,
+            "required_workflows": len(REQUIRED_TOKENS),
+            "checked_workflows": 0,
+            "failures": [f"missing workflow dir: {WORKFLOW_DIR}"],
+        }
+        if args.json_output:
+            print(json.dumps(report, sort_keys=True))
+        else:
+            print(f"[ci-workflow-coverage] FAIL: missing workflow dir: {WORKFLOW_DIR}", file=sys.stderr)
         return 1
 
     failures: list[str] = []
+    checked_workflows = 0
     for filename, tokens in REQUIRED_TOKENS.items():
         workflow_path = WORKFLOW_DIR / filename
         if not workflow_path.exists():
             failures.append(f"missing workflow file: {workflow_path}")
             continue
-        raw = _load_workflow(workflow_path)
+        checked_workflows += 1
+        raw, load_error = _load_workflow(workflow_path)
+        if load_error:
+            failures.append(load_error)
+            continue
         for token in tokens:
             if token not in raw:
                 failures.append(f"{workflow_path}: missing required token: {token!r}")
+
+    report = {
+        "guard": "ci-workflow-coverage",
+        "ok": not failures,
+        "required_workflows": len(REQUIRED_TOKENS),
+        "checked_workflows": checked_workflows,
+        "failures": failures,
+    }
+
+    if args.json_output:
+        print(json.dumps(report, sort_keys=True))
+        return 1 if failures else 0
 
     if failures:
         print("[ci-workflow-coverage] FAIL: critical CI workflow coverage drift detected:", file=sys.stderr)

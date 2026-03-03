@@ -814,6 +814,7 @@ Execution runbook:
   - required high-signal test files across ClassHub + Helper,
   - minimum test function counts by subsystem directory,
   - required smoke/doctor script presence.
+- Both workflow/test inventory guards now support `--json` output for dashboard ingestion without parsing human logs.
 
 **Why this remains active:**
 - Reduces repeated dependency download/install time across CI jobs.
