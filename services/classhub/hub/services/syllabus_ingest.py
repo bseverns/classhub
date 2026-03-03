@@ -719,7 +719,13 @@ def _safe_child_path(base_dir: Path, child_name: str, *, error_message: str) -> 
 
 def _safe_lesson_filename(filename: str) -> str:
     token = str(filename or "").strip().lower()
-    if not re.fullmatch(r"[a-z0-9_-]+\.md", token):
+    if not token.endswith(".md"):
+        raise SyllabusIngestError("Generated lesson filename is unsafe.")
+    stem = token[:-3]
+    if not stem:
+        raise SyllabusIngestError("Generated lesson filename is unsafe.")
+    allowed = set("abcdefghijklmnopqrstuvwxyz0123456789_-")
+    if any(ch not in allowed for ch in stem):
         raise SyllabusIngestError("Generated lesson filename is unsafe.")
     return token
 

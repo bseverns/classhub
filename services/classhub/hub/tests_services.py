@@ -24,7 +24,7 @@ from .services.markdown_content import (
     render_markdown_to_safe_html,
     split_lesson_markdown_for_audiences,
 )
-from .services.syllabus_ingest import _safe_zip_path
+from .services.syllabus_ingest import SyllabusIngestError, _safe_lesson_filename, _safe_zip_path
 from .services.content_links import (
     build_asset_url,
     normalize_lesson_videos,
@@ -745,3 +745,20 @@ class SyllabusIngestSecurityTests(SimpleTestCase):
 
     def test_safe_zip_path_rejects_null_byte_segment(self):
         self.assertFalse(_safe_zip_path("sessions/\x00hidden.md"))
+
+    def test_safe_lesson_filename_accepts_slugged_markdown(self):
+        self.assertEqual(_safe_lesson_filename("01-intro_build.MD"), "01-intro_build.md")
+
+    def test_safe_lesson_filename_rejects_unsafe_tokens(self):
+        for candidate in (
+            "",
+            ".md",
+            "../lesson.md",
+            "lesson.txt",
+            "lesson name.md",
+            "lesson.md/",
+            "lesson\x00.md",
+        ):
+            with self.subTest(candidate=candidate):
+                with self.assertRaises(SyllabusIngestError):
+                    _safe_lesson_filename(candidate)
