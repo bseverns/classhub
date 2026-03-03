@@ -213,7 +213,7 @@ class TeacherPortalTests(TestCase):
         self.assertNotContains(resp, 'style="margin-bottom: 20px;"', html=False)
 
     def test_teach_lessons_shows_submission_progress(self):
-        classroom, _upload = self._build_lesson_with_submission()
+        classroom, upload = self._build_lesson_with_submission()
         _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get(f"/teach/lessons?class_id={classroom.id}")
@@ -229,7 +229,7 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, f"/teach/material/{upload.id}/submissions?download=zip_latest")
 
     def test_teach_material_submissions_page_uses_external_css_without_inline_styles(self):
-        classroom, _upload = self._build_lesson_with_submission()
+        classroom, upload = self._build_lesson_with_submission()
         _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get(f"/teach/material/{upload.id}/submissions")
@@ -372,7 +372,7 @@ class TeacherPortalTests(TestCase):
         self.assertFalse(AuditEvent.objects.filter(action="teacher_profile.change_password").exists())
 
     def test_teach_home_shows_since_yesterday_digest(self):
-        classroom, _upload = self._build_lesson_with_submission()
+        classroom, upload = self._build_lesson_with_submission()
         student = StudentIdentity.objects.filter(classroom=classroom, display_name="Ada").first()
         StudentEvent.objects.create(
             classroom=classroom,
@@ -1278,7 +1278,7 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(StudentEvent.objects.filter(student_id=student.id).count(), 0)
         self.assertEqual(StudentEvent.objects.filter(classroom=classroom).count(), 1)
 
-    @patch("hub.views.teacher_parts.content.generate_authoring_templates")
+    @patch("hub.views.teacher_parts.content_home.generate_authoring_templates")
     def test_teach_home_can_generate_authoring_templates(self, mock_generate):
         mock_generate.return_value.output_paths = [
             Path("/uploads/authoring_templates/sample-teacher-plan-template.md"),
@@ -1314,7 +1314,7 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(event.actor_user_id, self.staff.id)
         self.assertEqual(event.target_id, "sample_slug")
 
-    @patch("hub.views.teacher_parts.content.generate_authoring_templates")
+    @patch("hub.views.teacher_parts.content_home.generate_authoring_templates")
     def test_teach_home_template_generator_rejects_invalid_slug(self, mock_generate):
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.post(
@@ -1728,7 +1728,7 @@ Session 02: Final Build
         self.assertEqual(student_resp.status_code, 302)
         self.assertEqual(student_resp["Location"], "/")
 
-    @patch("hub.views.teacher_parts.roster._reset_helper_class_conversations")
+    @patch("hub.views.teacher_parts.roster_class._reset_helper_class_conversations")
     def test_teacher_can_reset_helper_conversations(self, reset_mock):
         classroom = Class.objects.create(name="Period Helper", join_code="HLP12345")
         reset_mock.return_value = HelperResetResult(
@@ -1753,7 +1753,7 @@ Session 02: Final Build
         self.assertEqual(event.metadata.get("archived_conversations"), 4)
         self.assertEqual(event.metadata.get("archive_path"), "/uploads/helper_reset_exports/sample.json")
 
-    @patch("hub.views.teacher_parts.roster._reset_helper_class_conversations")
+    @patch("hub.views.teacher_parts.roster_class._reset_helper_class_conversations")
     def test_teacher_reset_helper_conversations_handles_failure(self, reset_mock):
         classroom = Class.objects.create(name="Period Helper Fail", join_code="HLF12345")
         reset_mock.return_value = HelperResetResult(ok=False, error_code="helper_unreachable", status_code=0)

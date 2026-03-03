@@ -417,8 +417,8 @@ class TeacherAuditTests(TestCase):
 
 class SubmissionRetentionCommandTests(TestCase):
     def setUp(self):
-        classroom = Class.objects.create(name="Retention Class", join_code="RET12345")
-        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        self.classroom = Class.objects.create(name="Retention Class", join_code="RET12345")
+        module = Module.objects.create(classroom=self.classroom, title="Session 1", order_index=0)
         material = Material.objects.create(
             module=module,
             title="Upload",
@@ -427,7 +427,7 @@ class SubmissionRetentionCommandTests(TestCase):
             max_upload_mb=50,
             order_index=0,
         )
-        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
 
         self.old = Submission.objects.create(
             material=material,
