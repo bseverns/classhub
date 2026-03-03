@@ -24,6 +24,7 @@ from ..services.student_home import (
     build_class_landing_context,
     build_material_access_map,
     build_material_checklist_items_map,
+    build_material_feedback_starters_map,
     build_gallery_entries_map,
     build_material_rubric_specs_map,
     build_material_response_map,
@@ -145,6 +146,10 @@ def student_home(request):
     submissions_by_material = build_submissions_by_material(student=request.student, material_ids=material_ids)
     material_checklist_items = build_material_checklist_items_map(modules=modules); material_rubric_specs = build_material_rubric_specs_map(modules=modules)
     material_responses = build_material_response_map(student=request.student, material_ids=material_ids)
+    material_feedback_starters = build_material_feedback_starters_map(
+        modules=modules,
+        language_code=getattr(request, "LANGUAGE_CODE", "en"),
+    )
     gallery_entries_by_material = build_gallery_entries_map(classroom=classroom, viewer_student=request.student, material_ids=material_ids)
     privacy_meta = privacy_meta_context()
     helper_widget = _student_home_helper_widget(
@@ -170,6 +175,7 @@ def student_home(request):
             "material_checklist_items": material_checklist_items,
             "material_rubric_specs": material_rubric_specs,
             "material_responses": material_responses,
+            "material_feedback_starters": material_feedback_starters,
             "gallery_entries_by_material": gallery_entries_by_material,
             "material_access": material_access,
             "class_landing": class_landing,

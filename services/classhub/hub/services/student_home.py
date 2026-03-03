@@ -8,7 +8,8 @@ from django.utils import timezone
 
 from ..models import Class, Material, Module, StudentIdentity, StudentMaterialResponse, Submission
 from .content_links import build_asset_url, parse_course_lesson_url, safe_external_url
-from .markdown_content import load_lesson_markdown
+from .markdown_content import load_course_manifest, load_lesson_markdown
+from .peer_feedback import resolve_peer_feedback_starters
 from .release_state import lesson_release_override_map, lesson_release_state
 
 
@@ -118,6 +119,37 @@ def build_material_response_map(*, student: StudentIdentity, material_ids: list[
             "rubric_feedback": (row.rubric_feedback or ""),
             "updated_at": row.updated_at,
         }
+    return by_material
+
+
+def _module_course_slug(module: Module) -> str:
+    for mat in _sorted_module_materials(module):
+        if mat.type != Material.TYPE_LINK:
+            continue
+        parsed = parse_course_lesson_url(mat.url)
+        if parsed:
+            return parsed[0]
+    return ""
+
+
+def build_material_feedback_starters_map(*, modules: list[Module], language_code: str) -> dict[int, list[str]]:
+    by_material: dict[int, list[str]] = {}
+    manifest_cache: dict[str, dict] = {}
+    default_starters = resolve_peer_feedback_starters(language_code=language_code, course_manifest={})
+    for module in modules:
+        course_slug = _module_course_slug(module)
+        module_starters = list(default_starters)
+        if course_slug:
+            if course_slug not in manifest_cache:
+                manifest_cache[course_slug] = load_course_manifest(course_slug)
+            module_starters = resolve_peer_feedback_starters(
+                language_code=language_code,
+                course_manifest=manifest_cache[course_slug],
+            )
+        for mat in _sorted_module_materials(module):
+            if mat.type not in {Material.TYPE_REFLECTION, Material.TYPE_RUBRIC}:
+                continue
+            by_material[mat.id] = list(module_starters)
     return by_material
 
 

@@ -368,7 +368,7 @@
           {% endif %}
           {% endwith %}
           {% elif mat.type == 'reflection' %}
-          {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id %}
+          {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id starters=material_feedback_starters|get_item:mat.id %}
           {% if access.is_lesson_activity and access.is_locked %}
           <div class="status-row">
             <span class="state-pill state-pill--locked">Locked</span>
@@ -395,6 +395,16 @@
             <form method="post" action="/material/{{ mat.id }}/reflection" class="reflection-form">
               {% csrf_token %}
               <label for="reflection-{{ mat.id }}" class="muted">Your private reflection</label>
+              {% if starters %}
+              <div class="feedback-starter-row">
+                <span class="muted feedback-starter-label">{% trans "Sentence starters (optional)" %}</span>
+                {% for starter in starters %}
+                <button type="button" class="feedback-starter"
+                  data-starter-target="reflection-{{ mat.id }}"
+                  data-feedback-starter="{{ starter|escape }}">{{ starter }}</button>
+                {% endfor %}
+              </div>
+              {% endif %}
               <textarea id="reflection-{{ mat.id }}" name="reflection_text" rows="5"
                 placeholder="Write a short reflection.">{{ state.reflection_text|default:'' }}</textarea>
               <button type="submit">{% trans "Save reflection" %}</button>
@@ -403,7 +413,7 @@
           {% endif %}
           {% endwith %}
           {% elif mat.type == 'rubric' %}
-          {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id spec=material_rubric_specs|get_item:mat.id %}
+          {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id spec=material_rubric_specs|get_item:mat.id starters=material_feedback_starters|get_item:mat.id %}
           {% if access.is_lesson_activity and access.is_locked %}
           <div class="status-row">
             <span class="state-pill state-pill--locked">Locked</span>
@@ -439,6 +449,16 @@
               {% endwith %}
               {% endfor %}
               <label for="rubric-feedback-{{ mat.id }}" class="muted">Optional feedback</label>
+              {% if starters %}
+              <div class="feedback-starter-row">
+                <span class="muted feedback-starter-label">{% trans "Sentence starters (optional)" %}</span>
+                {% for starter in starters %}
+                <button type="button" class="feedback-starter"
+                  data-starter-target="rubric-feedback-{{ mat.id }}"
+                  data-feedback-starter="{{ starter|escape }}">{{ starter }}</button>
+                {% endfor %}
+              </div>
+              {% endif %}
               <textarea id="rubric-feedback-{{ mat.id }}" name="rubric_feedback" rows="4"
                 placeholder="Short note to your teacher (optional).">{{ state.rubric_feedback|default:'' }}</textarea>
               <button type="submit">{% trans "Save rubric" %}</button>

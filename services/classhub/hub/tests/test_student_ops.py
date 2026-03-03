@@ -844,6 +844,25 @@ class StudentChecklistReflectionTests(TestCase):
         self.assertContains(resp, "Reflection journal")
         self.assertContains(resp, "Session rubric")
 
+    def test_student_home_renders_default_peer_feedback_starters(self):
+        self._login_student()
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'data-starter-target="reflection-')
+        self.assertContains(resp, f'data-starter-target="reflection-{self.reflection.id}"')
+        self.assertContains(resp, f'data-starter-target="rubric-feedback-{self.rubric.id}"')
+        self.assertContains(resp, "I noticed...")
+        self.assertContains(resp, "I wonder...")
+        self.assertContains(resp, "What if...")
+
+    def test_student_home_renders_peer_feedback_starters_in_spanish(self):
+        self._login_student()
+        resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="es")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Note que...")
+        self.assertContains(resp, "Me pregunto...")
+        self.assertContains(resp, "Que pasaria si...")
+
     def test_student_can_save_checklist_and_emit_completion_milestone(self):
         self._login_student()
         resp = self.client.post(
@@ -952,6 +971,28 @@ class StudentChecklistReflectionTests(TestCase):
         )
         self.assertEqual(rubric_resp.status_code, 403)
         self.assertEqual(StudentMaterialResponse.objects.filter(student=self.student).count(), 0)
+
+
+class PeerFeedbackStarterServiceTests(SimpleTestCase):
+    def test_language_defaults_are_available(self):
+        from ..services.peer_feedback import resolve_peer_feedback_starters
+
+        starters = resolve_peer_feedback_starters(language_code="es", course_manifest={})
+        self.assertEqual(starters[0], "Note que...")
+        self.assertIn("Me pregunto...", starters)
+        self.assertIn("Que pasaria si...", starters)
+
+    def test_course_manifest_override_wins(self):
+        from ..services.peer_feedback import resolve_peer_feedback_starters
+
+        manifest = {
+            "peer_feedback_sentence_starters": {
+                "default": ["I notice...", "I am curious about...", "Try this..."],
+                "es": ["Veo...", "Me pregunto...", "Intenta..."],
+            }
+        }
+        starters = resolve_peer_feedback_starters(language_code="es-MX", course_manifest=manifest)
+        self.assertEqual(starters, ["Veo...", "Me pregunto...", "Intenta..."])
 
 
 class SubmissionDownloadHardeningTests(TestCase):

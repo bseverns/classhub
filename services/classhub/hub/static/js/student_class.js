@@ -3,6 +3,7 @@
   const iconTarget = document.getElementById("student-return-code-icons");
   const copyButtons = document.querySelectorAll("[data-copy-value], [data-copy-secret-target]");
   const toggleButtons = document.querySelectorAll("[data-secret-target]");
+  const starterButtons = document.querySelectorAll("[data-starter-target][data-feedback-starter]");
   const returnCodeUrl = "/student/return-code";
   const iconTools = window.ClassHubReturnCodeIcons || null;
   let returnCodeValue = "";
@@ -124,6 +125,27 @@
       } catch (_err) {
         setStatus("Copy failed. Please copy manually.");
       }
+    });
+  });
+
+  starterButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetId = String(btn.getAttribute("data-starter-target") || "").trim();
+      const starter = String(btn.getAttribute("data-feedback-starter") || "").trim();
+      const target = targetId ? document.getElementById(targetId) : null;
+      if (!target || !starter) return;
+
+      const prefix = target.value && target.value.trim() ? "\n" : "";
+      const insertion = `${prefix}${starter} `;
+      const hasSelection = typeof target.selectionStart === "number" && typeof target.selectionEnd === "number";
+      if (hasSelection && typeof target.setRangeText === "function") {
+        target.setRangeText(insertion, target.selectionStart, target.selectionEnd, "end");
+      } else {
+        target.value = `${target.value || ""}${insertion}`;
+      }
+      target.focus();
+      target.dispatchEvent(new Event("input", { bubbles: true }));
+      setStatus("Sentence starter added.");
     });
   });
 })();
