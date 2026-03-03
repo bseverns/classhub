@@ -648,6 +648,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - `smoke_check.sh` now retries `/helper/chat` for transient backend startup failures (`502` + `ollama_error`) before failing deploy smoke.
 - `smoke_check.sh` now captures and prints `/student` response headers/body excerpts when the student page returns non-200, so CI output includes concrete failure context.
 - `golden_path_smoke.sh` and `system_doctor.sh` now print compose service state + recent logs when smoke fails, not only when `compose up` fails.
+- Smoke diagnostics now query compose logs using service names (`caddy`, `classhub_web`, `helper_web`, etc.) rather than container names so log collection does not fail under `docker compose logs`.
 - Regression coverage is required for helper auth/admin hardening and backend retry/circuit behavior.
 - `ops/systemd/classhub-retention.service` now refuses root execution by default unless `CLASSHUB_ALLOW_ROOT_MAINTENANCE=1` is explicitly set as a break-glass override.
 - `ops/systemd/classhub-retention.service` now pins explicit non-root runtime identity (`User=lms`, `Group=docker`) and baseline systemd hardening flags (`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem`, `ProtectHome`, etc.).
@@ -1610,8 +1611,10 @@ Historical implementation logs and superseded decisions are archived by month in
 - Avoid importing `hub` models/views at module import time unless `hub` is present in `INSTALLED_APPS`.
 - Resolve app installation via Django app registry (`apps.is_installed("hub")`) with a fallback for string-based app entries so `hub.apps.HubConfig` is treated as installed.
 - Exercise the student smoke through the real learner flow (`POST /join` then `GET /student`) instead of directly invoking `student_home` with `RequestFactory`.
+- Force non-manifest static storage inside this smoke test (`StaticFilesStorage`) so template rendering checks are not blocked by missing `collectstatic` manifest entries in unit-test environments.
 
 **Why this remains active:**
 - CI and local commands for the Homework Helper service can still discover top-level `test_*.py` files.
 - Guarding imports prevents false-negative failures (`app_label`/`INSTALLED_APPS` mismatch) in unrelated service test runs while preserving the Class Hub smoke signal when run in the correct settings context.
 - End-to-end learner smoke now catches runtime regressions in session establishment/middleware/template rendering that present as `/student` 500s after join.
+- The smoke remains focused on join/session/view behavior instead of static build pipeline artifacts.
