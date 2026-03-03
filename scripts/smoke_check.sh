@@ -159,12 +159,13 @@ fi
 echo "[smoke] helper reset archive path not publicly served (${archive_code})"
 
 admin_login_code="$(
-  curl "${CURL_FLAGS[@]}" -D "${TMP_HEADERS}" -o /dev/null -w "%{http_code}" "${BASE_URL}/admin/login/"
+  curl "${CURL_FLAGS[@]}" -D "${TMP_HEADERS}" -o "${TMP_LOGIN}" -w "%{http_code}" "${BASE_URL}/admin/login/"
 )"
 if [[ "${admin_login_code}" == "401" ]] && grep -Eqi '^WWW-Authenticate:[[:space:]]*Basic' "${TMP_HEADERS}"; then
   fail "/admin/login/ is behind HTTP basic auth (browser popup). Exempt /admin/login* from edge basic auth so Django OTP can run."
 fi
 if [[ "${admin_login_code}" != "200" ]]; then
+  print_response_excerpt "/admin/login/" "${TMP_HEADERS}" "${TMP_LOGIN}"
   fail "/admin/login/ returned ${admin_login_code}"
 fi
 echo "[smoke] /admin/login/ reachable without edge basic auth"
