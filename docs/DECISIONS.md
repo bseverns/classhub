@@ -1605,7 +1605,10 @@ Historical implementation logs and superseded decisions are archived by month in
 **Current decision:**
 - Keep `test_student_view.py` as a lightweight Class Hub smoke test, but make it explicitly skip when the active Django settings module does not install the `hub` app.
 - Avoid importing `hub` models/views at module import time unless `hub` is present in `INSTALLED_APPS`.
+- Resolve app installation via Django app registry (`apps.is_installed("hub")`) with a fallback for string-based app entries so `hub.apps.HubConfig` is treated as installed.
+- Exercise the student smoke through the real learner flow (`POST /join` then `GET /student`) instead of directly invoking `student_home` with `RequestFactory`.
 
 **Why this remains active:**
 - CI and local commands for the Homework Helper service can still discover top-level `test_*.py` files.
 - Guarding imports prevents false-negative failures (`app_label`/`INSTALLED_APPS` mismatch) in unrelated service test runs while preserving the Class Hub smoke signal when run in the correct settings context.
+- End-to-end learner smoke now catches runtime regressions in session establishment/middleware/template rendering that present as `/student` 500s after join.

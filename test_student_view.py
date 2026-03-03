@@ -7,34 +7,45 @@ When running under Homework Helper settings (which do not include the
 
 from __future__ import annotations
 
+import json
 import unittest
 
+from django.apps import apps
 from django.conf import settings
 
 
-if "hub" not in settings.INSTALLED_APPS:
+def _is_hub_installed() -> bool:
+    """Support both `hub` and `hub.apps.HubConfig` style app entries."""
+    try:
+        return apps.is_installed("hub")
+    except Exception:
+        installed = {str(item).strip() for item in getattr(settings, "INSTALLED_APPS", [])}
+        return "hub" in installed or "hub.apps.HubConfig" in installed
+
+
+if not _is_hub_installed():
     raise unittest.SkipTest("Class Hub smoke test skipped: 'hub' app is not installed in this settings module.")
 
 
-from django.contrib.auth.models import AnonymousUser
-from django.test import RequestFactory, TestCase
+from django.test import TestCase
 
 from hub.models import Class, StudentIdentity
-from hub.views.student import student_home
 
 
 class StudentHomeSmokeTests(TestCase):
-    def test_student_home_returns_http_response(self):
-        classroom = Class.objects.first()
-        student = StudentIdentity.objects.first()
-        if classroom is None or student is None:
-            self.skipTest("Requires seeded Class and StudentIdentity rows.")
+    def test_student_join_then_student_home_returns_200(self):
+        classroom = Class.objects.create(name="Smoke Class", join_code="SMOKE123")
 
-        request = RequestFactory().get("/student")
-        request.user = AnonymousUser()
-        request.classroom = classroom
-        request.student = student
+        join_response = self.client.post(
+            "/join",
+            data=json.dumps({"class_code": classroom.join_code, "display_name": "Smoke Student"}),
+            content_type="application/json",
+        )
+        self.assertEqual(join_response.status_code, 200)
+        self.assertTrue(join_response.json().get("ok"))
 
-        response = student_home(request)
-        self.assertIsNotNone(response)
-        self.assertTrue(hasattr(response, "status_code"))
+        student_response = self.client.get("/student")
+        self.assertEqual(student_response.status_code, 200)
+
+        student = StudentIdentity.objects.filter(classroom=classroom).first()
+        self.assertIsNotNone(student)
