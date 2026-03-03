@@ -50,6 +50,7 @@ from ..services.submission_service import (
     scan_uploaded_file,
     validate_upload_content,
 )
+from ..services.submission_quota import invalidate_classroom_submission_quota_cache
 from ..services.ui_density import resolve_ui_density_mode_for_modules
 from .student_micro_checks import latest_micro_check_state
 
@@ -286,6 +287,7 @@ def student_delete_work(request):
     )
     deleted_submissions = submissions_qs.count()
     submissions_qs.delete()
+    invalidate_classroom_submission_quota_cache(classroom_id=request.classroom.id)
     StudentMaterialResponse.objects.filter(
         student=request.student,
         material__module__classroom=request.classroom,

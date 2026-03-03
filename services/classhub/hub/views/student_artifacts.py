@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import date
 from urllib.parse import urlencode, urlparse
 
+from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -61,6 +62,8 @@ def _safe_student_return_path(raw: str, fallback: str) -> str:
 def _artifact_status(submission: Submission) -> str:
     if not submission.file or not submission.file.name:
         return "Tombstoned"
+    if not bool(getattr(settings, "CLASSHUB_PORTFOLIO_VERIFY_FILE_EXISTENCE", False)):
+        return "Available"
     try:
         exists = bool(submission.file.storage.exists(submission.file.name))
     except Exception:

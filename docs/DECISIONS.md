@@ -1780,3 +1780,18 @@ Execution runbook:
 **Why this remains active:**
 - Keeps student trust/safety instructions understandable in the same language as the rest of the UI.
 - Avoids hardcoded English in dynamic JS status paths without adding heavy i18n tooling.
+
+## Upload quota and portfolio status performance guardrails
+
+**Current decision:**
+- Replace per-upload full class directory scans with a short-lived cache-backed quota byte counter:
+  - first read scans `MEDIA_ROOT/submissions/class_<id>`,
+  - hot path reads cached bytes and bumps on successful upload,
+  - destructive class/student submission flows invalidate cache.
+- Make portfolio file existence verification opt-in via `CLASSHUB_PORTFOLIO_VERIFY_FILE_EXISTENCE` (default `False`):
+  - default status path avoids per-row `storage.exists()` calls,
+  - deployments needing strict remote tombstone verification can enable explicit checks.
+
+**Why this remains active:**
+- Keeps upload latency stable as class artifact counts grow.
+- Reduces remote storage round-trips on portfolio render while preserving an explicit strict mode.

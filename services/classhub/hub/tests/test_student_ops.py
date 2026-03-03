@@ -1278,6 +1278,46 @@ class PeerFeedbackStarterServiceTests(SimpleTestCase):
         self.assertEqual(starters, ["Veo...", "Me pregunto...", "Intenta..."])
 
 
+class SubmissionQuotaServiceTests(SimpleTestCase):
+    @override_settings(
+        CACHES={
+            "default": {
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            }
+        }
+    )
+    def test_quota_cache_scan_invalidate_and_bump(self):
+        from ..services.submission_quota import (
+            bump_cached_classroom_submission_bytes,
+            get_classroom_submission_bytes,
+            invalidate_classroom_submission_quota_cache,
+        )
+
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                classroom_id = 41
+                class_dir = Path(media_root) / "submissions" / f"class_{classroom_id}"
+                class_dir.mkdir(parents=True, exist_ok=True)
+                payload = class_dir / "project.bin"
+                payload.write_bytes(b"1234")
+
+                invalidate_classroom_submission_quota_cache(classroom_id=classroom_id)
+                first = get_classroom_submission_bytes(classroom_id=classroom_id)
+                self.assertEqual(first, 4)
+
+                payload.write_bytes(b"123456789")
+                second = get_classroom_submission_bytes(classroom_id=classroom_id)
+                self.assertEqual(second, 4)
+
+                bump_cached_classroom_submission_bytes(classroom_id=classroom_id, delta_bytes=3)
+                third = get_classroom_submission_bytes(classroom_id=classroom_id)
+                self.assertEqual(third, 7)
+
+                invalidate_classroom_submission_quota_cache(classroom_id=classroom_id)
+                refreshed = get_classroom_submission_bytes(classroom_id=classroom_id)
+                self.assertEqual(refreshed, 9)
+
+
 class SubmissionDownloadHardeningTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Download Class", join_code="DL123456")

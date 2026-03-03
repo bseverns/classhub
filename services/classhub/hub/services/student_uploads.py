@@ -12,6 +12,10 @@ from ..models import Material, StudentEvent, StudentOutcomeEvent, Submission
 from .content_links import parse_course_lesson_url
 from .markdown_content import load_lesson_markdown
 from .release_state import lesson_release_state
+from .submission_quota import (
+    bump_cached_classroom_submission_bytes,
+    get_classroom_submission_bytes,
+)
 
 
 @dataclass(frozen=True)
@@ -106,8 +110,7 @@ def process_material_upload_form(
 
     quota_mb = int(getattr(settings, "CLASSHUB_CLASSROOM_QUOTA_MB", 2048))
     if quota_mb > 0:
-        class_dir = Path(settings.MEDIA_ROOT) / "submissions" / f"class_{request.classroom.id}"
-        total_bytes = sum(f.stat().st_size for f in class_dir.rglob('*') if f.is_file()) if class_dir.exists() else 0
+        total_bytes = get_classroom_submission_bytes(classroom_id=request.classroom.id)
         if total_bytes + size_bytes > quota_mb * 1024 * 1024:
             return upload_error(
                 reason_code="classroom_quota_exceeded",
@@ -174,6 +177,7 @@ def process_material_upload_form(
         is_published=student_published,
         published_at=timezone.now() if student_published else None,
     )
+    bump_cached_classroom_submission_bytes(classroom_id=request.classroom.id, delta_bytes=size_bytes)
     emit_student_event_fn(
         event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
         classroom=request.classroom,

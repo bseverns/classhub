@@ -3,6 +3,7 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
+from ...services.submission_quota import invalidate_classroom_submission_quota_cache
 from .shared import (
     HttpResponse,
     StudentEvent,
@@ -244,6 +245,7 @@ def teach_delete_student_data(request, class_id: int):
     submission_count = Submission.objects.filter(student=student).count()
     student_event_count = StudentEvent.objects.filter(student=student).count()
     student.delete()
+    invalidate_classroom_submission_quota_cache(classroom_id=classroom.id)
 
     classroom.session_epoch = int(getattr(classroom, "session_epoch", 1) or 1) + 1
     classroom.save(update_fields=["session_epoch"])

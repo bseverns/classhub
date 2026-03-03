@@ -12,6 +12,7 @@ from ...http.headers import apply_download_safety, apply_no_store, safe_attachme
 from ...models import Class, ClassInviteLink, ClassStaffAssignment, StudentIdentity, Submission
 from ...services.filenames import safe_filename
 from ...services.helper_control import reset_class_conversations as _reset_helper_class_conversations
+from ...services.submission_quota import invalidate_classroom_submission_quota_cache
 from ...services.teacher_roster_class import (
     build_dashboard_context,
     export_submissions_today_archive,
@@ -142,6 +143,7 @@ def teach_reset_roster(request, class_id: int):
     submission_count = Submission.objects.filter(student__classroom=classroom).count()
 
     students_qs.delete()
+    invalidate_classroom_submission_quota_cache(classroom_id=classroom.id)
 
     updated_fields = []
     classroom.session_epoch = int(getattr(classroom, "session_epoch", 1) or 1) + 1
