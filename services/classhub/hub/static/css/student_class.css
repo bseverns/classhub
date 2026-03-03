@@ -85,6 +85,18 @@
 .landing-course-map li {
   margin: 6px 0;
 }
+.micro-check-card {
+  margin-top: 12px;
+}
+.micro-check-form {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.micro-check-form button {
+  min-width: 168px;
+}
 .studio-handles {
   margin-top: 12px;
 }

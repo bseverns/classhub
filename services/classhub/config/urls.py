@@ -44,6 +44,7 @@ urlpatterns = [
     path("student/my-data", views.student_my_data),
     path("student/delete-work", views.student_delete_work),
     path("student/end-session", views.student_end_session),
+    path("student/micro-check", views.student_micro_check),
     path("student/portfolio-export", views.student_portfolio_export),
     path("logout", views.student_logout),
 

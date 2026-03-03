@@ -747,6 +747,58 @@ class StudentEventSubmissionTests(TestCase):
         self.assertNotContains(resp, "private.sb3")
 
 
+class StudentMicroCheckTests(TestCase):
+    def setUp(self):
+        self.classroom = Class.objects.create(name="Micro Check Class", join_code="MCK12345")
+        self.module = Module.objects.create(classroom=self.classroom, title="Session 1", order_index=0)
+        self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+
+    def _login_student(self):
+        session = self.client.session
+        session["student_id"] = self.student.id
+        session["class_id"] = self.classroom.id
+        session["class_epoch"] = self.classroom.session_epoch
+        session.save()
+
+    def test_student_micro_check_posts_stuck_event(self):
+        self._login_student()
+        resp = self.client.post(
+            "/student/micro-check",
+            {"signal": "stuck", "module_id": str(self.module.id)},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp["Location"].startswith("/student?checkin_notice="))
+
+        event = StudentEvent.objects.order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.event_type, StudentEvent.EVENT_MICRO_CHECK_STUCK)
+        self.assertEqual(event.classroom_id, self.classroom.id)
+        self.assertEqual(event.student_id, self.student.id)
+        self.assertEqual((event.details or {}).get("signal"), "stuck")
+        self.assertEqual(int((event.details or {}).get("module_id") or 0), self.module.id)
+
+    def test_student_micro_check_requires_student_session(self):
+        resp = self.client.post("/student/micro-check", {"signal": "stuck"})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/")
+        self.assertFalse(StudentEvent.objects.filter(event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK).exists())
+
+    def test_student_micro_check_ignores_module_outside_class(self):
+        self._login_student()
+        foreign_class = Class.objects.create(name="Other", join_code="OTH12345")
+        foreign_module = Module.objects.create(classroom=foreign_class, title="Session X", order_index=0)
+
+        resp = self.client.post(
+            "/student/micro-check",
+            {"signal": "can_do_this", "module_id": str(foreign_module.id)},
+        )
+        self.assertEqual(resp.status_code, 302)
+        event = StudentEvent.objects.order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.event_type, StudentEvent.EVENT_MICRO_CHECK_CAN_DO_THIS)
+        self.assertNotIn("module_id", event.details or {})
+
+
 class StudentChecklistReflectionTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Checklist Reflection Class", join_code="CFR12345")

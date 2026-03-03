@@ -436,7 +436,12 @@ class StudentEvent(models.Model):
     EVENT_REJOIN_DEVICE_HINT = "session_rejoin_device_hint"
     EVENT_REJOIN_RETURN_CODE = "session_rejoin_return_code"
     EVENT_SUBMISSION_UPLOAD = "submission_upload"
+    EVENT_SUBMISSION_UPLOAD_ERROR = "submission_upload_error"
     EVENT_HELPER_CHAT_ACCESS = "helper_chat_access"
+    EVENT_MICRO_CHECK_CAN_DO_THIS = "micro_check_can_do_this"
+    EVENT_MICRO_CHECK_STUCK = "micro_check_stuck"
+    EVENT_MICRO_CHECK_TAUGHT_SOMEONE = "micro_check_taught_someone"
+    EVENT_MICRO_CHECK_STUCK_RESOLVED = "micro_check_stuck_resolved"
 
     EVENT_TYPE_CHOICES = [
         (EVENT_CLASS_JOIN, "Class join"),

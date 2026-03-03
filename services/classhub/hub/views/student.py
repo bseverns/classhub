@@ -39,6 +39,7 @@ from ..services.submission_service import (
     validate_upload_content,
 )
 from ..services.ui_density import resolve_ui_density_mode_for_modules
+from .student_micro_checks import latest_micro_check_state
 
 logger = logging.getLogger(__name__)
 
@@ -151,6 +152,12 @@ def student_home(request):
         ui_density_mode=ui_density_mode,
         privacy_meta=privacy_meta,
     )
+    micro_check_state = latest_micro_check_state(
+        classroom=classroom,
+        student=request.student,
+        modules=modules,
+    )
+    checkin_notice = (request.GET.get("checkin_notice") or "").strip()
     get_token(request)
     response = render(
         request,
@@ -168,6 +175,8 @@ def student_home(request):
             "class_landing": class_landing,
             "helper_widget": helper_widget,
             "ui_density_mode": ui_density_mode,
+            "micro_check_state": micro_check_state,
+            "checkin_notice": checkin_notice,
             **privacy_meta,
         },
     )

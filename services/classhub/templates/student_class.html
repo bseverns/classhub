@@ -136,6 +136,30 @@
         </section>
       </div>
 
+      <div class="card micro-check-card">
+        <h2>{% trans "Quick check-in" %}</h2>
+        <p class="muted">{% trans "Share how this session feels right now. These signals help your facilitator support you." %}</p>
+        {% if checkin_notice %}
+        <p class="notice flash-banner">{{ checkin_notice }}</p>
+        {% endif %}
+        <form method="post" action="/student/micro-check" class="micro-check-form">
+          {% csrf_token %}
+          {% if class_landing.highlight_module_id %}
+          <input type="hidden" name="module_id" value="{{ class_landing.highlight_module_id }}" />
+          {% endif %}
+          <button type="submit" name="signal" value="can_do_this">{% trans "I can do this" %}</button>
+          <button type="submit" name="signal" value="stuck">{% trans "I'm stuck" %}</button>
+          <button type="submit" name="signal" value="taught_someone">{% trans "I taught someone" %}</button>
+        </form>
+        {% if micro_check_state %}
+        <p class="muted">
+          {% trans "Last check-in:" %} <strong>{{ micro_check_state.label }}</strong>
+          {% if micro_check_state.module_title %} · {{ micro_check_state.module_title }}{% endif %}
+          · {{ micro_check_state.created_at|date:"M j, g:i a" }}
+        </p>
+        {% endif %}
+      </div>
+
       {% if ui_density_mode == "expanded" %}
       <div id="studio-handles" class="card studio-handles">
         <h2>Studio handles</h2>

@@ -33,6 +33,7 @@ from .student import (
     submission_download,
     privacy_policy,
 )
+from .student_micro_checks import student_micro_check
 from .student_materials import material_checklist, material_reflection, material_rubric
 from .teacher import (
     teach_add_material,
@@ -113,6 +114,7 @@ __all__ = [
     "student_end_session",
     "student_home",
     "student_logout",
+    "student_micro_check",
     "student_my_data",
     "student_portfolio_export",
     "student_return_code",
