@@ -84,7 +84,7 @@ def api_student_session(request):
                 "display_name": student.display_name,
                 "return_code": student.return_code,
             },
-            "privacy_meta": privacy_meta_context(),
+            "privacy_meta": privacy_meta_context(classroom=classroom),
         },
         private=True,
     )

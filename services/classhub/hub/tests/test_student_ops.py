@@ -453,6 +453,23 @@ class SubmissionRetentionCommandTests(TestCase):
         self.assertNotIn(self.old.id, ids)
         self.assertIn(self.new.id, ids)
 
+    def test_prune_submissions_respects_keep_until_student_deletes_preset(self):
+        self.classroom.retention_preset = Class.RETENTION_KEEP_UNTIL_STUDENT_DELETES
+        self.classroom.save(update_fields=["retention_preset"])
+
+        call_command("prune_submissions", older_than_days=90)
+        ids = set(Submission.objects.values_list("id", flat=True))
+        self.assertIn(self.old.id, ids)
+        self.assertIn(self.new.id, ids)
+
+    def test_prune_submissions_can_ignore_class_presets(self):
+        self.classroom.retention_preset = Class.RETENTION_KEEP_UNTIL_STUDENT_DELETES
+        self.classroom.save(update_fields=["retention_preset"])
+        call_command("prune_submissions", older_than_days=90, ignore_class_presets=True)
+        ids = set(Submission.objects.values_list("id", flat=True))
+        self.assertNotIn(self.old.id, ids)
+        self.assertIn(self.new.id, ids)
+
 
 class StudentEventRetentionCommandTests(TestCase):
     def setUp(self):
@@ -525,6 +542,24 @@ class StudentEventRetentionCommandTests(TestCase):
         self.assertIn(self.new.id, ids)
         self.assertEqual(len(rows), 1)
         self.assertEqual(int(rows[0]["id"]), self.old.id)
+
+    def test_prune_student_events_respects_keep_until_student_deletes_preset(self):
+        self.classroom.retention_preset = Class.RETENTION_KEEP_UNTIL_STUDENT_DELETES
+        self.classroom.save(update_fields=["retention_preset"])
+
+        call_command("prune_student_events", older_than_days=90)
+        ids = set(StudentEvent.objects.values_list("id", flat=True))
+        self.assertIn(self.old.id, ids)
+        self.assertIn(self.new.id, ids)
+
+    def test_prune_student_events_can_ignore_class_presets(self):
+        self.classroom.retention_preset = Class.RETENTION_KEEP_UNTIL_STUDENT_DELETES
+        self.classroom.save(update_fields=["retention_preset"])
+
+        call_command("prune_student_events", older_than_days=90, ignore_class_presets=True)
+        ids = set(StudentEvent.objects.values_list("id", flat=True))
+        self.assertNotIn(self.old.id, ids)
+        self.assertIn(self.new.id, ids)
 
 
 class OrphanUploadScavengerCommandTests(TestCase):

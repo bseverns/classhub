@@ -10,6 +10,7 @@ from ..models import Class, Material, Module, StudentIdentity, StudentMaterialRe
 from .content_links import build_asset_url, parse_course_lesson_url, safe_external_url
 from .markdown_content import load_course_manifest, load_lesson_markdown
 from .peer_feedback import resolve_peer_feedback_starters
+from .retention_policy import class_event_retention_days, class_submission_retention_days
 from .release_state import lesson_release_override_map, lesson_release_state
 
 
@@ -22,10 +23,18 @@ def _retention_days(setting_name: str, default: int) -> int:
     return value if value > 0 else 0
 
 
-def privacy_meta_context() -> dict:
+def privacy_meta_context(*, classroom: Class | None = None) -> dict:
+    fallback_submission_days = _retention_days("CLASSHUB_SUBMISSION_RETENTION_DAYS", 90)
+    fallback_event_days = _retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180)
     return {
-        "submission_retention_days": _retention_days("CLASSHUB_SUBMISSION_RETENTION_DAYS", 90),
-        "student_event_retention_days": _retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180),
+        "submission_retention_days": class_submission_retention_days(
+            classroom=classroom,
+            fallback_days=fallback_submission_days,
+        ),
+        "student_event_retention_days": class_event_retention_days(
+            classroom=classroom,
+            fallback_days=fallback_event_days,
+        ),
     }
 
 

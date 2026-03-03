@@ -94,7 +94,7 @@ def privacy_policy(request):
     response = render(
         request,
         "privacy.html",
-        {**privacy_meta_context()},
+        {**privacy_meta_context(classroom=getattr(request, "classroom", None))},
     )
     apply_no_store(response, private=False, pragma=True)
     return response
@@ -105,7 +105,7 @@ def trust_page(request):
     response = render(
         request,
         "trust.html",
-        {**privacy_meta_context()},
+        {**privacy_meta_context(classroom=getattr(request, "classroom", None))},
     )
     apply_no_store(response, private=False, pragma=True)
     return response
@@ -162,7 +162,7 @@ def student_home(request):
         language_code=getattr(request, "LANGUAGE_CODE", "en"),
     )
     gallery_entries_by_material = build_gallery_entries_map(classroom=classroom, viewer_student=request.student, material_ids=material_ids)
-    privacy_meta = privacy_meta_context()
+    privacy_meta = privacy_meta_context(classroom=classroom)
     helper_widget = _student_home_helper_widget(
         classroom=classroom,
         ui_density_mode=ui_density_mode,
@@ -246,7 +246,7 @@ def student_my_data(request):
             "classroom": request.classroom,
             "submissions": submissions,
             "notice": notice,
-            **privacy_meta_context(),
+            **privacy_meta_context(classroom=request.classroom),
         },
     )
     apply_no_store(response, private=True, pragma=True)
@@ -352,7 +352,7 @@ def material_upload(request, material_id: int):
             "is_gallery_material": material.type == Material.TYPE_GALLERY,
             "upload_locked": bool(release_state.get("is_locked")),
             "upload_available_on": release_state.get("available_on"),
-            **privacy_meta_context(),
+            **privacy_meta_context(classroom=request.classroom),
         },
         status=response_status,
     )

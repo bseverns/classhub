@@ -57,6 +57,14 @@ class Class(models.Model):
         (ENROLLMENT_INVITE_ONLY, "Invite only"),
         (ENROLLMENT_CLOSED, "Closed"),
     ]
+    RETENTION_ERASE_7_DAYS = "erase_after_7_days"
+    RETENTION_KEEP_SEMESTER = "keep_for_semester"
+    RETENTION_KEEP_UNTIL_STUDENT_DELETES = "keep_until_student_deletes"
+    RETENTION_PRESET_CHOICES = [
+        (RETENTION_ERASE_7_DAYS, "Erase after 7 days"),
+        (RETENTION_KEEP_SEMESTER, "Keep for semester"),
+        (RETENTION_KEEP_UNTIL_STUDENT_DELETES, "Keep portfolio until student deletes"),
+    ]
 
     organization = models.ForeignKey(
         "Organization",
@@ -75,6 +83,11 @@ class Class(models.Model):
         max_length=20,
         choices=ENROLLMENT_MODE_CHOICES,
         default=ENROLLMENT_OPEN,
+    )
+    retention_preset = models.CharField(
+        max_length=40,
+        choices=RETENTION_PRESET_CHOICES,
+        default=RETENTION_ERASE_7_DAYS,
     )
     is_locked = models.BooleanField(default=False)
     # Increment to invalidate active student sessions without rotating database IDs.

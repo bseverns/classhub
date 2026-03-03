@@ -40,6 +40,16 @@
               </select>
               <button type="submit">Set enrollment</button>
             </form>
+            <form method="post" action="/teach/class/{{ classroom.id }}/set-retention-preset">
+              {% csrf_token %}
+              <label for="retention-preset-select-{{ classroom.id }}" class="visually-hidden">Retention preset</label>
+              <select id="retention-preset-select-{{ classroom.id }}" name="retention_preset">
+                <option value="erase_after_7_days" {% if classroom.retention_preset == 'erase_after_7_days' %}selected{% endif %}>Erase after 7 days</option>
+                <option value="keep_for_semester" {% if classroom.retention_preset == 'keep_for_semester' %}selected{% endif %}>Keep for semester</option>
+                <option value="keep_until_student_deletes" {% if classroom.retention_preset == 'keep_until_student_deletes' %}selected{% endif %}>Keep until student deletes</option>
+              </select>
+              <button type="submit">Set retention</button>
+            </form>
             <form method="post" action="/teach/class/{{ classroom.id }}/toggle-lock">
               {% csrf_token %}
               <button type="submit">{% if classroom.is_locked %}Unlock{% else %}Lock{% endif %}</button>

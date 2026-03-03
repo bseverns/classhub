@@ -472,6 +472,23 @@ class TeacherPortalTests(TestCase):
         self.assertEqual(event.classroom_id, classroom.id)
         self.assertEqual(event.metadata.get("enrollment_mode"), Class.ENROLLMENT_INVITE_ONLY)
 
+    def test_teach_class_can_set_retention_preset(self):
+        classroom = Class.objects.create(name="Retention Cohort", join_code="RET22345")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/set-retention-preset",
+            {"retention_preset": Class.RETENTION_KEEP_SEMESTER},
+        )
+        self.assertEqual(resp.status_code, 302)
+        classroom.refresh_from_db()
+        self.assertEqual(classroom.retention_preset, Class.RETENTION_KEEP_SEMESTER)
+
+        event = AuditEvent.objects.filter(action="class.set_retention_preset").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.classroom_id, classroom.id)
+        self.assertEqual(event.metadata.get("retention_preset"), Class.RETENTION_KEEP_SEMESTER)
+
     def test_teach_class_can_update_student_landing_page(self):
         classroom = Class.objects.create(name="Paid Cohort", join_code="LND12345")
         _force_login_staff_verified(self.client, self.staff)
@@ -1774,6 +1791,17 @@ class TeacherOrganizationAccessTests(TestCase):
         resp = self.client.post(
             f"/teach/class/{self.class_a.id}/set-enrollment-mode",
             {"enrollment_mode": "closed"},
+        )
+        self.assertEqual(resp.status_code, 403)
+
+    def test_viewer_membership_cannot_set_retention_preset(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_VIEWER
+        membership.save(update_fields=["role"])
+
+        resp = self.client.post(
+            f"/teach/class/{self.class_a.id}/set-retention-preset",
+            {"retention_preset": Class.RETENTION_KEEP_SEMESTER},
         )
         self.assertEqual(resp.status_code, 403)
 
