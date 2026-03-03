@@ -70,6 +70,7 @@ REQUIRED_TOKENS: dict[str, tuple[str, ...]] = {
     "workflow-lint.yml": (
         "parse-yaml:",
         "Validate workflow YAML",
+        "rhysd/actionlint@",
     ),
 }
 

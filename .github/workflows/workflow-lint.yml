@@ -47,6 +47,6 @@ jobs:
           print(f"[workflow-lint] OK ({len(files)} workflow files parsed)")
           PY
       - name: Semantic workflow lint (actionlint)
-        uses: rhysd/actionlint@v1
+        uses: rhysd/actionlint@v1.7.10
       - name: Guard critical CI workflow coverage
         run: python scripts/check_ci_workflow_coverage.py
