@@ -1,7 +1,9 @@
 from ._shared import *  # noqa: F401,F403
+from django.core.cache import cache
 
 class Teacher2FASetupTests(TestCase):
     def setUp(self):
+        cache.clear()
         self.teacher = get_user_model().objects.create_user(
             username="teacher_otp",
             password="pw12345",
@@ -248,5 +250,4 @@ class BootstrapAdminOTPCommandTests(TestCase):
         )
         with self.assertRaises(CommandError):
             call_command("bootstrap_admin_otp", username="teacher")
-
 

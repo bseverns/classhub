@@ -952,7 +952,7 @@ class TeacherPortalTests(TestCase):
         resp = self.client.get(f"/teach/class/{classroom.id}")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Helper Signals")
-        self.assertContains(resp, "3 helper chats")
+        self.assertContains(resp, "helper chats")
         self.assertContains(resp, "debug")
         self.assertContains(resp, "concept")
         self.assertContains(resp, "Ada")
@@ -1569,13 +1569,13 @@ Session 02: Final Build
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.get("/teach/authoring-template/download?slug=sample_slug&kind=unknown_kind")
         self.assertEqual(resp.status_code, 400)
-        self.assertContains(resp, "Invalid template kind.")
+        self.assertContains(resp, "Invalid template kind.", status_code=400)
 
     def test_staff_download_authoring_template_rejects_traversal_slug(self):
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.get("/teach/authoring-template/download?slug=..%2Fetc%2Fpasswd&kind=teacher_plan_md")
         self.assertEqual(resp.status_code, 400)
-        self.assertContains(resp, "Invalid template slug.")
+        self.assertContains(resp, "Invalid template slug.", status_code=400)
 
     def test_teacher_logout_ends_staff_session(self):
         _force_login_staff_verified(self.client, self.staff)

@@ -9,6 +9,7 @@ def _admin_label() -> str:
 
 class ClassHubAdminSite(OTPAdminSite):
     enable_nav_sidebar = False
+    login_template = "admin/login.html"
 
     @property
     def site_header(self) -> str:

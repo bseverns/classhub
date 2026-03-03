@@ -6,7 +6,60 @@ from hub.services.ui_density import default_ui_density_mode
 
 
 def operator_profile(_request):
-    profile = getattr(settings, "CLASSHUB_OPERATOR_PROFILE", {}) or {}
+    profile = dict(getattr(settings, "CLASSHUB_OPERATOR_PROFILE", {}) or {})
+    operator_name = str(
+        getattr(
+            settings,
+            "CLASSHUB_OPERATOR_NAME",
+            profile.get("operator_name", "createMPLS"),
+        )
+        or "createMPLS"
+    )
+    operator_descriptor = str(
+        getattr(
+            settings,
+            "CLASSHUB_OPERATOR_DESCRIPTOR",
+            profile.get("operator_descriptor", "a nonprofit educational group"),
+        )
+        or "a nonprofit educational group"
+    )
+    profile["operator_name"] = operator_name
+    profile["operator_descriptor"] = operator_descriptor
+    profile["product_name"] = str(
+        getattr(
+            settings,
+            "CLASSHUB_PRODUCT_NAME",
+            profile.get("product_name", "Class Hub"),
+        )
+        or "Class Hub"
+    )
+    profile["storage_location_text"] = str(
+        getattr(
+            settings,
+            "CLASSHUB_STORAGE_LOCATION_TEXT",
+            profile.get(
+                "storage_location_text",
+                f"this server is hosted by {operator_name}, {operator_descriptor}.",
+            ),
+        )
+        or f"this server is hosted by {operator_name}, {operator_descriptor}."
+    )
+    profile["privacy_promise_text"] = str(
+        getattr(
+            settings,
+            "CLASSHUB_PRIVACY_PROMISE_TEXT",
+            profile.get("privacy_promise_text", "No tracking. No ads. No data broker sharing."),
+        )
+        or "No tracking. No ads. No data broker sharing."
+    )
+    profile["admin_label"] = str(
+        getattr(
+            settings,
+            "CLASSHUB_ADMIN_LABEL",
+            profile.get("admin_label", f"{operator_name} Course Admin"),
+        )
+        or f"{operator_name} Course Admin"
+    )
     return {"operator_profile": profile}
 
 

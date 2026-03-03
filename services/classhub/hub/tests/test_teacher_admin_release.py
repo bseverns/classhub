@@ -154,7 +154,7 @@ class LessonReleaseTests(TestCase):
         self.assertNotContains(resp, "<style>", html=False)
         self.assertNotContains(resp, 'style="margin-top:0;"', html=False)
         self.assertNotContains(resp, "const items = Array.from(document.querySelectorAll('.video-item'))", html=False)
-        self.assertContains(resp, "intro-only mode")
+        self.assertContains(resp, "Intro-only mode")
         self.assertNotContains(resp, "Homework dropbox")
 
     def test_student_home_shows_preview_link_for_locked_lesson(self):
@@ -169,7 +169,7 @@ class LessonReleaseTests(TestCase):
         resp = self.client.get("/student")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Full lesson unlocks on")
-        self.assertContains(resp, "Preview intro-only page")
+        self.assertContains(resp, "Preview intro-only")
         self.assertNotContains(resp, "Open lesson", status_code=200)
 
     def test_student_home_landing_highlights_this_weeks_lesson(self):
