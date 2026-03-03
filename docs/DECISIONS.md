@@ -1742,3 +1742,21 @@ Execution runbook:
 - Preserves privacy-forward operations while still giving facilitators actionable support cues.
 - Favors “help requested/help offered” signals over ranking, points, or performance gamification.
 - Keeps implementation operationally boring by reusing existing event streams and teacher dashboard surfaces.
+
+## Gallery publish state + deletion-request queue clarity
+
+**Current decision:**
+- Enforce a strict two-step gallery workflow:
+  - student intent: `is_published=True`,
+  - teacher moderation: `is_gallery_shared=True`.
+- Student upload opt-in now records publish intent only; it no longer auto-sets teacher approval.
+- Student unpublish always clears `is_gallery_shared`, so republish returns to pending-approval state.
+- Student self-delete copy is explicit:
+  - immediate delete removes submissions + learning responses + upload/artifact outcome events,
+  - other activity telemetry stays until retention cleanup.
+- When `CLASSHUB_STUDENT_SELF_DELETE_MODE=request`, teacher dashboard now includes a deletion-request queue with `Mark addressed`, logged as a resolution event.
+
+**Why this remains active:**
+- Keeps trust boundaries clear where student visibility and teacher moderation intersect.
+- Prevents stale approval flags from bypassing moderation on republish.
+- Makes deletion behavior honest and operationally actionable for both students and staff.

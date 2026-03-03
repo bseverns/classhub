@@ -327,6 +327,59 @@ def _build_facilitator_support_snapshot(*, classroom, students: list[StudentIden
         )
     )
 
+    delete_request_events = (
+        StudentEvent.objects.filter(
+            classroom=classroom,
+            student__isnull=False,
+            event_type__in=[
+                StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST,
+                StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST_RESOLVED,
+            ],
+        )
+        .only("student_id", "event_type", "created_at")
+        .order_by("-created_at", "-id")
+    )
+    latest_delete_request_by_student: dict[int, StudentEvent] = {}
+    latest_delete_resolved_by_student: dict[int, StudentEvent] = {}
+    for event in delete_request_events:
+        student_id = int(event.student_id or 0)
+        if student_id <= 0:
+            continue
+        if (
+            event.event_type == StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST
+            and student_id not in latest_delete_request_by_student
+        ):
+            latest_delete_request_by_student[student_id] = event
+        if (
+            event.event_type == StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST_RESOLVED
+            and student_id not in latest_delete_resolved_by_student
+        ):
+            latest_delete_resolved_by_student[student_id] = event
+
+    delete_request_rows: list[dict] = []
+    for student_id, request_event in latest_delete_request_by_student.items():
+        student = student_by_id.get(student_id)
+        if student is None:
+            continue
+        resolved_event = latest_delete_resolved_by_student.get(student_id)
+        if resolved_event and resolved_event.created_at >= request_event.created_at:
+            continue
+        waiting_minutes = max(int((now - request_event.created_at).total_seconds() // 60), 0)
+        delete_request_rows.append(
+            {
+                "student_id": student_id,
+                "display_name": student.display_name,
+                "requested_at": request_event.created_at,
+                "waiting_minutes": waiting_minutes,
+            }
+        )
+    delete_request_rows.sort(
+        key=lambda row: (
+            -int(row["waiting_minutes"]),
+            str(row["display_name"]).lower(),
+        )
+    )
+
     upload_error_limit = _int_setting("CLASSHUB_UPLOAD_ERROR_FEED_LIMIT", 10)
     upload_error_rows: list[dict] = []
     recent_upload_errors = (
@@ -380,6 +433,8 @@ def _build_facilitator_support_snapshot(*, classroom, students: list[StudentIden
         "generated_at": now,
         "stuck_rows": stuck_rows,
         "stuck_count": len(stuck_rows),
+        "delete_request_rows": delete_request_rows,
+        "delete_request_count": len(delete_request_rows),
         "upload_error_rows": upload_error_rows,
         "upload_error_count": len(upload_error_rows),
         "idle_rows": idle_rows,

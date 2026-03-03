@@ -529,6 +529,8 @@ class StudentEvent(models.Model):
     EVENT_MICRO_CHECK_STUCK = "micro_check_stuck"
     EVENT_MICRO_CHECK_TAUGHT_SOMEONE = "micro_check_taught_someone"
     EVENT_MICRO_CHECK_STUCK_RESOLVED = "micro_check_stuck_resolved"
+    EVENT_STUDENT_DELETE_WORK_REQUEST = "student_delete_work_request"
+    EVENT_STUDENT_DELETE_WORK_REQUEST_RESOLVED = "student_delete_work_request_resolved"
 
     EVENT_TYPE_CHOICES = [
         (EVENT_CLASS_JOIN, "Class join"),

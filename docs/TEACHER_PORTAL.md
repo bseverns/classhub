@@ -237,6 +237,7 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
   - lesson tracker for one class
   - facilitator support board (help-first):
     - active “I’m stuck” signals first, with `Mark resolved`
+    - student deletion requests (when request mode is enabled), with `Mark addressed`
     - recent upload-error feed
     - idle-time context list (interpret carefully)
     - manual refresh link (no high-frequency polling)
@@ -290,6 +291,7 @@ When using the **Facilitator Support Board** on `/teach/class/<id>`:
   - “Show me where it stopped making sense.”
 - Treat “I’m stuck” as a support request, not a deficit signal.
 - Use `Mark resolved` only after you have checked in, so the board stays trustworthy.
+- If deletion requests are enabled, use `Mark addressed` only after confirming policy and action with the student.
 - Treat upload errors as tool friction first:
   - check file type, file size, and retry path before interpreting effort.
 - Treat idle signals as context only:

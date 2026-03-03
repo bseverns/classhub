@@ -1603,6 +1603,7 @@ class StudentDataControlsTests(TestCase):
         self.assertNotContains(resp, "onsubmit=\"return confirm(", html=False)
         self.assertContains(resp, "My submissions")
         self.assertContains(resp, "portfolio.sb3")
+        self.assertContains(resp, "Other class activity signals")
 
     def test_student_delete_work_now_clears_submissions_and_upload_events(self):
         Submission.objects.create(
@@ -1670,7 +1671,7 @@ class StudentDataControlsTests(TestCase):
         self.assertEqual(
             StudentEvent.objects.filter(
                 student=self.student,
-                event_type="student_delete_work_request",
+                event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST,
             ).count(),
             1,
         )

@@ -39,7 +39,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 - Calm student join model (no student email/password in MVP).
 - Student home starts with a clear weekly launch path (`This week` + `Course links` + `Account`).
 - Artifact-first student flow (`/student/portfolio`) with opt-in gallery sharing (`/student/gallery`) and teacher moderation.
-- Help-first facilitation support board surfaces “I'm stuck”, upload errors, and context without rankings.
+- Help-first facilitation support board surfaces “I'm stuck”, deletion requests, upload errors, and context without rankings.
 - Multi-lingual UI support on student-facing content.
 - Public-domain hardening options (CSP, site-mode degradation, proxy guardrails).
 - Self-hosted architecture with boring, inspectable components (Django, Postgres, Redis, Caddy).

@@ -54,7 +54,6 @@ from ..services.ui_density import resolve_ui_density_mode_for_modules
 from .student_micro_checks import latest_micro_check_state
 
 logger = logging.getLogger(__name__)
-_EVENT_STUDENT_DELETE_REQUEST = "student_delete_work_request"
 
 
 def _helper_scope_signing_key() -> str:
@@ -272,7 +271,7 @@ def student_delete_work(request):
 
     if student_self_delete_mode() == "request":
         _emit_student_event(
-            event_type=_EVENT_STUDENT_DELETE_REQUEST,
+            event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST,
             classroom=request.classroom,
             student=request.student,
             source="classhub.student_my_data",

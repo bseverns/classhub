@@ -73,9 +73,10 @@
         </div>
         <p class="muted top-gap-10">
           {% if student_self_delete_mode == "request" %}
-          {% trans "Your program requires staff review before deletion. Your request is logged for your class team." %}
+          {% trans "Your program requires staff review before deletion. Your request appears on your teacher dashboard." %}
           {% else %}
-          {% trans "Deletion is immediate and permanently removes your stored submissions and upload records." %}
+          {% trans "Deletion is immediate for your submissions, checklist/rubric/reflection responses, and upload artifact events in this class." %}
+          {% trans "Other class activity signals (like join/check-in history) stay until retention cleanup runs." %}
           {% endif %}
         </p>
       </div>

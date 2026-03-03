@@ -76,6 +76,53 @@ def teach_resolve_stuck_flag(request, class_id: int):
 
 @staff_member_required
 @require_POST
+def teach_resolve_delete_request(request, class_id: int):
+    classroom = staff_classroom_or_none(request.user, class_id)
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+    if not staff_can_manage_classroom(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
+
+    try:
+        student_id = int((request.POST.get("student_id") or "0").strip() or 0)
+    except Exception:
+        student_id = 0
+    student = StudentIdentity.objects.filter(classroom=classroom, id=student_id).only("id", "display_name").first()
+    if student is None:
+        return _safe_internal_redirect(
+            request,
+            _with_notice(_teach_class_path(classroom.id), error="Could not resolve that deletion request."),
+            fallback=_teach_class_path(classroom.id),
+        )
+
+    StudentEvent.objects.create(
+        classroom=classroom,
+        student=student,
+        event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST_RESOLVED,
+        source="classhub.teach_class_dashboard",
+        details={
+            "signal": "delete_request_resolved",
+            "resolved_by_user_id": request.user.id,
+        },
+    )
+    _audit(
+        request,
+        action="class.resolve_delete_request",
+        classroom=classroom,
+        target_type="StudentIdentity",
+        target_id=str(student.id),
+        summary=f"Marked deletion request resolved for {student.display_name}",
+        metadata={"student_id": student.id},
+    )
+    return _safe_internal_redirect(
+        request,
+        _with_notice(_teach_class_path(classroom.id), notice=f"Marked {student.display_name} deletion request resolved."),
+        fallback=_teach_class_path(classroom.id),
+    )
+
+
+@staff_member_required
+@require_POST
 def teach_add_support_tag(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
@@ -194,5 +241,6 @@ def teach_remove_support_tag(request, class_id: int):
 __all__ = [
     "teach_add_support_tag",
     "teach_remove_support_tag",
+    "teach_resolve_delete_request",
     "teach_resolve_stuck_flag",
 ]

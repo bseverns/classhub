@@ -422,6 +422,31 @@
               </div>
 
               <div class="facilitator-block">
+                <h3>Deletion requests{% if facilitator_support.delete_request_count %} ({{ facilitator_support.delete_request_count }}){% endif %}</h3>
+                <p class="muted mini merge-note">
+                  Only appears when student self-delete mode is set to request. Resolve after you've confirmed policy and action with the learner.
+                </p>
+                {% if facilitator_support.delete_request_rows %}
+                  <ul class="signal-list facilitator-list">
+                    {% for row in facilitator_support.delete_request_rows %}
+                      <li>
+                        <strong>{{ row.display_name }}</strong>
+                        · requested {{ row.waiting_minutes }} min ago
+                        · {{ row.requested_at|date:"M j, g:i a" }}
+                        <form method="post" action="/teach/class/{{ classroom.id }}/resolve-delete-request" class="inline-resolve-form">
+                          {% csrf_token %}
+                          <input type="hidden" name="student_id" value="{{ row.student_id }}" />
+                          <button type="submit">Mark addressed</button>
+                        </form>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="muted mini section-empty-note">No active deletion requests.</p>
+                {% endif %}
+              </div>
+
+              <div class="facilitator-block">
                 <h3>Recent upload errors{% if facilitator_support.upload_error_count %} ({{ facilitator_support.upload_error_count }}){% endif %}</h3>
                 {% if facilitator_support.upload_error_rows %}
                   <ul class="signal-list facilitator-list">

@@ -119,6 +119,27 @@ class TeacherRosterClassServiceTests(TestCase):
             details={"material_id": material.id, "reason_code": "content_validation_failed"},
         )
         StudentEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST,
+            source="test",
+            details={},
+        )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ben,
+            event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST,
+            source="test",
+            details={},
+        )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ben,
+            event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST_RESOLVED,
+            source="test",
+            details={},
+        )
+        StudentEvent.objects.create(
             classroom=other_class,
             student=zed,
             event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD_ERROR,
@@ -137,6 +158,8 @@ class TeacherRosterClassServiceTests(TestCase):
         self.assertEqual(snapshot["upload_error_count"], 1)
         self.assertEqual(snapshot["upload_error_rows"][0]["display_name"], "Ada")
         self.assertEqual(snapshot["upload_error_rows"][0]["material_title"], "Upload Box")
+        self.assertEqual(snapshot["delete_request_count"], 1)
+        self.assertEqual(snapshot["delete_request_rows"][0]["display_name"], "Ada")
         self.assertEqual([row["display_name"] for row in snapshot["idle_rows"]], ["Ada"])
 
 
@@ -962,15 +985,24 @@ class TeacherPortalTests(TestCase):
             source="test",
             details={"material_id": material.id, "reason_code": "content_validation_failed"},
         )
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST,
+            source="test",
+            details={},
+        )
         _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get(f"/teach/class/{classroom.id}")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Facilitator Support Board")
         self.assertContains(resp, "Students asking for help (1)")
+        self.assertContains(resp, "Deletion requests (1)")
         self.assertContains(resp, "Recent upload errors (1)")
         self.assertContains(resp, "Idle signals (20+ min)")
         self.assertContains(resp, f"/teach/class/{classroom.id}/resolve-stuck")
+        self.assertContains(resp, f"/teach/class/{classroom.id}/resolve-delete-request")
         self.assertContains(resp, "Support tags")
         self.assertContains(resp, "Needs extra time")
         self.assertContains(resp, f"/teach/class/{classroom.id}/support-tag/add")
@@ -1002,6 +1034,33 @@ class TeacherPortalTests(TestCase):
         ).order_by("-id").first()
         self.assertIsNotNone(event)
         self.assertEqual(int((event.details or {}).get("module_id") or 0), module.id)
+
+    def test_teacher_can_resolve_delete_request(self):
+        classroom = Class.objects.create(name="Resolve Delete Class", join_code="RDL12345")
+        ada = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        StudentEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST,
+            source="test",
+            details={},
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/resolve-delete-request",
+            {"student_id": str(ada.id)},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/class/", resp["Location"])
+
+        event = StudentEvent.objects.filter(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST_RESOLVED,
+        ).order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(int((event.details or {}).get("resolved_by_user_id") or 0), self.staff.id)
 
     def test_teacher_can_add_and_remove_support_tag(self):
         classroom = Class.objects.create(name="Support Tags Class", join_code="TAG12345")
@@ -1962,6 +2021,32 @@ class TeacherOrganizationAccessTests(TestCase):
                 classroom=self.class_a,
                 student=student,
                 event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK_RESOLVED,
+            ).exists()
+        )
+
+    def test_viewer_membership_cannot_resolve_delete_request(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_VIEWER
+        membership.save(update_fields=["role"])
+        student = StudentIdentity.objects.create(classroom=self.class_a, display_name="Ada")
+        StudentEvent.objects.create(
+            classroom=self.class_a,
+            student=student,
+            event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST,
+            source="test",
+            details={},
+        )
+
+        resp = self.client.post(
+            f"/teach/class/{self.class_a.id}/resolve-delete-request",
+            {"student_id": str(student.id)},
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertFalse(
+            StudentEvent.objects.filter(
+                classroom=self.class_a,
+                student=student,
+                event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST_RESOLVED,
             ).exists()
         )
 
