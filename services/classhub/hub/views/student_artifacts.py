@@ -96,6 +96,48 @@ def _with_notice(path: str, *, notice: str) -> str:
     return f"{path}{separator}{urlencode({'notice': notice})}"
 
 
+def _submission_upload_path(submission: Submission) -> str:
+    return f"/material/{submission.material_id}/upload"
+
+
+def _append_unique_field(update_fields: list[str], field: str) -> None:
+    if field not in update_fields:
+        update_fields.append(field)
+
+
+def _update_submission_publish_state(*, submission: Submission, publish_requested: bool, now) -> list[str]:
+    update_fields: list[str] = []
+    if publish_requested:
+        if not submission.is_published:
+            submission.is_published = True
+            submission.published_at = now
+            _append_unique_field(update_fields, "is_published")
+            _append_unique_field(update_fields, "published_at")
+        if submission.is_gallery_shared:
+            # Republish should always return to pending-approval state.
+            submission.is_gallery_shared = False
+            _append_unique_field(update_fields, "is_gallery_shared")
+        return update_fields
+
+    if submission.is_published or submission.published_at is not None:
+        submission.is_published = False
+        submission.published_at = None
+        _append_unique_field(update_fields, "is_published")
+        _append_unique_field(update_fields, "published_at")
+    if submission.is_gallery_shared:
+        submission.is_gallery_shared = False
+        _append_unique_field(update_fields, "is_gallery_shared")
+    return update_fields
+
+
+def _publish_notice(*, submission: Submission, publish_requested: bool) -> str:
+    if not publish_requested:
+        return "Removed from gallery."
+    if submission.is_gallery_shared:
+        return "Published to gallery."
+    return "Published. Waiting for teacher approval."
+
+
 @require_GET
 def student_portfolio(request):
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
@@ -228,58 +270,33 @@ def student_set_submission_publish(request, submission_id: int):
     publish_requested = (request.POST.get("publish") or "").strip() == "1"
     module_gallery_enabled = bool(getattr(submission.material.module, "gallery_enabled", True))
     now = timezone.now()
+    fallback_path = _submission_upload_path(submission)
+    redirect_to = _safe_student_return_path(
+        request.POST.get("return_to") or "",
+        fallback=fallback_path,
+    )
 
-    update_fields: list[str] = []
+    if publish_requested and not module_gallery_enabled:
+        message = "Session gallery is disabled by your teacher."
+        return _safe_student_redirect(
+            request,
+            _with_notice(redirect_to, notice=message),
+            fallback=_with_notice(fallback_path, notice=message),
+        )
 
-    def mark_update(field: str) -> None:
-        if field not in update_fields:
-            update_fields.append(field)
-    if publish_requested:
-        if not module_gallery_enabled:
-            redirect_to = _safe_student_return_path(
-                request.POST.get("return_to") or "",
-                fallback=f"/material/{submission.material_id}/upload",
-            )
-            message = "Session gallery is disabled by your teacher."
-            return _safe_student_redirect(
-                request,
-                _with_notice(redirect_to, notice=message),
-                fallback=_with_notice(f"/material/{submission.material_id}/upload", notice=message),
-            )
-        if not submission.is_published:
-            submission.is_published = True
-            submission.published_at = now
-            mark_update("is_published")
-            mark_update("published_at")
-            if submission.is_gallery_shared:
-                # Republish should always return to pending-approval state.
-                submission.is_gallery_shared = False
-                mark_update("is_gallery_shared")
-    else:
-        if submission.is_published or submission.published_at is not None:
-            submission.is_published = False
-            submission.published_at = None
-            mark_update("is_published")
-            mark_update("published_at")
-        if submission.is_gallery_shared:
-            submission.is_gallery_shared = False
-            mark_update("is_gallery_shared")
-
+    update_fields = _update_submission_publish_state(
+        submission=submission,
+        publish_requested=publish_requested,
+        now=now,
+    )
     if update_fields:
         submission.save(update_fields=update_fields)
 
-    redirect_to = _safe_student_return_path(
-        request.POST.get("return_to") or "",
-        fallback=f"/material/{submission.material_id}/upload",
-    )
-    if publish_requested:
-        notice = "Published to gallery." if submission.is_gallery_shared else "Published. Waiting for teacher approval."
-    else:
-        notice = "Removed from gallery."
+    notice = _publish_notice(submission=submission, publish_requested=publish_requested)
     return _safe_student_redirect(
         request,
         _with_notice(redirect_to, notice=notice),
-        fallback=_with_notice(f"/material/{submission.material_id}/upload", notice=notice),
+        fallback=_with_notice(fallback_path, notice=notice),
     )
 
 
