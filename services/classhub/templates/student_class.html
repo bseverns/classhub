@@ -37,8 +37,7 @@
           <div class="muted">
             {% trans "Signed in as" %} <strong>{{ student.display_name }}</strong>
             · {% trans "Code" %} <span class="pill">{{ classroom.join_code }}</span>
-            <button type="button" class="inline-copy" data-copy-value="{{ classroom.join_code }}">{% trans "Copy class
-              code" %}</button>
+            <button type="button" class="inline-copy" data-copy-value="{{ classroom.join_code }}">{% trans "Copy class code" %}</button>
           </div>
           <div class="muted">
             {% trans "Your return code:" %}
@@ -46,8 +45,7 @@
             <span id="student-return-code-icons" class="return-code-icons hidden" aria-live="polite"></span>
             <button type="button" class="inline-copy" data-secret-target="student-return-code"
               data-show-label="{% trans 'Show return code' %}" data-hide-label="{% trans 'Hide return code' %}"
-              aria-controls="student-return-code" aria-pressed="false" aria-label="{% trans 'Show return code' %}">{%
-              trans "Show" %}</button>
+              aria-controls="student-return-code" aria-pressed="false" aria-label="{% trans 'Show return code' %}">{% trans "Show" %}</button>
             <button type="button" class="inline-copy" data-copy-secret-target="student-return-code"
               aria-label="{% trans 'Copy return code' %}">{% trans "Copy return code" %}</button>
             ({% trans "for rejoin" %})
@@ -330,8 +328,7 @@
               {% for g in gallery_entries %}
               <li>
                 <a href="/submission/{{ g.submission_id }}/download">{{ g.original_filename }}</a>
-                <span class="muted">· {{ g.display_name }}{% if g.is_owner %} (you){% endif %} · {{
-                  g.uploaded_at|date:"M j, g:i a" }}</span>
+                <span class="muted">· {{ g.display_name }}{% if g.is_owner %} (you){% endif %} · {{ g.uploaded_at|date:"M j, g:i a" }}</span>
               </li>
               {% endfor %}
             </ul>
@@ -442,8 +439,7 @@
               {% endif %}
               {% for criterion in spec.criteria %}
               {% with criterion_index=forloop.counter0 selected_score=state.rubric_scores|get_item:forloop.counter0 %}
-              <label for="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" class="muted stacked-rubric-label">{{
-                criterion }}</label>
+              <label for="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" class="muted stacked-rubric-label">{{ criterion }}</label>
               <select id="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" name="criterion_{{ criterion_index }}">
                 <option value="">Not scored</option>
                 {% for score in spec.scale_values %}

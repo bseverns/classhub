@@ -15,8 +15,7 @@
   <div class="shell">
     <main id="main-content">
       <div class="top">
-        <div class="muted"><a href="/student">{% trans "Back to class" %}</a> · <a href="/privacy">{% trans "Privacy"
-            %}</a> · <a href="/trust">{% trans "Trust notes" %}</a> · <a href="/student/portfolio">{% trans "What I made" %}</a> · <a href="/logout">{% trans "Log out" %}</a></div>
+        <div class="muted"><a href="/student">{% trans "Back to class" %}</a> · <a href="/privacy">{% trans "Privacy" %}</a> · <a href="/trust">{% trans "Trust notes" %}</a> · <a href="/student/portfolio">{% trans "What I made" %}</a> · <a href="/logout">{% trans "Log out" %}</a></div>
         <h1>{% trans "My Data" %}</h1>
         <div class="muted">{% trans "Signed in as" %} <strong>{{ student.display_name }}</strong> · {{ classroom.name }}
         </div>
@@ -30,8 +29,7 @@
         <h2 class="section-title-tight">{% trans "Privacy at a glance" %}</h2>
         <div class="privacy-note">
           <p class="muted">{% trans "Stored data: your display name, submissions, and class event timestamps." %}</p>
-          <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted
-            locally by your school or organization." }}</p>
+          <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
           <p class="muted">
             {% trans "Retention:" %}
             {% if submission_retention_days %}
@@ -40,8 +38,7 @@
             {% trans "submissions stay until a teacher or admin removes them." %}
             {% endif %}
           </p>
-          <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker
-            sharing." }}</p>
+          <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
         </div>
         <form method="post" action="/student/rename" class="rename-self-form">
           {% csrf_token %}

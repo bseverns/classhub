@@ -18,8 +18,7 @@
       <div class="hero">
         <h1>{% trans "Join your class" %}</h1>
         {% if invite_join_classroom %}
-        <p class="muted">{% blocktrans with class_name=invite_join_classroom.name %}You are joining <strong>{{
-            class_name }}</strong> by invite link.{% endblocktrans %}</p>
+        <p class="muted">{% blocktrans with class_name=invite_join_classroom.name %}You are joining <strong>{{ class_name }}</strong> by invite link.{% endblocktrans %}</p>
         {% else %}
         {% if ui_density_mode == "compact" %}
         <p class="muted">{% trans "Enter your class code and pick a display name." %}</p>
@@ -60,8 +59,7 @@
           <label for="return_code">{% trans "Return code (optional)" %}</label>
           <input id="return_code" name="return_code" placeholder="ABC234" autocomplete="one-time-code" maxlength="12"
             aria-describedby="return-code-help return-code-icon-preview" />
-          <p id="return-code-help" class="muted return-code-help">{% trans "If your class uses icon codes, use the icon
-            keypad below." %}</p>
+          <p id="return-code-help" class="muted return-code-help">{% trans "If your class uses icon codes, use the icon keypad below." %}</p>
           <div class="return-code-tools">
             <button type="button" id="return-code-icon-toggle" class="icon-tool-btn" aria-expanded="false"
               aria-controls="return-code-icon-bank">{% trans "Show icon keypad" %}</button>
@@ -80,8 +78,7 @@
         <div class="privacy-note" aria-live="polite">
           <p class="muted"><strong>{% trans "Privacy at a glance:" %}</strong></p>
           <p class="muted">{% trans "We store your display name, class submissions, and event timestamps." %}</p>
-          <p class="muted">{% trans "Storage location:" %} {{ operator_profile.storage_location_text|default:"hosted
-            locally" }}</p>
+          <p class="muted">{% trans "Storage location:" %} {{ operator_profile.storage_location_text|default:"hosted locally" }}</p>
           {% if ui_density_mode != "compact" %}
           <p class="muted">{% trans "Retention:" %}
             {% if submission_retention_days %}

@@ -1750,6 +1750,8 @@ class OperatorProfileTemplateTests(TestCase):
         self.assertEqual(join_resp.status_code, 200)
         self.assertContains(join_resp, "this server is hosted by Northside Public Schools.")
         self.assertContains(join_resp, "No surveillance analytics. No ad-tech. No data broker sharing.")
+        self.assertNotContains(join_resp, "{% trans", html=False)
+        self.assertNotContains(join_resp, "{{ operator_profile.", html=False)
         self.assertContains(join_resp, "/static/css/student_join.css")
         self.assertContains(join_resp, "/static/js/return_code_icons.js")
         self.assertContains(join_resp, "/static/js/student_join.js")
@@ -1763,6 +1765,8 @@ class OperatorProfileTemplateTests(TestCase):
         self.assertEqual(my_data_resp.status_code, 200)
         self.assertContains(my_data_resp, "this server is hosted by Northside Public Schools.")
         self.assertContains(my_data_resp, "No surveillance analytics. No ad-tech. No data broker sharing.")
+        self.assertNotContains(my_data_resp, "{% trans", html=False)
+        self.assertNotContains(my_data_resp, "{{ operator_profile.", html=False)
 
         admin_login_resp = self.client.get("/admin/login/")
         self.assertEqual(admin_login_resp.status_code, 200)
