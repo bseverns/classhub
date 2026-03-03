@@ -123,7 +123,7 @@ class StudentDeleteWorkTests(TestCase):
             StudentMaterialResponse.objects.filter(student=self.student).count(), 0
         )
 
-    def test_delete_work_removes_upload_events(self):
+    def test_delete_work_removes_student_class_events(self):
         self._login_student()
 
         StudentEvent.objects.create(
@@ -133,31 +133,43 @@ class StudentDeleteWorkTests(TestCase):
             source="test",
             details={"material_id": self.material.id},
         )
+        StudentEvent.objects.create(
+            classroom=self.classroom,
+            student=self.student,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="test",
+            details={"signal": "stuck"},
+        )
         self.assertEqual(
-            StudentEvent.objects.filter(
-                student=self.student,
-                event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
-            ).count(),
-            1,
+            StudentEvent.objects.filter(student=self.student, classroom=self.classroom).count(),
+            2,
         )
 
         resp = self.client.post("/student/delete-work")
         self.assertEqual(resp.status_code, 302)
 
-        # Upload events should be gone
-        self.assertEqual(
-            StudentEvent.objects.filter(
-                student=self.student,
-                event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
-            ).count(),
-            0,
-        )
+        # Class events for the deleting student should be gone
+        self.assertEqual(StudentEvent.objects.filter(student=self.student, classroom=self.classroom).count(), 0)
 
     def test_delete_work_does_not_remove_other_students_data(self):
         self._login_student()
 
         other_student = StudentIdentity.objects.create(
             classroom=self.classroom, display_name="Ben"
+        )
+        StudentEvent.objects.create(
+            classroom=self.classroom,
+            student=self.student,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="test",
+            details={},
+        )
+        StudentEvent.objects.create(
+            classroom=self.classroom,
+            student=other_student,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="test",
+            details={},
         )
         with tempfile.TemporaryDirectory() as media_root:
             with override_settings(MEDIA_ROOT=media_root):
@@ -182,6 +194,11 @@ class StudentDeleteWorkTests(TestCase):
                 self.assertEqual(Submission.objects.count(), 1)
                 remaining = Submission.objects.first()
                 self.assertEqual(remaining.student_id, other_student.id)
+                self.assertEqual(StudentEvent.objects.filter(student=self.student, classroom=self.classroom).count(), 0)
+                self.assertEqual(
+                    StudentEvent.objects.filter(student=other_student, classroom=self.classroom).count(),
+                    1,
+                )
 
     def test_delete_work_notice_message_in_redirect(self):
         self._login_student()

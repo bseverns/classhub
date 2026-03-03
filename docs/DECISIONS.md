@@ -1752,8 +1752,7 @@ Execution runbook:
 - Student upload opt-in now records publish intent only; it no longer auto-sets teacher approval.
 - Student unpublish always clears `is_gallery_shared`, so republish returns to pending-approval state.
 - Student self-delete copy is explicit:
-  - immediate delete removes submissions + learning responses + upload/artifact outcome events,
-  - other activity telemetry stays until retention cleanup.
+  - immediate delete removes submissions + learning responses + student-linked class events/outcomes.
 - When `CLASSHUB_STUDENT_SELF_DELETE_MODE=request`, teacher dashboard now includes a deletion-request queue with `Mark addressed`, logged as a resolution event.
 
 **Why this remains active:**

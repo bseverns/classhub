@@ -296,19 +296,21 @@ def student_delete_work(request):
     with StudentEvent.allow_retention_delete():
         deleted_events, _details = StudentEvent.objects.filter(
             student=request.student,
-            event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,
+            classroom=request.classroom,
         ).delete()
     with StudentOutcomeEvent.allow_retention_delete():
         deleted_outcomes, _details = StudentOutcomeEvent.objects.filter(
             student=request.student,
-            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            classroom=request.classroom,
         ).delete()
 
-    notice = (
-        f"Deleted {deleted_submissions} submission(s), "
-        f"{deleted_events} upload event record(s), and "
-        f"{deleted_outcomes} artifact outcome record(s)."
-    )
+    notice = _(
+        "Deleted %(submissions)s submission(s), %(events)s class event record(s), and %(outcomes)s outcome record(s)."
+    ) % {
+        "submissions": deleted_submissions,
+        "events": deleted_events,
+        "outcomes": deleted_outcomes,
+    }
     return redirect("/student/my-data?" + urlencode({"notice": notice}))
 
 

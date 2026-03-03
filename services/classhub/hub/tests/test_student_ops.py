@@ -1643,7 +1643,7 @@ class StudentDataControlsTests(TestCase):
         self.assertNotContains(resp, "onsubmit=\"return confirm(", html=False)
         self.assertContains(resp, "My submissions")
         self.assertContains(resp, "portfolio.sb3")
-        self.assertContains(resp, "Other class activity signals")
+        self.assertContains(resp, "class activity events in this class")
 
     def test_student_delete_work_now_clears_submissions_and_upload_events(self):
         Submission.objects.create(
@@ -1659,16 +1659,20 @@ class StudentDataControlsTests(TestCase):
             source="classhub.material_upload",
             details={"submission_id": 1},
         )
+        StudentEvent.objects.create(
+            classroom=self.classroom,
+            student=self.student,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="classhub.student_home",
+            details={"signal": "stuck"},
+        )
         self._login_student()
 
         resp = self.client.post("/student/delete-work")
         self.assertEqual(resp.status_code, 302)
         self.assertTrue(resp["Location"].startswith("/student/my-data?notice="))
         self.assertEqual(Submission.objects.filter(student=self.student).count(), 0)
-        self.assertEqual(
-            StudentEvent.objects.filter(student=self.student, event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD).count(),
-            0,
-        )
+        self.assertEqual(StudentEvent.objects.filter(student=self.student, classroom=self.classroom).count(), 0)
 
     def test_student_rename_updates_display_name(self):
         self._login_student()
@@ -1759,6 +1763,55 @@ class StudentDataControlsTests(TestCase):
                 event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
             ).count(),
             0,
+        )
+
+    def test_student_delete_work_now_keeps_other_students_events(self):
+        other_student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ben")
+        StudentEvent.objects.create(
+            classroom=self.classroom,
+            student=self.student,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="classhub.student_home",
+            details={},
+        )
+        StudentEvent.objects.create(
+            classroom=self.classroom,
+            student=other_student,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="classhub.student_home",
+            details={},
+        )
+        StudentOutcomeEvent.objects.create(
+            classroom=self.classroom,
+            student=self.student,
+            module=self.module,
+            material=self.upload,
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            source="test",
+            details={},
+        )
+        StudentOutcomeEvent.objects.create(
+            classroom=self.classroom,
+            student=other_student,
+            module=self.module,
+            material=self.upload,
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            source="test",
+            details={},
+        )
+        self._login_student()
+
+        resp = self.client.post("/student/delete-work")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(StudentEvent.objects.filter(student=self.student, classroom=self.classroom).count(), 0)
+        self.assertEqual(
+            StudentOutcomeEvent.objects.filter(student=self.student, classroom=self.classroom).count(),
+            0,
+        )
+        self.assertEqual(StudentEvent.objects.filter(student=other_student, classroom=self.classroom).count(), 1)
+        self.assertEqual(
+            StudentOutcomeEvent.objects.filter(student=other_student, classroom=self.classroom).count(),
+            1,
         )
 
     def test_student_end_session_flushes_session_and_hint_cookie(self):

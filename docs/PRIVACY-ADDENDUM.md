@@ -110,8 +110,7 @@ flowchart LR
 
 ## Deletion Paths
 - Student self-service:
-  - `/student/my-data` -> `Delete my work now` (deletes submissions, checklist/rubric/reflection responses, and upload/artifact outcome events for that student in-class).
-  - Other activity telemetry (for example join + check-in history) is retained until normal retention cleanup.
+  - `/student/my-data` -> `Delete my work now` (deletes submissions, checklist/rubric/reflection responses, and student-linked class activity/outcome events for that student in-class).
   - If `CLASSHUB_STUDENT_SELF_DELETE_MODE=request`, `/student/my-data` sends a staff request instead of immediate deletion.
   - `/student/my-data` -> `End my session on this device`.
 - Teacher control:

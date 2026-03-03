@@ -30,9 +30,9 @@
           <li>{% trans "Teachers and approved staff can see student work in their class. Other classes cannot." %}</li>
           <li>{% trans "Students can rename their display name from My Data at any time (safety rules still apply)." %}</li>
           {% if student_self_delete_mode == "request" %}
-          <li>{% trans "Students can request deletion of their own artifacts from My Data. Staff review the request before removal." %}</li>
+          <li>{% trans "Students can request deletion of their own artifacts and class activity history from My Data. Staff review the request before removal." %}</li>
           {% else %}
-          <li>{% trans "Students can delete their own artifacts from My Data at any time." %}</li>
+          <li>{% trans "Students can delete their own artifacts and class activity history from My Data at any time." %}</li>
           {% endif %}
           <li>
             {% trans "Retention policy for submissions:" %}
