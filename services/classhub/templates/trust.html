@@ -1,0 +1,64 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% trans "What We Store" %} | {{ operator_profile.product_name }}</title>
+  {% include "includes/glass_theme.html" %}
+  <link rel="stylesheet" href="{% static 'css/privacy.css' %}" />
+</head>
+
+<body class="glass-theme">
+  <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
+  <div class="shell">
+    <main id="main-content">
+      <div class="top">
+        <div class="muted"><a href="/">{% trans "Join page" %}</a> · <a href="/privacy">{% trans "Privacy page" %}</a></div>
+        <h1>{% trans "What we store / what we never store" %}</h1>
+        <p class="muted">{% trans "Plain-language trust notes for students, families, and staff." %}</p>
+      </div>
+
+      <section class="section-box">
+        <ul>
+          <li>{% trans "We store your class display name so your teacher can identify your work." %}</li>
+          <li>{% trans "We store your class files and activity responses (checklists, reflections, rubric answers)." %}</li>
+          <li>{% trans "We store basic event timestamps (for example join time and upload time)." %}</li>
+          <li>{% trans "We never require student email or student password for normal class use." %}</li>
+          <li>{% trans "We never sell student data and we do not run ad tracking." %}</li>
+          <li>{% trans "Teachers and approved staff can see student work in their class. Other classes cannot." %}</li>
+          <li>{% trans "Students can rename their display name from My Data at any time (safety rules still apply)." %}</li>
+          <li>{% trans "Students can delete their own artifacts from My Data. Some programs may switch this to request-only mode." %}</li>
+          <li>
+            {% trans "Retention policy for submissions:" %}
+            {% if submission_retention_days %}
+              {{ submission_retention_days }} {% trans "day(s)." %}
+            {% else %}
+              {% trans "operator-controlled by class policy." %}
+            {% endif %}
+          </li>
+          <li>
+            {% trans "Retention policy for event metadata:" %}
+            {% if student_event_retention_days %}
+              {{ student_event_retention_days }} {% trans "day(s)." %}
+            {% else %}
+              {% trans "operator-controlled by class policy." %}
+            {% endif %}
+          </li>
+        </ul>
+      </section>
+
+      <section class="section-box">
+        <h2>{% trans "Quick controls" %}</h2>
+        <p class="muted">
+          {% trans "Student controls are at" %} <code>/student/my-data</code>:
+          {% trans "rename, download, delete, and end session." %}
+        </p>
+        <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
+      </section>
+    </main>
+  </div>
+</body>
+
+</html>

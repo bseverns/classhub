@@ -37,6 +37,7 @@ urlpatterns = [
     # Student flow (class-code login and classroom page).
     path("", views.index),
     path("privacy", views.privacy_policy),
+    path("trust", views.trust_page),
     path("invite/<slug:invite_token>", views.invite_join),
     path("join", views.join_class),
     path("student", views.student_home),

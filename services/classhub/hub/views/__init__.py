@@ -32,6 +32,7 @@ from .student import (
     student_return_code,
     submission_download,
     privacy_policy,
+    trust_page,
 )
 from .student_micro_checks import student_micro_check
 from .student_materials import material_checklist, material_reflection, material_rubric
@@ -121,6 +122,7 @@ __all__ = [
     "student_return_code",
     "submission_download",
     "privacy_policy",
+    "trust_page",
     "teach_add_material",
     "teach_add_module",
     "teach_assets",

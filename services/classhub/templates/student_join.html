@@ -95,11 +95,12 @@
             <a href="/student/my-data">{% trans "My Data" %}</a> &mdash;
             {% trans "delete your work or end session." %}
           </p>
+          <p class="muted">{% trans "Learn more:" %} <a href="/trust">{% trans "What we store / never store" %}</a></p>
           <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads." }}</p>
         </div>
       </div>
 
-      <p class="muted entry-note">{% blocktrans %}Teacher? Use <a href="/teach">/teach</a>.{% endblocktrans %}</p>
+      <p class="muted entry-note">{% blocktrans %}Teacher? Use <a href="/teach">/teach</a>.{% endblocktrans %} · <a href="/trust">{% trans "Trust notes" %}</a></p>
       {% include "includes/language_chooser.html" %}
     </main>
   </div>

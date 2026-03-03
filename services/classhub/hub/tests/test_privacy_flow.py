@@ -15,6 +15,22 @@ class PrivacyPageTests(TestCase):
         # Should mention data deletion or controls
         self.assertContains(resp, "delete", status_code=200)
 
+    def test_trust_page_renders_for_anonymous_visitor(self):
+        resp = self.client.get("/trust")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "What we store")
+        self.assertContains(resp, "never store")
+
+    def test_join_page_links_to_trust_page(self):
+        resp = self.client.get("/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'href="/trust"')
+
+    def test_privacy_page_links_to_trust_page(self):
+        resp = self.client.get("/privacy")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'href="/trust"')
+
 
 class StudentDeleteWorkTests(TestCase):
     def setUp(self):

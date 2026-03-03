@@ -22,11 +22,13 @@
             · <a href="/">{% trans "Join page" %}</a>
             · <a href="/student/portfolio-export">{% trans "Export my portfolio" %}</a>
             · <a href="/privacy">{% trans "Privacy" %}</a>
+            · <a href="/trust">{% trans "Trust notes" %}</a>
             {% if ui_density_mode == "expanded" %}
             · <a href="#studio-handles">Studio handles</a>
             {% endif %}
             {% else %}
             · <a href="/privacy">{% trans "Privacy" %}</a>
+            · <a href="/trust">{% trans "Trust notes" %}</a>
             {% endif %}
           </div>
           <h1>{{ classroom.name }}</h1>

@@ -100,6 +100,17 @@ def privacy_policy(request):
     return response
 
 
+@require_GET
+def trust_page(request):
+    response = render(
+        request,
+        "trust.html",
+        {**privacy_meta_context()},
+    )
+    apply_no_store(response, private=False, pragma=True)
+    return response
+
+
 def _student_home_helper_widget(*, classroom: Class, ui_density_mode: str, privacy_meta: dict) -> str:
     helper_description = "This is a Day-1 wire-up. It will become smarter once it can cite your class materials."
     if ui_density_mode == "compact":
@@ -396,6 +407,7 @@ def student_logout(request):
 __all__ = [
     "healthz",
     "privacy_policy",
+    "trust_page",
     "student_home",
     "student_return_code",
     "student_portfolio_export",
