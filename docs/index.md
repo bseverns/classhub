@@ -18,6 +18,7 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
 ## Core links
 - [Start Here Overview](START_HERE.md)
 - [Risk & Data Posture](RISK_AND_DATA_POSTURE.md)
+- [Privacy Addendum](PRIVACY-ADDENDUM.md)
 - [Program Lifecycle](PROGRAM_LIFECYCLE.md)
 - [Screenshot Gallery](SCREENSHOT_GALLERY.md)
 - [Docs Map](DOCS_MAP.md)
@@ -26,12 +27,13 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
 - Pilot guide: [PILOT_PLAYBOOK.md](PILOT_PLAYBOOK.md)
 - Week 1 target: students can join, submit, and teachers can review from `/teach` without manual triage.
 - Reliability checks: `/healthz`, `/helper/healthz`, join flow, helper flow, teacher route checks.
+- Trust checks: `/trust` and `/student/my-data` are visible and functional for student data controls.
 
 ## Optional: screenshots
 ??? info "Open press screenshots"
     This section mirrors the full shot list in `press/screenshots/SHOTLIST.md`.
 
-    Captured now (`01`–`08`):
+    Captured now (`01`–`08`; `02`, `05`, and `06` are queued for refresh):
 
     ![01 Student join](images/press/01-student-join.png)
 
@@ -76,11 +78,11 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
     | Shot | Status | Notes |
     | --- | --- | --- |
     | `01-student-join.png` | Captured | Student join |
-    | `02-student-class-view.png` | Captured | Student landing |
+    | `02-student-class-view.png` | Captured (refresh queued) | Student landing |
     | `03-teacher-dashboard.png` | Captured | Teacher home |
     | `04-teacher-lesson-tracker.png` | Captured | Lessons tracker |
-    | `05-lesson-with-helper.png` | Captured | Lesson + helper |
-    | `06-submission-dropbox.png` | Captured | Submission flow |
+    | `05-lesson-with-helper.png` | Captured (refresh queued) | Lesson + helper |
+    | `06-submission-dropbox.png` | Captured (refresh queued) | Submission flow |
     | `07-admin-login.png` | Captured | Admin login |
     | `08-health-checks-terminal.png` | Captured | Ops checks |
     | `09-teacher-profile-tab.png` | Placeholder | Teacher profile tab |

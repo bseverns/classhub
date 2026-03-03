@@ -8,7 +8,8 @@ This folder provides reuse-ready, factual materials for evaluators, partners, an
 2. Copy short descriptions from `press/blurbs.md`.
 3. Use `press/architecture.md` and `press/screenshots/SHOTLIST.md` for visuals.
 4. Use `press/experience_map.md` to choose role-based narrative paths.
-5. If you need screenshots not yet captured, use `press/screenshots/PLACEHOLDERS.md`.
+5. Validate trust/privacy claims against `docs/RISK_AND_DATA_POSTURE.md` and `docs/PRIVACY-ADDENDUM.md`.
+6. If you need screenshots not yet captured (or queued for refresh), use `press/screenshots/PLACEHOLDERS.md`.
 
 ## Verification signal
 If this press kit is complete for your use case, you can assemble a short external summary without opening internal engineering docs.
@@ -25,5 +26,6 @@ If this press kit is complete for your use case, you can assemble a short extern
 - Do not publish real student data.
 - Use demo screenshots only.
 - Keep claims factual and tied to current docs.
+- Include teacher-only-by-default artifact visibility when describing gallery/portfolio workflows.
 - Keep screenshot filenames stable once published so docs links stay valid.
 - When UI structure changes, refresh existing captures before adding net-new shots.

@@ -20,6 +20,7 @@ If you need the shortest role-specific briefing, use one of these pages:
 - Instructor / Assistant: [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md)
 - First-time class run: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
 - Plain-language data handling: [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md)
+- Field-level retention + deletion behavior: [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md)
 - Program narrative for partners/funders: [PROGRAM_LIFECYCLE.md](PROGRAM_LIFECYCLE.md)
 - Short instructor/ops playbooks: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md)
 
@@ -103,6 +104,9 @@ flowchart TD
 
 - Student join: `/`
 - Student class view: `/student`
+- Trust boundaries page: `/trust`
+- Student data controls: `/student/my-data`
+- Student portfolio + gallery: `/student/portfolio`, `/student/gallery`
 - Teacher portal: `/teach`
 - Admin login: `/admin/login/`
 - Edge health: `/healthz`

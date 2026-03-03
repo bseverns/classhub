@@ -1,7 +1,7 @@
 # Screenshot Placeholders
 
 ## Summary
-This file tracks planned screenshot filenames that are not yet captured with final UI images.
+This file tracks screenshot work that is either still placeholder-only or captured but queued for refresh.
 
 ## What to do now
 1. Capture each target in a demo environment.
@@ -15,10 +15,12 @@ Each placeholder entry below has a `.png` present in both screenshot folders:
 
 During planning, these may be generated placeholder images. Replace them with real captures before external publication.
 
-## Planned files
+## Refresh captures (real screenshot exists)
 - `02-student-class-view.png` (refresh capture to show current landing structure)
 - `05-lesson-with-helper.png` (refresh capture to show helper collapsed/open behavior)
 - `06-submission-dropbox.png` (refresh capture for simplified status copy)
+
+## Placeholder-to-capture backlog
 - `09-teacher-profile-tab.png`
 - `10-org-management-tab.png`
 - `11-invite-only-enrollment.png`

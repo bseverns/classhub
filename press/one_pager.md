@@ -22,13 +22,16 @@ A reader should understand the system scope, deployment shape, and privacy stanc
 
 ## Key features
 - Student join by class code + pseudonym display name (no student password accounts in MVP).
+- Plain-language trust page (`/trust`) and student self-service data controls (`/student/my-data`).
 - Multi-lingual UI support on student-facing content.
 - Student home centered on `This week`, `Course links`, and `Account` so first actions are obvious.
+- Artifact-first student workflow: portfolio history at `/student/portfolio` and student opt-in + teacher-moderated gallery sharing at `/student/gallery`.
 - Progressive disclosure in student UI (collapsed modules/helper/forms) to reduce overload.
 - Teacher/admin auth with OTP support and teacher self-service profile updates.
 - Organization-aware staff access with optional hard org boundary mode.
 - Invite-only enrollment controls with expiring/seat-capped invite links.
 - Lesson release controls, upload dropboxes, and privacy-safe export tooling.
+- Help-first facilitation board prioritizing “I’m stuck” signals and upload friction without ranking students.
 - Outcomes and certificate eligibility/issuance workflows for teacher reporting.
 - Site degradation modes for operational incidents.
 - Accessibility smoke gate in CI for core student/teacher routes.
@@ -42,7 +45,9 @@ A reader should understand the system scope, deployment shape, and privacy stanc
 - Minimal student identity model.
 - No surveillance analytics posture.
 - No helper prompt archive.
+- Student artifacts are teacher-only by default unless explicitly published by the student and approved by staff.
 - Explicit retention and cleanup operations.
+- Per-class retention presets (`erase_after_7_days`, `keep_for_semester`, `keep_until_student_deletes`) applied by existing prune jobs.
 - Hardened download and no-store patterns on sensitive routes.
 - Export and certificate/report surfaces avoid helper prompt content by design.
 - UI density can be configured by cohort (`compact` / `standard` / `expanded`) without changing privacy boundaries.

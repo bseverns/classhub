@@ -4,6 +4,7 @@ This gallery embeds every screenshot slot defined in `press/screenshots/SHOTLIST
 
 Status model:
 - `Captured`: real screenshot from current product UI.
+- `Captured (refresh queued)`: real screenshot exists, but a recapture is planned to match the latest UI.
 - `Placeholder`: generated stand-in image awaiting final capture.
 
 ## Student experience
@@ -11,10 +12,10 @@ Status model:
 ### 01. Student join (`Captured`)
 ![01 Student join](images/press/01-student-join.png)
 
-### 02. Student class landing (`Captured`)
+### 02. Student class landing (`Captured (refresh queued)`)
 ![02 Student class view](images/press/02-student-class-view.png)
 
-### 05. Lesson with helper open (`Captured`)
+### 05. Lesson with helper open (`Captured (refresh queued)`)
 ![05 Lesson with helper](images/press/05-lesson-with-helper.png)
 
 ### 14. Student compact density (`Placeholder`)
@@ -37,7 +38,7 @@ Status model:
 ### 04. Teacher lesson tracker (`Captured`)
 ![04 Teacher lesson tracker](images/press/04-teacher-lesson-tracker.png)
 
-### 06. Submission dropbox (`Captured`)
+### 06. Submission dropbox (`Captured (refresh queued)`)
 ![06 Submission dropbox](images/press/06-submission-dropbox.png)
 
 ### 09. Teacher profile tab (`Placeholder`)

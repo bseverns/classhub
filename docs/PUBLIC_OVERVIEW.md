@@ -7,6 +7,7 @@ Class Hub is a classroom-first, self-hosted micro-LMS with a separate Homework H
 1. Decide if this fits your context (quick bullets below).
 2. Try the local demo path in [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md).
 3. If you plan public deployment, read [SECURITY.md](SECURITY.md), then [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) and [RUNBOOK.md](RUNBOOK.md).
+4. For plain-language trust boundaries, review [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) and [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md).
 
 If you are reading this as leadership rather than as a technical evaluator, start with:
 - [START_HERE_ED.md](START_HERE_ED.md)
@@ -33,8 +34,12 @@ If this page is useful, you should be able to answer: who this is for, what it d
 
 ## What makes it different
 - Privacy-first defaults (minimal student identity model, explicit retention controls).
+- Plain-language trust controls in-product (`/trust`, `/student/my-data`) for rename/export/delete without filing a ticket.
+- Per-class retention presets integrated with existing prune/retention operations.
 - Calm student join model (no student email/password in MVP).
 - Student home starts with a clear weekly launch path (`This week` + `Course links` + `Account`).
+- Artifact-first student flow (`/student/portfolio`) with opt-in gallery sharing (`/student/gallery`) and teacher moderation.
+- Help-first facilitation support board surfaces “I'm stuck”, upload errors, and context without rankings.
 - Multi-lingual UI support on student-facing content.
 - Public-domain hardening options (CSP, site-mode degradation, proxy guardrails).
 - Self-hosted architecture with boring, inspectable components (Django, Postgres, Redis, Caddy).
@@ -55,9 +60,11 @@ Current captures:
 
 ![Student join screen](images/press/01-student-join.png)
 
-![Student class landing](images/press/02-student-class-view.png)
+![Student class landing (refresh queued)](images/press/02-student-class-view.png)
 
-![Lesson page with helper](images/press/05-lesson-with-helper.png)
+![Lesson page with helper (refresh queued)](images/press/05-lesson-with-helper.png)
+
+![Submission dropbox (refresh queued)](images/press/06-submission-dropbox.png)
 
 ![Teacher dashboard](images/press/03-teacher-dashboard.png)
 
