@@ -179,6 +179,13 @@ run_compose() {
   docker compose "${COMPOSE_ARGS[@]}" "$@"
 }
 
+print_compose_diagnostics() {
+  echo "[golden-smoke] compose service state (for failure diagnosis):" >&2
+  run_compose ps >&2 || true
+  echo "[golden-smoke] recent compose logs (tail=200):" >&2
+  run_compose logs --no-color --tail=200 classhub_web helper_web caddy postgres redis >&2 || true
+}
+
 health_state() {
   local container_name="$1"
   docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "${container_name}" 2>/dev/null || true
@@ -298,7 +305,10 @@ if [[ -n "${SMOKE_BASE_URL}" ]]; then
   SMOKE_ENV+=("SMOKE_BASE_URL=${SMOKE_BASE_URL}")
 fi
 
-env "${SMOKE_ENV[@]}" "${SMOKE_SCRIPT}" --strict
+if ! env "${SMOKE_ENV[@]}" "${SMOKE_SCRIPT}" --strict; then
+  print_compose_diagnostics
+  fail "strict smoke checks failed"
+fi
 
 echo "[golden-smoke] running invite-only + CSV export checks"
 BASE_URL="$(resolved_smoke_base_url)"

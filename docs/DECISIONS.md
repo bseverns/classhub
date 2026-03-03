@@ -646,6 +646,9 @@ Historical implementation logs and superseded decisions are archived by month in
 - `deploy_with_smoke.sh` now auto-retries with golden smoke when strict smoke fails specifically due stale `SMOKE_CLASS_CODE` (`/join` -> `invalid_code`).
 - `smoke_check.sh` now emits an explicit stale-code diagnostic for `/join invalid_code` failures, with remediation guidance.
 - `smoke_check.sh` now retries `/helper/chat` for transient backend startup failures (`502` + `ollama_error`) before failing deploy smoke.
+- `smoke_check.sh` now captures and prints `/student` response headers/body excerpts when the student page returns non-200, so CI output includes concrete failure context.
+- `golden_path_smoke.sh` and `system_doctor.sh` now print compose service state + recent logs when smoke fails, not only when `compose up` fails.
+- Smoke diagnostics now query compose logs using service names (`caddy`, `classhub_web`, `helper_web`, etc.) rather than container names so log collection does not fail under `docker compose logs`.
 - Regression coverage is required for helper auth/admin hardening and backend retry/circuit behavior.
 - `ops/systemd/classhub-retention.service` now refuses root execution by default unless `CLASSHUB_ALLOW_ROOT_MAINTENANCE=1` is explicitly set as a break-glass override.
 - `ops/systemd/classhub-retention.service` now pins explicit non-root runtime identity (`User=lms`, `Group=docker`) and baseline systemd hardening flags (`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem`, `ProtectHome`, etc.).
@@ -664,6 +667,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keeps strict smoke focused on route authorization outcomes instead of brittle intermediate login form internals.
 - Reduces deploy failures caused by class-code rotation between smoke runs without weakening strict smoke checks for other regressions.
 - Reduces false negative deploy smoke failures when local Ollama is healthy but still warming model execution for the first generation request.
+- Reduces time-to-root-cause for student-flow regressions by surfacing route-level failure payloads and backend traceback logs in the same CI run.
 - Reduces accidental privileged execution for unattended retention maintenance jobs.
 - Reduces host-level blast radius if the maintenance unit or script path is compromised.
 
@@ -1599,3 +1603,18 @@ Historical implementation logs and superseded decisions are archived by month in
 - Teachers and operators can onboard externally authored curricula without manual file surgery in the repo tree.
 - ZIP-first support matches real inbound package formats (multi-file session folders, course descriptions, templates).
 - Centralized ingest rules reduce drift between authoring scripts and portal behavior while preserving inspectable disk artifacts.
+
+## Cross-service test discovery guard for `test_student_view.py`
+
+**Current decision:**
+- Keep `test_student_view.py` as a lightweight Class Hub smoke test, but make it explicitly skip when the active Django settings module does not install the `hub` app.
+- Avoid importing `hub` models/views at module import time unless `hub` is present in `INSTALLED_APPS`.
+- Resolve app installation via Django app registry (`apps.is_installed("hub")`) with a fallback for string-based app entries so `hub.apps.HubConfig` is treated as installed.
+- Exercise the student smoke through the real learner flow (`POST /join` then `GET /student`) instead of directly invoking `student_home` with `RequestFactory`.
+- Force non-manifest static storage inside this smoke test (`StaticFilesStorage`) so template rendering checks are not blocked by missing `collectstatic` manifest entries in unit-test environments.
+
+**Why this remains active:**
+- CI and local commands for the Homework Helper service can still discover top-level `test_*.py` files.
+- Guarding imports prevents false-negative failures (`app_label`/`INSTALLED_APPS` mismatch) in unrelated service test runs while preserving the Class Hub smoke signal when run in the correct settings context.
+- End-to-end learner smoke now catches runtime regressions in session establishment/middleware/template rendering that present as `/student` 500s after join.
+- The smoke remains focused on join/session/view behavior instead of static build pipeline artifacts.
