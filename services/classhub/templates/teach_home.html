@@ -39,6 +39,11 @@
             <button type="button" class="top-tab" id="tab-profile" role="tab" aria-controls="panel-profile" aria-selected="false">
               My profile
             </button>
+            {% if rbac_tools_enabled %}
+              <button type="button" class="top-tab" id="tab-rbac-tools" role="tab" aria-controls="panel-rbac-tools" aria-selected="false">
+                RBAC tools
+              </button>
+            {% endif %}
             {% if request.user.is_superuser %}
               <button type="button" class="top-tab" id="tab-invite-teacher" role="tab" aria-controls="panel-invite-teacher" aria-selected="false">
                 Invite teacher
@@ -113,6 +118,187 @@
               </div>
             </form>
           </section>
+
+          {% if rbac_tools_enabled %}
+            <section class="top-tab-panel" id="panel-rbac-tools" role="tabpanel" aria-labelledby="tab-rbac-tools" hidden>
+              <h2 class="section-title">RBAC tools</h2>
+              <div class="muted section-subtitle">
+                Manage module-range scoped grants and run read-only capability simulation.
+              </div>
+
+              <h3 class="section-title-compact">Upsert scoped grant</h3>
+              <form method="post" action="/teach/rbac/module-scope-grant/upsert">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="rbac-class-id">Class</label>
+                    <select id="rbac-class-id" name="rbac_class_id" required>
+                      <option value="">Select class</option>
+                      {% for c in rbac_classes %}
+                        <option value="{{ c.id }}" {% if rbac_class_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-user-id">Staff user</label>
+                    <select id="rbac-user-id" name="rbac_user_id" required>
+                      <option value="">Select staff user</option>
+                      {% for account in rbac_staff_users %}
+                        <option value="{{ account.id }}" {% if rbac_user_id == account.id|stringformat:"s" %}selected{% endif %}>
+                          {{ account.username }}{% if account.is_superuser %} (superuser){% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-capability">Capability</label>
+                    <select id="rbac-capability" name="rbac_capability" required>
+                      {% for value, label in rbac_capability_choices %}
+                        <option value="{{ value }}" {% if rbac_capability == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-effect">Effect</label>
+                    <select id="rbac-effect" name="rbac_effect" required>
+                      {% for value, label in rbac_effect_choices %}
+                        <option value="{{ value }}" {% if rbac_effect == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-module-start">Module order start</label>
+                    <input id="rbac-module-start" name="rbac_module_start" type="number" min="0" max="50000" value="{{ rbac_module_start }}" required />
+                  </div>
+                  <div>
+                    <label for="rbac-module-end">Module order end</label>
+                    <input id="rbac-module-end" name="rbac_module_end" type="number" min="0" max="50000" value="{{ rbac_module_end }}" required />
+                  </div>
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
+                      <input type="checkbox" name="rbac_grant_active" value="1" {% if rbac_grant_active == "1" %}checked{% endif %} />
+                      Grant active
+                    </label>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Save scoped grant</button>
+                </div>
+              </form>
+
+              <h3 class="section-title-compact">Simulate capability</h3>
+              <form method="post" action="/teach/rbac/simulate">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="rbac-sim-user-id">Staff user</label>
+                    <select id="rbac-sim-user-id" name="rbac_sim_user_id" required>
+                      <option value="">Select staff user</option>
+                      {% for account in rbac_staff_users %}
+                        <option value="{{ account.id }}" {% if rbac_sim_user_id == account.id|stringformat:"s" %}selected{% endif %}>
+                          {{ account.username }}{% if account.is_superuser %} (superuser){% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-sim-capability">Capability</label>
+                    <select id="rbac-sim-capability" name="rbac_sim_capability" required>
+                      {% for value, label in rbac_capability_choices %}
+                        <option value="{{ value }}" {% if rbac_sim_capability == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-sim-class-id">Class (optional)</label>
+                    <select id="rbac-sim-class-id" name="rbac_sim_class_id">
+                      <option value="">No class scope</option>
+                      {% for c in rbac_classes %}
+                        <option value="{{ c.id }}" {% if rbac_sim_class_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-sim-module-id">Module id (optional)</label>
+                    <input id="rbac-sim-module-id" name="rbac_sim_module_id" type="number" min="1" value="{{ rbac_sim_module_id }}" />
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Run simulation</button>
+                </div>
+              </form>
+
+              {% if rbac_simulation_result %}
+                <div class="rbac-sim-result">
+                  <h4 class="section-title-compact">Simulation result</h4>
+                  {% if rbac_simulation_result.allowed %}
+                    <p><span class="state-pill state-pill--open">Allowed</span></p>
+                  {% else %}
+                    <p><span class="state-pill state-pill--locked">Denied</span></p>
+                  {% endif %}
+                  <div class="muted">
+                    capability={{ rbac_simulation_result.capability }} · reason={{ rbac_simulation_result.reason }} · role={{ rbac_simulation_result.role|default:"(none)" }}
+                  </div>
+                  <div class="muted">
+                    org={{ rbac_simulation_result.organization_id|default:"-" }} · class={{ rbac_simulation_result.classroom_id|default:"-" }} · module={{ rbac_simulation_result.module_id|default:"-" }}
+                  </div>
+                </div>
+              {% endif %}
+
+              {% if rbac_scope_grants %}
+                <h3 class="section-title-compact">Current scoped grants</h3>
+                <div class="table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Current module scope grants</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Class</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Capability</th>
+                        <th scope="col">Effect</th>
+                        <th scope="col">Range</th>
+                        <th scope="col">Status</th>
+                        <th scope="col"><span class="visually-hidden">Action</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for grant in rbac_scope_grants %}
+                        <tr>
+                          <td><strong>{{ grant.classroom.name }}</strong></td>
+                          <td>{{ grant.user.username }}</td>
+                          <td>{{ grant.capability }}</td>
+                          <td>{{ grant.effect }}</td>
+                          <td>{{ grant.module_order_start }}-{{ grant.module_order_end }}</td>
+                          <td>
+                            {% if grant.is_active %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Inactive</span>
+                            {% endif %}
+                          </td>
+                          <td>
+                            <form method="post" action="/teach/rbac/module-scope-grant/set-active" class="inline-form">
+                              {% csrf_token %}
+                              <input type="hidden" name="rbac_grant_id" value="{{ grant.id }}" />
+                              {% if grant.is_active %}
+                                <input type="hidden" name="rbac_grant_active" value="0" />
+                                <button type="submit" class="mini">Set inactive</button>
+                              {% else %}
+                                <input type="hidden" name="rbac_grant_active" value="1" />
+                                <button type="submit" class="mini">Set active</button>
+                              {% endif %}
+                            </form>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted">No scoped grants yet for your accessible classes.</p>
+              {% endif %}
+            </section>
+          {% endif %}
 
           {% if request.user.is_superuser %}
             <section class="top-tab-panel" id="panel-invite-teacher" role="tabpanel" aria-labelledby="tab-invite-teacher" hidden>

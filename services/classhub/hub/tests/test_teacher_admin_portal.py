@@ -1932,6 +1932,7 @@ class TeacherOrganizationAccessTests(TestCase):
         resp = self.client.get("/teach")
         self.assertEqual(resp.status_code, 200)
         self.assertNotContains(resp, "Syllabus Exports")
+        self.assertNotContains(resp, "RBAC tools")
 
     def test_teacher_role_cannot_export_syllabus(self):
         resp = self.client.get("/teach/syllabus-export?kind=catalog_csv")
@@ -1945,10 +1946,172 @@ class TeacherOrganizationAccessTests(TestCase):
         home_resp = self.client.get("/teach")
         self.assertEqual(home_resp.status_code, 200)
         self.assertContains(home_resp, "Syllabus Exports")
+        self.assertContains(home_resp, "RBAC tools")
+        self.assertContains(home_resp, "/teach/rbac/module-scope-grant/upsert")
+        self.assertContains(home_resp, "/teach/rbac/simulate")
 
         resp = self.client.get("/teach/syllabus-export?kind=catalog_csv")
         self.assertEqual(resp.status_code, 200)
         self.assertIn("attachment;", resp["Content-Disposition"])
+
+    def test_org_admin_can_upsert_scoped_grant_from_teach_home(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+        target_staff = get_user_model().objects.create_user(
+            username="rbac_target_org",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=target_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+
+        resp = self.client.post(
+            "/teach/rbac/module-scope-grant/upsert",
+            {
+                "rbac_class_id": str(self.class_a.id),
+                "rbac_user_id": str(target_staff.id),
+                "rbac_capability": ClassStaffModuleScopeGrant.CAP_SUBMISSION_VIEW,
+                "rbac_effect": ClassStaffModuleScopeGrant.EFFECT_DENY,
+                "rbac_module_start": "0",
+                "rbac_module_end": "1",
+                "rbac_grant_active": "1",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+        grant = ClassStaffModuleScopeGrant.objects.filter(
+            classroom=self.class_a,
+            user=target_staff,
+            capability=ClassStaffModuleScopeGrant.CAP_SUBMISSION_VIEW,
+            effect=ClassStaffModuleScopeGrant.EFFECT_DENY,
+            module_order_start=0,
+            module_order_end=1,
+        ).first()
+        self.assertIsNotNone(grant)
+        self.assertTrue(grant.is_active)
+
+        event = AuditEvent.objects.filter(action="rbac.scope_grant.portal_upsert", target_id=str(grant.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_org_admin_can_toggle_scoped_grant_active_from_teach_home(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+        target_staff = get_user_model().objects.create_user(
+            username="rbac_toggle_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=target_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        grant = ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.class_a,
+            user=target_staff,
+            capability=ClassStaffModuleScopeGrant.CAP_SUBMISSION_DELETE,
+            effect=ClassStaffModuleScopeGrant.EFFECT_ALLOW,
+            module_order_start=0,
+            module_order_end=0,
+            is_active=True,
+        )
+
+        resp = self.client.post(
+            "/teach/rbac/module-scope-grant/set-active",
+            {"rbac_grant_id": str(grant.id), "rbac_grant_active": "0"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        grant.refresh_from_db()
+        self.assertFalse(grant.is_active)
+        event = AuditEvent.objects.filter(action="rbac.scope_grant.portal_set_active", target_id=str(grant.id)).first()
+        self.assertIsNotNone(event)
+
+    def test_org_admin_can_simulate_rbac_from_teach_home(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+        target_staff = get_user_model().objects.create_user(
+            username="rbac_sim_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=target_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        module = Module.objects.create(classroom=self.class_a, title="Sim Module", order_index=0)
+
+        resp = self.client.post(
+            "/teach/rbac/simulate",
+            {
+                "rbac_sim_user_id": str(target_staff.id),
+                "rbac_sim_capability": ClassStaffModuleScopeGrant.CAP_SUBMISSION_VIEW,
+                "rbac_sim_class_id": str(self.class_a.id),
+                "rbac_sim_module_id": str(module.id),
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("rbac_sim_result=1", resp["Location"])
+
+        result_page = self.client.get(resp["Location"])
+        self.assertEqual(result_page.status_code, 200)
+        self.assertContains(result_page, "Simulation result")
+        self.assertContains(result_page, "reason=")
+
+        event = AuditEvent.objects.filter(action="rbac.simulate.portal", target_id=str(target_staff.id)).first()
+        self.assertIsNotNone(event)
+
+    def test_teacher_role_cannot_upsert_scoped_grant_from_teach_home(self):
+        target_staff = get_user_model().objects.create_user(
+            username="rbac_blocked_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=target_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+
+        resp = self.client.post(
+            "/teach/rbac/module-scope-grant/upsert",
+            {
+                "rbac_class_id": str(self.class_a.id),
+                "rbac_user_id": str(target_staff.id),
+                "rbac_capability": ClassStaffModuleScopeGrant.CAP_SUBMISSION_VIEW,
+                "rbac_effect": ClassStaffModuleScopeGrant.EFFECT_ALLOW,
+                "rbac_module_start": "0",
+                "rbac_module_end": "0",
+                "rbac_grant_active": "1",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?error=", resp["Location"])
+        self.assertFalse(
+            ClassStaffModuleScopeGrant.objects.filter(
+                classroom=self.class_a,
+                user=target_staff,
+                capability=ClassStaffModuleScopeGrant.CAP_SUBMISSION_VIEW,
+                effect=ClassStaffModuleScopeGrant.EFFECT_ALLOW,
+                module_order_start=0,
+                module_order_end=0,
+            ).exists()
+        )
 
     def test_teach_class_dashboard_blocks_other_org(self):
         resp = self.client.get(f"/teach/class/{self.class_b.id}")

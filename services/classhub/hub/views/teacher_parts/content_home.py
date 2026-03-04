@@ -1,5 +1,10 @@
 """Teacher home and authoring template endpoints."""
 
+from .content_rbac_tools import (
+    build_rbac_tools_context,
+    rbac_tools_enabled_for_user,
+    rbac_tools_requested,
+)
 from .content_syllabus_exports import build_syllabus_export_state
 from .shared import (
     FileResponse,
@@ -64,9 +69,11 @@ def _read_profile_state(request, user):
         or bool(profile_first_name or profile_last_name or profile_email),
     }
 
-def _resolve_initial_top_tab(*, user, profile_tab_active, org_admin_active, teacher_invite_active):
+def _resolve_initial_top_tab(*, user, profile_tab_active, org_admin_active, teacher_invite_active, rbac_tools_active):
     if profile_tab_active:
         return "profile"
+    if rbac_tools_active:
+        return "rbac-tools"
     if user.is_superuser and org_admin_active:
         return "org-admin"
     if user.is_superuser and teacher_invite_active:
@@ -150,6 +157,8 @@ def teach_home(request):
     teacher_last_name = (request.GET.get("teacher_last_name") or "").strip()
     org_state = _read_org_admin_state(request)
     profile_state = _read_profile_state(request, request.user)
+    rbac_tools_enabled = rbac_tools_enabled_for_user(request.user)
+    rbac_tools_active = rbac_tools_requested(request) and rbac_tools_enabled
     teacher_invite_active = bool(
         teacher_username or teacher_email or teacher_first_name or teacher_last_name
     )
@@ -158,6 +167,7 @@ def teach_home(request):
         profile_tab_active=profile_state["profile_tab_active"],
         org_admin_active=org_state["org_admin_active"],
         teacher_invite_active=teacher_invite_active,
+        rbac_tools_active=rbac_tools_active,
     )
 
     classes, assigned_class_ids = staff_accessible_classes_ranked(request.user)
@@ -176,6 +186,7 @@ def teach_home(request):
     syllabus_export_state = build_syllabus_export_state(request)
 
     org_admin_context = _build_org_admin_context(user=request.user, user_model=User)
+    rbac_tools_context = build_rbac_tools_context(request=request, classes=classes)
 
     response = render(
         request,
@@ -217,6 +228,7 @@ def teach_home(request):
             "org_membership_mode": staff_has_explicit_memberships(request.user),
             **syllabus_export_state,
             **org_admin_context,
+            **rbac_tools_context,
         },
     )
     apply_no_store(response, private=True, pragma=True)

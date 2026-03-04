@@ -15,7 +15,10 @@ from .teacher_parts.content import (
     teach_home,
     teach_import_syllabus_source,
     teach_lessons,
+    teach_set_module_scope_grant_active,
     teach_set_lesson_release,
+    teach_simulate_rbac_access,
+    teach_upsert_module_scope_grant,
 )
 from .teacher_parts.roster import (
     teach_add_material,
@@ -68,6 +71,9 @@ __all__ = [
     "teach_change_password",
     "teach_home",
     "teach_export_syllabus",
+    "teach_upsert_module_scope_grant",
+    "teach_set_module_scope_grant_active",
+    "teach_simulate_rbac_access",
     "teach_teacher_2fa_setup",
     "teach_generate_authoring_templates",
     "teach_download_authoring_template",

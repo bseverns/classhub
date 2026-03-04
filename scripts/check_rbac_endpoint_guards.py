@@ -183,6 +183,21 @@ CONTRACTS: tuple[EndpointContract, ...] = (
         forbidden_tokens=("_manage_or_403(",),
     ),
     EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/content_rbac_tools.py",
+        function="teach_upsert_module_scope_grant",
+        required_tokens=("_require_rbac_tools_access(", "_parse_scope_grant_payload(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/content_rbac_tools.py",
+        function="teach_set_module_scope_grant_active",
+        required_tokens=("_require_rbac_tools_access(", "staff_classroom_or_none(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/content_rbac_tools.py",
+        function="teach_simulate_rbac_access",
+        required_tokens=("_require_rbac_tools_access(", "_parse_simulation_payload(", "evaluate_staff_capability("),
+    ),
+    EndpointContract(
         path="services/classhub/hub/views/api_teacher_rbac.py",
         function="api_teacher_rbac_simulate",
         required_tokens=("_rbac_simulation_or_403(", "evaluate_staff_capability("),

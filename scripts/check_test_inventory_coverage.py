@@ -43,6 +43,7 @@ FILE_CONTRACTS: dict[str, dict] = {
             "test_teach_class_shows_facilitator_support_board",
             "test_teacher_can_moderate_gallery_submission",
             "test_teacher_can_resolve_delete_request",
+            "test_org_admin_can_upsert_scoped_grant_from_teach_home",
         ),
         "tokens": ("TeacherPortalTests", "/teach/material/", "/teach/module/"),
     },

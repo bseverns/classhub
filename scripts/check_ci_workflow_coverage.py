@@ -51,6 +51,7 @@ REQUIRED_TOKENS: dict[str, tuple[str, ...]] = {
         "ruff check services scripts --select E9,F63,F7,F82",
         "python scripts/check_frontend_static_refs.py",
         "python scripts/check_rbac_endpoint_guards.py",
+        "python scripts/check_teacher_endpoint_capability_map.py",
         "python scripts/check_view_size_budgets.py",
         "python scripts/check_no_service_imports_from_views.py",
     ),

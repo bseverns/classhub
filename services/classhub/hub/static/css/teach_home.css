@@ -164,3 +164,10 @@
 .org-membership-table-wrap {
   margin-top: 14px;
 }
+.rbac-sim-result {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(22, 59, 80, 0.16);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.42);
+}

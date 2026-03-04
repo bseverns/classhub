@@ -14,7 +14,10 @@ from .content import (
     teach_home,
     teach_import_syllabus_source,
     teach_lessons,
+    teach_set_module_scope_grant_active,
     teach_set_lesson_release,
+    teach_simulate_rbac_access,
+    teach_upsert_module_scope_grant,
 )
 from .roster import (
     teach_add_material,
@@ -64,6 +67,9 @@ __all__ = [
     "teach_update_profile",
     "teach_change_password",
     "teach_home",
+    "teach_upsert_module_scope_grant",
+    "teach_set_module_scope_grant_active",
+    "teach_simulate_rbac_access",
     "teach_import_syllabus_source",
     "teach_teacher_2fa_setup",
     "teach_generate_authoring_templates",
