@@ -45,6 +45,7 @@ FILE_CONTRACTS: dict[str, dict] = {
             "test_teacher_can_resolve_delete_request",
             "test_org_admin_can_upsert_scoped_grant_from_teach_home",
             "test_superuser_can_upsert_org_role_capability_from_teach",
+            "test_org_admin_bulk_simulation_matrix_scopes_to_class_org",
         ),
         "tokens": ("TeacherPortalTests", "/teach/material/", "/teach/module/"),
     },

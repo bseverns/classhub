@@ -118,6 +118,11 @@ Teacher portal simulation and grant management:
 - `POST /teach/rbac/module-scope-grant/set-active`
 - These portal actions are available only to staff with syllabus-export capability and are audited for operator traceability.
 
+Teacher portal bulk simulation matrix:
+- `GET /teach?rbac_tools=1&rbac_bulk_class_id=<id>&rbac_bulk_capability=<capability>[&rbac_bulk_module_id=<id>]`
+- Returns a read-only per-staff allow/deny table with reason/role metadata for the selected class scope.
+- Matrix rows are constrained to staff in the selected class org boundary (plus superusers) and capped at 250 rows.
+
 ## Policy change audit coverage
 
 Scoped module grant create/update/delete actions in Django admin emit audit events:

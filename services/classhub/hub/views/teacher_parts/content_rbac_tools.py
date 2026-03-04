@@ -2,6 +2,7 @@
 
 from ...models import ClassStaffModuleScopeGrant, OrganizationMembership
 from ...services.org_access import evaluate_staff_capability
+from .content_rbac_bulk import build_bulk_simulation_result
 from .content_rbac_state import (
     rbac_form_state,
     rbac_scope_grants,
@@ -47,6 +48,11 @@ def _rbac_state_extra(request, *, extra: dict | None = None) -> dict:
         "rbac_sim_class_id": (request.POST.get("rbac_sim_class_id") or request.GET.get("rbac_sim_class_id") or "").strip(),
         "rbac_sim_capability": (request.POST.get("rbac_sim_capability") or request.GET.get("rbac_sim_capability") or "").strip(),
         "rbac_sim_module_id": (request.POST.get("rbac_sim_module_id") or request.GET.get("rbac_sim_module_id") or "").strip(),
+        "rbac_bulk_class_id": (request.POST.get("rbac_bulk_class_id") or request.GET.get("rbac_bulk_class_id") or "").strip(),
+        "rbac_bulk_capability": (
+            request.POST.get("rbac_bulk_capability") or request.GET.get("rbac_bulk_capability") or ""
+        ).strip(),
+        "rbac_bulk_module_id": (request.POST.get("rbac_bulk_module_id") or request.GET.get("rbac_bulk_module_id") or "").strip(),
     }
     payload.update(extra or {})
     return payload
@@ -88,17 +94,25 @@ def build_rbac_tools_context(*, request, classes) -> dict:
             "rbac_tools_active": False,
         }
     state = rbac_form_state(request)
+    staff_users = rbac_staff_users(classes)
+    bulk_simulation_result = build_bulk_simulation_result(
+        request=request,
+        capability_values=_CAPABILITY_VALUES,
+        staff_users=staff_users,
+        state=state,
+    )
 
     return {
         "rbac_tools_enabled": True,
         "rbac_tools_active": rbac_tools_requested(request),
         "rbac_classes": classes,
-        "rbac_staff_users": rbac_staff_users(classes),
+        "rbac_staff_users": staff_users,
         "rbac_scope_grants": rbac_scope_grants(classes),
         "rbac_capability_choices": ClassStaffModuleScopeGrant.CAPABILITY_CHOICES,
         "rbac_effect_choices": ClassStaffModuleScopeGrant.EFFECT_CHOICES,
         **state,
         "rbac_simulation_result": rbac_simulation_result(request),
+        "rbac_bulk_simulation_result": bulk_simulation_result,
     }
 
 

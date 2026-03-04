@@ -97,7 +97,8 @@ Current implementation note:
 - operator simulation is currently available via:
   - API: `POST /api/v1/teacher/rbac/simulate`
   - command: `simulate_rbac_access`
-- full in-product policy simulation UI is still pending.
+  - teacher portal single-user simulation: `POST /teach/rbac/simulate`
+  - teacher portal bulk matrix simulation: `GET /teach?rbac_tools=1&rbac_bulk_class_id=<id>&rbac_bulk_capability=<capability>`
 
 ## Risks and mitigations
 - Risk: policy drift during migration.

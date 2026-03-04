@@ -1906,3 +1906,19 @@ Execution runbook:
 - Makes conflict resolution explicit and deterministic for district-style boundary policies.
 - Improves supportability by enabling machine-readable "why denied" simulation without mutating state.
 - Preserves accountability for policy edits by adding immutable grant-change audit records.
+
+## Org role templates + bulk RBAC simulation matrix
+
+**Current decision:**
+- Add org-level role capability templates (`OrganizationRoleCapability`) so operators can define per-org capability sets for each membership role.
+- Keep a static default role->capability map as fallback; when an org template exists for a role, use that org template as the effective role capability set.
+- Add a read-only bulk simulation matrix in teacher RBAC tools to evaluate one capability/class scope across staff:
+  - `GET /teach?rbac_tools=1&rbac_bulk_class_id=<id>&rbac_bulk_capability=<capability>[&rbac_bulk_module_id=<id>]`
+  - include allow/deny + reason + resolved role metadata per staff row.
+- Limit matrix rows to 250 and constrain rows to staff inside the selected class org boundary (plus superusers).
+- Extend endpoint-level RBAC tests so org template overrides are validated across both `/teach/*` and `/api/v1/teacher/*` policy endpoints.
+
+**Why this remains active:**
+- Enables district-style policy customization without replacing existing membership roles.
+- Improves operator debugging by surfacing capability outcomes for multiple staff accounts in one view.
+- Reduces policy drift risk by proving runtime parity between teacher and API policy endpoints under customized role templates.

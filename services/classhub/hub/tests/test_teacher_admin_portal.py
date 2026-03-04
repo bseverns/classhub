@@ -2099,6 +2099,51 @@ class TeacherOrganizationAccessTests(TestCase):
         event = AuditEvent.objects.filter(action="rbac.simulate.portal", target_id=str(target_staff.id)).first()
         self.assertIsNotNone(event)
 
+    def test_org_admin_bulk_simulation_matrix_scopes_to_class_org(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+        viewer_staff = get_user_model().objects.create_user(
+            username="rbac_bulk_viewer",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=viewer_staff,
+            role=OrganizationMembership.ROLE_VIEWER,
+            is_active=True,
+        )
+        outsider_staff = get_user_model().objects.create_user(
+            username="rbac_bulk_outsider",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_b,
+            user=outsider_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+
+        resp = self.client.get(
+            "/teach",
+            {
+                "rbac_tools": "1",
+                "rbac_bulk_class_id": str(self.class_a.id),
+                "rbac_bulk_capability": ClassStaffModuleScopeGrant.CAP_SUBMISSION_DELETE,
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Bulk simulation result")
+        self.assertContains(resp, "rbac_bulk_viewer")
+        self.assertContains(resp, "role_missing_capability")
+        self.assertContains(resp, "allowed=1")
+        self.assertContains(resp, "denied=1")
+        self.assertNotContains(resp, "rbac_bulk_outsider")
+
     def test_teacher_role_cannot_upsert_scoped_grant_from_teach_home(self):
         target_staff = get_user_model().objects.create_user(
             username="rbac_blocked_target",
