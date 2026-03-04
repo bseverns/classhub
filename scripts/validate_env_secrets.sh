@@ -203,6 +203,19 @@ if [[ "${RUN_MIGRATIONS_ON_START}" != "0" && "${RUN_MIGRATIONS_ON_START}" != "1"
   fail "RUN_MIGRATIONS_ON_START must be 0 or 1"
 fi
 
+CADDYFILE_TEMPLATE="$(env_file_value CADDYFILE_TEMPLATE)"
+SMOKE_BASE_URL="$(env_file_value SMOKE_BASE_URL)"
+DJANGO_SESSION_COOKIE_SECURE="$(env_file_value DJANGO_SESSION_COOKIE_SECURE)"
+DJANGO_CSRF_COOKIE_SECURE="$(env_file_value DJANGO_CSRF_COOKIE_SECURE)"
+if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.local" || "${SMOKE_BASE_URL}" == http://* ]]; then
+  if [[ "${DJANGO_SESSION_COOKIE_SECURE}" != "0" ]]; then
+    fail "DJANGO_SESSION_COOKIE_SECURE must be 0 for local HTTP mode (Caddyfile.local / SMOKE_BASE_URL=http://...)"
+  fi
+  if [[ "${DJANGO_CSRF_COOKIE_SECURE}" != "0" ]]; then
+    fail "DJANGO_CSRF_COOKIE_SECURE must be 0 for local HTTP mode (Caddyfile.local / SMOKE_BASE_URL=http://...)"
+  fi
+fi
+
 APP_UID_RAW="$(env_file_value APP_UID)"
 APP_GID_RAW="$(env_file_value APP_GID)"
 if [[ -n "${APP_UID_RAW}" && ! "${APP_UID_RAW}" =~ ^[0-9]+$ ]]; then

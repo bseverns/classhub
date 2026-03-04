@@ -50,6 +50,7 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 | Site not loading over HTTPS | Caddy logs + `.env` domain/template | Edge routing/TLS |
 | `/helper/chat` failing (502 / `ollama_error`) | `helper_web` logs + Ollama tags | Helper backend/model |
 | `/helper/chat` failing with 403 CSRF page | Browser request headers (`Referer`, `X-CSRFToken`, `Cookie`) + `classhub_web` logs | CSRF/referrer/session |
+| Student join shows "Security check blocked the join request" | `/join` response code + cookie secure flags in `.env` | CSRF cookie transport mismatch |
 | Teacher login smoke fails | smoke credentials + login response path | Auth/config mismatch |
 | Accessibility smoke fails (`scripts/a11y_smoke.sh`) | Playwright install + teacher session/bootstrap fixtures | Tooling/session/markup regression |
 | Container unhealthy/restarting | service logs + DB auth | Boot/runtime dependency |
@@ -179,6 +180,41 @@ Notes:
 
 - A raw `curl` POST to `/helper/chat` is expected to fail CSRF unless you include valid session + CSRF headers.
 - The helper widget now surfaces structured errors as `Helper error: <error_code> (request <id>)`; CSRF HTML responses map to `csrf_forbidden`.
+
+## Symptom: student join shows "Security check blocked the join request"
+
+Example failure signal:
+
+```text
+Security check blocked the join request. Reload and try again.
+```
+
+Common cause (local/day-1 HTTP mode):
+
+- `DJANGO_DEBUG=0` with `http://localhost`, but `DJANGO_CSRF_COOKIE_SECURE` and/or `DJANGO_SESSION_COOKIE_SECURE` are unset or `1`.
+- Browser never sends secure cookies over HTTP, so `/join` POST fails CSRF with HTTP `403`.
+
+Checks:
+
+```bash
+cd /srv/lms/app/compose
+grep -E '^(CADDYFILE_TEMPLATE|SMOKE_BASE_URL|DJANGO_DEBUG|DJANGO_SESSION_COOKIE_SECURE|DJANGO_CSRF_COOKIE_SECURE)=' .env
+```
+
+Expected for local HTTP:
+
+- `CADDYFILE_TEMPLATE=Caddyfile.local`
+- `SMOKE_BASE_URL=http://localhost`
+- `DJANGO_SESSION_COOKIE_SECURE=0`
+- `DJANGO_CSRF_COOKIE_SECURE=0`
+
+Then run:
+
+```bash
+cd /srv/lms/app
+bash scripts/validate_env_secrets.sh
+cd compose && docker compose up -d --force-recreate classhub_web helper_web caddy
+```
 
 ## Symptom: smoke says teacher login failed
 
