@@ -15,6 +15,7 @@ This page maps how different audiences experience ClassHub so external materials
 | Teacher (help-first facilitation) | `/teach/class/<id>` support board | Prioritize unresolved “I’m stuck” signals, review upload errors, resolve support requests without ranking students | `03-teacher-dashboard.png`, `04-teacher-lesson-tracker.png` |
 | Teacher (reporting) | `/teach/class/<id>` reporting actions | Export outcomes and certificates, issue signed certificates, share parent/funder-facing proof | `12-certificate-eligibility.png` |
 | Superuser | `/teach` organizations tab | Create organizations, set memberships/roles, enforce staff boundaries | `10-org-management-tab.png` |
+| Owner/admin (RBAC operations) | `/teach?rbac_tools=1` | Apply module-range scoped allow/deny grants and run simulation checks before policy changes | `19-rbac-tools-tab.png` |
 | Operator / maintainer | shell + health endpoints | Health checks, a11y smoke, deploy/runbook workflows | `08-health-checks-terminal.png`, `13-a11y-smoke-terminal.png` |
 
 ## Narrative paths for external audiences

@@ -107,6 +107,12 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 - Include: title/message/hero-url fields + save action
 - Redact: real class names and real external image URLs if needed
 
+19. `19-rbac-tools-tab.png`
+- Screen: teacher home (`/teach?rbac_tools=1`) RBAC tools tab
+- Include: scoped grant upsert form + existing grants table + simulation result block
+- Include: one explicit `allow` or `deny` scoped grant example
+- Redact: real usernames, class names, and organization identifiers
+
 ## Storyline overlays (capture inside existing files)
 - Trust/data controls:
   - `01-student-join.png`: include privacy-at-a-glance block and trust link.
@@ -129,6 +135,7 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 8. `09-teacher-profile-tab.png`
 9. `15-lesson-helper-collapsed.png`
 10. `13-a11y-smoke-terminal.png`
+11. `19-rbac-tools-tab.png`
 
 ### Then refresh older captures
 1. `02-student-class-view.png`

@@ -61,6 +61,7 @@ These tools are designed to be run from the repository root: `bash scripts/scrip
 | `check_no_dynamic_service_all_exports.py`| Limits module `__all__` exports. |
 | `check_no_latest_tags.py` | Enforces explicit version pinning in Dockerfiles and Compose files. |
 | `check_rbac_endpoint_guards.py` | Enforces capability-specific RBAC guard helpers on critical endpoints. |
+| `check_teacher_endpoint_capability_map.py` | Enforces explicit capability contracts for all teacher/API-teacher routes. |
 
 ## LLM / AI Helper Tooling
 | Script | Intent |

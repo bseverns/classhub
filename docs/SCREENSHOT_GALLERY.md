@@ -47,6 +47,9 @@ Status model:
 ### 10. Organization management tab (`Placeholder`)
 ![10 Org management tab](images/press/10-org-management-tab.png)
 
+### 19. RBAC tools tab (`Placeholder`)
+![19 RBAC tools tab](images/press/19-rbac-tools-tab.png)
+
 ### 11. Invite-only enrollment controls (`Placeholder`)
 ![11 Invite-only enrollment](images/press/11-invite-only-enrollment.png)
 

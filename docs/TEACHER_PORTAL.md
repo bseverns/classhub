@@ -21,6 +21,8 @@ Planned captures for newer teacher views:
 
 ![Org management tab (placeholder)](images/press/10-org-management-tab.png)
 
+![RBAC tools tab (placeholder)](images/press/19-rbac-tools-tab.png)
+
 ![Invite-only enrollment (placeholder)](images/press/11-invite-only-enrollment.png)
 
 ![Certificate eligibility (placeholder)](images/press/12-certificate-eligibility.png)
@@ -205,6 +207,11 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
     - create organizations
     - set organization active/inactive
     - assign/update org memberships for staff users (`owner` / `admin` / `teacher` / `viewer`)
+  - owner/admin/superuser RBAC tools tab:
+    - upsert module-scope grants per class/user/capability/effect/range
+    - enable/disable existing scoped grants without admin-site access
+    - run "simulate access" checks to inspect allow/deny reason codes before changing live permissions
+    - tab appears only for accounts with syllabus-export capability (`staff_can_export_syllabi`)
   - create class
   - import syllabus sources into coursepacks:
     - accepts `.md`, `.docx`, and `.zip`

@@ -16,6 +16,7 @@ Use this as the operational reference. The RFC remains the future-looking design
 3. Keep `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=0` unless you need module-range limits.
 4. Run RBAC drift checks in CI:
    - `python scripts/check_rbac_endpoint_guards.py`
+   - `python scripts/check_teacher_endpoint_capability_map.py`
    - `python scripts/check_test_inventory_coverage.py`
 
 ## Verification signal
@@ -111,12 +112,23 @@ CLI simulation command:
 - `python services/classhub/manage.py simulate_rbac_access --username <staff_username> --capability submission.view --class-id <id> --module-id <id> --json`
 - Useful for operational triage and policy debugging in shell-first workflows.
 
+Teacher portal simulation and grant management:
+- `POST /teach/rbac/simulate`
+- `POST /teach/rbac/module-scope-grant/upsert`
+- `POST /teach/rbac/module-scope-grant/set-active`
+- These portal actions are available only to staff with syllabus-export capability and are audited for operator traceability.
+
 ## Policy change audit coverage
 
 Scoped module grant create/update/delete actions in Django admin emit audit events:
 - `rbac.scope_grant.create`
 - `rbac.scope_grant.update`
 - `rbac.scope_grant.delete`
+
+Teacher portal RBAC tools emit:
+- `rbac.scope_grant.portal_upsert`
+- `rbac.scope_grant.portal_set_active`
+- `rbac.simulate.portal`
 
 These records include capability, effect, module range, and target user/class identifiers.
 
@@ -125,6 +137,10 @@ These records include capability, effect, module range, and target user/class id
 RBAC drift guard:
 - `scripts/check_rbac_endpoint_guards.py`
 - statically asserts key endpoint functions include required permission helpers and avoid forbidden coarse helpers.
+
+Teacher route-map capability guard:
+- `scripts/check_teacher_endpoint_capability_map.py`
+- enforces explicit capability contracts for every `/teach*` and `/api/v1/teacher*` route and checks mapped views still contain expected guard tokens.
 
 Flow coverage guard:
 - `scripts/check_test_inventory_coverage.py`

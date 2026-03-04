@@ -34,6 +34,7 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - Auto-provision class creation on teacher syllabus import.
 - Organization/RBAC foundation: capability evaluator, feature-flagged module-range scoped grants, and org boundary docs.
 - Endpoint-level RBAC contract tests and RBAC drift-guard script coverage in CI.
+- Teacher-home RBAC tools tab for scoped grant upsert/activation and access simulation, plus a route-to-capability CI contract guard for `/teach*` and `/api/v1/teacher*`.
 - CI guard scripts for workflow coverage, test inventory flow anchors, and machine-readable JSON output modes.
 - Phased telemetry database split runbook for reliability-oriented service separation.
 - RFC docs for asynchronous self-paced workflows and granular RBAC expansion planning.
