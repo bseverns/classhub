@@ -120,6 +120,10 @@ class EndpointRBACGuardTests(TestCase):
             content_type="application/json",
         )
         self.assertEqual(api_policy_mutation.status_code, 403)
+        api_toggle_lock = self.client.post(f"/api/v1/teacher/class/{self.classroom.id}/toggle-lock")
+        self.assertEqual(api_toggle_lock.status_code, 403)
+        api_rotate_code = self.client.post(f"/api/v1/teacher/class/{self.classroom.id}/rotate-code")
+        self.assertEqual(api_rotate_code.status_code, 403)
         rotate_code = self.client.post(f"/teach/class/{self.classroom.id}/rotate-code")
         self.assertEqual(rotate_code.status_code, 403)
         reset_roster = self.client.post(f"/teach/class/{self.classroom.id}/reset-roster")
@@ -171,6 +175,50 @@ class EndpointRBACGuardTests(TestCase):
             f"/teach/class/{self.classroom.id}/certificate/{self.student.id}/download"
         )
         self.assertEqual(certificate_download.status_code, 200)
+
+    def test_teacher_role_template_override_limits_policy_endpoints_in_teach_and_api(self):
+        OrganizationRoleCapability.objects.filter(organization=self.org).delete()
+        OrganizationRoleCapability.objects.bulk_create(
+            [
+                OrganizationRoleCapability(
+                    organization=self.org,
+                    role=OrganizationMembership.ROLE_TEACHER,
+                    capability=OrganizationRoleCapability.CAP_CLASS_VIEW,
+                    is_active=True,
+                ),
+                OrganizationRoleCapability(
+                    organization=self.org,
+                    role=OrganizationMembership.ROLE_TEACHER,
+                    capability=OrganizationRoleCapability.CAP_SUBMISSION_VIEW,
+                    is_active=True,
+                ),
+            ]
+        )
+
+        material_submissions = self.client.get(f"/teach/material/{self.upload_1.id}/submissions")
+        self.assertEqual(material_submissions.status_code, 200)
+        api_submissions = self.client.get(f"/api/v1/teacher/class/{self.classroom.id}/submissions")
+        self.assertEqual(api_submissions.status_code, 200)
+
+        teach_policy_mutation = self.client.post(
+            f"/teach/class/{self.classroom.id}/set-enrollment-mode",
+            {"enrollment_mode": "closed"},
+        )
+        self.assertEqual(teach_policy_mutation.status_code, 403)
+        api_policy_mutation = self.client.post(
+            f"/api/v1/teacher/class/{self.classroom.id}/set-enrollment-mode",
+            data=json.dumps({"enrollment_mode": "closed"}),
+            content_type="application/json",
+        )
+        self.assertEqual(api_policy_mutation.status_code, 403)
+        teach_rotate_code = self.client.post(f"/teach/class/{self.classroom.id}/rotate-code")
+        self.assertEqual(teach_rotate_code.status_code, 403)
+        api_rotate_code = self.client.post(f"/api/v1/teacher/class/{self.classroom.id}/rotate-code")
+        self.assertEqual(api_rotate_code.status_code, 403)
+        teach_toggle_lock = self.client.post(f"/teach/class/{self.classroom.id}/toggle-lock")
+        self.assertEqual(teach_toggle_lock.status_code, 403)
+        api_toggle_lock = self.client.post(f"/api/v1/teacher/class/{self.classroom.id}/toggle-lock")
+        self.assertEqual(api_toggle_lock.status_code, 403)
 
     @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
     def test_scoped_submission_view_grant_limits_submission_endpoints(self):

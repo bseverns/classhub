@@ -99,6 +99,7 @@ FILE_CONTRACTS: dict[str, dict] = {
         "required_tests": (
             "test_viewer_can_view_submissions_but_cannot_manage_policy_or_roster",
             "test_teacher_can_manage_policy_and_roster_endpoints",
+            "test_teacher_role_template_override_limits_policy_endpoints_in_teach_and_api",
             "test_scoped_submission_view_grant_limits_submission_endpoints",
             "test_scoped_submission_delete_grant_limits_gallery_moderation",
         ),
