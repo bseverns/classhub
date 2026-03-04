@@ -461,8 +461,6 @@ def submission_download(request, submission_id: int):
     apply_download_safety(response)
     apply_no_store(response, private=True, pragma=True)
     return response
-
-
 def student_logout(request):
     return _end_student_session_response(request)
 __all__ = [
