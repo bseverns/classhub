@@ -88,6 +88,18 @@ FILE_CONTRACTS: dict[str, dict] = {
         ),
         "tokens": ("TeacherClassesEndpointTests", "TeacherClassSubmissionsEndpointTests"),
     },
+    "services/classhub/hub/tests/test_rbac_endpoints.py": {
+        "required_tests": (
+            "test_viewer_can_view_submissions_but_cannot_manage_policy_or_roster",
+            "test_scoped_submission_view_grant_limits_submission_endpoints",
+        ),
+        "tokens": (
+            "EndpointRBACGuardTests",
+            "/teach/material/",
+            "/api/v1/teacher/class/",
+            "/submission/",
+        ),
+    },
     "services/homework_helper/tutor/tests/test_chat_endpoint.py": {
         "required_tests": (
             "test_chat_requires_class_or_staff_session",

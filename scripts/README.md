@@ -60,6 +60,7 @@ These tools are designed to be run from the repository root: `bash scripts/scrip
 | `check_no_service_imports_from_views.py`| Enforces architecture dependency layout (views cannot import from each other). |
 | `check_no_dynamic_service_all_exports.py`| Limits module `__all__` exports. |
 | `check_no_latest_tags.py` | Enforces explicit version pinning in Dockerfiles and Compose files. |
+| `check_rbac_endpoint_guards.py` | Enforces capability-specific RBAC guard helpers on critical endpoints. |
 
 ## LLM / AI Helper Tooling
 | Script | Intent |
