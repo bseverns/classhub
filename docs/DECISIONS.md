@@ -1941,3 +1941,23 @@ Execution runbook:
 - Closes the gap between role templates and per-class operational overrides for high-impact policy/roster actions.
 - Gives operators a fast, in-product audit surface for RBAC changes and simulation actions without requiring admin-site querying.
 - Preserves least-privilege and traceability while avoiding a separate parallel audit system.
+
+## RBAC policy-as-code import/export
+
+**Current decision:**
+- Add RBAC policy bundle export endpoint for operators:
+  - `GET /teach/rbac/policy/export`
+- Add RBAC policy bundle import endpoint for operators:
+  - `POST /teach/rbac/policy/import`
+- Use schema `classhub.rbac_policy.v1` with two sections:
+  - organization role-capability templates
+  - class scoped grants
+- Use stable identifiers in bundle rows:
+  - organization by name
+  - class by join code
+  - staff target by username
+- Import behavior is upsert-only (no destructive deletes) with strict validation and one atomic apply transaction.
+
+**Why this remains active:**
+- Enables reviewable policy handoff between environments and operators without manual UI re-entry.
+- Keeps policy updates auditable (`rbac.policy.export`, `rbac.policy.import`) and minimizes accidental drift.

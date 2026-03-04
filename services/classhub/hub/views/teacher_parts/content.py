@@ -10,6 +10,10 @@ from .content_rbac_tools import (
     teach_simulate_rbac_access,
     teach_upsert_module_scope_grant,
 )
+from .content_rbac_policy_io import (
+    teach_export_rbac_policy,
+    teach_import_rbac_policy,
+)
 from .content_lessons import teach_lessons, teach_set_lesson_release
 from .content_syllabus_import import teach_import_syllabus_source
 from .content_syllabus_exports import teach_export_syllabus
@@ -19,6 +23,8 @@ __all__ = [
     "teach_upsert_module_scope_grant",
     "teach_set_module_scope_grant_active",
     "teach_simulate_rbac_access",
+    "teach_export_rbac_policy",
+    "teach_import_rbac_policy",
     "teach_import_syllabus_source",
     "teach_export_syllabus",
     "teach_generate_authoring_templates",

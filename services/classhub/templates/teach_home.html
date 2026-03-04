@@ -329,6 +329,23 @@
                 </div>
               {% endif %}
 
+              <h3 class="section-title-compact">Policy-as-code import/export</h3>
+              <div class="closeout-actions">
+                <a class="button mini" href="/teach/rbac/policy/export">Download RBAC policy JSON</a>
+              </div>
+              <form method="post" action="/teach/rbac/policy/import" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="rbac-policy-file">Import policy JSON file</label>
+                    <input id="rbac-policy-file" name="rbac_policy_file" type="file" accept=".json,application/json" required />
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Import policy</button>
+                </div>
+              </form>
+
               {% if rbac_scope_grants %}
                 <h3 class="section-title-compact">Current scoped grants</h3>
                 <div class="table-wrap">

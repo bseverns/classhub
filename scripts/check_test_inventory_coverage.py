@@ -47,6 +47,8 @@ FILE_CONTRACTS: dict[str, dict] = {
             "test_superuser_can_upsert_org_role_capability_from_teach",
             "test_org_admin_bulk_simulation_matrix_scopes_to_class_org",
             "test_org_admin_can_filter_rbac_audit_ops_feed",
+            "test_org_admin_can_export_rbac_policy_json",
+            "test_org_admin_can_import_rbac_policy_json",
         ),
         "tokens": ("TeacherPortalTests", "/teach/material/", "/teach/module/"),
     },

@@ -214,6 +214,7 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
     - enable/disable existing scoped grants without admin-site access
     - run "simulate access" checks to inspect allow/deny reason codes before changing live permissions
     - run a bulk simulation matrix across staff for one class/capability scope
+    - export policy-as-code JSON and import reviewed policy bundles
     - review filterable RBAC audit operations feed for recent policy/scope changes
     - tab appears only for accounts with syllabus-export capability (`staff_can_export_syllabi`)
   - create class

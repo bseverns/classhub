@@ -25,6 +25,7 @@ from ...http.headers import apply_download_safety, apply_no_store, safe_attachme
 from ...models import (
     Class,
     ClassStaffAssignment,
+    ClassStaffModuleScopeGrant,
     LessonAsset,
     LessonAssetFolder,
     LessonRelease,

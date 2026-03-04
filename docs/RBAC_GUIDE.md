@@ -118,6 +118,8 @@ Teacher portal simulation and grant management:
 - `POST /teach/rbac/simulate`
 - `POST /teach/rbac/module-scope-grant/upsert`
 - `POST /teach/rbac/module-scope-grant/set-active`
+- `GET /teach/rbac/policy/export`
+- `POST /teach/rbac/policy/import`
 - These portal actions are available only to staff with syllabus-export capability and are audited for operator traceability.
 
 Teacher portal bulk simulation matrix:
@@ -144,6 +146,13 @@ These records include capability, effect, module range, and target user/class id
 Teacher RBAC audit operations panel:
 - `GET /teach?rbac_tools=1&rbac_audit_action=<prefix>&rbac_audit_class_id=<id>&rbac_audit_limit=<n>`
 - shows recent RBAC/org-policy audit events scoped to accessible classes/orgs.
+
+Policy-as-code format:
+- schema version: `classhub.rbac_policy.v1`
+- sections:
+  - `organizations[]` with `name` + `role_capabilities[]`
+  - `scoped_grants[]` with `class_join_code`, `username`, `capability`, `effect`, range, and active flag
+- class-wide scoped capabilities (`roster.manage`, `policy.manage`) must use `module_order_start=0` and `module_order_end=0`.
 
 ## CI guardrails
 

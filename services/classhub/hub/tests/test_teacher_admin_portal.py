@@ -2197,6 +2197,148 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertNotContains(resp, "In-scope simulation row")
         self.assertNotContains(resp, "Out-of-scope grant row")
 
+    def test_org_admin_can_export_rbac_policy_json(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+        target_staff = get_user_model().objects.create_user(
+            username="rbac_policy_export_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=target_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        OrganizationRoleCapability.objects.create(
+            organization=self.org_a,
+            role=OrganizationMembership.ROLE_TEACHER,
+            capability=OrganizationRoleCapability.CAP_POLICY_MANAGE,
+            is_active=True,
+        )
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.class_a,
+            user=target_staff,
+            capability=ClassStaffModuleScopeGrant.CAP_POLICY_MANAGE,
+            effect=ClassStaffModuleScopeGrant.EFFECT_ALLOW,
+            module_order_start=0,
+            module_order_end=0,
+            is_active=True,
+        )
+
+        resp = self.client.get("/teach/rbac/policy/export")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("application/json", resp["Content-Type"])
+        payload = json.loads(resp.content.decode("utf-8"))
+        self.assertEqual(payload.get("schema_version"), "classhub.rbac_policy.v1")
+        self.assertTrue(any(org.get("name") == self.org_a.name for org in payload.get("organizations", [])))
+        self.assertTrue(
+            any(grant.get("class_join_code") == self.class_a.join_code for grant in payload.get("scoped_grants", []))
+        )
+        event = AuditEvent.objects.filter(action="rbac.policy.export").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_org_admin_can_import_rbac_policy_json(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+        target_staff = get_user_model().objects.create_user(
+            username="rbac_policy_import_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=target_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        policy = {
+            "schema_version": "classhub.rbac_policy.v1",
+            "organizations": [
+                {
+                    "name": self.org_a.name,
+                    "role_capabilities": [
+                        {
+                            "role": OrganizationMembership.ROLE_VIEWER,
+                            "capability": OrganizationRoleCapability.CAP_CLASS_VIEW,
+                            "is_active": True,
+                        }
+                    ],
+                }
+            ],
+            "scoped_grants": [
+                {
+                    "class_join_code": self.class_a.join_code,
+                    "username": target_staff.username,
+                    "capability": ClassStaffModuleScopeGrant.CAP_POLICY_MANAGE,
+                    "effect": ClassStaffModuleScopeGrant.EFFECT_ALLOW,
+                    "module_order_start": 0,
+                    "module_order_end": 0,
+                    "is_active": True,
+                }
+            ],
+        }
+
+        resp = self.client.post(
+            "/teach/rbac/policy/import",
+            {
+                "rbac_policy_file": SimpleUploadedFile(
+                    "rbac_policy.json",
+                    json.dumps(policy).encode("utf-8"),
+                    content_type="application/json",
+                )
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+        self.assertTrue(
+            OrganizationRoleCapability.objects.filter(
+                organization=self.org_a,
+                role=OrganizationMembership.ROLE_VIEWER,
+                capability=OrganizationRoleCapability.CAP_CLASS_VIEW,
+                is_active=True,
+            ).exists()
+        )
+        self.assertTrue(
+            ClassStaffModuleScopeGrant.objects.filter(
+                classroom=self.class_a,
+                user=target_staff,
+                capability=ClassStaffModuleScopeGrant.CAP_POLICY_MANAGE,
+                effect=ClassStaffModuleScopeGrant.EFFECT_ALLOW,
+                module_order_start=0,
+                module_order_end=0,
+                is_active=True,
+            ).exists()
+        )
+        event = AuditEvent.objects.filter(action="rbac.policy.import").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_teacher_role_cannot_import_or_export_rbac_policy(self):
+        export_resp = self.client.get("/teach/rbac/policy/export")
+        self.assertEqual(export_resp.status_code, 302)
+        self.assertIn("/teach?error=", export_resp["Location"])
+
+        import_resp = self.client.post(
+            "/teach/rbac/policy/import",
+            {
+                "rbac_policy_file": SimpleUploadedFile(
+                    "rbac_policy.json",
+                    b'{"schema_version":"classhub.rbac_policy.v1","organizations":[],"scoped_grants":[]}',
+                    content_type="application/json",
+                )
+            },
+        )
+        self.assertEqual(import_resp.status_code, 302)
+        self.assertIn("/teach?error=", import_resp["Location"])
+        self.assertFalse(AuditEvent.objects.filter(action="rbac.policy.import").exists())
+
     def test_teacher_role_cannot_upsert_scoped_grant_from_teach_home(self):
         target_staff = get_user_model().objects.create_user(
             username="rbac_blocked_target",

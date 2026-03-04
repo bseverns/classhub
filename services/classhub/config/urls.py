@@ -82,6 +82,8 @@ urlpatterns = [
     path("teach/rbac/module-scope-grant/upsert", views.teach_upsert_module_scope_grant),
     path("teach/rbac/module-scope-grant/set-active", views.teach_set_module_scope_grant_active),
     path("teach/rbac/simulate", views.teach_simulate_rbac_access),
+    path("teach/rbac/policy/export", views.teach_export_rbac_policy),
+    path("teach/rbac/policy/import", views.teach_import_rbac_policy),
     path("teach/import-syllabus-source", views.teach_import_syllabus_source),
     path("teach/authoring-template/download", views.teach_download_authoring_template),
     path("teach/syllabus-export", views.teach_export_syllabus),
