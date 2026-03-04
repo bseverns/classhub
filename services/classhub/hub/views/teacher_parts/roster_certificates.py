@@ -13,7 +13,6 @@ from ...services.certificates import (
 from ...services.filenames import safe_filename
 from ...services.teacher_roster_class import build_certificate_eligibility_rows
 from .shared_auth import (
-    staff_can_access_classroom,
     staff_can_manage_roster,
     staff_classroom_or_none,
     staff_member_required,
@@ -123,7 +122,7 @@ def teach_download_certificate(request, class_id: int, student_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_access_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     issuance = (
@@ -149,7 +148,7 @@ def teach_download_certificate_pdf(request, class_id: int, student_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_access_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     issuance = (

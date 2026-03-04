@@ -14,7 +14,7 @@ from ..http.headers import apply_no_store
 from ..models import Class, Submission
 from ..services.org_access import (
     staff_accessible_classes_ranked,
-    staff_can_manage_classroom,
+    staff_can_manage_policy,
     staff_can_view_submissions,
     staff_classroom_or_none,
 )
@@ -274,9 +274,9 @@ def api_teacher_class_submissions(request, class_id: int):
 # Write endpoints
 # ---------------------------------------------------------------------------
 
-def _manage_or_403(request, classroom):
-    """Return a 403 JSON response if user cannot manage this class, else None."""
-    if not staff_can_manage_classroom(request.user, classroom):
+def _policy_or_403(request, classroom):
+    """Return a 403 JSON response if user lacks policy-manage for this class."""
+    if not staff_can_manage_policy(request.user, classroom):
         return _json_no_store_response({"error": "forbidden"}, status=403, private=True)
     return None
 
@@ -292,7 +292,7 @@ def api_teacher_toggle_lock(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return _json_no_store_response({"error": "not_found"}, status=404, private=True)
-    denied = _manage_or_403(request, classroom)
+    denied = _policy_or_403(request, classroom)
     if denied:
         return denied
 
@@ -324,7 +324,7 @@ def api_teacher_rotate_code(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return _json_no_store_response({"error": "not_found"}, status=404, private=True)
-    denied = _manage_or_403(request, classroom)
+    denied = _policy_or_403(request, classroom)
     if denied:
         return denied
 
@@ -363,7 +363,7 @@ def api_teacher_set_enrollment_mode(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return _json_no_store_response({"error": "not_found"}, status=404, private=True)
-    denied = _manage_or_403(request, classroom)
+    denied = _policy_or_403(request, classroom)
     if denied:
         return denied
 

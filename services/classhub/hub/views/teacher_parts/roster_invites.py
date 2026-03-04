@@ -12,6 +12,7 @@ from ...services.filenames import safe_filename
 from ...services.teacher_roster_class import export_class_outcomes_csv, export_class_summary_csv
 from .shared_auth import (
     staff_can_manage_policy,
+    staff_can_view_submissions,
     staff_classroom_or_none,
     staff_member_required,
 )
@@ -161,6 +162,8 @@ def teach_export_class_summary_csv(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_view_submissions(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     csv_text = export_class_summary_csv(classroom=classroom, active_window_days=7)
     _audit(
@@ -185,6 +188,8 @@ def teach_export_class_outcomes_csv(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_view_submissions(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     active_window_days = _parse_positive_int((request.GET.get("active_window_days") or "").strip(), min_value=1, max_value=365)
     if active_window_days is None:

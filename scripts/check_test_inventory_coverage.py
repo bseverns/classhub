@@ -91,7 +91,9 @@ FILE_CONTRACTS: dict[str, dict] = {
     "services/classhub/hub/tests/test_rbac_endpoints.py": {
         "required_tests": (
             "test_viewer_can_view_submissions_but_cannot_manage_policy_or_roster",
+            "test_teacher_can_manage_policy_and_roster_endpoints",
             "test_scoped_submission_view_grant_limits_submission_endpoints",
+            "test_scoped_submission_delete_grant_limits_gallery_moderation",
         ),
         "tokens": (
             "EndpointRBACGuardTests",

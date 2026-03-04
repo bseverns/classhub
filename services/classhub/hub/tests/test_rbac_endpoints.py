@@ -84,6 +84,16 @@ class EndpointRBACGuardTests(TestCase):
             is_published=True,
             is_gallery_shared=False,
         )
+        self.certificate = CertificateIssuance.objects.create(
+            classroom=self.classroom,
+            student=self.student,
+            issued_by=self.staff,
+            session_count=1,
+            artifact_count=1,
+            milestone_count=0,
+            min_sessions_required=1,
+            min_artifacts_required=1,
+        )
         _force_login_staff_verified(self.client, self.staff)
 
     def test_viewer_can_view_submissions_but_cannot_manage_policy_or_roster(self):
@@ -96,12 +106,24 @@ class EndpointRBACGuardTests(TestCase):
 
         api_submissions = self.client.get(f"/api/v1/teacher/class/{self.classroom.id}/submissions")
         self.assertEqual(api_submissions.status_code, 200)
+        summary_export = self.client.get(f"/teach/class/{self.classroom.id}/export-summary-csv")
+        self.assertEqual(summary_export.status_code, 200)
 
         policy_mutation = self.client.post(
             f"/teach/class/{self.classroom.id}/set-enrollment-mode",
             {"enrollment_mode": "closed"},
         )
         self.assertEqual(policy_mutation.status_code, 403)
+        api_policy_mutation = self.client.post(
+            f"/api/v1/teacher/class/{self.classroom.id}/set-enrollment-mode",
+            data=json.dumps({"enrollment_mode": "closed"}),
+            content_type="application/json",
+        )
+        self.assertEqual(api_policy_mutation.status_code, 403)
+        rotate_code = self.client.post(f"/teach/class/{self.classroom.id}/rotate-code")
+        self.assertEqual(rotate_code.status_code, 403)
+        reset_roster = self.client.post(f"/teach/class/{self.classroom.id}/reset-roster")
+        self.assertEqual(reset_roster.status_code, 403)
 
         roster_mutation = self.client.post(
             f"/teach/class/{self.classroom.id}/rename-student",
@@ -111,6 +133,10 @@ class EndpointRBACGuardTests(TestCase):
             },
         )
         self.assertEqual(roster_mutation.status_code, 403)
+        certificate_download = self.client.get(
+            f"/teach/class/{self.classroom.id}/certificate/{self.student.id}/download"
+        )
+        self.assertEqual(certificate_download.status_code, 403)
 
     def test_teacher_can_manage_policy_and_roster_endpoints(self):
         policy_mutation = self.client.post(
@@ -120,6 +146,16 @@ class EndpointRBACGuardTests(TestCase):
         self.assertEqual(policy_mutation.status_code, 302)
         self.classroom.refresh_from_db()
         self.assertEqual(self.classroom.enrollment_mode, Class.ENROLLMENT_INVITE_ONLY)
+        api_policy_mutation = self.client.post(
+            f"/api/v1/teacher/class/{self.classroom.id}/set-enrollment-mode",
+            data=json.dumps({"enrollment_mode": "closed"}),
+            content_type="application/json",
+        )
+        self.assertEqual(api_policy_mutation.status_code, 200)
+        self.classroom.refresh_from_db()
+        self.assertEqual(self.classroom.enrollment_mode, Class.ENROLLMENT_CLOSED)
+        rotate_code = self.client.post(f"/teach/class/{self.classroom.id}/rotate-code")
+        self.assertEqual(rotate_code.status_code, 302)
 
         roster_mutation = self.client.post(
             f"/teach/class/{self.classroom.id}/rename-student",
@@ -131,6 +167,10 @@ class EndpointRBACGuardTests(TestCase):
         self.assertEqual(roster_mutation.status_code, 302)
         self.student.refresh_from_db()
         self.assertEqual(self.student.display_name, "Renamed Ada")
+        certificate_download = self.client.get(
+            f"/teach/class/{self.classroom.id}/certificate/{self.student.id}/download"
+        )
+        self.assertEqual(certificate_download.status_code, 200)
 
     @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
     def test_scoped_submission_view_grant_limits_submission_endpoints(self):

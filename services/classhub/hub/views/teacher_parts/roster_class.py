@@ -19,7 +19,8 @@ from ...services.teacher_roster_class import (
 )
 from .shared_auth import (
     staff_can_create_classes,
-    staff_can_manage_classroom,
+    staff_can_manage_policy,
+    staff_can_manage_roster,
     staff_can_view_submissions,
     staff_classroom_or_none,
     staff_default_organization,
@@ -134,7 +135,7 @@ def teach_reset_roster(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     rotate_code = (request.POST.get("rotate_code") or "1").strip() == "1"
@@ -185,7 +186,7 @@ def teach_reset_helper_conversations(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_policy(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     export_before_reset = bool(getattr(settings, "HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE", True))
@@ -256,7 +257,7 @@ def teach_toggle_lock(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_policy(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
     classroom.is_locked = not classroom.is_locked
     classroom.save(update_fields=["is_locked"])
@@ -278,7 +279,7 @@ def teach_lock_class(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_policy(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     if not classroom.is_locked:
@@ -350,7 +351,7 @@ def teach_rotate_code(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_policy(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     classroom.join_code = _next_unique_class_join_code()

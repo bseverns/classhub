@@ -1872,3 +1872,18 @@ Execution runbook:
 - Enables incremental migration from coarse roles to capability checks without breaking current operations.
 - Makes permission reasoning explicit and testable ahead of custom role/scoped-grant tables.
 - Reduces risk of accidental privilege expansion by centralizing allow/deny decisions in one service path.
+
+## RBAC endpoint hardening: policy/manage splits and drift guards
+
+**Current decision:**
+- Tighten teacher endpoint guards to capability-specific checks instead of broad classroom access:
+  - policy mutation paths use `staff_can_manage_policy`,
+  - roster-destructive paths use `staff_can_manage_roster`,
+  - class outcomes/submission exports require `staff_can_view_submissions`,
+  - certificate downloads require roster-management capability.
+- Align API teacher mutation routes (`toggle_lock`, `rotate_code`, `set_enrollment_mode`) with the same policy capability contract.
+- Expand CI RBAC endpoint contracts to assert both required guards and forbidden legacy guard usage for sensitive paths.
+
+**Why this remains active:**
+- Enforces least privilege on high-impact endpoints while preserving existing role mappings.
+- Prevents silent permission drift by failing CI when endpoint guards regress.

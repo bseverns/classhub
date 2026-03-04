@@ -68,6 +68,16 @@ CONTRACTS: tuple[EndpointContract, ...] = (
     ),
     EndpointContract(
         path="services/classhub/hub/views/teacher_parts/roster_invites.py",
+        function="teach_export_class_summary_csv",
+        required_tokens=("staff_can_view_submissions(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/roster_invites.py",
+        function="teach_export_class_outcomes_csv",
+        required_tokens=("staff_can_view_submissions(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/roster_invites.py",
         function="teach_set_enrollment_mode",
         required_tokens=("staff_can_manage_policy(",),
         forbidden_tokens=("staff_can_manage_classroom(",),
@@ -103,8 +113,74 @@ CONTRACTS: tuple[EndpointContract, ...] = (
     ),
     EndpointContract(
         path="services/classhub/hub/views/teacher_parts/roster_class.py",
+        function="teach_reset_roster",
+        required_tokens=("staff_can_manage_roster(",),
+        forbidden_tokens=("staff_can_manage_classroom(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/roster_class.py",
+        function="teach_reset_helper_conversations",
+        required_tokens=("staff_can_manage_policy(",),
+        forbidden_tokens=("staff_can_manage_classroom(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/roster_class.py",
+        function="teach_toggle_lock",
+        required_tokens=("staff_can_manage_policy(",),
+        forbidden_tokens=("staff_can_manage_classroom(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/roster_class.py",
+        function="teach_lock_class",
+        required_tokens=("staff_can_manage_policy(",),
+        forbidden_tokens=("staff_can_manage_classroom(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/roster_class.py",
         function="teach_export_class_submissions_today",
         required_tokens=("staff_can_view_submissions(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/roster_class.py",
+        function="teach_rotate_code",
+        required_tokens=("staff_can_manage_policy(",),
+        forbidden_tokens=("staff_can_manage_classroom(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/roster_certificates.py",
+        function="teach_download_certificate",
+        required_tokens=("staff_can_manage_roster(",),
+        forbidden_tokens=("staff_can_access_classroom(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/teacher_parts/roster_certificates.py",
+        function="teach_download_certificate_pdf",
+        required_tokens=("staff_can_manage_roster(",),
+        forbidden_tokens=("staff_can_access_classroom(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/api_teacher.py",
+        function="_policy_or_403",
+        required_tokens=("staff_can_manage_policy(",),
+        forbidden_tokens=("staff_can_manage_classroom(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/api_teacher.py",
+        function="api_teacher_toggle_lock",
+        required_tokens=("_policy_or_403(",),
+        forbidden_tokens=("_manage_or_403(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/api_teacher.py",
+        function="api_teacher_rotate_code",
+        required_tokens=("_policy_or_403(",),
+        forbidden_tokens=("_manage_or_403(",),
+    ),
+    EndpointContract(
+        path="services/classhub/hub/views/api_teacher.py",
+        function="api_teacher_set_enrollment_mode",
+        required_tokens=("_policy_or_403(",),
+        forbidden_tokens=("_manage_or_403(",),
     ),
     EndpointContract(
         path="services/classhub/hub/views/api_teacher.py",
