@@ -16,6 +16,7 @@ from ..models import (
     ClassStaffModuleScopeGrant,
     Module,
     Organization,
+    OrganizationRoleCapability,
     OrganizationMembership,
 )
 
@@ -48,7 +49,7 @@ _ROLE_PRECEDENCE = (
     OrganizationMembership.ROLE_VIEWER,
 )
 
-_ROLE_CAPABILITIES = {
+_DEFAULT_ROLE_CAPABILITIES = {
     OrganizationMembership.ROLE_OWNER: frozenset(_KNOWN_CAPABILITIES),
     OrganizationMembership.ROLE_ADMIN: frozenset(_KNOWN_CAPABILITIES),
     OrganizationMembership.ROLE_TEACHER: frozenset(
@@ -87,18 +88,6 @@ _MODULE_RANGE_GRANT_CAPABILITIES = frozenset(
         CAP_SUBMISSION_DELETE,
     }
 )
-
-_MANAGE_ROLES = {
-    role
-    for role, capabilities in _ROLE_CAPABILITIES.items()
-    if CAP_CLASS_MANAGE in capabilities
-}
-_SYLLABUS_EXPORT_ROLES = {
-    role
-    for role, capabilities in _ROLE_CAPABILITIES.items()
-    if CAP_SYLLABUS_EXPORT in capabilities
-}
-
 
 def _require_org_membership_for_staff() -> bool:
     return bool(getattr(settings, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", False))
@@ -217,10 +206,52 @@ def _module_scope_order(*, classroom: Class, module_id: int) -> int | None:
     return int(row.order_index)
 
 
-def _highest_role_with_capability(*, roles: set[str], capability: str) -> str:
+def _org_role_capability_overrides(organization_ids: set[int]) -> dict[int, dict[str, frozenset[str]]]:
+    if not organization_ids:
+        return {}
+    rows = OrganizationRoleCapability.objects.filter(
+        organization_id__in=organization_ids,
+        is_active=True,
+    ).values_list("organization_id", "role", "capability")
+    by_org: dict[int, dict[str, set[str]]] = {}
+    for organization_id, role, capability in rows:
+        org_bucket = by_org.setdefault(int(organization_id), {})
+        org_bucket.setdefault(str(role), set()).add(str(capability))
+    return {
+        org_id: {role: frozenset(caps) for role, caps in role_map.items()}
+        for org_id, role_map in by_org.items()
+    }
+
+
+def _membership_role_capabilities(
+    *,
+    role: str,
+    organization_id: int,
+    overrides: dict[int, dict[str, frozenset[str]]],
+) -> frozenset[str]:
+    org_overrides = overrides.get(int(organization_id), {})
+    if role in org_overrides:
+        return org_overrides[role]
+    return _DEFAULT_ROLE_CAPABILITIES.get(role, frozenset())
+
+
+def _highest_role_with_capability(
+    *,
+    memberships: list[dict[str, int | str]],
+    capability: str,
+    overrides: dict[int, dict[str, frozenset[str]]],
+) -> str:
     for role in _ROLE_PRECEDENCE:
-        if role in roles and capability in _ROLE_CAPABILITIES.get(role, ()):
-            return role
+        for row in memberships:
+            if str(row.get("role")) != role:
+                continue
+            organization_id = int(row.get("organization_id") or 0)
+            if capability in _membership_role_capabilities(
+                role=role,
+                organization_id=organization_id,
+                overrides=overrides,
+            ):
+                return role
     return ""
 
 
@@ -333,8 +364,14 @@ def evaluate_staff_capability(
     else:
         organization_id = None
 
-    role_values = set(str(role) for role in memberships.values_list("role", flat=True))
-    allowed_role = _highest_role_with_capability(roles=role_values, capability=normalized_capability)
+    membership_rows = list(memberships.values("organization_id", "role"))
+    override_org_ids = {int(row["organization_id"]) for row in membership_rows if row.get("organization_id")}
+    capability_overrides = _org_role_capability_overrides(override_org_ids)
+    allowed_role = _highest_role_with_capability(
+        memberships=membership_rows,
+        capability=normalized_capability,
+        overrides=capability_overrides,
+    )
     if not allowed_role:
         return StaffCapabilityDecision(
             allowed=False,
@@ -453,8 +490,22 @@ def staff_default_organization(user) -> Organization | None:
         return None
     if not getattr(user, "is_staff", False):
         return None
-    memberships = _active_memberships_queryset(user).filter(role__in=_MANAGE_ROLES).select_related("organization")
-    if not memberships.exists():
+    memberships = list(_active_memberships_queryset(user).select_related("organization"))
+    if not memberships:
+        return None
+    override_org_ids = {int(m.organization_id) for m in memberships if m.organization_id}
+    capability_overrides = _org_role_capability_overrides(override_org_ids)
+    eligible = [
+        membership
+        for membership in memberships
+        if CAP_CLASS_CREATE
+        in _membership_role_capabilities(
+            role=membership.role,
+            organization_id=int(membership.organization_id),
+            overrides=capability_overrides,
+        )
+    ]
+    if not eligible:
         return None
     role_rank = {
         OrganizationMembership.ROLE_OWNER: 0,
@@ -462,7 +513,7 @@ def staff_default_organization(user) -> Organization | None:
         OrganizationMembership.ROLE_TEACHER: 2,
     }
     ranked = sorted(
-        memberships,
+        eligible,
         key=lambda m: (role_rank.get(m.role, 9), m.organization_id),
     )
     return ranked[0].organization

@@ -75,6 +75,7 @@ urlpatterns = [
     path("teach/2fa/setup", views.teach_teacher_2fa_setup),
     path("teach/create-teacher", views.teach_create_teacher),
     path("teach/create-organization", views.teach_create_organization),
+    path("teach/org-role-capability/upsert", views.teach_upsert_org_role_capability),
     path("teach/org-membership/upsert", views.teach_upsert_organization_membership),
     path("teach/org/<int:org_id>/set-active", views.teach_set_organization_active),
     path("teach/generate-authoring-templates", views.teach_generate_authoring_templates),

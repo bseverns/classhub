@@ -16,6 +16,7 @@ from .models import (
     Material,
     Module,
     Organization,
+    OrganizationRoleCapability,
     OrganizationMembership,
     StudentEvent,
     StudentIdentity,
@@ -36,6 +37,13 @@ class OrganizationMembershipAdmin(admin.ModelAdmin):
     list_display = ("organization", "user", "role", "is_active", "updated_at")
     list_filter = ("organization", "role", "is_active")
     search_fields = ("organization__name", "user__username", "user__email")
+
+
+@admin.register(OrganizationRoleCapability)
+class OrganizationRoleCapabilityAdmin(admin.ModelAdmin):
+    list_display = ("organization", "role", "capability", "is_active", "updated_at")
+    list_filter = ("organization", "role", "capability", "is_active")
+    search_fields = ("organization__name", "role", "capability")
 
 
 @admin.register(Class)

@@ -158,6 +158,62 @@ class OrganizationMembership(models.Model):
         return f"{self.organization.name}: {self.user} ({self.role})"
 
 
+class OrganizationRoleCapability(models.Model):
+    """Per-organization role capability template override.
+
+    Behavior:
+    - If a role has one or more active rows in an organization, those rows
+      define the effective capabilities for that role in that organization.
+    - If a role has no active rows, default role capability mapping applies.
+    """
+
+    CAP_CLASS_VIEW = "class.view"
+    CAP_CLASS_MANAGE = "class.manage"
+    CAP_CLASS_CREATE = "class.create"
+    CAP_ROSTER_MANAGE = "roster.manage"
+    CAP_SUBMISSION_VIEW = "submission.view"
+    CAP_SUBMISSION_DELETE = "submission.delete"
+    CAP_POLICY_MANAGE = "policy.manage"
+    CAP_SYLLABUS_EXPORT = "syllabus.export"
+    CAPABILITY_CHOICES = [
+        (CAP_CLASS_VIEW, "Class view"),
+        (CAP_CLASS_MANAGE, "Class manage"),
+        (CAP_CLASS_CREATE, "Class create"),
+        (CAP_ROSTER_MANAGE, "Roster manage"),
+        (CAP_SUBMISSION_VIEW, "Submission view"),
+        (CAP_SUBMISSION_DELETE, "Submission delete"),
+        (CAP_POLICY_MANAGE, "Policy manage"),
+        (CAP_SYLLABUS_EXPORT, "Syllabus export"),
+    ]
+
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name="role_capabilities",
+    )
+    role = models.CharField(max_length=20, choices=OrganizationMembership.ROLE_CHOICES)
+    capability = models.CharField(max_length=40, choices=CAPABILITY_CHOICES)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["organization_id", "role", "capability"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organization", "role", "capability"],
+                name="uniq_org_role_capability",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["organization", "role", "is_active"], name="hub_orgrole_orgrol_1f5a_idx"),
+            models.Index(fields=["organization", "capability", "is_active"], name="hub_orgrole_orgcap_79bc_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.organization.name}: {self.role} -> {self.capability}"
+
+
 class ClassStaffAssignment(models.Model):
     """Explicit class assignment for staff prioritization and ownership views."""
 

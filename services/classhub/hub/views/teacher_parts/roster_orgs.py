@@ -2,6 +2,7 @@
 
 from .shared import (
     Organization,
+    OrganizationRoleCapability,
     OrganizationMembership,
     _audit,
     _safe_internal_redirect,
@@ -20,6 +21,10 @@ def _org_form_values(request):
         "org_membership_user_id": (request.POST.get("org_membership_user_id") or "").strip(),
         "org_membership_role": (request.POST.get("org_membership_role") or "").strip(),
         "org_membership_active": "1" if (request.POST.get("org_membership_active") or "").strip() == "1" else "0",
+        "org_rolecap_org_id": (request.POST.get("org_rolecap_org_id") or "").strip(),
+        "org_rolecap_role": (request.POST.get("org_rolecap_role") or "").strip(),
+        "org_rolecap_capability": (request.POST.get("org_rolecap_capability") or "").strip(),
+        "org_rolecap_active": "1" if (request.POST.get("org_rolecap_active") or "").strip() == "1" else "0",
     }
 
 
@@ -34,6 +39,14 @@ def _require_superuser(request):
 
 
 def _membership_error(request, message: str, form_values: dict):
+    return _safe_internal_redirect(
+        request,
+        _with_notice("/teach", error=message, extra=form_values),
+        fallback="/teach",
+    )
+
+
+def _role_capability_error(request, message: str, form_values: dict):
     return _safe_internal_redirect(
         request,
         _with_notice("/teach", error=message, extra=form_values),
@@ -75,6 +88,30 @@ def _upsert_membership(*, org, user, role: str, is_active: bool):
     if changed_fields:
         membership.save(update_fields=changed_fields + ["updated_at"])
     return membership, created
+
+
+def _parse_role_capability_form(form_values: dict):
+    role = form_values["org_rolecap_role"]
+    capability = form_values["org_rolecap_capability"]
+    is_active = form_values["org_rolecap_active"] == "1"
+    try:
+        org_id = int(form_values["org_rolecap_org_id"])
+    except Exception:
+        org_id = 0
+    return org_id, role, capability, is_active
+
+
+def _upsert_role_capability(*, org, role: str, capability: str, is_active: bool):
+    row, created = OrganizationRoleCapability.objects.get_or_create(
+        organization=org,
+        role=role,
+        capability=capability,
+        defaults={"is_active": is_active},
+    )
+    if row.is_active != is_active:
+        row.is_active = is_active
+        row.save(update_fields=["is_active", "updated_at"])
+    return row, created
 
 
 @staff_member_required
@@ -211,8 +248,60 @@ def teach_upsert_organization_membership(request):
     )
 
 
+@staff_member_required
+@require_POST
+def teach_upsert_org_role_capability(request):
+    denied = _require_superuser(request)
+    if denied is not None:
+        return denied
+
+    form_values = _org_form_values(request)
+    org_id, role, capability, is_active = _parse_role_capability_form(form_values)
+    if not org_id:
+        return _role_capability_error(request, "Select an organization.", form_values)
+
+    valid_roles = {value for value, _label in OrganizationMembership.ROLE_CHOICES}
+    if role not in valid_roles:
+        return _role_capability_error(request, "Select a valid role.", form_values)
+    valid_capabilities = {value for value, _label in OrganizationRoleCapability.CAPABILITY_CHOICES}
+    if capability not in valid_capabilities:
+        return _role_capability_error(request, "Select a valid capability.", form_values)
+
+    org = Organization.objects.filter(id=org_id).first()
+    if org is None:
+        return _role_capability_error(request, "Organization not found.", form_values)
+
+    row, created = _upsert_role_capability(org=org, role=role, capability=capability, is_active=is_active)
+    _audit(
+        request,
+        action="organization.role_capability.upsert",
+        target_type="OrganizationRoleCapability",
+        target_id=str(row.id),
+        summary=f"Set role capability {role} -> {capability} in {org.name}",
+        metadata={
+            "organization_id": org.id,
+            "organization_name": org.name,
+            "role": role,
+            "capability": capability,
+            "is_active": row.is_active,
+            "created": created,
+        },
+    )
+    status_label = "active" if row.is_active else "inactive"
+    return _safe_internal_redirect(
+        request,
+        _with_notice(
+            "/teach",
+            notice=f"Set {org.name} {role} capability {capability} ({status_label}).",
+            extra={"org_admin": "1"},
+        ),
+        fallback="/teach",
+    )
+
+
 __all__ = [
     "teach_create_organization",
     "teach_set_organization_active",
+    "teach_upsert_org_role_capability",
     "teach_upsert_organization_membership",
 ]

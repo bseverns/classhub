@@ -33,6 +33,7 @@ from .roster_invites import (
 from .roster_policies import teach_set_retention_preset
 from .roster_orgs import (
     teach_create_organization,
+    teach_upsert_org_role_capability,
     teach_set_organization_active,
     teach_upsert_organization_membership,
 )
@@ -71,6 +72,7 @@ __all__ = [
     "teach_set_enrollment_mode",
     "teach_set_retention_preset",
     "teach_create_organization",
+    "teach_upsert_org_role_capability",
     "teach_set_organization_active",
     "teach_upsert_organization_membership",
     "teach_student_return_code",

@@ -526,6 +526,83 @@
               {% else %}
                 <p class="muted">No organization memberships yet.</p>
               {% endif %}
+
+              <h3 class="section-title-compact">Set role capability template</h3>
+              <form method="post" action="/teach/org-role-capability/upsert">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="org-rolecap-org">Organization</label>
+                    <select id="org-rolecap-org" name="org_rolecap_org_id" required>
+                      <option value="">Select an organization</option>
+                      {% for org in organizations %}
+                        <option value="{{ org.id }}" {% if org_rolecap_org_id == org.id|stringformat:"s" %}selected{% endif %}>
+                          {{ org.name }}{% if not org.is_active %} (inactive){% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="org-rolecap-role">Role</label>
+                    <select id="org-rolecap-role" name="org_rolecap_role" required>
+                      {% for value, label in org_role_choices %}
+                        <option value="{{ value }}" {% if org_rolecap_role == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="org-rolecap-capability">Capability</label>
+                    <select id="org-rolecap-capability" name="org_rolecap_capability" required>
+                      {% for value, label in org_capability_choices %}
+                        <option value="{{ value }}" {% if org_rolecap_capability == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
+                      <input type="checkbox" name="org_rolecap_active" value="1" {% if org_rolecap_active == "1" %}checked{% endif %} />
+                      Template row active
+                    </label>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Save role capability</button>
+                </div>
+              </form>
+
+              {% if org_role_capabilities %}
+                <div class="table-wrap org-membership-table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Organization role capability templates</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Organization</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Capability</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for row in org_role_capabilities %}
+                        <tr>
+                          <th scope="row"><strong>{{ row.organization.name }}</strong></th>
+                          <td>{{ row.get_role_display }}</td>
+                          <td>{{ row.capability }}</td>
+                          <td>
+                            {% if row.is_active %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Inactive</span>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted">No role capability template rows yet.</p>
+              {% endif %}
             </section>
           {% endif %}
         </div>

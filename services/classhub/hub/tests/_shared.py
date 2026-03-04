@@ -36,6 +36,7 @@ from ..models import (
     Material,
     Module,
     Organization,
+    OrganizationRoleCapability,
     OrganizationMembership,
     StudentEvent,
     StudentIdentity,

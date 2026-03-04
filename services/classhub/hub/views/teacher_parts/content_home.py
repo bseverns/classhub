@@ -11,6 +11,7 @@ from .shared import (
     HttpResponse,
     Path,
     Organization,
+    OrganizationRoleCapability,
     OrganizationMembership,
     Submission,
     _AUTHORING_TEMPLATE_SUFFIXES,
@@ -44,9 +45,21 @@ def _read_org_admin_state(request):
     org_membership_user_id = (request.GET.get("org_membership_user_id") or "").strip()
     org_membership_role = (request.GET.get("org_membership_role") or "").strip()
     org_membership_active = (request.GET.get("org_membership_active") or "").strip()
+    org_rolecap_org_id = (request.GET.get("org_rolecap_org_id") or "").strip()
+    org_rolecap_role = (request.GET.get("org_rolecap_role") or "").strip()
+    org_rolecap_capability = (request.GET.get("org_rolecap_capability") or "").strip()
+    org_rolecap_active = (request.GET.get("org_rolecap_active") or "").strip()
     org_admin_active = (
         (request.GET.get("org_admin") or "").strip() == "1"
-        or bool(org_name or org_membership_org_id or org_membership_user_id or org_membership_role)
+        or bool(
+            org_name
+            or org_membership_org_id
+            or org_membership_user_id
+            or org_membership_role
+            or org_rolecap_org_id
+            or org_rolecap_role
+            or org_rolecap_capability
+        )
     )
     return {
         "org_name": org_name,
@@ -54,6 +67,10 @@ def _read_org_admin_state(request):
         "org_membership_user_id": org_membership_user_id,
         "org_membership_role": org_membership_role,
         "org_membership_active": org_membership_active if org_membership_active in {"0", "1"} else "1",
+        "org_rolecap_org_id": org_rolecap_org_id,
+        "org_rolecap_role": org_rolecap_role,
+        "org_rolecap_capability": org_rolecap_capability,
+        "org_rolecap_active": org_rolecap_active if org_rolecap_active in {"0", "1"} else "1",
         "org_admin_active": org_admin_active,
     }
 
@@ -85,8 +102,10 @@ def _build_org_admin_context(*, user, user_model):
         return {
             "organizations": [],
             "org_memberships": [],
+            "org_role_capabilities": [],
             "staff_users": [],
             "org_role_choices": OrganizationMembership.ROLE_CHOICES,
+            "org_capability_choices": OrganizationRoleCapability.CAPABILITY_CHOICES,
         }
     organizations = list(
         Organization.objects.order_by("name", "id").only("id", "name", "is_active")
@@ -94,6 +113,10 @@ def _build_org_admin_context(*, user, user_model):
     org_memberships = list(
         OrganizationMembership.objects.select_related("organization", "user")
         .order_by("organization__name", "user__username", "id")
+    )
+    org_role_capabilities = list(
+        OrganizationRoleCapability.objects.select_related("organization")
+        .order_by("organization__name", "role", "capability", "id")
     )
     staff_users = list(
         user_model.objects.filter(is_staff=True)
@@ -103,8 +126,10 @@ def _build_org_admin_context(*, user, user_model):
     return {
         "organizations": organizations,
         "org_memberships": org_memberships,
+        "org_role_capabilities": org_role_capabilities,
         "staff_users": staff_users,
         "org_role_choices": OrganizationMembership.ROLE_CHOICES,
+        "org_capability_choices": OrganizationRoleCapability.CAPABILITY_CHOICES,
     }
 
 def _recent_submissions_for_class_ids(class_ids):
@@ -169,7 +194,6 @@ def teach_home(request):
         teacher_invite_active=teacher_invite_active,
         rbac_tools_active=rbac_tools_active,
     )
-
     classes, assigned_class_ids = staff_accessible_classes_ranked(request.user)
     digest_since = timezone.now() - timedelta(days=1)
     class_digest_rows = _build_class_digest_rows(classes, since=digest_since)
@@ -225,6 +249,12 @@ def teach_home(request):
             "org_membership_user_id": org_state["org_membership_user_id"],
             "org_membership_role": org_state["org_membership_role"] or OrganizationMembership.ROLE_TEACHER,
             "org_membership_active": org_state["org_membership_active"],
+            "org_rolecap_org_id": org_state["org_rolecap_org_id"],
+            "org_rolecap_role": org_state["org_rolecap_role"] or OrganizationMembership.ROLE_TEACHER,
+            "org_rolecap_capability": (
+                org_state["org_rolecap_capability"] or OrganizationRoleCapability.CAP_CLASS_VIEW
+            ),
+            "org_rolecap_active": org_state["org_rolecap_active"],
             "org_membership_mode": staff_has_explicit_memberships(request.user),
             **syllabus_export_state,
             **org_admin_context,

@@ -1,7 +1,8 @@
 from ._shared import *  # noqa: F401,F403
 
-from ..models import ClassStaffModuleScopeGrant
+from ..models import ClassStaffModuleScopeGrant, OrganizationRoleCapability
 from ..services.org_access import (
+    CAP_CLASS_VIEW,
     CAP_CLASS_CREATE,
     CAP_CLASS_MANAGE,
     CAP_POLICY_MANAGE,
@@ -152,6 +153,53 @@ class StaffCapabilityEvaluatorTests(TestCase):
         )
         self.assertTrue(staff_can(admin, CAP_SYLLABUS_EXPORT))
         self.assertTrue(staff_can_export_syllabi(admin))
+
+    def test_teacher_role_template_override_can_enable_syllabus_export(self):
+        teacher = self.User.objects.create_user(
+            username="teacher-export-override",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=teacher,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        self.assertFalse(staff_can_export_syllabi(teacher))
+
+        OrganizationRoleCapability.objects.create(
+            organization=self.org_a,
+            role=OrganizationMembership.ROLE_TEACHER,
+            capability=OrganizationRoleCapability.CAP_SYLLABUS_EXPORT,
+            is_active=True,
+        )
+        self.assertTrue(staff_can_export_syllabi(teacher))
+
+    def test_viewer_role_template_override_can_remove_submission_view(self):
+        viewer = self.User.objects.create_user(
+            username="viewer-restricted",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=viewer,
+            role=OrganizationMembership.ROLE_VIEWER,
+            is_active=True,
+        )
+        self.assertTrue(staff_can(viewer, CAP_SUBMISSION_VIEW, classroom=self.class_a))
+
+        OrganizationRoleCapability.objects.create(
+            organization=self.org_a,
+            role=OrganizationMembership.ROLE_VIEWER,
+            capability=OrganizationRoleCapability.CAP_CLASS_VIEW,
+            is_active=True,
+        )
+        self.assertFalse(staff_can(viewer, CAP_SUBMISSION_VIEW, classroom=self.class_a))
+        self.assertTrue(staff_can(viewer, CAP_CLASS_VIEW, classroom=self.class_a))
 
     def test_module_scope_requires_module_belongs_to_classroom(self):
         teacher = self.User.objects.create_user(

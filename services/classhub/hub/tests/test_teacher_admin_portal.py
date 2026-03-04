@@ -1889,6 +1889,31 @@ Session 02: Final Build
         self.assertIsNotNone(event)
         self.assertEqual(event.actor_user_id, self.staff.id)
 
+    def test_superuser_can_upsert_org_role_capability_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+        org = Organization.objects.create(name="Org Role Capability Lab")
+
+        resp = self.client.post(
+            "/teach/org-role-capability/upsert",
+            {
+                "org_rolecap_org_id": str(org.id),
+                "org_rolecap_role": OrganizationMembership.ROLE_TEACHER,
+                "org_rolecap_capability": OrganizationRoleCapability.CAP_SYLLABUS_EXPORT,
+                "org_rolecap_active": "1",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        row = OrganizationRoleCapability.objects.filter(
+            organization=org,
+            role=OrganizationMembership.ROLE_TEACHER,
+            capability=OrganizationRoleCapability.CAP_SYLLABUS_EXPORT,
+        ).first()
+        self.assertIsNotNone(row)
+        self.assertTrue(row.is_active)
+        event = AuditEvent.objects.filter(action="organization.role_capability.upsert", target_id=str(row.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
     def test_superuser_can_toggle_organization_active_from_teach(self):
         _force_login_staff_verified(self.client, self.staff)
         org = Organization.objects.create(name="Org Toggle Lab", is_active=True)
@@ -2451,6 +2476,25 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertEqual(resp_membership.status_code, 302)
         self.assertIn("/teach?error=", resp_membership["Location"])
         self.assertFalse(OrganizationMembership.objects.filter(organization=org, user=self.staff).exists())
+
+        rolecap_resp = self.client.post(
+            "/teach/org-role-capability/upsert",
+            {
+                "org_rolecap_org_id": str(org.id),
+                "org_rolecap_role": OrganizationMembership.ROLE_TEACHER,
+                "org_rolecap_capability": OrganizationRoleCapability.CAP_SYLLABUS_EXPORT,
+                "org_rolecap_active": "1",
+            },
+        )
+        self.assertEqual(rolecap_resp.status_code, 302)
+        self.assertIn("/teach?error=", rolecap_resp["Location"])
+        self.assertFalse(
+            OrganizationRoleCapability.objects.filter(
+                organization=org,
+                role=OrganizationMembership.ROLE_TEACHER,
+                capability=OrganizationRoleCapability.CAP_SYLLABUS_EXPORT,
+            ).exists()
+        )
 
     def test_non_superuser_staff_can_update_own_profile(self):
         resp = self.client.post(

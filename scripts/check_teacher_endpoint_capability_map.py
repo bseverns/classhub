@@ -68,6 +68,7 @@ ROUTE_CAPABILITY_MAP: dict[str, RouteContract] = {
     "/teach/2fa/setup": RouteContract("auth_or_public", "teach_teacher_2fa_setup"),
     "/teach/create-teacher": RouteContract("org.superuser", "teach_create_teacher"),
     "/teach/create-organization": RouteContract("org.superuser", "teach_create_organization"),
+    "/teach/org-role-capability/upsert": RouteContract("org.superuser", "teach_upsert_org_role_capability"),
     "/teach/org-membership/upsert": RouteContract("org.superuser", "teach_upsert_organization_membership"),
     "/teach/org/<int:org_id>/set-active": RouteContract("org.superuser", "teach_set_organization_active"),
     "/teach/generate-authoring-templates": RouteContract("staff_only", "teach_generate_authoring_templates"),
