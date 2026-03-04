@@ -183,6 +183,11 @@ CONTRACTS: tuple[EndpointContract, ...] = (
         forbidden_tokens=("_manage_or_403(",),
     ),
     EndpointContract(
+        path="services/classhub/hub/views/api_teacher_rbac.py",
+        function="api_teacher_rbac_simulate",
+        required_tokens=("_rbac_simulation_or_403(", "evaluate_staff_capability("),
+    ),
+    EndpointContract(
         path="services/classhub/hub/views/api_teacher.py",
         function="api_teacher_class_submissions",
         required_tokens=("staff_can_view_submissions(",),

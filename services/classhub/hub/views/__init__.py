@@ -16,6 +16,7 @@ from .api_teacher import (
     api_teacher_set_enrollment_mode,
     api_teacher_toggle_lock,
 )
+from .api_teacher_rbac import api_teacher_rbac_simulate
 from .content import course_lesson, course_overview, iter_course_lesson_options
 from .internal import internal_helper_chat_access_event
 from .media import lesson_asset_download, lesson_video_stream
@@ -107,6 +108,7 @@ __all__ = [
     "api_teacher_classes",
     "api_teacher_class_roster",
     "api_teacher_class_submissions",
+    "api_teacher_rbac_simulate",
     "api_teacher_rotate_code",
     "api_teacher_set_enrollment_mode",
     "api_teacher_toggle_lock",

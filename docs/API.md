@@ -283,8 +283,8 @@ Returns paginated submissions for a class, ordered by most recent.
 
 ### Write Endpoints
 
-All write endpoints use `POST`, require staff authentication with manager-level
-ACL (`staff_can_manage_classroom`), and create an audit log entry.
+All write endpoints use `POST`, require staff authentication with capability-
+specific ACL checks, and create an audit log entry.
 
 #### `POST /api/v1/teacher/class/<id>/toggle-lock`
 
@@ -340,6 +340,48 @@ Sets the enrollment mode for a class. Accepts JSON or form-encoded body.
 
 ---
 
+#### `POST /api/v1/teacher/rbac/simulate`
+
+Runs a read-only RBAC capability simulation for a target staff user.
+
+Requires staff auth + OTP and org-level export capability (`syllabus.export`).
+
+**Request body** (JSON):
+```json
+{
+  "user_id": 42,
+  "capability": "submission.view",
+  "class_id": 10,
+  "module_id": 99
+}
+```
+
+**Response** (200):
+```json
+{
+  "target_user": {
+    "id": 42,
+    "username": "teacher_aide"
+  },
+  "decision": {
+    "allowed": false,
+    "capability": "submission.view",
+    "reason": "scoped_grant_explicit_deny",
+    "role": "teacher",
+    "organization_id": 3,
+    "classroom_id": 10,
+    "module_id": 99
+  }
+}
+```
+
+**Errors:**
+- `400` — missing/invalid parameters (for example `module_id` without `class_id`).
+- `403` — caller lacks simulation rights.
+- `404` — target staff user or class scope not found/accessible.
+
+---
+
 ## Rate Limits
 
 All API endpoints are rate-limited per client IP.
@@ -372,8 +414,9 @@ All errors follow a consistent shape:
 | `invalid_token`           | 401  | Bearer header present but token invalid/expired |
 | `rate_limited`            | 429  | Too many requests |
 | `not_found`               | 404  | Class not found or not accessible |
-| `forbidden`               | 403  | Insufficient permissions (not a manager) |
+| `forbidden`               | 403  | Insufficient permissions for requested capability |
 | `invalid_enrollment_mode` | 400  | Unknown enrollment mode value |
+| `module_scope_requires_class_id` | 400 | RBAC simulation requested module scope without class scope |
 
 ---
 

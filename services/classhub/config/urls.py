@@ -33,6 +33,7 @@ urlpatterns = [
     path("api/v1/teacher/class/<int:class_id>/toggle-lock", views.api_teacher_toggle_lock),
     path("api/v1/teacher/class/<int:class_id>/rotate-code", views.api_teacher_rotate_code),
     path("api/v1/teacher/class/<int:class_id>/set-enrollment-mode", views.api_teacher_set_enrollment_mode),
+    path("api/v1/teacher/rbac/simulate", views.api_teacher_rbac_simulate),
 
     # Student flow (class-code login and classroom page).
     path("", views.index),

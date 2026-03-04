@@ -307,3 +307,99 @@ class TeacherSetEnrollmentModeEndpointTests(_TeacherAPIBase):
         )
         audit = AuditEvent.objects.filter(action="class.set_enrollment_mode").first()
         self.assertIsNotNone(audit)
+
+
+class TeacherRbacSimulateEndpointTests(_TeacherAPIBase):
+    """Tests for POST /api/v1/teacher/rbac/simulate."""
+
+    def setUp(self):
+        super().setUp()
+        self.org = Organization.objects.create(name="RBAC API Org")
+        self.classroom.organization = self.org
+        self.classroom.save(update_fields=["organization"])
+
+        self.org_admin = User.objects.create_user(
+            username="org_admin",
+            password="testpass123",
+            is_staff=True,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org,
+            user=self.org_admin,
+            role=OrganizationMembership.ROLE_ADMIN,
+            is_active=True,
+        )
+        self.target_teacher = User.objects.create_user(
+            username="rbac_target",
+            password="testpass123",
+            is_staff=True,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org,
+            user=self.target_teacher,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+
+    def _login_org_admin(self):
+        _force_login_staff_verified(self.client, self.org_admin)
+
+    def test_unauthenticated_returns_401(self):
+        resp = self.client.post("/api/v1/teacher/rbac/simulate")
+        self.assertEqual(resp.status_code, 401)
+
+    def test_non_privileged_staff_returns_403(self):
+        self._login_teacher()
+        resp = self.client.post(
+            "/api/v1/teacher/rbac/simulate",
+            data=json.dumps(
+                {
+                    "user_id": self.target_teacher.id,
+                    "capability": "submission.view",
+                    "class_id": self.classroom.id,
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 403)
+
+    def test_module_scope_requires_class_id(self):
+        self._login_org_admin()
+        resp = self.client.post(
+            "/api/v1/teacher/rbac/simulate",
+            data=json.dumps(
+                {
+                    "user_id": self.target_teacher.id,
+                    "capability": "submission.view",
+                    "module_id": self.module.id,
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json()["error"], "module_scope_requires_class_id")
+
+    def test_returns_decision_payload_and_creates_audit_event(self):
+        self._login_org_admin()
+        resp = self.client.post(
+            "/api/v1/teacher/rbac/simulate",
+            data=json.dumps(
+                {
+                    "user_id": self.target_teacher.id,
+                    "capability": "submission.view",
+                    "class_id": self.classroom.id,
+                    "module_id": self.module.id,
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        payload = resp.json()
+        self.assertEqual(payload["target_user"]["id"], self.target_teacher.id)
+        self.assertIn("decision", payload)
+        self.assertTrue(payload["decision"]["allowed"])
+        self.assertEqual(payload["decision"]["capability"], "submission.view")
+
+        event = AuditEvent.objects.filter(action="rbac.simulate", target_id=str(self.target_teacher.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.metadata.get("capability"), "submission.view")

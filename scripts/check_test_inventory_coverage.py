@@ -85,8 +85,13 @@ FILE_CONTRACTS: dict[str, dict] = {
         "required_tests": (
             "test_authenticated_staff_returns_classes",
             "test_returns_submissions_with_student_and_material_fields",
+            "test_returns_decision_payload_and_creates_audit_event",
         ),
-        "tokens": ("TeacherClassesEndpointTests", "TeacherClassSubmissionsEndpointTests"),
+        "tokens": (
+            "TeacherClassesEndpointTests",
+            "TeacherClassSubmissionsEndpointTests",
+            "TeacherRbacSimulateEndpointTests",
+        ),
     },
     "services/classhub/hub/tests/test_rbac_endpoints.py": {
         "required_tests": (

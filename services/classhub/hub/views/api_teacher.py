@@ -1,6 +1,7 @@
 """Headless JSON API endpoints for the teacher dashboard."""
 
 import logging
+import json as _json
 from datetime import timedelta
 from functools import wraps
 
@@ -367,7 +368,6 @@ def api_teacher_set_enrollment_mode(request, class_id: int):
     if denied:
         return denied
 
-    import json as _json
     try:
         body = _json.loads(request.body)
         enrollment_mode = (body.get("enrollment_mode") or "").strip().lower()
