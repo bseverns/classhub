@@ -253,11 +253,15 @@ class ClassStaffModuleScopeGrant(models.Model):
 
     CAP_SUBMISSION_VIEW = "submission.view"
     CAP_SUBMISSION_DELETE = "submission.delete"
+    CAP_ROSTER_MANAGE = "roster.manage"
+    CAP_POLICY_MANAGE = "policy.manage"
     EFFECT_ALLOW = "allow"
     EFFECT_DENY = "deny"
     CAPABILITY_CHOICES = [
         (CAP_SUBMISSION_VIEW, "Submission view"),
         (CAP_SUBMISSION_DELETE, "Submission delete"),
+        (CAP_ROSTER_MANAGE, "Roster manage"),
+        (CAP_POLICY_MANAGE, "Policy manage"),
     ]
     EFFECT_CHOICES = [
         (EFFECT_ALLOW, "Allow"),

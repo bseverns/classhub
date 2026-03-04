@@ -209,8 +209,12 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
     - assign/update org memberships for staff users (`owner` / `admin` / `teacher` / `viewer`)
   - owner/admin/superuser RBAC tools tab:
     - upsert module-scope grants per class/user/capability/effect/range
+    - supports submission, roster, and policy scoped-grant capabilities
+    - use range `0-0` for class-wide roster/policy controls
     - enable/disable existing scoped grants without admin-site access
     - run "simulate access" checks to inspect allow/deny reason codes before changing live permissions
+    - run a bulk simulation matrix across staff for one class/capability scope
+    - review filterable RBAC audit operations feed for recent policy/scope changes
     - tab appears only for accounts with syllabus-export capability (`staff_can_export_syllabi`)
   - create class
   - import syllabus sources into coursepacks:

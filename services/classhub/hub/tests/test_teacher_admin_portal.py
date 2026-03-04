@@ -2144,6 +2144,59 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertContains(resp, "denied=1")
         self.assertNotContains(resp, "rbac_bulk_outsider")
 
+    def test_org_admin_can_filter_rbac_audit_ops_feed(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+        outsider = get_user_model().objects.create_user(
+            username="rbac_audit_outsider",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        event_in_scope = AuditEvent.objects.create(
+            actor_user=self.staff,
+            classroom=self.class_a,
+            action="rbac.scope_grant.portal_upsert",
+            target_type="ClassStaffModuleScopeGrant",
+            target_id="101",
+            summary="In-scope scoped grant audit row",
+            metadata={"class_id": self.class_a.id},
+        )
+        AuditEvent.objects.create(
+            actor_user=self.staff,
+            classroom=self.class_a,
+            action="rbac.simulate.portal",
+            target_type="User",
+            target_id=str(self.staff.id),
+            summary="In-scope simulation row",
+            metadata={"class_id": self.class_a.id},
+        )
+        AuditEvent.objects.create(
+            actor_user=outsider,
+            classroom=self.class_b,
+            action="rbac.scope_grant.portal_upsert",
+            target_type="ClassStaffModuleScopeGrant",
+            target_id="202",
+            summary="Out-of-scope grant row",
+            metadata={"class_id": self.class_b.id},
+        )
+
+        resp = self.client.get(
+            "/teach",
+            {
+                "rbac_tools": "1",
+                "rbac_audit_action": "rbac.scope_grant.",
+                "rbac_audit_class_id": str(self.class_a.id),
+                "rbac_audit_limit": "25",
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "RBAC audit operations")
+        self.assertContains(resp, event_in_scope.summary)
+        self.assertNotContains(resp, "In-scope simulation row")
+        self.assertNotContains(resp, "Out-of-scope grant row")
+
     def test_teacher_role_cannot_upsert_scoped_grant_from_teach_home(self):
         target_staff = get_user_model().objects.create_user(
             username="rbac_blocked_target",

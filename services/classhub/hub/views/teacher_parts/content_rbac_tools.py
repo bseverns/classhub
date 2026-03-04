@@ -2,6 +2,7 @@
 
 from ...models import ClassStaffModuleScopeGrant, OrganizationMembership
 from ...services.org_access import evaluate_staff_capability
+from .content_rbac_audit import build_rbac_audit_context
 from .content_rbac_bulk import build_bulk_simulation_result
 from .content_rbac_state import (
     rbac_form_state,
@@ -53,6 +54,11 @@ def _rbac_state_extra(request, *, extra: dict | None = None) -> dict:
             request.POST.get("rbac_bulk_capability") or request.GET.get("rbac_bulk_capability") or ""
         ).strip(),
         "rbac_bulk_module_id": (request.POST.get("rbac_bulk_module_id") or request.GET.get("rbac_bulk_module_id") or "").strip(),
+        "rbac_audit_action": (request.POST.get("rbac_audit_action") or request.GET.get("rbac_audit_action") or "all").strip(),
+        "rbac_audit_class_id": (
+            request.POST.get("rbac_audit_class_id") or request.GET.get("rbac_audit_class_id") or ""
+        ).strip(),
+        "rbac_audit_limit": (request.POST.get("rbac_audit_limit") or request.GET.get("rbac_audit_limit") or "50").strip(),
     }
     payload.update(extra or {})
     return payload
@@ -101,6 +107,7 @@ def build_rbac_tools_context(*, request, classes) -> dict:
         staff_users=staff_users,
         state=state,
     )
+    audit_context = build_rbac_audit_context(classes=classes, state=state)
 
     return {
         "rbac_tools_enabled": True,
@@ -113,6 +120,7 @@ def build_rbac_tools_context(*, request, classes) -> dict:
         **state,
         "rbac_simulation_result": rbac_simulation_result(request),
         "rbac_bulk_simulation_result": bulk_simulation_result,
+        **audit_context,
     }
 
 
@@ -247,7 +255,7 @@ def _parse_simulation_payload(request):
 
     capability = (request.POST.get("rbac_sim_capability") or "").strip().lower()
     if capability not in _CAPABILITY_VALUES:
-        return None, "Simulation capability must be submission.view or submission.delete."
+        return None, "Simulation capability must be one of the scoped-grant capabilities."
 
     classroom = None
     class_id_raw = (request.POST.get("rbac_sim_class_id") or "").strip()

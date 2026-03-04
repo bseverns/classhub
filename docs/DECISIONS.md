@@ -1922,3 +1922,22 @@ Execution runbook:
 - Enables district-style policy customization without replacing existing membership roles.
 - Improves operator debugging by surfacing capability outcomes for multiple staff accounts in one view.
 - Reduces policy drift risk by proving runtime parity between teacher and API policy endpoints under customized role templates.
+
+## Scoped-grant expansion + RBAC audit ops feed
+
+**Current decision:**
+- Expand `ClassStaffModuleScopeGrant` capability choices to include:
+  - `roster.manage`
+  - `policy.manage`
+- Keep submission capabilities module-range based; for class-wide policy/roster controls use range `0-0` sentinel.
+- Keep deny precedence stable across all scoped capabilities:
+  - explicit deny > explicit allow > role fallback.
+- Extend teacher RBAC tools with an audit operations panel:
+  - filter by action family, optional class, and row limit,
+  - include RBAC + org policy actions (`rbac.*`, `organization.role_capability.*`, `organization.membership.*`),
+  - scope feed to accessible class/org boundaries.
+
+**Why this remains active:**
+- Closes the gap between role templates and per-class operational overrides for high-impact policy/roster actions.
+- Gives operators a fast, in-product audit surface for RBAC changes and simulation actions without requiring admin-site querying.
+- Preserves least-privilege and traceability while avoiding a separate parallel audit system.

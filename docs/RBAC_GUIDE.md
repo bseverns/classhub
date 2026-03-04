@@ -62,9 +62,11 @@ Superuser behavior:
 
 Feature flag:
 - `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=0` (default): role template behavior only.
-- `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=1`: enforce module-range grants for:
+- `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=1`: enforce scoped grants for:
   - `submission.view`
   - `submission.delete`
+  - `roster.manage` (class-wide via range `0-0`)
+  - `policy.manage` (class-wide via range `0-0`)
 
 Grant model:
 - `ClassStaffModuleScopeGrant` rows are per class, user, capability, module-order range.
@@ -134,8 +136,14 @@ Teacher portal RBAC tools emit:
 - `rbac.scope_grant.portal_upsert`
 - `rbac.scope_grant.portal_set_active`
 - `rbac.simulate.portal`
+- `organization.role_capability.upsert`
+- `organization.membership.upsert`
 
 These records include capability, effect, module range, and target user/class identifiers.
+
+Teacher RBAC audit operations panel:
+- `GET /teach?rbac_tools=1&rbac_audit_action=<prefix>&rbac_audit_class_id=<id>&rbac_audit_limit=<n>`
+- shows recent RBAC/org-policy audit events scoped to accessible classes/orgs.
 
 ## CI guardrails
 

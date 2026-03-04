@@ -46,6 +46,7 @@ FILE_CONTRACTS: dict[str, dict] = {
             "test_org_admin_can_upsert_scoped_grant_from_teach_home",
             "test_superuser_can_upsert_org_role_capability_from_teach",
             "test_org_admin_bulk_simulation_matrix_scopes_to_class_org",
+            "test_org_admin_can_filter_rbac_audit_ops_feed",
         ),
         "tokens": ("TeacherPortalTests", "/teach/material/", "/teach/module/"),
     },
@@ -103,6 +104,7 @@ FILE_CONTRACTS: dict[str, dict] = {
             "test_teacher_role_template_override_limits_policy_endpoints_in_teach_and_api",
             "test_scoped_submission_view_grant_limits_submission_endpoints",
             "test_scoped_submission_delete_grant_limits_gallery_moderation",
+            "test_class_scoped_policy_and_roster_grants_can_deny_mutations",
         ),
         "tokens": (
             "EndpointRBACGuardTests",

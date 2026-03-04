@@ -88,6 +88,13 @@ _MODULE_RANGE_GRANT_CAPABILITIES = frozenset(
         CAP_SUBMISSION_DELETE,
     }
 )
+_CLASS_SCOPE_GRANT_CAPABILITIES = frozenset(
+    {
+        CAP_ROSTER_MANAGE,
+        CAP_POLICY_MANAGE,
+    }
+)
+_SCOPED_GRANT_CAPABILITIES = _MODULE_RANGE_GRANT_CAPABILITIES | _CLASS_SCOPE_GRANT_CAPABILITIES
 
 def _require_org_membership_for_staff() -> bool:
     return bool(getattr(settings, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", False))
@@ -382,22 +389,32 @@ def evaluate_staff_capability(
             module_id=module_scope_id,
         )
 
-    if (
-        module_scope_id is not None
-        and classroom is not None
-        and _scoped_module_grants_enabled()
-        and normalized_capability in _MODULE_RANGE_GRANT_CAPABILITIES
-    ):
-        module_order = _module_scope_order(classroom=classroom, module_id=module_scope_id)
-        if module_order is None:
-            return StaffCapabilityDecision(
-                allowed=False,
-                capability=normalized_capability,
-                reason="invalid_module_scope",
-                organization_id=organization_id,
-                classroom_id=classroom_id,
-                module_id=module_scope_id,
-            )
+    if classroom is not None and _scoped_module_grants_enabled() and normalized_capability in _SCOPED_GRANT_CAPABILITIES:
+        module_order = None
+        if normalized_capability in _MODULE_RANGE_GRANT_CAPABILITIES:
+            if module_scope_id is None:
+                return StaffCapabilityDecision(
+                    allowed=True,
+                    capability=normalized_capability,
+                    reason="role_allows_capability",
+                    role=allowed_role,
+                    organization_id=organization_id,
+                    classroom_id=classroom_id,
+                    module_id=module_scope_id,
+                )
+            module_order = _module_scope_order(classroom=classroom, module_id=module_scope_id)
+            if module_order is None:
+                return StaffCapabilityDecision(
+                    allowed=False,
+                    capability=normalized_capability,
+                    reason="invalid_module_scope",
+                    organization_id=organization_id,
+                    classroom_id=classroom_id,
+                    module_id=module_scope_id,
+                )
+        else:
+            # Class-scoped capabilities use 0-0 range as class-wide sentinel.
+            module_order = 0
         grants_qs = ClassStaffModuleScopeGrant.objects.filter(
             classroom=classroom,
             user=user,

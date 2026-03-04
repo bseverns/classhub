@@ -267,3 +267,41 @@ class EndpointRBACGuardTests(TestCase):
         self.assertEqual(approve_blocked.status_code, 403)
         self.gallery_submission_2.refresh_from_db()
         self.assertFalse(self.gallery_submission_2.is_gallery_shared)
+
+    @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
+    def test_class_scoped_policy_and_roster_grants_can_deny_mutations(self):
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.classroom,
+            user=self.staff,
+            capability=ClassStaffModuleScopeGrant.CAP_POLICY_MANAGE,
+            effect=ClassStaffModuleScopeGrant.EFFECT_DENY,
+            module_order_start=0,
+            module_order_end=0,
+            is_active=True,
+        )
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.classroom,
+            user=self.staff,
+            capability=ClassStaffModuleScopeGrant.CAP_ROSTER_MANAGE,
+            effect=ClassStaffModuleScopeGrant.EFFECT_DENY,
+            module_order_start=0,
+            module_order_end=0,
+            is_active=True,
+        )
+
+        policy_mutation = self.client.post(
+            f"/teach/class/{self.classroom.id}/set-enrollment-mode",
+            {"enrollment_mode": "closed"},
+        )
+        self.assertEqual(policy_mutation.status_code, 403)
+        api_policy_mutation = self.client.post(
+            f"/api/v1/teacher/class/{self.classroom.id}/set-enrollment-mode",
+            data=json.dumps({"enrollment_mode": "closed"}),
+            content_type="application/json",
+        )
+        self.assertEqual(api_policy_mutation.status_code, 403)
+        roster_mutation = self.client.post(
+            f"/teach/class/{self.classroom.id}/rename-student",
+            {"student_id": str(self.student.id), "display_name": "Denied Rename"},
+        )
+        self.assertEqual(roster_mutation.status_code, 403)

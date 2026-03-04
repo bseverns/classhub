@@ -397,3 +397,74 @@ class StaffCapabilityEvaluatorTests(TestCase):
         )
         self.assertTrue(decision.allowed)
         self.assertEqual(decision.reason, "role_allows_capability")
+
+    @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
+    def test_class_scoped_policy_grant_uses_zero_range_sentinel(self):
+        teacher = self.User.objects.create_user(
+            username="policy-scope",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=teacher,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.class_a,
+            user=teacher,
+            capability=ClassStaffModuleScopeGrant.CAP_POLICY_MANAGE,
+            effect=ClassStaffModuleScopeGrant.EFFECT_ALLOW,
+            module_order_start=0,
+            module_order_end=0,
+            is_active=True,
+        )
+        decision = evaluate_staff_capability(
+            teacher,
+            CAP_POLICY_MANAGE,
+            classroom=self.class_a,
+        )
+        self.assertTrue(decision.allowed)
+        self.assertEqual(decision.reason, "scoped_grant_allows")
+
+    @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
+    def test_class_scoped_roster_deny_overrides_allow(self):
+        teacher = self.User.objects.create_user(
+            username="roster-scope",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=teacher,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.class_a,
+            user=teacher,
+            capability=ClassStaffModuleScopeGrant.CAP_ROSTER_MANAGE,
+            effect=ClassStaffModuleScopeGrant.EFFECT_ALLOW,
+            module_order_start=0,
+            module_order_end=0,
+            is_active=True,
+        )
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.class_a,
+            user=teacher,
+            capability=ClassStaffModuleScopeGrant.CAP_ROSTER_MANAGE,
+            effect=ClassStaffModuleScopeGrant.EFFECT_DENY,
+            module_order_start=0,
+            module_order_end=0,
+            is_active=True,
+        )
+        decision = evaluate_staff_capability(
+            teacher,
+            CAP_ROSTER_MANAGE,
+            classroom=self.class_a,
+        )
+        self.assertFalse(decision.allowed)
+        self.assertEqual(decision.reason, "scoped_grant_explicit_deny")

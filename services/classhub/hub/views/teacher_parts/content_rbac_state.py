@@ -67,4 +67,7 @@ def rbac_form_state(request):
             request.GET.get("rbac_bulk_capability") or ClassStaffModuleScopeGrant.CAP_SUBMISSION_VIEW
         ).strip(),
         "rbac_bulk_module_id": (request.GET.get("rbac_bulk_module_id") or "").strip(),
+        "rbac_audit_action": (request.GET.get("rbac_audit_action") or "all").strip(),
+        "rbac_audit_class_id": (request.GET.get("rbac_audit_class_id") or "").strip(),
+        "rbac_audit_limit": (request.GET.get("rbac_audit_limit") or "50").strip(),
     }
