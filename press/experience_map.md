@@ -34,4 +34,6 @@ This page maps how different audiences experience ClassHub so external materials
 - `docs/PUBLIC_OVERVIEW.md`
 - `docs/PROGRAM_PROFILES.md`
 - `docs/TEACHER_PORTAL.md`
+- `docs/ORG_BOUNDARY_EXPLAINER.md`
+- `docs/RBAC_GUIDE.md`
 - `press/screenshots/SHOTLIST.md`

@@ -21,16 +21,20 @@ During planning, these may be generated placeholder images. Replace them with re
 - `06-submission-dropbox.png` (refresh capture for simplified status copy)
 
 ## Placeholder-to-capture backlog
-- `09-teacher-profile-tab.png`
-- `10-org-management-tab.png`
-- `11-invite-only-enrollment.png`
-- `12-certificate-eligibility.png`
-- `13-a11y-smoke-terminal.png`
-- `14-student-compact-view.png`
-- `15-lesson-helper-collapsed.png`
-- `16-student-standard-view.png`
-- `17-student-expanded-view.png`
-- `18-teacher-landing-editor.png`
+1. `11-invite-only-enrollment.png` (must show invite controls + support-board unresolved signals)
+2. `12-certificate-eligibility.png`
+3. `14-student-compact-view.png`
+4. `16-student-standard-view.png`
+5. `17-student-expanded-view.png`
+6. `18-teacher-landing-editor.png`
+7. `10-org-management-tab.png`
+8. `09-teacher-profile-tab.png`
+9. `15-lesson-helper-collapsed.png`
+10. `13-a11y-smoke-terminal.png`
+
+## Storyline-critical refresh guidance
+- `02-student-class-view.png`: include account links for trust/data controls.
+- `06-submission-dropbox.png`: include publish toggle + moderation state copy.
 
 ## Notes
 - Do not use production or real student/staff data.

@@ -54,3 +54,8 @@ A reader should understand the system scope, deployment shape, and privacy stanc
 
 ## Try it locally
 - `docs/TRY_IT_LOCAL.md`
+
+## Policy references (for claims review)
+- `docs/ORG_BOUNDARY_EXPLAINER.md`
+- `docs/RBAC_GUIDE.md`
+- `docs/RISK_AND_DATA_POSTURE.md`

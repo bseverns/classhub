@@ -26,6 +26,7 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 3. `03-teacher-dashboard.png`
 - Screen: teacher home (`/teach`)
 - Include: class cards and closeout actions
+- Include: support-board signal summary if visible (unresolved “I'm stuck”, upload errors, deletion requests)
 - Redact: real staff emails
 
 4. `04-teacher-lesson-tracker.png`
@@ -41,6 +42,7 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 6. `06-submission-dropbox.png`
 - Screen: upload/dropbox flow
 - Include: accepted file types, submit action, and simplified status pill (`Done` or `Open`)
+- Include: student publish toggle state and resulting moderation status copy
 - Redact: filenames if they include personal info
 
 7. `07-admin-login.png`
@@ -67,6 +69,7 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 11. `11-invite-only-enrollment.png`
 - Screen: class dashboard (`/teach/class/<id>`)
 - Include: enrollment mode controls + invite-link management
+- Include: support-board lane (or section) showing unresolved help signals
 - Redact: live invite tokens/class codes
 
 12. `12-certificate-eligibility.png`
@@ -104,15 +107,33 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 - Include: title/message/hero-url fields + save action
 - Redact: real class names and real external image URLs if needed
 
-## Priority order (refresh first)
+## Storyline overlays (capture inside existing files)
+- Trust/data controls:
+  - `01-student-join.png`: include privacy-at-a-glance block and trust link.
+  - `02-student-class-view.png`: include `Account` area with `My Data` and `Trust notes` links.
+- Help-first facilitation:
+  - `03-teacher-dashboard.png` or `11-invite-only-enrollment.png`: include unresolved support-board signals.
+- Gallery moderation:
+  - `06-submission-dropbox.png`: include publish toggle + moderation state.
+  - `11-invite-only-enrollment.png` (or equivalent class dashboard view): include teacher moderation controls/state if available.
+
+## Priority order
+### Replace placeholder images first
+1. `11-invite-only-enrollment.png`
+2. `12-certificate-eligibility.png`
+3. `14-student-compact-view.png`
+4. `16-student-standard-view.png`
+5. `17-student-expanded-view.png`
+6. `18-teacher-landing-editor.png`
+7. `10-org-management-tab.png`
+8. `09-teacher-profile-tab.png`
+9. `15-lesson-helper-collapsed.png`
+10. `13-a11y-smoke-terminal.png`
+
+### Then refresh older captures
 1. `02-student-class-view.png`
 2. `05-lesson-with-helper.png`
 3. `06-submission-dropbox.png`
-4. `11-invite-only-enrollment.png`
-5. `12-certificate-eligibility.png`
-6. `14-student-compact-view.png`
-7. `16-student-standard-view.png`
-8. `17-student-expanded-view.png`
 
 ## Placeholders
 - If these new screenshots are not captured yet, keep placeholders in
