@@ -71,6 +71,7 @@ nav:
       - Security Baseline: SECURITY_BASELINE.md
       - Security: SECURITY.md
       - Organization Boundaries: ORG_BOUNDARY_EXPLAINER.md
+      - RBAC Guide: RBAC_GUIDE.md
       - Endpoint Checklist: ENDPOINT_CHECKLIST.md
       - Privacy Addendum: PRIVACY-ADDENDUM.md
       - Helper Policy: HELPER_POLICY.md

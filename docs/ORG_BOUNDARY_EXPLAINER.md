@@ -115,6 +115,7 @@ Behavior when enabled:
 
 ## Related docs
 - [DECISIONS.md](DECISIONS.md)
+- [RBAC_GUIDE.md](RBAC_GUIDE.md)
 - [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - [SECURITY.md](SECURITY.md)
 - [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md)
