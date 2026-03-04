@@ -14,7 +14,7 @@ from ...services.filenames import safe_filename
 from ...services.teacher_roster_class import build_certificate_eligibility_rows
 from .shared_auth import (
     staff_can_access_classroom,
-    staff_can_manage_classroom,
+    staff_can_manage_roster,
     staff_classroom_or_none,
     staff_member_required,
 )
@@ -69,7 +69,7 @@ def teach_issue_certificate(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     student_id = _parse_positive_id(request.POST.get("student_id"))

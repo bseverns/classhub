@@ -24,6 +24,7 @@ from .shared import (
     safe_filename,
     staff_can_access_classroom,
     staff_can_manage_classroom,
+    staff_can_view_submissions,
     staff_classroom_or_none,
     staff_member_required,
 )
@@ -225,7 +226,11 @@ def teach_material_submissions(request, material_id: int):
         return HttpResponse("Not found", status=404)
 
     classroom = material.module.classroom
-    if not staff_can_access_classroom(request.user, classroom):
+    if not staff_can_view_submissions(
+        request.user,
+        classroom,
+        module_id=material.module_id,
+    ):
         return HttpResponse("Not found", status=404)
     students = list(classroom.students.all().order_by("created_at", "id"))
 

@@ -75,6 +75,10 @@ _LEGACY_CAPABILITIES_WITHOUT_MEMBERSHIPS = frozenset(
         CAP_CLASS_VIEW,
         CAP_CLASS_MANAGE,
         CAP_CLASS_CREATE,
+        CAP_ROSTER_MANAGE,
+        CAP_SUBMISSION_VIEW,
+        CAP_SUBMISSION_DELETE,
+        CAP_POLICY_MANAGE,
     }
 )
 _MODULE_RANGE_GRANT_CAPABILITIES = frozenset(
@@ -458,6 +462,50 @@ def staff_can_manage_classroom(user, classroom: Class | None) -> bool:
     return staff_can(user, CAP_CLASS_MANAGE, classroom=classroom)
 
 
+def staff_can_manage_roster(user, classroom: Class | None) -> bool:
+    if classroom is None:
+        return False
+    return staff_can(user, CAP_ROSTER_MANAGE, classroom=classroom)
+
+
+def staff_can_manage_policy(user, classroom: Class | None) -> bool:
+    if classroom is None:
+        return False
+    return staff_can(user, CAP_POLICY_MANAGE, classroom=classroom)
+
+
+def staff_can_view_submissions(
+    user,
+    classroom: Class | None,
+    *,
+    module_id: int | None = None,
+) -> bool:
+    if classroom is None:
+        return False
+    return staff_can(
+        user,
+        CAP_SUBMISSION_VIEW,
+        classroom=classroom,
+        module_id=module_id,
+    )
+
+
+def staff_can_delete_submissions(
+    user,
+    classroom: Class | None,
+    *,
+    module_id: int | None = None,
+) -> bool:
+    if classroom is None:
+        return False
+    return staff_can(
+        user,
+        CAP_SUBMISSION_DELETE,
+        classroom=classroom,
+        module_id=module_id,
+    )
+
+
 def staff_can_export_syllabi(user) -> bool:
     return staff_can(user, CAP_SYLLABUS_EXPORT)
 
@@ -480,7 +528,11 @@ __all__ = [
     "staff_can_export_syllabi",
     "staff_can_access_classroom",
     "staff_can_create_classes",
+    "staff_can_delete_submissions",
     "staff_can_manage_classroom",
+    "staff_can_manage_policy",
+    "staff_can_manage_roster",
+    "staff_can_view_submissions",
     "staff_classroom_or_none",
     "staff_default_organization",
     "staff_has_explicit_memberships",

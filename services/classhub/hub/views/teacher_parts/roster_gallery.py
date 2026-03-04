@@ -12,7 +12,8 @@ from .shared import (
     _teach_module_path,
     _with_notice,
     require_POST,
-    staff_can_manage_classroom,
+    staff_can_delete_submissions,
+    staff_can_manage_policy,
     staff_member_required,
     timezone,
 )
@@ -24,7 +25,7 @@ def teach_set_module_gallery_enabled(request, module_id: int):
     module = Module.objects.select_related("classroom").filter(id=module_id).first()
     if not module:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, module.classroom):
+    if not staff_can_manage_policy(request.user, module.classroom):
         return HttpResponse("Forbidden", status=403)
 
     enable_gallery = (request.POST.get("gallery_enabled") or "").strip() == "1"
@@ -51,7 +52,11 @@ def teach_moderate_gallery_submission(request, material_id: int, submission_id: 
     material = Material.objects.select_related("module__classroom").filter(id=material_id).first()
     if not material or material.type != Material.TYPE_GALLERY:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, material.module.classroom):
+    if not staff_can_delete_submissions(
+        request.user,
+        material.module.classroom,
+        module_id=material.module_id,
+    ):
         return HttpResponse("Forbidden", status=403)
 
     submission = (

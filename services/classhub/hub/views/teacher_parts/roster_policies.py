@@ -5,7 +5,7 @@ from django.views.decorators.http import require_POST
 
 from ...models import Class
 from .shared_auth import (
-    staff_can_manage_classroom,
+    staff_can_manage_policy,
     staff_classroom_or_none,
     staff_member_required,
 )
@@ -33,7 +33,7 @@ def teach_set_retention_preset(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_policy(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     preset = _parse_retention_preset(request.POST.get("retention_preset") or "")

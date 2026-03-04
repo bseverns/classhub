@@ -7,6 +7,7 @@ from .models import (
     Class,
     ClassInviteLink,
     ClassStaffAssignment,
+    ClassStaffModuleScopeGrant,
     LessonAsset,
     LessonAssetFolder,
     LessonRelease,
@@ -47,6 +48,21 @@ class ClassAdmin(admin.ModelAdmin):
 class ClassStaffAssignmentAdmin(admin.ModelAdmin):
     list_display = ("classroom", "user", "is_active", "updated_at")
     list_filter = ("classroom", "is_active")
+    search_fields = ("classroom__name", "classroom__join_code", "user__username", "user__email")
+
+
+@admin.register(ClassStaffModuleScopeGrant)
+class ClassStaffModuleScopeGrantAdmin(admin.ModelAdmin):
+    list_display = (
+        "classroom",
+        "user",
+        "capability",
+        "module_order_start",
+        "module_order_end",
+        "is_active",
+        "updated_at",
+    )
+    list_filter = ("classroom", "capability", "is_active")
     search_fields = ("classroom__name", "classroom__join_code", "user__username", "user__email")
 
 

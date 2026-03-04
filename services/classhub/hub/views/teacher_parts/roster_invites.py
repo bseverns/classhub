@@ -11,7 +11,7 @@ from ...models import Class, ClassInviteLink
 from ...services.filenames import safe_filename
 from ...services.teacher_roster_class import export_class_outcomes_csv, export_class_summary_csv
 from .shared_auth import (
-    staff_can_manage_classroom,
+    staff_can_manage_policy,
     staff_classroom_or_none,
     staff_member_required,
 )
@@ -78,7 +78,7 @@ def teach_create_invite_link(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_policy(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     label, expires_in_hours, seat_cap, validation_error = _parse_invite_link_fields(request)
@@ -114,7 +114,7 @@ def teach_disable_invite_link(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_policy(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     try:
@@ -213,7 +213,7 @@ def teach_set_enrollment_mode(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_policy(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     enrollment_mode = _parse_enrollment_mode(request.POST.get("enrollment_mode") or "")

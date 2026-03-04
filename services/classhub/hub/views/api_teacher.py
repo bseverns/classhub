@@ -15,6 +15,7 @@ from ..models import Class, Submission
 from ..services.org_access import (
     staff_accessible_classes_ranked,
     staff_can_manage_classroom,
+    staff_can_view_submissions,
     staff_classroom_or_none,
 )
 from ..services.teacher_roster_class import build_dashboard_context
@@ -216,6 +217,8 @@ def api_teacher_class_submissions(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return _json_no_store_response({"error": "not_found"}, status=404, private=True)
+    if not staff_can_view_submissions(request.user, classroom):
+        return _json_no_store_response({"error": "forbidden"}, status=403, private=True)
 
     try:
         limit = max(1, min(100, int(request.GET.get("limit", 50))))

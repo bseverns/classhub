@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 
 from ...services.content_links import safe_external_url
-from .shared_auth import staff_can_manage_classroom, staff_classroom_or_none, staff_member_required
+from .shared_auth import staff_can_manage_policy, staff_classroom_or_none, staff_member_required
 from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
 
 
@@ -26,7 +26,7 @@ def teach_update_class_landing(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_policy(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     landing_title = (request.POST.get("student_landing_title") or "").strip()[:200]

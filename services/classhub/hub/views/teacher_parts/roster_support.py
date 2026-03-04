@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 
 from ...models import StudentEvent, StudentIdentity, StudentSupportTag
-from .shared_auth import staff_can_manage_classroom, staff_classroom_or_none, staff_member_required
+from .shared_auth import staff_can_manage_roster, staff_classroom_or_none, staff_member_required
 from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
 
 
@@ -20,7 +20,7 @@ def teach_resolve_stuck_flag(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     try:
@@ -80,7 +80,7 @@ def teach_resolve_delete_request(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     try:
@@ -127,7 +127,7 @@ def teach_add_support_tag(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     try:
@@ -186,7 +186,7 @@ def teach_remove_support_tag(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     try:

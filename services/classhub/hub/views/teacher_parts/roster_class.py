@@ -20,6 +20,7 @@ from ...services.teacher_roster_class import (
 from .shared_auth import (
     staff_can_create_classes,
     staff_can_manage_classroom,
+    staff_can_view_submissions,
     staff_classroom_or_none,
     staff_default_organization,
     staff_member_required,
@@ -305,6 +306,8 @@ def teach_export_class_submissions_today(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_view_submissions(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     day_start, day_end = _local_day_window()
     tmp, file_count = export_submissions_today_archive(

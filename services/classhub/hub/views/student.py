@@ -29,6 +29,7 @@ from ..models import (
 from ..services.export_service import build_student_portfolio_export_response
 from ..services.ip_privacy import minimize_student_event_ip
 from ..services.join_flow_service import clear_device_hint_cookie
+from ..services.org_access import staff_can_view_submissions
 from ..services.peer_feedback import resolve_peer_feedback_starters
 from ..services.student_home import (
     build_class_landing_context,
@@ -427,7 +428,15 @@ def submission_download(request, submission_id: int):
         return HttpResponse("Not found", status=404)
 
     if request.user.is_authenticated and request.user.is_staff:
-        pass
+        module = getattr(getattr(s, "material", None), "module", None)
+        if module is None:
+            return HttpResponse("Not found", status=404)
+        if not staff_can_view_submissions(
+            request.user,
+            module.classroom,
+            module_id=s.material.module_id,
+        ):
+            return HttpResponse("Forbidden", status=403)
     else:
         if getattr(request, "student", None) is None:
             return redirect("/")

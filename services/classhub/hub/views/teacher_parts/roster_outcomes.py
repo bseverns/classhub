@@ -5,7 +5,7 @@ from django.views.decorators.http import require_POST
 
 from ...models import CertificateIssuance, Module, StudentIdentity, StudentOutcomeEvent
 from ...services.teacher_roster_class import build_certificate_eligibility_rows
-from .shared_auth import staff_can_manage_classroom, staff_classroom_or_none, staff_member_required
+from .shared_auth import staff_can_manage_roster, staff_classroom_or_none, staff_member_required
 from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
 from .shared import render
 
@@ -23,7 +23,7 @@ def teach_certificate_eligibility(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    can_manage = staff_can_manage_classroom(request.user, classroom)
+    can_manage = staff_can_manage_roster(request.user, classroom)
 
     students = list(classroom.students.only("id", "display_name").order_by("display_name", "id"))
     modules = list(classroom.modules.only("id", "title", "order_index").order_by("order_index", "id"))
@@ -68,7 +68,7 @@ def teach_mark_session_completed(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     student_id = _parse_positive_id(request.POST.get("student_id"))

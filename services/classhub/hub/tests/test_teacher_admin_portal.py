@@ -1997,6 +1997,115 @@ class TeacherOrganizationAccessTests(TestCase):
         )
         self.assertEqual(resp.status_code, 403)
 
+    @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
+    def test_scoped_submission_view_grant_limits_material_submissions_route(self):
+        module_1 = Module.objects.create(classroom=self.class_a, title="Session 1", order_index=0)
+        module_2 = Module.objects.create(classroom=self.class_a, title="Session 2", order_index=1)
+        material_1 = Material.objects.create(
+            module=module_1,
+            title="Upload 1",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        material_2 = Material.objects.create(
+            module=module_2,
+            title="Upload 2",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        student = StudentIdentity.objects.create(classroom=self.class_a, display_name="Ada")
+        submission_1 = Submission.objects.create(
+            material=material_1,
+            student=student,
+            original_filename="one.sb3",
+            file=SimpleUploadedFile("one.sb3", _sample_sb3_bytes()),
+        )
+        submission_2 = Submission.objects.create(
+            material=material_2,
+            student=student,
+            original_filename="two.sb3",
+            file=SimpleUploadedFile("two.sb3", _sample_sb3_bytes()),
+        )
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.class_a,
+            user=self.staff,
+            capability=ClassStaffModuleScopeGrant.CAP_SUBMISSION_VIEW,
+            module_order_start=0,
+            module_order_end=0,
+            is_active=True,
+        )
+
+        allowed = self.client.get(f"/teach/material/{material_1.id}/submissions")
+        self.assertEqual(allowed.status_code, 200)
+        blocked = self.client.get(f"/teach/material/{material_2.id}/submissions")
+        self.assertEqual(blocked.status_code, 404)
+
+        allowed_download = self.client.get(f"/submission/{submission_1.id}/download")
+        self.assertEqual(allowed_download.status_code, 200)
+        blocked_download = self.client.get(f"/submission/{submission_2.id}/download")
+        self.assertEqual(blocked_download.status_code, 403)
+
+    @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
+    def test_scoped_submission_delete_grant_limits_gallery_moderation(self):
+        module_1 = Module.objects.create(classroom=self.class_a, title="Session 1", order_index=0)
+        module_2 = Module.objects.create(classroom=self.class_a, title="Session 2", order_index=1)
+        gallery_1 = Material.objects.create(
+            module=module_1,
+            title="Gallery 1",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        gallery_2 = Material.objects.create(
+            module=module_2,
+            title="Gallery 2",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        student = StudentIdentity.objects.create(classroom=self.class_a, display_name="Ada")
+        submission_1 = Submission.objects.create(
+            material=gallery_1,
+            student=student,
+            original_filename="one.sb3",
+            file=SimpleUploadedFile("one.sb3", _sample_sb3_bytes()),
+            is_published=True,
+            is_gallery_shared=False,
+        )
+        submission_2 = Submission.objects.create(
+            material=gallery_2,
+            student=student,
+            original_filename="two.sb3",
+            file=SimpleUploadedFile("two.sb3", _sample_sb3_bytes()),
+            is_published=True,
+            is_gallery_shared=False,
+        )
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.class_a,
+            user=self.staff,
+            capability=ClassStaffModuleScopeGrant.CAP_SUBMISSION_DELETE,
+            module_order_start=0,
+            module_order_end=0,
+            is_active=True,
+        )
+
+        allowed = self.client.post(
+            f"/teach/material/{gallery_1.id}/submission/{submission_1.id}/moderate",
+            {"approve": "1"},
+        )
+        self.assertEqual(allowed.status_code, 302)
+        blocked = self.client.post(
+            f"/teach/material/{gallery_2.id}/submission/{submission_2.id}/moderate",
+            {"approve": "1"},
+        )
+        self.assertEqual(blocked.status_code, 403)
+
     def test_viewer_membership_cannot_resolve_stuck_flag(self):
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_VIEWER

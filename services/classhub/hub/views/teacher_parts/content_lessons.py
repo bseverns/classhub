@@ -14,7 +14,7 @@ from .shared import (
     render,
     require_POST,
     staff_accessible_classes_ranked,
-    staff_can_manage_classroom,
+    staff_can_manage_policy,
     staff_classroom_or_none,
     staff_member_required,
 )
@@ -81,7 +81,7 @@ def teach_set_lesson_release(request):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return _safe_internal_redirect(request, _with_notice(return_to, error="Class not found."), fallback=return_to)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_policy(request.user, classroom):
         return _safe_internal_redirect(request, _with_notice(return_to, error="Class write access denied."), fallback=return_to)
 
     course_slug = (request.POST.get("course_slug") or "").strip()

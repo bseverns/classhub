@@ -15,7 +15,7 @@ from .shared import (
     _with_notice,
     apply_no_store,
     require_POST,
-    staff_can_manage_classroom,
+    staff_can_manage_roster,
     staff_classroom_or_none,
     staff_member_required,
     transaction,
@@ -27,6 +27,8 @@ def teach_student_return_code(request, class_id: int, student_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
+    if not staff_can_manage_roster(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
 
     student = StudentIdentity.objects.filter(id=student_id, classroom=classroom).first()
     if not student:
@@ -43,7 +45,7 @@ def teach_rename_student(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     try:
@@ -104,7 +106,7 @@ def teach_merge_students(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     try:
@@ -212,7 +214,7 @@ def teach_delete_student_data(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_classroom(request.user, classroom):
+    if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
 
     try:

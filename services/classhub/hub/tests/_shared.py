@@ -28,6 +28,7 @@ from ..models import (
     Class,
     ClassInviteLink,
     ClassStaffAssignment,
+    ClassStaffModuleScopeGrant,
     LessonAsset,
     LessonAssetFolder,
     LessonVideo,

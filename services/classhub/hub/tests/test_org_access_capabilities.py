@@ -4,6 +4,8 @@ from ..models import ClassStaffModuleScopeGrant
 from ..services.org_access import (
     CAP_CLASS_CREATE,
     CAP_CLASS_MANAGE,
+    CAP_POLICY_MANAGE,
+    CAP_ROSTER_MANAGE,
     CAP_SUBMISSION_DELETE,
     CAP_SUBMISSION_VIEW,
     CAP_SYLLABUS_EXPORT,
@@ -75,8 +77,11 @@ class StaffCapabilityEvaluatorTests(TestCase):
         self.assertTrue(staff_can_create_classes(staff))
         self.assertTrue(staff_can_manage_classroom(staff, self.class_a))
         self.assertTrue(staff_can_access_classroom(staff, self.class_a))
+        self.assertTrue(staff_can(staff, CAP_ROSTER_MANAGE, classroom=self.class_a))
+        self.assertTrue(staff_can(staff, CAP_POLICY_MANAGE, classroom=self.class_a))
+        self.assertTrue(staff_can(staff, CAP_SUBMISSION_VIEW, classroom=self.class_a))
+        self.assertTrue(staff_can(staff, CAP_SUBMISSION_DELETE, classroom=self.class_a))
         self.assertFalse(staff_can_export_syllabi(staff))
-        self.assertFalse(staff_can(staff, CAP_SUBMISSION_DELETE, classroom=self.class_a))
 
     @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True)
     def test_membership_required_mode_denies_staff_without_membership(self):
@@ -89,6 +94,8 @@ class StaffCapabilityEvaluatorTests(TestCase):
         self.assertFalse(staff_can_create_classes(staff))
         self.assertFalse(staff_can_manage_classroom(staff, self.class_a))
         self.assertFalse(staff_can_access_classroom(staff, self.class_a))
+        self.assertFalse(staff_can(staff, CAP_SUBMISSION_VIEW, classroom=self.class_a))
+        self.assertFalse(staff_can(staff, CAP_SUBMISSION_DELETE, classroom=self.class_a))
         self.assertFalse(staff_can_export_syllabi(staff))
 
     def test_viewer_role_is_read_only(self):
