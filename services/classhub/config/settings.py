@@ -236,6 +236,7 @@ CLASSHUB_OPERATOR_PROFILE = {
     "admin_label": CLASSHUB_ADMIN_LABEL,
 }
 REQUIRE_ORG_MEMBERSHIP_FOR_STAFF = env.bool("REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", default=False)
+CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED = env.bool("CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED", default=False)
 CLASSHUB_PROGRAM_PROFILE = (env("CLASSHUB_PROGRAM_PROFILE", default="secondary").strip().lower() or "secondary")
 if CLASSHUB_PROGRAM_PROFILE not in {"elementary", "secondary", "advanced"}:
     raise RuntimeError("CLASSHUB_PROGRAM_PROFILE must be one of: elementary, secondary, advanced")

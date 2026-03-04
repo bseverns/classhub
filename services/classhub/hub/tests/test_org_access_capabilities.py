@@ -1,5 +1,6 @@
 from ._shared import *  # noqa: F401,F403
 
+from ..models import ClassStaffModuleScopeGrant
 from ..services.org_access import (
     CAP_CLASS_CREATE,
     CAP_CLASS_MANAGE,
@@ -23,6 +24,8 @@ class StaffCapabilityEvaluatorTests(TestCase):
         self.class_a = Class.objects.create(name="Class A", join_code="ORGA1234", organization=self.org_a)
         self.class_b = Class.objects.create(name="Class B", join_code="ORGB1234", organization=self.org_b)
         self.module_a = Module.objects.create(classroom=self.class_a, title="Module 1", order_index=0)
+        self.module_a_2 = Module.objects.create(classroom=self.class_a, title="Module 2", order_index=1)
+        self.module_a_3 = Module.objects.create(classroom=self.class_a, title="Module 3", order_index=2)
         self.module_b = Module.objects.create(classroom=self.class_b, title="Module 1", order_index=0)
 
     def test_superuser_allows_known_capabilities(self):
@@ -194,3 +197,97 @@ class StaffCapabilityEvaluatorTests(TestCase):
         self.assertFalse(decision.allowed)
         self.assertEqual(decision.reason, "invalid_module_scope")
 
+    @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
+    def test_scoped_grants_enabled_without_rows_preserves_role_allow(self):
+        teacher = self.User.objects.create_user(
+            username="scoped-fallback",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=teacher,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        decision = evaluate_staff_capability(
+            teacher,
+            CAP_SUBMISSION_VIEW,
+            classroom=self.class_a,
+            module_id=self.module_a_2.id,
+        )
+        self.assertTrue(decision.allowed)
+        self.assertEqual(decision.reason, "role_allows_capability_no_scoped_grants")
+
+    @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
+    def test_scoped_module_range_grant_allows_only_configured_range(self):
+        teacher = self.User.objects.create_user(
+            username="module-range",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=teacher,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.class_a,
+            user=teacher,
+            capability=ClassStaffModuleScopeGrant.CAP_SUBMISSION_VIEW,
+            module_order_start=0,
+            module_order_end=1,
+            is_active=True,
+        )
+
+        inside = evaluate_staff_capability(
+            teacher,
+            CAP_SUBMISSION_VIEW,
+            classroom=self.class_a,
+            module_id=self.module_a_2.id,
+        )
+        self.assertTrue(inside.allowed)
+        self.assertEqual(inside.reason, "scoped_grant_allows")
+
+        outside = evaluate_staff_capability(
+            teacher,
+            CAP_SUBMISSION_VIEW,
+            classroom=self.class_a,
+            module_id=self.module_a_3.id,
+        )
+        self.assertFalse(outside.allowed)
+        self.assertEqual(outside.reason, "scoped_grant_denied")
+
+    @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=False)
+    def test_scoped_module_range_grant_disabled_ignores_rows(self):
+        teacher = self.User.objects.create_user(
+            username="module-range-off",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=teacher,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.class_a,
+            user=teacher,
+            capability=ClassStaffModuleScopeGrant.CAP_SUBMISSION_VIEW,
+            module_order_start=0,
+            module_order_end=0,
+            is_active=True,
+        )
+        decision = evaluate_staff_capability(
+            teacher,
+            CAP_SUBMISSION_VIEW,
+            classroom=self.class_a,
+            module_id=self.module_a_3.id,
+        )
+        self.assertTrue(decision.allowed)
+        self.assertEqual(decision.reason, "role_allows_capability")

@@ -1861,6 +1861,12 @@ Execution runbook:
   - syllabus export remains membership-gated.
 - Route legacy helper APIs through the evaluator (`staff_can_manage_classroom`, `staff_can_create_classes`, `staff_can_export_syllabi`) so existing call sites stay stable.
 - Support module scope in the evaluator contract (`module_id`) with strict class-module validation (future module-range grants build on this seam).
+- Add a first scoped-grant persistence model `ClassStaffModuleScopeGrant`:
+  - stores per-class, per-user, per-capability module order ranges,
+  - currently scoped to `submission.view` and `submission.delete`.
+- Keep scoped-grant enforcement feature-flagged and disabled by default:
+  - `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=0` -> evaluator behaves like role-only checks,
+  - `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=1` -> module-scoped submission checks enforce active range grants when present.
 
 **Why this remains active:**
 - Enables incremental migration from coarse roles to capability checks without breaking current operations.

@@ -192,6 +192,63 @@ class ClassStaffAssignment(models.Model):
         return f"{self.classroom.name}: {self.user}"
 
 
+class ClassStaffModuleScopeGrant(models.Model):
+    """Optional module-range capability grant for one staff user in one class."""
+
+    CAP_SUBMISSION_VIEW = "submission.view"
+    CAP_SUBMISSION_DELETE = "submission.delete"
+    CAPABILITY_CHOICES = [
+        (CAP_SUBMISSION_VIEW, "Submission view"),
+        (CAP_SUBMISSION_DELETE, "Submission delete"),
+    ]
+
+    classroom = models.ForeignKey(
+        Class,
+        on_delete=models.CASCADE,
+        related_name="staff_module_scope_grants",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="classhub_module_scope_grants",
+    )
+    capability = models.CharField(max_length=40, choices=CAPABILITY_CHOICES)
+    module_order_start = models.PositiveIntegerField(default=0)
+    module_order_end = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["classroom_id", "user_id", "capability", "module_order_start", "module_order_end", "id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["classroom", "user", "capability", "module_order_start", "module_order_end"],
+                name="uniq_staff_module_scope_grant",
+            ),
+            models.CheckConstraint(
+                check=models.Q(module_order_end__gte=models.F("module_order_start")),
+                name="staff_module_scope_order_valid",
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=["classroom", "user", "capability", "is_active"],
+                name="hub_stmodgr_clsusr_cap_idx",
+            ),
+            models.Index(
+                fields=["classroom", "capability", "module_order_start", "module_order_end"],
+                name="hub_stmodgr_scope_rng_idx",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return (
+            f"{self.classroom.name}: {self.user} {self.capability} "
+            f"[{self.module_order_start}-{self.module_order_end}]"
+        )
+
+
 class Module(models.Model):
     """An ordered group of materials (usually one lesson/session)."""
 

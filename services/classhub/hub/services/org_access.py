@@ -10,7 +10,14 @@ from dataclasses import dataclass
 from django.conf import settings
 from django.db.models import QuerySet
 
-from ..models import Class, ClassStaffAssignment, Module, Organization, OrganizationMembership
+from ..models import (
+    Class,
+    ClassStaffAssignment,
+    ClassStaffModuleScopeGrant,
+    Module,
+    Organization,
+    OrganizationMembership,
+)
 
 CAP_CLASS_VIEW = "class.view"
 CAP_CLASS_MANAGE = "class.manage"
@@ -70,6 +77,12 @@ _LEGACY_CAPABILITIES_WITHOUT_MEMBERSHIPS = frozenset(
         CAP_CLASS_CREATE,
     }
 )
+_MODULE_RANGE_GRANT_CAPABILITIES = frozenset(
+    {
+        CAP_SUBMISSION_VIEW,
+        CAP_SUBMISSION_DELETE,
+    }
+)
 
 _MANAGE_ROLES = {
     role
@@ -85,6 +98,10 @@ _SYLLABUS_EXPORT_ROLES = {
 
 def _require_org_membership_for_staff() -> bool:
     return bool(getattr(settings, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", False))
+
+
+def _scoped_module_grants_enabled() -> bool:
+    return bool(getattr(settings, "CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED", False))
 
 
 def _active_memberships_queryset(user) -> QuerySet[OrganizationMembership]:
@@ -174,6 +191,26 @@ def _module_scope_is_valid(*, classroom: Class | None, module_id: int | None) ->
     if classroom is None:
         return False
     return Module.objects.filter(id=parsed_module_id, classroom_id=classroom.id).exists()
+
+
+def _module_scope_order(*, classroom: Class, module_id: int) -> int | None:
+    try:
+        parsed_module_id = int(module_id)
+    except Exception:
+        return None
+    if parsed_module_id <= 0:
+        return None
+    row = (
+        Module.objects.filter(
+            id=parsed_module_id,
+            classroom_id=classroom.id,
+        )
+        .only("order_index")
+        .first()
+    )
+    if row is None:
+        return None
+    return int(row.order_index)
 
 
 def _highest_role_with_capability(*, roles: set[str], capability: str) -> str:
@@ -299,6 +336,62 @@ def evaluate_staff_capability(
             allowed=False,
             capability=normalized_capability,
             reason="role_missing_capability",
+            organization_id=organization_id,
+            classroom_id=classroom_id,
+            module_id=module_scope_id,
+        )
+
+    if (
+        module_scope_id is not None
+        and classroom is not None
+        and _scoped_module_grants_enabled()
+        and normalized_capability in _MODULE_RANGE_GRANT_CAPABILITIES
+    ):
+        module_order = _module_scope_order(classroom=classroom, module_id=module_scope_id)
+        if module_order is None:
+            return StaffCapabilityDecision(
+                allowed=False,
+                capability=normalized_capability,
+                reason="invalid_module_scope",
+                organization_id=organization_id,
+                classroom_id=classroom_id,
+                module_id=module_scope_id,
+            )
+        grants_qs = ClassStaffModuleScopeGrant.objects.filter(
+            classroom=classroom,
+            user=user,
+            capability=normalized_capability,
+            is_active=True,
+        )
+        if not grants_qs.exists():
+            return StaffCapabilityDecision(
+                allowed=True,
+                capability=normalized_capability,
+                reason="role_allows_capability_no_scoped_grants",
+                role=allowed_role,
+                organization_id=organization_id,
+                classroom_id=classroom_id,
+                module_id=module_scope_id,
+            )
+        grant_allows = grants_qs.filter(
+            module_order_start__lte=module_order,
+            module_order_end__gte=module_order,
+        ).exists()
+        if not grant_allows:
+            return StaffCapabilityDecision(
+                allowed=False,
+                capability=normalized_capability,
+                reason="scoped_grant_denied",
+                role=allowed_role,
+                organization_id=organization_id,
+                classroom_id=classroom_id,
+                module_id=module_scope_id,
+            )
+        return StaffCapabilityDecision(
+            allowed=True,
+            capability=normalized_capability,
+            reason="scoped_grant_allows",
+            role=allowed_role,
             organization_id=organization_id,
             classroom_id=classroom_id,
             module_id=module_scope_id,
