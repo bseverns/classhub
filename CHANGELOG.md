@@ -24,12 +24,41 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - API test suites: 55 tests across `test_api_tokens.py`, `test_api_student.py`, and `test_api_teacher.py`.
 - `docs/API.md`: Full JSON API reference (authentication, endpoints, rate limits, error codes).
 - Bandit high-confidence/high-severity SAST scan in CI.
+- Student micro-check signals during class (`I can do this`, `I'm stuck`, `I taught someone`) with event capture.
+- Multilingual peer-feedback sentence starters and facilitator support board with stuck-resolution actions.
+- Plain-language trust notes page and join-page trust links (`What we store / never store`).
+- Per-class retention presets integrated with existing prune workflows (no parallel retention system).
+- Student self-serve display-name rename and policy-aware self-delete controls, plus staff deletion-request inbox.
+- Staff-only support tags (controlled vocabulary; no freeform notes by default).
+- Artifact-first flows: student portfolio, opt-in gallery publishing, and moderated session gallery views.
+- Auto-provision class creation on teacher syllabus import.
+- Organization/RBAC foundation: capability evaluator, feature-flagged module-range scoped grants, and org boundary docs.
+- Endpoint-level RBAC contract tests and RBAC drift-guard script coverage in CI.
+- CI guard scripts for workflow coverage, test inventory flow anchors, and machine-readable JSON output modes.
+- Phased telemetry database split runbook for reliability-oriented service separation.
+- RFC docs for asynchronous self-paced workflows and granular RBAC expansion planning.
 
 ### Fixed
 - Student "Delete my work" (`/student/delete-work`) crashed with 500 because `StudentEvent.delete()` was called without the required `allow_retention_delete()` context manager.
 - Media isolation URL matching now handles trailing slashes in teacher-entered lesson URLs.
 - API heartbeat (`last_seen_at`) throttled to once per 60 seconds to prevent DB churn from polling.
+- `/student` and smoke CI regressions causing 500s from template/rendering and static-manifest edge cases.
+- Teacher/internal and student artifact redirect hardening against host-header/open-redirect influence.
+- Syllabus ingest/export hardening for path safety (`..`, absolute zip member paths, and unsafe joins).
+- Regex-driven ingest validators replaced with linear-time checks to reduce ReDoS exposure.
+- Teacher import wiring regressions and stale release/auth test seams after view/module refactors.
+- Local HTTP join CSRF instability by decoupling secure-cookie behavior from `DEBUG`.
+- Smoke diagnostics/logging robustness (admin response excerpts, compose service-name mismatch handling, summary safety).
+- Workflow-lint action resolution failure (`rhysd/actionlint`) in CI.
 
 ### Changed
 - `psycopg[binary]` re-pinned to `==3.2.1` for deployment reproducibility.
 - Default CSP report-only policies are now stricter (no `'unsafe-inline'`) in both services.
+- Gallery behavior standardized to a two-step state model: student publish intent plus teacher moderation approval.
+- Student self-delete semantics now remove student class event history (not just submissions/material responses).
+- Staticfiles behavior split by environment: manifest storage for production builds, non-manifest storage for debug/test.
+- Class upload quota checks now use cached accounting instead of full directory scans on each upload.
+- Portfolio artifact-status checks avoid per-row storage existence calls by default (opt-in strict verification flag available).
+- CI Django test execution now targets full package suites instead of narrower subsets.
+- Test inventory guard moved from raw test-count thresholds to anchor-flow contract checks.
+- Teacher/student view modules were refactored to satisfy view size/function budget guards while preserving behavior.
