@@ -6,6 +6,7 @@
   const nameInput = document.getElementById("name");
   const returnCodeInput = document.getElementById("return_code");
   const inviteTokenInput = document.getElementById("invite_token");
+  const csrfFieldInput = joinForm.querySelector("input[name='csrfmiddlewaretoken']");
   const iconToggleBtn = document.getElementById("return-code-icon-toggle");
   const clearReturnCodeBtn = document.getElementById("return-code-clear");
   const iconPreview = document.getElementById("return-code-icon-preview");
@@ -43,6 +44,7 @@
     ),
     errRateLimited: readI18n("err-rate-limited", "Too many join attempts. Wait a minute and try again."),
     errSiteModeRestrictedFallback: readI18n("err-site-mode-restricted-fallback", "Joining is temporarily unavailable."),
+    errCsrf: readI18n("err-csrf", "Your join session expired. Reload this page and try again."),
     errSecurityBlocked: readI18n("err-security-blocked", "Security check blocked the join request. Reload and try again."),
     errServer: readI18n("err-server", "Server error while joining. Please try again in a moment."),
     errGeneric: readI18n("err-generic", "Could not join. Try again."),
@@ -76,7 +78,11 @@
     return "";
   };
 
-  const csrfToken = () => getCookie("csrftoken") || "";
+  const csrfToken = () => {
+    const formToken = csrfFieldInput ? String(csrfFieldInput.value || "").trim() : "";
+    if (formToken) return formToken;
+    return getCookie("csrftoken") || "";
+  };
   const maxReturnCodeLength = Math.max(1, Number(returnCodeInput.getAttribute("maxlength") || "12"));
   const normalizeReturnCode = (value) => {
     if (iconTools && iconTools.normalizeCode) return iconTools.normalizeCode(value).slice(0, maxReturnCodeLength);
@@ -169,6 +175,7 @@
       if (!res.ok) {
         const contentType = (res.headers.get("content-type") || "").toLowerCase();
         const data = contentType.includes("application/json") ? await res.json().catch(() => ({})) : {};
+        const responseText = !contentType.includes("application/json") ? await res.text().catch(() => "") : "";
         const errorCode = data.error || "join_failed";
         if (errorCode === "invalid_code") return showErr(i18n.errInvalidCode);
         if (errorCode === "invalid_return_code") return showErr(i18n.errInvalidReturnCode);
@@ -184,6 +191,8 @@
         if (errorCode === "invite_seat_cap_reached") return showErr(i18n.errInviteSeatCap);
         if (errorCode === "rate_limited") return showErr(i18n.errRateLimited);
         if (errorCode === "site_mode_restricted") return showErr(data.message || i18n.errSiteModeRestrictedFallback);
+        if (errorCode === "csrf_forbidden") return showErr(i18n.errCsrf);
+        if (res.status === 403 && responseText && responseText.toLowerCase().includes("csrf")) return showErr(i18n.errCsrf);
         if (res.status === 403) return showErr(i18n.errSecurityBlocked);
         if (res.status >= 500) return showErr(i18n.errServer);
         return showErr(i18n.errGeneric);

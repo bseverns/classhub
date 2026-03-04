@@ -29,6 +29,7 @@
   data-i18n-err-invite-seat-cap="{% trans 'This invite is full right now. Ask your teacher for a new invite link.' %}"
   data-i18n-err-rate-limited="{% trans 'Too many join attempts. Wait a minute and try again.' %}"
   data-i18n-err-site-mode-restricted-fallback="{% trans 'Joining is temporarily unavailable.' %}"
+  data-i18n-err-csrf="{% trans 'Your join session expired. Reload this page and try again.' %}"
   data-i18n-err-security-blocked="{% trans 'Security check blocked the join request. Reload and try again.' %}"
   data-i18n-err-server="{% trans 'Server error while joining. Please try again in a moment.' %}"
   data-i18n-err-generic="{% trans 'Could not join. Try again.' %}"
@@ -59,6 +60,7 @@
 
       <div class="card">
         <form id="join-form" novalidate>
+          {% csrf_token %}
           {% if invite_join_error %}
           <div class="error" role="alert">{{ invite_join_error_message }}</div>
           {% endif %}

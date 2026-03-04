@@ -614,6 +614,7 @@ Execution runbook:
 - `DJANGO_SESSION_COOKIE_SECURE` and `DJANGO_CSRF_COOKIE_SECURE` are explicit deployment settings.
 - Defaults remain secure when `DJANGO_DEBUG=0`, but local/day-1 HTTP presets set both to `0`.
 - Domain/TLS presets set both to `1`.
+- Student join POSTs use a server-rendered CSRF token first (`{% csrf_token %}`), with cookie lookup fallback in JS, to reduce false CSRF failures caused by stale/duplicate browser cookie state during host/domain transitions.
 
 **Why this remains active:**
 - Prevents join/session breakage when running HTTP in local mode with `DJANGO_DEBUG=0`.

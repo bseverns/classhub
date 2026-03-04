@@ -1889,6 +1889,7 @@ class OperatorProfileTemplateTests(TestCase):
         self.assertContains(join_resp, "/static/css/student_join.css")
         self.assertContains(join_resp, "/static/js/return_code_icons.js")
         self.assertContains(join_resp, "/static/js/student_join.js")
+        self.assertContains(join_resp, 'name="csrfmiddlewaretoken"', html=False)
         self.assertNotContains(join_resp, "<style>", html=False)
         self.assertNotContains(join_resp, 'style="display:none"', html=False)
         self.assertNotContains(join_resp, "const csrfToken = () =>", html=False)
