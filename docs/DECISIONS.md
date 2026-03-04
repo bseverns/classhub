@@ -1842,3 +1842,27 @@ Execution runbook:
 **Why this remains active:**
 - Keeps CI strict about coverage of critical behaviors while reducing false failures during healthy test refactors.
 - Makes guard failures easier to interpret: missing flow coverage rather than arbitrary count drift.
+
+## Phase 1 RBAC capability evaluator (backward-compatible)
+
+**Current decision:**
+- Add a capability-based access evaluator in `hub/services/org_access.py` with explicit action keys:
+  - `class.view`, `class.manage`, `class.create`,
+  - `roster.manage`,
+  - `submission.view`, `submission.delete`,
+  - `policy.manage`,
+  - `syllabus.export`.
+- Keep current `OrganizationMembership.role` as the source of truth in Phase 1; map roles to capability sets:
+  - `owner`/`admin`: full capability set,
+  - `teacher`: management capabilities without syllabus export,
+  - `viewer`: read-only class/submission visibility.
+- Preserve legacy fallback behavior:
+  - staff without memberships keep class view/manage/create only when `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0`,
+  - syllabus export remains membership-gated.
+- Route legacy helper APIs through the evaluator (`staff_can_manage_classroom`, `staff_can_create_classes`, `staff_can_export_syllabi`) so existing call sites stay stable.
+- Support module scope in the evaluator contract (`module_id`) with strict class-module validation (future module-range grants build on this seam).
+
+**Why this remains active:**
+- Enables incremental migration from coarse roles to capability checks without breaking current operations.
+- Makes permission reasoning explicit and testable ahead of custom role/scoped-grant tables.
+- Reduces risk of accidental privilege expansion by centralizing allow/deny decisions in one service path.
