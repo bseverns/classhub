@@ -1887,3 +1887,22 @@ Execution runbook:
 **Why this remains active:**
 - Enforces least privilege on high-impact endpoints while preserving existing role mappings.
 - Prevents silent permission drift by failing CI when endpoint guards regress.
+
+## Scoped-grant deny precedence, simulation, and policy-audit trail
+
+**Current decision:**
+- Extend `ClassStaffModuleScopeGrant` with an explicit `effect` (`allow` / `deny`) to support overlapping range policy semantics.
+- Enforce scoped module capability precedence as:
+  - explicit deny > explicit allow > role fallback.
+- Add RBAC simulation surfaces for operators:
+  - API: `POST /api/v1/teacher/rbac/simulate` (staff+OTP with org-level export capability),
+  - CLI: `simulate_rbac_access` management command.
+- Emit audit events for scoped grant policy changes in admin:
+  - `rbac.scope_grant.create`,
+  - `rbac.scope_grant.update`,
+  - `rbac.scope_grant.delete`.
+
+**Why this remains active:**
+- Makes conflict resolution explicit and deterministic for district-style boundary policies.
+- Improves supportability by enabling machine-readable "why denied" simulation without mutating state.
+- Preserves accountability for policy edits by adding immutable grant-change audit records.

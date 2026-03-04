@@ -67,8 +67,13 @@ Feature flag:
 
 Grant model:
 - `ClassStaffModuleScopeGrant` rows are per class, user, capability, module-order range.
+- Each row has an `effect`:
+  - `allow`: grants access in the range.
+  - `deny`: blocks access in the range.
 - If no grants exist for a user/class/capability, role allow still applies (backward-compatible).
-- If grants exist, at least one matching active range is required.
+- If grants exist, precedence is:
+  - explicit deny > explicit allow > role fallback
+- Overlapping allow+deny ranges deny access where overlap exists.
 
 ## Endpoint guard policy
 
@@ -90,10 +95,30 @@ Current hardening rule:
 ## Decision reasons (deny/allow debugging)
 
 `evaluate_staff_capability(...)` returns machine-readable reasons, including:
-- denies: `unauthenticated`, `not_staff`, `membership_required`, `no_membership_for_class_org`, `role_missing_capability`, `scoped_grant_denied`, `invalid_module_scope`, `unknown_capability`
+- denies: `unauthenticated`, `not_staff`, `membership_required`, `no_membership_for_class_org`, `role_missing_capability`, `scoped_grant_denied`, `scoped_grant_explicit_deny`, `invalid_module_scope`, `unknown_capability`
 - allows: `superuser`, `role_allows_capability`, `role_allows_capability_no_scoped_grants`, `scoped_grant_allows`, `legacy_no_membership_fallback`
 
 Use these reason codes when triaging access issues and when writing tests.
+
+## Simulation tools
+
+Teacher API simulation endpoint:
+- `POST /api/v1/teacher/rbac/simulate`
+- Requires staff auth + OTP and org-level export capability.
+- Returns a machine-readable decision payload for a target staff user and scope.
+
+CLI simulation command:
+- `python services/classhub/manage.py simulate_rbac_access --username <staff_username> --capability submission.view --class-id <id> --module-id <id> --json`
+- Useful for operational triage and policy debugging in shell-first workflows.
+
+## Policy change audit coverage
+
+Scoped module grant create/update/delete actions in Django admin emit audit events:
+- `rbac.scope_grant.create`
+- `rbac.scope_grant.update`
+- `rbac.scope_grant.delete`
+
+These records include capability, effect, module range, and target user/class identifiers.
 
 ## CI guardrails
 

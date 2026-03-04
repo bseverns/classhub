@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
+from .services.audit import log_audit_event
 from .models import (
     AuditEvent,
     CertificateIssuance,
@@ -57,13 +58,54 @@ class ClassStaffModuleScopeGrantAdmin(admin.ModelAdmin):
         "classroom",
         "user",
         "capability",
+        "effect",
         "module_order_start",
         "module_order_end",
         "is_active",
         "updated_at",
     )
-    list_filter = ("classroom", "capability", "is_active")
+    list_filter = ("classroom", "capability", "effect", "is_active")
     search_fields = ("classroom__name", "classroom__join_code", "user__username", "user__email")
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        action = "rbac.scope_grant.update" if change else "rbac.scope_grant.create"
+        log_audit_event(
+            request=request,
+            action=action,
+            actor_user=request.user,
+            classroom=obj.classroom,
+            target_type="ClassStaffModuleScopeGrant",
+            target_id=str(obj.id),
+            summary=f"{'Updated' if change else 'Created'} scoped grant {obj.capability} ({obj.effect})",
+            metadata={
+                "user_id": obj.user_id,
+                "capability": obj.capability,
+                "effect": obj.effect,
+                "module_order_start": obj.module_order_start,
+                "module_order_end": obj.module_order_end,
+                "is_active": bool(obj.is_active),
+            },
+        )
+
+    def delete_model(self, request, obj):
+        log_audit_event(
+            request=request,
+            action="rbac.scope_grant.delete",
+            actor_user=request.user,
+            classroom=obj.classroom,
+            target_type="ClassStaffModuleScopeGrant",
+            target_id=str(obj.id),
+            summary=f"Deleted scoped grant {obj.capability} ({obj.effect})",
+            metadata={
+                "user_id": obj.user_id,
+                "capability": obj.capability,
+                "effect": obj.effect,
+                "module_order_start": obj.module_order_start,
+                "module_order_end": obj.module_order_end,
+            },
+        )
+        super().delete_model(request, obj)
 
 
 @admin.register(Module)

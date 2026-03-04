@@ -85,9 +85,19 @@ All view/service permission checks should call this service (directly or via com
 - include conflict-resolution order:
   - explicit deny > explicit allow > template role fallback.
 
+Current implementation note:
+- module-range grants are implemented with `ClassStaffModuleScopeGrant` and now support `allow` and `deny` effects.
+- evaluator precedence follows: explicit deny > explicit allow > role fallback.
+
 ### Phase 3: Policy administration UX
 - add admin/operator screens for custom role definitions,
 - add policy simulation UI for "why was access denied?" debugging.
+
+Current implementation note:
+- operator simulation is currently available via:
+  - API: `POST /api/v1/teacher/rbac/simulate`
+  - command: `simulate_rbac_access`
+- full in-product policy simulation UI is still pending.
 
 ## Risks and mitigations
 - Risk: policy drift during migration.
@@ -111,4 +121,3 @@ All view/service permission checks should call this service (directly or via com
 - Keep deny-by-default behavior when org membership is required and absent.
 - Never infer write permissions from read permissions.
 - Preserve class boundary checks before capability checks where object ownership matters.
-
