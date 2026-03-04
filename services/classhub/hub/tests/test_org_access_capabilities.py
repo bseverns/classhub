@@ -268,6 +268,57 @@ class StaffCapabilityEvaluatorTests(TestCase):
         self.assertFalse(outside.allowed)
         self.assertEqual(outside.reason, "scoped_grant_denied")
 
+    @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
+    def test_scoped_explicit_deny_overrides_allow_when_ranges_overlap(self):
+        teacher = self.User.objects.create_user(
+            username="module-range-deny",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=teacher,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.class_a,
+            user=teacher,
+            capability=ClassStaffModuleScopeGrant.CAP_SUBMISSION_VIEW,
+            effect=ClassStaffModuleScopeGrant.EFFECT_ALLOW,
+            module_order_start=0,
+            module_order_end=2,
+            is_active=True,
+        )
+        ClassStaffModuleScopeGrant.objects.create(
+            classroom=self.class_a,
+            user=teacher,
+            capability=ClassStaffModuleScopeGrant.CAP_SUBMISSION_VIEW,
+            effect=ClassStaffModuleScopeGrant.EFFECT_DENY,
+            module_order_start=1,
+            module_order_end=1,
+            is_active=True,
+        )
+
+        denied = evaluate_staff_capability(
+            teacher,
+            CAP_SUBMISSION_VIEW,
+            classroom=self.class_a,
+            module_id=self.module_a_2.id,
+        )
+        self.assertFalse(denied.allowed)
+        self.assertEqual(denied.reason, "scoped_grant_explicit_deny")
+
+        allowed = evaluate_staff_capability(
+            teacher,
+            CAP_SUBMISSION_VIEW,
+            classroom=self.class_a,
+            module_id=self.module_a.id,
+        )
+        self.assertTrue(allowed.allowed)
+        self.assertEqual(allowed.reason, "scoped_grant_allows")
+
     @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=False)
     def test_scoped_module_range_grant_disabled_ignores_rows(self):
         teacher = self.User.objects.create_user(

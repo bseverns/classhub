@@ -197,9 +197,15 @@ class ClassStaffModuleScopeGrant(models.Model):
 
     CAP_SUBMISSION_VIEW = "submission.view"
     CAP_SUBMISSION_DELETE = "submission.delete"
+    EFFECT_ALLOW = "allow"
+    EFFECT_DENY = "deny"
     CAPABILITY_CHOICES = [
         (CAP_SUBMISSION_VIEW, "Submission view"),
         (CAP_SUBMISSION_DELETE, "Submission delete"),
+    ]
+    EFFECT_CHOICES = [
+        (EFFECT_ALLOW, "Allow"),
+        (EFFECT_DENY, "Deny"),
     ]
 
     classroom = models.ForeignKey(
@@ -213,6 +219,7 @@ class ClassStaffModuleScopeGrant(models.Model):
         related_name="classhub_module_scope_grants",
     )
     capability = models.CharField(max_length=40, choices=CAPABILITY_CHOICES)
+    effect = models.CharField(max_length=16, choices=EFFECT_CHOICES, default=EFFECT_ALLOW)
     module_order_start = models.PositiveIntegerField(default=0)
     module_order_end = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
@@ -223,8 +230,8 @@ class ClassStaffModuleScopeGrant(models.Model):
         ordering = ["classroom_id", "user_id", "capability", "module_order_start", "module_order_end", "id"]
         constraints = [
             models.UniqueConstraint(
-                fields=["classroom", "user", "capability", "module_order_start", "module_order_end"],
-                name="uniq_staff_module_scope_grant",
+                fields=["classroom", "user", "capability", "effect", "module_order_start", "module_order_end"],
+                name="uniq_staff_module_scope_effect_grant",
             ),
             models.CheckConstraint(
                 check=models.Q(module_order_end__gte=models.F("module_order_start")),
@@ -233,18 +240,18 @@ class ClassStaffModuleScopeGrant(models.Model):
         ]
         indexes = [
             models.Index(
-                fields=["classroom", "user", "capability", "is_active"],
+                fields=["classroom", "user", "capability", "effect", "is_active"],
                 name="hub_stmodgr_clsusr_cap_idx",
             ),
             models.Index(
-                fields=["classroom", "capability", "module_order_start", "module_order_end"],
+                fields=["classroom", "capability", "effect", "module_order_start", "module_order_end"],
                 name="hub_stmodgr_scope_rng_idx",
             ),
         ]
 
     def __str__(self) -> str:
         return (
-            f"{self.classroom.name}: {self.user} {self.capability} "
+            f"{self.classroom.name}: {self.user} {self.effect} {self.capability} "
             f"[{self.module_order_start}-{self.module_order_end}]"
         )
 

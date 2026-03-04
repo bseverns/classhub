@@ -377,7 +377,23 @@ def evaluate_staff_capability(
                 classroom_id=classroom_id,
                 module_id=module_scope_id,
             )
+        grant_denies = grants_qs.filter(
+            effect=ClassStaffModuleScopeGrant.EFFECT_DENY,
+            module_order_start__lte=module_order,
+            module_order_end__gte=module_order,
+        ).exists()
+        if grant_denies:
+            return StaffCapabilityDecision(
+                allowed=False,
+                capability=normalized_capability,
+                reason="scoped_grant_explicit_deny",
+                role=allowed_role,
+                organization_id=organization_id,
+                classroom_id=classroom_id,
+                module_id=module_scope_id,
+            )
         grant_allows = grants_qs.filter(
+            effect=ClassStaffModuleScopeGrant.EFFECT_ALLOW,
             module_order_start__lte=module_order,
             module_order_end__gte=module_order,
         ).exists()
