@@ -76,6 +76,8 @@ flowchart LR
 - Superusers should be limited to operational tasks.
 - Optional hard org boundary:
   - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1` blocks staff with no active org memberships from class listing/access.
+- Operational guide for inside-org vs cross-org behavior:
+  - [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md)
 - Helper chat requires either:
   - valid student classroom session, or
   - authenticated staff session.

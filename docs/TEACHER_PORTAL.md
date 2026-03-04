@@ -48,6 +48,7 @@ flowchart TD
     - `0` (default): legacy fallback allows global class access.
     - `1`: no class access until an active org membership exists.
 - Assigned classes appear first in `/teach` and `/teach/lessons`, but assignments do not reduce org-level access.
+- Detailed org-boundary examples: [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md).
 
 Use superusers for setup and operations. Use staff (non-superuser) for daily teaching.
 

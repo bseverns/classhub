@@ -20,6 +20,7 @@ If you need the shortest role-specific briefing, use one of these pages:
 - Instructor / Assistant: [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md)
 - First-time class run: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
 - Plain-language data handling: [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md)
+- Org boundary behavior (inside one org vs across orgs): [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md)
 - Field-level retention + deletion behavior: [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md)
 - Program narrative for partners/funders: [PROGRAM_LIFECYCLE.md](PROGRAM_LIFECYCLE.md)
 - Short instructor/ops playbooks: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md)
@@ -81,6 +82,7 @@ flowchart TD
 ### Operations
 - [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
 - [SECURITY.md](SECURITY.md) (public-domain posture and reporting)
+- [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md) (staff access scope across organizations)
 - [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md) (field-level data lifecycle + deletion controls)
 - [SECURITY_BASELINE.md](SECURITY_BASELINE.md) (edge vs app ownership)
 - [RUNBOOK.md](RUNBOOK.md)

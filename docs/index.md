@@ -18,6 +18,7 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
 ## Core links
 - [Start Here Overview](START_HERE.md)
 - [Risk & Data Posture](RISK_AND_DATA_POSTURE.md)
+- [Organization Boundaries](ORG_BOUNDARY_EXPLAINER.md)
 - [Privacy Addendum](PRIVACY-ADDENDUM.md)
 - [Program Lifecycle](PROGRAM_LIFECYCLE.md)
 - [Screenshot Gallery](SCREENSHOT_GALLERY.md)

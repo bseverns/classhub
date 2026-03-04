@@ -45,6 +45,7 @@ Some reporting and certificate surfaces are deployment-dependent. Verify the exa
 ## Go deeper
 
 - Security controls and org-boundary settings: [SECURITY.md](SECURITY.md)
+- Org boundary behavior by deployment mode and role: [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md)
 - Privacy rationale and helper boundaries: [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md)
 - Teacher-visible reporting/certificate flows: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - Recovery and continuity planning: [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)

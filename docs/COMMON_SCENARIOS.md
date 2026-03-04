@@ -39,7 +39,7 @@ See also: [TEACHER_PORTAL.md](TEACHER_PORTAL.md), [TEACHER_HANDOFF_CHECKLIST.md]
 4. If the staff member should have access, fix the org membership instead of sharing a broader account.
 5. If the staff member should not have access, leave the boundary intact and document the request.
 
-See also: [SECURITY.md](SECURITY.md), [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
+See also: [SECURITY.md](SECURITY.md), [TEACHER_PORTAL.md](TEACHER_PORTAL.md), [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md)
 
 ## Helper offline
 

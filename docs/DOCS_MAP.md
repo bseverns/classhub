@@ -36,6 +36,7 @@ A new reader should be able to find their role path without opening more than on
 ### Operations
 - [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
 - [SECURITY.md](SECURITY.md)
+- [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md)
 - [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md)
 - [SECURITY_BASELINE.md](SECURITY_BASELINE.md)
 - [RUNBOOK.md](RUNBOOK.md)
