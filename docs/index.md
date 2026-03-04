@@ -22,6 +22,8 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
 - [Program Lifecycle](PROGRAM_LIFECYCLE.md)
 - [Screenshot Gallery](SCREENSHOT_GALLERY.md)
 - [Docs Map](DOCS_MAP.md)
+- [Async Self-Paced RFC](ASYNC_SELF_PACED_RFC.md)
+- [RBAC Capabilities RFC](RBAC_CAPABILITIES_RFC.md)
 
 ## Pilot in a box
 - Pilot guide: [PILOT_PLAYBOOK.md](PILOT_PLAYBOOK.md)
