@@ -224,7 +224,6 @@ def teach_material_submissions(request, material_id: int):
     )
     if not material or material.type not in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY, Material.TYPE_RUBRIC}:
         return HttpResponse("Not found", status=404)
-
     classroom = material.module.classroom
     if not staff_can_view_submissions(
         request.user,
@@ -241,7 +240,6 @@ def teach_material_submissions(request, material_id: int):
             .select_related("student")
             .order_by("-uploaded_at", "-id")
         )
-
     latest_by_student = {}
     count_by_student = {}
     for s in all_subs:
@@ -267,7 +265,6 @@ def teach_material_submissions(request, material_id: int):
                 "is_rubric": True,
             },
         )
-
     if request.GET.get("download") == "zip_latest":
         with _temporary_zip_archive() as (tmp, z):
             for st in students:

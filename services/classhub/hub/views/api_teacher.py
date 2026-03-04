@@ -219,7 +219,6 @@ def api_teacher_class_submissions(request, class_id: int):
         return _json_no_store_response({"error": "not_found"}, status=404, private=True)
     if not staff_can_view_submissions(request.user, classroom):
         return _json_no_store_response({"error": "forbidden"}, status=403, private=True)
-
     try:
         limit = max(1, min(100, int(request.GET.get("limit", 50))))
         offset = max(0, int(request.GET.get("offset", 0)))
