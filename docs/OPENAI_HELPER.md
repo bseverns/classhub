@@ -94,7 +94,8 @@ HELPER_CLASS_RESET_ARCHIVE_MAX_MESSAGES=120
 ```
 
 Optional YAML consolidation:
-- Set `HELPER_CONFIG_FILE` to a YAML file (example: `compose/helper.config.example.yaml`).
+- Set `HELPER_CONFIG_FILE` to a YAML file (recommended in-container path: `/app/config/helper.config.yaml`).
+- A baseline file ships in the repo at `services/homework_helper/config/helper.config.yaml` and a host-side template is available at `compose/helper.config.example.yaml`.
 - For mapped helper settings, resolution order is:
   1. explicit env var value
   2. YAML value

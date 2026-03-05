@@ -120,6 +120,7 @@ flowchart TD
 ## Common commands
 
 - Local demo path: [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md)
+- Guided one-command bootstrap: `bash scripts/quickstart_stack.sh --yes --mode local --with-admin --admin-username admin --admin-email admin@example.org --admin-password 'CHANGE_ME'`
 - Full health check: `bash scripts/system_doctor.sh`
 - Guardrailed deploy: `bash scripts/deploy_with_smoke.sh`
 

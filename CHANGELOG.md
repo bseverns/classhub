@@ -40,6 +40,7 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - RFC docs for asynchronous self-paced workflows and granular RBAC expansion planning.
 - Coursepack Authoring SDK CLI (`scripts/coursepack_sdk.py`) for local validate/build/package workflows, plus stronger coursepack lint checks for `ui_level`/`program_profile` values and lesson markdown local-link integrity.
 - Optional `HELPER_CONFIG_FILE` YAML support for Homework Helper runtime behavior (policy/rate-limit/backend/conversation/RAG/queue knobs), with explicit env-var override precedence and example config template at `compose/helper.config.example.yaml`.
+- Guided one-command bootstrap script (`scripts/quickstart_stack.sh`) for low-friction setup: env init + secret seeding + compose up + migrations + optional admin/demo/doctor steps.
 
 ### Fixed
 - Student "Delete my work" (`/student/delete-work`) crashed with 500 because `StudentEvent.delete()` was called without the required `allow_retention_delete()` context manager.

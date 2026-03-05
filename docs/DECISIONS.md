@@ -41,6 +41,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Request safety and helper access posture](#request-safety-and-helper-access-posture)
 - [Observability and retention boundaries](#observability-and-retention-boundaries)
 - [Deployment guardrails](#deployment-guardrails)
+- [Guided stack bootstrap wrapper](#guided-stack-bootstrap-wrapper)
 - [Accessibility smoke gate](#accessibility-smoke-gate)
 - [Accessibility runtime contract](#accessibility-runtime-contract)
 - [View wildcard import guardrail](#view-wildcard-import-guardrail)
@@ -806,6 +807,24 @@ Execution runbook:
 - Reduces time-to-root-cause for student-flow regressions by surfacing route-level failure payloads and backend traceback logs in the same CI run.
 - Reduces accidental privileged execution for unattended retention maintenance jobs.
 - Reduces host-level blast radius if the maintenance unit or script path is compromised.
+
+## Guided stack bootstrap wrapper
+
+**Current decision:**
+- Keep `scripts/quickstart_stack.sh` as the low-friction installer wrapper for local/domain onboarding.
+- Wrapper responsibilities:
+  - initialize `compose/.env` from mode-aware examples,
+  - generate required secrets when placeholder values are present,
+  - set helper YAML config path (`HELPER_CONFIG_FILE=/app/config/helper.config.yaml`),
+  - start compose + run migrations,
+  - optionally create/update admin account,
+  - optionally load demo content and run `system_doctor.sh --smoke-mode golden`.
+- Keep existing lower-level scripts (`deploy_with_smoke.sh`, `system_doctor.sh`, `load_demo_coursepack.sh`) as composable primitives beneath this wrapper.
+
+**Why this remains active:**
+- Reduces operator cognitive load from high-volume env/config setup.
+- Lowers onboarding failure rate for less technical users while preserving explicit, inspectable script behavior.
+- Keeps reliability checks in the default path instead of relying on tribal knowledge.
 
 ## Accessibility smoke gate
 

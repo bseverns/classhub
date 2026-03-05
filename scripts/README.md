@@ -9,6 +9,7 @@ These tools are designed to be run from the repository root: `bash scripts/scrip
 |---|---|
 | `deploy_with_smoke.sh` | Safely deploys the stack and runs mandatory smoke checks. Reverts if checks fail. |
 | `system_doctor.sh` | Comprehensive health check evaluating containers, endpoints, and curriculum state. |
+| `quickstart_stack.sh` | Guided one-command stack bootstrap (env prep, compose up, migrations, optional admin + demo + doctor). |
 | `bootstrap_day1.sh` | Day-1 server provisioning tool (installs Docker, configures users, structure). |
 | `migration_gate.sh` | CI/CD gate ensuring uncommitted or failed Django migrations block deployment. |
 | `validate_env_secrets.sh`| Validates `.env` secrets for production readiness (catches unescaped characters). |

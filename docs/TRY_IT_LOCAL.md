@@ -9,6 +9,24 @@ This guide gets a local demo running with Docker Compose so you can verify stude
 3. Load the shipped demo coursepack.
 4. Open student + teacher URLs and verify core flows.
 
+## Fastest path (guided wrapper)
+
+If you want one command instead of manual steps:
+
+```bash
+bash scripts/quickstart_stack.sh --yes --mode local --with-admin \
+  --admin-username admin --admin-email admin@example.org --admin-password 'CHANGE_ME'
+```
+
+This wrapper:
+- prepares `compose/.env`,
+- generates missing placeholder secrets,
+- brings up Docker Compose,
+- runs migrations,
+- creates/updates admin,
+- loads demo content,
+- runs `system_doctor.sh --smoke-mode golden`.
+
 ## Verification signal
 At the end, you should be able to: (a) join as a student using a class code, (b) sign in at `/admin/login/`, and (c) open `/teach` with a class that contains 2 demo lessons.
 
