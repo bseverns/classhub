@@ -38,6 +38,7 @@ from .roster_orgs import (
     teach_upsert_organization_membership,
 )
 from .roster_org_lifecycle import teach_rename_organization
+from .roster_class_orgs import teach_set_class_organization
 from .roster_class_assignments import (
     teach_bulk_set_class_staff_assignments,
     teach_upsert_class_staff_assignment,
@@ -78,6 +79,7 @@ __all__ = [
     "teach_set_retention_preset",
     "teach_create_organization",
     "teach_rename_organization",
+    "teach_set_class_organization",
     "teach_upsert_class_staff_assignment",
     "teach_bulk_set_class_staff_assignments",
     "teach_upsert_org_role_capability",

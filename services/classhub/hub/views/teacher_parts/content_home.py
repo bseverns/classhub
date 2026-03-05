@@ -57,6 +57,8 @@ def _read_org_admin_state(request):
     class_assignment_user_id = (request.GET.get("class_assignment_user_id") or "").strip()
     class_assignment_active = (request.GET.get("class_assignment_active") or "").strip()
     class_assignment_bulk_user_id = (request.GET.get("class_assignment_bulk_user_id") or "").strip()
+    class_move_class_id = (request.GET.get("class_move_class_id") or "").strip()
+    class_move_org_id = (request.GET.get("class_move_org_id") or "").strip()
     org_admin_active = (
         (request.GET.get("org_admin") or "").strip() == "1"
         or bool(
@@ -70,6 +72,8 @@ def _read_org_admin_state(request):
             or class_assignment_class_id
             or class_assignment_user_id
             or class_assignment_bulk_user_id
+            or class_move_class_id
+            or class_move_org_id
         )
     )
     return {
@@ -86,6 +90,8 @@ def _read_org_admin_state(request):
         "class_assignment_user_id": class_assignment_user_id,
         "class_assignment_active": class_assignment_active if class_assignment_active in {"0", "1"} else "1",
         "class_assignment_bulk_user_id": class_assignment_bulk_user_id,
+        "class_move_class_id": class_move_class_id,
+        "class_move_org_id": class_move_org_id,
         "org_admin_active": org_admin_active,
     }
 
@@ -141,6 +147,8 @@ def _empty_class_assignment_context(org_state: dict):
         "class_assignment_active": org_state.get("class_assignment_active", "1"),
         "class_assignment_bulk_user_id": org_state.get("class_assignment_bulk_user_id", ""),
         "class_assignment_bulk_selected_class_ids": [],
+        "class_move_class_id": org_state.get("class_move_class_id", ""),
+        "class_move_org_id": org_state.get("class_move_org_id", ""),
     }
 
 
@@ -159,6 +167,13 @@ def _class_assignment_context(*, org_state: dict, classes: list):
                 classroom_id__in=[int(c.id) for c in classes],
             ).values_list("classroom_id", flat=True)
         )
+    move_class_id = org_state.get("class_move_class_id", "")
+    move_org_id = org_state.get("class_move_org_id", "")
+    parsed_move_class_id = _parse_positive_int(move_class_id, min_value=1, max_value=2_147_483_647)
+    if parsed_move_class_id is not None and not move_org_id:
+        target_class = next((c for c in classes if int(c.id) == int(parsed_move_class_id)), None)
+        if target_class is not None and target_class.organization_id:
+            move_org_id = str(target_class.organization_id)
     return {
         "class_staff_assignments": class_staff_assignments,
         "org_classes": classes,
@@ -167,6 +182,8 @@ def _class_assignment_context(*, org_state: dict, classes: list):
         "class_assignment_active": org_state["class_assignment_active"],
         "class_assignment_bulk_user_id": org_state["class_assignment_bulk_user_id"],
         "class_assignment_bulk_selected_class_ids": selected_bulk_class_ids,
+        "class_move_class_id": move_class_id,
+        "class_move_org_id": move_org_id,
     }
 
 

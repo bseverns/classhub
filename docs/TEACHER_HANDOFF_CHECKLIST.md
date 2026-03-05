@@ -14,6 +14,10 @@ docker compose up -d
 
 ## 2) Create the incoming teacher account
 
+Option A: superuser in `/teach` -> `Invite teacher` tab (recommended UI path).
+
+Option B: CLI command:
+
 ```bash
 cd /srv/lms/compose
 docker compose exec classhub_web python manage.py create_teacher \
@@ -28,7 +32,7 @@ Notes:
 
 ## 3) Verify access with the incoming teacher
 
-- Sign in via `/admin/login/`.
+- Sign in via `/teach/login`.
 - Confirm they can open:
   - `/teach`
   - `/teach/lessons`

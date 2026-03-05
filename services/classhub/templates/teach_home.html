@@ -1203,6 +1203,45 @@
                 <p class="muted">No class assignments yet.</p>
               {% endif %}
 
+              <h3 class="section-title-compact">Move class organization</h3>
+              <div class="muted section-subtitle">
+                Reassign a class to a different active organization boundary.
+              </div>
+              <form method="post" action="/teach/class-organization/set">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="class-move-class">Class</label>
+                    <select id="class-move-class" name="class_move_class_id" required>
+                      <option value="">Select a class</option>
+                      {% for c in org_classes %}
+                        <option value="{{ c.id }}" {% if class_move_class_id == c.id|stringformat:"s" %}selected{% endif %}>
+                          {{ c.name }} ({{ c.join_code }})
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="class-move-org">Target organization</label>
+                    <select id="class-move-org" name="class_move_org_id" required>
+                      <option value="">Select an organization</option>
+                      {% for org in organizations %}
+                        <option
+                          value="{{ org.id }}"
+                          {% if class_move_org_id == org.id|stringformat:"s" %}selected{% endif %}
+                          {% if not org.is_active %}disabled{% endif %}
+                        >
+                          {{ org.name }}{% if not org.is_active %} (inactive){% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Move class to organization</button>
+                </div>
+              </form>
+
               <h3 class="section-title-compact">Set role capability template</h3>
               <form method="post" action="/teach/org-role-capability/upsert">
                 {% csrf_token %}
@@ -1485,6 +1524,7 @@
                         <a href="/teach/class/{{ c.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
                         {% if request.user.is_superuser %}
                           · <a href="/teach?org_admin=1&class_assignment_class_id={{ c.id }}">Assign teacher</a>
+                          · <a href="/teach?org_admin=1&class_move_class_id={{ c.id }}">Set organization</a>
                         {% endif %}
                       </td>
                     </tr>

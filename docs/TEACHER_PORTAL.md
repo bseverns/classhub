@@ -205,14 +205,23 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
 - `/teach`:
   - class list
   - one-click `Copy` for class join codes
+  - superuser class row action: `Set organization` (opens org-admin move form)
   - `My profile` tab for all staff:
     - update first/last name and email
     - change password (requires current password)
   - superuser-only teacher onboarding card (create account + send 2FA invite email)
+    - per-account actions:
+      - enable/disable teacher account
+      - promote/demote superuser
+      - reset temporary password
+      - resend 2FA invite email
   - superuser-only organization management tab:
     - create organizations
-    - set organization active/inactive
+    - rename organizations
+    - archive/restore organizations
+      - archive is blocked while classes are still assigned to that organization
     - assign/update org memberships for staff users (`owner` / `admin` / `teacher` / `viewer`)
+    - move classes between active organizations
     - assign teaching staff to classes (single upsert + bulk teacher-to-classes set)
 - owner/admin/superuser RBAC tools tab:
   - upsert module-scope grants per class/user/capability/effect/range

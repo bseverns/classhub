@@ -87,6 +87,7 @@ Portal actions:
 Superuser behavior:
 - superusers bypass org/capability checks.
 - superuser class-staff assignment tools are available in `/teach` and `/teach/class/<id>`.
+- superuser org-admin tools in `/teach` include organization rename/archive controls, class-to-organization moves, and teacher account lifecycle actions.
 
 ## Scoped module grants
 

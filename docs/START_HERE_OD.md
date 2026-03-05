@@ -13,7 +13,7 @@ ClassHub is an operations-friendly learning hub for running cohorts, managing st
 ## 5-minute overview
 
 1. Staff authenticate in `/teach`.
-2. Superusers can manage organizations and staff memberships in the teacher portal.
+2. Superusers can manage organizations, class-org boundaries, staff memberships, and teacher account lifecycle in the teacher portal.
 3. Teachers can set `Enrollment mode` to `Open`, `Invite only`, or `Closed`.
 4. Invite links can expire and enforce seat caps.
 5. Ops can rely on exports, backup/restore rehearsal, and documented smoke checks.

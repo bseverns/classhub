@@ -44,7 +44,7 @@ Status model:
 ### 09. Teacher profile tab (`Placeholder`)
 ![09 Teacher profile tab](images/press/09-teacher-profile-tab.png)
 
-### 10. Organization management tab (`Placeholder`)
+### 10. Organization management tab (rename/archive/class-move + membership actions) (`Placeholder`)
 ![10 Org management tab](images/press/10-org-management-tab.png)
 
 ### 19. RBAC tools tab (scoped grants + custom roles + policy approval queue) (`Placeholder`)

@@ -63,7 +63,7 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 
 10. `10-org-management-tab.png`
 - Screen: teacher home (`/teach`) organizations tab (superuser)
-- Include: organization create form + memberships table
+- Include: organization create/rename controls + archive/restore actions + class-move form + memberships table row actions
 - Redact: real organization names/emails if needed
 
 11. `11-invite-only-enrollment.png`

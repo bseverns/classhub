@@ -2098,6 +2098,8 @@ Session 02: Final Build
         self.assertContains(resp, f"/teach/org/{org.id}/rename")
         self.assertContains(resp, "Archive")
         self.assertContains(resp, "Save role")
+        self.assertContains(resp, "/teach/class-organization/set")
+        self.assertContains(resp, "Move class organization")
         self.assertContains(resp, "/teach/teacher-account/set-active")
         self.assertContains(resp, "/teach/teacher-account/set-superuser")
         self.assertContains(resp, "/teach/teacher-account/reset-password")
@@ -2186,6 +2188,28 @@ Session 02: Final Build
         self.assertIn("/teach?error=", resp["Location"])
         org.refresh_from_db()
         self.assertTrue(org.is_active)
+
+    def test_superuser_can_move_class_organization_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+        org_source = Organization.objects.create(name="Move Source Org", is_active=True)
+        org_target = Organization.objects.create(name="Move Target Org", is_active=True)
+        classroom = Class.objects.create(name="Move Class Org", join_code="MOVC0001", organization=org_source)
+
+        resp = self.client.post(
+            "/teach/class-organization/set",
+            {
+                "class_move_class_id": str(classroom.id),
+                "class_move_org_id": str(org_target.id),
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+        classroom.refresh_from_db()
+        self.assertEqual(classroom.organization_id, org_target.id)
+        event = AuditEvent.objects.filter(action="class.organization.set", target_id=str(classroom.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+        self.assertEqual(event.metadata.get("organization_id"), org_target.id)
 
     def test_superuser_can_upsert_org_role_capability_from_teach(self):
         _force_login_staff_verified(self.client, self.staff)
@@ -3515,6 +3539,18 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertIn("/teach?error=", rename_resp["Location"])
         rename_org.refresh_from_db()
         self.assertEqual(rename_org.name, "Blocked Rename Org")
+
+        class_move_resp = self.client.post(
+            "/teach/class-organization/set",
+            {
+                "class_move_class_id": str(self.class_a.id),
+                "class_move_org_id": str(self.org_b.id),
+            },
+        )
+        self.assertEqual(class_move_resp.status_code, 302)
+        self.assertIn("/teach?error=", class_move_resp["Location"])
+        self.class_a.refresh_from_db()
+        self.assertEqual(self.class_a.organization_id, self.org_a.id)
 
         org = Organization.objects.create(name="Blocked Membership Org")
         resp_membership = self.client.post(

@@ -21,6 +21,8 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - RBAC delegated approval workflow is live behind `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED` (default off for initial rollout).
 - RBAC approval reviews now require org owner/admin role (or superuser) and block self-approval.
 - Superuser class-to-teacher assignment workflows are live in `/teach` org admin tools and `/teach/class/<id>`.
+- Superuser account lifecycle actions are live in `/teach` (enable/disable, promote/demote superuser, reset password, resend invite).
+- Superuser organization lifecycle controls are live in `/teach` (rename, guarded archive/restore, class-to-organization move).
 - Security and ops guardrails are live in CI (smoke, migration gate, endpoint guard checks, view-size/function budgets, workflow lint).
 
 ## Deployment and reliability posture

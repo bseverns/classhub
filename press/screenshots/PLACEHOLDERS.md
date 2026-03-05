@@ -27,7 +27,7 @@ During planning, these may be generated placeholder images. Replace them with re
 4. `16-student-standard-view.png`
 5. `17-student-expanded-view.png`
 6. `18-teacher-landing-editor.png`
-7. `10-org-management-tab.png`
+7. `10-org-management-tab.png` (refresh target should include rename/archive controls, class-org move, and inline membership actions)
 8. `09-teacher-profile-tab.png`
 9. `15-lesson-helper-collapsed.png`
 10. `13-a11y-smoke-terminal.png`

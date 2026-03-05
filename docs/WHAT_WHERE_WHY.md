@@ -49,7 +49,7 @@ Detailed operator run steps: [RUNBOOK.md](RUNBOOK.md)
 
 - Teacher cannot access `/teach`:
   - Usually account is not staff or user is not logged in.
-  - Ask admin to verify teacher account with `create_teacher` command.
+  - Ask superuser to verify the account in `/teach` (teacher account actions) or with `create_teacher`.
 - Students cannot join class:
   - Check class code, class lock status, and that class exists.
 - Helper not responding:
