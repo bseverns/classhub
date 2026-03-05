@@ -5,6 +5,8 @@ fast student join → lesson → submission → teacher review, with a quarantin
 
 Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [Try It Local](TRY_IT_LOCAL.md).
 
+Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
+
 ## Choose one path
 - Leadership and strategy: [START_HERE_ED.md](START_HERE_ED.md), [START_HERE_OD.md](START_HERE_OD.md), [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
 - Instructors and assistants: [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md), [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
@@ -16,6 +18,7 @@ Evaluating for your org? Start with [Public Overview](PUBLIC_OVERVIEW.md) and [T
 - Minneapolis is located on the ancestral and contemporary homeland of the Dakota Nation (specifically the Mdewakanton, Wahpeton, and Sisseton bands of the Očhéthi Šakówiŋ). The area is known as Mni Sota Makoce and is also a significant territory for the Anishinaabe/Ojibwe people, following their migration to the region.
 
 ## Core links
+- [Current State](CURRENT_STATE.md)
 - [Start Here Overview](START_HERE.md)
 - [Risk & Data Posture](RISK_AND_DATA_POSTURE.md)
 - [Organization Boundaries](ORG_BOUNDARY_EXPLAINER.md)

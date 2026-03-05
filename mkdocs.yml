@@ -38,6 +38,7 @@ exclude_docs: README.md
 
 nav:
   - Home: index.md
+  - Current State: CURRENT_STATE.md
   - Start Here:
       - Overview: START_HERE.md
       - Executive Director: START_HERE_ED.md

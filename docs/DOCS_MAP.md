@@ -2,6 +2,7 @@
 
 ## Summary
 This page is a compact map. [START_HERE.md](START_HERE.md) is the canonical landing page.
+For the live shipped-capabilities snapshot, use [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## What to do now
 1. Open [START_HERE.md](START_HERE.md) first.
@@ -34,6 +35,7 @@ A new reader should be able to find their role path without opening more than on
 - [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.md)
 
 ### Operations
+- [CURRENT_STATE.md](CURRENT_STATE.md)
 - [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
 - [SECURITY.md](SECURITY.md)
 - [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md)

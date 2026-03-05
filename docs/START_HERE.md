@@ -4,6 +4,7 @@
 This is the canonical docs landing page. Use it to pick the shortest path for your role.
 
 Evaluating whether this fits your org? Start with [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md).
+Need a live shipped-capabilities snapshot first? Start with [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## What to do now
 1. Pick your role from the table below.
@@ -24,6 +25,7 @@ If you need the shortest role-specific briefing, use one of these pages:
 - Field-level retention + deletion behavior: [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md)
 - Program narrative for partners/funders: [PROGRAM_LIFECYCLE.md](PROGRAM_LIFECYCLE.md)
 - Short instructor/ops playbooks: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md)
+- Live platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md)
 
 ## Verification signal
 You should be able to pick a role path in under 30 seconds and identify the exact next doc to open.
