@@ -89,6 +89,7 @@ nav:
       - Async Self-Paced RFC: ASYNC_SELF_PACED_RFC.md
       - RBAC Capabilities RFC: RBAC_CAPABILITIES_RFC.md
       - Telemetry DB Split Plan: TELEMETRY_DB_SPLIT_PLAN.md
+      - Ecosystem Milestones Plan: ECOSYSTEM_MILESTONES_PLAN.md
       - Helper Internals: OPENAI_HELPER.md
       - Request Safety: REQUEST_SAFETY.md
       - Helper Evals: HELPER_EVALS.md

@@ -58,6 +58,7 @@ A new reader should be able to find their role path without opening more than on
 - [API.md](API.md)
 - [HELPER_EVALS.md](HELPER_EVALS.md)
 - [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md)
+- [ECOSYSTEM_MILESTONES_PLAN.md](ECOSYSTEM_MILESTONES_PLAN.md)
 - [ASYNC_SELF_PACED_RFC.md](ASYNC_SELF_PACED_RFC.md)
 - [RBAC_CAPABILITIES_RFC.md](RBAC_CAPABILITIES_RFC.md)
 - [RBAC_GUIDE.md](RBAC_GUIDE.md)
