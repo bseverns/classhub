@@ -222,6 +222,7 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
     - accepts `.md`, `.docx`, and `.zip`
     - supports optional overview file (`.md`/`.docx`) and parser mode (`auto`/`template`/`verbose`)
     - can overwrite an existing slug when updating a course
+  - operator link: `/teach/data-lifespan` (owner/admin/superuser) for retention verification snapshot
   - generate authoring templates (`.md` + `.docx`) by setting:
     - `course slug`
     - `course title`
@@ -270,6 +271,11 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
     - summary CSV (`/teach/class/<id>/export-summary-csv`)
   - inline student rename controls
   - roster reset action (clears student identities + submissions, invalidates active student sessions, optional join-code rotation)
+- `/teach/data-lifespan`:
+  - read-only operator retention snapshot
+  - shows `StudentEvent` row volume, oldest submission timestamp, and policy-overdue counts
+  - shows exact timestamp of the last successful retention prune run
+  - includes recent `retention.prune_*` audit rows for quick verification
 - `/teach/class/<id>/join-card`:
   - print-friendly join instructions + class code
   - prefilled join URL (`/?class_code=<JOIN_CODE>`)

@@ -1,0 +1,122 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teacher · Data Lifespan</title>
+    {% include "includes/glass_theme.html" %}
+    <link rel="stylesheet" href="{% static 'css/teach_home.css' %}" />
+  </head>
+  <body class="glass-theme teacher-comfort">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="shell">
+      <main id="main-content">
+        <div class="top title-row">
+          <div>
+            <h1>Data Lifespan Dashboard</h1>
+            <div class="muted navline">
+              Read-only retention health · <a href="/teach">Teacher portal</a> · <a href="/teach/logout">Log out</a>
+            </div>
+          </div>
+          <div class="muted">Snapshot at {{ snapshot.captured_at|date:"Y-m-d H:i:s" }}</div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title-tight">Retention status</h2>
+          {% if snapshot.policy_overdue_total == 0 %}
+            <p><span class="state-pill state-pill--open">Within policy</span></p>
+          {% else %}
+            <p><span class="state-pill state-pill--locked">Policy-overdue records detected</span></p>
+          {% endif %}
+          <p class="muted">Policy-overdue rows: {{ snapshot.policy_overdue_total }}</p>
+          <p class="muted">
+            Last successful retention prune:
+            {% if snapshot.last_prune_run %}
+              <strong>{{ snapshot.last_prune_run.created_at|date:"Y-m-d H:i:s" }}</strong>
+            {% else %}
+              <strong>not recorded yet</strong>
+            {% endif %}
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h2 class="section-title-tight">Student events</h2>
+            <p class="muted">Total rows: <strong>{{ snapshot.events_total }}</strong></p>
+            <p class="muted">
+              Oldest row:
+              {% if snapshot.oldest_event %}
+                <strong>{{ snapshot.oldest_event|date:"Y-m-d H:i:s" }}</strong>
+              {% else %}
+                <strong>none</strong>
+              {% endif %}
+            </p>
+            <p class="muted">
+              Policy-overdue rows: <strong>{{ snapshot.overdue_events }}</strong>
+            </p>
+            <p class="muted">
+              Classes with event retention disabled: <strong>{{ snapshot.event_retention_disabled_classes }}</strong> / {{ snapshot.class_count }}
+            </p>
+            <p class="muted">Fallback event retention: {{ snapshot.fallback_event_days }} day(s)</p>
+            <progress max="{{ snapshot.events_total|default:1 }}" value="{{ snapshot.events_within_policy }}"></progress>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title-tight">Submissions</h2>
+            <p class="muted">Total rows: <strong>{{ snapshot.submissions_total }}</strong></p>
+            <p class="muted">
+              Oldest row:
+              {% if snapshot.oldest_submission %}
+                <strong>{{ snapshot.oldest_submission|date:"Y-m-d H:i:s" }}</strong>
+              {% else %}
+                <strong>none</strong>
+              {% endif %}
+            </p>
+            <p class="muted">
+              Policy-overdue rows: <strong>{{ snapshot.overdue_submissions }}</strong>
+            </p>
+            <p class="muted">
+              Classes with submission retention disabled: <strong>{{ snapshot.submission_retention_disabled_classes }}</strong> / {{ snapshot.class_count }}
+            </p>
+            <p class="muted">Fallback submission retention: {{ snapshot.fallback_submission_days }} day(s)</p>
+            <progress max="{{ snapshot.submissions_total|default:1 }}" value="{{ snapshot.submissions_within_policy }}"></progress>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title-tight">Recent retention prune runs</h2>
+          {% if snapshot.prune_runs %}
+            <div class="table-wrap">
+              <table>
+                <caption class="visually-hidden">Recent retention prune runs</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">When</th>
+                    <th scope="col">Action</th>
+                    <th scope="col">Summary</th>
+                    <th scope="col">Deleted rows</th>
+                    <th scope="col">Matched rows</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for run in snapshot.prune_runs %}
+                    <tr>
+                      <td class="muted">{{ run.created_at|date:"Y-m-d H:i:s" }}</td>
+                      <td><code>{{ run.action }}</code></td>
+                      <td class="muted">{{ run.summary|default:"-" }}</td>
+                      <td class="muted">{{ run.metadata.deleted_rows|default:0 }}</td>
+                      <td class="muted">{{ run.metadata.matched_rows|default:0 }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="muted">No successful prune runs have been recorded yet.</p>
+          {% endif %}
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

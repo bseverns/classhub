@@ -470,6 +470,19 @@ class SubmissionRetentionCommandTests(TestCase):
         self.assertNotIn(self.old.id, ids)
         self.assertIn(self.new.id, ids)
 
+    def test_prune_submissions_records_retention_audit_event(self):
+        call_command("prune_submissions", older_than_days=90)
+        event = AuditEvent.objects.filter(action="retention.prune_submissions").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.target_type, "RetentionJob")
+        self.assertEqual(event.target_id, "submissions")
+        self.assertEqual(int(event.metadata.get("matched_rows", 0)), 1)
+        self.assertEqual(int(event.metadata.get("deleted_rows", 0)), 1)
+
+    def test_prune_submissions_dry_run_does_not_record_retention_audit_event(self):
+        call_command("prune_submissions", older_than_days=90, dry_run=True)
+        self.assertFalse(AuditEvent.objects.filter(action="retention.prune_submissions").exists())
+
 
 class StudentEventRetentionCommandTests(TestCase):
     def setUp(self):
@@ -560,6 +573,19 @@ class StudentEventRetentionCommandTests(TestCase):
         ids = set(StudentEvent.objects.values_list("id", flat=True))
         self.assertNotIn(self.old.id, ids)
         self.assertIn(self.new.id, ids)
+
+    def test_prune_student_events_records_retention_audit_event(self):
+        call_command("prune_student_events", older_than_days=90)
+        event = AuditEvent.objects.filter(action="retention.prune_student_events").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.target_type, "RetentionJob")
+        self.assertEqual(event.target_id, "student_events")
+        self.assertEqual(int(event.metadata.get("matched_rows", 0)), 1)
+        self.assertEqual(int(event.metadata.get("deleted_rows", 0)), 1)
+
+    def test_prune_student_events_dry_run_does_not_record_retention_audit_event(self):
+        call_command("prune_student_events", older_than_days=90, dry_run=True)
+        self.assertFalse(AuditEvent.objects.filter(action="retention.prune_student_events").exists())
 
 
 class OrphanUploadScavengerCommandTests(TestCase):

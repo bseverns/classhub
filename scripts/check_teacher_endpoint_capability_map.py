@@ -62,6 +62,7 @@ ROUTE_CAPABILITY_MAP: dict[str, RouteContract] = {
     ),
     "/api/v1/teacher/rbac/simulate": RouteContract("rbac.simulate", "api_teacher_rbac_simulate"),
     "/teach": RouteContract("class.view", "teach_home"),
+    "/teach/data-lifespan": RouteContract("syllabus.export", "teach_data_lifespan"),
     "/teach/login": RouteContract("auth_or_public", "teach_login"),
     "/teach/profile/update": RouteContract("staff_only", "teach_update_profile"),
     "/teach/profile/password": RouteContract("staff_only", "teach_change_password"),

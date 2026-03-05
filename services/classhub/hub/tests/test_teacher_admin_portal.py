@@ -16,6 +16,86 @@ class RetentionSettingParsingTests(SimpleTestCase):
         self.assertEqual(_retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180), 180)
 
 
+class DataLifespanDashboardTests(TestCase):
+    def setUp(self):
+        self.superuser = get_user_model().objects.create_user(
+            username="ops_super",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.viewer = get_user_model().objects.create_user(
+            username="ops_viewer",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        self.org = Organization.objects.create(name="Ops Org", is_active=True)
+        OrganizationMembership.objects.create(
+            organization=self.org,
+            user=self.viewer,
+            role=OrganizationMembership.ROLE_VIEWER,
+            is_active=True,
+        )
+        self.classroom = Class.objects.create(
+            name="Ops Class",
+            join_code="OPS12345",
+            organization=self.org,
+        )
+        module = Module.objects.create(classroom=self.classroom, title="Session 1", order_index=0)
+        material = Material.objects.create(
+            module=module,
+            title="Upload",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=50,
+            order_index=0,
+        )
+        student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+        old_submission = Submission.objects.create(
+            material=material,
+            student=student,
+            original_filename="old.sb3",
+            file=SimpleUploadedFile("old.sb3", b"old"),
+        )
+        Submission.objects.filter(id=old_submission.id).update(uploaded_at=timezone.now() - timedelta(days=30))
+        old_event = StudentEvent.objects.create(
+            classroom=self.classroom,
+            student=student,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        StudentEvent.objects.filter(id=old_event.id).update(created_at=timezone.now() - timedelta(days=30))
+        AuditEvent.objects.create(
+            action="retention.prune_submissions",
+            target_type="RetentionJob",
+            target_id="submissions",
+            summary="Pruned submissions (deleted 1 rows)",
+            metadata={"matched_rows": 1, "deleted_rows": 1},
+        )
+
+    def test_superuser_can_view_data_lifespan_dashboard(self):
+        _force_login_staff_verified(self.client, self.superuser)
+
+        resp = self.client.get("/teach/data-lifespan")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/teach_home.css")
+        self.assertContains(resp, "Data Lifespan Dashboard")
+        self.assertContains(resp, "Last successful retention prune")
+        self.assertContains(resp, "retention.prune_submissions")
+        snapshot = resp.context["snapshot"]
+        self.assertGreaterEqual(int(snapshot["events_total"]), 1)
+        self.assertGreaterEqual(int(snapshot["submissions_total"]), 1)
+        self.assertEqual(snapshot["last_prune_run"].action, "retention.prune_submissions")
+
+    @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True)
+    def test_viewer_membership_cannot_view_data_lifespan_dashboard(self):
+        _force_login_staff_verified(self.client, self.viewer)
+        resp = self.client.get("/teach/data-lifespan")
+        self.assertEqual(resp.status_code, 403)
+
+
 class TeacherRosterClassServiceTests(TestCase):
     def test_material_submission_counts_uses_distinct_student_aggregation(self):
         from ..services.teacher_roster_class import _material_submission_counts

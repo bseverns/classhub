@@ -72,6 +72,7 @@ urlpatterns = [
 
     # Teacher cockpit (staff-only, outside Django admin).
     path("teach", views.teach_home),
+    path("teach/data-lifespan", views.teach_data_lifespan),
     path("teach/login", views.teach_login),
     path("teach/profile/update", views.teach_update_profile),
     path("teach/profile/password", views.teach_change_password),

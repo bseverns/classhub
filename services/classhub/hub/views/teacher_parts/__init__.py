@@ -9,6 +9,7 @@ from .auth import (
     teacher_logout,
 )
 from .content import (
+    teach_data_lifespan,
     teach_download_authoring_template,
     teach_generate_authoring_templates,
     teach_home,
@@ -70,6 +71,7 @@ __all__ = [
     "teach_update_profile",
     "teach_change_password",
     "teach_home",
+    "teach_data_lifespan",
     "teach_upsert_module_scope_grant",
     "teach_set_module_scope_grant_active",
     "teach_simulate_rbac_access",

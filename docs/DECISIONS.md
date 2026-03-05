@@ -745,6 +745,8 @@ Execution runbook:
 - Teacher/staff mutations emit append-only `AuditEvent` records.
 - Student join/rejoin/upload/helper-access metadata emits append-only `StudentEvent` records.
 - Retention is operator-managed using prune commands.
+- Successful retention command runs (`prune_submissions`, `prune_student_events`) now emit explicit audit stamps (`retention.prune_*`) so operators can verify last-run timestamps without reading host logs.
+- Operator retention verification is available in a read-only teacher-side dashboard at `/teach/data-lifespan` (owner/admin/superuser capability).
 - Student event prune supports optional CSV snapshot export before deletion (`prune_student_events --export-csv <path>`).
 - File-backed upload models use delete/replacement cleanup signals to prevent orphan file accumulation.
 - Orphan file scavenger is available for legacy cleanup (`scavenge_orphan_uploads`, report-first).
@@ -754,6 +756,7 @@ Execution runbook:
 - Keeps privacy boundaries explicit by storing metadata rather than raw helper prompt/file content in event logs.
 - Supports audit handoff and offline review before destructive retention actions.
 - Keeps upload storage bounded and predictable after roster resets, asset/video deletes, and file replacements.
+- Turns retention policy verification into a visible operational check instead of a cron/log assumption.
 
 ## Deployment guardrails
 
@@ -1456,6 +1459,7 @@ Execution runbook:
   - `scavenge_orphan_uploads` (report/delete/off modes)
 - Optional webhook notifications report failures (and optional success) for unattended runs.
 - Provide reference systemd units in `ops/systemd/` for daily execution.
+- Retention command audit stamps are surfaced in `/teach/data-lifespan` as a quick health indicator.
 
 **Why this remains active:**
 - Moves retention from manual cleanup to reliable routine operations.

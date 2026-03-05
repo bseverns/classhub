@@ -11,12 +11,42 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
-from hub.models import StudentEvent
+from hub.models import AuditEvent, StudentEvent
 from hub.services.retention_policy import class_event_retention_days
 
 
 class Command(BaseCommand):
     help = "Prune old StudentEvent rows (append-only telemetry retention)."
+
+    def _record_prune_audit(
+        self,
+        *,
+        older_than_days: int,
+        ignore_class_presets: bool,
+        matched_rows: int,
+        deleted_rows: int,
+        exported_rows: int,
+        export_csv: str,
+        skipped_policy_rows: int,
+    ) -> None:
+        try:
+            AuditEvent.objects.create(
+                action="retention.prune_student_events",
+                target_type="RetentionJob",
+                target_id="student_events",
+                summary=f"Pruned student events (deleted {deleted_rows} rows)",
+                metadata={
+                    "older_than_days": int(older_than_days),
+                    "ignore_class_presets": bool(ignore_class_presets),
+                    "matched_rows": int(matched_rows),
+                    "deleted_rows": int(deleted_rows),
+                    "exported_rows": int(exported_rows),
+                    "export_csv": str(export_csv or ""),
+                    "skipped_policy_rows": int(skipped_policy_rows),
+                },
+            )
+        except Exception as exc:
+            self.stdout.write(self.style.WARNING(f"Failed to record prune audit event: {exc}"))
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -147,6 +177,15 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f"CSV export written: {export_path} ({exported_rows} rows)"))
 
         if count == 0:
+            self._record_prune_audit(
+                older_than_days=days,
+                ignore_class_presets=ignore_class_presets,
+                matched_rows=0,
+                deleted_rows=0,
+                exported_rows=exported_rows,
+                export_csv=str(export_path or ""),
+                skipped_policy_rows=skipped_policy_rows,
+            )
             self.stdout.write(self.style.SUCCESS("Nothing to prune."))
             return
 
@@ -157,3 +196,12 @@ class Command(BaseCommand):
         with StudentEvent.allow_retention_delete():
             deleted, _details = StudentEvent.objects.filter(id__in=candidate_ids).delete()
         self.stdout.write(self.style.SUCCESS(f"Deleted rows: {deleted}"))
+        self._record_prune_audit(
+            older_than_days=days,
+            ignore_class_presets=ignore_class_presets,
+            matched_rows=count,
+            deleted_rows=deleted,
+            exported_rows=exported_rows,
+            export_csv=str(export_path or ""),
+            skipped_policy_rows=skipped_policy_rows,
+        )

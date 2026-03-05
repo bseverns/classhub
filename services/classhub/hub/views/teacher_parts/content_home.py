@@ -32,6 +32,7 @@ from .shared import (
     safe_attachment_filename,
     settings,
     staff_accessible_classes_ranked,
+    staff_can_export_syllabi,
     staff_member_required,
     staff_has_explicit_memberships,
     timedelta,
@@ -208,10 +209,8 @@ def teach_home(request):
     output_dir = _authoring_template_output_dir()
     template_download_rows = _build_template_download_rows(template_slug, output_dir)
     syllabus_export_state = build_syllabus_export_state(request)
-
     org_admin_context = _build_org_admin_context(user=request.user, user_model=User)
     rbac_tools_context = build_rbac_tools_context(request=request, classes=classes)
-
     response = render(
         request,
         "teach_home.html",
@@ -240,6 +239,7 @@ def teach_home(request):
             "teacher_first_name": teacher_first_name,
             "teacher_last_name": teacher_last_name,
             "teacher_invite_active": teacher_invite_active,
+            "data_lifespan_enabled": bool(request.user.is_superuser or staff_can_export_syllabi(request.user)),
             "initial_top_tab": initial_tab,
             "profile_first_name": profile_state["profile_first_name"],
             "profile_last_name": profile_state["profile_last_name"],

@@ -26,6 +26,7 @@ from .test_teacher_admin_auth import (
     TeacherOTPEnforcementTests,
 )
 from .test_teacher_admin_portal import (
+    DataLifespanDashboardTests,
     RetentionSettingParsingTests,
     TeacherPortalTests,
 )
@@ -38,6 +39,7 @@ __all__ = [
     "ClassHubSecurityHeaderTests",
     "ClassHubSiteModeTests",
     "CreateTeacherCommandTests",
+    "DataLifespanDashboardTests",
     "FileCleanupSignalTests",
     "InternalHelperEventEndpointTests",
     "JoinClassTests",

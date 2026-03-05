@@ -8,12 +8,42 @@ from datetime import timedelta
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
-from hub.models import Submission
+from hub.models import AuditEvent, Submission
 from hub.services.retention_policy import class_submission_retention_days
 
 
 class Command(BaseCommand):
     help = "Prune old student submissions and optionally remove files from disk."
+
+    def _record_prune_audit(
+        self,
+        *,
+        older_than_days: int,
+        ignore_class_presets: bool,
+        matched_rows: int,
+        deleted_rows: int,
+        deleted_files: int,
+        file_errors: int,
+        skipped_policy_rows: int,
+    ) -> None:
+        try:
+            AuditEvent.objects.create(
+                action="retention.prune_submissions",
+                target_type="RetentionJob",
+                target_id="submissions",
+                summary=f"Pruned submissions (deleted {deleted_rows} rows)",
+                metadata={
+                    "older_than_days": int(older_than_days),
+                    "ignore_class_presets": bool(ignore_class_presets),
+                    "matched_rows": int(matched_rows),
+                    "deleted_rows": int(deleted_rows),
+                    "deleted_files": int(deleted_files),
+                    "file_errors": int(file_errors),
+                    "skipped_policy_rows": int(skipped_policy_rows),
+                },
+            )
+        except Exception as exc:
+            self.stdout.write(self.style.WARNING(f"Failed to record prune audit event: {exc}"))
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -113,6 +143,15 @@ class Command(BaseCommand):
             self.stdout.write(f"Skipped by policy (retention disabled): {skipped_policy_rows}")
 
         if matched_rows == 0:
+            self._record_prune_audit(
+                older_than_days=days,
+                ignore_class_presets=ignore_class_presets,
+                matched_rows=0,
+                deleted_rows=0,
+                deleted_files=0,
+                file_errors=0,
+                skipped_policy_rows=skipped_policy_rows,
+            )
             self.stdout.write(self.style.SUCCESS("Nothing to prune."))
             return
 
@@ -124,4 +163,13 @@ class Command(BaseCommand):
             self.style.SUCCESS(
                 f"Deleted rows: {deleted_rows}; files deleted: {deleted_files}; file delete errors: {file_errors}"
             )
+        )
+        self._record_prune_audit(
+            older_than_days=days,
+            ignore_class_presets=ignore_class_presets,
+            matched_rows=matched_rows,
+            deleted_rows=deleted_rows,
+            deleted_files=deleted_files,
+            file_errors=file_errors,
+            skipped_policy_rows=skipped_policy_rows,
         )

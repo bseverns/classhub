@@ -425,6 +425,12 @@ Optional default (`compose/.env`):
 CLASSHUB_STUDENT_EVENT_RETENTION_DAYS=180
 ```
 
+Verification (operator dashboard):
+
+- Open `/teach/data-lifespan` as owner/admin/superuser.
+- Confirm `Last successful retention prune` timestamp updated.
+- Confirm `Policy-overdue rows` is at or near expected value for your policy window.
+
 ### Orphan upload scavenger (legacy cleanup)
 
 Report orphaned upload files (files on disk with no matching DB row):
