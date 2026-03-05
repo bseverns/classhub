@@ -31,7 +31,7 @@ During planning, these may be generated placeholder images. Replace them with re
 8. `09-teacher-profile-tab.png`
 9. `15-lesson-helper-collapsed.png`
 10. `13-a11y-smoke-terminal.png`
-11. `19-rbac-tools-tab.png`
+11. `19-rbac-tools-tab.png` (refresh target should include custom-role tooling + policy change request queue)
 
 ## Storyline-critical refresh guidance
 - `02-student-class-view.png`: include account links for trust/data controls.

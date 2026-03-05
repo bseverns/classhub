@@ -2115,3 +2115,14 @@ Execution runbook:
 **Why this remains active:**
 - The RBAC Phase-2 rollout consolidated custom-role policy operations, change-request workflow, and scoped-grant tooling in one module to keep transaction and audit paths consistent during rollout.
 - This budget is a temporary guardrail acknowledgment; follow-up refactor should split request parsing/apply/review helpers into smaller dedicated modules once behavior is stable in production.
+
+## View-function budget entries for RBAC policy handlers
+
+**Current decision:**
+- Add explicit function-size budget entries:
+  - `services/classhub/hub/views/teacher_parts/content_rbac_policy_io.py::teach_import_rbac_policy` -> `95`
+  - `services/classhub/hub/views/teacher_parts/content_rbac_tools.py::teach_review_rbac_change_request` -> `85`
+
+**Why this remains active:**
+- These handlers intentionally keep validation + audit-safe branching in one function to preserve predictable request-level behavior during rollout.
+- Budgets acknowledge current complexity while keeping CI strict against further accidental growth.

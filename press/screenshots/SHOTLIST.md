@@ -110,6 +110,9 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 19. `19-rbac-tools-tab.png`
 - Screen: teacher home (`/teach?rbac_tools=1`) RBAC tools tab
 - Include: scoped grant upsert form + existing grants table + simulation result block
+- Include: custom-role forms/tables (custom roles, capabilities, and assignments)
+- Include: policy import/export area
+- Include: pending policy change request queue when approval workflow is enabled
 - Include: one explicit `allow` or `deny` scoped grant example
 - Redact: real usernames, class names, and organization identifiers
 
@@ -136,6 +139,7 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 9. `15-lesson-helper-collapsed.png`
 10. `13-a11y-smoke-terminal.png`
 11. `19-rbac-tools-tab.png`
+- Capture with approval workflow OFF (`CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0`) first, then optional refresh with workflow ON.
 
 ### Then refresh older captures
 1. `02-student-class-view.png`
