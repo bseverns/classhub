@@ -9,16 +9,28 @@ Core outcomes:
 - add optional spaced-review prompts without surveillance-heavy scoring.
 
 ## What to do now
-1. Implement Phase 1 progression primitives (unlock modes + prerequisite checks) behind feature flags.
-2. Ship read-only learner roadmap UI (`locked`, `available`, `done`) with clear unlock reasons.
-3. Add scheduled unlock command for drip mode.
-4. Validate teacher/admin override controls before enabling by default.
+1. Keep this RFC as planning guidance; do not imply these flows are live yet.
+2. Decide a smallest Phase 1 slice (recommended: prerequisite-only unlocks before drip scheduling).
+3. Add a feature-flagged data model + evaluator design review before migrations.
+4. Define operator runbook updates (`doctor`, smoke, rollback) before rollout.
 
 ## Verification signal
 A student in a self-paced class can:
 - see exactly why Module B is locked,
 - unlock Module B automatically after passing Module A prerequisite,
 - receive newly released modules without teacher intervention.
+
+## Current implementation status (March 2026)
+
+Current `main` behavior:
+- Default workflow is synchronous and teacher-led.
+- Module pacing/release is still class/teacher managed.
+- No shipped per-student module unlock graph yet.
+- No shipped drip unlock command or spaced-review scheduler.
+
+Planning status:
+- This document remains an RFC roadmap, not an implemented feature record.
+- See [CURRENT_STATE.md](CURRENT_STATE.md) for shipped capability snapshot.
 
 ## Problem statement
 Current assumptions:
@@ -49,6 +61,9 @@ Add explicit per-module unlock policy:
 Keep defaults backward-compatible:
 - existing classes/modules remain `immediate`.
 
+Implementation status:
+- Not started on `main`.
+
 ### 2) Student progression state
 Add student-scoped progression rows:
 - `student_id`
@@ -58,6 +73,9 @@ Add student-scoped progression rows:
 - `mastery_score` (nullable)
 - `review_due_at` (nullable, for later spaced repetition phases)
 - `unlock_reason` (compact enum)
+
+Implementation status:
+- Not started on `main`.
 
 ### 3) Progression evaluator service
 Add a pure service layer that computes:
@@ -70,6 +88,9 @@ This must be deterministic and reusable from:
 - management commands,
 - staff override actions.
 
+Implementation status:
+- Not started on `main`.
+
 ### 4) Lightweight automation commands
 Introduce low-risk periodic commands:
 - `process_module_unlocks`:
@@ -81,6 +102,9 @@ Introduce low-risk periodic commands:
 
 No constant polling loop in web requests.
 
+Implementation status:
+- Not started on `main`.
+
 ### 5) UX behavior
 Student roadmap:
 - show module state (`locked`, `available`, `done`),
@@ -90,6 +114,9 @@ Student roadmap:
 Staff view:
 - optional progress summary by class/module,
 - manual unlock override for intervention cases.
+
+Implementation status:
+- Not started on `main`.
 
 ## Rollout plan
 
@@ -126,4 +153,3 @@ Staff view:
 - Add migration defaults that preserve current behavior (`immediate`).
 - Backfill progression rows lazily on first access or by batch command.
 - Keep command runtime bounded by class/module batches.
-

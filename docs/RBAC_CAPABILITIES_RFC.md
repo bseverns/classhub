@@ -9,13 +9,34 @@ Core outcomes:
 - keep existing role behavior stable until policies are explicitly customized.
 
 ## What to do now
-1. Implement Phase 1 capability evaluator that maps existing roles to capability checks.
-2. Route legacy access helpers through the evaluator.
-3. Add API-safe, class-scoped capability checks for teacher actions.
-4. Introduce custom role persistence only after evaluator is stable.
+1. Keep role-template + scoped-grant policies stable and audited in production.
+2. Decide whether district deployments need true custom role entities (beyond org role templates).
+3. If needed, implement custom role persistence as a separate phase with migration and rollback plan.
+4. Keep endpoint-level RBAC guard CI checks aligned as new teacher/API routes are added.
 
 ## Verification signal
 A staff user with role `viewer` can load class data but cannot perform manage/delete actions, and a `teacher` can still perform current class operations with no regression.
+
+## Current implementation status (March 2026)
+
+Implemented on `main`:
+- Capability evaluator + compatibility wrappers are live.
+- Endpoint checks are capability-specific across teacher and API routes.
+- Org role capability templates are live via `OrganizationRoleCapability`.
+- Scoped grants are live via `ClassStaffModuleScopeGrant` with `allow`/`deny` effects.
+- Scoped-grant precedence is live: `deny > allow > role fallback`.
+- RBAC simulation is live:
+  - API: `POST /api/v1/teacher/rbac/simulate`
+  - Teacher tools: `POST /teach/rbac/simulate` + bulk matrix view
+  - CLI: `simulate_rbac_access`
+- Policy-as-code bundle import/export is live:
+  - `GET /teach/rbac/policy/export`
+  - `POST /teach/rbac/policy/import`
+- RBAC policy/audit ops are visible in teacher tools and audit events are emitted for grant/template changes.
+
+Still RFC/pending:
+- First-class custom role entities (`Role`, `RoleCapability`, role assignment tables) beyond org membership role templates.
+- Formal delegated policy approval workflows (change review/approval separation) for large districts.
 
 ## Problem statement
 Current model is strong for early-stage operations but too coarse for larger institutions. It cannot express policy variants like:
@@ -50,10 +71,21 @@ Map existing roles to capability sets:
 
 This preserves current organization-role semantics while shifting checks to capability terms.
 
+Current implementation note:
+- Org-level role template overrides are active through `OrganizationRoleCapability`.
+
 ### 3) Scope model
 Phase targets:
 - Phase 1: organization/class scope (module scope argument supported by evaluator contract, no custom module grants yet).
 - Phase 2: explicit scoped grants for module ranges and object-specific constraints.
+
+Current implementation note:
+- Scoped grants are implemented and enforceable behind `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED`.
+- Scoped capabilities include:
+  - `submission.view`
+  - `submission.delete`
+  - `roster.manage`
+  - `policy.manage`
 
 ### 4) Evaluator contract
 Single service entry point:
@@ -80,6 +112,8 @@ All view/service permission checks should call this service (directly or via com
 - internally route to `staff_can(...capability...)`,
 - add tests for parity against current behavior.
 
+Status: shipped.
+
 ### Phase 2: Scoped grants
 - add module/class scoped grants with deny-by-default overrides,
 - include conflict-resolution order:
@@ -88,6 +122,8 @@ All view/service permission checks should call this service (directly or via com
 Current implementation note:
 - module-range grants are implemented with `ClassStaffModuleScopeGrant` and now support `allow` and `deny` effects.
 - evaluator precedence follows: explicit deny > explicit allow > role fallback.
+
+Status: shipped.
 
 ### Phase 3: Policy administration UX
 - add admin/operator screens for custom role definitions,
@@ -99,6 +135,8 @@ Current implementation note:
   - command: `simulate_rbac_access`
   - teacher portal single-user simulation: `POST /teach/rbac/simulate`
   - teacher portal bulk matrix simulation: `GET /teach?rbac_tools=1&rbac_bulk_class_id=<id>&rbac_bulk_capability=<capability>`
+
+Status: largely shipped for simulation and policy bundle operations; custom role entity management remains future work.
 
 ## Risks and mitigations
 - Risk: policy drift during migration.
