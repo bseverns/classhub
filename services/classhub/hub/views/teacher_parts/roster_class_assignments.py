@@ -43,9 +43,9 @@ def _class_assignment_error(request, message: str, form_values: dict):
     )
 
 
-def _resolve_staff_user(user_id: int):
+def _resolve_teacher_user(user_id: int):
     User = get_user_model()
-    return User.objects.filter(id=user_id, is_staff=True).first()
+    return User.objects.filter(id=user_id, is_staff=True, is_active=True, is_superuser=False).first()
 
 
 def _parse_selected_class_ids(raw_values: list[str]) -> set[int]:
@@ -96,13 +96,13 @@ def teach_upsert_class_staff_assignment(request):
     class_id = _parse_positive_int(form_values["class_assignment_class_id"], min_value=1, max_value=2_147_483_647)
     user_id = _parse_positive_int(form_values["class_assignment_user_id"], min_value=1, max_value=2_147_483_647)
     if class_id is None or user_id is None:
-        return _class_assignment_error(request, "Select both a class and a staff user.", form_values)
+        return _class_assignment_error(request, "Select both a class and a teacher account.", form_values)
     classroom = Class.objects.filter(id=class_id).first()
-    user = _resolve_staff_user(user_id)
+    user = _resolve_teacher_user(user_id)
     if classroom is None:
         return _class_assignment_error(request, "Class not found.", form_values)
     if user is None:
-        return _class_assignment_error(request, "Staff user not found.", form_values)
+        return _class_assignment_error(request, "Teacher account not found.", form_values)
 
     is_active = form_values["class_assignment_active"] == "1"
     assignment, created = ClassStaffAssignment.objects.get_or_create(
@@ -144,10 +144,10 @@ def teach_bulk_set_class_staff_assignments(request):
 
     user_id = _parse_positive_int(form_values["class_assignment_bulk_user_id"], min_value=1, max_value=2_147_483_647)
     if user_id is None:
-        return _class_assignment_error(request, "Select a staff user for bulk class assignment.", form_values)
-    user = _resolve_staff_user(user_id)
+        return _class_assignment_error(request, "Select a teacher account for bulk class assignment.", form_values)
+    user = _resolve_teacher_user(user_id)
     if user is None:
-        return _class_assignment_error(request, "Staff user not found.", form_values)
+        return _class_assignment_error(request, "Teacher account not found.", form_values)
 
     selected_ids = _parse_selected_class_ids(request.POST.getlist("class_assignment_bulk_class_ids"))
     valid_ids = set(int(cid) for cid in Class.objects.filter(id__in=selected_ids).values_list("id", flat=True))

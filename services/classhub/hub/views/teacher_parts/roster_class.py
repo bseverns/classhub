@@ -37,9 +37,9 @@ def _class_assignment_panel_context(*, request, classroom):
         return {"class_staff_assignments": [], "class_assignment_staff_users": []}
     User = get_user_model()
     staff_users = list(
-        User.objects.filter(is_staff=True, is_active=True)
+        User.objects.filter(is_staff=True, is_active=True, is_superuser=False)
         .order_by("username", "id")
-        .only("id", "username", "is_superuser")
+        .only("id", "username")
     )
     assignments = list(
         ClassStaffAssignment.objects.select_related("user")

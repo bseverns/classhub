@@ -1141,13 +1141,15 @@
                     </select>
                   </div>
                   <div>
-                    <label for="class-assignment-user">Staff user</label>
+                    <label for="class-assignment-user">Teacher account</label>
                     <select id="class-assignment-user" name="class_assignment_user_id" required>
-                      <option value="">Select a staff user</option>
+                      <option value="">Select a teacher account</option>
                       {% for account in staff_users %}
-                        <option value="{{ account.id }}" {% if class_assignment_user_id == account.id|stringformat:"s" %}selected{% endif %}>
-                          {{ account.username }}{% if account.is_superuser %} (superuser){% endif %}{% if not account.is_active %} (inactive){% endif %}
-                        </option>
+                        {% if not account.is_superuser and account.is_active %}
+                          <option value="{{ account.id }}" {% if class_assignment_user_id == account.id|stringformat:"s" %}selected{% endif %}>
+                            {{ account.username }}
+                          </option>
+                        {% endif %}
                       {% endfor %}
                     </select>
                   </div>
@@ -1172,9 +1174,11 @@
                     <select id="class-assignment-bulk-user" name="class_assignment_bulk_user_id" required>
                       <option value="">Select a teacher</option>
                       {% for account in staff_users %}
-                        <option value="{{ account.id }}" {% if class_assignment_bulk_user_id == account.id|stringformat:"s" %}selected{% endif %}>
-                          {{ account.username }}{% if account.is_superuser %} (superuser){% endif %}
-                        </option>
+                        {% if not account.is_superuser and account.is_active %}
+                          <option value="{{ account.id }}" {% if class_assignment_bulk_user_id == account.id|stringformat:"s" %}selected{% endif %}>
+                            {{ account.username }}
+                          </option>
+                        {% endif %}
                       {% endfor %}
                     </select>
                   </div>

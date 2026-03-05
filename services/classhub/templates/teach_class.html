@@ -207,13 +207,11 @@
                   {% csrf_token %}
                   <input type="hidden" name="class_assignment_class_id" value="{{ classroom.id }}" />
                   <input type="hidden" name="class_assignment_return_to" value="/teach/class/{{ classroom.id }}" />
-                  <label for="class-assignment-user-select">Staff user</label>
+                  <label for="class-assignment-user-select">Teacher account</label>
                   <select id="class-assignment-user-select" name="class_assignment_user_id" required>
-                    <option value="">Select staff user</option>
+                    <option value="">Select teacher account</option>
                     {% for account in class_assignment_staff_users %}
-                      <option value="{{ account.id }}">
-                        {{ account.username }}{% if account.is_superuser %} (superuser){% endif %}
-                      </option>
+                      <option value="{{ account.id }}">{{ account.username }}</option>
                     {% endfor %}
                   </select>
                   <label class="inline-check-label no-top-margin">

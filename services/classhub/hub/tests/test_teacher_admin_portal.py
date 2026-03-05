@@ -2283,6 +2283,33 @@ Session 02: Final Build
         self.assertIsNotNone(event)
         self.assertEqual(event.actor_user_id, self.staff.id)
 
+    def test_superuser_cannot_assign_superuser_account_to_class(self):
+        _force_login_staff_verified(self.client, self.staff)
+        classroom = Class.objects.create(name="Class Assignment Guard", join_code="ASGN0009")
+        target_superuser = get_user_model().objects.create_user(
+            username="class_assign_superuser_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=True,
+        )
+
+        resp = self.client.post(
+            "/teach/class-staff-assignment/upsert",
+            {
+                "class_assignment_class_id": str(classroom.id),
+                "class_assignment_user_id": str(target_superuser.id),
+                "class_assignment_active": "1",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?error=", resp["Location"])
+        self.assertFalse(
+            ClassStaffAssignment.objects.filter(
+                classroom=classroom,
+                user=target_superuser,
+            ).exists()
+        )
+
     def test_superuser_can_bulk_set_class_staff_assignments_from_teach(self):
         _force_login_staff_verified(self.client, self.staff)
         class_a = Class.objects.create(name="Bulk Assign A", join_code="BULK0001")
@@ -2342,6 +2369,30 @@ Session 02: Final Build
         self.assertContains(resp, "Teaching Staff Assignments")
         self.assertContains(resp, "dashboard_assign_target")
         self.assertContains(resp, "/teach/class-staff-assignment/upsert")
+
+    def test_teach_class_assignment_picker_only_lists_teacher_accounts(self):
+        _force_login_staff_verified(self.client, self.staff)
+        classroom = Class.objects.create(name="Dashboard Assignment Filter", join_code="ASGN0010")
+        teacher_user = get_user_model().objects.create_user(
+            username="dashboard_teacher_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+            is_active=True,
+        )
+        superuser_user = get_user_model().objects.create_user(
+            username="dashboard_superuser_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=True,
+            is_active=True,
+        )
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Select teacher account")
+        self.assertContains(resp, f'value="{teacher_user.id}"', html=False)
+        self.assertNotContains(resp, f'value="{superuser_user.id}"', html=False)
 
     def test_superuser_can_toggle_organization_active_from_teach(self):
         _force_login_staff_verified(self.client, self.staff)
