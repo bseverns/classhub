@@ -3,6 +3,44 @@
 .title-row .muted { margin-top: 4px; }
 .class-link { font-weight: 700; }
 .submit-wrap { margin-top: 12px; }
+.classroom-focus-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 12px;
+}
+.classroom-focus-item {
+  border: 1px solid rgba(22, 59, 80, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.54);
+  padding: 12px;
+}
+.classroom-focus-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.classroom-focus-header .section-title-compact {
+  margin: 0;
+}
+.classroom-focus-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.classroom-focus-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  font-weight: 700;
+}
+.classroom-focus-note {
+  margin-top: 10px;
+}
 .table-wrap {
   margin-top: 12px;
   border: 1px solid rgba(22, 59, 80, 0.16);
@@ -195,4 +233,37 @@
 
 .card-secondary--tools .section-title {
   margin-bottom: 8px;
+}
+
+.support-collapsible {
+  width: 100%;
+}
+
+.support-summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.support-summary::-webkit-details-marker {
+  display: none;
+}
+
+.support-summary-text {
+  display: block;
+}
+
+.support-summary-title {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #12394f;
+}
+
+.support-summary-note {
+  display: block;
+  margin-top: 3px;
+}
+
+.support-collapsible-body {
+  margin-top: 12px;
 }

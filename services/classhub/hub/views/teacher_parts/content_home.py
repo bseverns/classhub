@@ -185,9 +185,7 @@ def teach_home(request):
     profile_state = _read_profile_state(request, request.user)
     rbac_tools_enabled = rbac_tools_enabled_for_user(request.user)
     rbac_tools_active = rbac_tools_requested(request) and rbac_tools_enabled
-    teacher_invite_active = bool(
-        teacher_username or teacher_email or teacher_first_name or teacher_last_name
-    )
+    teacher_invite_active = bool(teacher_username or teacher_email or teacher_first_name or teacher_last_name)
     initial_tab = _resolve_initial_top_tab(
         user=request.user,
         profile_tab_active=profile_state["profile_tab_active"],
@@ -196,6 +194,7 @@ def teach_home(request):
         rbac_tools_active=rbac_tools_active,
     )
     classes, assigned_class_ids = staff_accessible_classes_ranked(request.user)
+    assigned_classes = [c for c in classes if c.id in assigned_class_ids]
     digest_since = timezone.now() - timedelta(days=1)
     class_digest_rows = _build_class_digest_rows(classes, since=digest_since)
     User = get_user_model()
@@ -217,6 +216,7 @@ def teach_home(request):
         {
             "classes": classes,
             "assigned_class_ids": assigned_class_ids,
+            "assigned_classes": assigned_classes,
             "class_digest_rows": class_digest_rows,
             "digest_since": digest_since,
             "recent_submissions": recent_submissions,

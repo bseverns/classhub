@@ -32,7 +32,53 @@
           <div class="error" role="alert" aria-live="assertive">{{ error }}</div>
         {% endif %}
 
-        <div class="card" data-tabs data-initial-tab="{{ initial_top_tab|default:'quick-actions' }}">
+        <div class="card classroom-focus">
+          <div class="row">
+            <h2 class="section-title-tight">Classroom focus</h2>
+            <div class="muted">Lead from the class you are actively teaching.</div>
+          </div>
+          {% if assigned_classes %}
+            <div class="classroom-focus-grid">
+              {% for c in assigned_classes %}
+                <article class="classroom-focus-item">
+                  <div class="classroom-focus-header">
+                    <h3 class="section-title-compact">{{ c.name }}</h3>
+                    <span class="state-pill state-pill--open">Assigned</span>
+                  </div>
+                  <div class="classroom-focus-meta">
+                    <span class="pill">{{ c.join_code }}</span>
+                    <button type="button" class="inline-copy" data-copy-value="{{ c.join_code }}">Copy code</button>
+                    {% if c.is_locked %}
+                      <span class="state-pill state-pill--locked">Locked</span>
+                    {% else %}
+                      <span class="state-pill state-pill--open">Open</span>
+                    {% endif %}
+                  </div>
+                  <div class="classroom-focus-actions">
+                    <a href="/teach/class/{{ c.id }}">Open class</a>
+                    <a href="/teach/lessons?class_id={{ c.id }}">Lessons</a>
+                    <a href="/teach/class/{{ c.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+            {% if classes|length > assigned_classes|length %}
+              <p class="muted classroom-focus-note">
+                Additional accessible classes are listed in the full class table below.
+              </p>
+            {% endif %}
+          {% elif classes %}
+            <p class="muted">No classes are marked assigned yet. Use the class list below to pick your active class.</p>
+          {% else %}
+            <p class="muted">No classes yet. Create your first class in Class setup.</p>
+          {% endif %}
+        </div>
+
+        <div class="card card-secondary" data-tabs data-initial-tab="{{ initial_top_tab|default:'quick-actions' }}">
+          <h2 class="section-title">Portal setup + account tools</h2>
+          <div class="muted section-subtitle">
+            Use these controls to support class delivery, staffing, and policy operations.
+          </div>
           <div class="top-tabs" role="tablist" aria-label="Teacher top actions">
             <button type="button" class="top-tab" id="tab-quick-actions" role="tab" aria-controls="panel-quick-actions" aria-selected="true">
               Class setup
@@ -1011,141 +1057,159 @@
         </div>
 
         <div class="card card-secondary card-secondary--tools">
-          <h2 class="section-title">Import Syllabus Source</h2>
-          <div class="muted section-subtitle">
-            Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`).
-          </div>
-          <form method="post" action="/teach/import-syllabus-source" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="grid-2">
-              <div>
-                <label for="import-course-slug">Course slug (optional)</label>
-                <input id="import-course-slug" name="import_course_slug" value="{{ import_course_slug }}" placeholder="swarm_aesthetics" />
-              </div>
-              <div>
-                <label for="import-course-title">Course title override (optional)</label>
-                <input id="import-course-title" name="import_course_title" value="{{ import_course_title }}" placeholder="Swarm Aesthetics: Perceptual Drift Studio" />
-              </div>
-              <div>
-                <label for="import-default-ui-level">Default UI level</label>
-                <select id="import-default-ui-level" name="import_default_ui_level">
-                  <option value="elementary" {% if import_default_ui_level == "elementary" %}selected{% endif %}>elementary</option>
-                  <option value="secondary" {% if import_default_ui_level == "secondary" %}selected{% endif %}>secondary</option>
-                  <option value="advanced" {% if import_default_ui_level == "advanced" %}selected{% endif %}>advanced</option>
-                </select>
-              </div>
-              <div>
-                <label for="import-session-parse-mode">Session parser mode</label>
-                <select id="import-session-parse-mode" name="import_session_parse_mode">
-                  <option value="auto" {% if import_session_parse_mode == "auto" %}selected{% endif %}>auto</option>
-                  <option value="template" {% if import_session_parse_mode == "template" %}selected{% endif %}>template</option>
-                  <option value="verbose" {% if import_session_parse_mode == "verbose" %}selected{% endif %}>verbose</option>
-                </select>
-              </div>
-              <div>
-                <label for="import-source-file">Source file (.md, .docx, or .zip)</label>
-                <input id="import-source-file" name="syllabus_source" type="file" accept=".md,.docx,.zip" required />
-              </div>
-              <div>
-                <label for="import-overview-file">Optional overview (.md or .docx)</label>
-                <input id="import-overview-file" name="syllabus_overview" type="file" accept=".md,.docx" />
-              </div>
-              <div class="teacher-invite-checkbox-wrap">
-                <label class="teacher-invite-checkbox-label">
-                  <input type="checkbox" name="import_overwrite" value="1" {% if import_overwrite %}checked{% endif %} />
-                  Overwrite existing course folder
-                </label>
-              </div>
+          <details class="support-collapsible">
+            <summary class="support-summary">
+              <span class="support-summary-text">
+                <span class="support-summary-title">Import Syllabus Source</span>
+                <span class="support-summary-note muted">Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`).</span>
+              </span>
+            </summary>
+            <div class="support-collapsible-body">
+              <form method="post" action="/teach/import-syllabus-source" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="import-course-slug">Course slug (optional)</label>
+                    <input id="import-course-slug" name="import_course_slug" value="{{ import_course_slug }}" placeholder="swarm_aesthetics" />
+                  </div>
+                  <div>
+                    <label for="import-course-title">Course title override (optional)</label>
+                    <input id="import-course-title" name="import_course_title" value="{{ import_course_title }}" placeholder="Swarm Aesthetics: Perceptual Drift Studio" />
+                  </div>
+                  <div>
+                    <label for="import-default-ui-level">Default UI level</label>
+                    <select id="import-default-ui-level" name="import_default_ui_level">
+                      <option value="elementary" {% if import_default_ui_level == "elementary" %}selected{% endif %}>elementary</option>
+                      <option value="secondary" {% if import_default_ui_level == "secondary" %}selected{% endif %}>secondary</option>
+                      <option value="advanced" {% if import_default_ui_level == "advanced" %}selected{% endif %}>advanced</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="import-session-parse-mode">Session parser mode</label>
+                    <select id="import-session-parse-mode" name="import_session_parse_mode">
+                      <option value="auto" {% if import_session_parse_mode == "auto" %}selected{% endif %}>auto</option>
+                      <option value="template" {% if import_session_parse_mode == "template" %}selected{% endif %}>template</option>
+                      <option value="verbose" {% if import_session_parse_mode == "verbose" %}selected{% endif %}>verbose</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="import-source-file">Source file (.md, .docx, or .zip)</label>
+                    <input id="import-source-file" name="syllabus_source" type="file" accept=".md,.docx,.zip" required />
+                  </div>
+                  <div>
+                    <label for="import-overview-file">Optional overview (.md or .docx)</label>
+                    <input id="import-overview-file" name="syllabus_overview" type="file" accept=".md,.docx" />
+                  </div>
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
+                      <input type="checkbox" name="import_overwrite" value="1" {% if import_overwrite %}checked{% endif %} />
+                      Overwrite existing course folder
+                    </label>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Import source</button>
+                </div>
+              </form>
             </div>
-            <div class="submit-wrap">
-              <button type="submit">Import source</button>
-            </div>
-          </form>
+          </details>
         </div>
 
         <div class="card card-secondary card-secondary--tools">
-          <h2 class="section-title">Generate Course Authoring Templates</h2>
-          <div class="muted section-subtitle">
-            Create pre-formatted `.md` and `.docx` starter files for teachers.
-          </div>
-          <form method="post" action="/teach/generate-authoring-templates">
-            {% csrf_token %}
-            <div class="grid-2">
-              <div>
-                <label for="template-slug">Course slug</label>
-                <input id="template-slug" name="template_slug" value="{{ template_slug }}" placeholder="scratch_game_design" required />
-              </div>
-              <div>
-                <label for="template-title">Course title</label>
-                <input id="template-title" name="template_title" value="{{ template_title }}" placeholder="Scratch Game Design + Cutscenes Lab" required />
-              </div>
-              <div>
-                <label for="template-sessions">Sessions</label>
-                <input id="template-sessions" name="template_sessions" type="number" min="1" max="60" value="{{ template_sessions }}" required />
-              </div>
-              <div>
-                <label for="template-duration">Session duration (minutes)</label>
-                <input id="template-duration" name="template_duration" type="number" min="15" max="240" value="{{ template_duration }}" required />
-              </div>
+          <details class="support-collapsible">
+            <summary class="support-summary">
+              <span class="support-summary-text">
+                <span class="support-summary-title">Generate Course Authoring Templates</span>
+                <span class="support-summary-note muted">Create pre-formatted `.md` and `.docx` starter files for teachers.</span>
+              </span>
+            </summary>
+            <div class="support-collapsible-body">
+              <form method="post" action="/teach/generate-authoring-templates">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="template-slug">Course slug</label>
+                    <input id="template-slug" name="template_slug" value="{{ template_slug }}" placeholder="scratch_game_design" required />
+                  </div>
+                  <div>
+                    <label for="template-title">Course title</label>
+                    <input id="template-title" name="template_title" value="{{ template_title }}" placeholder="Scratch Game Design + Cutscenes Lab" required />
+                  </div>
+                  <div>
+                    <label for="template-sessions">Sessions</label>
+                    <input id="template-sessions" name="template_sessions" type="number" min="1" max="60" value="{{ template_sessions }}" required />
+                  </div>
+                  <div>
+                    <label for="template-duration">Session duration (minutes)</label>
+                    <input id="template-duration" name="template_duration" type="number" min="15" max="240" value="{{ template_duration }}" required />
+                  </div>
+                </div>
+                <div class="muted template-output-note">Files are written to <code>{{ template_output_dir }}</code>.</div>
+                <div class="submit-wrap">
+                  <button type="submit">Generate templates</button>
+                </div>
+              </form>
+              {% if template_download_rows %}
+                <h3 class="section-title-compact">Download files for <code>{{ template_slug }}</code></h3>
+                <ul class="download-list">
+                  {% for row in template_download_rows %}
+                    <li>
+                      {% if row.exists %}
+                        <a href="{{ row.url }}">{{ row.label }}</a>
+                      {% else %}
+                        <span class="muted">{{ row.label }} (not generated yet)</span>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
             </div>
-            <div class="muted template-output-note">Files are written to <code>{{ template_output_dir }}</code>.</div>
-            <div class="submit-wrap">
-              <button type="submit">Generate templates</button>
-            </div>
-          </form>
-          {% if template_download_rows %}
-            <h3 class="section-title-compact">Download files for <code>{{ template_slug }}</code></h3>
-            <ul class="download-list">
-              {% for row in template_download_rows %}
-                <li>
-                  {% if row.exists %}
-                    <a href="{{ row.url }}">{{ row.label }}</a>
-                  {% else %}
-                    <span class="muted">{{ row.label }} (not generated yet)</span>
-                  {% endif %}
-                </li>
-              {% endfor %}
-            </ul>
-          {% endif %}
+          </details>
         </div>
 
         {% if syllabus_export_enabled %}
           <div class="card card-secondary card-secondary--tools">
-            <h2 class="section-title">Syllabus Exports</h2>
-            <div class="muted section-subtitle">
-              Admin/superuser backup and catalog downloads for repo-authored course syllabi.
-            </div>
-            <div class="closeout-actions">
-              <a class="button mini" href="/teach/syllabus-export?kind=catalog_csv">Download catalog CSV</a>
-              <a class="button mini" href="/teach/syllabus-export?kind=backup_zip">Download full backup ZIP</a>
-            </div>
+            <details class="support-collapsible">
+              <summary class="support-summary">
+                <span class="support-summary-text">
+                  <span class="support-summary-title">Syllabus Exports</span>
+                  <span class="support-summary-note muted">Admin/superuser backup and catalog downloads for repo-authored course syllabi.</span>
+                </span>
+              </summary>
+              <div class="support-collapsible-body">
+                <div class="closeout-actions">
+                  <a class="button mini" href="/teach/syllabus-export?kind=catalog_csv">Download catalog CSV</a>
+                  <a class="button mini" href="/teach/syllabus-export?kind=backup_zip">Download full backup ZIP</a>
+                </div>
 
-            {% if syllabus_export_courses %}
-              <h3 class="section-title-compact">Single-course backup ZIP</h3>
-              <form method="get" action="/teach/syllabus-export">
-                <input type="hidden" name="kind" value="course_zip" />
-                <div class="grid-2">
-                  <div>
-                    <label for="syllabus-course-slug">Course</label>
-                    <select id="syllabus-course-slug" name="course_slug" required>
-                      {% for course_row in syllabus_export_courses %}
-                        <option
-                          value="{{ course_row.slug }}"
-                          {% if syllabus_export_selected_course_slug == course_row.slug %}selected{% endif %}
-                        >
-                          {{ course_row.title }} ({{ course_row.slug }}) · {{ course_row.lesson_count }} lessons
-                        </option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>
-                <div class="submit-wrap">
-                  <button type="submit">Download course ZIP</button>
-                </div>
-              </form>
-            {% else %}
-              <p class="muted">No syllabus courses found.</p>
-            {% endif %}
+                {% if syllabus_export_courses %}
+                  <h3 class="section-title-compact">Single-course backup ZIP</h3>
+                  <form method="get" action="/teach/syllabus-export">
+                    <input type="hidden" name="kind" value="course_zip" />
+                    <div class="grid-2">
+                      <div>
+                        <label for="syllabus-course-slug">Course</label>
+                        <select id="syllabus-course-slug" name="course_slug" required>
+                          {% for course_row in syllabus_export_courses %}
+                            <option
+                              value="{{ course_row.slug }}"
+                              {% if syllabus_export_selected_course_slug == course_row.slug %}selected{% endif %}
+                            >
+                              {{ course_row.title }} ({{ course_row.slug }}) · {{ course_row.lesson_count }} lessons
+                            </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="submit-wrap">
+                      <button type="submit">Download course ZIP</button>
+                    </div>
+                  </form>
+                {% else %}
+                  <p class="muted">No syllabus courses found.</p>
+                {% endif %}
+              </div>
+            </details>
           </div>
         {% endif %}
 
