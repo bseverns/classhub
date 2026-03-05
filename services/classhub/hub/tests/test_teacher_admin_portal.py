@@ -2077,11 +2077,26 @@ Session 02: Final Build
 
     def test_superuser_teach_home_shows_org_admin_controls(self):
         _force_login_staff_verified(self.client, self.staff)
+        org = Organization.objects.create(name="UI Org Actions")
+        teacher = get_user_model().objects.create_user(
+            username="ui_membership_teacher",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=org,
+            user=teacher,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
         resp = self.client.get("/teach")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Organizations + Staff Memberships")
         self.assertContains(resp, "/teach/create-organization")
         self.assertContains(resp, "/teach/org-membership/upsert")
+        self.assertContains(resp, "Set inactive")
+        self.assertContains(resp, "Save role")
         self.assertContains(resp, "/teach/teacher-account/set-active")
         self.assertContains(resp, "/teach/teacher-account/set-superuser")
         self.assertContains(resp, "/teach/teacher-account/reset-password")

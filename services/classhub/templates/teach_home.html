@@ -1008,6 +1008,7 @@
                         <th scope="col">User</th>
                         <th scope="col">Role</th>
                         <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1022,6 +1023,39 @@
                             {% else %}
                               <span class="state-pill state-pill--locked">Inactive</span>
                             {% endif %}
+                          </td>
+                          <td>
+                            <div class="org-membership-actions">
+                              <form method="post" action="/teach/org-membership/upsert" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="org_membership_org_id" value="{{ membership.organization_id }}" />
+                                <input type="hidden" name="org_membership_user_id" value="{{ membership.user_id }}" />
+                                <input type="hidden" name="org_membership_role" value="{{ membership.role }}" />
+                                {% if membership.is_active %}
+                                  <input type="hidden" name="org_membership_active" value="0" />
+                                  <button type="submit" class="mini">Set inactive</button>
+                                {% else %}
+                                  <input type="hidden" name="org_membership_active" value="1" />
+                                  <button type="submit" class="mini">Set active</button>
+                                {% endif %}
+                              </form>
+                              <form method="post" action="/teach/org-membership/upsert" class="org-membership-role-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="org_membership_org_id" value="{{ membership.organization_id }}" />
+                                <input type="hidden" name="org_membership_user_id" value="{{ membership.user_id }}" />
+                                {% if membership.is_active %}
+                                  <input type="hidden" name="org_membership_active" value="1" />
+                                {% else %}
+                                  <input type="hidden" name="org_membership_active" value="0" />
+                                {% endif %}
+                                <select name="org_membership_role" aria-label="Role for {{ membership.user.username }} in {{ membership.organization.name }}">
+                                  {% for value, label in org_role_choices %}
+                                    <option value="{{ value }}" {% if membership.role == value %}selected{% endif %}>{{ label }}</option>
+                                  {% endfor %}
+                                </select>
+                                <button type="submit" class="mini">Save role</button>
+                              </form>
+                            </div>
                           </td>
                         </tr>
                       {% endfor %}

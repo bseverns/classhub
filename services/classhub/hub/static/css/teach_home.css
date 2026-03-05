@@ -239,6 +239,19 @@
 .org-membership-table-wrap {
   margin-top: 14px;
 }
+.org-membership-actions {
+  display: grid;
+  gap: 8px;
+}
+.org-membership-role-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.org-membership-role-form select {
+  min-width: 140px;
+  margin: 0;
+}
 .rbac-sim-result {
   margin-top: 12px;
   padding: 10px 12px;
