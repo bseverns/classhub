@@ -3,6 +3,7 @@
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
@@ -29,6 +30,27 @@ from .shared_auth import (
 from .shared_ordering import _next_unique_class_join_code, _normalize_order
 from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
 from .shared_tracker import _local_day_window
+
+
+def _class_assignment_panel_context(*, request, classroom):
+    if not request.user.is_superuser:
+        return {"class_staff_assignments": [], "class_assignment_staff_users": []}
+    User = get_user_model()
+    staff_users = list(
+        User.objects.filter(is_staff=True, is_active=True)
+        .order_by("username", "id")
+        .only("id", "username", "is_superuser")
+    )
+    assignments = list(
+        ClassStaffAssignment.objects.select_related("user")
+        .filter(classroom=classroom)
+        .order_by("-is_active", "user__username", "id")
+    )
+    return {
+        "class_staff_assignments": assignments,
+        "class_assignment_staff_users": staff_users,
+    }
+
 
 @staff_member_required
 @require_POST
@@ -92,6 +114,7 @@ def teach_class_dashboard(request, class_id: int):
 
     notice = (request.GET.get("notice") or "").strip()
     error = (request.GET.get("error") or "").strip()
+    class_assignment_panel = _class_assignment_panel_context(request=request, classroom=classroom)
 
     response = render(
         request,
@@ -102,6 +125,7 @@ def teach_class_dashboard(request, class_id: int):
             "invite_links": invite_links,
             "notice": notice,
             "error": error,
+            **class_assignment_panel,
         },
     )
     apply_no_store(response, private=True, pragma=True)

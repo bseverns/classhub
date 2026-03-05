@@ -31,6 +31,7 @@ from .teacher_parts.roster import (
     teach_add_material,
     teach_add_support_tag,
     teach_add_module,
+    teach_bulk_set_class_staff_assignments,
     teach_certificate_eligibility,
     teach_class_dashboard,
     teach_class_join_card,
@@ -68,6 +69,7 @@ from .teacher_parts.roster import (
     teach_set_module_gallery_enabled,
     teach_student_return_code,
     teach_toggle_lock,
+    teach_upsert_class_staff_assignment,
     teach_upsert_organization_membership,
 )
 from .teacher_parts.videos import teach_assets, teach_videos
@@ -114,6 +116,8 @@ __all__ = [
     "teach_set_organization_active",
     "teach_set_retention_preset",
     "teach_student_return_code",
+    "teach_upsert_class_staff_assignment",
+    "teach_bulk_set_class_staff_assignments",
     "teach_rename_student",
     "teach_resolve_delete_request",
     "teach_resolve_stuck_flag",

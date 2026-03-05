@@ -2019,6 +2019,104 @@ Session 02: Final Build
         self.assertIsNotNone(event)
         self.assertEqual(event.actor_user_id, self.staff.id)
 
+    def test_superuser_can_upsert_class_staff_assignment_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+        classroom = Class.objects.create(name="Class Assignment Lab", join_code="ASGN0001")
+        target_staff = get_user_model().objects.create_user(
+            username="class_assign_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+
+        create_resp = self.client.post(
+            "/teach/class-staff-assignment/upsert",
+            {
+                "class_assignment_class_id": str(classroom.id),
+                "class_assignment_user_id": str(target_staff.id),
+                "class_assignment_active": "1",
+            },
+        )
+        self.assertEqual(create_resp.status_code, 302)
+        assignment = ClassStaffAssignment.objects.get(classroom=classroom, user=target_staff)
+        self.assertTrue(assignment.is_active)
+
+        update_resp = self.client.post(
+            "/teach/class-staff-assignment/upsert",
+            {
+                "class_assignment_class_id": str(classroom.id),
+                "class_assignment_user_id": str(target_staff.id),
+                "class_assignment_active": "0",
+            },
+        )
+        self.assertEqual(update_resp.status_code, 302)
+        assignment.refresh_from_db()
+        self.assertFalse(assignment.is_active)
+
+        event = AuditEvent.objects.filter(action="class.staff_assignment.upsert", target_id=str(assignment.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_superuser_can_bulk_set_class_staff_assignments_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+        class_a = Class.objects.create(name="Bulk Assign A", join_code="BULK0001")
+        class_b = Class.objects.create(name="Bulk Assign B", join_code="BULK0002")
+        class_c = Class.objects.create(name="Bulk Assign C", join_code="BULK0003")
+        target_staff = get_user_model().objects.create_user(
+            username="class_bulk_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        ClassStaffAssignment.objects.create(classroom=class_a, user=target_staff, is_active=True)
+        ClassStaffAssignment.objects.create(classroom=class_b, user=target_staff, is_active=True)
+
+        resp = self.client.post(
+            "/teach/class-staff-assignment/bulk-set",
+            {
+                "class_assignment_bulk_user_id": str(target_staff.id),
+                "class_assignment_bulk_class_ids": [str(class_b.id), str(class_c.id)],
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertFalse(
+            ClassStaffAssignment.objects.get(classroom=class_a, user=target_staff).is_active
+        )
+        self.assertTrue(
+            ClassStaffAssignment.objects.get(classroom=class_b, user=target_staff).is_active
+        )
+        self.assertTrue(
+            ClassStaffAssignment.objects.get(classroom=class_c, user=target_staff).is_active
+        )
+        event = AuditEvent.objects.filter(action="class.staff_assignment.bulk_set", target_id=str(target_staff.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_superuser_teach_home_shows_assign_teacher_link_per_class(self):
+        _force_login_staff_verified(self.client, self.staff)
+        classroom = Class.objects.create(name="Per Class Assign Link", join_code="ASGN0002")
+
+        resp = self.client.get("/teach")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, f"/teach?org_admin=1&class_assignment_class_id={classroom.id}")
+
+    def test_superuser_teach_class_dashboard_shows_teaching_staff_assignments_panel(self):
+        _force_login_staff_verified(self.client, self.staff)
+        classroom = Class.objects.create(name="Dashboard Assignment Lab", join_code="ASGN0004")
+        target_staff = get_user_model().objects.create_user(
+            username="dashboard_assign_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        ClassStaffAssignment.objects.create(classroom=classroom, user=target_staff, is_active=True)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Teaching Staff Assignments")
+        self.assertContains(resp, "dashboard_assign_target")
+        self.assertContains(resp, "/teach/class-staff-assignment/upsert")
+
     def test_superuser_can_toggle_organization_active_from_teach(self):
         _force_login_staff_verified(self.client, self.staff)
         org = Organization.objects.create(name="Org Toggle Lab", is_active=True)
@@ -3245,6 +3343,47 @@ class TeacherOrganizationAccessTests(TestCase):
                 organization=org,
                 role=OrganizationMembership.ROLE_TEACHER,
                 capability=OrganizationRoleCapability.CAP_SYLLABUS_EXPORT,
+            ).exists()
+        )
+
+    def test_non_superuser_staff_cannot_manage_class_assignments_from_teach(self):
+        target_staff = get_user_model().objects.create_user(
+            username="blocked_class_assign_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        upsert_resp = self.client.post(
+            "/teach/class-staff-assignment/upsert",
+            {
+                "class_assignment_class_id": str(self.class_a.id),
+                "class_assignment_user_id": str(target_staff.id),
+                "class_assignment_active": "1",
+            },
+        )
+        self.assertEqual(upsert_resp.status_code, 302)
+        self.assertIn("/teach?error=", upsert_resp["Location"])
+        self.assertFalse(
+            ClassStaffAssignment.objects.filter(
+                classroom=self.class_a,
+                user=target_staff,
+                is_active=True,
+            ).exists()
+        )
+
+        bulk_resp = self.client.post(
+            "/teach/class-staff-assignment/bulk-set",
+            {
+                "class_assignment_bulk_user_id": str(target_staff.id),
+                "class_assignment_bulk_class_ids": [str(self.class_a.id)],
+            },
+        )
+        self.assertEqual(bulk_resp.status_code, 302)
+        self.assertIn("/teach?error=", bulk_resp["Location"])
+        self.assertFalse(
+            ClassStaffAssignment.objects.filter(
+                classroom=self.class_a,
+                user=target_staff,
             ).exists()
         )
 

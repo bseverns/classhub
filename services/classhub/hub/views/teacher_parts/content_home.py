@@ -7,6 +7,7 @@ from .content_rbac_tools import (
 )
 from .content_syllabus_exports import build_syllabus_export_state
 from .shared import (
+    ClassStaffAssignment,
     FileResponse,
     HttpResponse,
     Path,
@@ -50,6 +51,10 @@ def _read_org_admin_state(request):
     org_rolecap_role = (request.GET.get("org_rolecap_role") or "").strip()
     org_rolecap_capability = (request.GET.get("org_rolecap_capability") or "").strip()
     org_rolecap_active = (request.GET.get("org_rolecap_active") or "").strip()
+    class_assignment_class_id = (request.GET.get("class_assignment_class_id") or "").strip()
+    class_assignment_user_id = (request.GET.get("class_assignment_user_id") or "").strip()
+    class_assignment_active = (request.GET.get("class_assignment_active") or "").strip()
+    class_assignment_bulk_user_id = (request.GET.get("class_assignment_bulk_user_id") or "").strip()
     org_admin_active = (
         (request.GET.get("org_admin") or "").strip() == "1"
         or bool(
@@ -60,6 +65,9 @@ def _read_org_admin_state(request):
             or org_rolecap_org_id
             or org_rolecap_role
             or org_rolecap_capability
+            or class_assignment_class_id
+            or class_assignment_user_id
+            or class_assignment_bulk_user_id
         )
     )
     return {
@@ -72,6 +80,10 @@ def _read_org_admin_state(request):
         "org_rolecap_role": org_rolecap_role,
         "org_rolecap_capability": org_rolecap_capability,
         "org_rolecap_active": org_rolecap_active if org_rolecap_active in {"0", "1"} else "1",
+        "class_assignment_class_id": class_assignment_class_id,
+        "class_assignment_user_id": class_assignment_user_id,
+        "class_assignment_active": class_assignment_active if class_assignment_active in {"0", "1"} else "1",
+        "class_assignment_bulk_user_id": class_assignment_bulk_user_id,
         "org_admin_active": org_admin_active,
     }
 
@@ -98,13 +110,53 @@ def _resolve_initial_top_tab(*, user, profile_tab_active, org_admin_active, teac
         return "invite-teacher"
     return "quick-actions"
 
-def _build_org_admin_context(*, user, user_model):
+
+def _empty_class_assignment_context(org_state: dict):
+    return {
+        "class_staff_assignments": [],
+        "org_classes": [],
+        "class_assignment_class_id": org_state.get("class_assignment_class_id", ""),
+        "class_assignment_user_id": org_state.get("class_assignment_user_id", ""),
+        "class_assignment_active": org_state.get("class_assignment_active", "1"),
+        "class_assignment_bulk_user_id": org_state.get("class_assignment_bulk_user_id", ""),
+        "class_assignment_bulk_selected_class_ids": [],
+    }
+
+
+def _class_assignment_context(*, org_state: dict, classes: list):
+    class_staff_assignments = list(
+        ClassStaffAssignment.objects.select_related("classroom", "user")
+        .order_by("classroom__name", "user__username", "id")
+    )
+    bulk_user_id = _parse_positive_int(org_state.get("class_assignment_bulk_user_id", ""), min_value=1, max_value=2_147_483_647)
+    selected_bulk_class_ids: list[int] = []
+    if bulk_user_id is not None:
+        selected_bulk_class_ids = list(
+            ClassStaffAssignment.objects.filter(
+                user_id=bulk_user_id,
+                is_active=True,
+                classroom_id__in=[int(c.id) for c in classes],
+            ).values_list("classroom_id", flat=True)
+        )
+    return {
+        "class_staff_assignments": class_staff_assignments,
+        "org_classes": classes,
+        "class_assignment_class_id": org_state["class_assignment_class_id"],
+        "class_assignment_user_id": org_state["class_assignment_user_id"],
+        "class_assignment_active": org_state["class_assignment_active"],
+        "class_assignment_bulk_user_id": org_state["class_assignment_bulk_user_id"],
+        "class_assignment_bulk_selected_class_ids": selected_bulk_class_ids,
+    }
+
+
+def _build_org_admin_context(*, user, user_model, org_state: dict, classes: list):
     if not user.is_superuser:
         return {
             "organizations": [],
             "org_memberships": [],
             "org_role_capabilities": [],
             "staff_users": [],
+            **_empty_class_assignment_context(org_state),
             "org_role_choices": OrganizationMembership.ROLE_CHOICES,
             "org_capability_choices": OrganizationRoleCapability.CAPABILITY_CHOICES,
         }
@@ -129,6 +181,7 @@ def _build_org_admin_context(*, user, user_model):
         "org_memberships": org_memberships,
         "org_role_capabilities": org_role_capabilities,
         "staff_users": staff_users,
+        **_class_assignment_context(org_state=org_state, classes=classes),
         "org_role_choices": OrganizationMembership.ROLE_CHOICES,
         "org_capability_choices": OrganizationRoleCapability.CAPABILITY_CHOICES,
     }
@@ -208,7 +261,7 @@ def teach_home(request):
     output_dir = _authoring_template_output_dir()
     template_download_rows = _build_template_download_rows(template_slug, output_dir)
     syllabus_export_state = build_syllabus_export_state(request)
-    org_admin_context = _build_org_admin_context(user=request.user, user_model=User)
+    org_admin_context = _build_org_admin_context(user=request.user, user_model=User, org_state=org_state, classes=classes)
     rbac_tools_context = build_rbac_tools_context(request=request, classes=classes)
     response = render(
         request,

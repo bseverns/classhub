@@ -173,6 +173,15 @@
 .roster-table-wrap tbody tr:last-child td {
   border-bottom: 0;
 }
+.class-assignment-form {
+  max-width: 560px;
+}
+.class-assignment-form button {
+  margin-top: 10px;
+}
+.assignment-table-wrap table {
+  min-width: 520px;
+}
 .rename-row {
   display: flex;
   gap: 8px;

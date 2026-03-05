@@ -81,6 +81,8 @@ urlpatterns = [
     path("teach/create-organization", views.teach_create_organization),
     path("teach/org-role-capability/upsert", views.teach_upsert_org_role_capability),
     path("teach/org-membership/upsert", views.teach_upsert_organization_membership),
+    path("teach/class-staff-assignment/upsert", views.teach_upsert_class_staff_assignment),
+    path("teach/class-staff-assignment/bulk-set", views.teach_bulk_set_class_staff_assignments),
     path("teach/org/<int:org_id>/set-active", views.teach_set_organization_active),
     path("teach/generate-authoring-templates", views.teach_generate_authoring_templates),
     path("teach/rbac/module-scope-grant/upsert", views.teach_upsert_module_scope_grant),

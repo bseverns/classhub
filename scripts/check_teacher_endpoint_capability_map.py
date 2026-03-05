@@ -71,6 +71,8 @@ ROUTE_CAPABILITY_MAP: dict[str, RouteContract] = {
     "/teach/create-organization": RouteContract("org.superuser", "teach_create_organization"),
     "/teach/org-role-capability/upsert": RouteContract("org.superuser", "teach_upsert_org_role_capability"),
     "/teach/org-membership/upsert": RouteContract("org.superuser", "teach_upsert_organization_membership"),
+    "/teach/class-staff-assignment/upsert": RouteContract("org.superuser", "teach_upsert_class_staff_assignment"),
+    "/teach/class-staff-assignment/bulk-set": RouteContract("org.superuser", "teach_bulk_set_class_staff_assignments"),
     "/teach/org/<int:org_id>/set-active": RouteContract("org.superuser", "teach_set_organization_active"),
     "/teach/generate-authoring-templates": RouteContract("staff_only", "teach_generate_authoring_templates"),
     "/teach/rbac/module-scope-grant/upsert": RouteContract("rbac.manage", "teach_upsert_module_scope_grant"),

@@ -113,7 +113,6 @@ def _upsert_role_capability(*, org, role: str, capability: str, is_active: bool)
         row.save(update_fields=["is_active", "updated_at"])
     return row, created
 
-
 @staff_member_required
 @require_POST
 def teach_create_organization(request):

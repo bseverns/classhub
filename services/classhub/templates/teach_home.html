@@ -976,6 +976,123 @@
                 <p class="muted">No organization memberships yet.</p>
               {% endif %}
 
+              <h3 class="section-title-compact">Class teaching assignments</h3>
+              <div class="muted section-subtitle">
+                Mark priority classes for a teacher. Assignments affect ordering and "Assigned" focus, not org-level access.
+              </div>
+              <form method="post" action="/teach/class-staff-assignment/upsert">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="class-assignment-class">Class</label>
+                    <select id="class-assignment-class" name="class_assignment_class_id" required>
+                      <option value="">Select a class</option>
+                      {% for c in org_classes %}
+                        <option value="{{ c.id }}" {% if class_assignment_class_id == c.id|stringformat:"s" %}selected{% endif %}>
+                          {{ c.name }} ({{ c.join_code }})
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="class-assignment-user">Staff user</label>
+                    <select id="class-assignment-user" name="class_assignment_user_id" required>
+                      <option value="">Select a staff user</option>
+                      {% for account in staff_users %}
+                        <option value="{{ account.id }}" {% if class_assignment_user_id == account.id|stringformat:"s" %}selected{% endif %}>
+                          {{ account.username }}{% if account.is_superuser %} (superuser){% endif %}{% if not account.is_active %} (inactive){% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
+                      <input type="checkbox" name="class_assignment_active" value="1" {% if class_assignment_active == "1" %}checked{% endif %} />
+                      Assignment active
+                    </label>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Save class assignment</button>
+                </div>
+              </form>
+
+              <h4 class="section-title-compact">Bulk assign teacher classes</h4>
+              <form method="get" action="/teach">
+                <input type="hidden" name="org_admin" value="1" />
+                <div class="grid-2">
+                  <div>
+                    <label for="class-assignment-bulk-user">Teacher</label>
+                    <select id="class-assignment-bulk-user" name="class_assignment_bulk_user_id" required>
+                      <option value="">Select a teacher</option>
+                      {% for account in staff_users %}
+                        <option value="{{ account.id }}" {% if class_assignment_bulk_user_id == account.id|stringformat:"s" %}selected{% endif %}>
+                          {{ account.username }}{% if account.is_superuser %} (superuser){% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Load current assignments</button>
+                </div>
+              </form>
+
+              {% if class_assignment_bulk_user_id %}
+                <form method="post" action="/teach/class-staff-assignment/bulk-set" class="class-assignment-bulk-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="class_assignment_bulk_user_id" value="{{ class_assignment_bulk_user_id }}" />
+                  <div class="class-assignment-bulk-grid">
+                    {% for c in org_classes %}
+                      <label class="class-assignment-check">
+                        <input
+                          type="checkbox"
+                          name="class_assignment_bulk_class_ids"
+                          value="{{ c.id }}"
+                          {% if c.id in class_assignment_bulk_selected_class_ids %}checked{% endif %}
+                        />
+                        <span><strong>{{ c.name }}</strong> <span class="muted">({{ c.join_code }})</span></span>
+                      </label>
+                    {% endfor %}
+                  </div>
+                  <div class="submit-wrap">
+                    <button type="submit">Save bulk assignments</button>
+                  </div>
+                </form>
+              {% endif %}
+
+              {% if class_staff_assignments %}
+                <div class="table-wrap org-membership-table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Class staff assignments</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Class</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for assignment in class_staff_assignments %}
+                        <tr>
+                          <th scope="row"><strong>{{ assignment.classroom.name }}</strong></th>
+                          <td>{{ assignment.user.username }}</td>
+                          <td>
+                            {% if assignment.is_active %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Inactive</span>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted">No class assignments yet.</p>
+              {% endif %}
+
               <h3 class="section-title-compact">Set role capability template</h3>
               <form method="post" action="/teach/org-role-capability/upsert">
                 {% csrf_token %}
@@ -1252,7 +1369,14 @@
                           <span class="state-pill state-pill--open">Open</span>
                         {% endif %}
                       </td>
-                      <td class="class-link"><a href="/teach/class/{{ c.id }}">Open</a> · <a href="/teach/lessons?class_id={{ c.id }}">Lessons</a> · <a href="/teach/class/{{ c.id }}/join-card" target="_blank" rel="noopener">Print join card</a></td>
+                      <td class="class-link">
+                        <a href="/teach/class/{{ c.id }}">Open</a> ·
+                        <a href="/teach/lessons?class_id={{ c.id }}">Lessons</a> ·
+                        <a href="/teach/class/{{ c.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
+                        {% if request.user.is_superuser %}
+                          · <a href="/teach?org_admin=1&class_assignment_class_id={{ c.id }}">Assign teacher</a>
+                        {% endif %}
+                      </td>
                     </tr>
                   {% endfor %}
                 </tbody>
