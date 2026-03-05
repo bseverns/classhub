@@ -34,6 +34,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Cookie secure flags follow transport mode](#cookie-secure-flags-follow-transport-mode)
 - [Authoring template lesson slug convention](#authoring-template-lesson-slug-convention)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
+- [Feature maturity ledger and evaluator quickstart](#feature-maturity-ledger-and-evaluator-quickstart)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
 - [Secret handling: env-only secret sources](#secret-handling-env-only-secret-sources)
 - [Operator profile white-labeling](#operator-profile-white-labeling)
@@ -673,6 +674,21 @@ Execution runbook:
 - This repository is both an operational system and a teaching object.
 - Maintainers need repeatable onboarding and incident handling, not tribal knowledge.
 - Shipping docs in lockstep with code reduces deployment and handoff risk.
+
+## Feature maturity ledger and evaluator quickstart
+
+**Current decision:**
+- Maintain [FEATURE_MATURITY.md](FEATURE_MATURITY.md) as the canonical matrix for:
+  - `Live (default)` capabilities,
+  - `Live (flagged)` capabilities with rollout toggles,
+  - RFC-only roadmap items.
+- Maintain [START_HERE_EVALUATOR.md](START_HERE_EVALUATOR.md) as the shortest non-technical evaluation path.
+- Expose a superuser-only read-only operator config snapshot in `/teach` to surface active profile/flag state and link operators to maturity/evaluator docs.
+
+**Why this remains active:**
+- Reduces cognitive load from distributed feature flags and profile/config knobs.
+- Makes rollout readiness visible without requiring direct code or compose file inspection.
+- Gives non-technical stakeholders a bounded evaluation path that separates shipped behavior from roadmap intent.
 
 ## Docs Mermaid readability defaults
 

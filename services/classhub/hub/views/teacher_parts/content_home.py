@@ -1,5 +1,6 @@
 """Teacher home and authoring template endpoints."""
 
+from .content_operator_config import build_operator_config_snapshot
 from .content_rbac_tools import (
     build_rbac_tools_context,
     rbac_tools_enabled_for_user,
@@ -103,8 +104,7 @@ def _read_profile_state(request, user):
         "profile_first_name": profile_first_name or (user.first_name or ""),
         "profile_last_name": profile_last_name or (user.last_name or ""),
         "profile_email": profile_email or (user.email or ""),
-        "profile_tab_active": (request.GET.get("profile_tab") or "").strip() == "1"
-        or bool(profile_first_name or profile_last_name or profile_email),
+        "profile_tab_active": (request.GET.get("profile_tab") or "").strip() == "1" or bool(profile_first_name or profile_last_name or profile_email),
     }
 
 
@@ -120,9 +120,7 @@ def _read_teacher_invite_state(request):
         "teacher_first_name": teacher_first_name,
         "teacher_last_name": teacher_last_name,
         "teacher_invite_open": teacher_invite_open,
-        "teacher_invite_active": bool(
-            teacher_invite_open or teacher_username or teacher_email or teacher_first_name or teacher_last_name
-        ),
+        "teacher_invite_active": bool(teacher_invite_open or teacher_username or teacher_email or teacher_first_name or teacher_last_name),
     }
 
 
@@ -198,9 +196,7 @@ def _build_org_admin_context(*, user, user_model, org_state: dict, classes: list
             "org_role_choices": OrganizationMembership.ROLE_CHOICES,
             "org_capability_choices": OrganizationRoleCapability.CAPABILITY_CHOICES,
         }
-    organizations = list(
-        Organization.objects.order_by("name", "id").only("id", "name", "is_active")
-    )
+    organizations = list(Organization.objects.order_by("name", "id").only("id", "name", "is_active"))
     org_class_counts: dict[int, int] = {}
     if organizations:
         org_class_counts = {
@@ -266,6 +262,7 @@ def _build_template_download_rows(template_slug: str, output_dir: Path):
         )
     return rows
 
+
 @staff_member_required
 def teach_home(request):
     """Teacher landing page (outside /admin)."""
@@ -309,6 +306,7 @@ def teach_home(request):
     syllabus_export_state = build_syllabus_export_state(request)
     org_admin_context = _build_org_admin_context(user=request.user, user_model=User, org_state=org_state, classes=classes)
     rbac_tools_context = build_rbac_tools_context(request=request, classes=classes)
+    operator_config_snapshot = build_operator_config_snapshot(user=request.user)
     response = render(
         request,
         "teach_home.html",
@@ -358,6 +356,7 @@ def teach_home(request):
             **syllabus_export_state,
             **org_admin_context,
             **rbac_tools_context,
+            **operator_config_snapshot,
         },
     )
     apply_no_store(response, private=True, pragma=True)

@@ -338,6 +338,15 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Invite teacher")
         self.assertContains(resp, "My profile")
 
+    def test_superuser_teach_home_shows_operator_config_snapshot(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Operator config snapshot")
+        self.assertContains(resp, "Program profile")
+        self.assertContains(resp, "docs/FEATURE_MATURITY.md")
+
     def test_superuser_can_export_syllabus_catalog_csv(self):
         _force_login_staff_verified(self.client, self.staff)
 
@@ -2378,6 +2387,7 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertNotContains(resp, "Syllabus Exports")
         self.assertNotContains(resp, "RBAC tools")
+        self.assertNotContains(resp, "Operator config snapshot")
 
     def test_teacher_role_cannot_export_syllabus(self):
         resp = self.client.get("/teach/syllabus-export?kind=catalog_csv")

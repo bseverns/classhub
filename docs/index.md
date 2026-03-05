@@ -10,6 +10,7 @@ Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
 ## Choose one path
 - Leadership and strategy: [START_HERE_ED.md](START_HERE_ED.md), [START_HERE_OD.md](START_HERE_OD.md), [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
 - Instructors and assistants: [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md), [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
+- Non-technical evaluation: [START_HERE_EVALUATOR.md](START_HERE_EVALUATOR.md), [FEATURE_MATURITY.md](FEATURE_MATURITY.md)
 - Daily teaching operations: [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md), [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - Technical operations: [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md), [RUNBOOK.md](RUNBOOK.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
@@ -19,7 +20,9 @@ Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Core links
 - [Current State](CURRENT_STATE.md)
+- [Feature Maturity](FEATURE_MATURITY.md)
 - [Start Here Overview](START_HERE.md)
+- [Start Here Evaluator](START_HERE_EVALUATOR.md)
 - [Risk & Data Posture](RISK_AND_DATA_POSTURE.md)
 - [Organization Boundaries](ORG_BOUNDARY_EXPLAINER.md)
 - [RBAC Guide](RBAC_GUIDE.md)

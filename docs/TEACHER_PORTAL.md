@@ -205,6 +205,9 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
 - `/teach`:
   - class list
   - one-click `Copy` for class join codes
+  - superuser-only operator config snapshot card:
+    - read-only summary of active program profile, org/RBAC flags, helper mode, and helper policy defaults/overrides
+    - links to `docs/FEATURE_MATURITY.md` and `docs/START_HERE_EVALUATOR.md` for rollout and evaluator context
   - superuser class row action: `Set organization` (opens org-admin move form)
   - `My profile` tab for all staff:
     - update first/last name and email

@@ -15,6 +15,7 @@ Need a live shipped-capabilities snapshot first? Start with [CURRENT_STATE.md](C
 
 If you need the shortest role-specific briefing, use one of these pages:
 
+- Evaluator (non-technical): [START_HERE_EVALUATOR.md](START_HERE_EVALUATOR.md)
 - Executive Director: [START_HERE_ED.md](START_HERE_ED.md)
 - Ops Director: [START_HERE_OD.md](START_HERE_OD.md)
 - Fundraising: [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
@@ -26,6 +27,7 @@ If you need the shortest role-specific briefing, use one of these pages:
 - Program narrative for partners/funders: [PROGRAM_LIFECYCLE.md](PROGRAM_LIFECYCLE.md)
 - Short instructor/ops playbooks: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md)
 - Live platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md)
+- Feature maturity + rollout flags: [FEATURE_MATURITY.md](FEATURE_MATURITY.md)
 
 ## Verification signal
 You should be able to pick a role path in under 30 seconds and identify the exact next doc to open.
@@ -54,7 +56,7 @@ curl --version
 ```mermaid
 flowchart TD
   A[Start Here] --> B{Your role}
-  B -->|Evaluator| C[PUBLIC_OVERVIEW]
+  B -->|Evaluator| C[START_HERE_EVALUATOR]
   C --> D[TRY_IT_LOCAL]
   B -->|Teacher/Staff| E[NON_DEVELOPER_GUIDE]
   E --> F[TEACHER_PORTAL]
@@ -68,7 +70,7 @@ flowchart TD
 
 | Role | Start here | Then read |
 |---|---|---|
-| Evaluator / decision-maker | [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md) | [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md), [SECURITY.md](SECURITY.md) |
+| Evaluator / decision-maker | [START_HERE_EVALUATOR.md](START_HERE_EVALUATOR.md) | [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md), [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md) |
 | Teacher / school staff | [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md) | [TEACHER_PORTAL.md](TEACHER_PORTAL.md) |
 | Operator / admin | [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) | [SECURITY.md](SECURITY.md), [RUNBOOK.md](RUNBOOK.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
 | Developer | [DEVELOPMENT.md](DEVELOPMENT.md) | [ARCHITECTURE.md](ARCHITECTURE.md), [DECISIONS.md](DECISIONS.md) |
@@ -83,6 +85,7 @@ flowchart TD
 
 ### Operations
 - [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
+- [FEATURE_MATURITY.md](FEATURE_MATURITY.md)
 - [SECURITY.md](SECURITY.md) (public-domain posture and reporting)
 - [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md) (staff access scope across organizations)
 - [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md) (field-level data lifecycle + deletion controls)

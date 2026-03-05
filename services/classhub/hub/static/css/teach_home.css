@@ -217,6 +217,12 @@
 .closeout-student-note {
   margin-top: 8px;
 }
+.operator-config-table-wrap table {
+  min-width: 560px;
+}
+.operator-config-footnote {
+  margin-top: 10px;
+}
 .class-assignment-bulk-form {
   margin-top: 10px;
 }

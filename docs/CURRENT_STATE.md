@@ -23,6 +23,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Superuser class-to-teacher assignment workflows are live in `/teach` org admin tools and `/teach/class/<id>`.
 - Superuser account lifecycle actions are live in `/teach` (enable/disable, promote/demote superuser, reset password, resend invite).
 - Superuser organization lifecycle controls are live in `/teach` (rename, guarded archive/restore, class-to-organization move).
+- Superuser operator config snapshot is live in `/teach` (active profile/flag summary + doc pointers).
 - Security and ops guardrails are live in CI (smoke, migration gate, endpoint guard checks, view-size/function budgets, workflow lint).
 
 ## Deployment and reliability posture
@@ -50,5 +51,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 ## Where to look next
 - Strategy and rationale: [DECISIONS.md](DECISIONS.md)
 - Operator onboarding: [START_HERE.md](START_HERE.md)
+- Non-technical evaluation path: [START_HERE_EVALUATOR.md](START_HERE_EVALUATOR.md)
+- Feature maturity and rollout flags: [FEATURE_MATURITY.md](FEATURE_MATURITY.md)
 - Ops execution: [RUNBOOK.md](RUNBOOK.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 - RBAC implementation and policy ops: [RBAC_GUIDE.md](RBAC_GUIDE.md), [RBAC_CAPABILITIES_RFC.md](RBAC_CAPABILITIES_RFC.md)

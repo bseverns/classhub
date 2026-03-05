@@ -41,6 +41,7 @@ nav:
   - Current State: CURRENT_STATE.md
   - Start Here:
       - Overview: START_HERE.md
+      - Evaluator (Non-Technical): START_HERE_EVALUATOR.md
       - Executive Director: START_HERE_ED.md
       - Ops Director: START_HERE_OD.md
       - Fundraising: START_HERE_FUNDRAISING.md
@@ -62,6 +63,7 @@ nav:
       - Teacher Handoff Record Template: TEACHER_HANDOFF_RECORD_TEMPLATE.md
 
   - Operations:
+      - Feature Maturity: FEATURE_MATURITY.md
       - Day 1 Checklist: DAY1_DEPLOY_CHECKLIST.md
       - Runbook: RUNBOOK.md
       - Curriculum Ops: CURRICULUM_OPS.md
