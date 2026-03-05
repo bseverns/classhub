@@ -80,6 +80,7 @@ nav:
   - Engineering:
       - Development: DEVELOPMENT.md
       - Architecture: ARCHITECTURE.md
+      - Coursepack Registry RFC: COURSEPACK_REGISTRY_RFC.md
       - Helper Internals: OPENAI_HELPER.md
       - Request Safety: REQUEST_SAFETY.md
       - Helper Evals: HELPER_EVALS.md

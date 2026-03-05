@@ -55,6 +55,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper conversation memory](#helper-conversation-memory)
 - [Helper conversation compaction + class reset control](#helper-conversation-compaction--class-reset-control)
 - [Coursepack validation gate](#coursepack-validation-gate)
+- [Coursepack authoring SDK and registry path](#coursepack-authoring-sdk-and-registry-path)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
 - [Untrusted token validation without regex](#untrusted-token-validation-without-regex)
@@ -1016,6 +1017,24 @@ Execution runbook:
 **Why this remains active:**
 - Prevents avoidable runtime lesson failures caused by malformed manifests, missing lesson files, or broken front matter.
 - Keeps content-as-code reliable by enforcing basic schema and file-boundary expectations in both operator preflight and CI.
+
+## Coursepack authoring SDK and registry path
+
+**Current decision:**
+- Add `scripts/coursepack_sdk.py` as a single local authoring entry point for:
+  - `validate` (one or all coursepacks),
+  - `build` (validate + package zip artifact),
+  - `package` (artifact build without lint pass).
+- Extend `scripts/validate_coursepack.py` checks to include:
+  - `ui_level` / `program_profile` value validation,
+  - markdown local-link integrity checks within lesson bodies.
+- Keep curriculum authoring file-first and Git-native; treat LMS import as a deployment target, not the source of truth.
+- Track decentralized distribution evolution in `docs/COURSEPACK_REGISTRY_RFC.md`.
+
+**Why this remains active:**
+- Improves survivability and portability by making course content independently buildable outside LMS runtime state.
+- Gives schools a practical content-as-code workflow without requiring immediate desktop app investment.
+- Creates a direct path to future registry/index distribution while preserving current self-hosted simplicity.
 
 ## Redirect target validation
 

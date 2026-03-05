@@ -8,6 +8,7 @@ from datetime import date
 from pathlib import Path
 import re
 import sys
+from urllib.parse import urlsplit
 
 try:
     import yaml
@@ -19,6 +20,8 @@ COURSES_ROOT = Path("services/classhub/content/courses")
 COURSE_SLUG_RE = re.compile(r"^[A-Za-z0-9_-]+$")
 LESSON_SLUG_RE = re.compile(r"^[A-Za-z0-9_-]+$")
 VIDEO_ID_RE = re.compile(r"^V\d+$")
+VALID_UI_LEVELS = {"elementary", "secondary", "advanced"}
+VALID_PROGRAM_PROFILES = {"elementary", "secondary", "advanced"}
 
 
 def _yaml_error(exc: yaml.YAMLError) -> str:
@@ -29,13 +32,18 @@ def _yaml_error(exc: yaml.YAMLError) -> str:
 
 
 def _read_yaml_mapping(path: Path, errors: list[str], *, label: str) -> dict:
+    if yaml is None:
+        errors.append(
+            "PyYAML is required (install classhub deps: `pip install -r services/classhub/requirements.txt`)"
+        )
+        return {}
     try:
         payload = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        errors.append(f"{path}: invalid YAML in {label}: {_yaml_error(exc)}")
-        return {}
     except Exception as exc:  # pragma: no cover - defensive IO guard
-        errors.append(f"{path}: unable to read {label}: {exc}")
+        if yaml is not None and isinstance(exc, yaml.YAMLError):
+            errors.append(f"{path}: invalid YAML in {label}: {_yaml_error(exc)}")
+        else:
+            errors.append(f"{path}: unable to read {label}: {exc}")
         return {}
 
     if payload is None:
@@ -94,6 +102,11 @@ def _validate_date(value: str, ref: str, errors: list[str]) -> None:
 
 
 def _parse_lesson_front_matter(lesson_path: Path, errors: list[str]) -> tuple[dict, str]:
+    if yaml is None:
+        errors.append(
+            "PyYAML is required (install classhub deps: `pip install -r services/classhub/requirements.txt`)"
+        )
+        return {}, ""
     raw = lesson_path.read_text(encoding="utf-8")
     if not raw.startswith("---"):
         errors.append(f"{lesson_path}: missing front matter block (expected leading '---')")
@@ -109,8 +122,11 @@ def _parse_lesson_front_matter(lesson_path: Path, errors: list[str]) -> tuple[di
 
     try:
         fm = yaml.safe_load(front_matter_text) or {}
-    except yaml.YAMLError as exc:
-        errors.append(f"{lesson_path}: invalid front matter YAML: {_yaml_error(exc)}")
+    except Exception as exc:
+        if yaml is not None and isinstance(exc, yaml.YAMLError):
+            errors.append(f"{lesson_path}: invalid front matter YAML: {_yaml_error(exc)}")
+        else:
+            errors.append(f"{lesson_path}: unable to parse front matter YAML: {exc}")
         return {}, ""
 
     if not isinstance(fm, dict):
@@ -144,6 +160,80 @@ def _validate_videos(videos: object, ref: str, errors: list[str]) -> None:
             errors.append(f"{item_ref}: missing required field 'title'")
 
 
+def _iter_markdown_link_targets(markdown: str):
+    """Yield raw markdown link targets from inline links/images.
+
+    This uses bounded linear scanning instead of a complex regex to keep behavior
+    predictable on untrusted text.
+    """
+    idx = 0
+    while idx < len(markdown):
+        marker = markdown.find("](", idx)
+        if marker < 0:
+            break
+        target_start = marker + 2
+        target_end = target_start
+        while target_end < len(markdown):
+            ch = markdown[target_end]
+            if ch == ")" and (target_end == target_start or markdown[target_end - 1] != "\\"):
+                break
+            target_end += 1
+        if target_end >= len(markdown):
+            break
+        target = markdown[target_start:target_end].strip()
+        if target:
+            yield target
+        idx = target_end + 1
+
+
+def _normalize_link_target(raw: str) -> str:
+    token = str(raw or "").strip()
+    if not token:
+        return ""
+    if token.startswith("<") and token.endswith(">"):
+        token = token[1:-1].strip()
+    if not token:
+        return ""
+    for sep in (" ", "\t"):
+        split_idx = token.find(sep)
+        if split_idx > 0:
+            token = token[:split_idx].strip()
+            break
+    if "#" in token:
+        token = token.split("#", 1)[0].strip()
+    if "?" in token:
+        token = token.split("?", 1)[0].strip()
+    return token
+
+
+def _validate_body_links(*, body: str, lesson_path: Path, course_dir: Path, errors: list[str]) -> None:
+    for raw_target in _iter_markdown_link_targets(body):
+        target = _normalize_link_target(raw_target)
+        if not target:
+            continue
+        lower_target = target.lower()
+        if target.startswith("#") or lower_target.startswith(("mailto:", "tel:", "data:")):
+            continue
+        if target.startswith("/"):
+            # Absolute app paths are runtime routes, not local content files.
+            continue
+        parsed = urlsplit(target)
+        if parsed.scheme:
+            continue
+        target_path = Path(target)
+        if target_path.is_absolute():
+            errors.append(f"{lesson_path}: markdown link target must be relative: '{target}'")
+            continue
+        resolved = (lesson_path.parent / target_path).resolve()
+        try:
+            resolved.relative_to(course_dir.resolve())
+        except ValueError:
+            errors.append(f"{lesson_path}: markdown link escapes course directory: '{target}'")
+            continue
+        if not resolved.exists():
+            errors.append(f"{lesson_path}: markdown link target not found: '{target}'")
+
+
 def validate_coursepack(course_dir: Path) -> list[str]:
     errors: list[str] = []
     course_slug = course_dir.name
@@ -168,6 +258,21 @@ def validate_coursepack(course_dir: Path) -> list[str]:
 
     if not manifest_title:
         errors.append(f"{manifest_path}: missing required top-level field 'title'")
+
+    ui_level = str(manifest.get("ui_level") or "").strip().lower()
+    if not ui_level:
+        errors.append(f"{manifest_path}: missing required top-level field 'ui_level'")
+    elif ui_level not in VALID_UI_LEVELS:
+        errors.append(
+            f"{manifest_path}: invalid ui_level '{ui_level}' (expected one of: {', '.join(sorted(VALID_UI_LEVELS))})"
+        )
+
+    program_profile = str(manifest.get("program_profile") or "").strip().lower()
+    if program_profile and program_profile not in VALID_PROGRAM_PROFILES:
+        errors.append(
+            f"{manifest_path}: invalid program_profile '{program_profile}' "
+            f"(expected one of: {', '.join(sorted(VALID_PROGRAM_PROFILES))})"
+        )
 
     lessons = manifest.get("lessons")
     if not isinstance(lessons, list) or not lessons:
@@ -229,6 +334,20 @@ def validate_coursepack(course_dir: Path) -> list[str]:
 
         _validate_videos(lesson.get("videos"), ref, errors)
 
+        lesson_ui_level = str(lesson.get("ui_level") or "").strip().lower()
+        if lesson_ui_level and lesson_ui_level not in VALID_UI_LEVELS:
+            errors.append(
+                f"{ref}: invalid ui_level '{lesson_ui_level}' "
+                f"(expected one of: {', '.join(sorted(VALID_UI_LEVELS))})"
+            )
+
+        lesson_program_profile = str(lesson.get("program_profile") or "").strip().lower()
+        if lesson_program_profile and lesson_program_profile not in VALID_PROGRAM_PROFILES:
+            errors.append(
+                f"{ref}: invalid program_profile '{lesson_program_profile}' "
+                f"(expected one of: {', '.join(sorted(VALID_PROGRAM_PROFILES))})"
+            )
+
         resolved = _safe_course_path(course_dir, lesson_file, errors, ref=ref)
         if resolved is None:
             continue
@@ -236,7 +355,7 @@ def validate_coursepack(course_dir: Path) -> list[str]:
             errors.append(f"{ref}: lesson file not found at '{lesson_file}'")
             continue
 
-        fm, _body = _parse_lesson_front_matter(resolved, errors)
+        fm, body = _parse_lesson_front_matter(resolved, errors)
         if not fm:
             continue
 
@@ -263,6 +382,21 @@ def validate_coursepack(course_dir: Path) -> list[str]:
             _validate_date(str(fm.get("available_on") or ""), f"{resolved} front matter available_on", errors)
 
         _validate_videos(fm.get("videos"), str(resolved), errors)
+        _validate_body_links(body=body, lesson_path=resolved, course_dir=course_dir, errors=errors)
+
+        fm_ui_level = str(fm.get("ui_level") or "").strip().lower()
+        if fm_ui_level and fm_ui_level not in VALID_UI_LEVELS:
+            errors.append(
+                f"{resolved}: front matter invalid ui_level '{fm_ui_level}' "
+                f"(expected one of: {', '.join(sorted(VALID_UI_LEVELS))})"
+            )
+
+        fm_program_profile = str(fm.get("program_profile") or "").strip().lower()
+        if fm_program_profile and fm_program_profile not in VALID_PROGRAM_PROFILES:
+            errors.append(
+                f"{resolved}: front matter invalid program_profile '{fm_program_profile}' "
+                f"(expected one of: {', '.join(sorted(VALID_PROGRAM_PROFILES))})"
+            )
 
     return errors
 

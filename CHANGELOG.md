@@ -38,6 +38,7 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - CI guard scripts for workflow coverage, test inventory flow anchors, and machine-readable JSON output modes.
 - Phased telemetry database split runbook for reliability-oriented service separation.
 - RFC docs for asynchronous self-paced workflows and granular RBAC expansion planning.
+- Coursepack Authoring SDK CLI (`scripts/coursepack_sdk.py`) for local validate/build/package workflows, plus stronger coursepack lint checks for `ui_level`/`program_profile` values and lesson markdown local-link integrity.
 
 ### Fixed
 - Student "Delete my work" (`/student/delete-work`) crashed with 500 because `StudentEvent.delete()` was called without the required `allow_retention_delete()` context manager.

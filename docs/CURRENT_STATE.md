@@ -9,6 +9,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Student portfolio and session gallery flows are live with teacher-first visibility defaults.
 - Teacher portal includes roster, submissions, moderation, outcomes, and certificate workflows.
 - Homework Helper runs as a separate Django service behind `/helper/*`.
+- Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts).
 - Organization boundaries and RBAC capability checks are live.
 - Scoped RBAC grants are live behind `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED`.
 - RBAC simulation and policy bundle import/export endpoints are live for operators.

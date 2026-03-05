@@ -41,6 +41,7 @@ These tools are designed to be run from the repository root: `bash scripts/scrip
 | `load_demo_coursepack.sh`| Loads the standard quickstart demo into a local testing database. |
 | `content_preflight.sh` | Verifies course markdown, images, and YAML formatting before import. |
 | `validate_coursepack.py` | Extensive deep-linting of curriculum content structure. |
+| `coursepack_sdk.py` | Single entry point for local validate/build/package coursepack workflows. |
 | `new_course_scaffold.py` | Generates boilerplates for new curriculum courses. |
 | `quote_lesson_frontmatter.py`| Ensures YAML frontmatter compatibility across rendering engines. |
 | `generate_authoring_templates.py`| Scaffolds standard authoring template structure. |

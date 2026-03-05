@@ -322,3 +322,27 @@ Strict global mode:
 ```bash
 bash scripts/content_preflight.sh <course_slug> --strict-global
 ```
+
+## Authoring SDK workflow (content as code)
+
+Use the SDK wrapper when authoring locally and publishing portable artifacts:
+
+```bash
+python3 scripts/coursepack_sdk.py validate --course-slug <course_slug>
+python3 scripts/coursepack_sdk.py build --course-slug <course_slug>
+```
+
+Build output defaults to:
+- `dist/coursepacks/<course_slug>_<UTC timestamp>.zip`
+
+Validate every local coursepack (useful before pushing to Git):
+
+```bash
+python3 scripts/coursepack_sdk.py validate --all
+```
+
+What SDK validation adds beyond basic manifest checks:
+- `ui_level` and `program_profile` value checks in `course.yaml` and lesson metadata.
+- markdown local-link integrity checks inside lesson bodies.
+
+For roadmap and registry direction, see [COURSEPACK_REGISTRY_RFC.md](COURSEPACK_REGISTRY_RFC.md).
