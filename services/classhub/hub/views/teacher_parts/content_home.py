@@ -7,6 +7,7 @@ from .content_rbac_tools import (
 )
 from .content_syllabus_exports import build_syllabus_export_state
 from .shared import (
+    Class,
     ClassStaffAssignment,
     FileResponse,
     HttpResponse,
@@ -32,6 +33,7 @@ from .shared import (
     require_POST,
     safe_attachment_filename,
     settings,
+    models,
     staff_accessible_classes_ranked,
     staff_can_export_syllabi,
     staff_member_required,
@@ -182,6 +184,18 @@ def _build_org_admin_context(*, user, user_model, org_state: dict, classes: list
     organizations = list(
         Organization.objects.order_by("name", "id").only("id", "name", "is_active")
     )
+    org_class_counts: dict[int, int] = {}
+    if organizations:
+        org_class_counts = {
+            int(row["organization_id"]): int(row["count"])
+            for row in (
+                Class.objects.filter(organization_id__in=[int(org.id) for org in organizations])
+                .values("organization_id")
+                .annotate(count=models.Count("id"))
+            )
+        }
+    for org in organizations:
+        setattr(org, "class_count", org_class_counts.get(int(org.id), 0))
     org_memberships = list(
         OrganizationMembership.objects.select_related("organization", "user")
         .order_by("organization__name", "user__username", "id")

@@ -1,6 +1,7 @@
 """Superuser org and org-membership management endpoints."""
 
 from .shared import (
+    Class,
     Organization,
     OrganizationRoleCapability,
     OrganizationMembership,
@@ -113,6 +114,18 @@ def _upsert_role_capability(*, org, role: str, capability: str, is_active: bool)
         row.save(update_fields=["is_active", "updated_at"])
     return row, created
 
+
+def _organization_error(request, message: str, extra: dict | None = None):
+    payload = {"org_admin": "1"}
+    if extra:
+        payload.update(extra)
+    return _safe_internal_redirect(
+        request,
+        _with_notice("/teach", error=message, extra=payload),
+        fallback="/teach",
+    )
+
+
 @staff_member_required
 @require_POST
 def teach_create_organization(request):
@@ -166,13 +179,17 @@ def teach_set_organization_active(request, org_id: int):
 
     org = Organization.objects.filter(id=org_id).first()
     if org is None:
-        return _safe_internal_redirect(
-            request,
-            _with_notice("/teach", error="Organization not found.", extra={"org_admin": "1"}),
-            fallback="/teach",
-        )
+        return _organization_error(request, "Organization not found.")
 
     is_active = (request.POST.get("is_active") or "").strip() == "1"
+    if not is_active:
+        class_count = Class.objects.filter(organization=org).count()
+        if class_count > 0:
+            label = "class" if class_count == 1 else "classes"
+            return _organization_error(
+                request,
+                f"Cannot archive '{org.name}' while {class_count} {label} still belong to it. Move classes first.",
+            )
     if org.is_active != is_active:
         org.is_active = is_active
         org.save(update_fields=["is_active", "updated_at"])

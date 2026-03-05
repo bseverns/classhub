@@ -239,6 +239,19 @@
 .org-membership-table-wrap {
   margin-top: 14px;
 }
+.organization-actions {
+  display: grid;
+  gap: 8px;
+}
+.organization-rename-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.organization-rename-form input {
+  min-width: 180px;
+  margin: 0;
+}
 .org-membership-actions {
   display: grid;
   gap: 8px;

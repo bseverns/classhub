@@ -2095,7 +2095,8 @@ Session 02: Final Build
         self.assertContains(resp, "Organizations + Staff Memberships")
         self.assertContains(resp, "/teach/create-organization")
         self.assertContains(resp, "/teach/org-membership/upsert")
-        self.assertContains(resp, "Set inactive")
+        self.assertContains(resp, f"/teach/org/{org.id}/rename")
+        self.assertContains(resp, "Archive")
         self.assertContains(resp, "Save role")
         self.assertContains(resp, "/teach/teacher-account/set-active")
         self.assertContains(resp, "/teach/teacher-account/set-superuser")
@@ -2158,6 +2159,33 @@ Session 02: Final Build
         event = AuditEvent.objects.filter(action="organization.membership.upsert", target_id=str(membership.id)).first()
         self.assertIsNotNone(event)
         self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_superuser_can_rename_organization_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+        org = Organization.objects.create(name="Org Rename Before")
+
+        resp = self.client.post(
+            f"/teach/org/{org.id}/rename",
+            {"org_rename_name": "Org Rename After"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+        org.refresh_from_db()
+        self.assertEqual(org.name, "Org Rename After")
+        event = AuditEvent.objects.filter(action="organization.rename", target_id=str(org.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_superuser_cannot_archive_organization_with_classes_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+        org = Organization.objects.create(name="Archive Guard Org", is_active=True)
+        Class.objects.create(name="Archive Guard Class", join_code="ARCH0001", organization=org)
+
+        resp = self.client.post(f"/teach/org/{org.id}/set-active", {"is_active": "0"})
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?error=", resp["Location"])
+        org.refresh_from_db()
+        self.assertTrue(org.is_active)
 
     def test_superuser_can_upsert_org_role_capability_from_teach(self):
         _force_login_staff_verified(self.client, self.staff)
@@ -3477,6 +3505,16 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertIn("/teach?error=", resp["Location"])
         self.assertFalse(Organization.objects.filter(name="Blocked Org").exists())
+
+        rename_org = Organization.objects.create(name="Blocked Rename Org")
+        rename_resp = self.client.post(
+            f"/teach/org/{rename_org.id}/rename",
+            {"org_rename_name": "Should Not Rename"},
+        )
+        self.assertEqual(rename_resp.status_code, 302)
+        self.assertIn("/teach?error=", rename_resp["Location"])
+        rename_org.refresh_from_db()
+        self.assertEqual(rename_org.name, "Blocked Rename Org")
 
         org = Organization.objects.create(name="Blocked Membership Org")
         resp_membership = self.client.post(
