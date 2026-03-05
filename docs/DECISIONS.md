@@ -2105,3 +2105,13 @@ Execution runbook:
 - Moves custom-role management from persistence-only to operator-usable workflows.
 - Keeps policy handoff complete across environments by including custom-role policy rows in import/export bundles.
 - Provides concrete review/approval separation for high-impact policy changes without forcing a hard cutover in current operations.
+
+## View-size guard budget entry for RBAC tools module
+
+**Current decision:**
+- Add explicit view-size budget entry for `services/classhub/hub/views/teacher_parts/content_rbac_tools.py`:
+  - max lines: `980`
+
+**Why this remains active:**
+- The RBAC Phase-2 rollout consolidated custom-role policy operations, change-request workflow, and scoped-grant tooling in one module to keep transaction and audit paths consistent during rollout.
+- This budget is a temporary guardrail acknowledgment; follow-up refactor should split request parsing/apply/review helpers into smaller dedicated modules once behavior is stable in production.
