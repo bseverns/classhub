@@ -39,6 +39,11 @@ Rule of thumb:
 - org membership decides **which classes are visible**,
 - role/capabilities decide **what actions are allowed** inside those classes.
 
+Authority layers:
+- `L0 Global`: superuser bypasses org and capability checks.
+- `L1 Organization`: active org role and optional custom-role capabilities.
+- `L2 Class`: scoped grants and class-staff assignment priority hints.
+
 ## Inside one org
 
 If a staff user is a member of an org, they can see classes in that org (subject to role and deployment settings).
@@ -54,7 +59,7 @@ Current capability behavior (Phase 1 RBAC evaluator):
 
 Notes:
 - `ClassStaffAssignment` is a prioritization hint ("show these classes first"), not an access boundary.
-- Superusers can see/manage all classes.
+- Superusers can see/manage all classes and manage class-staff assignments from `/teach`.
 
 ## Across orgs
 

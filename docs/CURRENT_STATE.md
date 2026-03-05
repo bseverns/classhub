@@ -20,6 +20,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - RBAC custom roles are live (role definitions, capabilities, and staff assignments) in teacher RBAC tools and policy bundles.
 - RBAC delegated approval workflow is live behind `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED` (default off for initial rollout).
 - RBAC approval reviews now require org owner/admin role (or superuser) and block self-approval.
+- Superuser class-to-teacher assignment workflows are live in `/teach` org admin tools and `/teach/class/<id>`.
 - Security and ops guardrails are live in CI (smoke, migration gate, endpoint guard checks, view-size/function budgets, workflow lint).
 
 ## Deployment and reliability posture

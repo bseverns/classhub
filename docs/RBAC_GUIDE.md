@@ -7,6 +7,11 @@ This page explains the RBAC model that is active in ClassHub today:
 - custom role assignments can extend user capabilities within an org,
 - optional scoped grants can narrow module access.
 
+Authority layers:
+- `L0 Global`: superuser (`is_superuser=True`) bypasses org/capability checks.
+- `L1 Organization`: active membership role + optional custom roles define baseline capabilities.
+- `L2 Class`: scoped grants and class assignment hints refine day-to-day workflow inside accessible classes.
+
 Use this as the operational reference. The RFC remains the future-looking design doc.
 
 ## What to do now
@@ -81,6 +86,7 @@ Portal actions:
 
 Superuser behavior:
 - superusers bypass org/capability checks.
+- superuser class-staff assignment tools are available in `/teach` and `/teach/class/<id>`.
 
 ## Scoped module grants
 

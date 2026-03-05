@@ -43,6 +43,10 @@ flowchart TD
 - Student access: class code + display name.
 - Teacher portal: staff-only (`is_staff=True`) Django users.
 - Django admin: usually superusers (`is_superuser=True`).
+- Authority layers:
+  - `L0 Global`: superuser bypasses org/capability checks.
+  - `L1 Organization`: membership role (`owner`/`admin`/`teacher`/`viewer`) plus optional custom-role assignments.
+  - `L2 Class`: scoped grants and class-staff assignments for within-class workflow targeting.
 - Class visibility:
   - superusers can access all classes.
   - staff with active org memberships can access classes in those orgs.
@@ -153,8 +157,10 @@ Current behavior:
 When a new person joins:
 
 1. Create a new staff account.
-2. Add active `OrganizationMembership` rows in Django admin for the orgs they should teach.
-3. Optional: add `ClassStaffAssignment` rows in Django admin for classes that should appear first.
+2. Add active `OrganizationMembership` rows for the orgs they should teach (superuser in `/teach` org panel or Django admin).
+3. Optional: set class teaching assignments in `/teach`:
+   - single-class assign from the class row (`Assign teacher`), or
+   - bulk set from org panel (`Bulk assign teacher classes`).
 4. Ask them to sign in and verify `/teach` + `/teach/lessons`.
 5. Keep old account active briefly during transition, then disable it.
 
@@ -207,6 +213,7 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
     - create organizations
     - set organization active/inactive
     - assign/update org memberships for staff users (`owner` / `admin` / `teacher` / `viewer`)
+    - assign teaching staff to classes (single upsert + bulk teacher-to-classes set)
 - owner/admin/superuser RBAC tools tab:
   - upsert module-scope grants per class/user/capability/effect/range
   - supports submission, roster, and policy scoped-grant capabilities
