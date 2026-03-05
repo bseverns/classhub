@@ -2,13 +2,23 @@
 
 from .auth_login import teach_login, teacher_logout
 from .auth_profile import teach_change_password, teach_update_profile
-from .auth_teacher_accounts import teach_create_teacher
+from .auth_teacher_accounts import (
+    teach_create_teacher,
+    teach_reset_teacher_account_password,
+    teach_resend_teacher_invite,
+    teach_set_teacher_account_active,
+    teach_set_teacher_account_superuser,
+)
 from .auth_teacher_2fa import teach_teacher_2fa_setup
 
 __all__ = [
     "teach_login",
     "teacher_logout",
     "teach_create_teacher",
+    "teach_set_teacher_account_active",
+    "teach_set_teacher_account_superuser",
+    "teach_reset_teacher_account_password",
+    "teach_resend_teacher_invite",
     "teach_update_profile",
     "teach_change_password",
     "teach_teacher_2fa_setup",

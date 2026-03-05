@@ -801,6 +801,7 @@
                         <th scope="col">Name / Email</th>
                         <th scope="col">Role</th>
                         <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -824,6 +825,61 @@
                             {% else %}
                               <span class="state-pill state-pill--locked">Disabled</span>
                             {% endif %}
+                          </td>
+                          <td>
+                            <div class="teacher-account-actions">
+                              <form method="post" action="/teach/teacher-account/set-active">
+                                {% csrf_token %}
+                                <input type="hidden" name="teacher_account_user_id" value="{{ account.id }}" />
+                                {% if account.is_active %}
+                                  <input type="hidden" name="teacher_account_active" value="0" />
+                                  <button
+                                    type="submit"
+                                    class="mini"
+                                    {% if account.id == request.user.id %}disabled title="You cannot disable your current account."{% endif %}
+                                  >Disable</button>
+                                {% else %}
+                                  <input type="hidden" name="teacher_account_active" value="1" />
+                                  <button type="submit" class="mini">Enable</button>
+                                {% endif %}
+                              </form>
+                              <form method="post" action="/teach/teacher-account/set-superuser">
+                                {% csrf_token %}
+                                <input type="hidden" name="teacher_account_user_id" value="{{ account.id }}" />
+                                {% if account.is_superuser %}
+                                  <input type="hidden" name="teacher_account_superuser" value="0" />
+                                  <button
+                                    type="submit"
+                                    class="mini"
+                                    {% if account.id == request.user.id %}disabled title="You cannot demote your current account."{% endif %}
+                                  >Demote</button>
+                                {% else %}
+                                  <input type="hidden" name="teacher_account_superuser" value="1" />
+                                  <button type="submit" class="mini">Promote</button>
+                                {% endif %}
+                              </form>
+                              <form method="post" action="/teach/teacher-account/resend-invite">
+                                {% csrf_token %}
+                                <input type="hidden" name="teacher_account_user_id" value="{{ account.id }}" />
+                                <button
+                                  type="submit"
+                                  class="mini"
+                                  {% if not account.is_active or not account.email %}disabled title="Active account and valid email required."{% endif %}
+                                >Resend invite</button>
+                              </form>
+                              <form method="post" action="/teach/teacher-account/reset-password" class="teacher-account-password-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="teacher_account_user_id" value="{{ account.id }}" />
+                                <input
+                                  type="password"
+                                  name="teacher_account_password"
+                                  placeholder="Temporary password"
+                                  autocomplete="new-password"
+                                  required
+                                />
+                                <button type="submit" class="mini">Set password</button>
+                              </form>
+                            </div>
                           </td>
                         </tr>
                       {% endfor %}

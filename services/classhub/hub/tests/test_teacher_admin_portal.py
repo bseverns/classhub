@@ -1908,6 +1908,152 @@ Session 02: Final Build
         self.assertIsNotNone(event)
         self.assertEqual(event.actor_user_id, self.staff.id)
 
+    def test_superuser_can_set_teacher_account_active_from_teach(self):
+        target = get_user_model().objects.create_user(
+            username="teacher_active_toggle",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+            is_active=True,
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        disable_resp = self.client.post(
+            "/teach/teacher-account/set-active",
+            {
+                "teacher_account_user_id": str(target.id),
+                "teacher_account_active": "0",
+            },
+        )
+        self.assertEqual(disable_resp.status_code, 302)
+        self.assertIn("teacher_invite=1", disable_resp["Location"])
+        target.refresh_from_db()
+        self.assertFalse(target.is_active)
+
+        enable_resp = self.client.post(
+            "/teach/teacher-account/set-active",
+            {
+                "teacher_account_user_id": str(target.id),
+                "teacher_account_active": "1",
+            },
+        )
+        self.assertEqual(enable_resp.status_code, 302)
+        target.refresh_from_db()
+        self.assertTrue(target.is_active)
+
+        event = AuditEvent.objects.filter(action="teacher_account.set_active", target_id=str(target.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_superuser_can_set_teacher_account_superuser_from_teach(self):
+        target = get_user_model().objects.create_user(
+            username="teacher_super_toggle",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+            is_active=True,
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        promote_resp = self.client.post(
+            "/teach/teacher-account/set-superuser",
+            {
+                "teacher_account_user_id": str(target.id),
+                "teacher_account_superuser": "1",
+            },
+        )
+        self.assertEqual(promote_resp.status_code, 302)
+        target.refresh_from_db()
+        self.assertTrue(target.is_superuser)
+
+        demote_resp = self.client.post(
+            "/teach/teacher-account/set-superuser",
+            {
+                "teacher_account_user_id": str(target.id),
+                "teacher_account_superuser": "0",
+            },
+        )
+        self.assertEqual(demote_resp.status_code, 302)
+        target.refresh_from_db()
+        self.assertFalse(target.is_superuser)
+
+        event = AuditEvent.objects.filter(action="teacher_account.set_superuser", target_id=str(target.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_superuser_can_reset_teacher_account_password_from_teach(self):
+        target = get_user_model().objects.create_user(
+            username="teacher_pw_reset",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+            is_active=True,
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            "/teach/teacher-account/reset-password",
+            {
+                "teacher_account_user_id": str(target.id),
+                "teacher_account_password": "TempNewPassword123!",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        target.refresh_from_db()
+        self.assertTrue(target.check_password("TempNewPassword123!"))
+
+        event = AuditEvent.objects.filter(action="teacher_account.reset_password", target_id=str(target.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        CLASSHUB_PRODUCT_NAME="Pilot Classroom Hub",
+    )
+    def test_superuser_can_resend_teacher_invite_from_teach(self):
+        target = get_user_model().objects.create_user(
+            username="teacher_resend_invite",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+            is_active=True,
+            email="teacher.resend@example.org",
+            first_name="Resend",
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            "/teach/teacher-account/resend-invite",
+            {
+                "teacher_account_user_id": str(target.id),
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?notice=", resp["Location"])
+        self.assertEqual(len(mail.outbox), 1)
+        msg = mail.outbox[0]
+        self.assertEqual(msg.to, ["teacher.resend@example.org"])
+        self.assertIn("Complete your Pilot Classroom Hub teacher 2FA setup", msg.subject)
+        self.assertIn("/teach/2fa/setup?token=", msg.body)
+
+        event = AuditEvent.objects.filter(action="teacher_account.resend_invite", target_id=str(target.id)).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+
+    def test_superuser_cannot_disable_current_account_from_teach(self):
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.post(
+            "/teach/teacher-account/set-active",
+            {
+                "teacher_account_user_id": str(self.staff.id),
+                "teacher_account_active": "0",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?error=", resp["Location"])
+        self.staff.refresh_from_db()
+        self.assertTrue(self.staff.is_active)
+
     def test_non_superuser_staff_cannot_create_teacher_account(self):
         non_super_staff = get_user_model().objects.create_user(
             username="assistant",
@@ -1936,6 +2082,10 @@ Session 02: Final Build
         self.assertContains(resp, "Organizations + Staff Memberships")
         self.assertContains(resp, "/teach/create-organization")
         self.assertContains(resp, "/teach/org-membership/upsert")
+        self.assertContains(resp, "/teach/teacher-account/set-active")
+        self.assertContains(resp, "/teach/teacher-account/set-superuser")
+        self.assertContains(resp, "/teach/teacher-account/reset-password")
+        self.assertContains(resp, "/teach/teacher-account/resend-invite")
 
     def test_superuser_can_create_organization_from_teach(self):
         _force_login_staff_verified(self.client, self.staff)
@@ -3386,6 +3536,59 @@ class TeacherOrganizationAccessTests(TestCase):
                 user=target_staff,
             ).exists()
         )
+
+    def test_non_superuser_staff_cannot_manage_teacher_accounts_from_teach(self):
+        target_staff = get_user_model().objects.create_user(
+            username="blocked_teacher_account_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+            is_active=True,
+            email="blocked.target@example.org",
+        )
+        set_active_resp = self.client.post(
+            "/teach/teacher-account/set-active",
+            {
+                "teacher_account_user_id": str(target_staff.id),
+                "teacher_account_active": "0",
+            },
+        )
+        self.assertEqual(set_active_resp.status_code, 302)
+        self.assertIn("/teach?error=", set_active_resp["Location"])
+        target_staff.refresh_from_db()
+        self.assertTrue(target_staff.is_active)
+
+        set_superuser_resp = self.client.post(
+            "/teach/teacher-account/set-superuser",
+            {
+                "teacher_account_user_id": str(target_staff.id),
+                "teacher_account_superuser": "1",
+            },
+        )
+        self.assertEqual(set_superuser_resp.status_code, 302)
+        self.assertIn("/teach?error=", set_superuser_resp["Location"])
+        target_staff.refresh_from_db()
+        self.assertFalse(target_staff.is_superuser)
+
+        reset_password_resp = self.client.post(
+            "/teach/teacher-account/reset-password",
+            {
+                "teacher_account_user_id": str(target_staff.id),
+                "teacher_account_password": "new-pass-123-ABC",
+            },
+        )
+        self.assertEqual(reset_password_resp.status_code, 302)
+        self.assertIn("/teach?error=", reset_password_resp["Location"])
+        target_staff.refresh_from_db()
+        self.assertTrue(target_staff.check_password("pw12345"))
+
+        resend_invite_resp = self.client.post(
+            "/teach/teacher-account/resend-invite",
+            {"teacher_account_user_id": str(target_staff.id)},
+        )
+        self.assertEqual(resend_invite_resp.status_code, 302)
+        self.assertIn("/teach?error=", resend_invite_resp["Location"])
+        self.assertFalse(AuditEvent.objects.filter(action="teacher_account.resend_invite").exists())
 
     def test_non_superuser_staff_can_update_own_profile(self):
         resp = self.client.post(

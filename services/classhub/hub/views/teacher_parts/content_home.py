@@ -99,6 +99,25 @@ def _read_profile_state(request, user):
         or bool(profile_first_name or profile_last_name or profile_email),
     }
 
+
+def _read_teacher_invite_state(request):
+    teacher_username = (request.GET.get("teacher_username") or "").strip()
+    teacher_email = (request.GET.get("teacher_email") or "").strip()
+    teacher_first_name = (request.GET.get("teacher_first_name") or "").strip()
+    teacher_last_name = (request.GET.get("teacher_last_name") or "").strip()
+    teacher_invite_open = (request.GET.get("teacher_invite") or "").strip() == "1"
+    return {
+        "teacher_username": teacher_username,
+        "teacher_email": teacher_email,
+        "teacher_first_name": teacher_first_name,
+        "teacher_last_name": teacher_last_name,
+        "teacher_invite_open": teacher_invite_open,
+        "teacher_invite_active": bool(
+            teacher_invite_open or teacher_username or teacher_email or teacher_first_name or teacher_last_name
+        ),
+    }
+
+
 def _resolve_initial_top_tab(*, user, profile_tab_active, org_admin_active, teacher_invite_active, rbac_tools_active):
     if profile_tab_active:
         return "profile"
@@ -230,20 +249,16 @@ def teach_home(request):
     import_default_ui_level = (request.GET.get("import_default_ui_level") or "secondary").strip().lower()
     import_session_parse_mode = (request.GET.get("import_session_parse_mode") or "auto").strip().lower()
     import_overwrite = (request.GET.get("import_overwrite") or "").strip() == "1"
-    teacher_username = (request.GET.get("teacher_username") or "").strip()
-    teacher_email = (request.GET.get("teacher_email") or "").strip()
-    teacher_first_name = (request.GET.get("teacher_first_name") or "").strip()
-    teacher_last_name = (request.GET.get("teacher_last_name") or "").strip()
+    teacher_invite_state = _read_teacher_invite_state(request)
     org_state = _read_org_admin_state(request)
     profile_state = _read_profile_state(request, request.user)
     rbac_tools_enabled = rbac_tools_enabled_for_user(request.user)
     rbac_tools_active = rbac_tools_requested(request) and rbac_tools_enabled
-    teacher_invite_active = bool(teacher_username or teacher_email or teacher_first_name or teacher_last_name)
     initial_tab = _resolve_initial_top_tab(
         user=request.user,
         profile_tab_active=profile_state["profile_tab_active"],
         org_admin_active=org_state["org_admin_active"],
-        teacher_invite_active=teacher_invite_active,
+        teacher_invite_active=teacher_invite_state["teacher_invite_active"],
         rbac_tools_active=rbac_tools_active,
     )
     classes, assigned_class_ids = staff_accessible_classes_ranked(request.user)
@@ -287,11 +302,11 @@ def teach_home(request):
             "template_output_dir": str(output_dir),
             "template_download_rows": template_download_rows,
             "teacher_accounts": teacher_accounts,
-            "teacher_username": teacher_username,
-            "teacher_email": teacher_email,
-            "teacher_first_name": teacher_first_name,
-            "teacher_last_name": teacher_last_name,
-            "teacher_invite_active": teacher_invite_active,
+            "teacher_username": teacher_invite_state["teacher_username"],
+            "teacher_email": teacher_invite_state["teacher_email"],
+            "teacher_first_name": teacher_invite_state["teacher_first_name"],
+            "teacher_last_name": teacher_invite_state["teacher_last_name"],
+            "teacher_invite_active": teacher_invite_state["teacher_invite_active"],
             "data_lifespan_enabled": bool(request.user.is_superuser or staff_can_export_syllabi(request.user)),
             "initial_top_tab": initial_tab,
             "profile_first_name": profile_state["profile_first_name"],

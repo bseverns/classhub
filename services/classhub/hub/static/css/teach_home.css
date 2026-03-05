@@ -110,6 +110,23 @@
 .teacher-account-table th:nth-child(1) { min-width: 180px; }
 .teacher-account-table th:nth-child(2) { min-width: 220px; }
 .teacher-account-table th:nth-child(3) { min-width: 130px; }
+.teacher-account-table th:nth-child(5) { min-width: 320px; }
+.teacher-account-actions {
+  display: grid;
+  gap: 8px;
+}
+.teacher-account-actions form {
+  margin: 0;
+}
+.teacher-account-password-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.teacher-account-password-form input {
+  min-width: 180px;
+  margin: 0;
+}
 .helper-note {
   margin-top: 8px;
   font-size: 13px;
