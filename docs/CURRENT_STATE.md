@@ -17,6 +17,9 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Organization boundaries and RBAC capability checks are live.
 - Scoped RBAC grants are live behind `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED`.
 - RBAC simulation and policy bundle import/export endpoints are live for operators.
+- RBAC custom roles are live (role definitions, capabilities, and staff assignments) in teacher RBAC tools and policy bundles.
+- RBAC delegated approval workflow is live behind `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED` (default off for initial rollout).
+- RBAC approval reviews now require org owner/admin role (or superuser) and block self-approval.
 - Security and ops guardrails are live in CI (smoke, migration gate, endpoint guard checks, view-size/function budgets, workflow lint).
 
 ## Deployment and reliability posture
@@ -37,6 +40,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 
 ## Active known constraints
 - Scoped RBAC grants are still feature-flagged for controlled rollout.
+- RBAC delegated approval workflow remains feature-flagged for controlled rollout.
 - Async/self-paced sequencing exists as an RFC direction; synchronous teacher-led flow remains the default operation model.
 - Some docs and screenshots are placeholders and are still being refreshed in the press kit shotlist.
 
