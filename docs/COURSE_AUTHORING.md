@@ -135,6 +135,11 @@ ZIP handling rules:
 - The importer scans `.md`/`.docx` files in the archive.
 - It prioritizes `sessions/` (or `lessons/`) files and filenames like `session01_*`.
 - It derives overview/title metadata from files like `COURSE_DESCRIPTION.md`, `*overview*`, `*syllabus*`, or `README`.
+- Lesson-support images named with session prefixes are mapped automatically:
+  - accepted pattern: `NN-*.png|jpg|jpeg|webp|gif` (example: `01-circuit-layout.png`),
+  - images are copied under `lesson_support_images/` in the generated course folder,
+  - matching lesson front matter receives `support_images:`,
+  - import also creates lesson-tagged `LessonAsset` records + module links for teacher/student access.
 - Output is written as a standard coursepack under:
   - `services/classhub/content/courses/<course_slug>/course.yaml`
   - `services/classhub/content/courses/<course_slug>/lessons/*.md`

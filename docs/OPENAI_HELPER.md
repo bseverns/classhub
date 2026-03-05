@@ -375,9 +375,13 @@ Canonical policy notes live in:
 - `services/homework_helper/tutor/fixtures/policy_prompts.md`
 - [HELPER_POLICY.md](HELPER_POLICY.md)
 
-## RAG (planned)
+## RAG (current)
 
-Phase 2 will retrieve relevant snippets from class materials and include citations.
+Local curriculum RAG is available now when enabled:
+- Build/update the curriculum-only index: `python services/homework_helper/manage.py build_curriculum_rag --clear-first`
+- Enable retrieval: `HELPER_RAG_ENABLED=1`
+- Retrieval scope remains bounded to configured curriculum references; student submissions/events are not embedded or queried.
+- If pgvector/index data is unavailable, helper falls back to lexical lesson citations so chat remains available.
 
 ## Evals (recommended)
 

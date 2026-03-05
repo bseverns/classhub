@@ -64,6 +64,7 @@ nav:
   - Operations:
       - Day 1 Checklist: DAY1_DEPLOY_CHECKLIST.md
       - Runbook: RUNBOOK.md
+      - Curriculum Ops: CURRICULUM_OPS.md
       - Troubleshooting: TROUBLESHOOTING.md
       - Disaster Recovery: DISASTER_RECOVERY.md
       - Releasing: RELEASING.md
@@ -80,7 +81,12 @@ nav:
   - Engineering:
       - Development: DEVELOPMENT.md
       - Architecture: ARCHITECTURE.md
+      - API Reference: API.md
+      - Localization: LOCALIZATION.md
       - Coursepack Registry RFC: COURSEPACK_REGISTRY_RFC.md
+      - Async Self-Paced RFC: ASYNC_SELF_PACED_RFC.md
+      - RBAC Capabilities RFC: RBAC_CAPABILITIES_RFC.md
+      - Telemetry DB Split Plan: TELEMETRY_DB_SPLIT_PLAN.md
       - Helper Internals: OPENAI_HELPER.md
       - Request Safety: REQUEST_SAFETY.md
       - Helper Evals: HELPER_EVALS.md
@@ -91,6 +97,7 @@ nav:
   - Governance:
       - Tool Charter: TOOL_CHARTER.md
       - Stability Charter: STABILITY_CHARTER.md
+      - Stability Issues: STABILITY_ISSUES.md
       - Maintenance Risk Register: MAINTENANCE_RISK_REGISTER.md
       - 30-Day Stability Plan: 30_DAY_STABILITY_PLAN.md
       - Staff Turnover Survivability: STAFF_TURNOVER_SURVIVABILITY.md
