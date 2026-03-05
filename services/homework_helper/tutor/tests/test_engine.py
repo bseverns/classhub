@@ -1,4 +1,6 @@
 import urllib.error
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
@@ -9,6 +11,7 @@ from ..engine import backends
 from ..engine import context_envelope
 from ..engine import execution_config
 from ..engine import heuristics
+from ..engine import rag
 from ..engine import runtime
 from ..engine import runtime_config
 
@@ -165,6 +168,8 @@ class ExecutionConfigEngineTests(SimpleTestCase):
             "HELPER_REFERENCE_DIR": " /tmp/ref ",
             "HELPER_REFERENCE_MAP": '{"r":"r.md"}',
             "HELPER_REFERENCE_FILE": " /tmp/ref/r.md ",
+            "HELPER_RAG_EMBED_BASE_URL": " http://ollama:11434 ",
+            "HELPER_RAG_EMBED_MODEL": "nomic-embed-text",
         }
 
         def _env_int(name: str, default: int) -> int:
@@ -177,6 +182,8 @@ class ExecutionConfigEngineTests(SimpleTestCase):
                 "HELPER_CONVERSATION_SUMMARY_MAX_CHARS": 11,  # clamps up to 200
                 "HELPER_FOLLOW_UP_SUGGESTIONS_MAX": 0,  # clamps up to 1
                 "HELPER_REFERENCE_MAX_CITATIONS": 0,  # clamps up to 1
+                "HELPER_RAG_EMBED_TIMEOUT_SECONDS": 0,  # clamps up to 1
+                "HELPER_RAG_EMBED_DIMENSIONS": 0,  # clamps up to 1
                 "HELPER_MAX_CONCURRENCY": 7,
                 "HELPER_QUEUE_SLOT_TTL_SECONDS": 121,
             }
@@ -186,6 +193,7 @@ class ExecutionConfigEngineTests(SimpleTestCase):
             values = {
                 "HELPER_QUEUE_MAX_WAIT_SECONDS": 9.5,
                 "HELPER_QUEUE_POLL_SECONDS": 0.3,
+                "HELPER_RAG_MAX_COSINE_DISTANCE": 0.35,
             }
             return values.get(name, default)
 
@@ -193,6 +201,7 @@ class ExecutionConfigEngineTests(SimpleTestCase):
             values = {
                 "HELPER_CONVERSATION_ENABLED": False,
                 "HELPER_PIPER_HARDWARE_TRIAGE_ENABLED": False,
+                "HELPER_RAG_ENABLED": True,
             }
             return values.get(name, default)
 
@@ -217,6 +226,12 @@ class ExecutionConfigEngineTests(SimpleTestCase):
         self.assertEqual(cfg.reference_map_raw, '{"r":"r.md"}')
         self.assertEqual(cfg.default_reference_file, "/tmp/ref/r.md")
         self.assertEqual(cfg.reference_max_citations, 1)
+        self.assertTrue(cfg.rag_enabled)
+        self.assertEqual(cfg.rag_embedding_base_url, "http://ollama:11434")
+        self.assertEqual(cfg.rag_embedding_model, "nomic-embed-text")
+        self.assertEqual(cfg.rag_embedding_timeout_seconds, 1)
+        self.assertEqual(cfg.rag_embedding_dimensions, 1)
+        self.assertEqual(cfg.rag_max_cosine_distance, 0.35)
         self.assertEqual(cfg.text_language_keywords, ["scratch", "sprites"])
         self.assertFalse(cfg.piper_hardware_triage_enabled)
         self.assertEqual(cfg.queue_max_concurrency, 7)
@@ -236,6 +251,40 @@ class ExecutionConfigEngineTests(SimpleTestCase):
             }.get(key, default),
         )
         self.assertEqual(cfg.text_language_keywords, ["rust", "zig"])
+        self.assertFalse(cfg.rag_enabled)
+
+
+class RAGEngineTests(SimpleTestCase):
+    def test_build_reference_inventory_rejects_outside_paths(self):
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "safe.md").write_text("Safe curriculum", encoding="utf-8")
+            outside = root.parent / "outside.md"
+            outside.write_text("Outside", encoding="utf-8")
+            try:
+                inventory = rag.build_reference_inventory(
+                    str(root),
+                    '{"safe":"safe.md","escape":"../outside.md"}',
+                )
+            finally:
+                outside.unlink(missing_ok=True)
+
+        self.assertIn("safe", inventory)
+        self.assertNotIn("escape", inventory)
+
+    def test_retrieve_curriculum_citations_returns_empty_on_non_postgres(self):
+        sqlite_connection = SimpleNamespace(vendor="sqlite")
+        citations = rag.retrieve_curriculum_citations(
+            connection=sqlite_connection,
+            logger=MagicMock(),
+            query_text="How do I debug a sprite?",
+            reference_key="piper_scratch",
+            max_items=3,
+            max_cosine_distance=0.4,
+            embedding_dimensions=768,
+            embed_text_fn=lambda _text: [0.1, 0.2],
+        )
+        self.assertEqual(citations, [])
 
 
 class ContextEnvelopeEngineTests(SimpleTestCase):

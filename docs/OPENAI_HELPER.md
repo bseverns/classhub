@@ -41,6 +41,7 @@ flowchart TD
 | `tutor/engine/heuristics.py` | intent/follow-up/topic/text-language/Piper heuristics |
 | `tutor/engine/memory.py` | conversation cache state and compaction |
 | `tutor/engine/reference.py` | reference-file resolution + citation extraction |
+| `tutor/engine/rag.py` | optional local pgvector retrieval + curriculum index helpers |
 | `tutor/engine/auth.py` | actor and class-table/session boundary checks |
 | `tutor/engine/circuit.py` | cache-backed backend failure circuit state |
 
@@ -57,6 +58,12 @@ HELPER_SCOPE_MODE=strict    # or "soft"
 HELPER_REFERENCE_FILE=/app/tutor/reference/piper_scratch.md
 HELPER_REFERENCE_DIR=/app/tutor/reference
 HELPER_REFERENCE_MAP={"piper_scratch":"piper_scratch.md"}
+HELPER_RAG_ENABLED=0
+HELPER_RAG_EMBED_BASE_URL=http://ollama:11434
+HELPER_RAG_EMBED_MODEL=nomic-embed-text
+HELPER_RAG_EMBED_TIMEOUT_SECONDS=12
+HELPER_RAG_EMBED_DIMENSIONS=768
+HELPER_RAG_MAX_COSINE_DISTANCE=0.42
 HELPER_SCOPE_TOKEN_MAX_AGE_SECONDS=7200
 HELPER_RESPONSE_MAX_CHARS=2200
 HELPER_CONVERSATION_ENABLED=1
@@ -257,6 +264,25 @@ HELPER_REFERENCE_MAP={"piper_scratch":"piper_scratch.md"}
 ```
 
 This keeps file access safe and lets you swap references per lesson or course.
+
+### Optional local pgvector RAG (curriculum only)
+
+Enable RAG only after preparing a curriculum index in Postgres:
+
+```bash
+python services/homework_helper/manage.py build_curriculum_rag --clear-first
+```
+
+Then set:
+
+```bash
+HELPER_RAG_ENABLED=1
+```
+
+Scope boundary:
+- Indexed content comes only from helper reference markdown.
+- Student submissions/events are not embedded and are not queried in retrieval.
+- If pgvector/index data is unavailable, helper falls back to lexical lesson citations.
 
 ### Per-lesson references generated from content
 

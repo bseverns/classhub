@@ -22,6 +22,12 @@ class ExecutionConfig:
     reference_map_raw: str
     default_reference_file: str
     reference_max_citations: int
+    rag_enabled: bool
+    rag_embedding_base_url: str
+    rag_embedding_model: str
+    rag_embedding_timeout_seconds: int
+    rag_embedding_dimensions: int
+    rag_max_cosine_distance: float
     text_language_keywords: list[str]
     piper_hardware_triage_enabled: bool
     queue_max_concurrency: int
@@ -58,6 +64,16 @@ def resolve_execution_config(
         reference_map_raw=(getenv("HELPER_REFERENCE_MAP", "") or "").strip(),
         default_reference_file=(getenv("HELPER_REFERENCE_FILE", "") or "").strip(),
         reference_max_citations=max(env_int("HELPER_REFERENCE_MAX_CITATIONS", 3), 1),
+        rag_enabled=env_bool("HELPER_RAG_ENABLED", False),
+        rag_embedding_base_url=(
+            getenv("HELPER_RAG_EMBED_BASE_URL", "")
+            or getenv("OLLAMA_BASE_URL", "http://ollama:11434")
+            or "http://ollama:11434"
+        ).strip(),
+        rag_embedding_model=(getenv("HELPER_RAG_EMBED_MODEL", "nomic-embed-text") or "nomic-embed-text").strip(),
+        rag_embedding_timeout_seconds=max(env_int("HELPER_RAG_EMBED_TIMEOUT_SECONDS", 12), 1),
+        rag_embedding_dimensions=max(env_int("HELPER_RAG_EMBED_DIMENSIONS", 768), 1),
+        rag_max_cosine_distance=max(env_float("HELPER_RAG_MAX_COSINE_DISTANCE", 0.42), 0.0),
         text_language_keywords=text_language_keywords,
         piper_hardware_triage_enabled=env_bool("HELPER_PIPER_HARDWARE_TRIAGE_ENABLED", True),
         queue_max_concurrency=env_int("HELPER_MAX_CONCURRENCY", 2),

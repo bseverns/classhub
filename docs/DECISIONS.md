@@ -70,6 +70,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Edge block for internal endpoints](#edge-block-for-internal-endpoints)
 - [Helper grounding for Piper hardware](#helper-grounding-for-piper-hardware)
 - [Helper lesson citations](#helper-lesson-citations)
+- [Helper local curriculum RAG](#helper-local-curriculum-rag)
 - [Production transport hardening](#production-transport-hardening)
 - [Content parse caching](#content-parse-caching)
 - [Admin access 2FA](#admin-access-2fa)
@@ -1291,6 +1292,20 @@ Execution runbook:
 **Why this remains active:**
 - Makes helper output more inspectable and less likely to drift away from lesson intent.
 - Gives teachers/students quick traceability from advice back to lesson material.
+
+## Helper local curriculum RAG
+
+**Current decision:**
+- Helper supports optional local pgvector retrieval when `HELPER_RAG_ENABLED=1`.
+- The vector index is strictly curriculum-only: content is sourced from reference markdown configured by `HELPER_REFERENCE_DIR` and `HELPER_REFERENCE_MAP`.
+- Student submissions, student events, and other student-authored data are never embedded or queried in this RAG path.
+- Retrieval remains bounded and local via Ollama embeddings (`HELPER_RAG_EMBED_BASE_URL`, `HELPER_RAG_EMBED_MODEL`) and falls back to lexical citations if pgvector/indexing is unavailable.
+- Indexing is explicit and operator-driven via `python services/homework_helper/manage.py build_curriculum_rag`.
+
+**Why this remains active:**
+- Raises answer quality on long curricula without remote data egress.
+- Preserves anti-cheating/privacy posture by preventing cross-student retrieval surfaces.
+- Keeps classroom reliability: helper responses continue even when vector retrieval is offline.
 
 ## Production transport hardening
 

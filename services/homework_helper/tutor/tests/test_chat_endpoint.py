@@ -513,6 +513,36 @@ class HelperChatAuthTests(TestCase):
         build_kwargs = build_instructions_mock.call_args.kwargs
         self.assertIn("Lesson excerpts:", build_kwargs.get("reference_citations", ""))
 
+    @patch("tutor.views.build_instructions", return_value="system instructions")
+    @patch(
+        "tutor.views._retrieve_curriculum_citations",
+        return_value=[{"id": "L1", "source": "piper_scratch", "text": "RAG: test one-wire change then retest."}],
+    )
+    @patch.dict("os.environ", {"HELPER_RAG_ENABLED": "1"}, clear=False)
+    def test_chat_prefers_rag_citations_when_available(self, _rag_mock, build_instructions_mock):
+        self._set_student_session()
+
+        resp = self._post_chat({"message": "My jump button in StoryMode is not responding."})
+
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        citations = body.get("citations") or []
+        self.assertEqual(len(citations), 1)
+        self.assertEqual(citations[0].get("text"), "RAG: test one-wire change then retest.")
+
+        build_kwargs = build_instructions_mock.call_args.kwargs
+        self.assertIn("RAG: test one-wire change then retest.", build_kwargs.get("reference_citations", ""))
+
+    @patch("tutor.views._retrieve_curriculum_citations", side_effect=RuntimeError("rag unavailable"))
+    @patch.dict("os.environ", {"HELPER_RAG_ENABLED": "1"}, clear=False)
+    def test_chat_falls_back_when_rag_retrieval_fails(self, _rag_mock):
+        self._set_student_session()
+
+        resp = self._post_chat({"message": "How do I move a sprite?"})
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("text"), "Hint")
+
     def test_chat_handles_directory_reference_file_without_500(self):
         self._set_student_session()
 

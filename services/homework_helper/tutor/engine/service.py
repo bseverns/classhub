@@ -25,6 +25,7 @@ class ChatDeps:
     resolve_reference_file: Callable[[str | None, str, str], str]
     load_reference_text: Callable[[str], str]
     load_reference_chunks: Callable[[str], tuple[str, ...]]
+    retrieve_curriculum_citations: Callable[..., list[dict]]
     build_reference_citations: Callable[..., list[dict]]
     format_reference_citations_for_prompt: Callable[[list[dict]], str]
     parse_csv_list: Callable[[str], list[str]]
@@ -240,14 +241,38 @@ def handle_chat(
     reference_text = deps.load_reference_text(reference_file)
     reference_chunks = deps.load_reference_chunks(reference_file)
     reference_source = reference_key or (Path(reference_file).stem if reference_file else "")
-    citations = deps.build_reference_citations(
-        message=message,
-        context=context_value or "",
-        topics=topics,
-        reference_chunks=reference_chunks,
-        source_label=reference_source,
-        max_items=execution_config.reference_max_citations,
-    )
+    citations: list[dict] = []
+    if execution_config.rag_enabled:
+        try:
+            citations = deps.retrieve_curriculum_citations(
+                query_text=" ".join([message, context_value or "", " ".join(topics)]),
+                reference_key=reference_source,
+                max_items=execution_config.reference_max_citations,
+                max_cosine_distance=execution_config.rag_max_cosine_distance,
+                embedding_base_url=execution_config.rag_embedding_base_url,
+                embedding_model=execution_config.rag_embedding_model,
+                embedding_timeout_seconds=execution_config.rag_embedding_timeout_seconds,
+                embedding_dimensions=execution_config.rag_embedding_dimensions,
+            )
+        except Exception as exc:
+            deps.log_chat_event(
+                "warning",
+                "rag_retrieval_failed",
+                request_id=request_id,
+                actor_type=actor_type,
+                backend=backend,
+                error_type=exc.__class__.__name__,
+            )
+            citations = []
+    if not citations:
+        citations = deps.build_reference_citations(
+            message=message,
+            context=context_value or "",
+            topics=topics,
+            reference_chunks=reference_chunks,
+            source_label=reference_source,
+            max_items=execution_config.reference_max_citations,
+        )
     reference_citations = deps.format_reference_citations_for_prompt(citations)
     lang_keywords = execution_config.text_language_keywords
     if deps.contains_text_language(message, lang_keywords) and deps.is_scratch_context(context_value or "", topics, reference_text):

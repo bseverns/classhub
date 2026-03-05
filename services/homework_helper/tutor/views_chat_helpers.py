@@ -5,10 +5,12 @@ import re
 from functools import lru_cache
 
 from django.core.cache import cache
+from django.db import connection
 from django.http import JsonResponse
 
 from .engine import heuristics as engine_heuristics
 from .engine import memory as engine_memory
+from .engine import rag as engine_rag
 from .engine import reference as engine_reference
 from .engine import runtime as engine_runtime
 
@@ -92,6 +94,34 @@ def _load_reference_chunks(path_str: str) -> tuple[str, ...]:
 @lru_cache(maxsize=4)
 def _load_reference_text(path_str: str) -> str:
     return engine_reference.load_reference_text(path_str, logger=logger)
+
+
+def _retrieve_curriculum_citations(
+    *,
+    query_text: str,
+    reference_key: str,
+    max_items: int,
+    max_cosine_distance: float,
+    embedding_base_url: str,
+    embedding_model: str,
+    embedding_timeout_seconds: int,
+    embedding_dimensions: int,
+) -> list[dict]:
+    return engine_rag.retrieve_curriculum_citations(
+        connection=connection,
+        logger=logger,
+        query_text=query_text,
+        reference_key=reference_key,
+        max_items=max_items,
+        max_cosine_distance=max_cosine_distance,
+        embedding_dimensions=embedding_dimensions,
+        embed_text_fn=lambda text: engine_rag.ollama_embed_text(
+            base_url=embedding_base_url,
+            model=embedding_model,
+            text=text,
+            timeout_seconds=embedding_timeout_seconds,
+        ),
+    )
 
 
 def _normalize_conversation_id(raw: str) -> str:
@@ -255,6 +285,7 @@ __all__ = [
     "_load_conversation_state",
     "_load_reference_chunks",
     "_load_reference_text",
+    "_retrieve_curriculum_citations",
     "_log_chat_event",
     "_normalize_conversation_id",
     "_redact",
