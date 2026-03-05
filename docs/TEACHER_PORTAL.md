@@ -161,6 +161,7 @@ When a new person joins:
 3. Optional: set class teaching assignments in `/teach`:
    - single-class assign from the class row (`Assign teacher`), or
    - bulk set from org panel (`Bulk assign teacher classes`).
+   - assignment pickers accept active teacher accounts (non-superuser staff) only.
 4. Ask them to sign in and verify `/teach` + `/teach/lessons`.
 5. Keep old account active briefly during transition, then disable it.
 
@@ -225,7 +226,8 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
       - archive is blocked while classes are still assigned to that organization
     - assign/update org memberships for staff users (`owner` / `admin` / `teacher` / `viewer`)
     - move classes between active organizations
-    - assign teaching staff to classes (single upsert + bulk teacher-to-classes set)
+    - assign teachers to classes (single upsert + bulk teacher-to-classes set)
+      - assignment selectors are teacher-account-focused (active non-superuser staff)
 - owner/admin/superuser RBAC tools tab:
   - upsert module-scope grants per class/user/capability/effect/range
   - supports submission, roster, and policy scoped-grant capabilities

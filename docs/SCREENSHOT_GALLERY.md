@@ -49,6 +49,7 @@ Status model:
 
 ### 19. RBAC tools tab (scoped grants + custom roles + policy approval queue) (`Placeholder`)
 ![19 RBAC tools tab](images/press/19-rbac-tools-tab.png)
+Optional companion capture (approval workflow ON) is tracked as `19-rbac-tools-tab-approval-on.png` in `press/screenshots/PLACEHOLDERS.md`.
 
 ### 11. Invite-only enrollment controls (`Placeholder`)
 ![11 Invite-only enrollment](images/press/11-invite-only-enrollment.png)

@@ -8,9 +8,10 @@ This folder provides reuse-ready, factual materials for evaluators, partners, an
 2. Copy short descriptions from `press/blurbs.md`.
 3. Use `press/architecture.md` and `press/screenshots/SHOTLIST.md` for visuals.
 4. Use `press/experience_map.md` to choose role-based narrative paths.
-5. Validate trust/privacy claims against `docs/RISK_AND_DATA_POSTURE.md` and `docs/PRIVACY-ADDENDUM.md`.
-6. Validate org/RBAC claims against `docs/ORG_BOUNDARY_EXPLAINER.md` and `docs/RBAC_GUIDE.md`.
-7. If you need screenshots not yet captured (or queued for refresh), use `press/screenshots/PLACEHOLDERS.md`.
+5. If you need a 10-minute external review packet, use `press/evaluator_quick_pack.md`.
+6. Validate trust/privacy claims against `docs/RISK_AND_DATA_POSTURE.md` and `docs/PRIVACY-ADDENDUM.md`.
+7. Validate org/RBAC claims against `docs/ORG_BOUNDARY_EXPLAINER.md` and `docs/RBAC_GUIDE.md`.
+8. If you need screenshots not yet captured (or queued for refresh), use `press/screenshots/PLACEHOLDERS.md`.
 
 ## Verification signal
 If this press kit is complete for your use case, you can assemble a short external summary without opening internal engineering docs.
@@ -20,6 +21,7 @@ If this press kit is complete for your use case, you can assemble a short extern
 - `press/blurbs.md`
 - `press/architecture.md`
 - `press/experience_map.md`
+- `press/evaluator_quick_pack.md`
 - `press/screenshots/SHOTLIST.md`
 - `press/screenshots/PLACEHOLDERS.md`
 

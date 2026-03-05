@@ -8,6 +8,7 @@ Use this page if you are reviewing ClassHub fit and do not need to inspect imple
 2. Read [CURRENT_STATE.md](CURRENT_STATE.md) for what is shipping now.
 3. Read [FEATURE_MATURITY.md](FEATURE_MATURITY.md) for flags, rollout readiness, and RFC boundaries.
 4. Run the guided local walkthrough in [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md) with an operator.
+5. For a compact visual evidence packet, use `press/evaluator_quick_pack.md`.
 
 ## Verification signal
 Within 30 minutes, you can answer: what is live, what is flag-gated, and what is roadmap-only.

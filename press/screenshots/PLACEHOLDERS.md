@@ -32,10 +32,13 @@ During planning, these may be generated placeholder images. Replace them with re
 9. `15-lesson-helper-collapsed.png`
 10. `13-a11y-smoke-terminal.png`
 11. `19-rbac-tools-tab.png` (refresh target should include custom-role tooling + policy change request queue)
+12. `19-rbac-tools-tab-approval-on.png` (optional RBAC companion capture with `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`)
 
 ## Storyline-critical refresh guidance
 - `02-student-class-view.png`: include account links for trust/data controls.
 - `06-submission-dropbox.png`: include publish toggle + moderation state copy.
+- `19-rbac-tools-tab.png`: keep baseline default-state screenshot with approval workflow OFF.
+- `19-rbac-tools-tab-approval-on.png` (optional): show queued change requests and review controls with approval workflow ON.
 
 ## Notes
 - Do not use production or real student/staff data.

@@ -115,6 +115,8 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 - Include: pending policy change request queue when approval workflow is enabled
 - Include: one explicit `allow` or `deny` scoped grant example
 - Redact: real usernames, class names, and organization identifiers
+- Baseline capture mode: `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0` (default-state screenshot)
+- Optional companion capture filename: `19-rbac-tools-tab-approval-on.png` with `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`
 
 ## Storyline overlays (capture inside existing files)
 - Trust/data controls:
@@ -140,6 +142,7 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 10. `13-a11y-smoke-terminal.png`
 11. `19-rbac-tools-tab.png`
 - Capture with approval workflow OFF (`CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0`) first, then optional refresh with workflow ON.
+- Optional supplemental file for ON mode: `19-rbac-tools-tab-approval-on.png`.
 
 ### Then refresh older captures
 1. `02-student-class-view.png`
