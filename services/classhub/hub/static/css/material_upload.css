@@ -25,6 +25,40 @@ input[type="file"] {
   border: 1px solid rgba(36, 128, 66, 0.25);
   margin-top: 12px;
 }
+.queue-panel {
+  margin-top: 12px;
+  border: 1px solid rgba(25, 58, 93, 0.2);
+  border-radius: 10px;
+  background: rgba(241, 249, 255, 0.68);
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.queue-panel--active {
+  border-color: rgba(36, 98, 142, 0.4);
+  background: rgba(230, 244, 255, 0.86);
+}
+.queue-panel--disabled {
+  display: none;
+}
+.queue-retry-btn {
+  border: 1px solid rgba(25, 58, 93, 0.22);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1d466e;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.queue-retry-btn:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
 .privacy-note {
   margin-top: 12px;
   border: 1px solid rgba(169, 46, 66, 0.35);

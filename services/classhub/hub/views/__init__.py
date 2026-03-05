@@ -8,6 +8,7 @@ New code should import endpoints from submodules by concern:
 """
 
 from .api_student import api_student_modules, api_student_session, api_student_submissions
+from .api_student_upload import api_student_csrf, api_student_material_upload
 from .api_teacher import (
     api_teacher_classes,
     api_teacher_class_roster,
@@ -43,6 +44,7 @@ from .student import (
 )
 from .student_micro_checks import student_micro_check
 from .student_materials import material_checklist, material_reflection, material_rubric
+from .student_sync import student_upload_sync_service_worker
 from .teacher import (
     teach_add_material,
     teach_add_support_tag,
@@ -108,6 +110,8 @@ from .teacher import (
 )
 
 __all__ = [
+    "api_student_csrf",
+    "api_student_material_upload",
     "api_student_modules",
     "api_student_session",
     "api_student_submissions",
@@ -144,6 +148,7 @@ __all__ = [
     "student_rename_display_name",
     "student_set_submission_publish",
     "student_return_code",
+    "student_upload_sync_service_worker",
     "submission_download",
     "privacy_policy",
     "trust_page",

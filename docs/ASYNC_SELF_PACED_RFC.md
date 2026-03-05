@@ -27,6 +27,7 @@ Current `main` behavior:
 - Module pacing/release is still class/teacher managed.
 - No shipped per-student module unlock graph yet.
 - No shipped drip unlock command or spaced-review scheduler.
+- Student upload flow now includes offline queue + retry behavior for intermittent connectivity on `/material/<id>/upload` (IndexedDB + service-worker-assisted flush via student API). This is a reliability primitive, not a self-paced unlock feature.
 
 Planning status:
 - This document remains an RFC roadmap, not an implemented feature record.

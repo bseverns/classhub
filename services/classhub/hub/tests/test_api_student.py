@@ -174,3 +174,87 @@ class StudentSubmissionsEndpointTests(_StudentAPIBase):
                 data = resp.json()
                 self.assertEqual(len(data["submissions"]), 0)
                 self.assertEqual(data["pagination"]["total"], 0)
+
+
+class StudentCsrfEndpointTests(_StudentAPIBase):
+    """Tests for GET /api/v1/student/csrf."""
+
+    def test_unauthenticated_returns_401(self):
+        resp = self.client.get("/api/v1/student/csrf")
+        self.assertEqual(resp.status_code, 401)
+        self.assertEqual(resp.json()["error"], "unauthorized")
+
+    def test_authenticated_returns_token(self):
+        self._login_student()
+        resp = self.client.get("/api/v1/student/csrf")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("csrf_token", resp.json())
+        self.assertTrue(str(resp.json()["csrf_token"]).strip())
+
+
+class StudentUploadEndpointTests(_StudentAPIBase):
+    """Tests for POST /api/v1/student/material/<id>/upload."""
+
+    def test_unauthenticated_returns_401(self):
+        resp = self.client.post(f"/api/v1/student/material/{self.material.id}/upload")
+        self.assertEqual(resp.status_code, 401)
+        self.assertEqual(resp.json()["error"], "unauthorized")
+
+    def test_cross_class_material_returns_not_found(self):
+        self._login_student()
+        other_class = Class.objects.create(name="Other", join_code="OTH12345")
+        other_module = Module.objects.create(classroom=other_class, title="Other Module", order_index=0)
+        other_material = Material.objects.create(
+            module=other_module,
+            title="Other Upload",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=5,
+            order_index=0,
+        )
+        resp = self.client.post(f"/api/v1/student/material/{other_material.id}/upload")
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.json()["error"], "not_found")
+
+    def test_non_upload_material_returns_not_upload_material(self):
+        self._login_student()
+        link_material = Material.objects.create(
+            module=self.module, title="Read first", type=Material.TYPE_LINK, url="/x", order_index=1,
+        )
+        resp = self.client.post(f"/api/v1/student/material/{link_material.id}/upload")
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.json()["error"], "not_upload_material")
+
+    def test_invalid_form_returns_400(self):
+        self._login_student()
+        resp = self.client.post(f"/api/v1/student/material/{self.material.id}/upload")
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json()["error"], "invalid_form")
+
+    @patch("hub.views.api_student_upload.scan_uploaded_file", return_value=ScanResult(status="clean", message=""))
+    def test_upload_success_returns_ok_and_creates_submission(self, _scan_mock):
+        self._login_student()
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                upload = SimpleUploadedFile("project.sb3", _sample_sb3_bytes(), content_type="application/octet-stream")
+                resp = self.client.post(
+                    f"/api/v1/student/material/{self.material.id}/upload",
+                    {"file": upload},
+                )
+        self.assertEqual(resp.status_code, 200)
+        payload = resp.json()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["material_id"], self.material.id)
+        self.assertIn(f"/material/{self.material.id}/upload", payload["redirect_url"])
+        self.assertEqual(Submission.objects.filter(material=self.material, student=self.student).count(), 1)
+
+
+class StudentUploadSyncWorkerEndpointTests(TestCase):
+    """Tests for GET /student-upload-sync-sw.js."""
+
+    def test_service_worker_endpoint_returns_javascript_with_root_scope(self):
+        resp = self.client.get("/student-upload-sync-sw.js")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("application/javascript", resp["Content-Type"])
+        self.assertEqual(resp["Service-Worker-Allowed"], "/")
+        self.assertIn("no-store", (resp.get("Cache-Control") or "").lower())

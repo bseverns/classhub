@@ -138,6 +138,48 @@ Returns the accessible curriculum tree for the student's classroom.
 
 ---
 
+### `GET /api/v1/student/csrf`
+
+Returns a fresh CSRF token for session-authenticated student write calls
+(used by resilient upload clients and offline queue flush).
+
+**Response** (200):
+```json
+{
+  "csrf_token": "..."
+}
+```
+
+---
+
+### `POST /api/v1/student/material/<id>/upload`
+
+Session-authenticated upload endpoint for student material submissions.
+Accepts the same multipart fields as `/material/<id>/upload`:
+- `file` (required)
+- `station_label` (optional)
+- `process_note` (optional)
+- `share_with_class` (optional, gallery materials only)
+
+**Success response** (200):
+```json
+{
+  "ok": true,
+  "material_id": 10,
+  "redirect_url": "/material/10/upload"
+}
+```
+
+**Error response** (example):
+```json
+{
+  "error": "upload_locked",
+  "message": "Submissions for this lesson are not open yet."
+}
+```
+
+---
+
 ### `GET /api/v1/student/submissions`
 
 Returns the student's historical work and responses, with pagination.

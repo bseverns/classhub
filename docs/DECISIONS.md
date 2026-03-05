@@ -7,6 +7,7 @@ Historical implementation logs and superseded decisions are archived by month in
 
 - [Auth model: student access](#auth-model-student-access)
 - [Trust primitives: student data controls](#trust-primitives-student-data-controls)
+- [Offline upload queue for intermittent networks](#offline-upload-queue-for-intermittent-networks)
 - [Database workload split roadmap](#database-workload-split-roadmap)
 - [Artifact-first sharing defaults](#artifact-first-sharing-defaults)
 - [Program profiles for cohort age bands](#program-profiles-for-cohort-age-bands)
@@ -147,6 +148,25 @@ Historical implementation logs and superseded decisions are archived by month in
 - Gives students direct agency over identity/work without adding new PII collection.
 - Keeps deletion semantics explicit and auditable for programs that require staff-mediated removal.
 - Preserves a help-first, low-surveillance facilitation model with constrained metadata rather than narrative dossiers.
+
+## Offline upload queue for intermittent networks
+
+**Current decision:**
+- Add a browser-local upload queue for the student upload workflow (`/material/<id>/upload`) using IndexedDB.
+- Keep normal student authentication/session boundaries; queued uploads flush through session-scoped API endpoints:
+  - `GET /api/v1/student/csrf`
+  - `POST /api/v1/student/material/<id>/upload`
+- Use low-bandwidth sync behavior:
+  - immediate flush attempt on submit,
+  - queue on transient failures/offline conditions,
+  - retry on reconnect, manual retry button, and modest interval retries.
+- Do not add high-frequency polling loops or new background telemetry.
+- Keep queue state local to the browser/device and class session; no new student PII fields are introduced.
+
+**Why this remains active:**
+- Prevents student data loss when connectivity is unstable.
+- Keeps classroom flow resilient in low-infrastructure deployments.
+- Preserves privacy and minimal data collection while improving reliability.
 
 ## Database workload split roadmap
 

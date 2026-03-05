@@ -25,8 +25,10 @@ urlpatterns = [
 
     # Headless JSON API
     path("api/v1/student/session", views.api_student_session),
+    path("api/v1/student/csrf", views.api_student_csrf),
     path("api/v1/student/modules", views.api_student_modules),
     path("api/v1/student/submissions", views.api_student_submissions),
+    path("api/v1/student/material/<int:material_id>/upload", views.api_student_material_upload),
     path("api/v1/teacher/classes", views.api_teacher_classes),
     path("api/v1/teacher/class/<int:class_id>/roster", views.api_teacher_class_roster),
     path("api/v1/teacher/class/<int:class_id>/submissions", views.api_teacher_class_submissions),
@@ -52,6 +54,7 @@ urlpatterns = [
     path("student/end-session", views.student_end_session),
     path("student/micro-check", views.student_micro_check),
     path("student/portfolio-export", views.student_portfolio_export),
+    path("student-upload-sync-sw.js", views.student_upload_sync_service_worker),
     path("logout", views.student_logout),
 
     # Student upload + shared download/stream routes.
