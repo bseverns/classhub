@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import os
 import urllib.error
 
 from django.core.management.base import BaseCommand, CommandError
@@ -9,6 +8,7 @@ from django.db import connection
 
 from ...engine import rag
 from ...engine import reference
+from ...engine.config_source import helper_getenv
 from ...views_chat_helpers import _env_int
 
 logger = logging.getLogger(__name__)
@@ -36,12 +36,12 @@ class Command(BaseCommand):
             raise CommandError("Curriculum RAG requires PostgreSQL + pgvector.")
 
         reference_dir = (
-            os.getenv("HELPER_REFERENCE_DIR", "/app/tutor/reference") or "/app/tutor/reference"
+            helper_getenv("HELPER_REFERENCE_DIR", "/app/tutor/reference") or "/app/tutor/reference"
         ).strip()
-        reference_map_raw = (os.getenv("HELPER_REFERENCE_MAP", "") or "").strip()
-        embedding_model = (os.getenv("HELPER_RAG_EMBED_MODEL", "nomic-embed-text") or "nomic-embed-text").strip()
+        reference_map_raw = (helper_getenv("HELPER_REFERENCE_MAP", "") or "").strip()
+        embedding_model = (helper_getenv("HELPER_RAG_EMBED_MODEL", "nomic-embed-text") or "nomic-embed-text").strip()
         embedding_base_url = (
-            os.getenv("HELPER_RAG_EMBED_BASE_URL", "") or os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
+            helper_getenv("HELPER_RAG_EMBED_BASE_URL", "") or helper_getenv("OLLAMA_BASE_URL", "http://ollama:11434")
         ).strip()
         embedding_timeout = max(_env_int("HELPER_RAG_EMBED_TIMEOUT_SECONDS", 12), 1)
         embedding_dimensions = max(_env_int("HELPER_RAG_EMBED_DIMENSIONS", 768), 1)

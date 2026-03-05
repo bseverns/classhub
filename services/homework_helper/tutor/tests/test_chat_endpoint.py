@@ -13,6 +13,7 @@ from django.test import TestCase, override_settings
 from common.helper_scope import issue_scope_token
 
 from .. import views
+from ..engine.config_source import clear_helper_config_cache
 
 
 class HelperChatAuthTests(TestCase):
@@ -47,6 +48,10 @@ class HelperChatAuthTests(TestCase):
             data=json.dumps(body),
             content_type="application/json",
         )
+
+    def tearDown(self):
+        clear_helper_config_cache()
+        super().tearDown()
 
     def _set_student_session(self, *, student_id: int = 101, class_id: int = 5):
         session = self.client.session
@@ -124,6 +129,24 @@ class HelperChatAuthTests(TestCase):
             resp = self._post_chat({"message": "How do I move a sprite?"})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get("strictness"), "light")
+
+    def test_chat_uses_yaml_config_for_strictness_when_env_is_unset(self):
+        self._set_student_session()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cfg_path = Path(temp_dir) / "helper.yaml"
+            cfg_path.write_text("policy:\n  strictness: strict\n", encoding="utf-8")
+            with patch.dict(
+                "os.environ",
+                {
+                    "HELPER_CONFIG_FILE": str(cfg_path),
+                },
+                clear=False,
+            ):
+                clear_helper_config_cache()
+                os.environ.pop("HELPER_STRICTNESS", None)
+                resp = self._post_chat({"message": "How do I move a sprite?"})
+                self.assertEqual(resp.status_code, 200)
+                self.assertEqual(resp.json().get("strictness"), "strict")
 
     @patch("tutor.engine.backends.invoke_backend")
     def test_chat_reuses_recent_turns_when_conversation_id_is_reused(self, invoke_backend_mock):

@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from typing import Callable
+
+from .config_source import helper_getenv
 
 
 PROFILE_ENV_DEFAULTS = {
@@ -34,7 +35,7 @@ class PolicyBundle:
     topic_filter_mode: str
 
 
-def resolve_program_profile(*, getenv: Callable[[str, str], str] = os.getenv) -> str:
+def resolve_program_profile(*, getenv: Callable[[str, str], str] = helper_getenv) -> str:
     value = (getenv("CLASSHUB_PROGRAM_PROFILE", "secondary") or "secondary").strip().lower()
     if value in PROFILE_ENV_DEFAULTS:
         return value
@@ -46,7 +47,7 @@ def env_or_profile_default(
     fallback: str,
     *,
     profile: str | None = None,
-    getenv: Callable[[str, str], str] = os.getenv,
+    getenv: Callable[[str, str], str] = helper_getenv,
 ) -> str:
     explicit = (getenv(env_name, "") or "").strip()
     if explicit:
@@ -56,7 +57,7 @@ def env_or_profile_default(
     return str(profile_defaults.get(env_name, fallback))
 
 
-def resolve_policy_bundle(*, getenv: Callable[[str, str], str] = os.getenv) -> PolicyBundle:
+def resolve_policy_bundle(*, getenv: Callable[[str, str], str] = helper_getenv) -> PolicyBundle:
     program_profile = resolve_program_profile(getenv=getenv)
     return PolicyBundle(
         program_profile=program_profile,

@@ -8,6 +8,7 @@ from django.test import SimpleTestCase
 
 from ..engine import auth
 from ..engine import backends
+from ..engine import config_source
 from ..engine import context_envelope
 from ..engine import execution_config
 from ..engine import heuristics
@@ -159,6 +160,55 @@ class RuntimeConfigEngineTests(SimpleTestCase):
         self.assertEqual(bundle.strictness, "light")
         self.assertEqual(bundle.scope_mode, "soft")
         self.assertEqual(bundle.topic_filter_mode, "soft")
+
+
+class ConfigSourceEngineTests(SimpleTestCase):
+    def tearDown(self):
+        config_source.clear_helper_config_cache()
+        super().tearDown()
+
+    def test_helper_getenv_reads_yaml_when_env_missing(self):
+        with TemporaryDirectory() as temp_dir:
+            cfg_path = Path(temp_dir) / "helper.yaml"
+            cfg_path.write_text(
+                (
+                    "policy:\n"
+                    "  strictness: strict\n"
+                    "rate_limits:\n"
+                    "  actor_per_minute: 17\n"
+                    "references:\n"
+                    "  map:\n"
+                    "    piper_scratch: piper_scratch.md\n"
+                ),
+                encoding="utf-8",
+            )
+            with patch.dict(
+                "os.environ",
+                {"HELPER_CONFIG_FILE": str(cfg_path)},
+                clear=True,
+            ):
+                config_source.clear_helper_config_cache()
+                self.assertEqual(config_source.helper_getenv("HELPER_STRICTNESS", "light"), "strict")
+                self.assertEqual(config_source.helper_getenv("HELPER_RATE_LIMIT_PER_MINUTE", "30"), "17")
+                self.assertEqual(
+                    config_source.helper_getenv("HELPER_REFERENCE_MAP", ""),
+                    '{"piper_scratch":"piper_scratch.md"}',
+                )
+
+    def test_helper_getenv_prefers_explicit_env_over_yaml(self):
+        with TemporaryDirectory() as temp_dir:
+            cfg_path = Path(temp_dir) / "helper.yaml"
+            cfg_path.write_text("policy:\n  strictness: strict\n", encoding="utf-8")
+            with patch.dict(
+                "os.environ",
+                {
+                    "HELPER_CONFIG_FILE": str(cfg_path),
+                    "HELPER_STRICTNESS": "light",
+                },
+                clear=True,
+            ):
+                config_source.clear_helper_config_cache()
+                self.assertEqual(config_source.helper_getenv("HELPER_STRICTNESS", "strict"), "light")
 
 
 class ExecutionConfigEngineTests(SimpleTestCase):

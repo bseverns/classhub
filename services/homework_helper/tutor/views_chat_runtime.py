@@ -1,5 +1,4 @@
-import os
-
+from .engine.config_source import helper_getenv
 from .engine import auth as engine_auth
 from .engine import backends as engine_backends
 from .engine import circuit as engine_circuit
@@ -136,15 +135,15 @@ def invoke_backend(
     registry = {
         "ollama": engine_backends.CallableBackend(
             chat_fn=lambda system_instructions, user_message: ollama_chat_fn(
-                os.getenv("OLLAMA_BASE_URL", "http://ollama:11434"),
-                os.getenv("OLLAMA_MODEL", "llama3.2:1b"),
+                helper_getenv("OLLAMA_BASE_URL", "http://ollama:11434"),
+                helper_getenv("OLLAMA_MODEL", "llama3.2:1b"),
                 system_instructions,
                 user_message,
             )
         ),
         "openai": engine_backends.CallableBackend(
             chat_fn=lambda system_instructions, user_message: openai_chat_fn(
-                os.getenv("OPENAI_MODEL", "gpt-5.2"),
+                helper_getenv("OPENAI_MODEL", "gpt-5.2"),
                 system_instructions,
                 user_message,
             )

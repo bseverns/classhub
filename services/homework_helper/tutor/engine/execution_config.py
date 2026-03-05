@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from typing import Callable
+
+from .config_source import helper_getenv
 
 
 @dataclass(frozen=True)
@@ -43,7 +44,7 @@ def resolve_execution_config(
     env_bool: Callable[[str, bool], bool],
     parse_csv_list: Callable[[str], list[str]],
     default_text_language_keywords: list[str],
-    getenv: Callable[[str, str], str] = os.getenv,
+    getenv: Callable[[str, str], str] = helper_getenv,
 ) -> ExecutionConfig:
     backend = (getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
     text_language_keywords = parse_csv_list(getenv("HELPER_TEXT_LANGUAGE_KEYWORDS", ""))

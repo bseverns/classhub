@@ -1,0 +1,92 @@
+# Optional Homework Helper YAML config.
+# Set HELPER_CONFIG_FILE to this path (or a mounted copy) to reduce env sprawl.
+# Environment variables always override YAML values.
+
+policy:
+  strictness: light
+  scope_mode: strict
+  topic_filter_mode: strict
+
+rate_limits:
+  actor_per_minute: 30
+  ip_per_minute: 90
+
+backend:
+  name: ollama
+  mock_response_text: ""
+  ollama:
+    base_url: http://ollama:11434
+    model: llama3.2:1b
+    timeout_seconds: 30
+    temperature: 0.2
+    top_p: 0.9
+    num_predict: 400
+  openai:
+    model: gpt-5.2
+    max_output_tokens: 400
+
+security:
+  scope_token_max_age_seconds: 7200
+
+response:
+  max_chars: 2200
+  follow_up_suggestions_max: 3
+
+conversation:
+  enabled: true
+  max_messages: 8
+  ttl_seconds: 3600
+  turn_max_chars: 800
+  history_max_chars: 2400
+  summary_max_chars: 900
+
+references:
+  directory: /app/tutor/reference
+  map:
+    piper_scratch: piper_scratch.md
+  default_file: /app/tutor/reference/piper_scratch.md
+  max_citations: 3
+
+rag:
+  enabled: false
+  embed_base_url: http://ollama:11434
+  embed_model: nomic-embed-text
+  embed_timeout_seconds: 12
+  embed_dimensions: 768
+  max_cosine_distance: 0.42
+
+queue:
+  max_concurrency: 2
+  max_wait_seconds: 10
+  poll_seconds: 0.2
+  slot_ttl_seconds: 120
+
+resilience:
+  backend_max_attempts: 2
+  backoff_seconds: 0.4
+  circuit_breaker_failures: 5
+  circuit_breaker_ttl_seconds: 30
+
+heuristics:
+  text_language_keywords:
+    - pascal
+    - python
+    - java
+    - javascript
+    - typescript
+    - c++
+    - c#
+    - csharp
+    - ruby
+    - php
+    - go
+    - golang
+    - rust
+    - swift
+    - kotlin
+
+reset_archives:
+  enabled: true
+  directory: /uploads/helper_reset_exports
+  max_keys: 4000
+  max_messages: 120

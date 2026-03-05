@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 import re
 from functools import lru_cache
 
@@ -8,6 +7,7 @@ from django.core.cache import cache
 from django.db import connection
 from django.http import JsonResponse
 
+from .engine.config_source import helper_getenv
 from .engine import heuristics as engine_heuristics
 from .engine import memory as engine_memory
 from .engine import rag as engine_rag
@@ -28,15 +28,15 @@ def _redact(text: str) -> str:
 
 
 def _env_int(name: str, default: int) -> int:
-    return engine_runtime.env_int(name, default, getenv=os.getenv)
+    return engine_runtime.env_int(name, default, getenv=helper_getenv)
 
 
 def _env_float(name: str, default: float) -> float:
-    return engine_runtime.env_float(name, default, getenv=os.getenv)
+    return engine_runtime.env_float(name, default, getenv=helper_getenv)
 
 
 def _env_bool(name: str, default: bool) -> bool:
-    return engine_runtime.env_bool(name, default, getenv=os.getenv)
+    return engine_runtime.env_bool(name, default, getenv=helper_getenv)
 
 
 def _request_id(request) -> str:
@@ -65,7 +65,7 @@ def _truncate_response_text(text: str) -> tuple[str, bool]:
 
 
 def _is_piper_context(context_value: str, topics: list[str], reference_text: str, reference_key: str = "") -> bool:
-    context_keywords = engine_heuristics.parse_csv_list(os.getenv("HELPER_PIPER_CONTEXT_KEYWORDS", ""))
+    context_keywords = engine_heuristics.parse_csv_list(helper_getenv("HELPER_PIPER_CONTEXT_KEYWORDS", ""))
     keywords = context_keywords or DEFAULT_PIPER_CONTEXT_KEYWORDS
     return engine_heuristics.is_piper_context(
         context_value,
@@ -77,7 +77,7 @@ def _is_piper_context(context_value: str, topics: list[str], reference_text: str
 
 
 def _is_piper_hardware_question(message: str) -> bool:
-    hardware_keywords = engine_heuristics.parse_csv_list(os.getenv("HELPER_PIPER_HARDWARE_KEYWORDS", ""))
+    hardware_keywords = engine_heuristics.parse_csv_list(helper_getenv("HELPER_PIPER_HARDWARE_KEYWORDS", ""))
     keywords = hardware_keywords or DEFAULT_PIPER_HARDWARE_KEYWORDS
     return engine_heuristics.is_piper_hardware_question(message, keywords=keywords)
 

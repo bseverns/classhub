@@ -13,6 +13,7 @@ from django.core.cache import cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from .engine.config_source import helper_getenv
 from .engine import memory as engine_memory
 from .engine import runtime as engine_runtime
 
@@ -20,11 +21,11 @@ logger = logging.getLogger(__name__)
 
 
 def _env_int(name: str, default: int) -> int:
-    return engine_runtime.env_int(name, default, getenv=os.getenv)
+    return engine_runtime.env_int(name, default, getenv=helper_getenv)
 
 
 def _env_bool(name: str, default: bool) -> bool:
-    return engine_runtime.env_bool(name, default, getenv=os.getenv)
+    return engine_runtime.env_bool(name, default, getenv=helper_getenv)
 
 
 def _request_id(request) -> str:
@@ -64,7 +65,7 @@ def _payload_bool(value) -> bool:
 
 
 def _write_class_reset_archive(*, class_id: int, request_id: str, conversations: list[dict]) -> tuple[str, int]:
-    archive_dir = (os.getenv("HELPER_CLASS_RESET_ARCHIVE_DIR", "/uploads/helper_reset_exports") or "").strip()
+    archive_dir = (helper_getenv("HELPER_CLASS_RESET_ARCHIVE_DIR", "/uploads/helper_reset_exports") or "").strip()
     if not archive_dir:
         raise RuntimeError("archive_directory_not_configured")
 

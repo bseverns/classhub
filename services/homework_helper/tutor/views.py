@@ -19,6 +19,7 @@ from django.db import connection, transaction
 from .classhub_events import emit_helper_chat_access_event
 from .engine import auth as engine_auth  # re-exported patch surface in tests
 from .engine import service as engine_service
+from .engine.config_source import helper_getenv
 from .policy import build_instructions
 from .queueing import acquire_slot, release_slot
 from .views_chat_deps import DEFAULT_TEXT_LANGUAGE_KEYWORDS, build_chat_deps
@@ -148,8 +149,8 @@ def _ollama_chat(base_url: str, model: str, instructions: str, message: str) -> 
         instructions=instructions,
         message=message,
         timeout_seconds=_env_int("OLLAMA_TIMEOUT_SECONDS", 30),
-        temperature=float(os.getenv("OLLAMA_TEMPERATURE", "0.2")),
-        top_p=float(os.getenv("OLLAMA_TOP_P", "0.9")),
+        temperature=float(helper_getenv("OLLAMA_TEMPERATURE", "0.2")),
+        top_p=float(helper_getenv("OLLAMA_TOP_P", "0.9")),
         num_predict=_env_int("OLLAMA_NUM_PREDICT", 0),
     )
 
@@ -167,7 +168,7 @@ def _openai_chat(model: str, instructions: str, message: str) -> tuple[str, str]
 
 def _mock_chat() -> tuple[str, str]:
     """Compatibility shim for existing test patch targets."""
-    return runtime_mock_chat(text=os.getenv("HELPER_MOCK_RESPONSE_TEXT", ""))
+    return runtime_mock_chat(text=helper_getenv("HELPER_MOCK_RESPONSE_TEXT", ""))
 
 
 def _invoke_backend(backend: str, instructions: str, message: str) -> tuple[str, str]:
@@ -199,7 +200,7 @@ def _call_backend_with_retries(backend: str, instructions: str, message: str) ->
 
 @require_GET
 def healthz(request):
-    backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
+    backend = (helper_getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
     return JsonResponse({"ok": True, "backend": backend})
 
 
@@ -214,7 +215,7 @@ def chat(request):
         settings=settings,
         client_ip_from_request_fn=client_ip_from_request,
     )
-    backend = (os.getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
+    backend = (helper_getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
 
     if not actor:
         _log_chat_event("warning", "unauthorized", request_id=request_id, actor_type=actor_type, ip=client_ip)

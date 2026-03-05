@@ -71,6 +71,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper grounding for Piper hardware](#helper-grounding-for-piper-hardware)
 - [Helper lesson citations](#helper-lesson-citations)
 - [Helper local curriculum RAG](#helper-local-curriculum-rag)
+- [Helper YAML config layering](#helper-yaml-config-layering)
 - [Production transport hardening](#production-transport-hardening)
 - [Content parse caching](#content-parse-caching)
 - [Admin access 2FA](#admin-access-2fa)
@@ -1311,6 +1312,22 @@ Execution runbook:
 - Raises answer quality on long curricula without remote data egress.
 - Preserves anti-cheating/privacy posture by preventing cross-student retrieval surfaces.
 - Keeps classroom reliability: helper responses continue even when vector retrieval is offline.
+
+## Helper YAML config layering
+
+**Current decision:**
+- Helper now supports optional YAML-backed runtime configuration via `HELPER_CONFIG_FILE`.
+- For mapped helper behavior settings, precedence is explicit and stable:
+  - explicit env var value,
+  - YAML config value,
+  - code default/profile fallback.
+- Secret-bearing settings remain env-only by design (for example API keys, signing keys, and internal service tokens).
+- A baseline template is maintained at `compose/helper.config.example.yaml`.
+
+**Why this remains active:**
+- Reduces `.env` sprawl and overlapping setting drift in deployments with many helper knobs.
+- Preserves backward compatibility for existing env-only operators.
+- Keeps sensitive values out of static config files by policy.
 
 ## Production transport hardening
 

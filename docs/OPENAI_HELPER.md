@@ -93,6 +93,14 @@ HELPER_CLASS_RESET_ARCHIVE_DIR=/uploads/helper_reset_exports
 HELPER_CLASS_RESET_ARCHIVE_MAX_MESSAGES=120
 ```
 
+Optional YAML consolidation:
+- Set `HELPER_CONFIG_FILE` to a YAML file (example: `compose/helper.config.example.yaml`).
+- For mapped helper settings, resolution order is:
+  1. explicit env var value
+  2. YAML value
+  3. code default
+- Secrets remain env-only by design (for example `OPENAI_API_KEY`, internal tokens, signing keys).
+
 Config resolution model:
 - `ContextEnvelope`: derives trusted lesson context from signed `scope_token`.
 - `PolicyBundle`: derives helper policy stance (`strictness`, `scope_mode`, topic filter) with profile defaults.
