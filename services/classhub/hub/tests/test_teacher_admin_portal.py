@@ -2761,6 +2761,77 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertEqual(request_row.status, RbacPolicyChangeRequest.STATUS_APPROVED)
         self.assertTrue(OrganizationCustomRole.objects.filter(organization=self.org_a, slug="queued_policy_role").exists())
 
+    @override_settings(CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=True)
+    def test_teacher_with_export_capability_cannot_review_policy_change_request(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+
+        request_resp = self.client.post(
+            "/teach/rbac/custom-role/upsert",
+            {
+                "rbac_custom_role_org_id": str(self.org_a.id),
+                "rbac_custom_role_slug": "restricted_review_target",
+                "rbac_custom_role_name": "Restricted Review Target",
+                "rbac_custom_role_description": "Queued for review",
+                "rbac_custom_role_active": "1",
+            },
+        )
+        self.assertEqual(request_resp.status_code, 302)
+        change = RbacPolicyChangeRequest.objects.filter(
+            request_type=RbacPolicyChangeRequest.REQUEST_CUSTOM_ROLE_UPSERT
+        ).first()
+        self.assertIsNotNone(change)
+        self.assertEqual(change.status, RbacPolicyChangeRequest.STATUS_PENDING)
+
+        reviewer = get_user_model().objects.create_user(
+            username="rbac_export_only_reviewer",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=reviewer,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        export_only_role = OrganizationCustomRole.objects.create(
+            organization=self.org_a,
+            slug="review_export_only",
+            name="Review Export Only",
+            description="Can export but cannot review approvals",
+            is_active=True,
+        )
+        OrganizationCustomRoleCapability.objects.create(
+            role=export_only_role,
+            capability=OrganizationRoleCapability.CAP_SYLLABUS_EXPORT,
+            is_active=True,
+        )
+        OrganizationCustomRoleAssignment.objects.create(
+            organization=self.org_a,
+            role=export_only_role,
+            user=reviewer,
+            is_active=True,
+        )
+
+        _force_login_staff_verified(self.client, reviewer)
+        review_resp = self.client.post(
+            "/teach/rbac/change-request/review",
+            {
+                "rbac_change_review_id": str(change.id),
+                "rbac_change_review_decision": "approve",
+            },
+        )
+        self.assertEqual(review_resp.status_code, 302)
+        self.assertIn("owners%2Fadmins", review_resp["Location"])
+        change.refresh_from_db()
+        self.assertEqual(change.status, RbacPolicyChangeRequest.STATUS_PENDING)
+        self.assertIsNone(change.reviewed_by_id)
+        self.assertFalse(
+            OrganizationCustomRole.objects.filter(organization=self.org_a, slug="restricted_review_target").exists()
+        )
+
     def test_teacher_role_cannot_import_or_export_rbac_policy(self):
         export_resp = self.client.get("/teach/rbac/policy/export")
         self.assertEqual(export_resp.status_code, 302)

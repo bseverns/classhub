@@ -165,6 +165,29 @@ def _resolve_accessible_org_for_user(user, org_id_raw: str):
     return Organization.objects.filter(id=org_id, is_active=True).only("id", "name").first()
 
 
+def _change_request_org_scope_id(change: RbacPolicyChangeRequest) -> int | None:
+    if change.organization_id:
+        return int(change.organization_id)
+    if change.classroom_id and change.classroom and change.classroom.organization_id:
+        return int(change.classroom.organization_id)
+    return None
+
+
+def _can_review_change_request(*, reviewer, change: RbacPolicyChangeRequest) -> bool:
+    if reviewer.is_superuser:
+        return True
+    org_id = _change_request_org_scope_id(change)
+    if org_id is None:
+        return False
+    return OrganizationMembership.objects.filter(
+        user=reviewer,
+        organization_id=org_id,
+        role__in=(OrganizationMembership.ROLE_OWNER, OrganizationMembership.ROLE_ADMIN),
+        is_active=True,
+        organization__is_active=True,
+    ).exists()
+
+
 def _rbac_pending_change_requests(*, classes):
     class_ids = [int(c.id) for c in classes]
     org_ids = sorted({int(c.organization_id) for c in classes if c.organization_id})
@@ -876,6 +899,8 @@ def teach_review_rbac_change_request(request):
         return _rbac_redirect(request, error="Change request is already resolved.")
     if change.requested_by_id == request.user.id:
         return _rbac_redirect(request, error="Requesters cannot approve their own policy changes.")
+    if not _can_review_change_request(reviewer=request.user, change=change):
+        return _rbac_redirect(request, error="Only org owners/admins (or superusers) can review change requests.")
 
     if decision == "reject":
         change.status = RbacPolicyChangeRequest.STATUS_REJECTED
