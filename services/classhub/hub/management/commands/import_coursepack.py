@@ -22,11 +22,14 @@ from pathlib import Path
 
 import yaml
 from django.conf import settings
+from django.core.files import File
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils._os import safe_join
 
-from hub.models import Class, Module, Material
+from hub.models import Class, LessonAsset, LessonAssetFolder, Material, Module
+
+_SUPPORT_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
 
 def _courses_dir() -> Path:
@@ -81,6 +84,86 @@ def _normalize_submission_extensions(submission: dict, naming: str) -> list[str]
             exts.append(maybe_ext)
 
     return exts
+
+
+def _normalize_support_image_paths(raw_value) -> list[str]:
+    rows = raw_value if isinstance(raw_value, list) else ([raw_value] if isinstance(raw_value, str) else [])
+    output: list[str] = []
+    for row in rows:
+        rel = str(row or "").strip().replace("\\", "/")
+        if not rel or rel.startswith("/"):
+            continue
+        if rel not in output:
+            output.append(rel)
+    return output
+
+
+def _safe_course_file(course_slug: str, rel_path: str) -> Path | None:
+    course_dir = (_courses_dir() / course_slug).resolve()
+    rel = str(rel_path or "").strip()
+    if not rel:
+        return None
+    try:
+        joined = safe_join(str(course_dir), rel)
+    except Exception:
+        return None
+    candidate = Path(joined).resolve()
+    if not candidate.is_relative_to(course_dir):
+        return None
+    if not candidate.exists() or not candidate.is_file():
+        return None
+    if candidate.suffix.lower() not in _SUPPORT_IMAGE_EXTENSIONS:
+        return None
+    return candidate
+
+
+def _title_from_filename(filename: str) -> str:
+    stem = Path(str(filename or "").strip()).stem
+    text = " ".join(stem.replace("_", " ").replace("-", " ").split())
+    return text.title() if text else "Support Image"
+
+
+def _upsert_lesson_support_asset(
+    *,
+    folder: LessonAssetFolder,
+    course_slug: str,
+    lesson_slug: str,
+    source_path: Path,
+) -> LessonAsset:
+    original_name = source_path.name[:255]
+    existing = LessonAsset.objects.filter(
+        folder=folder,
+        course_slug=course_slug,
+        lesson_slug=lesson_slug,
+        original_filename=original_name,
+    ).first()
+    with source_path.open("rb") as stream:
+        payload = File(stream, name=source_path.name)
+        if existing:
+            existing.title = _title_from_filename(source_path.name)[:200]
+            existing.description = "Imported from syllabus source zip."
+            existing.is_active = True
+            existing.file.save(source_path.name, payload, save=False)
+            existing.save(
+                update_fields=[
+                    "title",
+                    "description",
+                    "is_active",
+                    "file",
+                    "updated_at",
+                ]
+            )
+            return existing
+        return LessonAsset.objects.create(
+            folder=folder,
+            course_slug=course_slug,
+            lesson_slug=lesson_slug,
+            title=_title_from_filename(source_path.name)[:200],
+            description="Imported from syllabus source zip.",
+            original_filename=original_name,
+            file=payload,
+            is_active=True,
+        )
 
 
 class Command(BaseCommand):
@@ -142,6 +225,11 @@ class Command(BaseCommand):
         # Import
         created_modules = 0
         created_materials = 0
+        created_assets = 0
+        support_folder = LessonAssetFolder.objects.get_or_create(
+            path=f"coursepack/{course_slug}",
+            defaults={"display_name": f"{course_slug} imported support"},
+        )[0]
 
         for l in lessons:
             session = int(l.get("session") or 0)
@@ -173,6 +261,7 @@ class Command(BaseCommand):
             naming = (submission.get("naming") or "").strip()
             submission_type = str(submission.get("type") or "").strip().lower()
             exts = _normalize_submission_extensions(submission, naming)
+            support_image_paths = _normalize_support_image_paths(fm.get("support_images"))
 
             # If the lesson expects a file submission, add a built-in dropbox.
             # This lets students submit privately from the lesson itself.
@@ -205,7 +294,29 @@ class Command(BaseCommand):
                 )
                 created_materials += 1
 
+            support_order_index = 10
+            for rel_image_path in support_image_paths:
+                source_path = _safe_course_file(course_slug, rel_image_path)
+                if source_path is None:
+                    continue
+                asset = _upsert_lesson_support_asset(
+                    folder=support_folder,
+                    course_slug=course_slug,
+                    lesson_slug=lesson_slug,
+                    source_path=source_path,
+                )
+                created_assets += 1
+                Material.objects.create(
+                    module=mod,
+                    title=f"Support image: {asset.title}",
+                    type=Material.TYPE_LINK,
+                    url=f"/lesson-asset/{asset.id}/download",
+                    order_index=support_order_index,
+                )
+                created_materials += 1
+                support_order_index += 1
+
         self.stdout.write(self.style.SUCCESS(
             f"Imported course '{course_slug}' into class '{classroom.name}' ({classroom.join_code}). "
-            f"Modules: {created_modules}, materials: {created_materials}."
+            f"Modules: {created_modules}, materials: {created_materials}, support assets: {created_assets}."
         ))

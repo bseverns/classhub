@@ -307,10 +307,15 @@ Execution runbook:
 - The class is created in the uploader’s default organization scope and populated from the imported course pack.
 - Non-superuser staff uploaders receive an active `ClassStaffAssignment` on the newly created class.
 - If staff cannot create classes under current org policy, syllabus import returns an error instead of creating content without a class.
+- Zip syllabus imports now map lesson-support images by filename prefix (`01-...`, `02-...`) to matching sessions:
+  - images are written into course content under `lesson_support_images/`,
+  - generated lesson front matter includes `support_images`,
+  - coursepack import creates lesson-tagged `LessonAsset` rows + module links to those assets.
 
 **Why this remains active:**
 - Keeps teacher workflow one-step: upload source, then immediately have a runnable class.
 - Reduces setup drift where course content exists on disk but no class is attached for student use.
+- Preserves supportive visual context from teacher-authored zip bundles without manual per-lesson asset re-upload.
 
 ## Paid cohort enrollment controls
 

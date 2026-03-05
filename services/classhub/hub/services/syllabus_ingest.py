@@ -72,6 +72,7 @@ SECTION_NAMES = {
 
 SUPPORTED_EXTENSIONS = {".md", ".docx", ".zip"}
 TEXT_EXTENSIONS = {".md", ".docx"}
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 COURSE_SLUG_RE = re.compile(r"^[a-z0-9_-]+$")
 ZIP_SESSION_PATH_RE = re.compile(r"(?:^|/)(sessions?|lessons?)/", re.IGNORECASE)
 ZIP_SESSION_FILE_RE = re.compile(r"(?:^|[_\-\s])session[_\-\s]*(\d{1,2})\b", re.IGNORECASE)
@@ -98,6 +99,14 @@ class _ZipTextDoc:
     text: str
     size: int
     suffix: str
+
+
+@dataclass(frozen=True)
+class _ZipLessonImage:
+    path: str
+    session: int
+    output_filename: str
+    raw: bytes
 
 
 def _slugify(text: str) -> str:
@@ -636,6 +645,7 @@ def _build_lesson_front_matter(
     extensions: list[str],
     teacher_prep: list[str],
     ui_level_override: str = "",
+    support_images: list[str] | None = None,
 ) -> str:
     out = "---\n"
     out += f"course: {course_slug}\n"
@@ -656,6 +666,8 @@ def _build_lesson_front_matter(
     if teacher_prep:
         out += "teacher_panel:\n"
         out += _yaml_list("prep", teacher_prep, indent=2)
+    if support_images:
+        out += _yaml_list("support_images", support_images)
     out += "---\n"
     return out
 
@@ -705,7 +717,13 @@ def _render_course_yaml(
     return "\n".join(lines) + "\n"
 
 
-def _build_lesson_payload(course_slug: str, session: dict, duration: int) -> dict[str, str]:
+def _build_lesson_payload(
+    course_slug: str,
+    session: dict,
+    duration: int,
+    *,
+    support_images: list[str] | None = None,
+) -> dict[str, str]:
     session_num = int(session["session"])
     lesson_title = str(session["title"]).strip()
     filename = f"{session_num:02d}-{_slugify(lesson_title)}.md"
@@ -740,6 +758,7 @@ def _build_lesson_payload(course_slug: str, session: dict, duration: int) -> dic
         extensions,
         teacher_prep,
         ui_level_override=ui_level_override,
+        support_images=support_images or [],
     )
     cleaned_body = "\n".join(_strip_session_config_lines(body_lines)).strip()
     if not cleaned_body:
@@ -930,6 +949,59 @@ def _safe_lesson_filename(filename: str) -> str:
     return token
 
 
+def _safe_binary_extension(filename: str) -> str:
+    suffix = Path(str(filename or "").strip()).suffix.lower()
+    if suffix not in IMAGE_EXTENSIONS:
+        raise SyllabusIngestError("Zip image extension is not supported.")
+    return suffix
+
+
+def _extract_prefixed_session_number(filename: str) -> int | None:
+    token = str(filename or "").strip().lower()
+    if not token:
+        return None
+    idx = 0
+    while idx < len(token) and token[idx].isdigit() and idx < 2:
+        idx += 1
+    if idx == 0:
+        return None
+    if idx < len(token) and token[idx].isdigit():
+        return None
+    if idx >= len(token) or token[idx] not in {"-", "_", " "}:
+        return None
+    value = int(token[:idx])
+    if value <= 0:
+        return None
+    return value
+
+
+def _build_support_image_filename(
+    *,
+    session_num: int,
+    source_name: str,
+    seen: set[str],
+) -> str:
+    suffix = _safe_binary_extension(source_name)
+    raw_stem = Path(str(source_name or "").strip()).stem
+    stem_source = raw_stem
+    parsed_session = _extract_prefixed_session_number(raw_stem)
+    if parsed_session == session_num:
+        idx = 0
+        while idx < len(raw_stem) and raw_stem[idx].isdigit() and idx < 2:
+            idx += 1
+        if idx < len(raw_stem):
+            stem_source = raw_stem[idx + 1 :].strip(" _-")
+    stem = _slugify(stem_source or raw_stem)
+    base = f"s{session_num:02d}-{stem or 'image'}"
+    candidate = f"{base}{suffix}"
+    counter = 2
+    while candidate in seen:
+        candidate = f"{base}-{counter}{suffix}"
+        counter += 1
+    seen.add(candidate)
+    return candidate
+
+
 def _zip_text_documents(source_bytes: bytes) -> list[_ZipTextDoc]:
     docs: list[_ZipTextDoc] = []
     try:
@@ -964,11 +1036,56 @@ def _zip_text_documents(source_bytes: bytes) -> list[_ZipTextDoc]:
     return docs
 
 
+def _zip_lesson_images(*, source_bytes: bytes, valid_session_numbers: set[int]) -> list[_ZipLessonImage]:
+    if not valid_session_numbers:
+        return []
+    images: list[_ZipLessonImage] = []
+    seen_output_names: set[str] = set()
+    try:
+        with zipfile.ZipFile(BytesIO(source_bytes)) as archive:
+            infos = [info for info in archive.infolist() if not info.is_dir()]
+            if len(infos) > 500:
+                raise SyllabusIngestError("Zip archive has too many files to ingest safely.")
+            total_size = 0
+            for info in infos:
+                normalized_member_path = _normalize_zip_member_path(info.filename)
+                if not normalized_member_path:
+                    continue
+                total_size += int(info.file_size or 0)
+                if total_size > 30 * 1024 * 1024:
+                    raise SyllabusIngestError("Zip archive is too large to ingest safely.")
+                filename = Path(normalized_member_path).name
+                session_num = _extract_prefixed_session_number(filename)
+                if session_num is None or session_num not in valid_session_numbers:
+                    continue
+                try:
+                    output_filename = _build_support_image_filename(
+                        session_num=session_num,
+                        source_name=filename,
+                        seen=seen_output_names,
+                    )
+                except SyllabusIngestError:
+                    continue
+                with archive.open(info, "r") as stream:
+                    raw = stream.read()
+                images.append(
+                    _ZipLessonImage(
+                        path=normalized_member_path,
+                        session=session_num,
+                        output_filename=output_filename,
+                        raw=raw,
+                    )
+                )
+    except zipfile.BadZipFile as exc:
+        raise SyllabusIngestError("Invalid ZIP source.") from exc
+    return images
+
+
 def _parse_zip_source(
     *,
     source_bytes: bytes,
     session_parse_mode: str,
-) -> tuple[list[dict], dict[str, str], str, list[str], int | None]:
+) -> tuple[list[dict], dict[str, str], str, list[str], int | None, list[_ZipLessonImage]]:
     docs = _zip_text_documents(source_bytes)
     if not docs:
         raise SyllabusIngestError("Zip archive has no supported .md or .docx files.")
@@ -998,9 +1115,11 @@ def _parse_zip_source(
     metadata = {**overview_meta, **metadata}
 
     inferred_duration = _derive_duration_from_docs(docs)
-    source_files = sorted(set(session_paths + [overview_doc.path]))
+    session_numbers = {int(row.get("session") or 0) for row in sessions if int(row.get("session") or 0) > 0}
+    lesson_images = _zip_lesson_images(source_bytes=source_bytes, valid_session_numbers=session_numbers)
+    source_files = sorted(set(session_paths + [overview_doc.path] + [row.path for row in lesson_images]))
     title_fallback = _first_h1_title(overview_doc.text) or _first_h1_title(session_source)
-    return sessions, metadata, title_fallback, source_files, inferred_duration
+    return sessions, metadata, title_fallback, source_files, inferred_duration, lesson_images
 
 
 def _parse_text_source(
@@ -1008,7 +1127,7 @@ def _parse_text_source(
     source_text: str,
     overview_text: str,
     session_parse_mode: str,
-) -> tuple[list[dict], dict[str, str], str, list[str], int | None]:
+) -> tuple[list[dict], dict[str, str], str, list[str], int | None, list[_ZipLessonImage]]:
     sessions = _parse_sessions(source_text, session_parse_mode=session_parse_mode)
     if not sessions:
         raise SyllabusIngestError("No sessions found. Expected headings like: Session 01: Title")
@@ -1022,7 +1141,7 @@ def _parse_text_source(
     metadata = {**overview_info, **sessions_preamble_info}
     title_fallback = _first_h1_title(overview_text) or _first_h1_title(source_text)
     inferred_duration = _extract_minutes(overview_text) if overview_text else None
-    return sessions, metadata, title_fallback, [], inferred_duration
+    return sessions, metadata, title_fallback, [], inferred_duration, []
 
 
 def _write_course(
@@ -1038,6 +1157,7 @@ def _write_course(
     ui_level: str,
     program_profile: str,
     overwrite: bool,
+    lesson_images: list[_ZipLessonImage] | None = None,
 ) -> Path:
     safe_slug = str(slug or "").strip().lower()
     if not COURSE_SLUG_RE.fullmatch(safe_slug):
@@ -1067,10 +1187,40 @@ def _write_course(
     )
     tmp_dir.mkdir(parents=True, exist_ok=False)
     lessons_dir.mkdir(parents=True, exist_ok=False)
+    support_image_paths_by_session: dict[int, list[str]] = {}
+    if lesson_images:
+        valid_sessions = {int(row.get("session") or 0) for row in sessions if int(row.get("session") or 0) > 0}
+        lesson_support_dir = _safe_child_path(
+            tmp_dir,
+            "lesson_support_images",
+            error_message="Temporary support image path is unsafe.",
+        )
+        lesson_support_dir.mkdir(parents=True, exist_ok=False)
+        for image in lesson_images:
+            if int(image.session) not in valid_sessions:
+                continue
+            output_filename = str(image.output_filename or "").strip()
+            if not output_filename:
+                continue
+            _safe_binary_extension(output_filename)
+            output_path = _safe_child_path(
+                lesson_support_dir,
+                output_filename,
+                error_message="Generated support image path is unsafe.",
+            )
+            output_path.write_bytes(image.raw)
+            rel_path = f"lesson_support_images/{output_filename}"
+            support_image_paths_by_session.setdefault(int(image.session), []).append(rel_path)
 
     try:
         for session in sessions:
-            payload = _build_lesson_payload(slug, session, duration)
+            session_num = int(session.get("session") or 0)
+            payload = _build_lesson_payload(
+                slug,
+                session,
+                duration,
+                support_images=support_image_paths_by_session.get(session_num, []),
+            )
             lesson_filename = _safe_lesson_filename(payload.get("filename", ""))
             lesson_path = _safe_child_path(
                 lessons_dir,
@@ -1135,7 +1285,7 @@ def ingest_uploaded_syllabus(
             source_files.append(Path(overview_name).name)
 
     if source_suffix == ".zip":
-        sessions, metadata, title_fallback, zip_source_files, inferred_duration = _parse_zip_source(
+        sessions, metadata, title_fallback, zip_source_files, inferred_duration, lesson_images = _parse_zip_source(
             source_bytes=source_bytes,
             session_parse_mode=session_parse_mode,
         )
@@ -1144,7 +1294,7 @@ def ingest_uploaded_syllabus(
             source_files = zip_source_files
     else:
         source_text = _read_text_blob(suffix=source_suffix, raw=source_bytes)
-        sessions, metadata, title_fallback, _unused, inferred_duration = _parse_text_source(
+        sessions, metadata, title_fallback, _unused, inferred_duration, lesson_images = _parse_text_source(
             source_text=source_text,
             overview_text=overview_text,
             session_parse_mode=session_parse_mode,
@@ -1205,6 +1355,7 @@ def ingest_uploaded_syllabus(
         ui_level=ui_level,
         program_profile=program_profile,
         overwrite=overwrite,
+        lesson_images=lesson_images,
     )
     return SyllabusIngestResult(
         course_slug=chosen_slug,

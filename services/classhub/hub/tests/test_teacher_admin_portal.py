@@ -1569,6 +1569,10 @@ Session 02: Final Build
                 "swarm/sessions/session02_drift.md",
                 "# Session 02 - Drift Studies\n\n## Materials\n- laptop\n",
             )
+            archive.writestr(
+                "swarm/media/01-swarm-map.png",
+                b"\x89PNG\r\n\x1a\n\x00\x00\x00IHDR",
+            )
 
         with tempfile.TemporaryDirectory() as temp_dir:
             content_root = Path(temp_dir) / "content"
@@ -1592,6 +1596,27 @@ Session 02: Final Build
                 self.assertIn("ui_level: advanced", course_yaml)
                 lesson_files = sorted((course_yaml_path.parent / "lessons").glob("*.md"))
                 self.assertEqual(len(lesson_files), 2)
+                first_lesson = lesson_files[0].read_text(encoding="utf-8")
+                self.assertIn("support_images:", first_lesson)
+                self.assertIn("lesson_support_images/s01-swarm-map.png", first_lesson)
+
+                classroom = Class.objects.filter(name="Swarm Aesthetics").first()
+                self.assertIsNotNone(classroom)
+                first_module = Module.objects.filter(classroom=classroom).order_by("order_index", "id").first()
+                self.assertIsNotNone(first_module)
+                support_material = Material.objects.filter(
+                    module=first_module,
+                    type=Material.TYPE_LINK,
+                    title__startswith="Support image:",
+                ).first()
+                self.assertIsNotNone(support_material)
+                self.assertTrue((support_material.url or "").startswith("/lesson-asset/"))
+                support_asset = LessonAsset.objects.filter(
+                    course_slug="swarm_aesthetics",
+                    lesson_slug="s01-swarms-systems",
+                ).first()
+                self.assertIsNotNone(support_asset)
+                self.assertEqual(support_asset.original_filename, "s01-swarm-map.png")
 
         self.assertEqual(resp.status_code, 302)
         self.assertIn("/teach?notice=", resp["Location"])
