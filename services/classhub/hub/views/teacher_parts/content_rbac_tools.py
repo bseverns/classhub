@@ -1,7 +1,24 @@
-"""RBAC tools for teacher home (scoped grants + simulation)."""
+"""RBAC tools for teacher home (scoped grants + simulation + custom roles)."""
 
-from ...models import ClassStaffModuleScopeGrant, OrganizationMembership
+from __future__ import annotations
+
+import re
+
+from django.db import transaction
+from django.db.models import Q
+
+from ...models import (
+    ClassStaffModuleScopeGrant,
+    Organization,
+    OrganizationCustomRole,
+    OrganizationCustomRoleAssignment,
+    OrganizationCustomRoleCapability,
+    OrganizationMembership,
+    OrganizationRoleCapability,
+    RbacPolicyChangeRequest,
+)
 from ...services.org_access import evaluate_staff_capability
+from ...services.rbac_policy_bundle import apply_rbac_policy_payload
 from .content_rbac_audit import build_rbac_audit_context
 from .content_rbac_bulk import build_bulk_simulation_result
 from .content_rbac_state import (
@@ -17,14 +34,66 @@ from .shared import (
     _with_notice,
     get_user_model,
     require_POST,
+    settings,
+    staff_accessible_classes_ranked,
     staff_can_export_syllabi,
     staff_classroom_or_none,
     staff_member_required,
+    timezone,
 )
 
 
-_CAPABILITY_VALUES = {value for value, _label in ClassStaffModuleScopeGrant.CAPABILITY_CHOICES}
+_SCOPED_CAPABILITY_VALUES = {value for value, _label in ClassStaffModuleScopeGrant.CAPABILITY_CHOICES}
+_SIMULATION_CAPABILITY_VALUES = {value for value, _label in OrganizationRoleCapability.CAPABILITY_CHOICES}
+_CUSTOM_ROLE_CAPABILITY_VALUES = {value for value, _label in OrganizationRoleCapability.CAPABILITY_CHOICES}
 _EFFECT_VALUES = {value for value, _label in ClassStaffModuleScopeGrant.EFFECT_CHOICES}
+_CUSTOM_ROLE_SLUG_RE = re.compile(r"^[a-z0-9_-]{1,64}$")
+
+_RBAC_STATE_KEYS = (
+    "rbac_class_id",
+    "rbac_user_id",
+    "rbac_capability",
+    "rbac_effect",
+    "rbac_module_start",
+    "rbac_module_end",
+    "rbac_grant_active",
+    "rbac_sim_user_id",
+    "rbac_sim_class_id",
+    "rbac_sim_capability",
+    "rbac_sim_module_id",
+    "rbac_bulk_class_id",
+    "rbac_bulk_capability",
+    "rbac_bulk_module_id",
+    "rbac_audit_action",
+    "rbac_audit_class_id",
+    "rbac_audit_limit",
+    "rbac_custom_role_org_id",
+    "rbac_custom_role_slug",
+    "rbac_custom_role_name",
+    "rbac_custom_role_description",
+    "rbac_custom_role_active",
+    "rbac_custom_role_cap_org_id",
+    "rbac_custom_role_cap_slug",
+    "rbac_custom_role_capability",
+    "rbac_custom_role_cap_active",
+    "rbac_custom_role_assign_org_id",
+    "rbac_custom_role_assign_slug",
+    "rbac_custom_role_assign_user_id",
+    "rbac_custom_role_assign_active",
+    "rbac_change_review_id",
+    "rbac_change_review_decision",
+    "rbac_change_review_note",
+)
+
+_RBAC_STATE_DEFAULTS = {
+    "rbac_grant_active": "1",
+    "rbac_audit_action": "all",
+    "rbac_audit_limit": "50",
+    "rbac_custom_role_active": "1",
+    "rbac_custom_role_cap_active": "1",
+    "rbac_custom_role_assign_active": "1",
+    "rbac_change_review_decision": "approve",
+}
 
 
 def rbac_tools_enabled_for_user(user) -> bool:
@@ -35,31 +104,19 @@ def rbac_tools_requested(request) -> bool:
     return (request.GET.get("rbac_tools") or "").strip() == "1"
 
 
+def _rbac_policy_approval_required() -> bool:
+    return bool(getattr(settings, "CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED", False))
+
+
 def _rbac_state_extra(request, *, extra: dict | None = None) -> dict:
-    payload = {
-        "rbac_tools": "1",
-        "rbac_class_id": (request.POST.get("rbac_class_id") or request.GET.get("rbac_class_id") or "").strip(),
-        "rbac_user_id": (request.POST.get("rbac_user_id") or request.GET.get("rbac_user_id") or "").strip(),
-        "rbac_capability": (request.POST.get("rbac_capability") or request.GET.get("rbac_capability") or "").strip(),
-        "rbac_effect": (request.POST.get("rbac_effect") or request.GET.get("rbac_effect") or "").strip(),
-        "rbac_module_start": (request.POST.get("rbac_module_start") or request.GET.get("rbac_module_start") or "").strip(),
-        "rbac_module_end": (request.POST.get("rbac_module_end") or request.GET.get("rbac_module_end") or "").strip(),
-        "rbac_grant_active": (request.POST.get("rbac_grant_active") or request.GET.get("rbac_grant_active") or "1").strip(),
-        "rbac_sim_user_id": (request.POST.get("rbac_sim_user_id") or request.GET.get("rbac_sim_user_id") or "").strip(),
-        "rbac_sim_class_id": (request.POST.get("rbac_sim_class_id") or request.GET.get("rbac_sim_class_id") or "").strip(),
-        "rbac_sim_capability": (request.POST.get("rbac_sim_capability") or request.GET.get("rbac_sim_capability") or "").strip(),
-        "rbac_sim_module_id": (request.POST.get("rbac_sim_module_id") or request.GET.get("rbac_sim_module_id") or "").strip(),
-        "rbac_bulk_class_id": (request.POST.get("rbac_bulk_class_id") or request.GET.get("rbac_bulk_class_id") or "").strip(),
-        "rbac_bulk_capability": (
-            request.POST.get("rbac_bulk_capability") or request.GET.get("rbac_bulk_capability") or ""
-        ).strip(),
-        "rbac_bulk_module_id": (request.POST.get("rbac_bulk_module_id") or request.GET.get("rbac_bulk_module_id") or "").strip(),
-        "rbac_audit_action": (request.POST.get("rbac_audit_action") or request.GET.get("rbac_audit_action") or "all").strip(),
-        "rbac_audit_class_id": (
-            request.POST.get("rbac_audit_class_id") or request.GET.get("rbac_audit_class_id") or ""
-        ).strip(),
-        "rbac_audit_limit": (request.POST.get("rbac_audit_limit") or request.GET.get("rbac_audit_limit") or "50").strip(),
-    }
+    payload = {"rbac_tools": "1"}
+    for key in _RBAC_STATE_KEYS:
+        value = request.POST.get(key)
+        if value is None:
+            value = request.GET.get(key)
+        text = (value or _RBAC_STATE_DEFAULTS.get(key, "")).strip()
+        if text:
+            payload[key] = text
     payload.update(extra or {})
     return payload
 
@@ -77,20 +134,93 @@ def _resolve_staff_user(user_id_raw: str):
     if user_id is None:
         return None
     User = get_user_model()
-    return User.objects.filter(id=user_id, is_staff=True, is_active=True).only("id", "username").first()
+    return User.objects.filter(id=user_id, is_staff=True, is_active=True).only("id", "username", "is_superuser").first()
 
 
-def _target_user_has_org_membership(user, *, classroom) -> bool:
+def _target_user_has_org_membership(user, *, organization_id: int | None) -> bool:
     if user.is_superuser:
         return True
-    if not classroom.organization_id:
+    if not organization_id:
         return True
     return OrganizationMembership.objects.filter(
         user=user,
-        organization_id=classroom.organization_id,
+        organization_id=organization_id,
         is_active=True,
         organization__is_active=True,
     ).exists()
+
+
+def _accessible_org_ids_for_user(user) -> set[int]:
+    classes, _assigned = staff_accessible_classes_ranked(user)
+    return {int(c.organization_id) for c in classes if c.organization_id}
+
+
+def _resolve_accessible_org_for_user(user, org_id_raw: str):
+    org_id = _parse_positive_int(org_id_raw, min_value=1, max_value=2_147_483_647)
+    if org_id is None:
+        return None
+    accessible_org_ids = _accessible_org_ids_for_user(user)
+    if org_id not in accessible_org_ids:
+        return None
+    return Organization.objects.filter(id=org_id, is_active=True).only("id", "name").first()
+
+
+def _rbac_pending_change_requests(*, classes):
+    class_ids = [int(c.id) for c in classes]
+    org_ids = sorted({int(c.organization_id) for c in classes if c.organization_id})
+    queryset = RbacPolicyChangeRequest.objects.select_related(
+        "requested_by",
+        "reviewed_by",
+        "organization",
+        "classroom",
+    ).filter(status=RbacPolicyChangeRequest.STATUS_PENDING)
+    if class_ids and org_ids:
+        queryset = queryset.filter(
+            Q(classroom_id__in=class_ids)
+            | Q(classroom__isnull=True, organization_id__in=org_ids)
+        )
+    elif class_ids:
+        queryset = queryset.filter(classroom_id__in=class_ids)
+    elif org_ids:
+        queryset = queryset.filter(classroom__isnull=True, organization_id__in=org_ids)
+    else:
+        return []
+    return list(queryset.order_by("-created_at", "-id")[:100])
+
+
+def _queue_policy_change_request(
+    request,
+    *,
+    request_type: str,
+    payload: dict,
+    summary: str,
+    classroom=None,
+    organization=None,
+):
+    change = RbacPolicyChangeRequest.objects.create(
+        request_type=request_type,
+        status=RbacPolicyChangeRequest.STATUS_PENDING,
+        requested_by=request.user,
+        organization=organization,
+        classroom=classroom,
+        summary=summary[:255],
+        payload=payload,
+    )
+    _audit(
+        request,
+        action="rbac.policy_change.requested",
+        classroom=classroom,
+        target_type="RbacPolicyChangeRequest",
+        target_id=str(change.id),
+        summary=f"Queued RBAC policy change request {change.request_type}",
+        metadata={
+            "request_id": change.id,
+            "request_type": change.request_type,
+            "organization_id": change.organization_id,
+            "classroom_id": change.classroom_id,
+        },
+    )
+    return change
 
 
 def build_rbac_tools_context(*, request, classes) -> dict:
@@ -101,9 +231,24 @@ def build_rbac_tools_context(*, request, classes) -> dict:
         }
     state = rbac_form_state(request)
     staff_users = rbac_staff_users(classes)
+    org_ids = sorted({int(c.organization_id) for c in classes if c.organization_id})
+    organizations = list(
+        Organization.objects.filter(id__in=org_ids, is_active=True).order_by("name", "id").only("id", "name")
+    )
+    custom_roles = list(
+        OrganizationCustomRole.objects.select_related("organization")
+        .prefetch_related("capabilities")
+        .filter(organization_id__in=org_ids)
+        .order_by("organization__name", "slug", "id")
+    )
+    custom_role_assignments = list(
+        OrganizationCustomRoleAssignment.objects.select_related("organization", "role", "user")
+        .filter(organization_id__in=org_ids)
+        .order_by("organization__name", "role__slug", "user__username", "id")
+    )
     bulk_simulation_result = build_bulk_simulation_result(
         request=request,
-        capability_values=_CAPABILITY_VALUES,
+        capability_values=_SIMULATION_CAPABILITY_VALUES,
         staff_users=staff_users,
         state=state,
     )
@@ -113,10 +258,17 @@ def build_rbac_tools_context(*, request, classes) -> dict:
         "rbac_tools_enabled": True,
         "rbac_tools_active": rbac_tools_requested(request),
         "rbac_classes": classes,
+        "rbac_orgs": organizations,
         "rbac_staff_users": staff_users,
         "rbac_scope_grants": rbac_scope_grants(classes),
-        "rbac_capability_choices": ClassStaffModuleScopeGrant.CAPABILITY_CHOICES,
+        "rbac_custom_roles": custom_roles,
+        "rbac_custom_role_assignments": custom_role_assignments,
+        "rbac_pending_change_requests": _rbac_pending_change_requests(classes=classes),
+        "rbac_policy_approval_required": _rbac_policy_approval_required(),
+        "rbac_scoped_capability_choices": ClassStaffModuleScopeGrant.CAPABILITY_CHOICES,
+        "rbac_simulation_capability_choices": OrganizationRoleCapability.CAPABILITY_CHOICES,
         "rbac_effect_choices": ClassStaffModuleScopeGrant.EFFECT_CHOICES,
+        "rbac_custom_role_capability_choices": OrganizationRoleCapability.CAPABILITY_CHOICES,
         **state,
         "rbac_simulation_result": rbac_simulation_result(request),
         "rbac_bulk_simulation_result": bulk_simulation_result,
@@ -138,12 +290,12 @@ def _parse_scope_grant_payload(request):
     target_user = _resolve_staff_user(request.POST.get("rbac_user_id") or "")
     if target_user is None:
         return None, "Staff user is required."
-    if not _target_user_has_org_membership(target_user, classroom=classroom):
+    if not _target_user_has_org_membership(target_user, organization_id=classroom.organization_id):
         return None, "Target user must be active in the class organization."
 
     capability = (request.POST.get("rbac_capability") or "").strip()
-    if capability not in _CAPABILITY_VALUES:
-        return None, "Unsupported capability."
+    if capability not in _SCOPED_CAPABILITY_VALUES:
+        return None, "Unsupported scoped-grant capability."
 
     effect = (request.POST.get("rbac_effect") or "").strip()
     if effect not in _EFFECT_VALUES:
@@ -156,8 +308,8 @@ def _parse_scope_grant_payload(request):
     if module_end < module_start:
         return None, "Module end must be greater than or equal to module start."
     return {
-        "classroom": classroom,
-        "target_user": target_user,
+        "classroom_id": int(classroom.id),
+        "target_user_id": int(target_user.id),
         "capability": capability,
         "effect": effect,
         "module_start": module_start,
@@ -166,18 +318,37 @@ def _parse_scope_grant_payload(request):
     }, ""
 
 
-def _upsert_scope_grant(payload: dict):
+def _apply_scope_grant_upsert(*, actor_user, payload: dict):
+    classroom = staff_classroom_or_none(actor_user, payload.get("classroom_id"))
+    if classroom is None:
+        raise ValueError("Class not found.")
+    target_user = _resolve_staff_user(str(payload.get("target_user_id") or ""))
+    if target_user is None:
+        raise ValueError("Staff user not found.")
+    if not _target_user_has_org_membership(target_user, organization_id=classroom.organization_id):
+        raise ValueError("Target user must be active in the class organization.")
+    capability = str(payload.get("capability") or "")
+    if capability not in _SCOPED_CAPABILITY_VALUES:
+        raise ValueError("Unsupported scoped-grant capability.")
+    effect = str(payload.get("effect") or "")
+    if effect not in _EFFECT_VALUES:
+        raise ValueError("Unsupported grant effect.")
+    module_start = _parse_positive_int(str(payload.get("module_start") or ""), min_value=0, max_value=50_000)
+    module_end = _parse_positive_int(str(payload.get("module_end") or ""), min_value=0, max_value=50_000)
+    if module_start is None or module_end is None or module_end < module_start:
+        raise ValueError("Invalid module range.")
+    is_active = bool(payload.get("is_active"))
     grant, created = ClassStaffModuleScopeGrant.objects.get_or_create(
-        classroom=payload["classroom"],
-        user=payload["target_user"],
-        capability=payload["capability"],
-        effect=payload["effect"],
-        module_order_start=payload["module_start"],
-        module_order_end=payload["module_end"],
-        defaults={"is_active": payload["is_active"]},
+        classroom=classroom,
+        user=target_user,
+        capability=capability,
+        effect=effect,
+        module_order_start=module_start,
+        module_order_end=module_end,
+        defaults={"is_active": is_active},
     )
-    if not created and grant.is_active != payload["is_active"]:
-        grant.is_active = payload["is_active"]
+    if not created and grant.is_active != is_active:
+        grant.is_active = is_active
         grant.save(update_fields=["is_active", "updated_at"])
     return grant, created
 
@@ -193,26 +364,51 @@ def teach_upsert_module_scope_grant(request):
     if payload is None:
         return _rbac_redirect(request, error=error)
 
-    grant, created = _upsert_scope_grant(payload)
+    if _rbac_policy_approval_required():
+        change = _queue_policy_change_request(
+            request,
+            request_type=RbacPolicyChangeRequest.REQUEST_SCOPE_GRANT_UPSERT,
+            payload=payload,
+            summary=f"Scoped grant upsert {payload['capability']} ({payload['effect']})",
+            classroom=staff_classroom_or_none(request.user, payload["classroom_id"]),
+        )
+        return _rbac_redirect(request, notice=f"Scoped grant request queued (#{change.id}).")
 
+    grant, created = _apply_scope_grant_upsert(actor_user=request.user, payload=payload)
     _audit(
         request,
         action="rbac.scope_grant.portal_upsert",
-        classroom=payload["classroom"],
+        classroom=grant.classroom,
         target_type="ClassStaffModuleScopeGrant",
         target_id=str(grant.id),
-        summary=f"Portal upsert scoped grant {payload['capability']} ({payload['effect']})",
+        summary=f"Portal upsert scoped grant {grant.capability} ({grant.effect})",
         metadata={
             "created": bool(created),
-            "user_id": payload["target_user"].id,
-            "capability": payload["capability"],
-            "effect": payload["effect"],
-            "module_order_start": payload["module_start"],
-            "module_order_end": payload["module_end"],
+            "user_id": grant.user_id,
+            "capability": grant.capability,
+            "effect": grant.effect,
+            "module_order_start": grant.module_order_start,
+            "module_order_end": grant.module_order_end,
             "is_active": bool(grant.is_active),
         },
     )
     return _rbac_redirect(request, notice="Scoped grant saved.")
+
+
+def _apply_scope_grant_set_active(*, actor_user, payload: dict):
+    grant_id = _parse_positive_int(str(payload.get("grant_id") or ""), min_value=1, max_value=2_147_483_647)
+    if grant_id is None:
+        raise ValueError("Grant id is required.")
+    grant = ClassStaffModuleScopeGrant.objects.select_related("classroom").filter(id=grant_id).first()
+    if grant is None:
+        raise ValueError("Grant not found.")
+    if staff_classroom_or_none(actor_user, grant.classroom_id) is None:
+        raise ValueError("Class not found.")
+    is_active = bool(payload.get("is_active"))
+    if grant.is_active != is_active:
+        grant.is_active = is_active
+        grant.save(update_fields=["is_active", "updated_at"])
+    return grant
 
 
 @staff_member_required
@@ -222,7 +418,11 @@ def teach_set_module_scope_grant_active(request):
     if denied is not None:
         return denied
 
-    grant_id = _parse_positive_int(request.POST.get("rbac_grant_id") or "", min_value=1, max_value=2_147_483_647)
+    payload = {
+        "grant_id": request.POST.get("rbac_grant_id") or "",
+        "is_active": (request.POST.get("rbac_grant_active") or "0").strip() == "1",
+    }
+    grant_id = _parse_positive_int(str(payload.get("grant_id") or ""), min_value=1, max_value=2_147_483_647)
     if grant_id is None:
         return _rbac_redirect(request, error="Grant id is required.")
     grant = ClassStaffModuleScopeGrant.objects.select_related("classroom").filter(id=grant_id).first()
@@ -231,21 +431,282 @@ def teach_set_module_scope_grant_active(request):
     if staff_classroom_or_none(request.user, grant.classroom_id) is None:
         return _rbac_redirect(request, error="Class not found.")
 
-    is_active = (request.POST.get("rbac_grant_active") or "0").strip() == "1"
-    if grant.is_active != is_active:
-        grant.is_active = is_active
-        grant.save(update_fields=["is_active", "updated_at"])
+    if _rbac_policy_approval_required():
+        change = _queue_policy_change_request(
+            request,
+            request_type=RbacPolicyChangeRequest.REQUEST_SCOPE_GRANT_SET_ACTIVE,
+            payload=payload,
+            summary=f"Scoped grant set active={payload['is_active']}",
+            classroom=grant.classroom,
+        )
+        return _rbac_redirect(request, notice=f"Scoped grant status request queued (#{change.id}).")
 
+    try:
+        grant = _apply_scope_grant_set_active(actor_user=request.user, payload=payload)
+    except ValueError as exc:
+        return _rbac_redirect(request, error=str(exc))
     _audit(
         request,
         action="rbac.scope_grant.portal_set_active",
         classroom=grant.classroom,
         target_type="ClassStaffModuleScopeGrant",
         target_id=str(grant.id),
-        summary=f"Portal set scoped grant active={is_active}",
-        metadata={"is_active": bool(is_active)},
+        summary=f"Portal set scoped grant active={grant.is_active}",
+        metadata={"is_active": bool(grant.is_active)},
     )
     return _rbac_redirect(request, notice="Scoped grant status updated.")
+
+
+def _parse_custom_role_upsert_payload(request):
+    org = _resolve_accessible_org_for_user(request.user, request.POST.get("rbac_custom_role_org_id") or "")
+    if org is None:
+        return None, "Organization is required."
+    slug = (request.POST.get("rbac_custom_role_slug") or "").strip().lower()
+    if not _CUSTOM_ROLE_SLUG_RE.match(slug):
+        return None, "Custom role slug must match [a-z0-9_-] and be <=64 chars."
+    name = (request.POST.get("rbac_custom_role_name") or "").strip()
+    if not name:
+        return None, "Custom role name is required."
+    description = (request.POST.get("rbac_custom_role_description") or "").strip()
+    return {
+        "organization_id": int(org.id),
+        "slug": slug,
+        "name": name[:120],
+        "description": description[:500],
+        "is_active": (request.POST.get("rbac_custom_role_active") or "0").strip() == "1",
+    }, ""
+
+
+def _apply_custom_role_upsert(*, actor_user, payload: dict):
+    org = _resolve_accessible_org_for_user(actor_user, str(payload.get("organization_id") or ""))
+    if org is None:
+        raise ValueError("Organization not found.")
+    slug = str(payload.get("slug") or "").strip().lower()
+    if not _CUSTOM_ROLE_SLUG_RE.match(slug):
+        raise ValueError("Invalid custom role slug.")
+    name = str(payload.get("name") or "").strip()
+    if not name:
+        raise ValueError("Custom role name is required.")
+    description = str(payload.get("description") or "").strip()
+    is_active = bool(payload.get("is_active"))
+    role, created = OrganizationCustomRole.objects.get_or_create(
+        organization=org,
+        slug=slug,
+        defaults={"name": name[:120], "description": description[:500], "is_active": is_active},
+    )
+    changed_fields: list[str] = []
+    if role.name != name[:120]:
+        role.name = name[:120]
+        changed_fields.append("name")
+    if role.description != description[:500]:
+        role.description = description[:500]
+        changed_fields.append("description")
+    if role.is_active != is_active:
+        role.is_active = is_active
+        changed_fields.append("is_active")
+    if changed_fields:
+        role.save(update_fields=changed_fields + ["updated_at"])
+    return role, created
+
+
+@staff_member_required
+@require_POST
+def teach_upsert_custom_role(request):
+    denied = _require_rbac_tools_access(request)
+    if denied is not None:
+        return denied
+    payload, error = _parse_custom_role_upsert_payload(request)
+    if payload is None:
+        return _rbac_redirect(request, error=error)
+
+    if _rbac_policy_approval_required():
+        change = _queue_policy_change_request(
+            request,
+            request_type=RbacPolicyChangeRequest.REQUEST_CUSTOM_ROLE_UPSERT,
+            payload=payload,
+            summary=f"Custom role upsert {payload['slug']}",
+            organization=_resolve_accessible_org_for_user(request.user, str(payload["organization_id"])),
+        )
+        return _rbac_redirect(request, notice=f"Custom role request queued (#{change.id}).")
+
+    role, created = _apply_custom_role_upsert(actor_user=request.user, payload=payload)
+    _audit(
+        request,
+        action="organization.custom_role.portal_upsert",
+        target_type="OrganizationCustomRole",
+        target_id=str(role.id),
+        summary=f"Portal upsert custom role {role.slug}",
+        metadata={
+            "organization_id": role.organization_id,
+            "slug": role.slug,
+            "created": bool(created),
+            "is_active": bool(role.is_active),
+        },
+    )
+    return _rbac_redirect(request, notice="Custom role saved.")
+
+
+def _parse_custom_role_capability_payload(request):
+    org = _resolve_accessible_org_for_user(request.user, request.POST.get("rbac_custom_role_cap_org_id") or "")
+    if org is None:
+        return None, "Organization is required."
+    slug = (request.POST.get("rbac_custom_role_cap_slug") or "").strip().lower()
+    if not _CUSTOM_ROLE_SLUG_RE.match(slug):
+        return None, "Role slug is required."
+    capability = (request.POST.get("rbac_custom_role_capability") or "").strip().lower()
+    if capability not in _CUSTOM_ROLE_CAPABILITY_VALUES:
+        return None, "Select a valid capability."
+    return {
+        "organization_id": int(org.id),
+        "slug": slug,
+        "capability": capability,
+        "is_active": (request.POST.get("rbac_custom_role_cap_active") or "0").strip() == "1",
+    }, ""
+
+
+def _apply_custom_role_capability_upsert(*, actor_user, payload: dict):
+    org = _resolve_accessible_org_for_user(actor_user, str(payload.get("organization_id") or ""))
+    if org is None:
+        raise ValueError("Organization not found.")
+    slug = str(payload.get("slug") or "").strip().lower()
+    role = OrganizationCustomRole.objects.filter(organization=org, slug=slug).first()
+    if role is None:
+        raise ValueError("Custom role not found.")
+    capability = str(payload.get("capability") or "").strip().lower()
+    if capability not in _CUSTOM_ROLE_CAPABILITY_VALUES:
+        raise ValueError("Invalid capability.")
+    is_active = bool(payload.get("is_active"))
+    row, created = OrganizationCustomRoleCapability.objects.get_or_create(
+        role=role,
+        capability=capability,
+        defaults={"is_active": is_active},
+    )
+    if not created and row.is_active != is_active:
+        row.is_active = is_active
+        row.save(update_fields=["is_active", "updated_at"])
+    return row, created
+
+
+@staff_member_required
+@require_POST
+def teach_upsert_custom_role_capability(request):
+    denied = _require_rbac_tools_access(request)
+    if denied is not None:
+        return denied
+    payload, error = _parse_custom_role_capability_payload(request)
+    if payload is None:
+        return _rbac_redirect(request, error=error)
+
+    if _rbac_policy_approval_required():
+        change = _queue_policy_change_request(
+            request,
+            request_type=RbacPolicyChangeRequest.REQUEST_CUSTOM_ROLE_CAPABILITY_UPSERT,
+            payload=payload,
+            summary=f"Custom role capability upsert {payload['slug']} -> {payload['capability']}",
+            organization=_resolve_accessible_org_for_user(request.user, str(payload["organization_id"])),
+        )
+        return _rbac_redirect(request, notice=f"Custom role capability request queued (#{change.id}).")
+
+    row, created = _apply_custom_role_capability_upsert(actor_user=request.user, payload=payload)
+    _audit(
+        request,
+        action="organization.custom_role_capability.portal_upsert",
+        target_type="OrganizationCustomRoleCapability",
+        target_id=str(row.id),
+        summary=f"Portal upsert custom role capability {row.role.slug} -> {row.capability}",
+        metadata={
+            "organization_id": row.role.organization_id,
+            "role_slug": row.role.slug,
+            "capability": row.capability,
+            "created": bool(created),
+            "is_active": bool(row.is_active),
+        },
+    )
+    return _rbac_redirect(request, notice="Custom role capability saved.")
+
+
+def _parse_custom_role_assignment_payload(request):
+    org = _resolve_accessible_org_for_user(request.user, request.POST.get("rbac_custom_role_assign_org_id") or "")
+    if org is None:
+        return None, "Organization is required."
+    slug = (request.POST.get("rbac_custom_role_assign_slug") or "").strip().lower()
+    if not _CUSTOM_ROLE_SLUG_RE.match(slug):
+        return None, "Role slug is required."
+    target_user = _resolve_staff_user(request.POST.get("rbac_custom_role_assign_user_id") or "")
+    if target_user is None:
+        return None, "Staff user is required."
+    if not _target_user_has_org_membership(target_user, organization_id=int(org.id)):
+        return None, "Target user must be active in the selected organization."
+    return {
+        "organization_id": int(org.id),
+        "slug": slug,
+        "target_user_id": int(target_user.id),
+        "is_active": (request.POST.get("rbac_custom_role_assign_active") or "0").strip() == "1",
+    }, ""
+
+
+def _apply_custom_role_assignment_upsert(*, actor_user, payload: dict):
+    org = _resolve_accessible_org_for_user(actor_user, str(payload.get("organization_id") or ""))
+    if org is None:
+        raise ValueError("Organization not found.")
+    slug = str(payload.get("slug") or "").strip().lower()
+    role = OrganizationCustomRole.objects.filter(organization=org, slug=slug).first()
+    if role is None:
+        raise ValueError("Custom role not found.")
+    target_user = _resolve_staff_user(str(payload.get("target_user_id") or ""))
+    if target_user is None:
+        raise ValueError("Staff user not found.")
+    if not _target_user_has_org_membership(target_user, organization_id=int(org.id)):
+        raise ValueError("Target user must be active in the selected organization.")
+    is_active = bool(payload.get("is_active"))
+    assignment, created = OrganizationCustomRoleAssignment.objects.get_or_create(
+        organization=org,
+        user=target_user,
+        role=role,
+        defaults={"is_active": is_active},
+    )
+    if not created and assignment.is_active != is_active:
+        assignment.is_active = is_active
+        assignment.save(update_fields=["is_active", "updated_at"])
+    return assignment, created
+
+
+@staff_member_required
+@require_POST
+def teach_upsert_custom_role_assignment(request):
+    denied = _require_rbac_tools_access(request)
+    if denied is not None:
+        return denied
+    payload, error = _parse_custom_role_assignment_payload(request)
+    if payload is None:
+        return _rbac_redirect(request, error=error)
+
+    if _rbac_policy_approval_required():
+        change = _queue_policy_change_request(
+            request,
+            request_type=RbacPolicyChangeRequest.REQUEST_CUSTOM_ROLE_ASSIGNMENT_UPSERT,
+            payload=payload,
+            summary=f"Custom role assignment upsert {payload['slug']}",
+            organization=_resolve_accessible_org_for_user(request.user, str(payload["organization_id"])),
+        )
+        return _rbac_redirect(request, notice=f"Custom role assignment request queued (#{change.id}).")
+
+    assignment, created = _apply_custom_role_assignment_upsert(actor_user=request.user, payload=payload)
+    _audit(
+        request,
+        action="organization.custom_role_assignment.portal_upsert",
+        target_type="OrganizationCustomRoleAssignment",
+        target_id=str(assignment.id),
+        summary=f"Portal upsert custom role assignment for user {assignment.user_id}",
+        metadata={
+            "organization_id": assignment.organization_id,
+            "role_slug": assignment.role.slug,
+            "user_id": assignment.user_id,
+            "created": bool(created),
+            "is_active": bool(assignment.is_active),
+        },
+    )
+    return _rbac_redirect(request, notice="Custom role assignment saved.")
 
 
 def _parse_simulation_payload(request):
@@ -254,8 +715,8 @@ def _parse_simulation_payload(request):
         return None, "Simulation target staff user is required."
 
     capability = (request.POST.get("rbac_sim_capability") or "").strip().lower()
-    if capability not in _CAPABILITY_VALUES:
-        return None, "Simulation capability must be one of the scoped-grant capabilities."
+    if capability not in _SIMULATION_CAPABILITY_VALUES:
+        return None, "Simulation capability is invalid."
 
     classroom = None
     class_id_raw = (request.POST.get("rbac_sim_class_id") or "").strip()
@@ -337,11 +798,134 @@ def teach_simulate_rbac_access(request):
     )
 
 
+def _apply_change_request_approved(*, actor_user, change_request: RbacPolicyChangeRequest) -> str:
+    payload = change_request.payload or {}
+    if change_request.request_type == RbacPolicyChangeRequest.REQUEST_SCOPE_GRANT_UPSERT:
+        grant, _created = _apply_scope_grant_upsert(actor_user=actor_user, payload=payload)
+        return f"Applied scoped grant #{grant.id}."
+    if change_request.request_type == RbacPolicyChangeRequest.REQUEST_SCOPE_GRANT_SET_ACTIVE:
+        grant = _apply_scope_grant_set_active(actor_user=actor_user, payload=payload)
+        return f"Updated scoped grant #{grant.id} active={grant.is_active}."
+    if change_request.request_type == RbacPolicyChangeRequest.REQUEST_CUSTOM_ROLE_UPSERT:
+        role, _created = _apply_custom_role_upsert(actor_user=actor_user, payload=payload)
+        return f"Applied custom role {role.slug}."
+    if change_request.request_type == RbacPolicyChangeRequest.REQUEST_CUSTOM_ROLE_CAPABILITY_UPSERT:
+        row, _created = _apply_custom_role_capability_upsert(actor_user=actor_user, payload=payload)
+        return f"Applied custom role capability {row.role.slug}->{row.capability}."
+    if change_request.request_type == RbacPolicyChangeRequest.REQUEST_CUSTOM_ROLE_ASSIGNMENT_UPSERT:
+        assignment, _created = _apply_custom_role_assignment_upsert(actor_user=actor_user, payload=payload)
+        return f"Applied custom role assignment #{assignment.id}."
+    if change_request.request_type == RbacPolicyChangeRequest.REQUEST_POLICY_IMPORT:
+        policy_payload = payload.get("policy_payload")
+        if not isinstance(policy_payload, dict):
+            raise ValueError("Policy request payload is missing policy JSON.")
+        source_label = str(payload.get("source_label") or "approval").strip() or "approval"
+        result = apply_rbac_policy_payload(
+            actor_user=actor_user,
+            payload=policy_payload,
+            source_label=source_label,
+        )
+        return (
+            "Applied policy import "
+            f"(org rows:{result.org_rows}, grant rows:{result.grant_rows}, "
+            f"custom roles:{result.custom_role_rows}, assignments:{result.custom_role_assignment_rows})."
+        )
+    raise ValueError("Unsupported policy change request type.")
+
+
+def _scoped_change_request_or_none(*, actor_user, request_id: int):
+    classes, _assigned = staff_accessible_classes_ranked(actor_user)
+    class_ids = [int(c.id) for c in classes]
+    org_ids = sorted({int(c.organization_id) for c in classes if c.organization_id})
+    queryset = RbacPolicyChangeRequest.objects.select_related("requested_by", "organization", "classroom")
+    if class_ids and org_ids:
+        queryset = queryset.filter(
+            Q(classroom_id__in=class_ids)
+            | Q(classroom__isnull=True, organization_id__in=org_ids)
+        )
+    elif class_ids:
+        queryset = queryset.filter(classroom_id__in=class_ids)
+    elif org_ids:
+        queryset = queryset.filter(classroom__isnull=True, organization_id__in=org_ids)
+    else:
+        return None
+    return queryset.filter(id=request_id).first()
+
+
+@staff_member_required
+@require_POST
+def teach_review_rbac_change_request(request):
+    denied = _require_rbac_tools_access(request)
+    if denied is not None:
+        return denied
+    if not _rbac_policy_approval_required():
+        return _rbac_redirect(request, error="RBAC policy approval workflow is not enabled.")
+
+    request_id = _parse_positive_int(request.POST.get("rbac_change_review_id") or "", min_value=1, max_value=2_147_483_647)
+    if request_id is None:
+        return _rbac_redirect(request, error="Change request id is required.")
+    decision = (request.POST.get("rbac_change_review_decision") or "").strip().lower()
+    if decision not in {"approve", "reject"}:
+        return _rbac_redirect(request, error="Decision must be approve or reject.")
+    review_note = (request.POST.get("rbac_change_review_note") or "").strip()[:500]
+
+    change = _scoped_change_request_or_none(actor_user=request.user, request_id=request_id)
+    if change is None:
+        return _rbac_redirect(request, error="Change request not found.")
+    if change.status != RbacPolicyChangeRequest.STATUS_PENDING:
+        return _rbac_redirect(request, error="Change request is already resolved.")
+    if change.requested_by_id == request.user.id:
+        return _rbac_redirect(request, error="Requesters cannot approve their own policy changes.")
+
+    if decision == "reject":
+        change.status = RbacPolicyChangeRequest.STATUS_REJECTED
+        change.reviewed_by = request.user
+        change.reviewed_at = timezone.now()
+        change.review_note = review_note
+        change.save(update_fields=["status", "reviewed_by", "reviewed_at", "review_note", "updated_at"])
+        _audit(
+            request,
+            action="rbac.policy_change.rejected",
+            classroom=change.classroom,
+            target_type="RbacPolicyChangeRequest",
+            target_id=str(change.id),
+            summary=f"Rejected RBAC policy change request {change.request_type}",
+            metadata={"request_type": change.request_type, "review_note": review_note},
+        )
+        return _rbac_redirect(request, notice=f"Rejected change request #{change.id}.")
+
+    try:
+        with transaction.atomic():
+            apply_notice = _apply_change_request_approved(actor_user=request.user, change_request=change)
+            change.status = RbacPolicyChangeRequest.STATUS_APPROVED
+            change.reviewed_by = request.user
+            change.reviewed_at = timezone.now()
+            change.review_note = review_note
+            change.save(update_fields=["status", "reviewed_by", "reviewed_at", "review_note", "updated_at"])
+    except ValueError as exc:
+        return _rbac_redirect(request, error=str(exc))
+
+    _audit(
+        request,
+        action="rbac.policy_change.approved",
+        classroom=change.classroom,
+        target_type="RbacPolicyChangeRequest",
+        target_id=str(change.id),
+        summary=f"Approved RBAC policy change request {change.request_type}",
+        metadata={"request_type": change.request_type, "review_note": review_note},
+    )
+    return _rbac_redirect(request, notice=f"Approved change request #{change.id}. {apply_notice}")
+
+
 __all__ = [
     "build_rbac_tools_context",
     "rbac_tools_enabled_for_user",
     "rbac_tools_requested",
+    "teach_review_rbac_change_request",
     "teach_set_module_scope_grant_active",
     "teach_simulate_rbac_access",
+    "teach_upsert_custom_role",
+    "teach_upsert_custom_role_assignment",
+    "teach_upsert_custom_role_capability",
     "teach_upsert_module_scope_grant",
 ]

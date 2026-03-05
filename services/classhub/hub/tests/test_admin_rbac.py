@@ -3,12 +3,22 @@ from ._shared import *  # noqa: F401,F403
 from django.contrib import admin
 from django.test import RequestFactory
 
-from ..admin import ClassStaffModuleScopeGrantAdmin
+from ..admin import (
+    ClassStaffModuleScopeGrantAdmin,
+    OrganizationCustomRoleAdmin,
+    OrganizationCustomRoleAssignmentAdmin,
+)
 
 
 class AdminRBACRegistrationTests(SimpleTestCase):
     def test_class_staff_module_scope_grant_registered(self):
         self.assertIn(ClassStaffModuleScopeGrant, admin.site._registry)
+
+    def test_custom_role_models_registered(self):
+        self.assertIn(OrganizationCustomRole, admin.site._registry)
+        self.assertIn(OrganizationCustomRoleCapability, admin.site._registry)
+        self.assertIn(OrganizationCustomRoleAssignment, admin.site._registry)
+        self.assertIn(RbacPolicyChangeRequest, admin.site._registry)
 
 
 class AdminRBACAuditTests(TestCase):
@@ -26,7 +36,13 @@ class AdminRBACAuditTests(TestCase):
             password="pw12345",
             is_staff=True,
         )
+        self.org = Organization.objects.create(name="RBAC Admin Org")
         self.model_admin = ClassStaffModuleScopeGrantAdmin(ClassStaffModuleScopeGrant, admin.site)
+        self.custom_role_admin = OrganizationCustomRoleAdmin(OrganizationCustomRole, admin.site)
+        self.custom_role_assignment_admin = OrganizationCustomRoleAssignmentAdmin(
+            OrganizationCustomRoleAssignment,
+            admin.site,
+        )
 
     def _request(self):
         request = self.factory.post("/admin/hub/classstaffmodulescopegrant/")
@@ -61,4 +77,57 @@ class AdminRBACAuditTests(TestCase):
         grant_id = grant.id
         self.model_admin.delete_model(request, grant)
         delete_event = AuditEvent.objects.filter(action="rbac.scope_grant.delete", target_id=str(grant_id)).first()
+        self.assertIsNotNone(delete_event)
+
+    def test_custom_role_create_update_delete_writes_audit_events(self):
+        request = self._request()
+        role = OrganizationCustomRole(
+            organization=self.org,
+            slug="district_exporter",
+            name="District Exporter",
+            is_active=True,
+        )
+        self.custom_role_admin.save_model(request, role, form=None, change=False)
+
+        create_event = AuditEvent.objects.filter(action="organization.custom_role.create", target_id=str(role.id)).first()
+        self.assertIsNotNone(create_event)
+
+        role.name = "District Export + Policy"
+        self.custom_role_admin.save_model(request, role, form=None, change=True)
+        update_event = AuditEvent.objects.filter(action="organization.custom_role.update", target_id=str(role.id)).first()
+        self.assertIsNotNone(update_event)
+
+        role_id = role.id
+        self.custom_role_admin.delete_model(request, role)
+        delete_event = AuditEvent.objects.filter(action="organization.custom_role.delete", target_id=str(role_id)).first()
+        self.assertIsNotNone(delete_event)
+
+    def test_custom_role_assignment_create_delete_writes_audit_events(self):
+        request = self._request()
+        role = OrganizationCustomRole.objects.create(
+            organization=self.org,
+            slug="ops_observer",
+            name="Ops Observer",
+            is_active=True,
+        )
+        assignment = OrganizationCustomRoleAssignment(
+            organization=self.org,
+            user=self.staff_user,
+            role=role,
+            is_active=True,
+        )
+        self.custom_role_assignment_admin.save_model(request, assignment, form=None, change=False)
+
+        create_event = AuditEvent.objects.filter(
+            action="organization.custom_role_assignment.create",
+            target_id=str(assignment.id),
+        ).first()
+        self.assertIsNotNone(create_event)
+
+        assignment_id = assignment.id
+        self.custom_role_assignment_admin.delete_model(request, assignment)
+        delete_event = AuditEvent.objects.filter(
+            action="organization.custom_role_assignment.delete",
+            target_id=str(assignment_id),
+        ).first()
         self.assertIsNotNone(delete_event)

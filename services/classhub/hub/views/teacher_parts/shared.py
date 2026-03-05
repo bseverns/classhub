@@ -33,6 +33,7 @@ from ...models import (
     Material,
     Module,
     Organization,
+    RbacPolicyChangeRequest,
     OrganizationRoleCapability,
     OrganizationMembership,
     StudentEvent,

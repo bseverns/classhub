@@ -126,6 +126,11 @@
               <div class="muted section-subtitle">
                 Manage module-range scoped grants and run read-only capability simulation.
               </div>
+              {% if rbac_policy_approval_required %}
+                <p class="muted">
+                  Policy approval workflow is enabled. RBAC mutation actions queue change requests and require review by a different operator.
+                </p>
+              {% endif %}
 
               <h3 class="section-title-compact">Upsert scoped grant</h3>
               <form method="post" action="/teach/rbac/module-scope-grant/upsert">
@@ -154,7 +159,7 @@
                   <div>
                     <label for="rbac-capability">Capability</label>
                     <select id="rbac-capability" name="rbac_capability" required>
-                      {% for value, label in rbac_capability_choices %}
+                      {% for value, label in rbac_scoped_capability_choices %}
                         <option value="{{ value }}" {% if rbac_capability == value %}selected{% endif %}>{{ label }}</option>
                       {% endfor %}
                     </select>
@@ -206,7 +211,7 @@
                   <div>
                     <label for="rbac-sim-capability">Capability</label>
                     <select id="rbac-sim-capability" name="rbac_sim_capability" required>
-                      {% for value, label in rbac_capability_choices %}
+                      {% for value, label in rbac_simulation_capability_choices %}
                         <option value="{{ value }}" {% if rbac_sim_capability == value %}selected{% endif %}>{{ label }}</option>
                       {% endfor %}
                     </select>
@@ -263,7 +268,7 @@
                   <div>
                     <label for="rbac-bulk-capability">Capability</label>
                     <select id="rbac-bulk-capability" name="rbac_bulk_capability" required>
-                      {% for value, label in rbac_capability_choices %}
+                      {% for value, label in rbac_simulation_capability_choices %}
                         <option value="{{ value }}" {% if rbac_bulk_capability == value %}selected{% endif %}>{{ label }}</option>
                       {% endfor %}
                     </select>
@@ -330,6 +335,190 @@
                 </div>
               {% endif %}
 
+              <h3 class="section-title-compact">Custom roles</h3>
+              <form method="post" action="/teach/rbac/custom-role/upsert">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="rbac-custom-role-org-id">Organization</label>
+                    <select id="rbac-custom-role-org-id" name="rbac_custom_role_org_id" required>
+                      <option value="">Select organization</option>
+                      {% for org in rbac_orgs %}
+                        <option value="{{ org.id }}" {% if rbac_custom_role_org_id == org.id|stringformat:"s" %}selected{% endif %}>{{ org.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-custom-role-slug">Role slug</label>
+                    <input id="rbac-custom-role-slug" name="rbac_custom_role_slug" value="{{ rbac_custom_role_slug }}" placeholder="district_exporter" required />
+                  </div>
+                  <div>
+                    <label for="rbac-custom-role-name">Role name</label>
+                    <input id="rbac-custom-role-name" name="rbac_custom_role_name" value="{{ rbac_custom_role_name }}" placeholder="District Exporter" required />
+                  </div>
+                  <div>
+                    <label for="rbac-custom-role-description">Description (optional)</label>
+                    <input id="rbac-custom-role-description" name="rbac_custom_role_description" value="{{ rbac_custom_role_description }}" />
+                  </div>
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
+                      <input type="checkbox" name="rbac_custom_role_active" value="1" {% if rbac_custom_role_active == "1" %}checked{% endif %} />
+                      Role active
+                    </label>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Save custom role</button>
+                </div>
+              </form>
+
+              <h3 class="section-title-compact">Custom role capabilities</h3>
+              <form method="post" action="/teach/rbac/custom-role/capability/upsert">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="rbac-custom-role-cap-org-id">Organization</label>
+                    <select id="rbac-custom-role-cap-org-id" name="rbac_custom_role_cap_org_id" required>
+                      <option value="">Select organization</option>
+                      {% for org in rbac_orgs %}
+                        <option value="{{ org.id }}" {% if rbac_custom_role_cap_org_id == org.id|stringformat:"s" %}selected{% endif %}>{{ org.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-custom-role-cap-slug">Role slug</label>
+                    <input id="rbac-custom-role-cap-slug" name="rbac_custom_role_cap_slug" value="{{ rbac_custom_role_cap_slug }}" required />
+                  </div>
+                  <div>
+                    <label for="rbac-custom-role-capability">Capability</label>
+                    <select id="rbac-custom-role-capability" name="rbac_custom_role_capability" required>
+                      {% for value, label in rbac_custom_role_capability_choices %}
+                        <option value="{{ value }}" {% if rbac_custom_role_capability == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
+                      <input type="checkbox" name="rbac_custom_role_cap_active" value="1" {% if rbac_custom_role_cap_active == "1" %}checked{% endif %} />
+                      Capability active
+                    </label>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Save custom role capability</button>
+                </div>
+              </form>
+
+              <h3 class="section-title-compact">Custom role assignments</h3>
+              <form method="post" action="/teach/rbac/custom-role/assignment/upsert">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="rbac-custom-role-assign-org-id">Organization</label>
+                    <select id="rbac-custom-role-assign-org-id" name="rbac_custom_role_assign_org_id" required>
+                      <option value="">Select organization</option>
+                      {% for org in rbac_orgs %}
+                        <option value="{{ org.id }}" {% if rbac_custom_role_assign_org_id == org.id|stringformat:"s" %}selected{% endif %}>{{ org.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-custom-role-assign-slug">Role slug</label>
+                    <input id="rbac-custom-role-assign-slug" name="rbac_custom_role_assign_slug" value="{{ rbac_custom_role_assign_slug }}" required />
+                  </div>
+                  <div>
+                    <label for="rbac-custom-role-assign-user-id">Staff user</label>
+                    <select id="rbac-custom-role-assign-user-id" name="rbac_custom_role_assign_user_id" required>
+                      <option value="">Select staff user</option>
+                      {% for account in rbac_staff_users %}
+                        <option value="{{ account.id }}" {% if rbac_custom_role_assign_user_id == account.id|stringformat:"s" %}selected{% endif %}>{{ account.username }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
+                      <input type="checkbox" name="rbac_custom_role_assign_active" value="1" {% if rbac_custom_role_assign_active == "1" %}checked{% endif %} />
+                      Assignment active
+                    </label>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Save custom role assignment</button>
+                </div>
+              </form>
+
+              {% if rbac_custom_roles %}
+                <div class="table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Custom roles</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Organization</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Capabilities</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for role in rbac_custom_roles %}
+                        <tr>
+                          <td>{{ role.organization.name }}</td>
+                          <td><strong>{{ role.slug }}</strong> <span class="muted">({{ role.name }})</span></td>
+                          <td class="muted">{{ role.description|default:"-" }}</td>
+                          <td class="muted">
+                            {% for cap in role.capabilities.all %}
+                              {{ cap.capability }}{% if not cap.is_active %} (inactive){% endif %}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                              -
+                            {% endfor %}
+                          </td>
+                          <td>
+                            {% if role.is_active %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Inactive</span>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% endif %}
+
+              {% if rbac_custom_role_assignments %}
+                <div class="table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Custom role assignments</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Organization</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for row in rbac_custom_role_assignments %}
+                        <tr>
+                          <td>{{ row.organization.name }}</td>
+                          <td>{{ row.role.slug }}</td>
+                          <td>{{ row.user.username }}</td>
+                          <td>
+                            {% if row.is_active %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Inactive</span>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% endif %}
+
               <h3 class="section-title-compact">Policy-as-code import/export</h3>
               <div class="closeout-actions">
                 <a class="button mini" href="/teach/rbac/policy/export">Download RBAC policy JSON</a>
@@ -346,6 +535,56 @@
                   <button type="submit">Import policy</button>
                 </div>
               </form>
+
+              {% if rbac_policy_approval_required %}
+                <h3 class="section-title-compact">Pending policy change requests</h3>
+                {% if rbac_pending_change_requests %}
+                  <div class="table-wrap">
+                    <table>
+                      <caption class="visually-hidden">Pending RBAC policy change requests</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">When</th>
+                          <th scope="col">Type</th>
+                          <th scope="col">Requested by</th>
+                          <th scope="col">Scope</th>
+                          <th scope="col">Summary</th>
+                          <th scope="col">Review</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for row in rbac_pending_change_requests %}
+                          <tr>
+                            <td class="muted">{{ row.created_at|date:"Y-m-d H:i:s" }}</td>
+                            <td><code>{{ row.request_type }}</code></td>
+                            <td>{{ row.requested_by.username }}</td>
+                            <td class="muted">
+                              {% if row.classroom %}Class: {{ row.classroom.name }}{% elif row.organization %}Org: {{ row.organization.name }}{% else %}-{% endif %}
+                            </td>
+                            <td class="muted">{{ row.summary|default:"-" }}</td>
+                            <td>
+                              <form method="post" action="/teach/rbac/change-request/review" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="rbac_change_review_id" value="{{ row.id }}" />
+                                <input type="hidden" name="rbac_change_review_decision" value="approve" />
+                                <button type="submit" class="mini">Approve</button>
+                              </form>
+                              <form method="post" action="/teach/rbac/change-request/review" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="rbac_change_review_id" value="{{ row.id }}" />
+                                <input type="hidden" name="rbac_change_review_decision" value="reject" />
+                                <button type="submit" class="mini">Reject</button>
+                              </form>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                {% else %}
+                  <p class="muted">No pending RBAC policy change requests in your accessible scope.</p>
+                {% endif %}
+              {% endif %}
 
               {% if rbac_scope_grants %}
                 <h3 class="section-title-compact">Current scoped grants</h3>

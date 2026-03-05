@@ -15,9 +15,13 @@ from .models import (
     LessonVideo,
     Material,
     Module,
+    OrganizationCustomRole,
+    OrganizationCustomRoleAssignment,
+    OrganizationCustomRoleCapability,
     Organization,
     OrganizationRoleCapability,
     OrganizationMembership,
+    RbacPolicyChangeRequest,
     StudentEvent,
     StudentIdentity,
     StudentMaterialResponse,
@@ -44,6 +48,131 @@ class OrganizationRoleCapabilityAdmin(admin.ModelAdmin):
     list_display = ("organization", "role", "capability", "is_active", "updated_at")
     list_filter = ("organization", "role", "capability", "is_active")
     search_fields = ("organization__name", "role", "capability")
+
+
+@admin.register(OrganizationCustomRole)
+class OrganizationCustomRoleAdmin(admin.ModelAdmin):
+    list_display = ("organization", "slug", "name", "is_active", "updated_at")
+    list_filter = ("organization", "is_active")
+    search_fields = ("organization__name", "slug", "name")
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        action = "organization.custom_role.update" if change else "organization.custom_role.create"
+        log_audit_event(
+            request=request,
+            action=action,
+            target_type="OrganizationCustomRole",
+            target_id=str(obj.id),
+            summary=f"{'Updated' if change else 'Created'} custom role {obj.slug}",
+            metadata={
+                "organization_id": obj.organization_id,
+                "slug": obj.slug,
+                "name": obj.name,
+                "is_active": bool(obj.is_active),
+            },
+        )
+
+    def delete_model(self, request, obj):
+        log_audit_event(
+            request=request,
+            action="organization.custom_role.delete",
+            target_type="OrganizationCustomRole",
+            target_id=str(obj.id),
+            summary=f"Deleted custom role {obj.slug}",
+            metadata={
+                "organization_id": obj.organization_id,
+                "slug": obj.slug,
+                "name": obj.name,
+            },
+        )
+        super().delete_model(request, obj)
+
+
+@admin.register(OrganizationCustomRoleCapability)
+class OrganizationCustomRoleCapabilityAdmin(admin.ModelAdmin):
+    list_display = ("role", "capability", "is_active", "updated_at")
+    list_filter = ("role__organization", "capability", "is_active")
+    search_fields = ("role__organization__name", "role__slug", "capability")
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        action = "organization.custom_role_capability.update" if change else "organization.custom_role_capability.create"
+        log_audit_event(
+            request=request,
+            action=action,
+            target_type="OrganizationCustomRoleCapability",
+            target_id=str(obj.id),
+            summary=f"{'Updated' if change else 'Created'} custom role capability {obj.capability}",
+            metadata={
+                "organization_id": obj.role.organization_id,
+                "role_id": obj.role_id,
+                "capability": obj.capability,
+                "is_active": bool(obj.is_active),
+            },
+        )
+
+    def delete_model(self, request, obj):
+        log_audit_event(
+            request=request,
+            action="organization.custom_role_capability.delete",
+            target_type="OrganizationCustomRoleCapability",
+            target_id=str(obj.id),
+            summary=f"Deleted custom role capability {obj.capability}",
+            metadata={
+                "organization_id": obj.role.organization_id,
+                "role_id": obj.role_id,
+                "capability": obj.capability,
+            },
+        )
+        super().delete_model(request, obj)
+
+
+@admin.register(OrganizationCustomRoleAssignment)
+class OrganizationCustomRoleAssignmentAdmin(admin.ModelAdmin):
+    list_display = ("organization", "user", "role", "is_active", "updated_at")
+    list_filter = ("organization", "is_active")
+    search_fields = (
+        "organization__name",
+        "user__username",
+        "user__email",
+        "role__slug",
+        "role__name",
+    )
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        action = "organization.custom_role_assignment.update" if change else "organization.custom_role_assignment.create"
+        log_audit_event(
+            request=request,
+            action=action,
+            target_type="OrganizationCustomRoleAssignment",
+            target_id=str(obj.id),
+            summary=f"{'Updated' if change else 'Created'} custom role assignment for user {obj.user_id}",
+            metadata={
+                "organization_id": obj.organization_id,
+                "user_id": obj.user_id,
+                "role_id": obj.role_id,
+                "role_slug": obj.role.slug,
+                "is_active": bool(obj.is_active),
+            },
+        )
+
+    def delete_model(self, request, obj):
+        log_audit_event(
+            request=request,
+            action="organization.custom_role_assignment.delete",
+            target_type="OrganizationCustomRoleAssignment",
+            target_id=str(obj.id),
+            summary=f"Deleted custom role assignment for user {obj.user_id}",
+            metadata={
+                "organization_id": obj.organization_id,
+                "user_id": obj.user_id,
+                "role_id": obj.role_id,
+                "role_slug": obj.role.slug,
+            },
+        )
+        super().delete_model(request, obj)
 
 
 @admin.register(Class)
@@ -81,7 +210,6 @@ class ClassStaffModuleScopeGrantAdmin(admin.ModelAdmin):
         log_audit_event(
             request=request,
             action=action,
-            actor_user=request.user,
             classroom=obj.classroom,
             target_type="ClassStaffModuleScopeGrant",
             target_id=str(obj.id),
@@ -100,7 +228,6 @@ class ClassStaffModuleScopeGrantAdmin(admin.ModelAdmin):
         log_audit_event(
             request=request,
             action="rbac.scope_grant.delete",
-            actor_user=request.user,
             classroom=obj.classroom,
             target_type="ClassStaffModuleScopeGrant",
             target_id=str(obj.id),
@@ -272,3 +399,21 @@ class AuditEventAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(RbacPolicyChangeRequest)
+class RbacPolicyChangeRequestAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "request_type",
+        "status",
+        "requested_by",
+        "reviewed_by",
+        "organization",
+        "classroom",
+        "created_at",
+        "reviewed_at",
+    )
+    list_filter = ("request_type", "status", "organization")
+    search_fields = ("summary", "requested_by__username", "reviewed_by__username")
+    readonly_fields = ("created_at", "updated_at", "reviewed_at")

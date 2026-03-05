@@ -2425,6 +2425,342 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertIsNotNone(event)
         self.assertEqual(event.actor_user_id, self.staff.id)
 
+    def test_org_admin_policy_export_includes_custom_roles_and_assignments(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+        target_staff = get_user_model().objects.create_user(
+            username="rbac_custom_export_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=target_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        role = OrganizationCustomRole.objects.create(
+            organization=self.org_a,
+            slug="district_exporter",
+            name="District Exporter",
+            description="Can export curriculum policy bundles",
+            is_active=True,
+        )
+        OrganizationCustomRoleCapability.objects.create(
+            role=role,
+            capability=OrganizationRoleCapability.CAP_SYLLABUS_EXPORT,
+            is_active=True,
+        )
+        OrganizationCustomRoleAssignment.objects.create(
+            organization=self.org_a,
+            user=target_staff,
+            role=role,
+            is_active=True,
+        )
+
+        resp = self.client.get("/teach/rbac/policy/export")
+        self.assertEqual(resp.status_code, 200)
+        payload = json.loads(resp.content.decode("utf-8"))
+        self.assertTrue(any(row.get("slug") == "district_exporter" for row in payload.get("custom_roles", [])))
+        self.assertTrue(
+            any(
+                row.get("username") == target_staff.username and row.get("role_slug") == "district_exporter"
+                for row in payload.get("custom_role_assignments", [])
+            )
+        )
+
+    def test_org_admin_policy_import_can_upsert_custom_roles_and_assignments(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+        target_staff = get_user_model().objects.create_user(
+            username="rbac_custom_import_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=target_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        policy = {
+            "schema_version": "classhub.rbac_policy.v1",
+            "organizations": [],
+            "scoped_grants": [],
+            "custom_roles": [
+                {
+                    "organization_name": self.org_a.name,
+                    "slug": "ops_observer",
+                    "name": "Ops Observer",
+                    "description": "Read-only operations observer",
+                    "is_active": True,
+                    "capabilities": [
+                        {"capability": OrganizationRoleCapability.CAP_CLASS_VIEW, "is_active": True},
+                    ],
+                }
+            ],
+            "custom_role_assignments": [
+                {
+                    "organization_name": self.org_a.name,
+                    "role_slug": "ops_observer",
+                    "username": target_staff.username,
+                    "is_active": True,
+                }
+            ],
+        }
+
+        resp = self.client.post(
+            "/teach/rbac/policy/import",
+            {
+                "rbac_policy_file": SimpleUploadedFile(
+                    "rbac_policy.json",
+                    json.dumps(policy).encode("utf-8"),
+                    content_type="application/json",
+                )
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        role = OrganizationCustomRole.objects.filter(organization=self.org_a, slug="ops_observer").first()
+        self.assertIsNotNone(role)
+        self.assertTrue(
+            OrganizationCustomRoleCapability.objects.filter(
+                role=role,
+                capability=OrganizationRoleCapability.CAP_CLASS_VIEW,
+                is_active=True,
+            ).exists()
+        )
+        self.assertTrue(
+            OrganizationCustomRoleAssignment.objects.filter(
+                organization=self.org_a,
+                role=role,
+                user=target_staff,
+                is_active=True,
+            ).exists()
+        )
+
+    def test_org_admin_can_upsert_custom_roles_from_teach_home(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+        target_staff = get_user_model().objects.create_user(
+            username="rbac_custom_assign_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=target_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+
+        role_resp = self.client.post(
+            "/teach/rbac/custom-role/upsert",
+            {
+                "rbac_custom_role_org_id": str(self.org_a.id),
+                "rbac_custom_role_slug": "district_exporter",
+                "rbac_custom_role_name": "District Exporter",
+                "rbac_custom_role_description": "District export rights",
+                "rbac_custom_role_active": "1",
+            },
+        )
+        self.assertEqual(role_resp.status_code, 302)
+        role = OrganizationCustomRole.objects.filter(organization=self.org_a, slug="district_exporter").first()
+        self.assertIsNotNone(role)
+
+        cap_resp = self.client.post(
+            "/teach/rbac/custom-role/capability/upsert",
+            {
+                "rbac_custom_role_cap_org_id": str(self.org_a.id),
+                "rbac_custom_role_cap_slug": "district_exporter",
+                "rbac_custom_role_capability": OrganizationRoleCapability.CAP_SYLLABUS_EXPORT,
+                "rbac_custom_role_cap_active": "1",
+            },
+        )
+        self.assertEqual(cap_resp.status_code, 302)
+        self.assertTrue(
+            OrganizationCustomRoleCapability.objects.filter(
+                role=role,
+                capability=OrganizationRoleCapability.CAP_SYLLABUS_EXPORT,
+                is_active=True,
+            ).exists()
+        )
+
+        assign_resp = self.client.post(
+            "/teach/rbac/custom-role/assignment/upsert",
+            {
+                "rbac_custom_role_assign_org_id": str(self.org_a.id),
+                "rbac_custom_role_assign_slug": "district_exporter",
+                "rbac_custom_role_assign_user_id": str(target_staff.id),
+                "rbac_custom_role_assign_active": "1",
+            },
+        )
+        self.assertEqual(assign_resp.status_code, 302)
+        self.assertTrue(
+            OrganizationCustomRoleAssignment.objects.filter(
+                organization=self.org_a,
+                role=role,
+                user=target_staff,
+                is_active=True,
+            ).exists()
+        )
+        self.assertTrue(AuditEvent.objects.filter(action="organization.custom_role.portal_upsert").exists())
+        self.assertTrue(AuditEvent.objects.filter(action="organization.custom_role_capability.portal_upsert").exists())
+        self.assertTrue(AuditEvent.objects.filter(action="organization.custom_role_assignment.portal_upsert").exists())
+
+    @override_settings(CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=True)
+    def test_policy_approval_workflow_requires_separate_reviewer(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+
+        request_resp = self.client.post(
+            "/teach/rbac/custom-role/upsert",
+            {
+                "rbac_custom_role_org_id": str(self.org_a.id),
+                "rbac_custom_role_slug": "review_gated_role",
+                "rbac_custom_role_name": "Review Gated Role",
+                "rbac_custom_role_description": "Requires approval",
+                "rbac_custom_role_active": "1",
+            },
+        )
+        self.assertEqual(request_resp.status_code, 302)
+        change = RbacPolicyChangeRequest.objects.filter(
+            request_type=RbacPolicyChangeRequest.REQUEST_CUSTOM_ROLE_UPSERT
+        ).first()
+        self.assertIsNotNone(change)
+        self.assertEqual(change.status, RbacPolicyChangeRequest.STATUS_PENDING)
+        self.assertFalse(OrganizationCustomRole.objects.filter(organization=self.org_a, slug="review_gated_role").exists())
+
+        self_review_resp = self.client.post(
+            "/teach/rbac/change-request/review",
+            {
+                "rbac_change_review_id": str(change.id),
+                "rbac_change_review_decision": "approve",
+            },
+        )
+        self.assertEqual(self_review_resp.status_code, 302)
+        change.refresh_from_db()
+        self.assertEqual(change.status, RbacPolicyChangeRequest.STATUS_PENDING)
+
+        reviewer = get_user_model().objects.create_user(
+            username="rbac_change_reviewer",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=reviewer,
+            role=OrganizationMembership.ROLE_ADMIN,
+            is_active=True,
+        )
+        _force_login_staff_verified(self.client, reviewer)
+        approve_resp = self.client.post(
+            "/teach/rbac/change-request/review",
+            {
+                "rbac_change_review_id": str(change.id),
+                "rbac_change_review_decision": "approve",
+                "rbac_change_review_note": "Looks good.",
+            },
+        )
+        self.assertEqual(approve_resp.status_code, 302)
+        change.refresh_from_db()
+        self.assertEqual(change.status, RbacPolicyChangeRequest.STATUS_APPROVED)
+        self.assertEqual(change.reviewed_by_id, reviewer.id)
+        self.assertTrue(OrganizationCustomRole.objects.filter(organization=self.org_a, slug="review_gated_role").exists())
+
+    @override_settings(CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=True)
+    def test_policy_import_is_queued_and_applied_after_approval(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+        target_staff = get_user_model().objects.create_user(
+            username="rbac_policy_queue_target",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=target_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        policy = {
+            "schema_version": "classhub.rbac_policy.v1",
+            "organizations": [],
+            "scoped_grants": [],
+            "custom_roles": [
+                {
+                    "organization_name": self.org_a.name,
+                    "slug": "queued_policy_role",
+                    "name": "Queued Policy Role",
+                    "description": "Policy import via approval",
+                    "is_active": True,
+                    "capabilities": [
+                        {"capability": OrganizationRoleCapability.CAP_CLASS_VIEW, "is_active": True},
+                    ],
+                }
+            ],
+            "custom_role_assignments": [
+                {
+                    "organization_name": self.org_a.name,
+                    "role_slug": "queued_policy_role",
+                    "username": target_staff.username,
+                    "is_active": True,
+                }
+            ],
+        }
+
+        queue_resp = self.client.post(
+            "/teach/rbac/policy/import",
+            {
+                "rbac_policy_file": SimpleUploadedFile(
+                    "rbac_policy.json",
+                    json.dumps(policy).encode("utf-8"),
+                    content_type="application/json",
+                )
+            },
+        )
+        self.assertEqual(queue_resp.status_code, 302)
+        request_row = RbacPolicyChangeRequest.objects.filter(
+            request_type=RbacPolicyChangeRequest.REQUEST_POLICY_IMPORT
+        ).first()
+        self.assertIsNotNone(request_row)
+        self.assertEqual(request_row.status, RbacPolicyChangeRequest.STATUS_PENDING)
+        self.assertFalse(OrganizationCustomRole.objects.filter(organization=self.org_a, slug="queued_policy_role").exists())
+
+        reviewer = get_user_model().objects.create_user(
+            username="rbac_policy_queue_reviewer",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=reviewer,
+            role=OrganizationMembership.ROLE_ADMIN,
+            is_active=True,
+        )
+        _force_login_staff_verified(self.client, reviewer)
+        approve_resp = self.client.post(
+            "/teach/rbac/change-request/review",
+            {
+                "rbac_change_review_id": str(request_row.id),
+                "rbac_change_review_decision": "approve",
+            },
+        )
+        self.assertEqual(approve_resp.status_code, 302)
+        request_row.refresh_from_db()
+        self.assertEqual(request_row.status, RbacPolicyChangeRequest.STATUS_APPROVED)
+        self.assertTrue(OrganizationCustomRole.objects.filter(organization=self.org_a, slug="queued_policy_role").exists())
+
     def test_teacher_role_cannot_import_or_export_rbac_policy(self):
         export_resp = self.client.get("/teach/rbac/policy/export")
         self.assertEqual(export_resp.status_code, 302)

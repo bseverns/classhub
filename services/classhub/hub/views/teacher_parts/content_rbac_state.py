@@ -1,6 +1,6 @@
 """RBAC tools state/context helpers for teacher home."""
 
-from ...models import ClassStaffModuleScopeGrant
+from ...models import ClassStaffModuleScopeGrant, OrganizationRoleCapability
 from .shared import get_user_model, models
 
 
@@ -70,4 +70,22 @@ def rbac_form_state(request):
         "rbac_audit_action": (request.GET.get("rbac_audit_action") or "all").strip(),
         "rbac_audit_class_id": (request.GET.get("rbac_audit_class_id") or "").strip(),
         "rbac_audit_limit": (request.GET.get("rbac_audit_limit") or "50").strip(),
+        "rbac_custom_role_org_id": (request.GET.get("rbac_custom_role_org_id") or "").strip(),
+        "rbac_custom_role_slug": (request.GET.get("rbac_custom_role_slug") or "").strip(),
+        "rbac_custom_role_name": (request.GET.get("rbac_custom_role_name") or "").strip(),
+        "rbac_custom_role_description": (request.GET.get("rbac_custom_role_description") or "").strip(),
+        "rbac_custom_role_active": (request.GET.get("rbac_custom_role_active") or "1").strip(),
+        "rbac_custom_role_cap_org_id": (request.GET.get("rbac_custom_role_cap_org_id") or "").strip(),
+        "rbac_custom_role_cap_slug": (request.GET.get("rbac_custom_role_cap_slug") or "").strip(),
+        "rbac_custom_role_capability": (
+            request.GET.get("rbac_custom_role_capability") or OrganizationRoleCapability.CAP_CLASS_VIEW
+        ).strip(),
+        "rbac_custom_role_cap_active": (request.GET.get("rbac_custom_role_cap_active") or "1").strip(),
+        "rbac_custom_role_assign_org_id": (request.GET.get("rbac_custom_role_assign_org_id") or "").strip(),
+        "rbac_custom_role_assign_slug": (request.GET.get("rbac_custom_role_assign_slug") or "").strip(),
+        "rbac_custom_role_assign_user_id": (request.GET.get("rbac_custom_role_assign_user_id") or "").strip(),
+        "rbac_custom_role_assign_active": (request.GET.get("rbac_custom_role_assign_active") or "1").strip(),
+        "rbac_change_review_id": (request.GET.get("rbac_change_review_id") or "").strip(),
+        "rbac_change_review_decision": (request.GET.get("rbac_change_review_decision") or "approve").strip(),
+        "rbac_change_review_note": (request.GET.get("rbac_change_review_note") or "").strip(),
     }

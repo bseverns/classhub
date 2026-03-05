@@ -8,7 +8,7 @@ Legacy compatibility:
 from dataclasses import dataclass
 
 from django.conf import settings
-from django.db.models import QuerySet
+from django.db.models import F, QuerySet
 
 from ..models import (
     Class,
@@ -16,6 +16,7 @@ from ..models import (
     ClassStaffModuleScopeGrant,
     Module,
     Organization,
+    OrganizationCustomRoleAssignment,
     OrganizationRoleCapability,
     OrganizationMembership,
 )
@@ -242,6 +243,31 @@ def _membership_role_capabilities(
     return _DEFAULT_ROLE_CAPABILITIES.get(role, frozenset())
 
 
+def _custom_role_capability_overrides(
+    user,
+    *,
+    organization_ids: set[int],
+) -> dict[int, frozenset[str]]:
+    if not organization_ids:
+        return {}
+    rows = (
+        OrganizationCustomRoleAssignment.objects.filter(
+            user=user,
+            organization_id__in=organization_ids,
+            is_active=True,
+            organization__is_active=True,
+            role__is_active=True,
+            role__capabilities__is_active=True,
+        )
+        .filter(role__organization_id=F("organization_id"))
+        .values_list("organization_id", "role__capabilities__capability")
+    )
+    by_org: dict[int, set[str]] = {}
+    for organization_id, capability in rows:
+        by_org.setdefault(int(organization_id), set()).add(str(capability))
+    return {org_id: frozenset(caps) for org_id, caps in by_org.items()}
+
+
 def _highest_role_with_capability(
     *,
     memberships: list[dict[str, int | str]],
@@ -258,6 +284,23 @@ def _highest_role_with_capability(
                 organization_id=organization_id,
                 overrides=overrides,
             ):
+                return role
+    return ""
+
+
+def _highest_role_with_custom_capability(
+    *,
+    memberships: list[dict[str, int | str]],
+    capability: str,
+    custom_overrides: dict[int, frozenset[str]],
+) -> str:
+    for role in _ROLE_PRECEDENCE:
+        for row in memberships:
+            if str(row.get("role")) != role:
+                continue
+            organization_id = int(row.get("organization_id") or 0)
+            custom_caps = custom_overrides.get(organization_id, frozenset())
+            if capability in custom_caps:
                 return role
     return ""
 
@@ -374,12 +417,21 @@ def evaluate_staff_capability(
     membership_rows = list(memberships.values("organization_id", "role"))
     override_org_ids = {int(row["organization_id"]) for row in membership_rows if row.get("organization_id")}
     capability_overrides = _org_role_capability_overrides(override_org_ids)
+    custom_capability_overrides = _custom_role_capability_overrides(
+        user,
+        organization_ids=override_org_ids,
+    )
     allowed_role = _highest_role_with_capability(
         memberships=membership_rows,
         capability=normalized_capability,
         overrides=capability_overrides,
     )
-    if not allowed_role:
+    custom_allowed_role = _highest_role_with_custom_capability(
+        memberships=membership_rows,
+        capability=normalized_capability,
+        custom_overrides=custom_capability_overrides,
+    )
+    if not allowed_role and not custom_allowed_role:
         return StaffCapabilityDecision(
             allowed=False,
             capability=normalized_capability,
@@ -388,6 +440,8 @@ def evaluate_staff_capability(
             classroom_id=classroom_id,
             module_id=module_scope_id,
         )
+    effective_role = allowed_role or custom_allowed_role
+    allowed_by_custom_role = bool(custom_allowed_role and not allowed_role)
 
     if classroom is not None and _scoped_module_grants_enabled() and normalized_capability in _SCOPED_GRANT_CAPABILITIES:
         module_order = None
@@ -396,8 +450,8 @@ def evaluate_staff_capability(
                 return StaffCapabilityDecision(
                     allowed=True,
                     capability=normalized_capability,
-                    reason="role_allows_capability",
-                    role=allowed_role,
+                    reason="custom_role_allows_capability" if allowed_by_custom_role else "role_allows_capability",
+                    role=effective_role,
                     organization_id=organization_id,
                     classroom_id=classroom_id,
                     module_id=module_scope_id,
@@ -425,8 +479,12 @@ def evaluate_staff_capability(
             return StaffCapabilityDecision(
                 allowed=True,
                 capability=normalized_capability,
-                reason="role_allows_capability_no_scoped_grants",
-                role=allowed_role,
+                reason=(
+                    "custom_role_allows_capability_no_scoped_grants"
+                    if allowed_by_custom_role
+                    else "role_allows_capability_no_scoped_grants"
+                ),
+                role=effective_role,
                 organization_id=organization_id,
                 classroom_id=classroom_id,
                 module_id=module_scope_id,
@@ -441,7 +499,7 @@ def evaluate_staff_capability(
                 allowed=False,
                 capability=normalized_capability,
                 reason="scoped_grant_explicit_deny",
-                role=allowed_role,
+                role=effective_role,
                 organization_id=organization_id,
                 classroom_id=classroom_id,
                 module_id=module_scope_id,
@@ -456,7 +514,7 @@ def evaluate_staff_capability(
                 allowed=False,
                 capability=normalized_capability,
                 reason="scoped_grant_denied",
-                role=allowed_role,
+                role=effective_role,
                 organization_id=organization_id,
                 classroom_id=classroom_id,
                 module_id=module_scope_id,
@@ -465,7 +523,7 @@ def evaluate_staff_capability(
             allowed=True,
             capability=normalized_capability,
             reason="scoped_grant_allows",
-            role=allowed_role,
+            role=effective_role,
             organization_id=organization_id,
             classroom_id=classroom_id,
             module_id=module_scope_id,
@@ -473,8 +531,8 @@ def evaluate_staff_capability(
     return StaffCapabilityDecision(
         allowed=True,
         capability=normalized_capability,
-        reason="role_allows_capability",
-        role=allowed_role,
+        reason="custom_role_allows_capability" if allowed_by_custom_role else "role_allows_capability",
+        role=effective_role,
         organization_id=organization_id,
         classroom_id=classroom_id,
         module_id=module_scope_id,
@@ -512,14 +570,19 @@ def staff_default_organization(user) -> Organization | None:
         return None
     override_org_ids = {int(m.organization_id) for m in memberships if m.organization_id}
     capability_overrides = _org_role_capability_overrides(override_org_ids)
+    custom_capability_overrides = _custom_role_capability_overrides(user, organization_ids=override_org_ids)
     eligible = [
         membership
         for membership in memberships
-        if CAP_CLASS_CREATE
-        in _membership_role_capabilities(
-            role=membership.role,
-            organization_id=int(membership.organization_id),
-            overrides=capability_overrides,
+        if (
+            CAP_CLASS_CREATE
+            in _membership_role_capabilities(
+                role=membership.role,
+                organization_id=int(membership.organization_id),
+                overrides=capability_overrides,
+            )
+            or CAP_CLASS_CREATE
+            in custom_capability_overrides.get(int(membership.organization_id), frozenset())
         )
     ]
     if not eligible:

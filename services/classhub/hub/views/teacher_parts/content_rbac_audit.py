@@ -9,8 +9,12 @@ _AUDIT_ACTION_CHOICES = (
     ("all", "All RBAC + org policy actions"),
     ("rbac.scope_grant.", "Scoped grants"),
     ("rbac.simulate", "RBAC simulations"),
+    ("rbac.policy_change.", "RBAC policy change workflow"),
     ("organization.role_capability.", "Org role capability templates"),
     ("organization.membership.", "Organization memberships"),
+    ("organization.custom_role.", "Custom roles"),
+    ("organization.custom_role_capability.", "Custom role capabilities"),
+    ("organization.custom_role_assignment.", "Custom role assignments"),
 )
 _AUDIT_ACTION_PREFIXES = tuple(prefix for prefix, _label in _AUDIT_ACTION_CHOICES if prefix != "all")
 

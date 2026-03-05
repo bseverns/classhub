@@ -1,6 +1,12 @@
 from ._shared import *  # noqa: F401,F403
 
-from ..models import ClassStaffModuleScopeGrant, OrganizationRoleCapability
+from ..models import (
+    ClassStaffModuleScopeGrant,
+    OrganizationCustomRole,
+    OrganizationCustomRoleAssignment,
+    OrganizationCustomRoleCapability,
+    OrganizationRoleCapability,
+)
 from ..services.org_access import (
     CAP_CLASS_VIEW,
     CAP_CLASS_CREATE,
@@ -176,6 +182,83 @@ class StaffCapabilityEvaluatorTests(TestCase):
             is_active=True,
         )
         self.assertTrue(staff_can_export_syllabi(teacher))
+
+    def test_custom_role_assignment_can_grant_capability_beyond_membership_role(self):
+        viewer = self.User.objects.create_user(
+            username="viewer-custom-export",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=viewer,
+            role=OrganizationMembership.ROLE_VIEWER,
+            is_active=True,
+        )
+        role = OrganizationCustomRole.objects.create(
+            organization=self.org_a,
+            slug="district_exporter",
+            name="District Exporter",
+            is_active=True,
+        )
+        OrganizationCustomRoleCapability.objects.create(
+            role=role,
+            capability=OrganizationRoleCapability.CAP_SYLLABUS_EXPORT,
+            is_active=True,
+        )
+        OrganizationCustomRoleAssignment.objects.create(
+            organization=self.org_a,
+            user=viewer,
+            role=role,
+            is_active=True,
+        )
+
+        decision = evaluate_staff_capability(viewer, CAP_SYLLABUS_EXPORT)
+        self.assertTrue(decision.allowed)
+        self.assertEqual(decision.reason, "custom_role_allows_capability")
+        self.assertEqual(decision.role, OrganizationMembership.ROLE_VIEWER)
+        self.assertTrue(staff_can_export_syllabi(viewer))
+
+    @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
+    def test_custom_role_capability_observes_scoped_grant_mode_without_rows(self):
+        viewer = self.User.objects.create_user(
+            username="viewer-custom-policy",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=viewer,
+            role=OrganizationMembership.ROLE_VIEWER,
+            is_active=True,
+        )
+        role = OrganizationCustomRole.objects.create(
+            organization=self.org_a,
+            slug="class_policy_manager",
+            name="Class Policy Manager",
+            is_active=True,
+        )
+        OrganizationCustomRoleCapability.objects.create(
+            role=role,
+            capability=OrganizationRoleCapability.CAP_POLICY_MANAGE,
+            is_active=True,
+        )
+        OrganizationCustomRoleAssignment.objects.create(
+            organization=self.org_a,
+            user=viewer,
+            role=role,
+            is_active=True,
+        )
+
+        decision = evaluate_staff_capability(
+            viewer,
+            CAP_POLICY_MANAGE,
+            classroom=self.class_a,
+        )
+        self.assertTrue(decision.allowed)
+        self.assertEqual(decision.reason, "custom_role_allows_capability_no_scoped_grants")
 
     def test_viewer_role_template_override_can_remove_submission_view(self):
         viewer = self.User.objects.create_user(

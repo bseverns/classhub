@@ -2061,3 +2061,47 @@ Execution runbook:
 **Why this remains active:**
 - Enables reviewable policy handoff between environments and operators without manual UI re-entry.
 - Keeps policy updates auditable (`rbac.policy.export`, `rbac.policy.import`) and minimizes accidental drift.
+
+## Phase 2 RBAC custom-role persistence foundation
+
+**Current decision:**
+- Add first-class custom role entities:
+  - `OrganizationCustomRole` (org-scoped role definitions),
+  - `OrganizationCustomRoleCapability` (capabilities attached to custom roles),
+  - `OrganizationCustomRoleAssignment` (user-role assignment per organization).
+- Keep existing membership-role templates as the baseline policy source of truth.
+- Apply custom-role capabilities additively in the evaluator:
+  - effective capabilities = membership-role capabilities + assigned custom-role capabilities for that org.
+- Keep scoped-grant precedence unchanged:
+  - explicit deny > explicit allow > effective capability fallback.
+- Register custom-role entities in Django admin and emit audit events on create/update/delete:
+  - `organization.custom_role.*`
+  - `organization.custom_role_capability.*`
+  - `organization.custom_role_assignment.*`
+
+**Why this remains active:**
+- Begins RFC Phase 2 with low migration risk and no regression to current role-template behavior.
+- Supports district-style delegated duties (for example, grant export/policy rights to specific staff) without adding new base membership roles.
+- Preserves inspectability through explicit audit events before building broader custom-role UX and approval workflows.
+
+## RBAC Phase 2 continuation: custom role tools + policy approval workflow
+
+**Current decision:**
+- Extend teacher RBAC tools with custom-role management actions:
+  - `POST /teach/rbac/custom-role/upsert`
+  - `POST /teach/rbac/custom-role/capability/upsert`
+  - `POST /teach/rbac/custom-role/assignment/upsert`
+- Extend policy-as-code bundle schema `classhub.rbac_policy.v1` with optional sections:
+  - `custom_roles[]`
+  - `custom_role_assignments[]`
+- Add delegated approval workflow for RBAC mutations behind feature flag:
+  - `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`
+  - queued model: `RbacPolicyChangeRequest`
+  - review endpoint: `POST /teach/rbac/change-request/review`
+  - requesters cannot approve their own changes.
+- Keep immediate apply behavior unchanged when approval flag is disabled.
+
+**Why this remains active:**
+- Moves custom-role management from persistence-only to operator-usable workflows.
+- Keeps policy handoff complete across environments by including custom-role policy rows in import/export bundles.
+- Provides concrete review/approval separation for high-impact policy changes without forcing a hard cutover in current operations.

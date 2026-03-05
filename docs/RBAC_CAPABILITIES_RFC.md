@@ -33,10 +33,26 @@ Implemented on `main`:
   - `GET /teach/rbac/policy/export`
   - `POST /teach/rbac/policy/import`
 - RBAC policy/audit ops are visible in teacher tools and audit events are emitted for grant/template changes.
+- First-class custom role entities are live:
+  - `OrganizationCustomRole`
+  - `OrganizationCustomRoleCapability`
+  - `OrganizationCustomRoleAssignment`
+- Evaluator support for custom role assignments is live:
+  - assigned custom-role capabilities are additive to membership-role capabilities for the same organization,
+  - decision reasons include custom-role allow paths.
+- Teacher RBAC tools now include custom role lifecycle actions:
+  - custom role upsert
+  - custom role capability upsert
+  - custom role assignment upsert
+- Policy-as-code import/export now carries custom role sections:
+  - `custom_roles[]`
+  - `custom_role_assignments[]`
+- Delegated approval workflow foundation is live (feature-flagged):
+  - `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`
+  - policy mutations queue `RbacPolicyChangeRequest` and require separate reviewer approval.
 
 Still RFC/pending:
-- First-class custom role entities (`Role`, `RoleCapability`, role assignment tables) beyond org membership role templates.
-- Formal delegated policy approval workflows (change review/approval separation) for large districts.
+- Hardened district-scale approval routing (multi-step approvers, notification routing, SLA escalation).
 
 ## Problem statement
 Current model is strong for early-stage operations but too coarse for larger institutions. It cannot express policy variants like:
@@ -105,6 +121,11 @@ All view/service permission checks should call this service (directly or via com
 - migrate role template mappings into DB-managed policy records,
 - provide constrained admin UX for policy changes.
 
+Current implementation note:
+- Phase-2 custom-role persistence foundation is shipped.
+- Current policy model supports additive custom role capabilities per user/org.
+- Destructive migration from role templates to pure custom-role policy records remains future work.
+
 ## Rollout plan
 
 ### Phase 1: Evaluator + wrappers
@@ -136,7 +157,7 @@ Current implementation note:
   - teacher portal single-user simulation: `POST /teach/rbac/simulate`
   - teacher portal bulk matrix simulation: `GET /teach?rbac_tools=1&rbac_bulk_class_id=<id>&rbac_bulk_capability=<capability>`
 
-Status: largely shipped for simulation and policy bundle operations; custom role entity management remains future work.
+Status: simulation/policy tools are shipped; custom-role entity persistence is shipped; custom-role policy UX/automation remains future work.
 
 ## Risks and mitigations
 - Risk: policy drift during migration.

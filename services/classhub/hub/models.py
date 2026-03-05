@@ -13,6 +13,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -212,6 +213,197 @@ class OrganizationRoleCapability(models.Model):
 
     def __str__(self) -> str:
         return f"{self.organization.name}: {self.role} -> {self.capability}"
+
+
+class OrganizationCustomRole(models.Model):
+    """First-class organization-scoped custom role entity."""
+
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name="custom_roles",
+    )
+    slug = models.CharField(max_length=64)
+    name = models.CharField(max_length=120)
+    description = models.CharField(max_length=500, blank=True, default="")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["organization_id", "slug", "id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organization", "slug"],
+                name="uniq_org_custom_role_slug",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["organization", "is_active"], name="hub_crole_orgact_9f33_idx"),
+            models.Index(fields=["organization", "slug"], name="hub_crole_orgslug_2f3b_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.organization.name}: {self.slug}"
+
+
+class OrganizationCustomRoleCapability(models.Model):
+    """Capability membership for a custom role."""
+
+    role = models.ForeignKey(
+        OrganizationCustomRole,
+        on_delete=models.CASCADE,
+        related_name="capabilities",
+    )
+    capability = models.CharField(
+        max_length=40,
+        choices=OrganizationRoleCapability.CAPABILITY_CHOICES,
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["role_id", "capability", "id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["role", "capability"],
+                name="uniq_custom_role_capability",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["role", "is_active"], name="hub_crolecap_roleac_20bb_idx"),
+            models.Index(fields=["capability", "is_active"], name="hub_crolecap_capact_7d3c_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.role} -> {self.capability}"
+
+
+class OrganizationCustomRoleAssignment(models.Model):
+    """Assign one custom role to one staff user inside one organization."""
+
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name="custom_role_assignments",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="classhub_custom_role_assignments",
+    )
+    role = models.ForeignKey(
+        OrganizationCustomRole,
+        on_delete=models.CASCADE,
+        related_name="assignments",
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["organization_id", "user_id", "role_id", "id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organization", "user", "role"],
+                name="uniq_org_custom_role_assignment",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["organization", "user", "is_active"], name="hub_croleasg_orgusr_514f_idx"),
+            models.Index(fields=["role", "is_active"], name="hub_croleasg_roleac_c050_idx"),
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.organization_id and self.role_id:
+            role_org_id = getattr(self.role, "organization_id", None)
+            if role_org_id is not None and int(role_org_id) != int(self.organization_id):
+                raise ValidationError({"organization": "Organization must match custom role organization."})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f"{self.organization.name}: {self.user} -> {self.role.slug}"
+
+
+class RbacPolicyChangeRequest(models.Model):
+    """Approval workflow record for high-impact RBAC policy mutations."""
+
+    REQUEST_SCOPE_GRANT_UPSERT = "scope_grant_upsert"
+    REQUEST_SCOPE_GRANT_SET_ACTIVE = "scope_grant_set_active"
+    REQUEST_CUSTOM_ROLE_UPSERT = "custom_role_upsert"
+    REQUEST_CUSTOM_ROLE_CAPABILITY_UPSERT = "custom_role_capability_upsert"
+    REQUEST_CUSTOM_ROLE_ASSIGNMENT_UPSERT = "custom_role_assignment_upsert"
+    REQUEST_POLICY_IMPORT = "policy_import"
+    REQUEST_TYPE_CHOICES = [
+        (REQUEST_SCOPE_GRANT_UPSERT, "Scoped grant upsert"),
+        (REQUEST_SCOPE_GRANT_SET_ACTIVE, "Scoped grant set active"),
+        (REQUEST_CUSTOM_ROLE_UPSERT, "Custom role upsert"),
+        (REQUEST_CUSTOM_ROLE_CAPABILITY_UPSERT, "Custom role capability upsert"),
+        (REQUEST_CUSTOM_ROLE_ASSIGNMENT_UPSERT, "Custom role assignment upsert"),
+        (REQUEST_POLICY_IMPORT, "Policy import"),
+    ]
+
+    STATUS_PENDING = "pending"
+    STATUS_APPROVED = "approved"
+    STATUS_REJECTED = "rejected"
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "Pending"),
+        (STATUS_APPROVED, "Approved"),
+        (STATUS_REJECTED, "Rejected"),
+    ]
+
+    request_type = models.CharField(max_length=64, choices=REQUEST_TYPE_CHOICES)
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="classhub_rbac_policy_change_requests",
+    )
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="classhub_rbac_policy_change_reviews",
+    )
+    organization = models.ForeignKey(
+        "Organization",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="rbac_policy_change_requests",
+    )
+    classroom = models.ForeignKey(
+        "Class",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="rbac_policy_change_requests",
+    )
+    summary = models.CharField(max_length=255, blank=True, default="")
+    payload = models.JSONField(default=dict, blank=True)
+    review_note = models.CharField(max_length=500, blank=True, default="")
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [
+            models.Index(fields=["status", "created_at"], name="hub_rbacreq_statcrt_c17a_idx"),
+            models.Index(fields=["request_type", "status"], name="hub_rbacreq_typsta_d522_idx"),
+            models.Index(fields=["organization", "status"], name="hub_rbacreq_orgsta_7ba7_idx"),
+            models.Index(fields=["classroom", "status"], name="hub_rbacreq_clssta_8a2b_idx"),
+            models.Index(fields=["requested_by", "status"], name="hub_rbacreq_usrsta_5f3e_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.request_type} ({self.status}) #{self.id}"
 
 
 class ClassStaffAssignment(models.Model):

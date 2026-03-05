@@ -4,6 +4,7 @@
 This page explains the RBAC model that is active in ClassHub today:
 - org boundaries decide class visibility,
 - capabilities decide allowed actions,
+- custom role assignments can extend user capabilities within an org,
 - optional scoped grants can narrow module access.
 
 Use this as the operational reference. The RFC remains the future-looking design doc.
@@ -45,6 +46,29 @@ Role template mapping:
 | `admin` | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | `teacher` | Yes | Yes | Yes | Yes | Yes | Yes | Yes | No |
 | `viewer` | Yes | No | No | No | Yes | No | No | No |
+
+## Custom role assignments (Phase-2 foundation)
+
+Custom role entities:
+- `OrganizationCustomRole`
+- `OrganizationCustomRoleCapability`
+- `OrganizationCustomRoleAssignment`
+
+Current behavior:
+- membership role templates remain the baseline policy source.
+- assigned active custom-role capabilities are additive per user/org.
+- evaluator applies role-template + custom-role capabilities before scoped-grant checks.
+- custom-role lifecycle can be managed from teacher RBAC tools and policy bundles.
+
+Audit actions (admin):
+- `organization.custom_role.create|update|delete`
+- `organization.custom_role_capability.create|update|delete`
+- `organization.custom_role_assignment.create|update|delete`
+
+Portal actions:
+- `organization.custom_role.portal_upsert`
+- `organization.custom_role_capability.portal_upsert`
+- `organization.custom_role_assignment.portal_upsert`
 
 ## Boundary modes and fallback
 
@@ -100,6 +124,7 @@ Current hardening rule:
 `evaluate_staff_capability(...)` returns machine-readable reasons, including:
 - denies: `unauthenticated`, `not_staff`, `membership_required`, `no_membership_for_class_org`, `role_missing_capability`, `scoped_grant_denied`, `scoped_grant_explicit_deny`, `invalid_module_scope`, `unknown_capability`
 - allows: `superuser`, `role_allows_capability`, `role_allows_capability_no_scoped_grants`, `scoped_grant_allows`, `legacy_no_membership_fallback`
+- custom-role allows: `custom_role_allows_capability`, `custom_role_allows_capability_no_scoped_grants`
 
 Use these reason codes when triaging access issues and when writing tests.
 
@@ -118,6 +143,10 @@ Teacher portal simulation and grant management:
 - `POST /teach/rbac/simulate`
 - `POST /teach/rbac/module-scope-grant/upsert`
 - `POST /teach/rbac/module-scope-grant/set-active`
+- `POST /teach/rbac/custom-role/upsert`
+- `POST /teach/rbac/custom-role/capability/upsert`
+- `POST /teach/rbac/custom-role/assignment/upsert`
+- `POST /teach/rbac/change-request/review`
 - `GET /teach/rbac/policy/export`
 - `POST /teach/rbac/policy/import`
 - These portal actions are available only to staff with syllabus-export capability and are audited for operator traceability.
@@ -152,7 +181,19 @@ Policy-as-code format:
 - sections:
   - `organizations[]` with `name` + `role_capabilities[]`
   - `scoped_grants[]` with `class_join_code`, `username`, `capability`, `effect`, range, and active flag
+  - `custom_roles[]` with `organization_name`, `slug`, `name`, `description`, `is_active`, and `capabilities[]`
+  - `custom_role_assignments[]` with `organization_name`, `role_slug`, `username`, and `is_active`
 - class-wide scoped capabilities (`roster.manage`, `policy.manage`) must use `module_order_start=0` and `module_order_end=0`.
+
+Delegated approval workflow:
+- enable with `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`
+- mutation actions queue `RbacPolicyChangeRequest` rows for separate review
+- requesters cannot self-approve
+- review endpoint: `POST /teach/rbac/change-request/review`
+- workflow audit actions:
+  - `rbac.policy_change.requested`
+  - `rbac.policy_change.approved`
+  - `rbac.policy_change.rejected`
 
 ## CI guardrails
 
