@@ -10,9 +10,10 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Student upload flow includes offline queue/retry behavior for intermittent networks.
 - Student kiosk shell mode is available behind `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED` (manifest + route allowlist + focused nav constraints).
 - Teacher portal includes roster, submissions, moderation, outcomes, and certificate workflows.
-- Operator data-lifespan dashboard is live at `/teach/data-lifespan`.
+- Operator data-lifespan dashboard is live at `/teach/data-lifespan` with retention trend rows and CSV/JSON snapshot export (`/teach/data-lifespan/export`).
 - Homework Helper runs as a separate Django service behind `/helper/*`.
 - Homework Helper supports optional bounded local curriculum RAG (pgvector) with curriculum-only retrieval scope.
+- Helper exposes an internal RAG posture contract at `/helper/internal/rag-status` (token-protected) for ClassHub operator evidence panels.
 - Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts).
 - Teacher syllabus zip import now maps session-prefixed support images into lesson assets.
 - Organization boundaries and RBAC capability checks are live.

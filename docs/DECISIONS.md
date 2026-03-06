@@ -2174,3 +2174,23 @@ Execution runbook:
 **Why this remains active:**
 - These handlers intentionally keep validation + audit-safe branching in one function to preserve predictable request-level behavior during rollout.
 - Budgets acknowledge current complexity while keeping CI strict against further accidental growth.
+
+## Privacy/AI evidence dashboard v2 contract
+
+**Current decision:**
+- Extend `/teach/data-lifespan` with:
+  - retention trend rows (7-day prune run activity),
+  - tokenized CSV/JSON snapshot export endpoint (`/teach/data-lifespan/export?format=<json|csv>`),
+  - helper RAG posture panel.
+- Add audit event on each snapshot export:
+  - `data_lifespan.snapshot_export`.
+- Add helper-side internal status endpoint:
+  - `GET /helper/internal/rag-status` (bearer token, same `HELPER_INTERNAL_API_TOKEN` contract as other helper internal control endpoints).
+- Keep helper RAG status response explicitly curriculum-only by contract:
+  - includes per-reference chunk counts + last index timestamps,
+  - includes explicit `student_data_excluded_from_index: true`.
+
+**Why this remains active:**
+- Gives operators and external evaluators exportable privacy/AI evidence without reading source code.
+- Preserves least-privilege by keeping helper status introspection on token-protected internal routes only.
+- Keeps retention and RAG posture in one operator surface so verification can be completed quickly during demos and audits.

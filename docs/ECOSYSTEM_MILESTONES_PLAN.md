@@ -97,6 +97,8 @@ Status (March 6, 2026): Complete for MVP. Kiosk route allowlist, installable she
 ### Goal
 Turn privacy/RAG posture from static claims into exportable, operator-visible evidence.
 
+Status (March 6, 2026): In progress. Retention trends, snapshot export (`/teach/data-lifespan/export`), helper-side RAG status contract (`/helper/internal/rag-status`), and dashboard RAG panel are now shipped.
+
 ### Scope (v2 extension)
 - Extend `/teach/data-lifespan` with trend summaries and snapshot export.
 - Add RAG status panel:
@@ -106,11 +108,11 @@ Turn privacy/RAG posture from static claims into exportable, operator-visible ev
   - explicit "student data excluded from index" statement.
 
 ### Task checklist
-- [ ] Add retention trend rows (recent prune runs, overdue counts).
-- [ ] Add CSV/JSON snapshot export endpoint for data-lifespan page.
-- [ ] Add helper-side RAG index status query contract.
-- [ ] Surface RAG status in classhub dashboard panel.
-- [ ] Add audit event for snapshot exports.
+- [x] Add retention trend rows (recent prune runs, overdue counts).
+- [x] Add CSV/JSON snapshot export endpoint for data-lifespan page.
+- [x] Add helper-side RAG index status query contract.
+- [x] Surface RAG status in classhub dashboard panel.
+- [x] Add audit event for snapshot exports.
 - [ ] Update runbook and evaluator docs with demonstration script.
 
 ### Acceptance criteria

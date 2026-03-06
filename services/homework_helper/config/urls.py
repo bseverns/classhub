@@ -7,4 +7,5 @@ urlpatterns = [
     path("helper/healthz", views.healthz),
     path("helper/chat", views.chat),
     path("helper/internal/reset-class-conversations", views.reset_class_conversations),
+    path("helper/internal/rag-status", views.internal_rag_status),
 ]

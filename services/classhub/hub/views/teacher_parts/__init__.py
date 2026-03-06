@@ -14,6 +14,7 @@ from .auth import (
 )
 from .content import (
     teach_data_lifespan,
+    teach_data_lifespan_export,
     teach_download_authoring_template,
     teach_generate_authoring_templates,
     teach_home,
@@ -78,6 +79,7 @@ __all__ = [
     "teach_change_password",
     "teach_home",
     "teach_data_lifespan",
+    "teach_data_lifespan_export",
     "teach_upsert_module_scope_grant",
     "teach_set_module_scope_grant_active",
     "teach_simulate_rbac_access",

@@ -443,6 +443,25 @@ Verification (operator dashboard):
 - Open `/teach/data-lifespan` as owner/admin/superuser.
 - Confirm `Last successful retention prune` timestamp updated.
 - Confirm `Policy-overdue rows` is at or near expected value for your policy window.
+- Use `Export JSON` / `Export CSV` from the same page to capture an evidence snapshot.
+
+Evidence export (headless, optional):
+
+```bash
+curl -L -b classhub_teach_cookie.txt \
+  "https://YOUR_DOMAIN/teach/data-lifespan/export?format=json" \
+  -o data_lifespan_snapshot.json
+
+curl -L -b classhub_teach_cookie.txt \
+  "https://YOUR_DOMAIN/teach/data-lifespan/export?format=csv" \
+  -o data_lifespan_snapshot.csv
+```
+
+RAG evidence panel prerequisites:
+
+- `HELPER_INTERNAL_API_TOKEN` must match between ClassHub and helper.
+- `HELPER_INTERNAL_RAG_STATUS_URL` should point to helper (`http://helper_web:8000/helper/internal/rag-status` in Compose).
+- `HELPER_INTERNAL_RAG_STATUS_TIMEOUT_SECONDS` controls request timeout (default `1.2`).
 
 ### Orphan upload scavenger (legacy cleanup)
 

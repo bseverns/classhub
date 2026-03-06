@@ -89,10 +89,81 @@ class DataLifespanDashboardTests(TestCase):
         self.assertGreaterEqual(int(snapshot["submissions_total"]), 1)
         self.assertEqual(snapshot["last_prune_run"].action, "retention.prune_submissions")
 
+    @patch("hub.views.teacher_parts.content_data_lifespan.fetch_rag_status")
+    def test_dashboard_renders_rag_panel_from_helper_status(self, rag_status_mock):
+        rag_status_mock.return_value = HelperRagStatusResult(
+            ok=True,
+            rag_enabled=True,
+            index_ready=True,
+            indexed_chunk_count=42,
+            reference_source_count=1,
+            last_index_built_at="2026-03-06T12:00:00+00:00",
+            reference_sources=[
+                {
+                    "reference_key": "piper_scratch",
+                    "chunk_count": 42,
+                    "last_indexed_at": "2026-03-06T12:00:00+00:00",
+                }
+            ],
+            configured_reference_keys=["piper_scratch"],
+            student_data_excluded_from_index=True,
+            status_code=200,
+        )
+        _force_login_staff_verified(self.client, self.superuser)
+
+        resp = self.client.get("/teach/data-lifespan")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Local RAG index posture")
+        self.assertContains(resp, "RAG enabled and indexed")
+        self.assertContains(resp, "Student uploads and student PII are excluded from the RAG index.")
+        self.assertContains(resp, "piper_scratch")
+
+    def test_superuser_can_export_data_lifespan_json_snapshot(self):
+        _force_login_staff_verified(self.client, self.superuser)
+        resp = self.client.get("/teach/data-lifespan/export?format=json")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "application/json")
+        self.assertIn("attachment; filename=", resp["Content-Disposition"])
+        payload = resp.json()
+        self.assertIn("snapshot", payload)
+        self.assertIn("rag_status", payload)
+        self.assertIn("policy_overdue_total", payload["snapshot"])
+
+        event = AuditEvent.objects.filter(action="data_lifespan.snapshot_export").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.target_id, "json")
+        self.assertEqual(str(event.metadata.get("format")), "json")
+
+    def test_superuser_can_export_data_lifespan_csv_snapshot(self):
+        _force_login_staff_verified(self.client, self.superuser)
+        resp = self.client.get("/teach/data-lifespan/export?format=csv")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "text/csv; charset=utf-8")
+        self.assertIn("attachment; filename=", resp["Content-Disposition"])
+        self.assertIn("field,value", resp.content.decode("utf-8"))
+        self.assertIn("policy_overdue_total", resp.content.decode("utf-8"))
+        self.assertIn("rag_status", resp.content.decode("utf-8"))
+
+        event = AuditEvent.objects.filter(action="data_lifespan.snapshot_export").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.target_id, "csv")
+        self.assertEqual(str(event.metadata.get("format")), "csv")
+
+    def test_data_lifespan_export_rejects_invalid_format(self):
+        _force_login_staff_verified(self.client, self.superuser)
+        resp = self.client.get("/teach/data-lifespan/export?format=pdf")
+        self.assertEqual(resp.status_code, 400)
+
     @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True)
     def test_viewer_membership_cannot_view_data_lifespan_dashboard(self):
         _force_login_staff_verified(self.client, self.viewer)
         resp = self.client.get("/teach/data-lifespan")
+        self.assertEqual(resp.status_code, 403)
+
+    @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True)
+    def test_viewer_membership_cannot_export_data_lifespan_snapshot(self):
+        _force_login_staff_verified(self.client, self.viewer)
+        resp = self.client.get("/teach/data-lifespan/export?format=json")
         self.assertEqual(resp.status_code, 403)
 
 

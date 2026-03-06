@@ -4,6 +4,8 @@ The helper service is a Django app that exposes:
 
 - `GET /helper/healthz`
 - `POST /helper/chat`
+- `POST /helper/internal/reset-class-conversations` (token-protected internal control plane)
+- `GET /helper/internal/rag-status` (token-protected internal evidence/status contract)
 
 By default, the helper is wired to a local LLM server (Ollama) for self-hosted reliability and predictable costs.
 OpenAI remains an explicit development/future path via the **Responses API** and must be intentionally acknowledged before use.
@@ -86,6 +88,8 @@ HELPER_TEXT_LANGUAGE_KEYWORDS=pascal,python,java,javascript,typescript,c++,c#,cs
 HELPER_INTERNAL_API_TOKEN=...
 HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
 HELPER_INTERNAL_RESET_TIMEOUT_SECONDS=2
+HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+HELPER_INTERNAL_RAG_STATUS_TIMEOUT_SECONDS=1.2
 HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE=1
 HELPER_CLASS_RESET_MAX_KEYS=4000
 HELPER_CLASS_RESET_ARCHIVE_ENABLED=1
@@ -127,6 +131,14 @@ Archive access + audit:
 - Default archive retention is 30 days (`RETENTION_HELPER_EXPORT_DAYS=30`) via `scripts/retention_maintenance.sh`.
 - `scripts/retention_maintenance.sh` now enforces helper archive path containment under `/uploads` and tightens permissions (`0700` directory, `0600` archive files) during scheduled retention runs.
 - Helper reset archives are internal-only and excluded from student-facing portfolio exports.
+
+Internal RAG status contract:
+- `/helper/internal/rag-status` requires the same bearer token as reset operations (`HELPER_INTERNAL_API_TOKEN`).
+- Response includes:
+  - `rag_enabled`, `index_ready`,
+  - `indexed_chunk_count`, `reference_source_count`,
+  - per-source chunk counts and last indexed timestamps,
+  - `student_data_excluded_from_index: true`.
 
 ### Ollama (local)
 

@@ -49,7 +49,7 @@ from ..models import (
     StudentSupportTag,
     Submission,
 )
-from ..services.helper_control import HelperResetResult
+from ..services.helper_control import HelperRagStatusResult, HelperResetResult
 from ..services.upload_scan import ScanResult
 
 

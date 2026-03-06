@@ -33,6 +33,8 @@ During planning, these may be generated placeholder images. Replace them with re
 10. `13-a11y-smoke-terminal.png`
 11. `19-rbac-tools-tab.png` (refresh target should include custom-role tooling + policy change request queue)
 12. `19-rbac-tools-tab-approval-on.png` (optional RBAC companion capture with `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`)
+13. `20-data-lifespan-evidence.png` (retention trend + export controls + RAG panel with curriculum-only statement)
+14. `21-data-lifespan-export-terminal.png` (headless JSON export command + resulting artifact)
 
 ## Storyline-critical refresh guidance
 - `02-student-class-view.png`: include account links for trust/data controls.

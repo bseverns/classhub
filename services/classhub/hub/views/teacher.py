@@ -14,6 +14,7 @@ from .teacher_parts.auth import (
 )
 from .teacher_parts.content import (
     teach_data_lifespan,
+    teach_data_lifespan_export,
     teach_download_authoring_template,
     teach_export_syllabus,
     teach_generate_authoring_templates,
@@ -87,6 +88,7 @@ __all__ = [
     "teach_change_password",
     "teach_home",
     "teach_data_lifespan",
+    "teach_data_lifespan_export",
     "teach_export_syllabus",
     "teach_upsert_module_scope_grant",
     "teach_set_module_scope_grant_active",

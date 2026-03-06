@@ -69,6 +69,7 @@ from .views_chat_runtime import (
     student_session_exists as runtime_student_session_exists,
     table_exists as runtime_table_exists,
 )
+from .views_internal_rag_status import internal_rag_status
 from .views_reset import reset_class_conversations
 
 logger = logging.getLogger(__name__)

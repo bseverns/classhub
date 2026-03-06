@@ -20,7 +20,7 @@ Within 30 minutes, you can answer: what is live, what is flag-gated, and what is
 | 10 min | Understand classroom model and privacy posture | [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md), [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) |
 | 10 min | Validate current shipped scope | [CURRENT_STATE.md](CURRENT_STATE.md), [FEATURE_MATURITY.md](FEATURE_MATURITY.md) |
 | 10 min | Watch core teacher/admin workflow live | `/teach`, `/teach/class/<id>`, `/teach/lessons` |
-| 5-15 min | Confirm operational readiness path | [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md), [RUNBOOK.md](RUNBOOK.md) |
+| 5-15 min | Confirm operational readiness + evidence export path | [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md), [RUNBOOK.md](RUNBOOK.md), `/teach/data-lifespan` |
 
 ## Questions to ask during a live review
 - Which features are enabled here by non-default flags?
@@ -34,7 +34,8 @@ Within 30 minutes, you can answer: what is live, what is flag-gated, and what is
 3. Ask the operator to open `/teach` and show:
    - class assignment flow,
    - organization role/membership controls,
-   - RBAC tool visibility and whether approval queue is enabled.
+   - RBAC tool visibility and whether approval queue is enabled,
+   - `/teach/data-lifespan` export (`JSON` or `CSV`) and RAG posture panel.
 
 ## Related docs
 - [START_HERE.md](START_HERE.md)

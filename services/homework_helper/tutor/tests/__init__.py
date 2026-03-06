@@ -12,6 +12,7 @@ from .test_engine import (
     RuntimeEngineTests,
 )
 from .test_events import ClassHubEventForwardingTests
+from .test_internal_rag_status import HelperInternalRagStatusTests
 from .test_internal_reset import HelperInternalResetTests
 from .test_view_modules import (
     HelperChatRequestModuleTests,
@@ -27,6 +28,7 @@ __all__ = [
     "HelperChatAuthTests",
     "HelperCSPModeTests",
     "HelperInternalResetTests",
+    "HelperInternalRagStatusTests",
     "HelperChatRequestModuleTests",
     "HelperChatRuntimeModuleTests",
     "HelperSecurityHeaderTests",

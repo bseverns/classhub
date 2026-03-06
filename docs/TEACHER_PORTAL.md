@@ -299,8 +299,11 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
 - `/teach/data-lifespan`:
   - read-only operator retention snapshot
   - shows `StudentEvent` row volume, oldest submission timestamp, and policy-overdue counts
+  - includes retention trend table for recent prune activity (last 7 days)
+  - exports audit-stamped evidence snapshots as JSON/CSV via `/teach/data-lifespan/export?format=<json|csv>`
   - shows exact timestamp of the last successful retention prune run
   - includes recent `retention.prune_*` audit rows for quick verification
+  - includes helper RAG posture panel (enabled/index-ready state, chunk/source counts, last index build, curriculum-only boundary statement)
 - `/teach/class/<id>/join-card`:
   - print-friendly join instructions + class code
   - prefilled join URL (`/?class_code=<JOIN_CODE>`)

@@ -19,7 +19,11 @@
               Read-only retention health · <a href="/teach">Teacher portal</a> · <a href="/teach/logout">Log out</a>
             </div>
           </div>
-          <div class="muted">Snapshot at {{ snapshot.captured_at|date:"Y-m-d H:i:s" }}</div>
+          <div class="muted">
+            Snapshot at {{ snapshot.captured_at|date:"Y-m-d H:i:s" }}<br />
+            <a href="/teach/data-lifespan/export?format=json">Export JSON</a> ·
+            <a href="/teach/data-lifespan/export?format=csv">Export CSV</a>
+          </div>
         </div>
 
         <div class="card">
@@ -38,6 +42,38 @@
               <strong>not recorded yet</strong>
             {% endif %}
           </p>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title-tight">Retention trend (last 7 days)</h2>
+          {% if snapshot.prune_trend_rows %}
+            <div class="table-wrap">
+              <table>
+                <caption class="visually-hidden">Retention trend for recent prune activity</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Day</th>
+                    <th scope="col">Prune runs</th>
+                    <th scope="col">Deleted rows</th>
+                    <th scope="col">Matched rows</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in snapshot.prune_trend_rows %}
+                    <tr>
+                      <td class="muted">{{ row.date }}</td>
+                      <td class="muted">{{ row.run_count }}</td>
+                      <td class="muted">{{ row.deleted_rows }}</td>
+                      <td class="muted">{{ row.matched_rows }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="muted">No prune trend data is available yet.</p>
+          {% endif %}
+          <p class="muted">Current overdue rows across policy windows: <strong>{{ snapshot.policy_overdue_total }}</strong></p>
         </div>
 
         <div class="grid-2">
@@ -82,6 +118,59 @@
             <p class="muted">Fallback submission retention: {{ snapshot.fallback_submission_days }} day(s)</p>
             <progress max="{{ snapshot.submissions_total|default:1 }}" value="{{ snapshot.submissions_within_policy }}"></progress>
           </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title-tight">Local RAG index posture</h2>
+          {% if rag_status.status == "ok" %}
+            {% if rag_status.rag_enabled and rag_status.index_ready %}
+              <p><span class="state-pill state-pill--open">RAG enabled and indexed</span></p>
+            {% elif rag_status.rag_enabled %}
+              <p><span class="state-pill state-pill--locked">RAG enabled but index not ready</span></p>
+            {% else %}
+              <p><span class="state-pill">RAG disabled</span></p>
+            {% endif %}
+            <p class="muted">Indexed chunks: <strong>{{ rag_status.indexed_chunk_count }}</strong></p>
+            <p class="muted">Reference sources: <strong>{{ rag_status.reference_source_count }}</strong></p>
+            <p class="muted">
+              Last index build:
+              {% if rag_status.last_index_built_at %}
+                <strong>{{ rag_status.last_index_built_at }}</strong>
+              {% else %}
+                <strong>not recorded yet</strong>
+              {% endif %}
+            </p>
+            {% if rag_status.student_data_excluded_from_index %}
+              <p class="muted"><strong>Student uploads and student PII are excluded from the RAG index.</strong></p>
+            {% endif %}
+            {% if rag_status.reference_sources %}
+              <div class="table-wrap">
+                <table>
+                  <caption class="visually-hidden">Indexed curriculum sources</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Reference source</th>
+                      <th scope="col">Chunk count</th>
+                      <th scope="col">Last indexed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in rag_status.reference_sources %}
+                      <tr>
+                        <td><code>{{ row.reference_key }}</code></td>
+                        <td class="muted">{{ row.chunk_count }}</td>
+                        <td class="muted">{{ row.last_indexed_at|default:"-" }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% endif %}
+          {% elif rag_status.status == "not_configured" %}
+            <p class="muted">RAG status endpoint is not configured for this deployment yet.</p>
+          {% else %}
+            <p class="muted">RAG status check failed: <code>{{ rag_status.error_code|default:"unknown_error" }}</code></p>
+          {% endif %}
         </div>
 
         <div class="card">

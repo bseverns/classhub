@@ -118,6 +118,17 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 - Baseline capture mode: `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0` (default-state screenshot)
 - Optional companion capture filename: `19-rbac-tools-tab-approval-on.png` with `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`
 
+20. `20-data-lifespan-evidence.png`
+- Screen: data lifespan dashboard (`/teach/data-lifespan`)
+- Include: retention trend table + export JSON/CSV controls + RAG posture panel
+- Include: explicit curriculum-only boundary copy (`Student uploads and student PII are excluded...`)
+- Redact: any sensitive class/user labels shown in prune summaries
+
+21. `21-data-lifespan-export-terminal.png`
+- Screen: terminal export run
+- Include: one `curl` command pulling `/teach/data-lifespan/export?format=json` and resulting file listing
+- Redact: live domains/session cookie filenames/tokens
+
 ## Storyline overlays (capture inside existing files)
 - Trust/data controls:
   - `01-student-join.png`: include privacy-at-a-glance block and trust link.
@@ -143,6 +154,8 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 11. `19-rbac-tools-tab.png`
 - Capture with approval workflow OFF (`CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0`) first, then optional refresh with workflow ON.
 - Optional supplemental file for ON mode: `19-rbac-tools-tab-approval-on.png`.
+12. `20-data-lifespan-evidence.png`
+13. `21-data-lifespan-export-terminal.png`
 
 ### Then refresh older captures
 1. `02-student-class-view.png`
