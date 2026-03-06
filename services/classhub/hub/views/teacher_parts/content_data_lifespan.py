@@ -24,11 +24,6 @@ from .shared import (
     timezone,
 )
 
-
-def _can_view_data_lifespan(user) -> bool:
-    return bool(user.is_superuser or staff_can_export_syllabi(user))
-
-
 def _load_rag_status() -> dict:
     result = fetch_rag_status(
         endpoint_url=str(getattr(settings, "HELPER_INTERNAL_RAG_STATUS_URL", "") or "").strip(),
@@ -118,7 +113,8 @@ def _build_csv_export_body(*, snapshot: dict, rag_status: dict) -> str:
 
 @staff_member_required
 def teach_data_lifespan(request):
-    if not _can_view_data_lifespan(request.user):
+    can_export_syllabus = bool(staff_can_export_syllabi(request.user))
+    if not (request.user.is_superuser or can_export_syllabus):
         return HttpResponse("Forbidden", status=403)
 
     context = _build_snapshot_context()
@@ -133,7 +129,8 @@ def teach_data_lifespan(request):
 
 @staff_member_required
 def teach_data_lifespan_export(request):
-    if not _can_view_data_lifespan(request.user):
+    can_export_syllabus = bool(staff_can_export_syllabi(request.user))
+    if not (request.user.is_superuser or can_export_syllabus):
         return HttpResponse("Forbidden", status=403)
     export_format = (request.GET.get("format") or "json").strip().lower()
     context = _build_snapshot_context()
