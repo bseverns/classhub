@@ -138,6 +138,19 @@ bash scripts/golden_path_smoke.sh
 
 `golden_path_smoke.sh` also validates invite-only enrollment behavior and class summary CSV export (teacher session path).
 
+Telemetry stabilization evidence capture (Slice 7):
+
+```bash
+cd /srv/lms/app
+bash scripts/telemetry_stabilization_evidence.sh --window-days 7 --perform-rollback-drill
+```
+
+Notes:
+
+- Writes timestamped artifacts to `/tmp/classhub_telemetry_stabilization_<timestamp>/`.
+- Includes parity output, strict smoke output, and optional rollback-drill output.
+- Keep telemetry `READ_MODE=core` if parity reports drift.
+
 Accessibility smoke:
 
 ```bash

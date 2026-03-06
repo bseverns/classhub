@@ -195,6 +195,7 @@ Ship each slice as an isolated PR with rollback-safe toggles.
   - Add deploy checklist step: parity must be green before `READ_MODE=telemetry`.
   - Add rollback checklist step: immediate switch back to `READ_MODE=core`.
 - [ ] Slice 7: Staging/prod stabilization evidence
+  - Evidence capture tooling is now available via `scripts/telemetry_stabilization_evidence.sh`.
   - Run at least one full release cycle with `WRITE_MODE=dual`, `READ_MODE=telemetry`.
   - Capture parity evidence snapshots and rollback drill output.
   - Only then decide whether to keep `dual` or move to `telemetry_only`.
@@ -267,6 +268,15 @@ Parity/backfill command examples:
 cd /srv/lms/app/compose
 docker compose exec -T classhub_web python manage.py backfill_telemetry_events --dry-run --batch-size 5000
 docker compose exec -T classhub_web python manage.py check_telemetry_parity --window-days 7
+```
+
+Stabilization evidence capture (Slice 7 helper):
+
+```bash
+cd /srv/lms/app
+bash scripts/telemetry_stabilization_evidence.sh \
+  --window-days 7 \
+  --perform-rollback-drill
 ```
 
 ## Open decisions requiring sign-off
