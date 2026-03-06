@@ -137,6 +137,7 @@ INSTALLED_APPS = [
     "django_otp.plugins.otp_totp",
     "django_otp.plugins.otp_static",
     "hub.apps.HubConfig",
+    "hub_telemetry.apps.HubTelemetryConfig",
 ]
 
 MIDDLEWARE = [
@@ -207,6 +208,10 @@ DATABASES = {
 }
 if CLASSHUB_TELEMETRY_DATABASE_URL:
     DATABASES["telemetry"] = env.db("CLASSHUB_TELEMETRY_DATABASE_URL")
+
+DATABASE_ROUTERS = [
+    "config.dbrouters.TelemetryRouter",
+]
 
 REDIS_URL = os.getenv("REDIS_URL", "").strip()
 if REDIS_URL:
