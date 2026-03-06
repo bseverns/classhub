@@ -35,6 +35,21 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 
 If `system_doctor` passes, the platform is usually in good shape.
 
+One-command full-stack smoke (golden + a11y):
+
+```bash
+cd /srv/lms/app
+make smoke-full
+```
+
+Common overrides:
+
+```bash
+SMOKE_COMPOSE_MODE=dev make smoke-full
+SMOKE_BASE_URL=http://localhost make smoke-full
+SMOKE_INSTALL_BROWSERS=0 make smoke-full
+```
+
 ## Standard operations
 
 ### Start / stop stack

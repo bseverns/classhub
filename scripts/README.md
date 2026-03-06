@@ -4,6 +4,9 @@ This directory contains operational tools, CI guardrails, and quality gates for 
 
 These tools are designed to be run from the repository root: `bash scripts/script_name.sh`.
 
+Operator shortcut:
+- `make smoke-full` runs golden stack smoke (`system_doctor --smoke-mode golden`) and accessibility smoke in one command.
+
 ## Core Operations & Deployment
 | Script | Intent |
 |---|---|

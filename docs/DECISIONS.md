@@ -2194,3 +2194,15 @@ Execution runbook:
 - Gives operators and external evaluators exportable privacy/AI evidence without reading source code.
 - Preserves least-privilege by keeping helper status introspection on token-protected internal routes only.
 - Keeps retention and RAG posture in one operator surface so verification can be completed quickly during demos and audits.
+
+## One-command full-stack smoke wrapper
+
+**Current decision:**
+- Add a repo-root `Makefile` operator shortcut:
+  - `make smoke-full` -> runs `system_doctor.sh --smoke-mode golden` then `a11y_smoke.sh`.
+- Keep existing scripts (`system_doctor.sh`, `a11y_smoke.sh`) as source-of-truth primitives.
+- Allow small environment overrides through make variables (`SMOKE_COMPOSE_MODE`, `SMOKE_BASE_URL`, `SMOKE_INSTALL_BROWSERS`, etc.).
+
+**Why this remains active:**
+- Reduces operator cognitive load by giving non-specialists a single, repeatable command for full-stack confidence checks.
+- Preserves script composability while making routine operations easier to delegate across staff turnover.

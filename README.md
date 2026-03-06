@@ -165,6 +165,12 @@ docker compose exec classhub_web python manage.py createsuperuser
 bash scripts/system_doctor.sh
 ```
 
+One-command full-stack smoke (golden + a11y):
+
+```bash
+make smoke-full
+```
+
 ## Docs entrypoint
 
 Start with `docs/DOCS_MAP.md` for the documentation contract and map.
