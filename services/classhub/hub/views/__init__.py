@@ -44,7 +44,7 @@ from .student import (
 )
 from .student_micro_checks import student_micro_check
 from .student_materials import material_checklist, material_reflection, material_rubric
-from .student_sync import student_upload_sync_service_worker
+from .student_sync import student_shell_manifest, student_upload_sync_service_worker
 from .teacher import (
     teach_add_material,
     teach_add_support_tag,
@@ -160,6 +160,7 @@ __all__ = [
     "student_gallery_wall",
     "student_rename_display_name",
     "student_set_submission_publish",
+    "student_shell_manifest",
     "student_return_code",
     "student_upload_sync_service_worker",
     "submission_download",

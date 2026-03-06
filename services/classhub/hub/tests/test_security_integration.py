@@ -178,6 +178,53 @@ class ClassHubSiteModeTests(TestCase):
         self.assertContains(resp, "maintenance mode", status_code=503)
 
 
+class StudentKioskShellModeTests(TestCase):
+    def setUp(self):
+        self.classroom = Class.objects.create(name="Kiosk Class", join_code="KSK12345")
+        self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
+
+    def _login_student(self):
+        session = self.client.session
+        session["student_id"] = self.student.id
+        session["class_id"] = self.classroom.id
+        session["class_epoch"] = 1
+        session.save()
+
+    @override_settings(CLASSHUB_STUDENT_KIOSK_PWA_ENABLED=True)
+    def test_query_toggle_sets_kiosk_cookie(self):
+        resp = self.client.get("/?kiosk=1")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(self.client.cookies.get("classhub_student_kiosk_mode").value, "1")
+
+    @override_settings(CLASSHUB_STUDENT_KIOSK_PWA_ENABLED=True)
+    def test_disallowed_student_route_redirects_to_student_home_in_kiosk_mode(self):
+        self._login_student()
+        self.client.cookies["classhub_student_kiosk_mode"] = "1"
+        resp = self.client.get("/student/portfolio")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/student?kiosk=1")
+
+    @override_settings(CLASSHUB_STUDENT_KIOSK_PWA_ENABLED=True)
+    def test_allowed_student_route_is_accessible_in_kiosk_mode(self):
+        self._login_student()
+        self.client.cookies["classhub_student_kiosk_mode"] = "1"
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+
+    @override_settings(CLASSHUB_STUDENT_KIOSK_PWA_ENABLED=True)
+    def test_kiosk_mode_does_not_gate_teacher_routes(self):
+        self.client.cookies["classhub_student_kiosk_mode"] = "1"
+        resp = self.client.get("/teach/login")
+        self.assertEqual(resp.status_code, 200)
+
+    @override_settings(CLASSHUB_STUDENT_KIOSK_PWA_ENABLED=True, CLASSHUB_STUDENT_KIOSK_DEFAULT=True)
+    def test_query_toggle_off_sets_cookie_override(self):
+        resp = self.client.get("/student?kiosk=0")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/")
+        self.assertEqual(self.client.cookies.get("classhub_student_kiosk_mode").value, "0")
+
+
 class InternalHelperEventEndpointTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Internal Event Class", join_code="INT12345")

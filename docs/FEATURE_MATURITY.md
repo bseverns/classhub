@@ -21,6 +21,8 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | Setting | Default | Scope | Why it matters |
 |---|---|---|---|
 | `CLASSHUB_PROGRAM_PROFILE` | `secondary` | ClassHub + Helper behavior defaults | Baseline pacing + helper policy defaults. |
+| `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED` | `0` | Student shell constraints | Enables kiosk route allowlist + focused student navigation shell. |
+| `CLASSHUB_STUDENT_KIOSK_DEFAULT` | `0` | Student shell default mode | Forces kiosk mode on by default unless toggled off per device. |
 | `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` | `0` | ClassHub access control | Controls whether staff without active org membership can access classes. |
 | `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED` | `0` | RBAC evaluator behavior | Enables module-range scoped grant enforcement. |
 | `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED` | `0` | RBAC mutation workflow | Routes RBAC writes into approval queue instead of immediate apply. |
@@ -33,6 +35,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 |---|---|---|---|
 | Student join via class code + display name | Live (default) | No feature flag | `GET /` and join flow succeeds in smoke checks. |
 | Teacher portal class workflows (`/teach`, `/teach/class/<id>`, `/teach/lessons`) | Live (default) | Staff auth + 2FA policy | Teacher portal tests: `hub.tests.TeacherPortalTests`. |
+| Classroom kiosk PWA shell | Live (flagged) | `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED=1` | Kiosk route guard tests + `/student-shell.webmanifest` endpoint checks pass. |
 | Facilitator CLI (`hubctl`) teacher API controls | Live (default) | Session auth + OTP contract reused from `/teach/login` | `python -m unittest discover -s tools/hubctl/tests` |
 | Organization boundaries (membership + role templates) | Live (default) | `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` controls fallback behavior | Cross-org class visibility tests in `test_teacher_admin_portal.py`. |
 | RBAC scoped grants | Live (flagged) | `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=1` | RBAC simulation + scoped grant tests pass. |

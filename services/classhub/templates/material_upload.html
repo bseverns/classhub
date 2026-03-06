@@ -4,11 +4,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#10253a" />
     <title>{% trans "Upload" %} - {{ material.title }}</title>
+    <link rel="manifest" href="/student-shell.webmanifest" />
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/material_upload.css' %}" />
   </head>
   <body class="glass-theme"
+    data-kiosk-shell-enabled="{% if student_kiosk_pwa_enabled %}1{% else %}0{% endif %}"
+    data-kiosk-mode="{% if request.classhub_kiosk_mode %}1{% else %}0{% endif %}"
+    data-kiosk-home-url="/student?kiosk=1"
+    data-kiosk-sw-url="/student-upload-sync-sw.js"
+    data-i18n-kiosk-blocked="{% trans 'Kiosk mode keeps navigation inside the student class flow.' %}"
     data-student-id="{{ student.id }}"
     data-class-id="{{ classroom.id }}"
     data-material-id="{{ material.id }}"
@@ -30,7 +37,19 @@
       <main id="main-content">
         <div class="top">
           <div>
-            <div class="muted"><a href="/student">{% trans "Back to class" %}</a> · <a href="/student/portfolio">{% trans "What I made" %}</a> · <a href="/student/gallery">{% trans "Session gallery" %}</a> · <a href="/logout">{% trans "Log out" %}</a></div>
+            <div class="muted">
+              <a href="/student">{% trans "Back to class" %}</a>
+              · <a href="/student/portfolio" data-kiosk-hide>{% trans "What I made" %}</a>
+              · <a href="/student/gallery" data-kiosk-hide>{% trans "Session gallery" %}</a>
+              {% if student_kiosk_pwa_enabled %}
+                {% if request.classhub_kiosk_mode %}
+                · <a href="/student?kiosk=0">{% trans "Exit kiosk mode" %}</a>
+                {% else %}
+                · <a href="/student?kiosk=1">{% trans "Enable kiosk mode" %}</a>
+                {% endif %}
+              {% endif %}
+              · <a href="/logout">{% trans "Log out" %}</a>
+            </div>
             <h1>{{ material.title }}</h1>
             <div class="muted">{% trans "Signed in as" %} <strong>{{ student.display_name }}</strong> · {{ classroom.name }}</div>
           </div>
@@ -194,6 +213,8 @@
         </div>
       </main>
     </div>
+    <p id="kiosk-shell-status" class="muted" role="status" aria-live="polite"></p>
+    <script src="{% static 'js/student_kiosk_shell.js' %}" defer></script>
     <script src="{% static 'js/student_class.js' %}" defer></script>
     <script src="{% static 'js/student_upload_queue.js' %}" defer></script>
   </body>

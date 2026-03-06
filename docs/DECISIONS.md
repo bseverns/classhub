@@ -8,6 +8,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Auth model: student access](#auth-model-student-access)
 - [Trust primitives: student data controls](#trust-primitives-student-data-controls)
 - [Offline upload queue for intermittent networks](#offline-upload-queue-for-intermittent-networks)
+- [Student kiosk shell mode](#student-kiosk-shell-mode)
 - [Database workload split roadmap](#database-workload-split-roadmap)
 - [Artifact-first sharing defaults](#artifact-first-sharing-defaults)
 - [Program profiles for cohort age bands](#program-profiles-for-cohort-age-bands)
@@ -172,6 +173,23 @@ Historical implementation logs and superseded decisions are archived by month in
 - Prevents student data loss when connectivity is unstable.
 - Keeps classroom flow resilient in low-infrastructure deployments.
 - Preserves privacy and minimal data collection while improving reliability.
+
+## Student kiosk shell mode
+
+**Current decision:**
+- Add an optional kiosk shell mode for student-facing routes behind `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED`.
+- Kiosk mode can be toggled per device using `?kiosk=1` / `?kiosk=0` and persists in a cookie.
+- When active, non-allowlisted student routes redirect to class flow entry (`/student` or `/`), preserving focus on:
+  - join,
+  - class home,
+  - material upload and core lesson routes.
+- Student templates expose an installable manifest (`/student-shell.webmanifest`) and register the existing upload sync service worker with secure-context guardrails.
+- Keep teacher/admin routes outside kiosk route gating.
+
+**Why this remains active:**
+- Supports tablet/shared-device classrooms with lower navigation complexity.
+- Keeps the resilient upload queue path intact while making the shell installable.
+- Preserves operator control by making kiosk behavior explicit and reversible per deployment.
 
 ## Database workload split roadmap
 

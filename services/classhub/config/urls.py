@@ -55,6 +55,7 @@ urlpatterns = [
     path("student/micro-check", views.student_micro_check),
     path("student/portfolio-export", views.student_portfolio_export),
     path("student-upload-sync-sw.js", views.student_upload_sync_service_worker),
+    path("student-shell.webmanifest", views.student_shell_manifest),
     path("logout", views.student_logout),
 
     # Student upload + shared download/stream routes.

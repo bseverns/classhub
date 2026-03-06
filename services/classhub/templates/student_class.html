@@ -5,13 +5,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#10253a" />
   <title>{{ classroom.name }}</title>
+  <link rel="manifest" href="/student-shell.webmanifest" />
   {% include "includes/glass_theme.html" %}
   <link rel="stylesheet" href="{% static 'css/student_class.css' %}" />
 </head>
 
 <body
   class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}"
+  data-kiosk-shell-enabled="{% if student_kiosk_pwa_enabled %}1{% else %}0{% endif %}"
+  data-kiosk-mode="{% if request.classhub_kiosk_mode %}1{% else %}0{% endif %}"
+  data-kiosk-home-url="/student?kiosk=1"
+  data-kiosk-sw-url="/student-upload-sync-sw.js"
+  data-i18n-kiosk-blocked="{% trans 'Kiosk mode keeps navigation inside the student class flow.' %}"
   data-i18n-show-label="{% trans 'Show return code' %}"
   data-i18n-hide-label="{% trans 'Hide return code' %}"
   data-i18n-show-button="{% trans 'Show' %}"
@@ -32,18 +39,25 @@
           <div class="muted">
             <a href="/student">{% trans "Student home" %}</a>
             {% if ui_density_mode != "compact" %}
-            · <a href="/">{% trans "Join page" %}</a>
-            · <a href="/student/portfolio">{% trans "What I made" %}</a>
-            · <a href="/student/gallery">{% trans "Session gallery" %}</a>
-            · <a href="/student/portfolio-export">{% trans "Export my portfolio" %}</a>
-            · <a href="/privacy">{% trans "Privacy" %}</a>
-            · <a href="/trust">{% trans "Trust notes" %}</a>
+            · <a href="/" data-kiosk-hide>{% trans "Join page" %}</a>
+            · <a href="/student/portfolio" data-kiosk-hide>{% trans "What I made" %}</a>
+            · <a href="/student/gallery" data-kiosk-hide>{% trans "Session gallery" %}</a>
+            · <a href="/student/portfolio-export" data-kiosk-hide>{% trans "Export my portfolio" %}</a>
+            · <a href="/privacy" data-kiosk-hide>{% trans "Privacy" %}</a>
+            · <a href="/trust" data-kiosk-hide>{% trans "Trust notes" %}</a>
             {% if ui_density_mode == "expanded" %}
-            · <a href="#studio-handles">Studio handles</a>
+            · <a href="#studio-handles" data-kiosk-hide>Studio handles</a>
             {% endif %}
             {% else %}
-            · <a href="/privacy">{% trans "Privacy" %}</a>
-            · <a href="/trust">{% trans "Trust notes" %}</a>
+            · <a href="/privacy" data-kiosk-hide>{% trans "Privacy" %}</a>
+            · <a href="/trust" data-kiosk-hide>{% trans "Trust notes" %}</a>
+            {% endif %}
+            {% if student_kiosk_pwa_enabled %}
+            {% if request.classhub_kiosk_mode %}
+            · <a href="/student?kiosk=0">{% trans "Exit kiosk mode" %}</a>
+            {% else %}
+            · <a href="/student?kiosk=1">{% trans "Enable kiosk mode" %}</a>
+            {% endif %}
             {% endif %}
           </div>
           <h1>{{ classroom.name }}</h1>
@@ -176,7 +190,7 @@
       </div>
 
       {% if ui_density_mode == "expanded" %}
-      <div id="studio-handles" class="card studio-handles">
+      <div id="studio-handles" class="card studio-handles" data-kiosk-hide>
         <h2>Studio handles</h2>
         <p class="muted">Advanced mode keeps core controls visible for autonomy and accountability.</p>
         <div class="studio-handle-row">
@@ -525,6 +539,8 @@
       {% endif %}
     </main>
   </div>
+  <p id="kiosk-shell-status" class="muted copy-status" role="status" aria-live="polite"></p>
+  <script src="{% static 'js/student_kiosk_shell.js' %}" defer></script>
   <script src="{% static 'js/return_code_icons.js' %}" defer></script>
   <script src="{% static 'js/student_class.js' %}" defer></script>
 </body>

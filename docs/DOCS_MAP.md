@@ -54,6 +54,7 @@ A new reader should be able to find their role path without opening more than on
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [OPENAI_HELPER.md](OPENAI_HELPER.md)
 - [HUBCTL.md](HUBCTL.md)
+- [KIOSK_PWA.md](KIOSK_PWA.md)
 - [HELPER_POLICY.md](HELPER_POLICY.md)
 - [REQUEST_SAFETY.md](REQUEST_SAFETY.md)
 - [API.md](API.md)

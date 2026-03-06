@@ -142,6 +142,7 @@ MIDDLEWARE = [
     "config.middleware.AuthRateLimitMiddleware",
     "config.middleware.TeacherOTPRequiredMiddleware",
     "config.middleware.SiteModeMiddleware",
+    "config.middleware.StudentKioskModeMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # StudentSessionMiddleware relies on sessions.
@@ -241,6 +242,12 @@ CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED = env.bool("CLASSHUB_RBAC_POLICY_APPROVAL
 CLASSHUB_PROGRAM_PROFILE = (env("CLASSHUB_PROGRAM_PROFILE", default="secondary").strip().lower() or "secondary")
 if CLASSHUB_PROGRAM_PROFILE not in {"elementary", "secondary", "advanced"}:
     raise RuntimeError("CLASSHUB_PROGRAM_PROFILE must be one of: elementary, secondary, advanced")
+CLASSHUB_STUDENT_KIOSK_PWA_ENABLED = env.bool("CLASSHUB_STUDENT_KIOSK_PWA_ENABLED", default=False)
+CLASSHUB_STUDENT_KIOSK_DEFAULT = env.bool("CLASSHUB_STUDENT_KIOSK_DEFAULT", default=False)
+CLASSHUB_STUDENT_KIOSK_COOKIE_MAX_AGE_SECONDS = env.int(
+    "CLASSHUB_STUDENT_KIOSK_COOKIE_MAX_AGE_SECONDS",
+    default=30 * 24 * 3600,
+)
 
 _DEFAULT_CSP_POLICY_RELAXED = (
     "default-src 'self'; "

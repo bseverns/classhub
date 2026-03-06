@@ -258,3 +258,13 @@ class StudentUploadSyncWorkerEndpointTests(TestCase):
         self.assertIn("application/javascript", resp["Content-Type"])
         self.assertEqual(resp["Service-Worker-Allowed"], "/")
         self.assertIn("no-store", (resp.get("Cache-Control") or "").lower())
+
+    def test_student_shell_manifest_returns_installable_json(self):
+        resp = self.client.get("/student-shell.webmanifest")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("application/manifest+json", resp.get("Content-Type", ""))
+        payload = resp.json()
+        self.assertEqual(payload.get("start_url"), "/?kiosk=1")
+        self.assertEqual(payload.get("display"), "standalone")
+        icons = payload.get("icons") or []
+        self.assertTrue(any("student-kiosk-192.svg" in str(icon.get("src", "")) for icon in icons))

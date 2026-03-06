@@ -66,6 +66,8 @@ Status (March 6, 2026): Initial MVP shipped in `tools/hubctl/` with CI-backed un
 ### Goal
 Provide an installable, low-distraction tablet shell for student join, lesson launch, and artifact submission.
 
+Status (March 6, 2026): In progress. Route allowlist + kiosk navigation constraints + installable manifest are now live behind kiosk flags.
+
 ### Scope (MVP)
 - Installable PWA wrapper for `/`, `/student`, upload routes.
 - Service worker + manifest tuned for classroom shell behavior.
@@ -73,12 +75,12 @@ Provide an installable, low-distraction tablet shell for student join, lesson la
 - Minimal UI mode switch for kiosk-safe navigation.
 
 ### Task checklist
-- [ ] Define kiosk route allowlist and navigation constraints.
-- [ ] Add installable manifest + icon set + service worker registration guardrails.
-- [ ] Wire shell navigation to existing student auth/session contract.
+- [x] Define kiosk route allowlist and navigation constraints.
+- [x] Add installable manifest + icon set + service worker registration guardrails.
+- [x] Wire shell navigation to existing student auth/session contract.
 - [ ] Validate queue/retry behavior from unstable network scenarios.
 - [ ] Add tablet QA matrix (iPadOS Safari, Chrome Android tablet minimum).
-- [ ] Add deployment/operator notes for classroom rollout.
+- [x] Add deployment/operator notes for classroom rollout.
 
 ### Acceptance criteria
 - Student can complete join -> lesson -> upload flow in PWA shell.

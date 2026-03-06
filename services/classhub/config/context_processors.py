@@ -68,4 +68,6 @@ def program_ui(_request):
     return {
         "program_profile": program_profile,
         "ui_density_mode": default_ui_density_mode(program_profile),
+        "student_kiosk_pwa_enabled": bool(getattr(settings, "CLASSHUB_STUDENT_KIOSK_PWA_ENABLED", False)),
+        "student_kiosk_default": bool(getattr(settings, "CLASSHUB_STUDENT_KIOSK_DEFAULT", False)),
     }

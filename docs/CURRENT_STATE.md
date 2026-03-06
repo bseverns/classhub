@@ -8,6 +8,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Student trust controls are live: `/trust` and `/student/my-data`.
 - Student portfolio and session gallery flows are live with teacher-first visibility defaults.
 - Student upload flow includes offline queue/retry behavior for intermittent networks.
+- Student kiosk shell mode is available behind `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED` (manifest + route allowlist + focused nav constraints).
 - Teacher portal includes roster, submissions, moderation, outcomes, and certificate workflows.
 - Operator data-lifespan dashboard is live at `/teach/data-lifespan`.
 - Homework Helper runs as a separate Django service behind `/helper/*`.

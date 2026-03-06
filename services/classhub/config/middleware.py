@@ -176,7 +176,15 @@ class SiteModeMiddleware:
     """Gate high-impact routes when operator enables a degraded site mode."""
 
     _SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
-    _JOIN_ONLY_ALLOWED_EXACT = {"/", "/join", "/student", "/logout", "/healthz"}
+    _JOIN_ONLY_ALLOWED_EXACT = {
+        "/",
+        "/join",
+        "/student",
+        "/logout",
+        "/healthz",
+        "/student-upload-sync-sw.js",
+        "/student-shell.webmanifest",
+    }
     _JOIN_ONLY_ALLOWED_PREFIXES = ("/course/", "/lesson-video/", "/lesson-asset/", "/static/", "/i18n/")
     _MAINTENANCE_ALLOWED_EXACT = {"/healthz"}
     _MAINTENANCE_ALLOWED_PREFIXES = ("/admin/", "/teach", "/static/", "/i18n/")
@@ -273,3 +281,146 @@ class SiteModeMiddleware:
         if mode == "maintenance" and not self._maintenance_allows(path):
             return self._blocked_response(request, mode=mode)
         return self.get_response(request)
+
+
+class StudentKioskModeMiddleware:
+    """Optional student kiosk shell gate with a focused route allowlist."""
+
+    _COOKIE_NAME = "classhub_student_kiosk_mode"
+    _TOGGLE_PARAM = "kiosk"
+    _SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
+    _ALLOWED_EXACT = {
+        "/",
+        "/join",
+        "/student",
+        "/student/return-code",
+        "/student/micro-check",
+        "/logout",
+        "/healthz",
+        "/privacy",
+        "/trust",
+        "/student-upload-sync-sw.js",
+        "/student-shell.webmanifest",
+    }
+    _ALLOWED_PREFIXES = (
+        "/invite/",
+        "/material/",
+        "/submission/",
+        "/course/",
+        "/lesson-video/",
+        "/lesson-asset/",
+        "/api/v1/student/",
+        "/static/",
+        "/i18n/",
+    )
+    _BYPASS_PREFIXES = (
+        "/teach",
+        "/admin/",
+        "/helper/",
+        "/api/v1/teacher/",
+        "/internal/",
+    )
+    _MATERIAL_UPLOAD_RE = re.compile(r"^/material/\d+/upload$")
+    _SUBMISSION_DOWNLOAD_RE = re.compile(r"^/submission/\d+/download$")
+    _STUDENT_SUBMISSION_PUBLISH_RE = re.compile(r"^/student/submission/\d+/publish$")
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    @staticmethod
+    def _feature_enabled() -> bool:
+        return bool(getattr(settings, "CLASSHUB_STUDENT_KIOSK_PWA_ENABLED", False))
+
+    @staticmethod
+    def _default_mode() -> bool:
+        return bool(getattr(settings, "CLASSHUB_STUDENT_KIOSK_DEFAULT", False))
+
+    @classmethod
+    def _query_toggle(cls, request) -> bool | None:
+        raw = (request.GET.get(cls._TOGGLE_PARAM) or "").strip().lower()
+        if raw in {"1", "true", "on"}:
+            return True
+        if raw in {"0", "false", "off"}:
+            return False
+        return None
+
+    @classmethod
+    def _cookie_mode(cls, request) -> bool | None:
+        raw = (request.COOKIES.get(cls._COOKIE_NAME) or "").strip().lower()
+        if raw == "1":
+            return True
+        if raw == "0":
+            return False
+        return None
+
+    @classmethod
+    def _is_allowed_path(cls, path: str) -> bool:
+        if path in cls._ALLOWED_EXACT:
+            return True
+        if any(path.startswith(prefix) for prefix in cls._ALLOWED_PREFIXES):
+            if path.startswith("/material/"):
+                return bool(cls._MATERIAL_UPLOAD_RE.match(path))
+            if path.startswith("/submission/"):
+                return bool(cls._SUBMISSION_DOWNLOAD_RE.match(path))
+            return True
+        return bool(cls._STUDENT_SUBMISSION_PUBLISH_RE.match(path))
+
+    @classmethod
+    def _bypasses_kiosk_gate(cls, request) -> bool:
+        path = (request.path or "").strip()
+        if any(path.startswith(prefix) for prefix in cls._BYPASS_PREFIXES):
+            return True
+        user = getattr(request, "user", None)
+        return bool(user and user.is_authenticated and user.is_staff)
+
+    @staticmethod
+    def _kiosk_redirect_target(request) -> str:
+        has_student_session = bool(request.session.get("student_id") and request.session.get("class_id"))
+        return "/student" if has_student_session else "/"
+
+    @classmethod
+    def _kiosk_block_response(cls, request):
+        if (request.method or "GET").upper() in cls._SAFE_METHODS:
+            target = cls._kiosk_redirect_target(request)
+            return HttpResponseRedirect(f"{target}?kiosk=1")
+        return JsonResponse({"error": "kiosk_route_blocked"}, status=403)
+
+    @classmethod
+    def _set_cookie_state(cls, request, response, mode: bool):
+        max_age = max(int(getattr(settings, "CLASSHUB_STUDENT_KIOSK_COOKIE_MAX_AGE_SECONDS", 30 * 24 * 3600)), 60)
+        response.set_cookie(
+            cls._COOKIE_NAME,
+            "1" if mode else "0",
+            max_age=max_age,
+            secure=bool(getattr(settings, "SESSION_COOKIE_SECURE", False)),
+            httponly=False,
+            samesite="Lax",
+            path="/",
+        )
+        request.classhub_kiosk_mode = mode
+        return response
+
+    def __call__(self, request):
+        request.classhub_kiosk_mode = False
+        if not self._feature_enabled():
+            return self.get_response(request)
+
+        toggle_mode = self._query_toggle(request)
+        cookie_mode = self._cookie_mode(request)
+        kiosk_mode = (
+            toggle_mode
+            if toggle_mode is not None
+            else (cookie_mode if cookie_mode is not None else self._default_mode())
+        )
+        request.classhub_kiosk_mode = bool(kiosk_mode)
+
+        should_gate = bool(kiosk_mode) and not self._bypasses_kiosk_gate(request)
+        path = (request.path or "").strip()
+        if should_gate and not self._is_allowed_path(path):
+            response = self._kiosk_block_response(request)
+        else:
+            response = self.get_response(request)
+
+        if toggle_mode is not None:
+            return self._set_cookie_state(request, response, mode=bool(toggle_mode))
+        return response
