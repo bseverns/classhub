@@ -70,7 +70,11 @@ Teacher endpoints require Django staff authentication with verified OTP
 who haven't completed 2FA verification receive `401 {"error": "otp_required"}`.
 There is no bearer token flow for teachers (OTP is inherently stateful).
 
-Authenticate via `/admin/login/` → complete 2FA → session cookie is set.
+Authenticate via `/teach/login` → complete `/teach/2fa/setup` verification →
+session cookie is set.
+
+For terminal automation, use [HUBCTL.md](HUBCTL.md), which follows the same
+session + OTP contract.
 
 ---
 
@@ -324,6 +328,9 @@ Returns paginated submissions for a class, ordered by most recent.
 ---
 
 ### Write Endpoints
+
+Teacher write endpoints use Django session auth and require CSRF headers for
+non-browser clients.
 
 All write endpoints use `POST`, require staff authentication with capability-
 specific ACL checks, and create an audit log entry.

@@ -33,6 +33,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 |---|---|---|---|
 | Student join via class code + display name | Live (default) | No feature flag | `GET /` and join flow succeeds in smoke checks. |
 | Teacher portal class workflows (`/teach`, `/teach/class/<id>`, `/teach/lessons`) | Live (default) | Staff auth + 2FA policy | Teacher portal tests: `hub.tests.TeacherPortalTests`. |
+| Facilitator CLI (`hubctl`) teacher API controls | Live (default) | Session auth + OTP contract reused from `/teach/login` | `python -m unittest discover -s tools/hubctl/tests` |
 | Organization boundaries (membership + role templates) | Live (default) | `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` controls fallback behavior | Cross-org class visibility tests in `test_teacher_admin_portal.py`. |
 | RBAC scoped grants | Live (flagged) | `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=1` | RBAC simulation + scoped grant tests pass. |
 | RBAC delegated approvals | Live (flagged) | `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1` | Pending queue + review actions visible in `/teach` RBAC tools. |

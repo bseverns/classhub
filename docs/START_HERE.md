@@ -99,6 +99,7 @@ flowchart TD
 - [DEVELOPMENT.md](DEVELOPMENT.md)
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [OPENAI_HELPER.md](OPENAI_HELPER.md)
+- [HUBCTL.md](HUBCTL.md)
 - [HELPER_POLICY.md](HELPER_POLICY.md)
 - [REQUEST_SAFETY.md](REQUEST_SAFETY.md)
 - [HELPER_EVALS.md](HELPER_EVALS.md)
@@ -125,6 +126,7 @@ flowchart TD
 - Local demo path: [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md)
 - Guided one-command bootstrap: `bash scripts/quickstart_stack.sh --yes --mode local --with-admin --admin-username admin --admin-email admin@example.org --admin-password 'CHANGE_ME'`
 - Full health check: `bash scripts/system_doctor.sh`
+- Facilitator CLI quick check: `PYTHONPATH=tools/hubctl python -m hubctl classes list`
 - Guardrailed deploy: `bash scripts/deploy_with_smoke.sh`
 
 ## If you are overwhelmed

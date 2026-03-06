@@ -1,4 +1,4 @@
-# Current State (March 5, 2026)
+# Current State (March 6, 2026)
 
 ## Summary
 This page is the live snapshot of what ClassHub currently ships on `main`.
@@ -24,6 +24,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Superuser account lifecycle actions are live in `/teach` (enable/disable, promote/demote superuser, reset password, resend invite).
 - Superuser organization lifecycle controls are live in `/teach` (rename, guarded archive/restore, class-to-organization move).
 - Superuser operator config snapshot is live in `/teach` (active profile/flag summary + doc pointers).
+- Facilitator CLI (`hubctl`) is live from repo tooling for teacher API class controls (`tools/hubctl/`).
 - Security and ops guardrails are live in CI (smoke, migration gate, endpoint guard checks, view-size/function budgets, workflow lint).
 
 ## Deployment and reliability posture

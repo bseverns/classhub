@@ -18,6 +18,7 @@ ClassHub is an operations-friendly learning hub for running cohorts, managing st
 4. Invite links can expire and enforce seat caps.
 5. Ops can rely on exports, backup/restore rehearsal, and documented smoke checks.
 6. Program defaults can be selected with `CLASSHUB_PROGRAM_PROFILE` (`elementary`, `secondary`, `advanced`) and overridden as needed.
+7. Terminal-first facilitators can run class controls through `hubctl` ([HUBCTL.md](HUBCTL.md)).
 
 ## Visual references
 

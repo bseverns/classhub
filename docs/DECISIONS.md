@@ -79,6 +79,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Admin access 2FA](#admin-access-2fa)
 - [Teacher onboarding invites + 2FA](#teacher-onboarding-invites-and-2fa)
 - [Teacher route 2FA enforcement](#teacher-route-2fa-enforcement)
+- [Facilitator CLI auth/session contract](#facilitator-cli-authsession-contract)
 - [Staff auth POST throttling](#staff-auth-post-throttling)
 - [Lesson asset delivery hardening](#lesson-asset-delivery-hardening)
 - [Optional separate asset origin](#optional-separate-asset-origin)
@@ -368,6 +369,19 @@ Execution runbook:
 **Why this remains active:**
 - Teacher routes can rotate join codes, manage rosters, and access submissions; password-only is insufficient.
 - Keeps teacher onboarding usable while enforcing stronger session posture on operational pages.
+
+## Facilitator CLI auth/session contract
+
+**Current decision:**
+- `hubctl` reuses existing teacher web auth policy instead of creating a parallel token system.
+- CLI session bootstrap runs through `/teach/login` and, when required, `/teach/2fa/setup`.
+- Teacher API write calls stay CSRF-protected; CLI clients must carry session cookies + CSRF header.
+- CLI command failures map to typed non-zero exit codes for automation safety (`auth`, `forbidden`, `not_found`, `rate_limited`, `network`).
+
+**Why this remains active:**
+- Avoids policy drift between browser and headless operator flows.
+- Preserves existing OTP + audit boundaries while enabling terminal-first workflows.
+- Keeps automation behavior predictable for scripts and runbooks.
 
 ## Staff auth POST throttling
 

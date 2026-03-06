@@ -34,6 +34,8 @@ jobs:
           pip install -r services/classhub/requirements.txt
           pip install -e services/common
           pip install coverage==7.6.8
+      - name: Tests (hubctl CLI)
+        run: PYTHONPATH=tools/hubctl python -m unittest discover -s tools/hubctl/tests
       - name: Validate coursepacks
         run: python scripts/validate_coursepack.py --all
       - name: Django checks (classhub)

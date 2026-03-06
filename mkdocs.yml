@@ -84,6 +84,7 @@ nav:
       - Development: DEVELOPMENT.md
       - Architecture: ARCHITECTURE.md
       - API Reference: API.md
+      - Facilitator CLI (hubctl): HUBCTL.md
       - Localization: LOCALIZATION.md
       - Coursepack Registry RFC: COURSEPACK_REGISTRY_RFC.md
       - Async Self-Paced RFC: ASYNC_SELF_PACED_RFC.md

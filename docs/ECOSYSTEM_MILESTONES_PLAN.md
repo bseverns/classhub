@@ -32,6 +32,8 @@ This plan focuses on what is still missing: productized clients + stronger opera
 ### Goal
 Enable teacher/admin operators to execute common class controls without opening the web UI.
 
+Status (March 6, 2026): Initial MVP shipped in `tools/hubctl/` with CI-backed unit tests.
+
 ### Scope (MVP)
 - `hubctl classes list`
 - `hubctl class lock <id>` and `unlock <id>`
@@ -41,13 +43,13 @@ Enable teacher/admin operators to execute common class controls without opening 
 - `hubctl class submissions <id> --limit N`
 
 ### Task checklist
-- [ ] Create `tools/hubctl/` package scaffold.
-- [ ] Implement API client for existing teacher endpoints.
-- [ ] Implement auth/session bootstrap flow (documented, no bypass of existing policy).
-- [ ] Add human-readable and `--json` output mode.
-- [ ] Add exit-code contract for automation (0 success, non-zero typed failures).
-- [ ] Add tests for command parsing + API error handling.
-- [ ] Add operator docs with examples and failure troubleshooting.
+- [x] Create `tools/hubctl/` package scaffold.
+- [x] Implement API client for existing teacher endpoints.
+- [x] Implement auth/session bootstrap flow (documented, no bypass of existing policy).
+- [x] Add human-readable and `--json` output mode.
+- [x] Add exit-code contract for automation (0 success, non-zero typed failures).
+- [x] Add tests for command parsing + API error handling.
+- [x] Add operator docs with examples and failure troubleshooting.
 
 ### Acceptance criteria
 - Commands honor existing RBAC/permission boundaries.
