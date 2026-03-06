@@ -10,12 +10,15 @@ Goal:
 Non-goal (Phase 1):
 - do not split core transactional models (`Class`, `Module`, `Material`, `Submission`, auth tables).
 
+## Implementation status (as of 2026-03-06)
+- Slice 0-6 implementation is shipped on `main` (flags, telemetry schema/router, dual-write seams, read abstraction, backfill command, parity command).
+- Slice 7 tooling is shipped (`scripts/telemetry_stabilization_evidence.sh`), but release-cycle evidence capture is still pending.
+
 ## What to do now
-1. Provision a second Postgres instance/database for telemetry.
-2. Add dual-write + read-toggle scaffolding in Django.
-3. Backfill telemetry data from core in batches.
-4. Cut reads over to telemetry, then keep dual-write for stabilization.
-5. Only after stable period, decide whether to stop writing telemetry events to core.
+1. Run one full release cycle with `WRITE_MODE=dual` and `READ_MODE=telemetry`.
+2. Capture and archive evidence artifacts (`parity`, `smoke`, optional rollback drill) using `scripts/telemetry_stabilization_evidence.sh`.
+3. Resolve any parity deltas and repeat evidence capture until stable.
+4. Decide steady-state write mode (`dual` vs `telemetry_only`) and document sign-off.
 
 ## Verification signal
 At the end of Phase 1:
@@ -62,7 +65,7 @@ Phase 1 approach:
   - `CLASSHUB_TELEMETRY_READ_MODE=core|telemetry` (start with `core`).
 - Settings pattern:
   - add `DATABASES["telemetry"]` only when URL is set,
-  - keep `DATABASE_ROUTERS` empty until telemetry models exist.
+  - route `hub_telemetry` models to telemetry DB via `TelemetryRouter`.
 
 ### Phase 1B: Telemetry app + schema
 - Create a dedicated app (recommended: `hub_telemetry`) with tables:
@@ -90,7 +93,7 @@ Phase 1 approach:
   1. `StudentEvent`
   2. `StudentOutcomeEvent`
 - Backfill idempotency:
-  - use deterministic natural key hash or `(legacy_id, source_table)` markers.
+  - use immutable source-id markers (`core_event_id`, `core_outcome_event_id`) for safe re-runs.
 
 ### Phase 1E: Read cutover
 - Move read-heavy paths behind `CLASSHUB_TELEMETRY_READ_MODE`:
@@ -154,8 +157,7 @@ Data safety rule:
 
 ## Phase 1 implementation backlog (execution checklist)
 
-Use this as the canonical execution tracker for the next stable build.
-Ship each slice as an isolated PR with rollback-safe toggles.
+Use this as the canonical execution tracker for telemetry split completion.
 
 - [x] Slice 0: Baseline instrumentation + guardrails
   - Add explicit counters/log fields for telemetry dual-write attempts, successes, and failures.
@@ -214,7 +216,7 @@ Primary ClassHub areas likely to change:
 - `services/classhub/hub/tests/` + `services/classhub/hub/tests_services.py` (behavior parity and toggle tests)
 - `scripts/system_doctor.sh` / smoke docs (optional telemetry parity gates when URL is configured)
 
-Planned new app path:
+Implemented app path:
 - `services/classhub/hub_telemetry/` (models, migrations, query adapters).
 
 ## Exit criteria by gate
@@ -241,28 +243,10 @@ Planned new app path:
 - No unresolved parity deltas above agreed threshold.
 - Retention and backup procedures tested with telemetry DB present.
 
-## Verification command set (operator-ready)
+## Verification commands (telemetry-specific)
 
-Use these commands as the minimum proof set per rollout stage.
-
-Baseline stack validation:
-
-```bash
-cd /srv/lms/app
-bash scripts/system_doctor.sh --smoke-mode golden
-```
-
-Targeted ClassHub regression set (during implementation slices):
-
-```bash
-cd /srv/lms/app/compose
-docker compose exec -T classhub_web python manage.py test \
-  hub.tests.test_student_ops \
-  hub.tests.test_teacher_admin_portal \
-  hub.tests_services
-```
-
-Parity/backfill command examples:
+Canonical operational command reference lives in [RUNBOOK.md](RUNBOOK.md).
+Use these telemetry-specific commands for this plan:
 
 ```bash
 cd /srv/lms/app/compose
@@ -280,6 +264,8 @@ bash scripts/telemetry_stabilization_evidence.sh \
 ```
 
 ## Open decisions requiring sign-off
+
+Canonical decision history lives in [DECISIONS.md](DECISIONS.md) under "Database workload split roadmap."
 
 - Threshold for acceptable parity deltas during stabilization (strict zero vs bounded percentage).
 - Whether production steady-state remains `WRITE_MODE=dual` for safety or moves to `telemetry_only`.
