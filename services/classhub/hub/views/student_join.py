@@ -25,6 +25,7 @@ from ..services.join_flow_service import (
     resolve_join_student,
     validate_display_name_safety,
 )
+from ..services.telemetry_events import write_student_event
 from ..services.student_home import privacy_meta_context
 
 logger = logging.getLogger(__name__)
@@ -216,13 +217,14 @@ def _emit_student_event(
     ip_address: str = "",
 ) -> None:
     try:
-        StudentEvent.objects.create(
-            classroom=classroom,
-            student=student,
+        write_student_event(
             event_type=event_type,
             source=source,
             details=details or {},
+            classroom=classroom,
+            student=student,
             ip_address=(minimize_student_event_ip(ip_address) or None),
+            write_source="student_join",
         )
     except Exception:
         logger.exception("student_event_write_failed type=%s", event_type)

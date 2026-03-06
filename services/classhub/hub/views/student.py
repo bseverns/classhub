@@ -52,11 +52,11 @@ from ..services.submission_service import (
     validate_upload_content,
 )
 from ..services.submission_quota import invalidate_classroom_submission_quota_cache
+from ..services.telemetry_events import write_student_event
 from ..services.ui_density import resolve_ui_density_mode_for_modules
 from .student_micro_checks import latest_micro_check_state
 
 logger = logging.getLogger(__name__)
-
 
 def _helper_scope_signing_key() -> str:
     return str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or "")
@@ -78,13 +78,14 @@ def _emit_student_event(
     ip_address: str = "",
 ) -> None:
     try:
-        StudentEvent.objects.create(
-            classroom=classroom,
-            student=student,
+        write_student_event(
             event_type=event_type,
             source=source,
             details=details or {},
+            classroom=classroom,
+            student=student,
             ip_address=(minimize_student_event_ip(ip_address) or None),
+            write_source="student_view",
         )
     except Exception:
         logger.exception("student_event_write_failed type=%s", event_type)

@@ -11,8 +11,9 @@ from django.views.decorators.http import require_GET, require_POST
 from common.request_safety import client_ip_from_request, fixed_window_allow
 from ..forms import SubmissionUploadForm
 from ..http.headers import apply_no_store
-from ..models import Class, Material, StudentEvent, StudentIdentity
+from ..models import Class, Material, StudentIdentity
 from ..services.ip_privacy import minimize_student_event_ip
+from ..services.telemetry_events import write_student_event
 from ..services.submission_service import (
     parse_extensions,
     process_material_upload_form,
@@ -59,13 +60,14 @@ def _emit_student_event(
     ip_address: str = "",
 ) -> None:
     try:
-        StudentEvent.objects.create(
-            classroom=classroom,
-            student=student,
+        write_student_event(
             event_type=event_type,
             source=source,
             details=details or {},
+            classroom=classroom,
+            student=student,
             ip_address=(minimize_student_event_ip(ip_address) or None),
+            write_source="api_student_upload",
         )
     except Exception:
         logger.exception("student_event_write_failed type=%s", event_type)

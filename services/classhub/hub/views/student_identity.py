@@ -7,8 +7,8 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
-from ..models import StudentEvent
 from ..services.join_flow_service import normalize_display_name, validate_display_name_safety
+from ..services.telemetry_events import write_student_event
 
 _EVENT_STUDENT_RENAME = "student_rename_display_name"
 
@@ -43,9 +43,7 @@ def student_rename_display_name(request):
     student.display_name = new_name
     student.save(update_fields=["display_name"])
     try:
-        StudentEvent.objects.create(
-            classroom=request.classroom,
-            student=student,
+        write_student_event(
             event_type=_EVENT_STUDENT_RENAME,
             source="classhub.student_my_data",
             details={
@@ -53,6 +51,9 @@ def student_rename_display_name(request):
                 "safety_warning": warning_reason,
                 "changed": old_name != new_name,
             },
+            classroom=request.classroom,
+            student=student,
+            write_source="student_rename_display_name",
         )
     except Exception:
         pass

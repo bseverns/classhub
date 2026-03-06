@@ -12,6 +12,7 @@ from common.request_safety import client_ip_from_request
 
 from ..models import Class, StudentEvent, StudentIdentity
 from ..services.ip_privacy import minimize_student_event_ip
+from ..services.telemetry_events import write_student_event
 
 logger = logging.getLogger(__name__)
 
@@ -78,12 +79,12 @@ def _emit_micro_check_event(
     details: dict,
 ) -> None:
     try:
-        StudentEvent.objects.create(
-            classroom=request.classroom,
-            student=request.student,
+        write_student_event(
             event_type=event_type,
             source="classhub.student_micro_check",
             details=details or {},
+            classroom=request.classroom,
+            student=request.student,
             ip_address=(
                 minimize_student_event_ip(
                     client_ip_from_request(
@@ -94,6 +95,7 @@ def _emit_micro_check_event(
                 )
                 or None
             ),
+            write_source="student_micro_check",
         )
     except Exception:
         logger.exception("student_micro_check_write_failed event_type=%s", event_type)

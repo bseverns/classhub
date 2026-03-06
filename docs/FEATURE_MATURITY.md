@@ -45,7 +45,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | Helper policy strictness/scope/topic filtering | Live (default, profile-driven) | Env override > helper YAML > profile default | `/helper/chat` policy response behavior matches expected strictness. |
 | Helper YAML config layering | Live (default, optional) | `HELPER_CONFIG_FILE` path (optional) | Helper engine config-source tests in `tutor.tests.test_engine`. |
 | Async/self-paced sequencing workflows | RFC | See `ASYNC_SELF_PACED_RFC.md` | No runtime SLA yet; treat as roadmap only. |
-| Telemetry DB split | RFC / staged plan | See `TELEMETRY_DB_SPLIT_PLAN.md` | Plan-level checks only until migration phases execute. |
+| Telemetry DB split | RFC / staged plan | See `TELEMETRY_DB_SPLIT_PLAN.md` | Phase 1 Slice 0/1/2/3 scaffolding is shipped (flags + telemetry schema app + router + centralized dual-write write seam); read cutover/backfill/parity gates remain pending. |
 
 ## Recommended rollout sequence (RBAC + helper)
 1. Keep `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=0` and `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0`.

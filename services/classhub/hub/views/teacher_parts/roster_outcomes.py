@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 
 from ...models import CertificateIssuance, Module, StudentIdentity, StudentOutcomeEvent
+from ...services.telemetry_events import write_student_outcome_event
 from ...services.teacher_roster_class import build_certificate_eligibility_rows
 from .shared_auth import staff_can_manage_roster, staff_classroom_or_none, staff_member_required
 from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
@@ -91,13 +92,14 @@ def teach_mark_session_completed(request, class_id: int):
     if event_exists:
         notice = "Session completion already recorded for that student and module."
     else:
-        StudentOutcomeEvent.objects.create(
-            classroom=classroom,
-            student=student,
-            module=module,
+        write_student_outcome_event(
             event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
             source="classhub.teacher_mark_session_completed",
             details={"trigger": "teacher_marked", "module_id": module.id},
+            classroom=classroom,
+            student=student,
+            module=module,
+            write_source="teach_mark_session_completed",
         )
         _audit(
             request,

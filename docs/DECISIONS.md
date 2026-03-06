@@ -204,7 +204,7 @@ Historical implementation logs and superseded decisions are archived by month in
 Execution runbook:
 - [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md)
 - Telemetry split plan now includes execution-slice backlog, code touchpoint inventory, gate-based exit criteria, and operator verification commands for phased rollout ownership.
-- Phase 1 Slice 0/1 scaffolding is now shipped: telemetry mode env guardrails (`off|dual|telemetry_only`, `core|telemetry`), optional telemetry DB registration in settings, and baseline split-write instrumentation counters/log fields are in place.
+- Phase 1 Slice 0/1/2/3 scaffolding is now shipped: telemetry mode env guardrails (`off|dual|telemetry_only`, `core|telemetry`), optional telemetry DB registration in settings, telemetry router + dedicated `hub_telemetry` schema app, centralized dual-write service seams for student event/outcome emit points, and baseline split-write instrumentation counters/log fields are in place.
 
 **Why this remains active:**
 - Reduces blast radius from telemetry spikes and prune operations.

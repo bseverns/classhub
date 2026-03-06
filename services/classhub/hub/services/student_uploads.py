@@ -12,6 +12,7 @@ from ..models import Material, StudentEvent, StudentOutcomeEvent, Submission
 from .content_links import parse_course_lesson_url
 from .markdown_content import load_lesson_markdown
 from .release_state import lesson_release_state
+from .telemetry_events import write_student_outcome_event
 from .submission_quota import (
     bump_cached_classroom_submission_bytes,
     get_classroom_submission_bytes,
@@ -200,11 +201,7 @@ def process_material_upload_form(
         ),
     )
     try:
-        StudentOutcomeEvent.objects.create(
-            classroom=request.classroom,
-            student=request.student,
-            module=material.module,
-            material=material,
+        write_student_outcome_event(
             event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
             source="classhub.material_upload",
             details={
@@ -212,6 +209,11 @@ def process_material_upload_form(
                 "module_id": material.module_id,
                 "submission_id": submission.id,
             },
+            classroom=request.classroom,
+            student=request.student,
+            module=material.module,
+            material=material,
+            write_source="student_upload_artifact_submitted",
         )
         if not StudentOutcomeEvent.objects.filter(
             classroom=request.classroom,
@@ -219,17 +221,18 @@ def process_material_upload_form(
             module=material.module,
             event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
         ).exists():
-            StudentOutcomeEvent.objects.create(
-                classroom=request.classroom,
-                student=request.student,
-                module=material.module,
-                material=material,
+            write_student_outcome_event(
                 event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
                 source="classhub.material_upload",
                 details={
                     "module_id": material.module_id,
                     "trigger": "artifact_submitted",
                 },
+                classroom=request.classroom,
+                student=request.student,
+                module=material.module,
+                material=material,
+                write_source="student_upload_session_completed",
             )
     except Exception:
         logger.exception("student_outcome_event_write_failed material_id=%s student_id=%s", material.id, request.student.id)

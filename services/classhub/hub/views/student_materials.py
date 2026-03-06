@@ -8,6 +8,7 @@ from django.views.decorators.http import require_POST
 
 from ..models import Material, StudentMaterialResponse, StudentOutcomeEvent
 from ..services.student_home import build_material_access_map, parse_checklist_items, parse_rubric_criteria
+from ..services.telemetry_events import write_student_outcome_event
 
 logger = logging.getLogger(__name__)
 
@@ -37,14 +38,15 @@ def _resolve_material_with_lock_check(request, *, material_id: int, expected_typ
 
 def _record_material_milestone_event(*, request, material: Material, trigger: str, source: str) -> None:
     try:
-        StudentOutcomeEvent.objects.create(
+        write_student_outcome_event(
+            event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
+            source=source,
+            details={"trigger": trigger, "material_id": material.id},
             classroom=request.classroom,
             student=request.student,
             module=material.module,
             material=material,
-            event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
-            source=source,
-            details={"trigger": trigger, "material_id": material.id},
+            write_source="student_material_milestone",
         )
     except Exception:
         logger.exception("student_milestone_event_write_failed material_id=%s trigger=%s", material.id, trigger)

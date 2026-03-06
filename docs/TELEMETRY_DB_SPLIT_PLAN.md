@@ -162,13 +162,13 @@ Ship each slice as an isolated PR with rollback-safe toggles.
   - Add `CLASSHUB_TELEMETRY_DATABASE_URL`, `CLASSHUB_TELEMETRY_WRITE_MODE`, `CLASSHUB_TELEMETRY_READ_MODE` parsing in settings.
   - Register `DATABASES["telemetry"]` only when URL is set.
   - Keep behavior identical with default envs (`WRITE_MODE=off`, `READ_MODE=core`).
-- [ ] Slice 2: Telemetry app + schema
+- [x] Slice 2: Telemetry app + schema
   - Add `hub_telemetry` app and migrations for:
     - `TelemetryStudentEvent`,
     - `TelemetryStudentOutcomeEvent`.
   - Use scalar references only (no cross-DB FKs).
   - Add indexes matching support-board and outcomes rollup read patterns.
-- [ ] Slice 3: Dual-write service seam
+- [x] Slice 3: Dual-write service seam
   - Introduce a single telemetry write service called by event emit points.
   - In `off`: write core only.
   - In `dual`: write core + telemetry (telemetry failures must not break core writes).

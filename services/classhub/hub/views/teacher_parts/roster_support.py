@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 
 from ...models import StudentEvent, StudentIdentity, StudentSupportTag
+from ...services.telemetry_events import write_student_event
 from .shared_auth import staff_can_manage_roster, staff_classroom_or_none, staff_member_required
 from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
 
@@ -48,12 +49,13 @@ def teach_resolve_stuck_flag(request, class_id: int):
     }
     if module_id > 0:
         details["module_id"] = module_id
-    StudentEvent.objects.create(
-        classroom=classroom,
-        student=student,
+    write_student_event(
         event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK_RESOLVED,
         source="classhub.teach_class_dashboard",
         details=details,
+        classroom=classroom,
+        student=student,
+        write_source="teach_resolve_stuck_flag",
     )
     _audit(
         request,
@@ -95,15 +97,16 @@ def teach_resolve_delete_request(request, class_id: int):
             fallback=_teach_class_path(classroom.id),
         )
 
-    StudentEvent.objects.create(
-        classroom=classroom,
-        student=student,
+    write_student_event(
         event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST_RESOLVED,
         source="classhub.teach_class_dashboard",
         details={
             "signal": "delete_request_resolved",
             "resolved_by_user_id": request.user.id,
         },
+        classroom=classroom,
+        student=student,
+        write_source="teach_resolve_delete_request",
     )
     _audit(
         request,
