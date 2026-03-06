@@ -227,10 +227,13 @@ class StudentKioskShellModeTests(TestCase):
 
 class InternalHelperEventEndpointTests(TestCase):
     def setUp(self):
+        from hub.services.telemetry_split import reset_dual_write_counters
+
         self.classroom = Class.objects.create(name="Internal Event Class", join_code="INT12345")
         self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
         self.url = "/internal/events/helper-chat-access"
         self.token = "internal-event-token-12345"
+        reset_dual_write_counters()
 
     @override_settings(CLASSHUB_INTERNAL_EVENTS_TOKEN="")
     def test_internal_event_endpoint_returns_503_without_configured_token(self):
@@ -254,6 +257,8 @@ class InternalHelperEventEndpointTests(TestCase):
 
     @override_settings(CLASSHUB_INTERNAL_EVENTS_TOKEN="expected-token")
     def test_internal_event_endpoint_appends_student_event(self):
+        from hub.services.telemetry_split import dual_write_counters
+
         payload = {
             "classroom_id": self.classroom.id,
             "student_id": self.student.id,
@@ -277,6 +282,10 @@ class InternalHelperEventEndpointTests(TestCase):
         self.assertEqual(event.ip_address, "127.0.0.0")
         self.assertEqual(event.details.get("request_id"), "req-123")
         self.assertEqual(event.details.get("actor_type"), "student")
+        self.assertEqual(
+            dual_write_counters(target="core"),
+            {"attempts": 1, "successes": 1, "failures": 0},
+        )
 
     @override_settings(CLASSHUB_INTERNAL_EVENTS_TOKEN="expected-token", CLASSHUB_STUDENT_EVENT_IP_MODE="full")
     def test_internal_event_endpoint_can_store_full_ip_when_enabled(self):

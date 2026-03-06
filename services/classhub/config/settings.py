@@ -44,6 +44,16 @@ if not SECRET_KEY:
     raise RuntimeError("DJANGO_SECRET_KEY is required")
 
 
+def _normalize_mode_setting(raw: str, *, label: str, allowed: set[str], default: str) -> str:
+    value = (raw or "").strip().lower().replace("-", "_")
+    if not value:
+        value = default
+    if value not in allowed:
+        allowed_list = ", ".join(sorted(allowed))
+        raise RuntimeError(f"{label} must be one of: {allowed_list}")
+    return value
+
+
 def _secret_key_looks_unsafe(secret: str) -> bool:
     normalized = secret.strip().lower()
     blocked = {
@@ -172,9 +182,31 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+_TELEMETRY_WRITE_MODE_ALLOWED = {"off", "dual", "telemetry_only"}
+_TELEMETRY_READ_MODE_ALLOWED = {"core", "telemetry"}
+CLASSHUB_TELEMETRY_DATABASE_URL = env("CLASSHUB_TELEMETRY_DATABASE_URL", default="").strip()
+CLASSHUB_TELEMETRY_WRITE_MODE = _normalize_mode_setting(
+    env("CLASSHUB_TELEMETRY_WRITE_MODE", default="off"),
+    label="CLASSHUB_TELEMETRY_WRITE_MODE",
+    allowed=_TELEMETRY_WRITE_MODE_ALLOWED,
+    default="off",
+)
+CLASSHUB_TELEMETRY_READ_MODE = _normalize_mode_setting(
+    env("CLASSHUB_TELEMETRY_READ_MODE", default="core"),
+    label="CLASSHUB_TELEMETRY_READ_MODE",
+    allowed=_TELEMETRY_READ_MODE_ALLOWED,
+    default="core",
+)
+if (CLASSHUB_TELEMETRY_WRITE_MODE != "off" or CLASSHUB_TELEMETRY_READ_MODE == "telemetry") and not CLASSHUB_TELEMETRY_DATABASE_URL:
+    raise RuntimeError(
+        "CLASSHUB_TELEMETRY_DATABASE_URL is required when telemetry write mode is not 'off' or read mode is 'telemetry'"
+    )
+
 DATABASES = {
     "default": env.db(default=f"sqlite:///{BASE_DIR/'db.sqlite3'}")
 }
+if CLASSHUB_TELEMETRY_DATABASE_URL:
+    DATABASES["telemetry"] = env.db("CLASSHUB_TELEMETRY_DATABASE_URL")
 
 REDIS_URL = os.getenv("REDIS_URL", "").strip()
 if REDIS_URL:

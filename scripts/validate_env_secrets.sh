@@ -36,6 +36,14 @@ to_lower() {
   printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
 }
 
+normalize_mode() {
+  local raw="$1"
+  local normalized
+  normalized="$(to_lower "${raw}")"
+  normalized="${normalized//-/_}"
+  echo "${normalized}"
+}
+
 contains_icase() {
   local haystack="$1"
   local needle="$2"
@@ -237,6 +245,33 @@ HELPER_LLM_BACKEND="$(env_file_value HELPER_LLM_BACKEND)"
 HELPER_LLM_BACKEND_LOWER="$(to_lower "${HELPER_LLM_BACKEND}")"
 if [[ "${HELPER_LLM_BACKEND_LOWER}" == "openai" ]]; then
   require_strong_secret "OPENAI_API_KEY" 20
+fi
+
+TELEMETRY_WRITE_MODE="$(normalize_mode "$(env_file_value CLASSHUB_TELEMETRY_WRITE_MODE)")"
+TELEMETRY_WRITE_MODE="${TELEMETRY_WRITE_MODE:-off}"
+case "${TELEMETRY_WRITE_MODE}" in
+  off|dual|telemetry_only)
+    ;;
+  *)
+    fail "CLASSHUB_TELEMETRY_WRITE_MODE must be one of: off, dual, telemetry_only"
+    ;;
+esac
+
+TELEMETRY_READ_MODE="$(normalize_mode "$(env_file_value CLASSHUB_TELEMETRY_READ_MODE)")"
+TELEMETRY_READ_MODE="${TELEMETRY_READ_MODE:-core}"
+case "${TELEMETRY_READ_MODE}" in
+  core|telemetry)
+    ;;
+  *)
+    fail "CLASSHUB_TELEMETRY_READ_MODE must be one of: core, telemetry"
+    ;;
+esac
+
+TELEMETRY_DATABASE_URL="$(env_file_value CLASSHUB_TELEMETRY_DATABASE_URL)"
+if [[ "${TELEMETRY_WRITE_MODE}" != "off" || "${TELEMETRY_READ_MODE}" == "telemetry" ]]; then
+  if [[ -z "${TELEMETRY_DATABASE_URL}" ]]; then
+    fail "CLASSHUB_TELEMETRY_DATABASE_URL is required when telemetry write mode is not 'off' or read mode is 'telemetry'"
+  fi
 fi
 
 HELPER_GUNICORN_TIMEOUT_SECONDS="$(number_or_default "$(env_file_value HELPER_GUNICORN_TIMEOUT_SECONDS)" "180")"

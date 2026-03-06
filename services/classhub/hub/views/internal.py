@@ -14,6 +14,11 @@ from django.views.decorators.http import require_POST
 
 from ..models import StudentEvent
 from ..services.ip_privacy import minimize_student_event_ip
+from ..services.telemetry_split import (
+    record_dual_write_attempt,
+    record_dual_write_failure,
+    record_dual_write_success,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -130,6 +135,8 @@ def internal_helper_chat_access_event(request):
     if classroom_id <= 0 and student_id <= 0:
         return JsonResponse({"ok": True, "skipped": "no_actor"})
 
+    write_source = "internal_helper_chat_access"
+    record_dual_write_attempt(source=write_source, target="core")
     try:
         StudentEvent.objects.create(
             classroom_id=classroom_id if classroom_id > 0 else None,
@@ -140,9 +147,11 @@ def internal_helper_chat_access_event(request):
             ip_address=ip_address or None,
         )
     except Exception as exc:
+        record_dual_write_failure(source=write_source, target="core", error=exc.__class__.__name__)
         logger.warning("internal_helper_event_write_failed: %s", exc.__class__.__name__)
         return JsonResponse({"error": "event_write_failed"}, status=500)
 
+    record_dual_write_success(source=write_source, target="core")
     return JsonResponse({"ok": True})
 
 

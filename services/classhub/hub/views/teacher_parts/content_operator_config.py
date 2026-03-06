@@ -36,14 +36,8 @@ def _helper_policy_row(*, label: str, env_name: str, profile_default: str, helpe
     return {"label": label, "value": profile_default, "source": source}
 
 
-def _operator_config_rows(*, profile: str, helper_config_file: str):
-    defaults = _HELPER_POLICY_PROFILE_DEFAULTS[profile]
+def _rbac_config_rows():
     return [
-        {
-            "label": "Program profile",
-            "value": profile,
-            "source": _operator_config_source("CLASSHUB_PROGRAM_PROFILE"),
-        },
         {
             "label": "Require org membership for staff",
             "value": "On" if bool(getattr(settings, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", False)) else "Off",
@@ -59,6 +53,32 @@ def _operator_config_rows(*, profile: str, helper_config_file: str):
             "value": "On" if bool(getattr(settings, "CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED", False)) else "Off",
             "source": _operator_config_source("CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED"),
         },
+    ]
+
+
+def _telemetry_config_rows():
+    telemetry_url = str(getattr(settings, "CLASSHUB_TELEMETRY_DATABASE_URL", "") or "").strip()
+    return [
+        {
+            "label": "Telemetry database URL",
+            "value": "(configured)" if telemetry_url else "(unset)",
+            "source": "env override" if _env_setting("CLASSHUB_TELEMETRY_DATABASE_URL") else "disabled",
+        },
+        {
+            "label": "Telemetry write mode",
+            "value": str(getattr(settings, "CLASSHUB_TELEMETRY_WRITE_MODE", "off") or "off"),
+            "source": _operator_config_source("CLASSHUB_TELEMETRY_WRITE_MODE", fallback="default"),
+        },
+        {
+            "label": "Telemetry read mode",
+            "value": str(getattr(settings, "CLASSHUB_TELEMETRY_READ_MODE", "core") or "core"),
+            "source": _operator_config_source("CLASSHUB_TELEMETRY_READ_MODE", fallback="default"),
+        },
+    ]
+
+
+def _helper_config_rows(*, defaults: dict, helper_config_file: str):
+    return [
         {
             "label": "Helper backend",
             "value": str(getattr(settings, "HELPER_LLM_BACKEND", "ollama") or "ollama"),
@@ -88,6 +108,21 @@ def _operator_config_rows(*, profile: str, helper_config_file: str):
             helper_config_file=helper_config_file,
         ),
     ]
+
+
+def _operator_config_rows(*, profile: str, helper_config_file: str):
+    defaults = _HELPER_POLICY_PROFILE_DEFAULTS[profile]
+    rows = [
+        {
+            "label": "Program profile",
+            "value": profile,
+            "source": _operator_config_source("CLASSHUB_PROGRAM_PROFILE"),
+        },
+    ]
+    rows.extend(_rbac_config_rows())
+    rows.extend(_telemetry_config_rows())
+    rows.extend(_helper_config_rows(defaults=defaults, helper_config_file=helper_config_file))
+    return rows
 
 
 def build_operator_config_snapshot(*, user):
