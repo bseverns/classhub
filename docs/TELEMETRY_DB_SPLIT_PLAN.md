@@ -173,7 +173,7 @@ Ship each slice as an isolated PR with rollback-safe toggles.
   - In `off`: write core only.
   - In `dual`: write core + telemetry (telemetry failures must not break core writes).
   - In `telemetry_only`: write telemetry only (not enabled in production until Phase 1F gate is complete).
-- [ ] Slice 4: Read abstraction + core/telemetry switch
+- [x] Slice 4: Read abstraction + core/telemetry switch
   - Add read helper layer for event/outcome queries used by:
     - support board,
     - teacher class rollups,
