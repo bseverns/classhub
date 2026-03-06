@@ -30,6 +30,7 @@ These tools are designed to be run from the repository root: `bash scripts/scrip
 | `smoke_check.sh` | Runs fast baseline smoke checks against HTTP endpoints and LLM connectivity. |
 | `golden_path_smoke.sh` | End-to-end user smoke test relying on standard pre-seeded test fixtures. |
 | `a11y_smoke.sh` | Automated accessibility test leveraging Playwright to find WCAG compliance errors. |
+| `kiosk_resilience_check.sh` | Runs kiosk/PWA endpoint checks and captures unstable-network upload drill outcomes in a timestamped report. |
 | `test_teacher_admin.sh`| CI gate validating teacher and admin interface functionality. |
 | `run_bandit.sh` | Python security linter enforcing safe coding practices. |
 | `lint_release_artifact.py` | Validates zip release packages before GH Release publishing. |

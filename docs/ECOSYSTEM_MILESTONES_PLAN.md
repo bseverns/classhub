@@ -66,7 +66,7 @@ Status (March 6, 2026): Initial MVP shipped in `tools/hubctl/` with CI-backed un
 ### Goal
 Provide an installable, low-distraction tablet shell for student join, lesson launch, and artifact submission.
 
-Status (March 6, 2026): In progress. Route allowlist + kiosk navigation constraints + installable manifest are now live behind kiosk flags.
+Status (March 6, 2026): Complete for MVP. Kiosk route allowlist, installable shell, operator rollout notes, and reproducible network-resilience + tablet QA checklists are now in place.
 
 ### Scope (MVP)
 - Installable PWA wrapper for `/`, `/student`, upload routes.
@@ -78,8 +78,8 @@ Status (March 6, 2026): In progress. Route allowlist + kiosk navigation constrai
 - [x] Define kiosk route allowlist and navigation constraints.
 - [x] Add installable manifest + icon set + service worker registration guardrails.
 - [x] Wire shell navigation to existing student auth/session contract.
-- [ ] Validate queue/retry behavior from unstable network scenarios.
-- [ ] Add tablet QA matrix (iPadOS Safari, Chrome Android tablet minimum).
+- [x] Validate queue/retry behavior from unstable network scenarios.
+- [x] Add tablet QA matrix (iPadOS Safari, Chrome Android tablet minimum).
 - [x] Add deployment/operator notes for classroom rollout.
 
 ### Acceptance criteria

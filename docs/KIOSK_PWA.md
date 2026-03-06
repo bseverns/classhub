@@ -14,6 +14,14 @@ When enabled, the shell focuses navigation on join, class home, and upload flows
 ## Verification signal
 With kiosk mode active, opening `/student/portfolio` redirects to `/student?kiosk=1` and student pages show only class-focused links.
 
+For unstable-network validation, run:
+
+```bash
+bash scripts/kiosk_resilience_check.sh --class-code <YOUR_SMOKE_CLASS_CODE>
+```
+
+This generates a timestamped report under `/tmp/classhub_kiosk_resilience_<timestamp>.md`.
+
 ## Flags
 - `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED` (default `0`)
   - Master switch for kiosk shell behavior.
@@ -47,6 +55,23 @@ Allowed:
 - `/privacy`, `/trust`, `/logout`
 
 Non-allowlisted student routes redirect back to class home.
+
+## Tablet QA matrix
+
+| Device/browser | Installability target | Required checks | Status |
+|---|---|---|---|
+| iPadOS Safari (latest stable) | Add to Home Screen succeeds from `/?kiosk=1` | Join -> class -> upload, offline queue, reconnect flush, relaunch behavior | Pending per deployment |
+| Android tablet Chrome (latest stable) | Install App prompt available from `/?kiosk=1` | Join -> class -> upload, offline queue, reconnect flush, relaunch behavior | Pending per deployment |
+
+## Unstable-network drill checklist
+Use `bash scripts/kiosk_resilience_check.sh --class-code <CODE>` and record outcomes:
+1. Confirm `/student-shell.webmanifest` and `/student-upload-sync-sw.js` checks pass.
+2. Open kiosk mode and verify non-allowlisted routes redirect to class flow.
+3. On upload page, force Offline in devtools and submit a small file.
+4. Verify queued-upload status message appears and session remains usable.
+5. Restore Online and confirm queue flushes automatically or via retry button.
+6. Confirm uploaded file appears in `Your uploads` after reconnect.
+7. Relaunch installed app and verify join/class/upload flows still function.
 
 ## Related docs
 - [ECOSYSTEM_MILESTONES_PLAN.md](ECOSYSTEM_MILESTONES_PLAN.md)

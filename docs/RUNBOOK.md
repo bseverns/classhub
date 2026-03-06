@@ -137,6 +137,19 @@ Notes:
 
 Reference: [ACCESSIBILITY.md](ACCESSIBILITY.md)
 
+Kiosk resilience drill:
+
+```bash
+cd /srv/lms/app
+bash scripts/kiosk_resilience_check.sh --class-code <SMOKE_CLASS_CODE>
+```
+
+Notes:
+
+- Runs deterministic checks for kiosk manifest/service-worker endpoints and route guard redirects.
+- Prompts through unstable-network upload queue validation steps and writes a report to `/tmp/classhub_kiosk_resilience_<timestamp>.md`.
+- Use `--non-interactive` to emit a checklist-only report for later manual completion.
+
 ## Public domain deployment notes
 
 When running behind Caddy on a real domain, use these defaults to avoid false rate-limit identity and upload mismatches:
