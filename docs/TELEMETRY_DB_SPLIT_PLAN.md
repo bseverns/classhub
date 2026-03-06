@@ -118,6 +118,7 @@ Fast rollback (no migration):
 1. Set `CLASSHUB_TELEMETRY_READ_MODE=core`.
 2. Keep `WRITE_MODE=dual` (or `off` if telemetry DB is degraded).
 3. Redeploy app.
+4. Run `python manage.py check_telemetry_parity --window-days 7 --allow-drift` and attach output to incident notes.
 
 Data safety rule:
 - never disable core writes until telemetry parity checks are green for the stabilization window.
@@ -125,10 +126,12 @@ Data safety rule:
 ## Operational checks
 - Add to CI/deploy checklist:
   - telemetry DB connectivity check (when URL configured),
-  - dual-write smoke check logs.
+  - dual-write smoke check logs,
+  - parity check must pass (`python manage.py check_telemetry_parity --window-days 7`) before enabling `READ_MODE=telemetry`.
 - Add runbook tasks:
   - parity spot-check command output,
-  - backlog/failed-write alert thresholds.
+  - backlog/failed-write alert thresholds,
+  - rollback drill confirmation (`READ_MODE=core` + redeploy + teacher dashboard smoke).
 
 ## Suggested env matrix
 - Local/default:
@@ -187,7 +190,7 @@ Ship each slice as an isolated PR with rollback-safe toggles.
     - `--max-batches`.
   - Guarantee idempotent re-runs.
   - Emit backfill progress metrics and summary.
-- [ ] Slice 6: Parity checker + cutover runbook hooks
+- [x] Slice 6: Parity checker + cutover runbook hooks
   - Add parity check command/script for row counts and key aggregates by day/event type.
   - Add deploy checklist step: parity must be green before `READ_MODE=telemetry`.
   - Add rollback checklist step: immediate switch back to `READ_MODE=core`.
@@ -258,7 +261,7 @@ docker compose exec -T classhub_web python manage.py test \
   hub.tests_services
 ```
 
-Planned parity/backfill command examples (once implemented):
+Parity/backfill command examples:
 
 ```bash
 cd /srv/lms/app/compose
