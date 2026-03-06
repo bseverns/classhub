@@ -179,7 +179,7 @@ Ship each slice as an isolated PR with rollback-safe toggles.
     - teacher class rollups,
     - data lifespan rollups that include event counts.
   - Keep shared return contract for both backends to avoid UI/view branching.
-- [ ] Slice 5: Backfill command + idempotency
+- [x] Slice 5: Backfill command + idempotency
   - Add `backfill_telemetry_events` management command with:
     - `--batch-size`,
     - `--since-id`,
