@@ -48,7 +48,7 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 | Symptom | Check first | Most likely area |
 |---|---|---|
 | Site not loading over HTTPS | Caddy logs + `.env` domain/template | Edge routing/TLS |
-| `/helper/chat` failing (502 / `ollama_error`) | `helper_web` logs + Ollama tags | Helper backend/model |
+| `/helper/chat` failing (502 / `ollama_error` or 503 / `busy`) | `helper_web` logs + Ollama tags | Helper backend/model/queue saturation |
 | `/helper/chat` failing with 403 CSRF page | Browser request headers (`Referer`, `X-CSRFToken`, `Cookie`) + `classhub_web` logs | CSRF/referrer/session |
 | Student join shows "Security check blocked the join request" | `/join` response code + cookie secure flags in `.env` | CSRF cookie transport mismatch |
 | Teacher login smoke fails | smoke credentials + login response path | Auth/config mismatch |
@@ -112,7 +112,7 @@ bash scripts/validate_env_secrets.sh
 bash scripts/deploy_with_smoke.sh
 ```
 
-## Symptom: `/helper/chat` fails with 502 or `ollama_error`
+## Symptom: `/helper/chat` fails with 502/`ollama_error` or 503/`busy`
 
 Common causes:
 
@@ -120,6 +120,7 @@ Common causes:
 - model not pulled
 - `OLLAMA_BASE_URL` mismatch
 - helper worker timeout too strict for retry budget
+- helper request queue is saturated on CPU-bound inference
 
 Checks:
 

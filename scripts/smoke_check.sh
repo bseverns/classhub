@@ -243,13 +243,18 @@ if [[ -n "${CLASS_CODE}" ]]; then
       break
     fi
 
+    helper_retry_reason=""
     if [[ "${code}" == "502" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"ollama_error"' "${TMP_HELPER}"; then
-      if (( helper_attempt < HELPER_CHAT_RETRIES )); then
-        echo "[smoke] /helper/chat returned transient ollama_error on attempt ${helper_attempt}/${HELPER_CHAT_RETRIES}; retrying in ${HELPER_CHAT_RETRY_DELAY_SECONDS}s"
-        sleep "${HELPER_CHAT_RETRY_DELAY_SECONDS}"
-        ((helper_attempt += 1))
-        continue
-      fi
+      helper_retry_reason="ollama_error"
+    elif [[ "${code}" == "503" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"busy"' "${TMP_HELPER}"; then
+      helper_retry_reason="busy"
+    fi
+
+    if [[ -n "${helper_retry_reason}" ]] && (( helper_attempt < HELPER_CHAT_RETRIES )); then
+      echo "[smoke] /helper/chat returned transient ${helper_retry_reason} on attempt ${helper_attempt}/${HELPER_CHAT_RETRIES}; retrying in ${HELPER_CHAT_RETRY_DELAY_SECONDS}s"
+      sleep "${HELPER_CHAT_RETRY_DELAY_SECONDS}"
+      ((helper_attempt += 1))
+      continue
     fi
 
     fail "/helper/chat returned ${code}: $(cat "${TMP_HELPER}")"
