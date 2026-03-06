@@ -832,6 +832,7 @@ Execution runbook:
 - `smoke_check.sh` now emits an explicit stale-code diagnostic for `/join invalid_code` failures, with remediation guidance.
 - `smoke_check.sh` now retries `/helper/chat` for transient backend startup failures (`502` + `ollama_error`) before failing deploy smoke.
 - `smoke_check.sh` now also retries `/helper/chat` for transient queue saturation failures (`503` + `busy`) so CPU-bound helper stacks do not false-fail on first saturation response.
+- `smoke_check.sh` uses a longer default wait for queue saturation retries (`SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS=30`) while keeping non-queue retry delays short (`SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS=3`).
 - `smoke_check.sh` now captures and prints `/student` response headers/body excerpts when the student page returns non-200, so CI output includes concrete failure context.
 - `golden_path_smoke.sh` and `system_doctor.sh` now print compose service state + recent logs when smoke fails, not only when `compose up` fails.
 - Smoke diagnostics now query compose logs using service names (`caddy`, `classhub_web`, `helper_web`, etc.) rather than container names so log collection does not fail under `docker compose logs`.

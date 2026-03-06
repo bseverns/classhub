@@ -9,6 +9,7 @@ Use this page if you are reviewing ClassHub fit and do not need to inspect imple
 3. Read [FEATURE_MATURITY.md](FEATURE_MATURITY.md) for flags, rollout readiness, and RFC boundaries.
 4. Run the guided local walkthrough in [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md) with an operator.
 5. For a compact visual evidence packet, use `press/evaluator_quick_pack.md`.
+6. Ask the operator to run `bash scripts/demo_data_lifespan_evidence.sh --base-url <DOMAIN> --cookie-file <SESSION_COOKIE_FILE>` to capture export artifacts.
 
 ## Verification signal
 Within 30 minutes, you can answer: what is live, what is flag-gated, and what is roadmap-only.
@@ -21,6 +22,16 @@ Within 30 minutes, you can answer: what is live, what is flag-gated, and what is
 | 10 min | Validate current shipped scope | [CURRENT_STATE.md](CURRENT_STATE.md), [FEATURE_MATURITY.md](FEATURE_MATURITY.md) |
 | 10 min | Watch core teacher/admin workflow live | `/teach`, `/teach/class/<id>`, `/teach/lessons` |
 | 5-15 min | Confirm operational readiness + evidence export path | [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md), [RUNBOOK.md](RUNBOOK.md), `/teach/data-lifespan` |
+
+## Operator demo script (privacy evidence)
+Use this command with an authenticated teacher/admin/superuser cookie file:
+
+```bash
+bash scripts/demo_data_lifespan_evidence.sh \
+  --base-url https://YOUR_DOMAIN \
+  --cookie-file classhub_teach_cookie.txt \
+  --out-dir /tmp/classhub_evidence_demo
+```
 
 ## Questions to ask during a live review
 - Which features are enabled here by non-default flags?

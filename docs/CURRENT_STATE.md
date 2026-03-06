@@ -28,6 +28,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Superuser operator config snapshot is live in `/teach` (active profile/flag summary + doc pointers).
 - Facilitator CLI (`hubctl`) is live from repo tooling for teacher API class controls (`tools/hubctl/`).
 - Security and ops guardrails are live in CI (smoke, migration gate, endpoint guard checks, view-size/function budgets, workflow lint).
+- Q2-Q3 ecosystem milestones are complete; implementation status now lives here and in feature-specific docs (the temporary milestones plan doc is retired).
 
 ## Deployment and reliability posture
 - Day-1 local mode: `compose/Caddyfile.local` over HTTP.

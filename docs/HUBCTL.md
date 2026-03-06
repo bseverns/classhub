@@ -76,4 +76,3 @@ PYTHONPATH=tools/hubctl python -m hubctl --json class submissions 12 --limit 25
 - [API.md](API.md)
 - [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - [RUNBOOK.md](RUNBOOK.md)
-- [ECOSYSTEM_MILESTONES_PLAN.md](ECOSYSTEM_MILESTONES_PLAN.md)

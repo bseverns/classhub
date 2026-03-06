@@ -74,6 +74,5 @@ Use `bash scripts/kiosk_resilience_check.sh --class-code <CODE>` and record outc
 7. Relaunch installed app and verify join/class/upload flows still function.
 
 ## Related docs
-- [ECOSYSTEM_MILESTONES_PLAN.md](ECOSYSTEM_MILESTONES_PLAN.md)
 - [FEATURE_MATURITY.md](FEATURE_MATURITY.md)
 - [RUNBOOK.md](RUNBOOK.md)

@@ -67,6 +67,8 @@ HELPER_CHAT_RETRIES="${SMOKE_HELPER_CHAT_RETRIES:-$(env_file_value SMOKE_HELPER_
 HELPER_CHAT_RETRIES="${HELPER_CHAT_RETRIES:-3}"
 HELPER_CHAT_RETRY_DELAY_SECONDS="${SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS:-$(env_file_value SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS)}"
 HELPER_CHAT_RETRY_DELAY_SECONDS="${HELPER_CHAT_RETRY_DELAY_SECONDS:-3}"
+HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS="${SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS:-$(env_file_value SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS)}"
+HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS="${HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS:-30}"
 
 INSECURE_TLS="${SMOKE_INSECURE_TLS:-$(env_file_value SMOKE_INSECURE_TLS)}"
 INSECURE_TLS="${INSECURE_TLS:-0}"
@@ -251,8 +253,12 @@ if [[ -n "${CLASS_CODE}" ]]; then
     fi
 
     if [[ -n "${helper_retry_reason}" ]] && (( helper_attempt < HELPER_CHAT_RETRIES )); then
-      echo "[smoke] /helper/chat returned transient ${helper_retry_reason} on attempt ${helper_attempt}/${HELPER_CHAT_RETRIES}; retrying in ${HELPER_CHAT_RETRY_DELAY_SECONDS}s"
-      sleep "${HELPER_CHAT_RETRY_DELAY_SECONDS}"
+      helper_retry_delay="${HELPER_CHAT_RETRY_DELAY_SECONDS}"
+      if [[ "${helper_retry_reason}" == "busy" ]]; then
+        helper_retry_delay="${HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS}"
+      fi
+      echo "[smoke] /helper/chat returned transient ${helper_retry_reason} on attempt ${helper_attempt}/${HELPER_CHAT_RETRIES}; retrying in ${helper_retry_delay}s"
+      sleep "${helper_retry_delay}"
       ((helper_attempt += 1))
       continue
     fi

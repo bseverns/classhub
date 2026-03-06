@@ -30,7 +30,6 @@ Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
 - [Program Lifecycle](PROGRAM_LIFECYCLE.md)
 - [Screenshot Gallery](SCREENSHOT_GALLERY.md)
 - [Docs Map](DOCS_MAP.md)
-- [Ecosystem Milestones Plan](ECOSYSTEM_MILESTONES_PLAN.md)
 - [Async Self-Paced RFC](ASYNC_SELF_PACED_RFC.md)
 - [RBAC Capabilities RFC](RBAC_CAPABILITIES_RFC.md)
 

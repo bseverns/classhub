@@ -125,8 +125,9 @@ bash scripts/smoke_check.sh --strict
 
 Notes:
 
-- `/helper/chat` smoke retries transient helper backend failures by default (`502` + `ollama_error`, `503` + `busy`) using `SMOKE_HELPER_CHAT_RETRIES=3` and `SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS=3`.
-- Increase those values in `compose/.env` if Ollama cold starts regularly exceed a few seconds on your server.
+- `/helper/chat` smoke retries transient helper backend failures by default (`502` + `ollama_error`, `503` + `busy`) using `SMOKE_HELPER_CHAT_RETRIES=3`.
+- Default retry delays are `SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS=3` for transport/`ollama_error`, and `SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS=30` for `busy`.
+- Increase those values in `compose/.env` if Ollama cold starts or queue wait regularly exceed your current retry budget.
 
 Golden-path smoke (auto fixture bootstrap):
 
@@ -470,6 +471,16 @@ curl -L -b classhub_teach_cookie.txt \
 curl -L -b classhub_teach_cookie.txt \
   "https://YOUR_DOMAIN/teach/data-lifespan/export?format=csv" \
   -o data_lifespan_snapshot.csv
+```
+
+Demonstration script (recommended):
+
+```bash
+cd /srv/lms/app
+bash scripts/demo_data_lifespan_evidence.sh \
+  --base-url https://YOUR_DOMAIN \
+  --cookie-file classhub_teach_cookie.txt \
+  --out-dir /tmp/classhub_evidence_demo
 ```
 
 RAG evidence panel prerequisites:
