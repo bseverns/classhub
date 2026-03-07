@@ -218,6 +218,50 @@ Data safety rule:
   - `WRITE_MODE=dual` (safer) or `telemetry_only` (leaner)
   - `READ_MODE=telemetry`
 
+## Endpoint policy and concrete env presets
+
+Policy:
+- `CLASSHUB_TELEMETRY_DATABASE_URL` should point to an established private database endpoint (private DNS / managed Postgres endpoint), not a public app URL.
+- Keep internal service callbacks on private/container networking (for example `helper_web` and `classhub_web` hostnames), not edge-routed domain URLs.
+
+Reference presets:
+
+Local/day-1:
+
+```dotenv
+CLASSHUB_TELEMETRY_DATABASE_URL=
+CLASSHUB_TELEMETRY_WRITE_MODE=off
+CLASSHUB_TELEMETRY_READ_MODE=core
+```
+
+Staging rollout:
+
+```dotenv
+CLASSHUB_TELEMETRY_DATABASE_URL=postgresql://classhub_telemetry:REPLACE_ME@telemetry-db.internal:5432/classhub_telemetry?sslmode=require
+CLASSHUB_TELEMETRY_WRITE_MODE=dual
+CLASSHUB_TELEMETRY_READ_MODE=core
+# After parity gates are green:
+# CLASSHUB_TELEMETRY_READ_MODE=telemetry
+```
+
+Production steady-state:
+
+```dotenv
+CLASSHUB_TELEMETRY_DATABASE_URL=postgresql://classhub_telemetry:REPLACE_ME@telemetry-db.internal:5432/classhub_telemetry?sslmode=require
+CLASSHUB_TELEMETRY_WRITE_MODE=dual
+CLASSHUB_TELEMETRY_READ_MODE=telemetry
+# Optional only after Gate D sign-off:
+# CLASSHUB_TELEMETRY_WRITE_MODE=telemetry_only
+```
+
+Internal URL examples (keep private):
+
+```dotenv
+HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+```
+
 ## Phase 2 candidates (not part of this change)
 - Core DB read replica for teacher dashboards/reporting.
 - Dedicated analytics warehouse fed from telemetry DB.

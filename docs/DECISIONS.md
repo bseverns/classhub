@@ -10,6 +10,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Offline upload queue for intermittent networks](#offline-upload-queue-for-intermittent-networks)
 - [Student kiosk shell mode](#student-kiosk-shell-mode)
 - [Database workload split roadmap](#database-workload-split-roadmap)
+- [Telemetry endpoint addressing policy](#telemetry-endpoint-addressing-policy)
 - [Execution sequencing: 30/60/90 reliability-first plan](#execution-sequencing-306090-reliability-first-plan)
 - [Artifact-first sharing defaults](#artifact-first-sharing-defaults)
 - [Program profiles for cohort age bands](#program-profiles-for-cohort-age-bands)
@@ -213,6 +214,21 @@ Execution runbook:
 - Reduces blast radius from telemetry spikes and prune operations.
 - Improves restore/recovery posture for core LMS operations.
 - Preserves a reversible migration path via environment toggles.
+
+## Telemetry endpoint addressing policy
+
+**Current decision:**
+- `CLASSHUB_TELEMETRY_DATABASE_URL` must target an established private telemetry database endpoint (private DNS or managed DB endpoint), not a public app URL.
+- Keep internal helper/classhub callback URLs on private/container routing (for example `http://helper_web:8000/...` and `http://classhub_web:8000/...`), not public domain routes.
+- Keep rollout posture aligned with the telemetry split runbook:
+  - local/day-1: telemetry URL unset, `WRITE_MODE=off`, `READ_MODE=core`,
+  - staging: private telemetry URL + `WRITE_MODE=dual` + parity-gated `READ_MODE` cutover,
+  - production: private telemetry URL + `READ_MODE=telemetry`, default `WRITE_MODE=dual` until Gate D sign-off.
+
+**Why this remains active:**
+- Preserves edge hardening and internal endpoint isolation.
+- Reduces accidental coupling to external routing and TLS edge behavior for service-to-service traffic.
+- Keeps telemetry rollout reproducible across local, staging, and production.
 
 ## Execution sequencing: 30/60/90 reliability-first plan
 
