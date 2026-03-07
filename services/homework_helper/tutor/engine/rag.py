@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -13,6 +14,7 @@ from typing import Callable
 from .reference import SAFE_REF_KEY_RE
 
 RAG_TABLE_NAME = "tutor_curriculum_rag_chunks"
+_SAFE_TABLE_NAME_RE = re.compile(r"^[a-z_][a-z0-9_]*$")
 
 
 def build_reference_inventory(reference_dir: str, reference_map_raw: str) -> dict[str, str]:
@@ -57,12 +59,16 @@ def ensure_pgvector_schema(
     """Create extension/table for curriculum-only RAG storage (Postgres only)."""
     if connection.vendor != "postgresql":
         return False
+    safe_table_name = _safe_table_name(table_name)
+    quoted_table_name = connection.ops.quote_name(safe_table_name)
+    safe_index_name = _safe_table_name(f"{safe_table_name}_reference_key_idx")
+    quoted_index_name = connection.ops.quote_name(safe_index_name)
     dims = max(int(embedding_dimensions or 0), 1)
     with connection.cursor() as cursor:
         cursor.execute("CREATE EXTENSION IF NOT EXISTS vector")
         cursor.execute(
             f"""
-            CREATE TABLE IF NOT EXISTS {table_name} (
+            CREATE TABLE IF NOT EXISTS {quoted_table_name} (
                 id BIGSERIAL PRIMARY KEY,
                 reference_key VARCHAR(128) NOT NULL,
                 source_label VARCHAR(128) NOT NULL,
@@ -78,19 +84,20 @@ def ensure_pgvector_schema(
         )
         cursor.execute(
             f"""
-            CREATE INDEX IF NOT EXISTS {table_name}_reference_key_idx
-            ON {table_name}(reference_key)
+            CREATE INDEX IF NOT EXISTS {quoted_index_name}
+            ON {quoted_table_name}(reference_key)
             """
         )
-    logger.info("helper_rag_schema_ready table=%s dims=%s", table_name, dims)
+    logger.info("helper_rag_schema_ready table=%s dims=%s", safe_table_name, dims)
     return True
 
 
 def clear_reference_rows(*, connection, reference_key: str, table_name: str = RAG_TABLE_NAME) -> int:
     if connection.vendor != "postgresql":
         return 0
+    quoted_table_name = connection.ops.quote_name(_safe_table_name(table_name))
     with connection.cursor() as cursor:
-        cursor.execute(f"DELETE FROM {table_name} WHERE reference_key = %s", [reference_key])
+        cursor.execute(f"DELETE FROM {quoted_table_name} WHERE reference_key = %s", [reference_key])
         return int(cursor.rowcount or 0)
 
 
@@ -108,6 +115,7 @@ def upsert_reference_embeddings(
     """Upsert chunk embeddings for a single curriculum reference key."""
     if connection.vendor != "postgresql":
         return 0, len(chunks)
+    quoted_table_name = connection.ops.quote_name(_safe_table_name(table_name))
     dims = max(int(embedding_dimensions or 0), 1)
     written = 0
     skipped = 0
@@ -130,7 +138,7 @@ def upsert_reference_embeddings(
             chunk_id = hashlib.sha256(text.encode("utf-8")).hexdigest()[:64]
             cursor.execute(
                 f"""
-                INSERT INTO {table_name} (
+                INSERT INTO {quoted_table_name} (
                     reference_key,
                     source_label,
                     chunk_id,
@@ -177,10 +185,12 @@ def retrieve_curriculum_citations(
     """Fetch nearest curriculum chunks from local pgvector index."""
     if connection.vendor != "postgresql":
         return []
+    safe_table_name = _safe_table_name(table_name)
+    quoted_table_name = connection.ops.quote_name(safe_table_name)
     ref = str(reference_key or "").strip().lower()
     if not SAFE_REF_KEY_RE.fullmatch(ref):
         return []
-    if not _table_exists(connection=connection, table_name=table_name):
+    if not _table_exists(connection=connection, table_name=safe_table_name):
         return []
     dims = max(int(embedding_dimensions or 0), 1)
     query_vec = embed_text_fn(" ".join(str(query_text or "").split()))
@@ -197,7 +207,7 @@ def retrieve_curriculum_citations(
                 chunk_text,
                 source_label,
                 (embedding <=> %s::vector) AS distance
-            FROM {table_name}
+            FROM {quoted_table_name}
             WHERE reference_key = %s
             ORDER BY embedding <=> %s::vector ASC
             LIMIT %s
@@ -279,6 +289,13 @@ def _post_json(*, url: str, payload: dict, timeout_seconds: int) -> dict:
 
 def _vector_literal(values: list[float]) -> str:
     return "[" + ",".join(f"{value:.8f}" for value in values) + "]"
+
+
+def _safe_table_name(table_name: str) -> str:
+    token = str(table_name or "").strip().lower()
+    if not _SAFE_TABLE_NAME_RE.fullmatch(token):
+        raise ValueError("invalid_rag_table_name")
+    return token
 
 
 def _table_exists(*, connection, table_name: str) -> bool:

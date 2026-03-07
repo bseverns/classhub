@@ -64,6 +64,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Lesson file path containment](#lesson-file-path-containment)
 - [Untrusted token validation without regex](#untrusted-token-validation-without-regex)
 - [Error-response redaction](#error-response-redaction)
+- [Signal wiring and RAG SQL identifier hardening](#signal-wiring-and-rag-sql-identifier-hardening)
 - [Teacher authoring templates](#teacher-authoring-templates)
 - [Syllabus export access and backups](#syllabus-export-access-and-backups)
 - [Teacher UI comfort mode](#teacher-ui-comfort-mode)
@@ -2229,3 +2230,19 @@ Execution runbook:
 - Prevents accidental N+1 query regressions in hot class-home and teacher-dashboard paths.
 - Keeps service contracts explicit and test-enforced so future callers do not silently fall back to per-module DB reads.
 - Improves reviewer/operator confidence by codifying the query-safety decision in both tests and docs.
+
+## Signal wiring and RAG SQL identifier hardening
+
+**Current decision:**
+- Keep Django signal registration in `HubConfig.ready()` as an explicit side-effect import using `import_module("hub.signals")`, instead of deleting the import.
+- Remove unused `from __future__ import annotations` lines in `hub/forms.py` and `hub/signals.py`.
+- Treat helper RAG table names as untrusted identifiers and enforce a strict allowlist before interpolating any SQL identifier:
+  - allow only lowercase snake-case identifiers (`^[a-z_][a-z0-9_]*$`),
+  - quote validated identifiers through Django DB ops (`connection.ops.quote_name(...)`),
+  - raise `ValueError("invalid_rag_table_name")` for invalid inputs.
+- Add helper-engine tests to assert invalid table names are rejected across schema/create, delete, upsert, and retrieval paths.
+
+**Why this remains active:**
+- Preserves required signal hookup behavior while eliminating style/lint noise.
+- Closes identifier-interpolation risk in raw SQL paths even if future table-name configuration becomes dynamic.
+- Keeps security posture inspectable through explicit tests instead of relying on assumptions about constant-only inputs.
