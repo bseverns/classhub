@@ -67,6 +67,55 @@
             </div>
           </div>
         {% endif %}
+        {% if show_telemetry_rollout_status %}
+          <div class="card card-secondary">
+            <div class="row">
+              <h2 class="section-title-tight">Telemetry rollout status</h2>
+              <div class="muted">{{ telemetry_rollout_summary }}</div>
+            </div>
+            <div class="table-wrap operator-config-table-wrap">
+              <table>
+                <caption class="visually-hidden">Telemetry rollout status checklist</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Gate item</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Detail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in telemetry_rollout_checks %}
+                    <tr>
+                      <th scope="row"><strong>{{ row.label }}</strong></th>
+                      <td>
+                        {% if row.done is True %}
+                          <span class="state-pill state-pill--open">Complete</span>
+                        {% elif row.done is False %}
+                          <span class="state-pill state-pill--locked">Pending</span>
+                        {% else %}
+                          <span class="muted">Manual</span>
+                        {% endif %}
+                      </td>
+                      <td class="muted">{{ row.detail }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <div class="muted operator-config-footnote">
+              Commands:
+              {% for cmd in telemetry_rollout_commands %}
+                <code>{{ cmd }}</code>{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </div>
+            <div class="muted operator-config-footnote">
+              Docs:
+              {% for doc_path in telemetry_rollout_docs %}
+                <code>{{ doc_path }}</code>{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
 
         <div class="card classroom-focus">
           <div class="row">

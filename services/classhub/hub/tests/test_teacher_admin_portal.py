@@ -415,6 +415,9 @@ class TeacherPortalTests(TestCase):
         resp = self.client.get("/teach")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Operator config snapshot")
+        self.assertContains(resp, "Telemetry rollout status")
+        self.assertContains(resp, "Parity + rollback evidence captured")
+        self.assertContains(resp, "telemetry_stabilization_evidence.sh")
         self.assertContains(resp, "Program profile")
         self.assertContains(resp, "docs/FEATURE_MATURITY.md")
 
