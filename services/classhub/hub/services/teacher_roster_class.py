@@ -447,7 +447,6 @@ def build_dashboard_context(*, request, classroom, normalize_order_fn) -> dict:
     modules = list(classroom.modules.prefetch_related("materials").all())
     modules.sort(key=lambda module: (module.order_index, module.id))
     normalize_order_fn(modules)
-    modules = list(classroom.modules.prefetch_related("materials").all())
     modules.sort(key=lambda module: (module.order_index, module.id))
 
     upload_material_ids: list[int] = []

@@ -89,6 +89,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Migration execution at deploy time](#migration-execution-at-deploy-time)
 - [Teacher daily digest + closeout workflow](#teacher-daily-digest-and-closeout-workflow)
 - [Submission query composite indexes](#submission-query-composite-indexes)
+- [Module/material prefetch contract for roster and UI density](#modulematerial-prefetch-contract-for-roster-and-ui-density)
 - [Student portfolio export](#student-portfolio-export)
 - [Checklist, reflection, and rubric material types](#checklist-reflection-and-rubric-material-types)
 - [Outcome events and certificate rollups](#outcome-events-and-certificate-rollups)
@@ -2210,3 +2211,21 @@ Execution runbook:
 **Why this remains active:**
 - Reduces operator cognitive load by giving non-specialists a single, repeatable command for full-stack confidence checks.
 - Preserves script composability while making routine operations easier to delegate across staff turnover.
+
+## Module/material prefetch contract for roster and UI density
+
+**Current decision:**
+- Treat module/material iteration in teacher dashboard and student UI-density resolution as prefetch-required paths.
+- Keep `build_dashboard_context` to a single module/material prefetch pass and reuse the same in-memory module list after order normalization.
+- Make `resolve_ui_density_mode_for_modules` fail fast when modules are not prefetched with `materials`:
+  - raises `ValueError` with explicit `prefetch_related('materials')` guidance.
+- Add service tests for:
+  - parsing edge cases in `parse_extensions`,
+  - malformed/missing-key handling in `_safe_reference_rows`,
+  - prefetch enforcement in UI-density resolution,
+  - single-fetch regression guard for dashboard context.
+
+**Why this remains active:**
+- Prevents accidental N+1 query regressions in hot class-home and teacher-dashboard paths.
+- Keeps service contracts explicit and test-enforced so future callers do not silently fall back to per-module DB reads.
+- Improves reviewer/operator confidence by codifying the query-safety decision in both tests and docs.

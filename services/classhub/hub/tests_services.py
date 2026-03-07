@@ -33,12 +33,14 @@ from .services.content_links import (
     youtube_embed_url,
 )
 from .services.filenames import safe_filename
+from .services.helper_control import _safe_reference_rows
 from .services.ip_privacy import minimize_student_event_ip
 from .services.release_state import (
     lesson_available_on,
     lesson_release_state,
     parse_release_date,
 )
+from .services.teacher_roster_class import build_dashboard_context
 from .services.teacher_tracker import (
     _build_class_digest_rows,
     _build_helper_signal_snapshot,
@@ -50,7 +52,11 @@ from .services.upload_policy import (
 )
 from .services.upload_scan import scan_uploaded_file
 from .services.upload_validation import validate_upload_content
-from .services.ui_density import default_ui_density_mode, resolve_ui_density_mode
+from .services.ui_density import (
+    default_ui_density_mode,
+    resolve_ui_density_mode,
+    resolve_ui_density_mode_for_modules,
+)
 from .services.zip_exports import (
     reserve_archive_path,
     temporary_zip_archive,
@@ -69,6 +75,9 @@ class UploadPolicyServiceTests(SimpleTestCase):
     def test_parse_extensions_normalizes_unique_list(self):
         self.assertEqual(parse_extensions("sb3, .PNG, .sb3"), [".sb3", ".png"])
 
+    def test_parse_extensions_ignores_blanks_and_preserves_first_seen_order(self):
+        self.assertEqual(parse_extensions(" , PNG, ,jpg, .png "), [".png", ".jpg"])
+
     def test_front_matter_submission_parses_pipe_or_csv(self):
         row = front_matter_submission(
             {
@@ -82,6 +91,52 @@ class UploadPolicyServiceTests(SimpleTestCase):
         self.assertEqual(row["type"], "file")
         self.assertEqual(row["accepted_exts"], [".sb3", ".png"])
         self.assertEqual(row["naming"], "studentname_session")
+
+
+class HelperControlServiceTests(SimpleTestCase):
+    def test_safe_reference_rows_returns_empty_for_non_list(self):
+        self.assertEqual(_safe_reference_rows(None), [])
+        self.assertEqual(_safe_reference_rows("bad"), [])
+
+    def test_safe_reference_rows_normalizes_missing_and_invalid_fields(self):
+        rows = _safe_reference_rows(
+            [
+                "skip-me",
+                {
+                    "reference_key": "  alpha  ",
+                    "chunk_count": "7",
+                    "last_indexed_at": " 2026-03-06T10:00:00Z ",
+                },
+                {
+                    "chunk_count": -4,
+                },
+                {
+                    "reference_key": "x" * 120,
+                    "chunk_count": "NaN",
+                    "last_indexed_at": "y" * 120,
+                },
+            ]
+        )
+        self.assertEqual(
+            rows,
+            [
+                {
+                    "reference_key": "alpha",
+                    "chunk_count": 7,
+                    "last_indexed_at": "2026-03-06T10:00:00Z",
+                },
+                {
+                    "reference_key": "",
+                    "chunk_count": 0,
+                    "last_indexed_at": "",
+                },
+                {
+                    "reference_key": "x" * 80,
+                    "chunk_count": 0,
+                    "last_indexed_at": "y" * 64,
+                },
+            ],
+        )
 
 
 class _FailingCache:
@@ -282,6 +337,103 @@ class UiDensityServiceTests(SimpleTestCase):
             course_manifest={"ui_level": "elementary"},
         )
         self.assertEqual(mode, "compact")
+
+
+class UiDensityModulePrefetchTests(TestCase):
+    def test_resolve_ui_density_mode_for_modules_requires_prefetch(self):
+        classroom = Class.objects.create(name="Density No Prefetch", join_code="DEN10001")
+        classroom.modules.create(title="Session 1", order_index=0).materials.create(
+            title="Lesson Link",
+            type=Material.TYPE_LINK,
+            url="/course/demo/lesson-1",
+            order_index=0,
+        )
+        modules = list(classroom.modules.all())
+
+        with self.assertRaisesMessage(ValueError, "prefetch_related('materials')"):
+            resolve_ui_density_mode_for_modules(modules=modules, program_profile="secondary")
+
+    def test_resolve_ui_density_mode_for_modules_uses_prefetched_materials_without_db_reads(self):
+        classroom = Class.objects.create(name="Density Prefetch", join_code="DEN10002")
+        classroom.modules.create(title="Session 1", order_index=0).materials.create(
+            title="Lesson Link",
+            type=Material.TYPE_LINK,
+            url="/course/demo/lesson-1",
+            order_index=0,
+        )
+        modules = list(classroom.modules.prefetch_related("materials").all())
+
+        with CaptureQueriesContext(connection) as ctx:
+            mode = resolve_ui_density_mode_for_modules(modules=modules, program_profile="secondary")
+
+        self.assertEqual(mode, "standard")
+        self.assertEqual(len(ctx.captured_queries), 0)
+
+
+class TeacherRosterClassServiceTests(SimpleTestCase):
+    def test_build_dashboard_context_prefetches_modules_once(self):
+        class _FakeMaterialsRelation:
+            def __init__(self, materials):
+                self._materials = materials
+
+            def all(self):
+                return self._materials
+
+        class _FakeModulesManager:
+            def __init__(self, modules):
+                self._modules = modules
+                self.prefetch_calls = 0
+
+            def prefetch_related(self, *_args):
+                self.prefetch_calls += 1
+                return self
+
+            def all(self):
+                return self._modules
+
+        class _FakeStudentsManager:
+            def count(self):
+                return 0
+
+            def all(self):
+                return self
+
+            def order_by(self, *_args):
+                return []
+
+        module = SimpleNamespace(
+            id=1,
+            order_index=0,
+            title="Session 1",
+            materials=_FakeMaterialsRelation([]),
+        )
+        modules_manager = _FakeModulesManager([module])
+        classroom = SimpleNamespace(
+            id=1,
+            session_epoch=0,
+            modules=modules_manager,
+            students=_FakeStudentsManager(),
+        )
+
+        with patch.multiple(
+            "hub.services.teacher_roster_class",
+            _build_lesson_tracker_rows=lambda *args, **kwargs: [],
+            _build_helper_signal_snapshot=lambda *args, **kwargs: {},
+            _support_tag_choices=lambda: [],
+            _support_tags_by_student=lambda **kwargs: {},
+            _material_submission_counts=lambda *_args, **_kwargs: {},
+            _submission_counts_by_student=lambda **kwargs: {},
+            _build_facilitator_support_snapshot=lambda **kwargs: {},
+            _build_outcome_snapshot=lambda **kwargs: {},
+        ):
+            context = build_dashboard_context(
+                request=SimpleNamespace(),
+                classroom=classroom,
+                normalize_order_fn=lambda _modules: None,
+            )
+
+        self.assertEqual(modules_manager.prefetch_calls, 1)
+        self.assertEqual(len(context["modules"]), 1)
 
 
 class UploadScanServiceTests(SimpleTestCase):
