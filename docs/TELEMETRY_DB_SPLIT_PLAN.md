@@ -20,6 +20,74 @@ Non-goal (Phase 1):
 3. Resolve any parity deltas and repeat evidence capture until stable.
 4. Decide steady-state write mode (`dual` vs `telemetry_only`) and document sign-off.
 
+## 30/60/90-day execution checklist (kickoff: March 7, 2026)
+
+Calendar anchors:
+- Day 30 checkpoint: April 6, 2026
+- Day 60 checkpoint: May 6, 2026
+- Day 90 checkpoint: June 5, 2026
+
+### SLO guardrails (must stay green during rollout)
+
+Use the same metrics in staging and production evidence packets.
+
+| Signal | Baseline source | Guardrail |
+| --- | --- | --- |
+| Student home p95 latency | 7-day pre-cutover baseline | no worse than +10% for 2 consecutive weekly windows |
+| Student upload success rate | 30-day pre-cutover baseline | >= 99.0% and not down >0.5 percentage points |
+| Helper chat 5xx rate | 30-day pre-cutover baseline | <= 1.0% and not up >0.5 percentage points |
+| Restore rehearsal RTO | quarterly rehearsal artifact | <= 60 minutes |
+| Restore rehearsal RPO | quarterly rehearsal artifact | <= 15 minutes |
+
+### Day 0-30 (March 7-April 6, 2026): stabilize Phase 1 and collect first evidence cycle
+
+- [ ] Keep production in `WRITE_MODE=dual` and `READ_MODE=telemetry` for one full release cycle.
+- [ ] Run `check_telemetry_parity --window-days 7` at least daily in staging and at least once per production deploy.
+- [ ] Capture one full evidence packet using `scripts/telemetry_stabilization_evidence.sh`:
+  - parity output,
+  - smoke output,
+  - rollback drill output (`--perform-rollback-drill`).
+- [ ] Publish a one-page SLO summary for student home latency, upload success, and helper 5xx rates.
+- [ ] Log and resolve all parity deltas above agreed threshold before Day 30 checkpoint.
+
+Exit criteria for Day 30:
+- one complete evidence packet archived,
+- no unresolved parity deltas above threshold for the checkpoint window,
+- rollback drill proven with env-toggle-only recovery.
+
+### Day 31-60 (April 7-May 6, 2026): decision gate for Phase 1 steady state
+
+- [ ] Run a second full release cycle under the same telemetry modes to prove repeatability.
+- [ ] Re-run evidence packet capture; compare with Day 0-30 packet.
+- [ ] Decide steady-state write mode:
+  - remain `dual` (safer default), or
+  - move to `telemetry_only` if all gates are green.
+- [ ] Update runbook and incident checklist with the chosen steady state.
+- [ ] Complete one restore rehearsal that includes both `default` and `telemetry` DB artifacts.
+
+Exit criteria for Day 60:
+- two consecutive evidence cycles green,
+- SLO guardrails remain within bounds,
+- documented sign-off on write mode (`dual` or `telemetry_only`) with owner + date.
+
+### Day 61-90 (May 7-June 5, 2026): Phase 2 readiness only (no automatic cutover)
+
+- [ ] Produce a Phase 2 proposal limited to design + risk model:
+  - candidate data domains,
+  - migration sequence,
+  - rollback model,
+  - blast-radius analysis.
+- [ ] Require explicit go/no-go review before any Phase 2 implementation branch starts.
+- [ ] Keep Phase 2 blocked unless all conditions hold:
+  - Day 60 criteria are still green,
+  - no open telemetry parity incidents older than 14 days,
+  - restore rehearsal evidence is current (<= 30 days old).
+- [ ] If blocked, keep investment on reliability backlog (query budgets, runbook hardening, rehearsal automation).
+
+Exit criteria for Day 90:
+- approved Phase 2 design review packet with named owners, or
+- documented deferral with reasons and next review date.
+
 ## Verification signal
 At the end of Phase 1:
 - student join/upload latency remains stable during prune jobs,

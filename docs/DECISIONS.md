@@ -10,6 +10,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Offline upload queue for intermittent networks](#offline-upload-queue-for-intermittent-networks)
 - [Student kiosk shell mode](#student-kiosk-shell-mode)
 - [Database workload split roadmap](#database-workload-split-roadmap)
+- [Execution sequencing: 30/60/90 reliability-first plan](#execution-sequencing-306090-reliability-first-plan)
 - [Artifact-first sharing defaults](#artifact-first-sharing-defaults)
 - [Program profiles for cohort age bands](#program-profiles-for-cohort-age-bands)
 - [Stability freeze and change budget](#stability-freeze-and-change-budget)
@@ -212,6 +213,31 @@ Execution runbook:
 - Reduces blast radius from telemetry spikes and prune operations.
 - Improves restore/recovery posture for core LMS operations.
 - Preserves a reversible migration path via environment toggles.
+
+## Execution sequencing: 30/60/90 reliability-first plan
+
+**Current decision:**
+- Adopt a concrete 30/60/90 execution sequence starting March 7, 2026, with dated checkpoints captured in [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md).
+- Prioritize work in this order:
+  - Phase 1 telemetry stabilization evidence + SLO guardrails first,
+  - strict organization-boundary rollout (`REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True`) second,
+  - hotspot-first teacher portal service extraction third,
+  - RBAC Phase 2 operator UX enablement after boundary hardening is stable.
+- Keep Telemetry Phase 2 implementation blocked until explicit go/no-go review passes (no automatic start after Day 90).
+- Treat helper RAG expansion beyond curriculum as opt-in only:
+  - class-scoped,
+  - staff-approved source set,
+  - auditable source list in operator evidence artifacts.
+
+Execution ownership and gates:
+- 30-day checkpoint (April 6, 2026): first full telemetry evidence packet + rollback drill.
+- 60-day checkpoint (May 6, 2026): consecutive green evidence windows and explicit write-mode sign-off (`dual` vs `telemetry_only`).
+- 90-day checkpoint (June 5, 2026): approved Phase 2 design packet or documented deferral with next review date.
+
+**Why this remains active:**
+- Prevents migration churn from outrunning operational evidence.
+- Keeps privacy boundary correctness ahead of ergonomics/features.
+- Makes scale-up decisions falsifiable through dated checkpoints and SLO gates rather than intuition.
 
 ## Artifact-first sharing defaults
 
