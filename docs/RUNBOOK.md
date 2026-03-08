@@ -150,6 +150,7 @@ Notes:
 - Writes timestamped artifacts to `/tmp/classhub_telemetry_stabilization_<timestamp>/`.
 - Includes parity output, strict smoke output, and optional rollback-drill output.
 - Keep telemetry `READ_MODE=core` if parity reports drift.
+- Endpoint policy and env presets for telemetry rollout live in [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md#endpoint-policy-and-concrete-env-presets).
 
 Accessibility smoke:
 
