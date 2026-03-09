@@ -161,11 +161,9 @@ def api_student_submissions(request):
     classroom = request.classroom
     student = request.student
 
-    modules = list(classroom.modules.prefetch_related("materials").all())
-    material_ids = []
-    for m in modules:
-        for mat in m.materials.all():
-            material_ids.append(mat.id)
+    material_ids = list(
+        classroom.modules.values_list("materials__id", flat=True)
+    )
 
     # Pagination logic bounds
     try:
