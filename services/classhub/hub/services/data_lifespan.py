@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from io import StringIO
 
+from django.db.models import Q
 from django.utils import timezone
 
 from ..models import AuditEvent, Class, Submission
@@ -45,14 +46,18 @@ def _count_submission_policy_overdue_rows(
     grouped_submission_days: dict[int, list[int]],
     now,
 ) -> int:
-    total = 0
+    overdue_query = Q()
     for days, class_ids in grouped_submission_days.items():
+        if not class_ids:
+            continue
         cutoff = now - timedelta(days=int(days))
-        total += Submission.objects.filter(
-            material__module__classroom_id__in=class_ids,
-            uploaded_at__lt=cutoff,
-        ).count()
-    return total
+        overdue_query |= (
+            Q(material__module__classroom_id__in=class_ids)
+            & Q(uploaded_at__lt=cutoff)
+        )
+    if not overdue_query.children:
+        return 0
+    return Submission.objects.filter(overdue_query).count()
 
 
 def _count_event_policy_overdue_rows(
@@ -61,20 +66,18 @@ def _count_event_policy_overdue_rows(
     fallback_event_days: int,
     now,
 ) -> int:
-    total = 0
+    overdue_query = Q()
     for days, class_ids in grouped_event_days.items():
+        if not class_ids:
+            continue
         cutoff = now - timedelta(days=int(days))
-        total += student_events_queryset().filter(
-            classroom_id__in=class_ids,
-            created_at__lt=cutoff,
-        ).count()
+        overdue_query |= Q(classroom_id__in=class_ids, created_at__lt=cutoff)
     if fallback_event_days > 0:
         fallback_cutoff = now - timedelta(days=fallback_event_days)
-        total += student_events_queryset().filter(
-            classroom_id__isnull=True,
-            created_at__lt=fallback_cutoff,
-        ).count()
-    return total
+        overdue_query |= Q(classroom_id__isnull=True, created_at__lt=fallback_cutoff)
+    if not overdue_query.children:
+        return 0
+    return student_events_queryset().filter(overdue_query).count()
 
 
 def _latest_audit_by_action(action: str):

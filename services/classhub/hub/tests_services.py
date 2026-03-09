@@ -1,5 +1,7 @@
 import zipfile
 import tempfile
+import urllib.error
+from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
@@ -32,8 +34,16 @@ from .services.content_links import (
     parse_course_lesson_url,
     youtube_embed_url,
 )
+from .services.data_lifespan import (
+    _count_event_policy_overdue_rows,
+    _count_submission_policy_overdue_rows,
+)
 from .services.filenames import safe_filename
-from .services.helper_control import _safe_json_dict, _safe_reference_rows
+from .services.helper_control import (
+    _safe_json_dict,
+    _safe_reference_rows,
+    fetch_rag_status,
+)
 from .services.helper_topics import build_allowed_topics, build_lesson_topics, split_helper_topics_text
 from .services.ip_privacy import minimize_student_event_ip
 from .services.release_state import (
@@ -168,6 +178,41 @@ class HelperControlServiceTests(SimpleTestCase):
                 },
             ],
         )
+
+    def test_fetch_rag_status_returns_http_error_details(self):
+        http_error = urllib.error.HTTPError(
+            url="http://helper.internal/rag/status",
+            code=503,
+            msg="Service Unavailable",
+            hdrs=None,
+            fp=BytesIO(b'{"error":"helper_backoff"}'),
+        )
+        with patch(
+            "hub.services.helper_control.urllib.request.urlopen",
+            side_effect=http_error,
+        ):
+            result = fetch_rag_status(
+                endpoint_url="http://helper.internal/rag/status",
+                internal_token="token",
+                timeout_seconds=2.0,
+            )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.error_code, "helper_backoff")
+        self.assertEqual(result.status_code, 503)
+
+    def test_fetch_rag_status_returns_unreachable_on_url_error(self):
+        with patch(
+            "hub.services.helper_control.urllib.request.urlopen",
+            side_effect=urllib.error.URLError("connection refused"),
+        ):
+            result = fetch_rag_status(
+                endpoint_url="http://helper.internal/rag/status",
+                internal_token="token",
+                timeout_seconds=2.0,
+            )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.error_code, "helper_unreachable")
+        self.assertEqual(result.status_code, 0)
 
 
 class _FailingCache:
@@ -487,6 +532,7 @@ class UploadScanServiceTests(SimpleTestCase):
             run_mock.return_value.stderr = ""
             result = scan_uploaded_file(upload)
         self.assertEqual(result.status, "clean")
+        self.assertEqual(run_mock.call_args.kwargs.get("shell"), False)
 
     @override_settings(
         CLASSHUB_UPLOAD_SCAN_ENABLED=True,
@@ -501,6 +547,119 @@ class UploadScanServiceTests(SimpleTestCase):
             run_mock.return_value.stderr = ""
             result = scan_uploaded_file(upload)
         self.assertEqual(result.status, "infected")
+
+
+class DataLifespanServiceTests(TestCase):
+    @override_settings(CLASSHUB_TELEMETRY_READ_MODE="core")
+    def test_submission_overdue_count_uses_single_query_across_retention_groups(self):
+        now = timezone.now()
+        class_a = Class.objects.create(name="Retention A", join_code="RET10001")
+        class_b = Class.objects.create(name="Retention B", join_code="RET10002")
+        class_c = Class.objects.create(name="Retention C", join_code="RET10003")
+
+        material_rows: list[Material] = []
+        for classroom in (class_a, class_b, class_c):
+            module = classroom.modules.create(title="Session 1", order_index=0)
+            material_rows.append(
+                module.materials.create(
+                    title="Upload",
+                    type=Material.TYPE_UPLOAD,
+                    accepted_extensions=".sb3",
+                    max_upload_mb=50,
+                    order_index=0,
+                )
+            )
+        student_a = StudentIdentity.objects.create(classroom=class_a, display_name="Ada")
+        student_b = StudentIdentity.objects.create(classroom=class_b, display_name="Ben")
+        student_c = StudentIdentity.objects.create(classroom=class_c, display_name="Cy")
+
+        sub_a = Submission.objects.create(
+            material=material_rows[0],
+            student=student_a,
+            original_filename="a.sb3",
+            file=SimpleUploadedFile("a.sb3", b"a"),
+        )
+        sub_b_old = Submission.objects.create(
+            material=material_rows[1],
+            student=student_b,
+            original_filename="b-old.sb3",
+            file=SimpleUploadedFile("b-old.sb3", b"b-old"),
+        )
+        sub_b_new = Submission.objects.create(
+            material=material_rows[1],
+            student=student_b,
+            original_filename="b-new.sb3",
+            file=SimpleUploadedFile("b-new.sb3", b"b-new"),
+        )
+        sub_c = Submission.objects.create(
+            material=material_rows[2],
+            student=student_c,
+            original_filename="c.sb3",
+            file=SimpleUploadedFile("c.sb3", b"c"),
+        )
+        Submission.objects.filter(id=sub_a.id).update(uploaded_at=now - timedelta(days=40))
+        Submission.objects.filter(id=sub_b_old.id).update(uploaded_at=now - timedelta(days=70))
+        Submission.objects.filter(id=sub_b_new.id).update(uploaded_at=now - timedelta(days=10))
+        Submission.objects.filter(id=sub_c.id).update(uploaded_at=now - timedelta(days=80))
+
+        with CaptureQueriesContext(connection) as queries:
+            total = _count_submission_policy_overdue_rows(
+                grouped_submission_days={30: [class_a.id], 60: [class_b.id, class_c.id]},
+                now=now,
+            )
+        self.assertEqual(total, 3)
+        self.assertEqual(len(queries.captured_queries), 1)
+
+    @override_settings(CLASSHUB_TELEMETRY_READ_MODE="core")
+    def test_event_overdue_count_uses_single_query_with_fallback_group(self):
+        now = timezone.now()
+        class_a = Class.objects.create(name="Events A", join_code="RET20001")
+        class_b = Class.objects.create(name="Events B", join_code="RET20002")
+
+        event_a_old = StudentEvent.objects.create(
+            classroom=class_a,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        event_a_new = StudentEvent.objects.create(
+            classroom=class_a,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        event_b_old = StudentEvent.objects.create(
+            classroom=class_b,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        fallback_old = StudentEvent.objects.create(
+            classroom=None,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        fallback_new = StudentEvent.objects.create(
+            classroom=None,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        StudentEvent.objects.filter(id=event_a_old.id).update(created_at=now - timedelta(days=40))
+        StudentEvent.objects.filter(id=event_a_new.id).update(created_at=now - timedelta(days=5))
+        StudentEvent.objects.filter(id=event_b_old.id).update(created_at=now - timedelta(days=70))
+        StudentEvent.objects.filter(id=fallback_old.id).update(created_at=now - timedelta(days=50))
+        StudentEvent.objects.filter(id=fallback_new.id).update(created_at=now - timedelta(days=10))
+
+        with CaptureQueriesContext(connection) as queries:
+            total = _count_event_policy_overdue_rows(
+                grouped_event_days={30: [class_a.id], 60: [class_b.id]},
+                fallback_event_days=45,
+                now=now,
+            )
+        self.assertEqual(total, 3)
+        self.assertEqual(len(queries.captured_queries), 1)
 
 
 class TeacherTrackerServiceTests(TestCase):
