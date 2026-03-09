@@ -10,6 +10,8 @@ import urllib.request
 from pathlib import Path
 from typing import Callable
 
+from psycopg import sql
+
 from .reference import SAFE_REF_KEY_RE
 
 RAG_TABLE_NAME = "tutor_curriculum_rag_chunks"
@@ -61,26 +63,36 @@ def ensure_pgvector_schema(
     with connection.cursor() as cursor:
         cursor.execute("CREATE EXTENSION IF NOT EXISTS vector")
         cursor.execute(
-            f"""
-            CREATE TABLE IF NOT EXISTS {table_name} (
-                id BIGSERIAL PRIMARY KEY,
-                reference_key VARCHAR(128) NOT NULL,
-                source_label VARCHAR(128) NOT NULL,
-                chunk_id VARCHAR(64) NOT NULL,
-                chunk_order INTEGER NOT NULL,
-                chunk_text TEXT NOT NULL,
-                embedding vector({dims}) NOT NULL,
-                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                UNIQUE(reference_key, chunk_id)
+            sql.SQL(
+                """
+                CREATE TABLE IF NOT EXISTS {table} (
+                    id BIGSERIAL PRIMARY KEY,
+                    reference_key VARCHAR(128) NOT NULL,
+                    source_label VARCHAR(128) NOT NULL,
+                    chunk_id VARCHAR(64) NOT NULL,
+                    chunk_order INTEGER NOT NULL,
+                    chunk_text TEXT NOT NULL,
+                    embedding vector({dims}) NOT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    UNIQUE(reference_key, chunk_id)
+                )
+                """
+            ).format(
+                table=sql.Identifier(table_name),
+                dims=sql.Literal(dims),
             )
-            """
         )
         cursor.execute(
-            f"""
-            CREATE INDEX IF NOT EXISTS {table_name}_reference_key_idx
-            ON {table_name}(reference_key)
-            """
+            sql.SQL(
+                """
+                CREATE INDEX IF NOT EXISTS {index}
+                ON {table}(reference_key)
+                """
+            ).format(
+                index=sql.Identifier(f"{table_name}_reference_key_idx"),
+                table=sql.Identifier(table_name),
+            )
         )
     logger.info("helper_rag_schema_ready table=%s dims=%s", table_name, dims)
     return True
@@ -90,7 +102,12 @@ def clear_reference_rows(*, connection, reference_key: str, table_name: str = RA
     if connection.vendor != "postgresql":
         return 0
     with connection.cursor() as cursor:
-        cursor.execute(f"DELETE FROM {table_name} WHERE reference_key = %s", [reference_key])
+        cursor.execute(
+            sql.SQL("DELETE FROM {table} WHERE reference_key = %s").format(
+                table=sql.Identifier(table_name),
+            ),
+            [reference_key],
+        )
         return int(cursor.rowcount or 0)
 
 
@@ -129,26 +146,28 @@ def upsert_reference_embeddings(
                 continue
             chunk_id = hashlib.sha256(text.encode("utf-8")).hexdigest()[:64]
             cursor.execute(
-                f"""
-                INSERT INTO {table_name} (
-                    reference_key,
-                    source_label,
-                    chunk_id,
-                    chunk_order,
-                    chunk_text,
-                    embedding,
-                    updated_at
-                )
-                VALUES (%s, %s, %s, %s, %s, %s::vector, NOW())
-                ON CONFLICT (reference_key, chunk_id)
-                DO UPDATE
-                SET
-                    source_label = EXCLUDED.source_label,
-                    chunk_order = EXCLUDED.chunk_order,
-                    chunk_text = EXCLUDED.chunk_text,
-                    embedding = EXCLUDED.embedding,
-                    updated_at = NOW()
-                """,
+                sql.SQL(
+                    """
+                    INSERT INTO {table} (
+                        reference_key,
+                        source_label,
+                        chunk_id,
+                        chunk_order,
+                        chunk_text,
+                        embedding,
+                        updated_at
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s::vector, NOW())
+                    ON CONFLICT (reference_key, chunk_id)
+                    DO UPDATE
+                    SET
+                        source_label = EXCLUDED.source_label,
+                        chunk_order = EXCLUDED.chunk_order,
+                        chunk_text = EXCLUDED.chunk_text,
+                        embedding = EXCLUDED.embedding,
+                        updated_at = NOW()
+                    """
+                ).format(table=sql.Identifier(table_name)),
                 [
                     reference_key,
                     source_label,
@@ -192,16 +211,18 @@ def retrieve_curriculum_citations(
     max_distance = max(float(max_cosine_distance or 0.0), 0.0)
     with connection.cursor() as cursor:
         cursor.execute(
-            f"""
-            SELECT
-                chunk_text,
-                source_label,
-                (embedding <=> %s::vector) AS distance
-            FROM {table_name}
-            WHERE reference_key = %s
-            ORDER BY embedding <=> %s::vector ASC
-            LIMIT %s
-            """,
+            sql.SQL(
+                """
+                SELECT
+                    chunk_text,
+                    source_label,
+                    (embedding <=> %s::vector) AS distance
+                FROM {table}
+                WHERE reference_key = %s
+                ORDER BY embedding <=> %s::vector ASC
+                LIMIT %s
+                """
+            ).format(table=sql.Identifier(table_name)),
             [vector, ref, vector, limit],
         )
         rows = list(cursor.fetchall() or [])
