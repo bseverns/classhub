@@ -33,7 +33,8 @@ from .services.content_links import (
     youtube_embed_url,
 )
 from .services.filenames import safe_filename
-from .services.helper_control import _safe_reference_rows
+from .services.helper_control import _safe_json_dict, _safe_reference_rows
+from .services.helper_topics import build_allowed_topics, build_lesson_topics, split_helper_topics_text
 from .services.ip_privacy import minimize_student_event_ip
 from .services.release_state import (
     lesson_available_on,
@@ -92,8 +93,38 @@ class UploadPolicyServiceTests(SimpleTestCase):
         self.assertEqual(row["accepted_exts"], [".sb3", ".png"])
         self.assertEqual(row["naming"], "studentname_session")
 
+    def test_front_matter_submission_returns_defaults_for_invalid_root(self):
+        self.assertEqual(
+            front_matter_submission(None),
+            {"type": "", "accepted_exts": [], "naming": ""},
+        )
+        self.assertEqual(
+            front_matter_submission("bad"),
+            {"type": "", "accepted_exts": [], "naming": ""},
+        )
+
+    def test_front_matter_submission_returns_defaults_for_invalid_submission_payload(self):
+        self.assertEqual(
+            front_matter_submission({"submission": "bad"}),
+            {"type": "", "accepted_exts": [], "naming": ""},
+        )
+
+    def test_front_matter_submission_normalizes_missing_optional_keys(self):
+        row = front_matter_submission({"submission": {"accepted": ["sb3", ".PNG", "sb3"]}})
+        self.assertEqual(row["type"], "")
+        self.assertEqual(row["accepted_exts"], [".sb3", ".png"])
+        self.assertEqual(row["naming"], "")
+
 
 class HelperControlServiceTests(SimpleTestCase):
+    def test_safe_json_dict_returns_empty_for_malformed_or_non_dict_json(self):
+        self.assertEqual(_safe_json_dict("not-json"), {})
+        self.assertEqual(_safe_json_dict("[]"), {})
+        self.assertEqual(_safe_json_dict('"token"'), {})
+
+    def test_safe_json_dict_returns_dict_for_valid_object_payload(self):
+        self.assertEqual(_safe_json_dict('{"ok": true, "count": 3}'), {"ok": True, "count": 3})
+
     def test_safe_reference_rows_returns_empty_for_non_list(self):
         self.assertEqual(_safe_reference_rows(None), [])
         self.assertEqual(_safe_reference_rows("bad"), [])
@@ -878,6 +909,10 @@ class StudentSessionMiddlewareTests(TestCase):
 
 
 class IPPrivacyServiceTests(SimpleTestCase):
+    def test_minimize_student_event_ip_returns_empty_for_blank_and_invalid_ip(self):
+        self.assertEqual(minimize_student_event_ip(""), "")
+        self.assertEqual(minimize_student_event_ip("not-an-ip"), "")
+
     def test_minimize_student_event_ip_truncates_ipv4_by_default(self):
         self.assertEqual(minimize_student_event_ip("203.0.113.25"), "203.0.113.0")
 
@@ -891,6 +926,62 @@ class IPPrivacyServiceTests(SimpleTestCase):
     @override_settings(CLASSHUB_STUDENT_EVENT_IP_MODE="none")
     def test_minimize_student_event_ip_can_disable_storage(self):
         self.assertEqual(minimize_student_event_ip("203.0.113.25"), "")
+
+    @override_settings(CLASSHUB_STUDENT_EVENT_IP_MODE="drop")
+    def test_minimize_student_event_ip_honors_drop_alias(self):
+        self.assertEqual(minimize_student_event_ip("203.0.113.25"), "")
+
+    @override_settings(CLASSHUB_STUDENT_EVENT_IP_MODE="disabled")
+    def test_minimize_student_event_ip_honors_disabled_alias(self):
+        self.assertEqual(minimize_student_event_ip("2001:db8::1"), "")
+
+    @override_settings(CLASSHUB_STUDENT_EVENT_IP_MODE="unexpected")
+    def test_minimize_student_event_ip_falls_back_to_truncate_for_unknown_mode(self):
+        self.assertEqual(minimize_student_event_ip("203.0.113.25"), "203.0.113.0")
+
+
+class HelperTopicsServiceTests(SimpleTestCase):
+    def test_build_lesson_topics_returns_empty_for_non_dict(self):
+        self.assertEqual(build_lesson_topics(None), [])
+        self.assertEqual(build_lesson_topics("bad"), [])
+
+    def test_build_lesson_topics_extracts_expected_sections(self):
+        topics = build_lesson_topics(
+            {
+                "makes": "Arcade game",
+                "needs": ["Scratch 3", " Keyboard ", ""],
+                "videos": [{"id": "V01"}, {"title": "Debug pass"}, {"foo": "skip"}],
+                "session": 4,
+                "helper_notes": ["Stay private", " Ask first ", ""],
+            }
+        )
+        self.assertEqual(
+            topics,
+            [
+                "Makes: Arcade game",
+                "Needs: Scratch 3, Keyboard",
+                "Videos: V01, Debug pass",
+                "Session: 4",
+                "Notes: Stay private, Ask first",
+            ],
+        )
+
+    def test_build_allowed_topics_accepts_pipe_string_and_list(self):
+        self.assertEqual(
+            build_allowed_topics({"helper_allowed_topics": "debug|loops | sprites"}),
+            ["debug", "loops", "sprites"],
+        )
+        self.assertEqual(
+            build_allowed_topics({"allowed_topics": ["debug", " sprites ", ""]}),
+            ["debug", "sprites"],
+        )
+
+    def test_split_helper_topics_text_splits_newlines_and_pipe_delimiters(self):
+        raw = "Debug loops | Add sprite\r\nFix bug|\n |Share build\rRetest"
+        self.assertEqual(
+            split_helper_topics_text(raw),
+            ["Debug loops", "Add sprite", "Fix bug", "Share build", "Retest"],
+        )
 
 
 class SyllabusIngestSecurityTests(SimpleTestCase):

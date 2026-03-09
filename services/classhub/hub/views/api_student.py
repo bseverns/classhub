@@ -12,7 +12,6 @@ from common.request_safety import client_ip_from_request, fixed_window_allow
 from ..http.headers import apply_no_store
 from ..models import Submission
 from ..services.student_home import (
-    build_class_landing_context,
     build_material_access_map,
     build_material_checklist_items_map,
     build_gallery_entries_map,
