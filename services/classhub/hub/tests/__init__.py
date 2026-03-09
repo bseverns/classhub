@@ -18,6 +18,7 @@ from .test_student_ops import (
     TeacherAuditTests,
     OrphanUploadScavengerCommandTests,
 )
+from .test_student_join_utils import StudentJoinUtilsTests
 from .test_teacher_admin_auth import (
     Admin2FATests,
     BootstrapAdminOTPCommandTests,
@@ -51,6 +52,7 @@ __all__ = [
     "StudentDataControlsTests",
     "StudentEventRetentionCommandTests",
     "StudentEventSubmissionTests",
+    "StudentJoinUtilsTests",
     "StudentPortfolioExportTests",
     "SubmissionDownloadHardeningTests",
     "SubmissionRetentionCommandTests",
