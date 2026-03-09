@@ -349,11 +349,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 #
 # We intentionally do NOT serve these as public /media files.
 # Downloads go through a permission-checked Django view.
-MEDIA_ROOT = Path(os.environ.get("CLASSHUB_UPLOAD_ROOT", "/uploads"))
+_default_upload_root = "/uploads"
+if RUNNING_TESTS and "CLASSHUB_UPLOAD_ROOT" not in os.environ:
+    # Local test runs may not have permission to write to /uploads.
+    _default_upload_root = str(BASE_DIR / ".test_uploads")
+MEDIA_ROOT = Path(os.environ.get("CLASSHUB_UPLOAD_ROOT", _default_upload_root))
 MEDIA_URL = "/_uploads/"
 # Teacher-generated authoring templates (from /teach landing page action).
+_default_authoring_template_dir = "/uploads/authoring_templates"
+if RUNNING_TESTS and "CLASSHUB_AUTHORING_TEMPLATE_DIR" not in os.environ:
+    _default_authoring_template_dir = str(Path(_default_upload_root) / "authoring_templates")
 CLASSHUB_AUTHORING_TEMPLATE_DIR = Path(
-    os.environ.get("CLASSHUB_AUTHORING_TEMPLATE_DIR", "/uploads/authoring_templates")
+    os.environ.get("CLASSHUB_AUTHORING_TEMPLATE_DIR", _default_authoring_template_dir)
 )
 CLASSHUB_AUTHORING_TEMPLATE_AGE_BAND_DEFAULT = os.environ.get(
     "CLASSHUB_AUTHORING_TEMPLATE_AGE_BAND_DEFAULT",
