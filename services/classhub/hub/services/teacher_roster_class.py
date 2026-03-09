@@ -86,6 +86,87 @@ def _support_tags_by_student(*, classroom, students: list[StudentIdentity]) -> d
     return by_student
 
 
+def _build_outcome_rollup(
+    *,
+    classroom,
+    students: list[StudentIdentity],
+    active_window_days: int = 30,
+    include_class_metrics: bool = False,
+    include_outcome_windows: bool = False,
+) -> dict:
+    student_ids = [int(student.id) for student in students]
+    events_qs = student_outcome_events_queryset().filter(classroom_id=int(classroom.id))
+    sessions_by_student: dict[int, int] = {}
+    artifacts_by_student: dict[int, int] = {}
+    milestones_by_student: dict[int, int] = {}
+    if student_ids:
+        for row in (
+            events_qs.filter(student_id__in=student_ids)
+            .values("student_id", "event_type")
+            .annotate(total=models.Count("id"))
+        ):
+            student_id = int(row["student_id"])
+            total = int(row["total"] or 0)
+            event_type = str(row["event_type"] or "")
+            if event_type == StudentOutcomeEvent.EVENT_SESSION_COMPLETED:
+                sessions_by_student[student_id] = total
+            elif event_type == StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED:
+                artifacts_by_student[student_id] = total
+            elif event_type == StudentOutcomeEvent.EVENT_MILESTONE_EARNED:
+                milestones_by_student[student_id] = total
+
+    outcome_windows: dict[int, tuple[str, str]] = {}
+    if include_outcome_windows and student_ids:
+        for row in (
+            events_qs.filter(student_id__in=student_ids)
+            .values("student_id")
+            .annotate(first=models.Min("created_at"), last=models.Max("created_at"))
+        ):
+            student_id = int(row["student_id"])
+            first = row.get("first")
+            last = row.get("last")
+            outcome_windows[student_id] = (
+                first.isoformat() if first else "",
+                last.isoformat() if last else "",
+            )
+
+    total_sessions = 0
+    total_artifacts = 0
+    total_milestones = 0
+    active_students = 0
+    if include_class_metrics:
+        active_since = timezone.now() - timedelta(days=max(int(active_window_days or 0), 1))
+        total_sessions = events_qs.filter(
+            event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+        ).count()
+        total_artifacts = events_qs.filter(
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+        ).count()
+        total_milestones = events_qs.filter(
+            event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
+        ).count()
+        active_students = (
+            events_qs.filter(
+                created_at__gte=active_since,
+                student_id__isnull=False,
+            )
+            .values("student_id")
+            .distinct()
+            .count()
+        )
+
+    return {
+        "sessions_by_student": sessions_by_student,
+        "artifacts_by_student": artifacts_by_student,
+        "milestones_by_student": milestones_by_student,
+        "outcome_windows": outcome_windows,
+        "total_sessions": int(total_sessions),
+        "total_artifacts": int(total_artifacts),
+        "total_milestones": int(total_milestones),
+        "active_students": int(active_students),
+    }
+
+
 def build_certificate_eligibility_rows(
     *,
     classroom,
@@ -109,26 +190,10 @@ def build_certificate_eligibility_rows(
             .only("id", "display_name")
             .order_by("display_name", "id")
         )
-
-    student_ids = [int(student.id) for student in students]
-    sessions_by_student: dict[int, int] = {}
-    artifacts_by_student: dict[int, int] = {}
-    milestones_by_student: dict[int, int] = {}
-    if student_ids:
-        for row in (
-            student_outcome_events_queryset().filter(classroom_id=int(classroom.id), student_id__in=student_ids)
-            .values("student_id", "event_type")
-            .annotate(total=models.Count("id"))
-        ):
-            student_id = int(row["student_id"])
-            total = int(row["total"] or 0)
-            event_type = str(row["event_type"] or "")
-            if event_type == StudentOutcomeEvent.EVENT_SESSION_COMPLETED:
-                sessions_by_student[student_id] = total
-            elif event_type == StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED:
-                artifacts_by_student[student_id] = total
-            elif event_type == StudentOutcomeEvent.EVENT_MILESTONE_EARNED:
-                milestones_by_student[student_id] = total
+    rollup = _build_outcome_rollup(classroom=classroom, students=students)
+    sessions_by_student: dict[int, int] = rollup["sessions_by_student"]
+    artifacts_by_student: dict[int, int] = rollup["artifacts_by_student"]
+    milestones_by_student: dict[int, int] = rollup["milestones_by_student"]
 
     eligible_students = 0
     rows: list[dict] = []
@@ -166,50 +231,15 @@ def _build_outcome_snapshot(*, classroom, students: list[StudentIdentity]) -> di
     top_students_limit = _int_setting("CLASSHUB_OUTCOME_TOP_STUDENTS", 5)
     certificate_min_sessions = _int_setting("CLASSHUB_CERTIFICATE_MIN_SESSIONS", 8)
     certificate_min_artifacts = _int_setting("CLASSHUB_CERTIFICATE_MIN_ARTIFACTS", 6)
-    active_since = timezone.now() - timedelta(days=window_days)
-
-    student_ids = [int(student.id) for student in students]
-    sessions_by_student: dict[int, int] = {}
-    artifacts_by_student: dict[int, int] = {}
-    milestones_by_student: dict[int, int] = {}
-    if student_ids:
-        for row in (
-            student_outcome_events_queryset().filter(student_id__in=student_ids)
-            .values("student_id", "event_type")
-            .annotate(total=models.Count("id"))
-        ):
-            student_id = int(row["student_id"])
-            total = int(row["total"] or 0)
-            event_type = str(row["event_type"] or "")
-            if event_type == StudentOutcomeEvent.EVENT_SESSION_COMPLETED:
-                sessions_by_student[student_id] = total
-            elif event_type == StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED:
-                artifacts_by_student[student_id] = total
-            elif event_type == StudentOutcomeEvent.EVENT_MILESTONE_EARNED:
-                milestones_by_student[student_id] = total
-
-    total_sessions = student_outcome_events_queryset().filter(
-        classroom_id=int(classroom.id),
-        event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
-    ).count()
-    total_artifacts = student_outcome_events_queryset().filter(
-        classroom_id=int(classroom.id),
-        event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
-    ).count()
-    total_milestones = student_outcome_events_queryset().filter(
-        classroom_id=int(classroom.id),
-        event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
-    ).count()
-    active_students = (
-        student_outcome_events_queryset().filter(
-            classroom_id=int(classroom.id),
-            created_at__gte=active_since,
-            student_id__isnull=False,
-        )
-        .values("student_id")
-        .distinct()
-        .count()
+    rollup = _build_outcome_rollup(
+        classroom=classroom,
+        students=students,
+        active_window_days=window_days,
+        include_class_metrics=True,
     )
+    sessions_by_student: dict[int, int] = rollup["sessions_by_student"]
+    artifacts_by_student: dict[int, int] = rollup["artifacts_by_student"]
+    milestones_by_student: dict[int, int] = rollup["milestones_by_student"]
 
     eligible_students = 0
     rows: list[dict] = []
@@ -242,10 +272,10 @@ def _build_outcome_snapshot(*, classroom, students: list[StudentIdentity]) -> di
 
     return {
         "window_days": window_days,
-        "total_sessions": int(total_sessions),
-        "total_artifacts": int(total_artifacts),
-        "total_milestones": int(total_milestones),
-        "active_students": int(active_students),
+        "total_sessions": int(rollup["total_sessions"]),
+        "total_artifacts": int(rollup["total_artifacts"]),
+        "total_milestones": int(rollup["total_milestones"]),
+        "active_students": int(rollup["active_students"]),
         "eligible_students": int(eligible_students),
         "total_students": len(students),
         "certificate_min_sessions": certificate_min_sessions,
@@ -774,7 +804,6 @@ def export_class_outcomes_csv(
     certificate_min_artifacts: int | None = None,
 ) -> str:
     active_window_days = max(int(active_window_days or 0), 1)
-    active_since = timezone.now() - timedelta(days=active_window_days)
     certificate_min_sessions = (
         _int_setting("CLASSHUB_CERTIFICATE_MIN_SESSIONS", 8)
         if certificate_min_sessions is None
@@ -792,63 +821,17 @@ def export_class_outcomes_csv(
         .order_by("display_name", "id")
     )
     student_ids = [int(student.id) for student in students]
-
-    sessions_by_student: dict[int, int] = {}
-    artifacts_by_student: dict[int, int] = {}
-    milestones_by_student: dict[int, int] = {}
-    if student_ids:
-        for row in (
-            student_outcome_events_queryset().filter(student_id__in=student_ids)
-            .values("student_id", "event_type")
-            .annotate(total=models.Count("id"))
-        ):
-            student_id = int(row["student_id"])
-            total = int(row["total"] or 0)
-            event_type = str(row["event_type"] or "")
-            if event_type == StudentOutcomeEvent.EVENT_SESSION_COMPLETED:
-                sessions_by_student[student_id] = total
-            elif event_type == StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED:
-                artifacts_by_student[student_id] = total
-            elif event_type == StudentOutcomeEvent.EVENT_MILESTONE_EARNED:
-                milestones_by_student[student_id] = total
-
-    outcome_windows: dict[int, tuple[str, str]] = {}
-    if student_ids:
-        for row in (
-            student_outcome_events_queryset().filter(student_id__in=student_ids)
-            .values("student_id")
-            .annotate(first=models.Min("created_at"), last=models.Max("created_at"))
-        ):
-            student_id = int(row["student_id"])
-            first = row.get("first")
-            last = row.get("last")
-            outcome_windows[student_id] = (
-                first.isoformat() if first else "",
-                last.isoformat() if last else "",
-            )
-
-    class_sessions_total = student_outcome_events_queryset().filter(
-        classroom_id=int(classroom.id),
-        event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
-    ).count()
-    class_artifacts_total = student_outcome_events_queryset().filter(
-        classroom_id=int(classroom.id),
-        event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
-    ).count()
-    class_milestones_total = student_outcome_events_queryset().filter(
-        classroom_id=int(classroom.id),
-        event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
-    ).count()
-    class_active_outcome_students = (
-        student_outcome_events_queryset().filter(
-            classroom_id=int(classroom.id),
-            created_at__gte=active_since,
-            student_id__isnull=False,
-        )
-        .values("student_id")
-        .distinct()
-        .count()
+    rollup = _build_outcome_rollup(
+        classroom=classroom,
+        students=students,
+        active_window_days=active_window_days,
+        include_class_metrics=True,
+        include_outcome_windows=True,
     )
+    sessions_by_student: dict[int, int] = rollup["sessions_by_student"]
+    artifacts_by_student: dict[int, int] = rollup["artifacts_by_student"]
+    milestones_by_student: dict[int, int] = rollup["milestones_by_student"]
+    outcome_windows: dict[int, tuple[str, str]] = rollup["outcome_windows"]
 
     eligible_students = 0
     issued_by_student: dict[int, str] = {}
@@ -898,13 +881,13 @@ def export_class_outcomes_csv(
             "row_type": "class_outcome_summary",
             "class_id": classroom.id,
             "class_name": classroom.name,
-            "session_completions": class_sessions_total,
-            "artifact_submissions": class_artifacts_total,
-            "milestones": class_milestones_total,
+            "session_completions": rollup["total_sessions"],
+            "artifact_submissions": rollup["total_artifacts"],
+            "milestones": rollup["total_milestones"],
             "eligible_students": eligible_students,
             "certificate_issued_students": len(issued_by_student),
             "total_students": len(students),
-            "active_outcome_students": class_active_outcome_students,
+            "active_outcome_students": rollup["active_students"],
             "certificate_min_sessions": certificate_min_sessions,
             "certificate_min_artifacts": certificate_min_artifacts,
             "active_window_days": active_window_days,

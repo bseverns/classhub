@@ -313,6 +313,51 @@ class TeacherRosterClassServiceTests(TestCase):
         self.assertEqual(snapshot["delete_request_rows"][0]["display_name"], "Ada")
         self.assertEqual([row["display_name"] for row in snapshot["idle_rows"]], ["Ada"])
 
+    @override_settings(
+        CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,
+        CLASSHUB_CERTIFICATE_MIN_ARTIFACTS=1,
+    )
+    def test_outcome_snapshot_and_certificate_rows_share_class_scoped_counts(self):
+        from ..services.teacher_roster_class import _build_outcome_snapshot, build_certificate_eligibility_rows
+
+        classroom = Class.objects.create(name="Outcome Scope A", join_code="OSCOPEA1")
+        other_classroom = Class.objects.create(name="Outcome Scope B", join_code="OSCOPEB1")
+        ada = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        StudentOutcomeEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+            source="test",
+            details={},
+        )
+        # Mismatched classroom row should not leak into class A snapshots.
+        StudentOutcomeEvent.objects.create(
+            classroom=other_classroom,
+            student=ada,
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            source="test",
+            details={},
+        )
+
+        summary = build_certificate_eligibility_rows(
+            classroom=classroom,
+            students=[ada],
+            certificate_min_sessions=1,
+            certificate_min_artifacts=1,
+        )
+        snapshot = _build_outcome_snapshot(classroom=classroom, students=[ada])
+        row = summary["rows"][0]
+        top = snapshot["top_students"][0]
+
+        self.assertEqual(row["session_count"], 1)
+        self.assertEqual(row["artifact_count"], 0)
+        self.assertEqual(row["certificate_eligible"], False)
+        self.assertEqual(snapshot["total_sessions"], 1)
+        self.assertEqual(snapshot["total_artifacts"], 0)
+        self.assertEqual(snapshot["eligible_students"], summary["eligible_students"])
+        self.assertEqual(top["session_count"], row["session_count"])
+        self.assertEqual(top["artifact_count"], row["artifact_count"])
+
 
 class TeacherPortalTests(TestCase):
     def setUp(self):
