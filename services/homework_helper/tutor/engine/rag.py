@@ -61,14 +61,10 @@ def ensure_pgvector_schema(
     """Create extension/table for curriculum-only RAG storage (Postgres only)."""
     if connection.vendor != "postgresql":
         return False
-    safe_table_name = _safe_table_name(table_name)
-    quoted_table_name = connection.ops.quote_name(safe_table_name)
-    safe_index_name = _safe_table_name(f"{safe_table_name}_reference_key_idx")
-    quoted_index_name = connection.ops.quote_name(safe_index_name)
-    dims = max(int(embedding_dimensions or 0), 1)
     table_ident = _sql_table_identifier(table_name)
     table_parts = _relation_identifier_parts(table_name)
     index_ident = _sql_index_identifier(table_name, suffix="reference_key_idx")
+    dims = max(int(embedding_dimensions or 0), 1)
     with connection.cursor() as cursor:
         cursor.execute("CREATE EXTENSION IF NOT EXISTS vector")
         cursor.execute(
@@ -135,9 +131,8 @@ def upsert_reference_embeddings(
     """Upsert chunk embeddings for a single curriculum reference key."""
     if connection.vendor != "postgresql":
         return 0, len(chunks)
-    quoted_table_name = connection.ops.quote_name(_safe_table_name(table_name))
-    dims = max(int(embedding_dimensions or 0), 1)
     table_ident = _sql_table_identifier(table_name)
+    dims = max(int(embedding_dimensions or 0), 1)
     written = 0
     skipped = 0
     with connection.cursor() as cursor:
@@ -208,12 +203,10 @@ def retrieve_curriculum_citations(
     """Fetch nearest curriculum chunks from local pgvector index."""
     if connection.vendor != "postgresql":
         return []
-    safe_table_name = _safe_table_name(table_name)
-    quoted_table_name = connection.ops.quote_name(safe_table_name)
     ref = str(reference_key or "").strip().lower()
     if not SAFE_REF_KEY_RE.fullmatch(ref):
         return []
-    if not _table_exists(connection=connection, table_name=safe_table_name):
+    if not _table_exists(connection=connection, table_name=table_name):
         return []
     table_ident = _sql_table_identifier(table_name)
     dims = max(int(embedding_dimensions or 0), 1)
@@ -315,13 +308,6 @@ def _post_json(*, url: str, payload: dict, timeout_seconds: int) -> dict:
 
 def _vector_literal(values: list[float]) -> str:
     return "[" + ",".join(f"{value:.8f}" for value in values) + "]"
-
-
-def _safe_table_name(table_name: str) -> str:
-    token = str(table_name or "").strip().lower()
-    if not _SAFE_TABLE_NAME_RE.fullmatch(token):
-        raise ValueError("invalid_rag_table_name")
-    return token
 
 
 def _table_exists(*, connection, table_name: str) -> bool:
