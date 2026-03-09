@@ -2309,3 +2309,25 @@ Execution ownership and gates:
 - Reduces docs drift risk by giving each front-door document one ownership role.
 - Makes the public-deploy path secure by default while preserving practical migration/local escape hatches.
 - Improves external evaluator trust by making screenshot evidence state explicit instead of implicit.
+
+## Teacher portal mode switcher for surface-density control
+
+**Current decision:**
+- Keep `/teach` as the same route, but add an explicit mode switcher contract via query param `portal_mode`.
+- Supported modes:
+  - `all` (default),
+  - `day`,
+  - `setup`,
+  - `admin` (superuser-only),
+  - `policy` (superuser or RBAC-enabled staff).
+- Apply mode visibility as rendering filters over existing sections/cards:
+  - `day`: class-focus + digest + closeout + recent submissions.
+  - `setup`: class setup, profile, import/template tools.
+  - `admin`: organization/staff/operator surfaces.
+  - `policy`: RBAC/policy/operator surfaces.
+- Do not add new routes or new top-level workflow primitives as part of this change.
+
+**Why this remains active:**
+- Reduces first-contact cognitive load in `/teach` without removing existing capability.
+- Preserves backward compatibility (`/teach` default remains full cockpit).
+- Aligns with stability-plan constraints to simplify entry-path complexity before adding net-new surface area.

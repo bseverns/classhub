@@ -136,6 +136,89 @@ def _resolve_initial_top_tab(*, user, profile_tab_active, org_admin_active, teac
     return "quick-actions"
 
 
+def _read_portal_mode(request, *, user, rbac_tools_enabled: bool) -> str:
+    requested = (request.GET.get("portal_mode") or "").strip().lower()
+    allowed = {"all", "day", "setup"}
+    if user.is_superuser:
+        allowed.add("admin")
+    if user.is_superuser or rbac_tools_enabled:
+        allowed.add("policy")
+    if requested not in allowed:
+        return "all"
+    return requested
+
+
+def _portal_mode_context(*, user, portal_mode: str, rbac_tools_enabled: bool) -> dict:
+    show_day_sections = portal_mode in {"all", "day"}
+    show_setup_sections = portal_mode in {"all", "setup"}
+    show_admin_sections = user.is_superuser and portal_mode in {"all", "admin"}
+    show_policy_sections = (user.is_superuser or rbac_tools_enabled) and portal_mode in {"all", "policy"}
+
+    mode_rows = [
+        {
+            "id": "all",
+            "label": "All panels",
+            "description": "Full teacher cockpit.",
+            "url": "/teach?portal_mode=all",
+            "active": portal_mode == "all",
+        },
+        {
+            "id": "day",
+            "label": "Day-of-class",
+            "description": "Classroom focus, digest, closeout.",
+            "url": "/teach?portal_mode=day",
+            "active": portal_mode == "day",
+        },
+        {
+            "id": "setup",
+            "label": "Class setup",
+            "description": "Class creation and content tools.",
+            "url": "/teach?portal_mode=setup",
+            "active": portal_mode == "setup",
+        },
+    ]
+    if user.is_superuser:
+        mode_rows.append(
+            {
+                "id": "admin",
+                "label": "Org/admin",
+                "description": "Teacher invites and organization controls.",
+                "url": "/teach?portal_mode=admin",
+                "active": portal_mode == "admin",
+            }
+        )
+    if user.is_superuser or rbac_tools_enabled:
+        mode_rows.append(
+            {
+                "id": "policy",
+                "label": "Policy/RBAC",
+                "description": "RBAC tools and operator policy posture.",
+                "url": "/teach?portal_mode=policy",
+                "active": portal_mode == "policy",
+            }
+        )
+
+    return {
+        "portal_mode": portal_mode,
+        "portal_mode_rows": mode_rows,
+        "show_day_sections": show_day_sections,
+        "show_setup_sections": show_setup_sections,
+        "show_admin_sections": show_admin_sections,
+        "show_policy_sections": show_policy_sections,
+        "show_setup_console": show_setup_sections or show_admin_sections or show_policy_sections,
+    }
+
+
+def _tab_for_portal_mode(initial_tab: str, *, portal_mode: str, user, rbac_tools_enabled: bool) -> str:
+    if portal_mode == "admin" and user.is_superuser:
+        return "org-admin"
+    if portal_mode == "policy" and rbac_tools_enabled:
+        return "rbac-tools"
+    if portal_mode == "setup" and initial_tab in {"org-admin", "invite-teacher", "rbac-tools"}:
+        return "quick-actions"
+    return initial_tab
+
+
 def _empty_class_assignment_context(org_state: dict):
     return {
         "class_staff_assignments": [],
@@ -263,6 +346,87 @@ def _build_template_download_rows(template_slug: str, output_dir: Path):
     return rows
 
 
+def _build_teach_home_class_context(
+    *,
+    classes: list,
+    assigned_class_ids: set[int],
+    assigned_classes: list,
+    class_digest_rows: list,
+    digest_since,
+    recent_submissions: list,
+    notice: str,
+    error: str,
+    template_slug: str,
+    template_title: str,
+    template_sessions: str,
+    template_duration: str,
+    import_course_slug: str,
+    import_course_title: str,
+    import_default_ui_level: str,
+    import_session_parse_mode: str,
+    import_overwrite: bool,
+    output_dir: Path,
+    template_download_rows: list,
+) -> dict:
+    return {
+        "classes": classes,
+        "assigned_class_ids": assigned_class_ids,
+        "assigned_classes": assigned_classes,
+        "class_digest_rows": class_digest_rows,
+        "digest_since": digest_since,
+        "recent_submissions": recent_submissions,
+        "notice": notice,
+        "error": error,
+        "template_slug": template_slug,
+        "template_title": template_title,
+        "template_sessions": template_sessions or "12",
+        "template_duration": template_duration or "75",
+        "import_course_slug": import_course_slug,
+        "import_course_title": import_course_title,
+        "import_default_ui_level": import_default_ui_level if import_default_ui_level in {"elementary", "secondary", "advanced"} else "secondary",
+        "import_session_parse_mode": import_session_parse_mode if import_session_parse_mode in {"auto", "template", "verbose"} else "auto",
+        "import_overwrite": import_overwrite,
+        "template_output_dir": str(output_dir),
+        "template_download_rows": template_download_rows,
+    }
+
+
+def _build_teach_home_staff_context(
+    *,
+    request,
+    teacher_accounts,
+    teacher_invite_state: dict,
+    profile_state: dict,
+    org_state: dict,
+    initial_tab: str,
+) -> dict:
+    return {
+        "teacher_accounts": teacher_accounts,
+        "teacher_username": teacher_invite_state["teacher_username"],
+        "teacher_email": teacher_invite_state["teacher_email"],
+        "teacher_first_name": teacher_invite_state["teacher_first_name"],
+        "teacher_last_name": teacher_invite_state["teacher_last_name"],
+        "teacher_invite_active": teacher_invite_state["teacher_invite_active"],
+        "data_lifespan_enabled": bool(request.user.is_superuser or staff_can_export_syllabi(request.user)),
+        "initial_top_tab": initial_tab,
+        "profile_first_name": profile_state["profile_first_name"],
+        "profile_last_name": profile_state["profile_last_name"],
+        "profile_email": profile_state["profile_email"],
+        "org_name": org_state["org_name"],
+        "org_membership_org_id": org_state["org_membership_org_id"],
+        "org_membership_user_id": org_state["org_membership_user_id"],
+        "org_membership_role": org_state["org_membership_role"] or OrganizationMembership.ROLE_TEACHER,
+        "org_membership_active": org_state["org_membership_active"],
+        "org_rolecap_org_id": org_state["org_rolecap_org_id"],
+        "org_rolecap_role": org_state["org_rolecap_role"] or OrganizationMembership.ROLE_TEACHER,
+        "org_rolecap_capability": (
+            org_state["org_rolecap_capability"] or OrganizationRoleCapability.CAP_CLASS_VIEW
+        ),
+        "org_rolecap_active": org_state["org_rolecap_active"],
+        "org_membership_mode": staff_has_explicit_memberships(request.user),
+    }
+
+
 @staff_member_required
 def teach_home(request):
     """Teacher landing page (outside /admin)."""
@@ -282,12 +446,24 @@ def teach_home(request):
     profile_state = _read_profile_state(request, request.user)
     rbac_tools_enabled = rbac_tools_enabled_for_user(request.user)
     rbac_tools_active = rbac_tools_requested(request) and rbac_tools_enabled
+    portal_mode = _read_portal_mode(request, user=request.user, rbac_tools_enabled=rbac_tools_enabled)
+    portal_mode_context = _portal_mode_context(
+        user=request.user,
+        portal_mode=portal_mode,
+        rbac_tools_enabled=rbac_tools_enabled,
+    )
     initial_tab = _resolve_initial_top_tab(
         user=request.user,
         profile_tab_active=profile_state["profile_tab_active"],
         org_admin_active=org_state["org_admin_active"],
         teacher_invite_active=teacher_invite_state["teacher_invite_active"],
         rbac_tools_active=rbac_tools_active,
+    )
+    initial_tab = _tab_for_portal_mode(
+        initial_tab,
+        portal_mode=portal_mode,
+        user=request.user,
+        rbac_tools_enabled=rbac_tools_enabled,
     )
     classes, assigned_class_ids = staff_accessible_classes_ranked(request.user)
     assigned_classes = [c for c in classes if c.id in assigned_class_ids]
@@ -307,57 +483,46 @@ def teach_home(request):
     org_admin_context = _build_org_admin_context(user=request.user, user_model=User, org_state=org_state, classes=classes)
     rbac_tools_context = build_rbac_tools_context(request=request, classes=classes)
     operator_config_snapshot = build_operator_config_snapshot(user=request.user)
+    context = {
+        **_build_teach_home_class_context(
+            classes=classes,
+            assigned_class_ids=assigned_class_ids,
+            assigned_classes=assigned_classes,
+            class_digest_rows=class_digest_rows,
+            digest_since=digest_since,
+            recent_submissions=recent_submissions,
+            notice=notice,
+            error=error,
+            template_slug=template_slug,
+            template_title=template_title,
+            template_sessions=template_sessions,
+            template_duration=template_duration,
+            import_course_slug=import_course_slug,
+            import_course_title=import_course_title,
+            import_default_ui_level=import_default_ui_level,
+            import_session_parse_mode=import_session_parse_mode,
+            import_overwrite=import_overwrite,
+            output_dir=output_dir,
+            template_download_rows=template_download_rows,
+        ),
+        **_build_teach_home_staff_context(
+            request=request,
+            teacher_accounts=teacher_accounts,
+            teacher_invite_state=teacher_invite_state,
+            profile_state=profile_state,
+            org_state=org_state,
+            initial_tab=initial_tab,
+        ),
+        **syllabus_export_state,
+        **org_admin_context,
+        **rbac_tools_context,
+        **operator_config_snapshot,
+        **portal_mode_context,
+    }
     response = render(
         request,
         "teach_home.html",
-        {
-            "classes": classes,
-            "assigned_class_ids": assigned_class_ids,
-            "assigned_classes": assigned_classes,
-            "class_digest_rows": class_digest_rows,
-            "digest_since": digest_since,
-            "recent_submissions": recent_submissions,
-            "notice": notice,
-            "error": error,
-            "template_slug": template_slug,
-            "template_title": template_title,
-            "template_sessions": template_sessions or "12",
-            "template_duration": template_duration or "75",
-            "import_course_slug": import_course_slug,
-            "import_course_title": import_course_title,
-            "import_default_ui_level": import_default_ui_level if import_default_ui_level in {"elementary", "secondary", "advanced"} else "secondary",
-            "import_session_parse_mode": import_session_parse_mode if import_session_parse_mode in {"auto", "template", "verbose"} else "auto",
-            "import_overwrite": import_overwrite,
-            "template_output_dir": str(output_dir),
-            "template_download_rows": template_download_rows,
-            "teacher_accounts": teacher_accounts,
-            "teacher_username": teacher_invite_state["teacher_username"],
-            "teacher_email": teacher_invite_state["teacher_email"],
-            "teacher_first_name": teacher_invite_state["teacher_first_name"],
-            "teacher_last_name": teacher_invite_state["teacher_last_name"],
-            "teacher_invite_active": teacher_invite_state["teacher_invite_active"],
-            "data_lifespan_enabled": bool(request.user.is_superuser or staff_can_export_syllabi(request.user)),
-            "initial_top_tab": initial_tab,
-            "profile_first_name": profile_state["profile_first_name"],
-            "profile_last_name": profile_state["profile_last_name"],
-            "profile_email": profile_state["profile_email"],
-            "org_name": org_state["org_name"],
-            "org_membership_org_id": org_state["org_membership_org_id"],
-            "org_membership_user_id": org_state["org_membership_user_id"],
-            "org_membership_role": org_state["org_membership_role"] or OrganizationMembership.ROLE_TEACHER,
-            "org_membership_active": org_state["org_membership_active"],
-            "org_rolecap_org_id": org_state["org_rolecap_org_id"],
-            "org_rolecap_role": org_state["org_rolecap_role"] or OrganizationMembership.ROLE_TEACHER,
-            "org_rolecap_capability": (
-                org_state["org_rolecap_capability"] or OrganizationRoleCapability.CAP_CLASS_VIEW
-            ),
-            "org_rolecap_active": org_state["org_rolecap_active"],
-            "org_membership_mode": staff_has_explicit_memberships(request.user),
-            **syllabus_export_state,
-            **org_admin_context,
-            **rbac_tools_context,
-            **operator_config_snapshot,
-        },
+        context,
     )
     apply_no_store(response, private=True, pragma=True)
     return response

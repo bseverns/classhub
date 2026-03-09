@@ -208,6 +208,12 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
 ## Teacher portal routes
 
 - `/teach`:
+  - portal mode switcher (`?portal_mode=`) to reduce visible surface density per session:
+    - `all` (default): full cockpit
+    - `day`: day-of-class surfaces only (focus + digest + closeout + recent submissions)
+    - `setup`: setup/import/template surfaces only
+    - `admin`: superuser-only organization/operator surfaces
+    - `policy`: RBAC/operator policy surfaces (superuser or RBAC-enabled staff)
   - class list
   - one-click `Copy` for class join codes
   - superuser-only operator config snapshot card:
