@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
+from django.contrib.auth import get_user_model
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.db import connection
 from django.http import HttpResponse
@@ -20,7 +21,7 @@ from django.utils import timezone
 from common.request_safety import fixed_window_allow, token_bucket_allow
 
 from .middleware import StudentSessionMiddleware
-from .models import Class, Material, StudentEvent, StudentIdentity, Submission
+from .models import Class, ClassStaffAssignment, Material, Module, StudentEvent, StudentIdentity, Submission
 from .services.markdown_content import (
     load_course_manifest,
     load_lesson_markdown,
@@ -59,6 +60,7 @@ from .services.teacher_tracker import (
     _build_lesson_tracker_rows,
 )
 from .services.teacher_home_templates import generate_authoring_templates_from_form
+from .services.teacher_home_context_data import build_teacher_home_context_data
 from .services.upload_policy import (
     front_matter_submission,
     parse_extensions,
@@ -207,6 +209,57 @@ class TeacherHomeTemplatesServiceTests(SimpleTestCase):
             out_dir=Path("/tmp/template-out"),
             overwrite=True,
         )
+
+
+class TeacherHomeContextDataServiceTests(TestCase):
+    def setUp(self):
+        self.staff = get_user_model().objects.create_user(
+            username="teacher_home_ctx",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        self.class_a = Class.objects.create(name="Context Class A", join_code="CTXA1234")
+        self.class_b = Class.objects.create(name="Context Class B", join_code="CTXB1234")
+        ClassStaffAssignment.objects.create(classroom=self.class_b, user=self.staff, is_active=True)
+        module = Module.objects.create(classroom=self.class_b, title="Session 1", order_index=0)
+        material = Material.objects.create(
+            module=module,
+            title="Upload",
+            type=Material.TYPE_UPLOAD,
+            accepted_extensions=".sb3",
+            max_upload_mb=25,
+            order_index=0,
+        )
+        student = StudentIdentity.objects.create(classroom=self.class_b, display_name="Ada")
+        self.submission = Submission.objects.create(
+            material=material,
+            student=student,
+            original_filename="ada.sb3",
+            file=_sample_sb3_upload(),
+        )
+
+    def test_build_teacher_home_context_data_returns_ranked_classes_and_submission_feed(self):
+        context = build_teacher_home_context_data(user=self.staff)
+
+        self.assertEqual([c.id for c in context["assigned_classes"]], [self.class_b.id])
+        self.assertIn(self.class_b.id, context["assigned_class_ids"])
+        self.assertEqual(int(context["recent_submissions"][0].id), int(self.submission.id))
+        self.assertTrue(any(int(c.id) == int(self.class_a.id) for c in context["classes"]))
+        self.assertTrue(any(int(c.id) == int(self.class_b.id) for c in context["classes"]))
+        self.assertEqual(context["teacher_accounts"].model, get_user_model())
+
+    def test_build_teacher_home_context_data_returns_empty_feed_for_user_without_classes(self):
+        outsider = get_user_model().objects.create_user(
+            username="teacher_home_outsider",
+            password="pw12345",
+            is_staff=False,
+        )
+        context = build_teacher_home_context_data(user=outsider)
+        self.assertEqual(list(context["classes"]), [])
+        self.assertEqual(context["assigned_class_ids"], set())
+        self.assertEqual(context["assigned_classes"], [])
+        self.assertEqual(context["recent_submissions"], [])
 
 
 class HelperControlServiceTests(SimpleTestCase):

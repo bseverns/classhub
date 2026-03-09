@@ -10,7 +10,6 @@ from .content_home_context import (
     _read_portal_mode,
     _read_profile_state,
     _read_teacher_invite_state,
-    _recent_submissions_for_class_ids,
     _resolve_initial_top_tab,
     _tab_for_portal_mode,
 )
@@ -21,6 +20,7 @@ from .content_rbac_tools import (
     rbac_tools_requested,
 )
 from .content_syllabus_exports import build_syllabus_export_state
+from ...services.teacher_home_context_data import build_teacher_home_context_data
 from ...services.teacher_home_templates import generate_authoring_templates_from_form
 from .shared import (
     FileResponse,
@@ -29,7 +29,6 @@ from .shared import (
     _TEMPLATE_SLUG_RE,
     _audit,
     _authoring_template_output_dir,
-    _build_class_digest_rows,
     _parse_positive_int,
     _resolve_authoring_template_download_path,
     _safe_internal_redirect,
@@ -37,14 +36,10 @@ from .shared import (
     apply_download_safety,
     apply_no_store,
     generate_authoring_templates,
-    get_user_model,
     render,
     require_POST,
     safe_attachment_filename,
-    staff_accessible_classes_ranked,
     staff_member_required,
-    timedelta,
-    timezone,
 )
 
 
@@ -86,32 +81,27 @@ def teach_home(request):
         user=request.user,
         rbac_tools_enabled=rbac_tools_enabled,
     )
-    classes, assigned_class_ids = staff_accessible_classes_ranked(request.user)
-    assigned_classes = [c for c in classes if c.id in assigned_class_ids]
-    digest_since = timezone.now() - timedelta(days=1)
-    class_digest_rows = _build_class_digest_rows(classes, since=digest_since)
-    User = get_user_model()
-    teacher_accounts = (
-        User.objects.filter(is_staff=True)
-        .order_by("username", "id")
-        .only("id", "username", "first_name", "last_name", "email", "is_active", "is_superuser")
-    )
-    class_ids = [int(c.id) for c in classes]
-    recent_submissions = _recent_submissions_for_class_ids(class_ids)
+    context_data = build_teacher_home_context_data(user=request.user)
+    classes = context_data["classes"]
     output_dir = _authoring_template_output_dir()
     template_download_rows = _build_template_download_rows(template_slug, output_dir)
     syllabus_export_state = build_syllabus_export_state(request)
-    org_admin_context = _build_org_admin_context(user=request.user, user_model=User, org_state=org_state, classes=classes)
+    org_admin_context = _build_org_admin_context(
+        user=request.user,
+        user_model=context_data["user_model"],
+        org_state=org_state,
+        classes=classes,
+    )
     rbac_tools_context = build_rbac_tools_context(request=request, classes=classes)
     operator_config_snapshot = build_operator_config_snapshot(user=request.user)
     context = {
         **_build_teach_home_class_context(
             classes=classes,
-            assigned_class_ids=assigned_class_ids,
-            assigned_classes=assigned_classes,
-            class_digest_rows=class_digest_rows,
-            digest_since=digest_since,
-            recent_submissions=recent_submissions,
+            assigned_class_ids=context_data["assigned_class_ids"],
+            assigned_classes=context_data["assigned_classes"],
+            class_digest_rows=context_data["class_digest_rows"],
+            digest_since=context_data["digest_since"],
+            recent_submissions=context_data["recent_submissions"],
             notice=notice,
             error=error,
             template_slug=template_slug,
@@ -128,7 +118,7 @@ def teach_home(request):
         ),
         **_build_teach_home_staff_context(
             request=request,
-            teacher_accounts=teacher_accounts,
+            teacher_accounts=context_data["teacher_accounts"],
             teacher_invite_state=teacher_invite_state,
             profile_state=profile_state,
             org_state=org_state,
