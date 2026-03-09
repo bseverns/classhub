@@ -28,7 +28,7 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 
 extra_javascript:
-  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+  - javascripts/vendor/mermaid.min.js?v=10.9.4
   - javascripts/nav-accordion.js?v=2
   - javascripts/mermaid-init.js
 extra_css:

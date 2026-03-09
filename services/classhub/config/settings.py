@@ -273,7 +273,9 @@ CLASSHUB_OPERATOR_PROFILE = {
     "privacy_promise_text": CLASSHUB_PRIVACY_PROMISE_TEXT,
     "admin_label": CLASSHUB_ADMIN_LABEL,
 }
-REQUIRE_ORG_MEMBERSHIP_FOR_STAFF = env.bool("REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", default=False)
+# Production-safe default: require active org memberships for non-superuser
+# staff unless an operator explicitly opts into migration/local fallback.
+REQUIRE_ORG_MEMBERSHIP_FOR_STAFF = env.bool("REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", default=True)
 CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED = env.bool("CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED", default=False)
 CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED = env.bool("CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED", default=False)
 CLASSHUB_PROGRAM_PROFILE = (env("CLASSHUB_PROGRAM_PROFILE", default="secondary").strip().lower() or "secondary")

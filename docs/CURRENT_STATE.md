@@ -29,7 +29,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Facilitator CLI (`hubctl`) is live from repo tooling for teacher API class controls (`tools/hubctl/`).
 - Security and ops guardrails are live in CI (smoke, migration gate, endpoint guard checks, view-size/function budgets, workflow lint).
 - Q2-Q3 ecosystem milestones are complete; implementation status now lives here and in feature-specific docs (the temporary milestones plan doc is retired).
-- Telemetry split Phase 1 Slice 0/1/2/3 scaffolding is live (validated telemetry mode envs, optional telemetry DB registration in settings, telemetry router + dedicated `hub_telemetry` schema app, centralized dual-write service seam for event/outcome emit paths, and baseline split-write instrumentation counters/log fields).
+- Telemetry split Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is live (validated telemetry mode envs, optional telemetry DB registration in settings, telemetry router + dedicated `hub_telemetry` schema app, centralized dual-write service seam for event/outcome emit paths, read abstraction for support/rollup/lifespan event queries, baseline split-write instrumentation counters/log fields, an idempotent `backfill_telemetry_events` command with dry-run/batch resume controls, and a strict `check_telemetry_parity` command for cutover gates). Slice 7 evidence tooling is available via `scripts/telemetry_stabilization_evidence.sh`; release-cycle evidence capture is still pending.
 
 ## Deployment and reliability posture
 - Day-1 local mode: `compose/Caddyfile.local` over HTTP.
@@ -52,6 +52,14 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - RBAC delegated approval workflow remains feature-flagged for controlled rollout.
 - Async/self-paced sequencing exists as an RFC direction; synchronous teacher-led flow remains the default operation model.
 - Some docs and screenshots are placeholders and are still being refreshed in the press kit shotlist.
+
+## Screenshot evidence status
+- Canonical gallery: [SCREENSHOT_GALLERY.md](SCREENSHOT_GALLERY.md).
+- Capture plan and ownership: `press/screenshots/SHOTLIST.md`.
+- Placeholder inventory: `press/screenshots/PLACEHOLDERS.md`.
+- Interpretation:
+  - `Live capture`: screenshot reflects current `main`.
+  - `Placeholder`: feature is live, screenshot refresh is pending.
 
 ## Where to look next
 - Strategy and rationale: [DECISIONS.md](DECISIONS.md)

@@ -57,15 +57,18 @@ flowchart LR
 7. Keep `DJANGO_TEACHER_2FA_REQUIRED=1`.
 8. Set deployment timezone (for lesson release dates):
    - `DJANGO_TIME_ZONE=America/Chicago` (or your local timezone)
-9. If using separate asset subdomain under same parent domain, set cookie domains:
+9. Keep strict staff org boundary in production:
+   - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`
+   - use `0` only for local/dev or time-boxed migration.
+10. If using separate asset subdomain under same parent domain, set cookie domains:
    - `DJANGO_SESSION_COOKIE_DOMAIN=.yourdomain.tld`
    - `DJANGO_CSRF_COOKIE_DOMAIN=.yourdomain.tld`
-10. Validate secrets and guardrails:
+11. Validate secrets and guardrails:
    - `bash scripts/validate_env_secrets.sh`
-11. Confirm edge request size limits are set:
+12. Confirm edge request size limits are set:
    - `CADDY_CLASSHUB_MAX_BODY`
    - `CADDY_HELPER_MAX_BODY`
-12. Set a strong cross-service event token:
+13. Set a strong cross-service event token:
    - `CLASSHUB_INTERNAL_EVENTS_TOKEN`
 
 ## Authentication and authorization boundaries
@@ -75,7 +78,7 @@ flowchart LR
 - `/teach/*` requires OTP-verified staff session when `DJANGO_TEACHER_2FA_REQUIRED=1`.
 - Superusers should be limited to operational tasks.
 - Optional hard org boundary:
-  - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1` blocks staff with no active org memberships from class listing/access.
+  - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1` is the production-safe default and blocks staff with no active org memberships from class listing/access.
 - Operational guide for inside-org vs cross-org behavior:
   - [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md)
 - Helper chat requires either:

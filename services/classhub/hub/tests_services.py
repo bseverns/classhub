@@ -1,5 +1,7 @@
 import zipfile
 import tempfile
+import urllib.error
+from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
@@ -17,7 +19,7 @@ from django.utils import timezone
 from common.request_safety import fixed_window_allow, token_bucket_allow
 
 from .middleware import StudentSessionMiddleware
-from .models import Class, Material, StudentEvent, StudentIdentity
+from .models import Class, Material, StudentEvent, StudentIdentity, Submission
 from .services.markdown_content import (
     load_course_manifest,
     load_lesson_markdown,
@@ -32,13 +34,24 @@ from .services.content_links import (
     parse_course_lesson_url,
     youtube_embed_url,
 )
+from .services.data_lifespan import (
+    _count_event_policy_overdue_rows,
+    _count_submission_policy_overdue_rows,
+)
 from .services.filenames import safe_filename
+from .services.helper_control import (
+    _safe_json_dict,
+    _safe_reference_rows,
+    fetch_rag_status,
+)
+from .services.helper_topics import build_allowed_topics, build_lesson_topics, split_helper_topics_text
 from .services.ip_privacy import minimize_student_event_ip
 from .services.release_state import (
     lesson_available_on,
     lesson_release_state,
     parse_release_date,
 )
+from .services.teacher_roster_class import build_dashboard_context
 from .services.teacher_tracker import (
     _build_class_digest_rows,
     _build_helper_signal_snapshot,
@@ -50,7 +63,11 @@ from .services.upload_policy import (
 )
 from .services.upload_scan import scan_uploaded_file
 from .services.upload_validation import validate_upload_content
-from .services.ui_density import default_ui_density_mode, resolve_ui_density_mode
+from .services.ui_density import (
+    default_ui_density_mode,
+    resolve_ui_density_mode,
+    resolve_ui_density_mode_for_modules,
+)
 from .services.zip_exports import (
     reserve_archive_path,
     temporary_zip_archive,
@@ -69,6 +86,9 @@ class UploadPolicyServiceTests(SimpleTestCase):
     def test_parse_extensions_normalizes_unique_list(self):
         self.assertEqual(parse_extensions("sb3, .PNG, .sb3"), [".sb3", ".png"])
 
+    def test_parse_extensions_ignores_blanks_and_preserves_first_seen_order(self):
+        self.assertEqual(parse_extensions(" , PNG, ,jpg, .png "), [".png", ".jpg"])
+
     def test_front_matter_submission_parses_pipe_or_csv(self):
         row = front_matter_submission(
             {
@@ -82,6 +102,117 @@ class UploadPolicyServiceTests(SimpleTestCase):
         self.assertEqual(row["type"], "file")
         self.assertEqual(row["accepted_exts"], [".sb3", ".png"])
         self.assertEqual(row["naming"], "studentname_session")
+
+    def test_front_matter_submission_returns_defaults_for_invalid_root(self):
+        self.assertEqual(
+            front_matter_submission(None),
+            {"type": "", "accepted_exts": [], "naming": ""},
+        )
+        self.assertEqual(
+            front_matter_submission("bad"),
+            {"type": "", "accepted_exts": [], "naming": ""},
+        )
+
+    def test_front_matter_submission_returns_defaults_for_invalid_submission_payload(self):
+        self.assertEqual(
+            front_matter_submission({"submission": "bad"}),
+            {"type": "", "accepted_exts": [], "naming": ""},
+        )
+
+    def test_front_matter_submission_normalizes_missing_optional_keys(self):
+        row = front_matter_submission({"submission": {"accepted": ["sb3", ".PNG", "sb3"]}})
+        self.assertEqual(row["type"], "")
+        self.assertEqual(row["accepted_exts"], [".sb3", ".png"])
+        self.assertEqual(row["naming"], "")
+
+
+class HelperControlServiceTests(SimpleTestCase):
+    def test_safe_json_dict_returns_empty_for_malformed_or_non_dict_json(self):
+        self.assertEqual(_safe_json_dict("not-json"), {})
+        self.assertEqual(_safe_json_dict("[]"), {})
+        self.assertEqual(_safe_json_dict('"token"'), {})
+
+    def test_safe_json_dict_returns_dict_for_valid_object_payload(self):
+        self.assertEqual(_safe_json_dict('{"ok": true, "count": 3}'), {"ok": True, "count": 3})
+
+    def test_safe_reference_rows_returns_empty_for_non_list(self):
+        self.assertEqual(_safe_reference_rows(None), [])
+        self.assertEqual(_safe_reference_rows("bad"), [])
+
+    def test_safe_reference_rows_normalizes_missing_and_invalid_fields(self):
+        rows = _safe_reference_rows(
+            [
+                "skip-me",
+                {
+                    "reference_key": "  alpha  ",
+                    "chunk_count": "7",
+                    "last_indexed_at": " 2026-03-06T10:00:00Z ",
+                },
+                {
+                    "chunk_count": -4,
+                },
+                {
+                    "reference_key": "x" * 120,
+                    "chunk_count": "NaN",
+                    "last_indexed_at": "y" * 120,
+                },
+            ]
+        )
+        self.assertEqual(
+            rows,
+            [
+                {
+                    "reference_key": "alpha",
+                    "chunk_count": 7,
+                    "last_indexed_at": "2026-03-06T10:00:00Z",
+                },
+                {
+                    "reference_key": "",
+                    "chunk_count": 0,
+                    "last_indexed_at": "",
+                },
+                {
+                    "reference_key": "x" * 80,
+                    "chunk_count": 0,
+                    "last_indexed_at": "y" * 64,
+                },
+            ],
+        )
+
+    def test_fetch_rag_status_returns_http_error_details(self):
+        http_error = urllib.error.HTTPError(
+            url="http://helper.internal/rag/status",
+            code=503,
+            msg="Service Unavailable",
+            hdrs=None,
+            fp=BytesIO(b'{"error":"helper_backoff"}'),
+        )
+        with patch(
+            "hub.services.helper_control.urllib.request.urlopen",
+            side_effect=http_error,
+        ):
+            result = fetch_rag_status(
+                endpoint_url="http://helper.internal/rag/status",
+                internal_token="token",
+                timeout_seconds=2.0,
+            )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.error_code, "helper_backoff")
+        self.assertEqual(result.status_code, 503)
+
+    def test_fetch_rag_status_returns_unreachable_on_url_error(self):
+        with patch(
+            "hub.services.helper_control.urllib.request.urlopen",
+            side_effect=urllib.error.URLError("connection refused"),
+        ):
+            result = fetch_rag_status(
+                endpoint_url="http://helper.internal/rag/status",
+                internal_token="token",
+                timeout_seconds=2.0,
+            )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.error_code, "helper_unreachable")
+        self.assertEqual(result.status_code, 0)
 
 
 class _FailingCache:
@@ -284,6 +415,103 @@ class UiDensityServiceTests(SimpleTestCase):
         self.assertEqual(mode, "compact")
 
 
+class UiDensityModulePrefetchTests(TestCase):
+    def test_resolve_ui_density_mode_for_modules_requires_prefetch(self):
+        classroom = Class.objects.create(name="Density No Prefetch", join_code="DEN10001")
+        classroom.modules.create(title="Session 1", order_index=0).materials.create(
+            title="Lesson Link",
+            type=Material.TYPE_LINK,
+            url="/course/demo/lesson-1",
+            order_index=0,
+        )
+        modules = list(classroom.modules.all())
+
+        with self.assertRaisesMessage(ValueError, "prefetch_related('materials')"):
+            resolve_ui_density_mode_for_modules(modules=modules, program_profile="secondary")
+
+    def test_resolve_ui_density_mode_for_modules_uses_prefetched_materials_without_db_reads(self):
+        classroom = Class.objects.create(name="Density Prefetch", join_code="DEN10002")
+        classroom.modules.create(title="Session 1", order_index=0).materials.create(
+            title="Lesson Link",
+            type=Material.TYPE_LINK,
+            url="/course/demo/lesson-1",
+            order_index=0,
+        )
+        modules = list(classroom.modules.prefetch_related("materials").all())
+
+        with CaptureQueriesContext(connection) as ctx:
+            mode = resolve_ui_density_mode_for_modules(modules=modules, program_profile="secondary")
+
+        self.assertEqual(mode, "standard")
+        self.assertEqual(len(ctx.captured_queries), 0)
+
+
+class TeacherRosterClassServiceTests(SimpleTestCase):
+    def test_build_dashboard_context_prefetches_modules_once(self):
+        class _FakeMaterialsRelation:
+            def __init__(self, materials):
+                self._materials = materials
+
+            def all(self):
+                return self._materials
+
+        class _FakeModulesManager:
+            def __init__(self, modules):
+                self._modules = modules
+                self.prefetch_calls = 0
+
+            def prefetch_related(self, *_args):
+                self.prefetch_calls += 1
+                return self
+
+            def all(self):
+                return self._modules
+
+        class _FakeStudentsManager:
+            def count(self):
+                return 0
+
+            def all(self):
+                return self
+
+            def order_by(self, *_args):
+                return []
+
+        module = SimpleNamespace(
+            id=1,
+            order_index=0,
+            title="Session 1",
+            materials=_FakeMaterialsRelation([]),
+        )
+        modules_manager = _FakeModulesManager([module])
+        classroom = SimpleNamespace(
+            id=1,
+            session_epoch=0,
+            modules=modules_manager,
+            students=_FakeStudentsManager(),
+        )
+
+        with patch.multiple(
+            "hub.services.teacher_roster_class",
+            _build_lesson_tracker_rows=lambda *args, **kwargs: [],
+            _build_helper_signal_snapshot=lambda *args, **kwargs: {},
+            _support_tag_choices=lambda: [],
+            _support_tags_by_student=lambda **kwargs: {},
+            _material_submission_counts=lambda *_args, **_kwargs: {},
+            _submission_counts_by_student=lambda **kwargs: {},
+            _build_facilitator_support_snapshot=lambda **kwargs: {},
+            _build_outcome_snapshot=lambda **kwargs: {},
+        ):
+            context = build_dashboard_context(
+                request=SimpleNamespace(),
+                classroom=classroom,
+                normalize_order_fn=lambda _modules: None,
+            )
+
+        self.assertEqual(modules_manager.prefetch_calls, 1)
+        self.assertEqual(len(context["modules"]), 1)
+
+
 class UploadScanServiceTests(SimpleTestCase):
     @override_settings(CLASSHUB_UPLOAD_SCAN_ENABLED=False)
     def test_scan_disabled_returns_disabled(self):
@@ -304,6 +532,7 @@ class UploadScanServiceTests(SimpleTestCase):
             run_mock.return_value.stderr = ""
             result = scan_uploaded_file(upload)
         self.assertEqual(result.status, "clean")
+        self.assertEqual(run_mock.call_args.kwargs.get("shell"), False)
 
     @override_settings(
         CLASSHUB_UPLOAD_SCAN_ENABLED=True,
@@ -318,6 +547,119 @@ class UploadScanServiceTests(SimpleTestCase):
             run_mock.return_value.stderr = ""
             result = scan_uploaded_file(upload)
         self.assertEqual(result.status, "infected")
+
+
+class DataLifespanServiceTests(TestCase):
+    @override_settings(CLASSHUB_TELEMETRY_READ_MODE="core")
+    def test_submission_overdue_count_uses_single_query_across_retention_groups(self):
+        now = timezone.now()
+        class_a = Class.objects.create(name="Retention A", join_code="RET10001")
+        class_b = Class.objects.create(name="Retention B", join_code="RET10002")
+        class_c = Class.objects.create(name="Retention C", join_code="RET10003")
+
+        material_rows: list[Material] = []
+        for classroom in (class_a, class_b, class_c):
+            module = classroom.modules.create(title="Session 1", order_index=0)
+            material_rows.append(
+                module.materials.create(
+                    title="Upload",
+                    type=Material.TYPE_UPLOAD,
+                    accepted_extensions=".sb3",
+                    max_upload_mb=50,
+                    order_index=0,
+                )
+            )
+        student_a = StudentIdentity.objects.create(classroom=class_a, display_name="Ada")
+        student_b = StudentIdentity.objects.create(classroom=class_b, display_name="Ben")
+        student_c = StudentIdentity.objects.create(classroom=class_c, display_name="Cy")
+
+        sub_a = Submission.objects.create(
+            material=material_rows[0],
+            student=student_a,
+            original_filename="a.sb3",
+            file=SimpleUploadedFile("a.sb3", b"a"),
+        )
+        sub_b_old = Submission.objects.create(
+            material=material_rows[1],
+            student=student_b,
+            original_filename="b-old.sb3",
+            file=SimpleUploadedFile("b-old.sb3", b"b-old"),
+        )
+        sub_b_new = Submission.objects.create(
+            material=material_rows[1],
+            student=student_b,
+            original_filename="b-new.sb3",
+            file=SimpleUploadedFile("b-new.sb3", b"b-new"),
+        )
+        sub_c = Submission.objects.create(
+            material=material_rows[2],
+            student=student_c,
+            original_filename="c.sb3",
+            file=SimpleUploadedFile("c.sb3", b"c"),
+        )
+        Submission.objects.filter(id=sub_a.id).update(uploaded_at=now - timedelta(days=40))
+        Submission.objects.filter(id=sub_b_old.id).update(uploaded_at=now - timedelta(days=70))
+        Submission.objects.filter(id=sub_b_new.id).update(uploaded_at=now - timedelta(days=10))
+        Submission.objects.filter(id=sub_c.id).update(uploaded_at=now - timedelta(days=80))
+
+        with CaptureQueriesContext(connection) as queries:
+            total = _count_submission_policy_overdue_rows(
+                grouped_submission_days={30: [class_a.id], 60: [class_b.id, class_c.id]},
+                now=now,
+            )
+        self.assertEqual(total, 3)
+        self.assertEqual(len(queries.captured_queries), 1)
+
+    @override_settings(CLASSHUB_TELEMETRY_READ_MODE="core")
+    def test_event_overdue_count_uses_single_query_with_fallback_group(self):
+        now = timezone.now()
+        class_a = Class.objects.create(name="Events A", join_code="RET20001")
+        class_b = Class.objects.create(name="Events B", join_code="RET20002")
+
+        event_a_old = StudentEvent.objects.create(
+            classroom=class_a,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        event_a_new = StudentEvent.objects.create(
+            classroom=class_a,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        event_b_old = StudentEvent.objects.create(
+            classroom=class_b,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        fallback_old = StudentEvent.objects.create(
+            classroom=None,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        fallback_new = StudentEvent.objects.create(
+            classroom=None,
+            event_type=StudentEvent.EVENT_CLASS_JOIN,
+            source="test",
+            details={},
+        )
+        StudentEvent.objects.filter(id=event_a_old.id).update(created_at=now - timedelta(days=40))
+        StudentEvent.objects.filter(id=event_a_new.id).update(created_at=now - timedelta(days=5))
+        StudentEvent.objects.filter(id=event_b_old.id).update(created_at=now - timedelta(days=70))
+        StudentEvent.objects.filter(id=fallback_old.id).update(created_at=now - timedelta(days=50))
+        StudentEvent.objects.filter(id=fallback_new.id).update(created_at=now - timedelta(days=10))
+
+        with CaptureQueriesContext(connection) as queries:
+            total = _count_event_policy_overdue_rows(
+                grouped_event_days={30: [class_a.id], 60: [class_b.id]},
+                fallback_event_days=45,
+                now=now,
+            )
+        self.assertEqual(total, 3)
+        self.assertEqual(len(queries.captured_queries), 1)
 
 
 class TeacherTrackerServiceTests(TestCase):
@@ -726,6 +1068,10 @@ class StudentSessionMiddlewareTests(TestCase):
 
 
 class IPPrivacyServiceTests(SimpleTestCase):
+    def test_minimize_student_event_ip_returns_empty_for_blank_and_invalid_ip(self):
+        self.assertEqual(minimize_student_event_ip(""), "")
+        self.assertEqual(minimize_student_event_ip("not-an-ip"), "")
+
     def test_minimize_student_event_ip_truncates_ipv4_by_default(self):
         self.assertEqual(minimize_student_event_ip("203.0.113.25"), "203.0.113.0")
 
@@ -739,6 +1085,62 @@ class IPPrivacyServiceTests(SimpleTestCase):
     @override_settings(CLASSHUB_STUDENT_EVENT_IP_MODE="none")
     def test_minimize_student_event_ip_can_disable_storage(self):
         self.assertEqual(minimize_student_event_ip("203.0.113.25"), "")
+
+    @override_settings(CLASSHUB_STUDENT_EVENT_IP_MODE="drop")
+    def test_minimize_student_event_ip_honors_drop_alias(self):
+        self.assertEqual(minimize_student_event_ip("203.0.113.25"), "")
+
+    @override_settings(CLASSHUB_STUDENT_EVENT_IP_MODE="disabled")
+    def test_minimize_student_event_ip_honors_disabled_alias(self):
+        self.assertEqual(minimize_student_event_ip("2001:db8::1"), "")
+
+    @override_settings(CLASSHUB_STUDENT_EVENT_IP_MODE="unexpected")
+    def test_minimize_student_event_ip_falls_back_to_truncate_for_unknown_mode(self):
+        self.assertEqual(minimize_student_event_ip("203.0.113.25"), "203.0.113.0")
+
+
+class HelperTopicsServiceTests(SimpleTestCase):
+    def test_build_lesson_topics_returns_empty_for_non_dict(self):
+        self.assertEqual(build_lesson_topics(None), [])
+        self.assertEqual(build_lesson_topics("bad"), [])
+
+    def test_build_lesson_topics_extracts_expected_sections(self):
+        topics = build_lesson_topics(
+            {
+                "makes": "Arcade game",
+                "needs": ["Scratch 3", " Keyboard ", ""],
+                "videos": [{"id": "V01"}, {"title": "Debug pass"}, {"foo": "skip"}],
+                "session": 4,
+                "helper_notes": ["Stay private", " Ask first ", ""],
+            }
+        )
+        self.assertEqual(
+            topics,
+            [
+                "Makes: Arcade game",
+                "Needs: Scratch 3, Keyboard",
+                "Videos: V01, Debug pass",
+                "Session: 4",
+                "Notes: Stay private, Ask first",
+            ],
+        )
+
+    def test_build_allowed_topics_accepts_pipe_string_and_list(self):
+        self.assertEqual(
+            build_allowed_topics({"helper_allowed_topics": "debug|loops | sprites"}),
+            ["debug", "loops", "sprites"],
+        )
+        self.assertEqual(
+            build_allowed_topics({"allowed_topics": ["debug", " sprites ", ""]}),
+            ["debug", "sprites"],
+        )
+
+    def test_split_helper_topics_text_splits_newlines_and_pipe_delimiters(self):
+        raw = "Debug loops | Add sprite\r\nFix bug|\n |Share build\rRetest"
+        self.assertEqual(
+            split_helper_topics_text(raw),
+            ["Debug loops", "Add sprite", "Fix bug", "Share build", "Retest"],
+        )
 
 
 class SyllabusIngestSecurityTests(SimpleTestCase):

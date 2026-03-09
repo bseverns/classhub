@@ -24,6 +24,7 @@ from ..models import (
 from .content_links import parse_course_lesson_url
 from .filenames import safe_filename
 from .markdown_content import load_lesson_markdown
+from .telemetry_reads import student_events_queryset, student_outcome_events_queryset
 from .teacher_tracker import _build_helper_signal_snapshot, _build_lesson_tracker_rows
 from .zip_exports import (
     reserve_archive_path,
@@ -115,7 +116,7 @@ def build_certificate_eligibility_rows(
     milestones_by_student: dict[int, int] = {}
     if student_ids:
         for row in (
-            StudentOutcomeEvent.objects.filter(classroom=classroom, student_id__in=student_ids)
+            student_outcome_events_queryset().filter(classroom_id=int(classroom.id), student_id__in=student_ids)
             .values("student_id", "event_type")
             .annotate(total=models.Count("id"))
         ):
@@ -173,7 +174,7 @@ def _build_outcome_snapshot(*, classroom, students: list[StudentIdentity]) -> di
     milestones_by_student: dict[int, int] = {}
     if student_ids:
         for row in (
-            StudentOutcomeEvent.objects.filter(student_id__in=student_ids)
+            student_outcome_events_queryset().filter(student_id__in=student_ids)
             .values("student_id", "event_type")
             .annotate(total=models.Count("id"))
         ):
@@ -187,23 +188,23 @@ def _build_outcome_snapshot(*, classroom, students: list[StudentIdentity]) -> di
             elif event_type == StudentOutcomeEvent.EVENT_MILESTONE_EARNED:
                 milestones_by_student[student_id] = total
 
-    total_sessions = StudentOutcomeEvent.objects.filter(
-        classroom=classroom,
+    total_sessions = student_outcome_events_queryset().filter(
+        classroom_id=int(classroom.id),
         event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
     ).count()
-    total_artifacts = StudentOutcomeEvent.objects.filter(
-        classroom=classroom,
+    total_artifacts = student_outcome_events_queryset().filter(
+        classroom_id=int(classroom.id),
         event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
     ).count()
-    total_milestones = StudentOutcomeEvent.objects.filter(
-        classroom=classroom,
+    total_milestones = student_outcome_events_queryset().filter(
+        classroom_id=int(classroom.id),
         event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
     ).count()
     active_students = (
-        StudentOutcomeEvent.objects.filter(
-            classroom=classroom,
+        student_outcome_events_queryset().filter(
+            classroom_id=int(classroom.id),
             created_at__gte=active_since,
-            student__isnull=False,
+            student_id__isnull=False,
         )
         .values("student_id")
         .distinct()
@@ -277,9 +278,9 @@ def _build_facilitator_support_snapshot(*, classroom, students: list[StudentIden
         StudentEvent.EVENT_MICRO_CHECK_STUCK,
         StudentEvent.EVENT_MICRO_CHECK_TAUGHT_SOMEONE,
     }
-    activity_events = StudentEvent.objects.filter(
-        classroom=classroom,
-        student__isnull=False,
+    activity_events = student_events_queryset().filter(
+        classroom_id=int(classroom.id),
+        student_id__isnull=False,
         event_type__in=list(micro_event_types | {StudentEvent.EVENT_MICRO_CHECK_STUCK_RESOLVED}),
     ).only("student_id", "event_type", "details", "created_at").order_by("-created_at", "-id")
 
@@ -328,9 +329,9 @@ def _build_facilitator_support_snapshot(*, classroom, students: list[StudentIden
     )
 
     delete_request_events = (
-        StudentEvent.objects.filter(
-            classroom=classroom,
-            student__isnull=False,
+        student_events_queryset().filter(
+            classroom_id=int(classroom.id),
+            student_id__isnull=False,
             event_type__in=[
                 StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST,
                 StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST_RESOLVED,
@@ -383,10 +384,10 @@ def _build_facilitator_support_snapshot(*, classroom, students: list[StudentIden
     upload_error_limit = _int_setting("CLASSHUB_UPLOAD_ERROR_FEED_LIMIT", 10)
     upload_error_rows: list[dict] = []
     recent_upload_errors = (
-        StudentEvent.objects.filter(
-            classroom=classroom,
+        student_events_queryset().filter(
+            classroom_id=int(classroom.id),
             event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD_ERROR,
-            student__isnull=False,
+            student_id__isnull=False,
         )
         .only("student_id", "details", "created_at")
         .order_by("-created_at", "-id")[:upload_error_limit]
@@ -446,7 +447,6 @@ def build_dashboard_context(*, request, classroom, normalize_order_fn) -> dict:
     modules = list(classroom.modules.prefetch_related("materials").all())
     modules.sort(key=lambda module: (module.order_index, module.id))
     normalize_order_fn(modules)
-    modules = list(classroom.modules.prefetch_related("materials").all())
     modules.sort(key=lambda module: (module.order_index, module.id))
 
     upload_material_ids: list[int] = []
@@ -550,16 +550,16 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
     )
     student_ids = [int(student.id) for student in students]
 
-    joins_total = StudentEvent.objects.filter(
-        classroom=classroom,
+    joins_total = student_events_queryset().filter(
+        classroom_id=int(classroom.id),
         event_type=StudentEvent.EVENT_CLASS_JOIN,
     ).count()
-    rejoins_total = StudentEvent.objects.filter(
-        classroom=classroom,
+    rejoins_total = student_events_queryset().filter(
+        classroom_id=int(classroom.id),
         event_type__in=[StudentEvent.EVENT_REJOIN_DEVICE_HINT, StudentEvent.EVENT_REJOIN_RETURN_CODE],
     ).count()
-    helper_access_total = StudentEvent.objects.filter(
-        classroom=classroom,
+    helper_access_total = student_events_queryset().filter(
+        classroom_id=int(classroom.id),
         event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
     ).count()
     active_students = StudentIdentity.objects.filter(
@@ -578,7 +578,7 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
 
     joins_by_student: dict[int, int] = {}
     for row in (
-        StudentEvent.objects.filter(
+        student_events_queryset().filter(
             student_id__in=student_ids,
             event_type=StudentEvent.EVENT_CLASS_JOIN,
         )
@@ -589,7 +589,7 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
 
     helper_by_student: dict[int, int] = {}
     for row in (
-        StudentEvent.objects.filter(
+        student_events_queryset().filter(
             student_id__in=student_ids,
             event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
         )
@@ -798,7 +798,7 @@ def export_class_outcomes_csv(
     milestones_by_student: dict[int, int] = {}
     if student_ids:
         for row in (
-            StudentOutcomeEvent.objects.filter(student_id__in=student_ids)
+            student_outcome_events_queryset().filter(student_id__in=student_ids)
             .values("student_id", "event_type")
             .annotate(total=models.Count("id"))
         ):
@@ -815,7 +815,7 @@ def export_class_outcomes_csv(
     outcome_windows: dict[int, tuple[str, str]] = {}
     if student_ids:
         for row in (
-            StudentOutcomeEvent.objects.filter(student_id__in=student_ids)
+            student_outcome_events_queryset().filter(student_id__in=student_ids)
             .values("student_id")
             .annotate(first=models.Min("created_at"), last=models.Max("created_at"))
         ):
@@ -827,23 +827,23 @@ def export_class_outcomes_csv(
                 last.isoformat() if last else "",
             )
 
-    class_sessions_total = StudentOutcomeEvent.objects.filter(
-        classroom=classroom,
+    class_sessions_total = student_outcome_events_queryset().filter(
+        classroom_id=int(classroom.id),
         event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
     ).count()
-    class_artifacts_total = StudentOutcomeEvent.objects.filter(
-        classroom=classroom,
+    class_artifacts_total = student_outcome_events_queryset().filter(
+        classroom_id=int(classroom.id),
         event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
     ).count()
-    class_milestones_total = StudentOutcomeEvent.objects.filter(
-        classroom=classroom,
+    class_milestones_total = student_outcome_events_queryset().filter(
+        classroom_id=int(classroom.id),
         event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
     ).count()
     class_active_outcome_students = (
-        StudentOutcomeEvent.objects.filter(
-            classroom=classroom,
+        student_outcome_events_queryset().filter(
+            classroom_id=int(classroom.id),
             created_at__gte=active_since,
-            student__isnull=False,
+            student_id__isnull=False,
         )
         .values("student_id")
         .distinct()
