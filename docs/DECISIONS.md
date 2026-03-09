@@ -2333,3 +2333,27 @@ Execution ownership and gates:
 - Reduces first-contact cognitive load in `/teach` without removing existing capability.
 - Preserves backward compatibility (`/teach` default remains full cockpit).
 - Aligns with stability-plan constraints to simplify entry-path complexity before adding net-new surface area.
+
+## Strict org-boundary compatibility for legacy unscoped classes
+
+**Current decision:**
+- Keep strict org-boundary behavior for org-scoped classes when `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`.
+- Preserve access fallback for legacy classes with no organization (`organization_id is null`) so existing class operations still work during migration.
+- Permit `class.create` for staff without memberships only when there are zero active organizations, to support bootstrap/day-0 setup before org memberships exist.
+
+**Why this remains active:**
+- Prevents operational lockouts for legacy unscoped classes while still enforcing strict boundaries on org-scoped data.
+- Preserves a controlled bootstrap path for first-run deployments without reopening broad legacy fallback once organizations are configured.
+
+## Teacher home view-size guard split
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/content_home.py` focused on endpoints only.
+- Move home-page state/context builders into:
+  - `services/classhub/hub/views/teacher_parts/content_home_context.py`
+  - `services/classhub/hub/views/teacher_parts/content_home_org_admin.py`
+- Preserve behavior and template contract while satisfying `scripts/check_view_size_budgets.py` limits.
+
+**Why this remains active:**
+- Keeps view modules below dense-size thresholds so future changes stay reviewable.
+- Reduces coupling by separating request handlers from context construction logic.

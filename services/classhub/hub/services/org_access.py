@@ -136,7 +136,9 @@ def staff_accessible_classes_queryset(user) -> QuerySet[Class]:
     memberships = _active_memberships_queryset(user)
     if not memberships.exists():
         if _require_org_membership_for_staff():
-            return Class.objects.none()
+            # Strict boundary mode still exposes legacy unscoped classes so
+            # older deployments can operate while org bindings are completed.
+            return Class.objects.filter(organization__isnull=True)
         return Class.objects.all()
     org_ids = memberships.values_list("organization_id", flat=True)
     return Class.objects.filter(organization_id__in=org_ids)
@@ -376,9 +378,29 @@ def evaluate_staff_capability(
             module_id=module_scope_id,
         )
 
+    if classroom is not None and classroom.organization_id is None:
+        # Preserve management access for legacy classes that predate org
+        # boundaries. These classes are unscoped by design until migrated.
+        allowed = normalized_capability in _LEGACY_CAPABILITIES_WITHOUT_MEMBERSHIPS
+        return StaffCapabilityDecision(
+            allowed=allowed,
+            capability=normalized_capability,
+            reason="legacy_unscoped_classroom_fallback" if allowed else "legacy_unscoped_classroom_denied",
+            classroom_id=classroom_id,
+            module_id=module_scope_id,
+        )
+
     memberships = _active_memberships_queryset(user)
     if not memberships.exists():
         if _require_org_membership_for_staff():
+            if normalized_capability == CAP_CLASS_CREATE and not Organization.objects.filter(is_active=True).exists():
+                return StaffCapabilityDecision(
+                    allowed=True,
+                    capability=normalized_capability,
+                    reason="bootstrap_no_organizations",
+                    classroom_id=classroom_id,
+                    module_id=module_scope_id,
+                )
             return StaffCapabilityDecision(
                 allowed=False,
                 capability=normalized_capability,
