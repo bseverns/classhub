@@ -53,6 +53,14 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Async/self-paced sequencing exists as an RFC direction; synchronous teacher-led flow remains the default operation model.
 - Some docs and screenshots are placeholders and are still being refreshed in the press kit shotlist.
 
+## Screenshot evidence status
+- Canonical gallery: [SCREENSHOT_GALLERY.md](SCREENSHOT_GALLERY.md).
+- Capture plan and ownership: `press/screenshots/SHOTLIST.md`.
+- Placeholder inventory: `press/screenshots/PLACEHOLDERS.md`.
+- Interpretation:
+  - `Live capture`: screenshot reflects current `main`.
+  - `Placeholder`: feature is live, screenshot refresh is pending.
+
 ## Where to look next
 - Strategy and rationale: [DECISIONS.md](DECISIONS.md)
 - Operator onboarding: [START_HERE.md](START_HERE.md)

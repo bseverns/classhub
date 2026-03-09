@@ -2288,3 +2288,24 @@ Execution ownership and gates:
 - Preserves required signal hookup behavior while eliminating style/lint noise.
 - Closes identifier-interpolation risk in raw SQL paths even if future table-name configuration becomes dynamic.
 - Keeps security posture inspectable through explicit tests instead of relying on assumptions about constant-only inputs.
+
+## Canonical docs front door + strict production org-boundary defaults
+
+**Current decision:**
+- Consolidate repository onboarding around one canonical front-door contract:
+  - `README.md` is the repo entrypoint (quick start + high-level architecture).
+  - `docs/START_HERE.md` is the role router.
+  - `docs/PUBLIC_OVERVIEW.md` is external evaluator/funder framing.
+  - `docs/CURRENT_STATE.md` is shipped-state evidence for `main`.
+- Remove overlapping README onboarding/architecture blocks so there is a single source of truth for first-read paths.
+- Standardize top-level product naming in front-door docs as **Class Hub**.
+- Change `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` runtime default to `True` in Class Hub settings.
+- Keep explicit fallback posture only where intended:
+  - `compose/.env.example.local` and local/day-1 presets keep `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0`.
+  - `compose/.env.example.domain` sets `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`.
+- Align teacher/security/deploy/maturity docs with this posture and add explicit screenshot-status guidance in `CURRENT_STATE.md`.
+
+**Why this remains active:**
+- Reduces docs drift risk by giving each front-door document one ownership role.
+- Makes the public-deploy path secure by default while preserving practical migration/local escape hatches.
+- Improves external evaluator trust by making screenshot evidence state explicit instead of implicit.

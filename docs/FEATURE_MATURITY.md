@@ -23,7 +23,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | `CLASSHUB_PROGRAM_PROFILE` | `secondary` | ClassHub + Helper behavior defaults | Baseline pacing + helper policy defaults. |
 | `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED` | `0` | Student shell constraints | Enables kiosk route allowlist + focused student navigation shell. |
 | `CLASSHUB_STUDENT_KIOSK_DEFAULT` | `0` | Student shell default mode | Forces kiosk mode on by default unless toggled off per device. |
-| `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` | `0` | ClassHub access control | Controls whether staff without active org membership can access classes. |
+| `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` | `1` in production presets (`0` in local/dev preset) | ClassHub access control | Controls whether staff without active org membership can access classes. |
 | `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED` | `0` | RBAC evaluator behavior | Enables module-range scoped grant enforcement. |
 | `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED` | `0` | RBAC mutation workflow | Routes RBAC writes into approval queue instead of immediate apply. |
 | `CLASSHUB_TELEMETRY_DATABASE_URL` + `CLASSHUB_TELEMETRY_WRITE_MODE` + `CLASSHUB_TELEMETRY_READ_MODE` | URL unset / `off` / `core` | Telemetry split rollout controls | Reserved for staged telemetry DB split rollout; non-default modes require explicit parity/rollback validation. |

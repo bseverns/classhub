@@ -7,6 +7,10 @@ This guide covers:
 
 ## Visual references
 
+Capture status:
+- `Live`: captured from current `main`.
+- `Placeholder`: planned capture; view is live but screenshot refresh is pending.
+
 Current captures:
 
 ![Teacher dashboard](images/press/03-teacher-dashboard.png)
@@ -51,8 +55,8 @@ flowchart TD
   - superusers can access all classes.
   - staff with active org memberships can access classes in those orgs.
   - staff with no active org memberships follow `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF`:
-    - `0` (default): legacy fallback allows global class access.
-    - `1`: no class access until an active org membership exists.
+    - `1` (production default): no class access until an active org membership exists.
+    - `0` (local/dev or migration fallback): legacy global class access.
 - Assigned classes appear first in `/teach` and `/teach/lessons`, but assignments do not reduce org-level access.
 - Detailed org-boundary examples: [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md).
 

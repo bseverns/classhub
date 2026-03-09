@@ -27,11 +27,12 @@ This register names the five highest long-term maintenance risks visible in the 
 - Owner role: Maintainer + Ops Director
 - Cadence: Monthly
 
-## Risk 2: Org boundary behavior is policy-sensitive and permissive by default
+## Risk 2: Org boundary behavior is policy-sensitive and can be weakened by fallback mode
 
-- Risk title: Staff access can drift because org strict mode is optional
+- Risk title: Staff access can drift if org boundary fallback is enabled
 - Evidence:
-  - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` defaults to false: `services/classhub/config/settings.py:227`
+  - production-safe default is strict (`REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`): `services/classhub/config/settings.py`
+  - local/dev presets keep fallback mode available (`REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0`): `compose/.env.example.local`
   - if staff have no active memberships and strict mode is off, they retain global class access: `services/classhub/hub/services/org_access.py:48-55`, `:122-127`, `:140-150`
   - docs describe this as legacy fallback: [TEACHER_PORTAL.md](TEACHER_PORTAL.md), [SECURITY.md](SECURITY.md), [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
 - Failure mode:

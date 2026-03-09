@@ -1,7 +1,11 @@
 """Organization-scoped staff access helpers.
 
-Legacy compatibility:
-- Staff users without explicit org memberships keep global class access.
+Default posture:
+- Production-safe mode requires active org memberships for staff class access.
+
+Fallback compatibility:
+- If `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0`, staff users without memberships keep
+  legacy global class access.
 - Once a user has active org memberships, class access is restricted to those orgs.
 """
 
