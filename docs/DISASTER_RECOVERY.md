@@ -10,6 +10,10 @@ bash scripts/backup_restore_rehearsal.sh --compose-mode prod
 
 Run this periodically so backup+restore is tested before an incident.
 
+Automation path:
+- `.github/workflows/restore-rehearsal.yml` runs weekly and on manual dispatch.
+- Each run uploads rehearsal evidence artifacts (log, metrics, backup checksums) for auditability.
+
 ```mermaid
 flowchart TD
   A[Provision fresh server] --> B[Clone repo]

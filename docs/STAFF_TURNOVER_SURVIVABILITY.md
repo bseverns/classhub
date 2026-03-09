@@ -101,6 +101,7 @@ Keep automated:
 - accessibility smoke where scripts already exist
 - retention maintenance scheduling
 - backup creation where scripts already exist
+- weekly restore rehearsal via GitHub Actions (`.github/workflows/restore-rehearsal.yml`) with retained evidence artifacts
 - CI guardrails that catch template, view-budget, or routing regressions
 
 ## What to keep manual

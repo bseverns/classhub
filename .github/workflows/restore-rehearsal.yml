@@ -1,0 +1,135 @@
+name: restore-rehearsal
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly rehearsal cadence (Sunday, 09:00 UTC).
+    - cron: "0 9 * * 0"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: restore-rehearsal-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  backup-restore-rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      RTO_THRESHOLD_SECONDS: "3600"
+      RPO_THRESHOLD_SECONDS: "900"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare compose env for rehearsal
+        run: |
+          cp compose/.env.example compose/.env
+          {
+            echo "CADDYFILE_TEMPLATE=Caddyfile.local"
+            echo "POSTGRES_PASSWORD=aaaaaaaaaaaaaaaa"
+            echo "MINIO_ROOT_PASSWORD=bbbbbbbbbbbbbbbb"
+            echo "DJANGO_SECRET_KEY=cccccccccccccccccccccccccccccccc"
+            echo "DEVICE_HINT_SIGNING_KEY=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+            echo "HELPER_SCOPE_SIGNING_KEY=gggggggggggggggggggggggggggggggg"
+            echo "CLASSHUB_INTERNAL_EVENTS_TOKEN=dddddddddddddddd"
+            echo "HELPER_INTERNAL_API_TOKEN=ffffffffffffffff"
+            echo "DJANGO_DEBUG=0"
+            echo "DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1"
+            echo "CSRF_TRUSTED_ORIGINS=http://localhost"
+            echo "HELPER_LLM_BACKEND=mock"
+            echo "HELPER_TOPIC_FILTER_MODE=strict"
+          } >> compose/.env
+
+      - name: Seed backup source directories
+        run: |
+          mkdir -p data/classhub_uploads data/minio backups/postgres backups/uploads backups/minio
+          printf "ci-rehearsal-%s\n" "$(date -u +%Y%m%dT%H%M%SZ)" > data/classhub_uploads/ci_rehearsal_probe.txt
+          printf "ci-rehearsal-%s\n" "$(date -u +%Y%m%dT%H%M%SZ)" > data/minio/ci_rehearsal_probe.txt
+
+      - name: Build app images and start Postgres
+        run: |
+          docker compose -f compose/docker-compose.yml build classhub_web helper_web
+          docker compose -f compose/docker-compose.yml up -d postgres
+
+      - name: Run backup + restore rehearsal
+        run: |
+          set -euo pipefail
+
+          START_TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          START_EPOCH="$(date +%s)"
+
+          bash scripts/backup_restore_rehearsal.sh --compose-mode prod | tee /tmp/backup_restore_rehearsal.log
+
+          END_TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          END_EPOCH="$(date +%s)"
+          DURATION_SECONDS="$((END_EPOCH - START_EPOCH))"
+
+          POSTGRES_BACKUP="$(ls -1t backups/postgres/classhub_*.sql | head -n1)"
+          UPLOADS_BACKUP="$(ls -1t backups/uploads/classhub_uploads_*.tgz | head -n1)"
+          MINIO_BACKUP="$(ls -1t backups/minio/minio_*.tgz | head -n1)"
+
+          BACKUP_STAMP="$(basename "${POSTGRES_BACKUP}")"
+          BACKUP_STAMP="${BACKUP_STAMP#classhub_}"
+          BACKUP_STAMP="${BACKUP_STAMP%.sql}"
+          if [[ ! "${BACKUP_STAMP}" =~ ^[0-9]{8}T[0-9]{6}Z$ ]]; then
+            echo "[rehearsal-workflow] unexpected backup stamp format: ${BACKUP_STAMP}" >&2
+            exit 1
+          fi
+          BACKUP_ISO="${BACKUP_STAMP:0:4}-${BACKUP_STAMP:4:2}-${BACKUP_STAMP:6:2}T${BACKUP_STAMP:9:2}:${BACKUP_STAMP:11:2}:${BACKUP_STAMP:13:2}Z"
+          BACKUP_EPOCH="$(date -u -d "${BACKUP_ISO}" +%s)"
+          RPO_SECONDS="$((END_EPOCH - BACKUP_EPOCH))"
+
+          mkdir -p /tmp/restore-rehearsal-evidence/backups
+          cp /tmp/backup_restore_rehearsal.log /tmp/restore-rehearsal-evidence/rehearsal.log
+          cp "${POSTGRES_BACKUP}" /tmp/restore-rehearsal-evidence/backups/
+          cp "${UPLOADS_BACKUP}" /tmp/restore-rehearsal-evidence/backups/
+          cp "${MINIO_BACKUP}" /tmp/restore-rehearsal-evidence/backups/
+          sha256sum /tmp/restore-rehearsal-evidence/backups/* > /tmp/restore-rehearsal-evidence/backups/checksums.sha256
+
+          cat > /tmp/restore-rehearsal-evidence/metrics.json <<EOF
+          {
+            "workflow": "restore-rehearsal",
+            "started_at_utc": "${START_TS}",
+            "ended_at_utc": "${END_TS}",
+            "duration_seconds": ${DURATION_SECONDS},
+            "rto_threshold_seconds": ${RTO_THRESHOLD_SECONDS},
+            "rpo_seconds": ${RPO_SECONDS},
+            "rpo_threshold_seconds": ${RPO_THRESHOLD_SECONDS},
+            "postgres_backup": "$(basename "${POSTGRES_BACKUP}")",
+            "uploads_backup": "$(basename "${UPLOADS_BACKUP}")",
+            "minio_backup": "$(basename "${MINIO_BACKUP}")"
+          }
+          EOF
+
+          {
+            echo "### Restore Rehearsal Evidence"
+            echo "- Started (UTC): ${START_TS}"
+            echo "- Ended (UTC): ${END_TS}"
+            echo "- Duration (RTO): ${DURATION_SECONDS}s (threshold: ${RTO_THRESHOLD_SECONDS}s)"
+            echo "- Backup age at completion (RPO): ${RPO_SECONDS}s (threshold: ${RPO_THRESHOLD_SECONDS}s)"
+            echo "- Artifacts: $(basename "${POSTGRES_BACKUP}"), $(basename "${UPLOADS_BACKUP}"), $(basename "${MINIO_BACKUP}")"
+          } > /tmp/restore-rehearsal-evidence/summary.md
+          cat /tmp/restore-rehearsal-evidence/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+          if (( DURATION_SECONDS > RTO_THRESHOLD_SECONDS )); then
+            echo "[rehearsal-workflow] RTO threshold exceeded: ${DURATION_SECONDS}s > ${RTO_THRESHOLD_SECONDS}s" >&2
+            exit 1
+          fi
+          if (( RPO_SECONDS > RPO_THRESHOLD_SECONDS )); then
+            echo "[rehearsal-workflow] RPO threshold exceeded: ${RPO_SECONDS}s > ${RPO_THRESHOLD_SECONDS}s" >&2
+            exit 1
+          fi
+
+      - name: Upload rehearsal evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: restore-rehearsal-evidence-${{ github.run_id }}
+          path: /tmp/restore-rehearsal-evidence
+          retention-days: 30
+
+      - name: Tear down compose
+        if: always()
+        run: docker compose -f compose/docker-compose.yml down -v

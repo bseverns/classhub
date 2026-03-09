@@ -371,6 +371,10 @@ Recommended restore drill (single command):
 bash scripts/backup_restore_rehearsal.sh --compose-mode prod
 ```
 
+Automated cadence:
+- GitHub Actions workflow: `.github/workflows/restore-rehearsal.yml` (weekly + manual dispatch)
+- Artifacts: rehearsal log, metrics (`RTO`/`RPO`), and backup checksums retained per run
+
 This script:
 1. Creates fresh Postgres/uploads/MinIO backups.
 2. Restores the Postgres dump into a temporary database.

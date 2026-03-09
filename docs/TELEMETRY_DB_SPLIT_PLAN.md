@@ -292,6 +292,7 @@ Transition rule:
 - Owner: SRE + release engineering.
 - Target window: April 1-June 5, 2026.
 - Scope: Produce a single turnover packet (runbooks, ownership map, incident checklist, recovery commands) and automate `scripts/backup_restore_rehearsal.sh` in staging CI.
+- Automation bootstrap (March 9, 2026): `.github/workflows/restore-rehearsal.yml` now runs scheduled + on-demand rehearsal with archived evidence artifacts.
 - Exit criteria: staged restore rehearsal runs on a fixed schedule with archived artifacts, two consecutive runs meet `RTO <= 60 minutes` and `RPO <= 15 minutes`, and packet links are current in onboarding docs.
 
 ### Phase 2: Enforce boundaries and finish migrations (June-September 2026)
