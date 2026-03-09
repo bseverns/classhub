@@ -19,7 +19,7 @@ from django.utils import timezone
 from common.request_safety import fixed_window_allow, token_bucket_allow
 
 from .middleware import StudentSessionMiddleware
-from .models import Class, Material, StudentEvent, StudentIdentity
+from .models import Class, Material, StudentEvent, StudentIdentity, Submission
 from .services.markdown_content import (
     load_course_manifest,
     load_lesson_markdown,
