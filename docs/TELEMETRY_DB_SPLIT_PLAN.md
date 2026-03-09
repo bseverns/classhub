@@ -267,6 +267,67 @@ CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-cha
 - Dedicated analytics warehouse fed from telemetry DB.
 - Optional audit stream hardening (keep `AuditEvent` in core unless compliance architecture changes).
 
+## Path to Improvement and Expansion (cross-cutting roadmap)
+
+This section converts the documented platform risks into a phased execution track with explicit ownership and measurable gates.
+
+Transition rule:
+- Do not start a later phase until all exit criteria in the prior phase are green and sign-off is recorded in [DECISIONS.md](DECISIONS.md).
+
+### Phase 1: Mitigate immediate maintenance risks (March-June 2026)
+
+1. Refactor teacher portal via service-layer extraction
+- Owner: ClassHub application team.
+- Target window: March 10-May 15, 2026.
+- Scope: Continue extraction of dashboard assembly and syllabus import logic from `hub/views/teacher_parts/` into `hub/services/`.
+- Exit criteria: view-size guards stay green, `services/classhub/hub/views/teacher_parts/content_home.py` is back within budget, and new teacher portal behavior is covered by service-level tests.
+
+2. Unify outcome semantics across dashboards and certificate eligibility
+- Owner: Teacher insights + analytics maintainers.
+- Target window: March 17-May 1, 2026.
+- Scope: Centralize `StudentOutcomeEvent` aggregation behind one shared service layer consumed by both dashboard snapshot and certificate-eligibility paths.
+- Exit criteria: shared query module is the single source of truth, regression tests prove parity for seeded fixtures, and no count drift appears in smoke/eval checks.
+
+3. Standardize operations with a turnover packet and restore automation
+- Owner: SRE + release engineering.
+- Target window: April 1-June 5, 2026.
+- Scope: Produce a single turnover packet (runbooks, ownership map, incident checklist, recovery commands) and automate `scripts/backup_restore_rehearsal.sh` in staging CI.
+- Exit criteria: staged restore rehearsal runs on a fixed schedule with archived artifacts, two consecutive runs meet `RTO <= 60 minutes` and `RPO <= 15 minutes`, and packet links are current in onboarding docs.
+
+### Phase 2: Enforce boundaries and finish migrations (June-September 2026)
+
+4. Enforce strict organizational boundaries
+- Owner: Security/RBAC maintainers.
+- Target window: June 10-July 12, 2026.
+- Scope: Set `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True` in production and migrate legacy global staff to explicit `OrganizationMembership` mappings via `hubctl`.
+- Exit criteria: dry-run + apply migration tooling is documented, all active staff have explicit org membership records, and policy checks pass in smoke + admin workflows.
+
+5. Execute telemetry DB split Phase 2 (gated)
+- Owner: Data platform + ClassHub maintainers.
+- Target window: July 15-September 6, 2026.
+- Scope: After Phase 1 telemetry gates remain green, isolate additional high-churn read/write workloads onto telemetry DB per approved design packet.
+- Exit criteria: approved design/risk/rollback packet, parity + latency SLOs remain in bounds during rollout, and rollback drill succeeds with env-toggle-only recovery.
+
+6. Complete RBAC Phase 2 custom-role workflows
+- Owner: Security/RBAC maintainers.
+- Target window: July 1-September 20, 2026.
+- Scope: Stabilize and unflag delegated approval (`RbacPolicyChangeRequest`) and custom-role management flows in teacher portal.
+- Exit criteria: workflow feature flags are removed or default-on, audit logs are complete for grant/approval transitions, and role-management smoke tests pass for admin and delegated operators.
+
+### Phase 3: Product expansion (post-freeze; October-December 2026)
+
+7. Expand Homework Helper RAG with class-scoped shared artifacts
+- Owner: Helper platform + privacy reviewer.
+- Target window: October 1-November 14, 2026.
+- Scope: Support opt-in, teacher-approved class-scoped context (for example gallery exemplars) without exposing private student artifacts.
+- Exit criteria: explicit consent/allowlist controls are enforced, privacy tests confirm no private cross-student leakage, and moderation/audit trails capture shared-artifact usage.
+
+8. Advance decentralized coursepack registry
+- Owner: Curriculum platform team.
+- Target window: October 15-December 19, 2026.
+- Scope: Move beyond ZIP-only ingest by implementing a network-aware registry flow from `docs/COURSEPACK_REGISTRY_RFC.md`.
+- Exit criteria: signed/verified package metadata is supported, preview/import works end-to-end from LMS UI, and an offline/manual fallback path remains documented and tested.
+
 ## Phase 1 implementation backlog (execution checklist)
 
 Use this as the canonical execution tracker for telemetry split completion.
