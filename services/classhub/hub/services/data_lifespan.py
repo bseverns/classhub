@@ -7,9 +7,11 @@ from dataclasses import dataclass
 from datetime import timedelta
 from io import StringIO
 
+from django.db.models import Q
 from django.utils import timezone
 
-from ..models import AuditEvent, Class, StudentEvent, Submission
+from ..models import AuditEvent, Class, Submission
+from .telemetry_reads import student_events_queryset
 from .retention_policy import class_event_retention_days, class_submission_retention_days
 
 _PRUNE_ACTION_SUBMISSIONS = "retention.prune_submissions"
@@ -44,14 +46,18 @@ def _count_submission_policy_overdue_rows(
     grouped_submission_days: dict[int, list[int]],
     now,
 ) -> int:
-    total = 0
+    overdue_query = Q()
     for days, class_ids in grouped_submission_days.items():
+        if not class_ids:
+            continue
         cutoff = now - timedelta(days=int(days))
-        total += Submission.objects.filter(
-            material__module__classroom_id__in=class_ids,
-            uploaded_at__lt=cutoff,
-        ).count()
-    return total
+        overdue_query |= (
+            Q(material__module__classroom_id__in=class_ids)
+            & Q(uploaded_at__lt=cutoff)
+        )
+    if not overdue_query.children:
+        return 0
+    return Submission.objects.filter(overdue_query).count()
 
 
 def _count_event_policy_overdue_rows(
@@ -60,20 +66,18 @@ def _count_event_policy_overdue_rows(
     fallback_event_days: int,
     now,
 ) -> int:
-    total = 0
+    overdue_query = Q()
     for days, class_ids in grouped_event_days.items():
+        if not class_ids:
+            continue
         cutoff = now - timedelta(days=int(days))
-        total += StudentEvent.objects.filter(
-            classroom_id__in=class_ids,
-            created_at__lt=cutoff,
-        ).count()
+        overdue_query |= Q(classroom_id__in=class_ids, created_at__lt=cutoff)
     if fallback_event_days > 0:
         fallback_cutoff = now - timedelta(days=fallback_event_days)
-        total += StudentEvent.objects.filter(
-            classroom__isnull=True,
-            created_at__lt=fallback_cutoff,
-        ).count()
-    return total
+        overdue_query |= Q(classroom_id__isnull=True, created_at__lt=fallback_cutoff)
+    if not overdue_query.children:
+        return 0
+    return student_events_queryset().filter(overdue_query).count()
 
 
 def _latest_audit_by_action(action: str):
@@ -142,9 +146,9 @@ def build_data_lifespan_snapshot() -> dict:
     fallback_submission_days = int(class_submission_retention_days(classroom=None))
     fallback_event_days = int(class_event_retention_days(classroom=None))
 
-    events_total = StudentEvent.objects.count()
+    events_total = student_events_queryset().count()
     submissions_total = Submission.objects.count()
-    oldest_event = StudentEvent.objects.order_by("created_at").values_list("created_at", flat=True).first()
+    oldest_event = student_events_queryset().order_by("created_at").values_list("created_at", flat=True).first()
     oldest_submission = Submission.objects.order_by("uploaded_at").values_list("uploaded_at", flat=True).first()
 
     overdue_submissions = _count_submission_policy_overdue_rows(

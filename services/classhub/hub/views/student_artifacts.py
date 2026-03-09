@@ -1,15 +1,13 @@
 """Student artifact portfolio and gallery views."""
 
-from __future__ import annotations
-
 from datetime import date
 from urllib.parse import urlencode, urlparse
 
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
 

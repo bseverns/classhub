@@ -1,3 +1,5 @@
+from importlib import import_module
+
 from django.apps import AppConfig
 
 
@@ -7,4 +9,4 @@ class HubConfig(AppConfig):
 
     def ready(self):
         # Register file-cleanup signal handlers.
-        from . import signals  # noqa: F401
+        import_module("hub.signals")

@@ -132,7 +132,12 @@ def resolve_ui_density_mode_for_modules(*, modules: list, program_profile: str) 
     level_counts: Counter[str] = Counter()
 
     for module in modules:
-        for material in module.materials.all():
+        prefetched = getattr(module, "_prefetched_objects_cache", {}).get("materials")
+        if prefetched is None:
+            raise ValueError(
+                "ui density resolution requires modules prefetched with materials; use prefetch_related('materials')"
+            )
+        for material in prefetched:
             if getattr(material, "type", "") != "link":
                 continue
             parsed = parse_course_lesson_url(getattr(material, "url", ""))

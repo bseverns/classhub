@@ -3,6 +3,45 @@
 .title-row .muted { margin-top: 4px; }
 .class-link { font-weight: 700; }
 .submit-wrap { margin-top: 12px; }
+.portal-mode-card .row {
+  align-items: baseline;
+  gap: 10px;
+}
+.portal-mode-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 12px;
+}
+.portal-mode-chip {
+  display: block;
+  border: 1px solid rgba(22, 59, 80, 0.2);
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-decoration: none;
+  color: #12394f;
+  background: rgba(255, 255, 255, 0.52);
+}
+.portal-mode-chip strong {
+  display: block;
+}
+.portal-mode-chip .muted {
+  display: block;
+  margin-top: 3px;
+  font-size: 13px;
+}
+.portal-mode-chip:hover {
+  border-color: rgba(18, 57, 79, 0.48);
+  background: rgba(255, 255, 255, 0.72);
+}
+.portal-mode-chip--active {
+  border-color: #12394f;
+  background: #12394f;
+  color: #eef7fb;
+}
+.portal-mode-chip--active .muted {
+  color: rgba(238, 247, 251, 0.86);
+}
 .classroom-focus-grid {
   display: grid;
   gap: 12px;

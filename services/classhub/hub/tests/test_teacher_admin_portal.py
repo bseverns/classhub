@@ -409,12 +409,49 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Invite teacher")
         self.assertContains(resp, "My profile")
 
+    def test_teach_home_day_mode_hides_setup_and_admin_sections(self):
+        self._build_lesson_with_submission()
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach?portal_mode=day")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Portal modes")
+        self.assertContains(resp, "Classroom focus")
+        self.assertContains(resp, "Recent submissions")
+        self.assertNotContains(resp, "Import Syllabus Source")
+        self.assertNotContains(resp, "Portal setup + account tools")
+        self.assertNotContains(resp, "Operator config snapshot")
+
+    def test_teach_home_setup_mode_hides_day_sections(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach?portal_mode=setup")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Portal setup + account tools")
+        self.assertContains(resp, "Import Syllabus Source")
+        self.assertNotContains(resp, "Classroom focus")
+        self.assertNotContains(resp, "Recent submissions")
+
+    def test_teach_home_admin_mode_shows_operator_snapshot_and_org_controls(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach?portal_mode=admin")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Operator config snapshot")
+        self.assertContains(resp, "Organizations + Staff Memberships")
+        self.assertContains(resp, "Portal setup + account tools")
+        self.assertNotContains(resp, "Classroom focus")
+        self.assertNotContains(resp, "Recent submissions")
+
     def test_superuser_teach_home_shows_operator_config_snapshot(self):
         _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get("/teach")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Operator config snapshot")
+        self.assertContains(resp, "Telemetry rollout status")
+        self.assertContains(resp, "Parity + rollback evidence captured")
+        self.assertContains(resp, "telemetry_stabilization_evidence.sh")
         self.assertContains(resp, "Program profile")
         self.assertContains(resp, "docs/FEATURE_MATURITY.md")
 
@@ -2510,6 +2547,14 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertNotContains(resp, "Syllabus Exports")
         self.assertNotContains(resp, "RBAC tools")
         self.assertNotContains(resp, "Operator config snapshot")
+
+    def test_non_superuser_invalid_portal_mode_falls_back_to_all(self):
+        resp = self.client.get("/teach?portal_mode=admin")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Portal setup + account tools")
+        self.assertContains(resp, "Classroom focus")
+        self.assertNotContains(resp, "Operator config snapshot")
+        self.assertNotContains(resp, "Organizations + Staff Memberships")
 
     def test_teacher_role_cannot_export_syllabus(self):
         resp = self.client.get("/teach/syllabus-export?kind=catalog_csv")
