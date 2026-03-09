@@ -11,10 +11,12 @@ import urllib.request
 from pathlib import Path
 from typing import Callable
 
+from psycopg import sql
+
 from .reference import SAFE_REF_KEY_RE
 
 RAG_TABLE_NAME = "tutor_curriculum_rag_chunks"
-_SAFE_TABLE_NAME_RE = re.compile(r"^[a-z_][a-z0-9_]*$")
+_IDENTIFIER_PART_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 def build_reference_inventory(reference_dir: str, reference_map_raw: str) -> dict[str, str]:
@@ -59,45 +61,59 @@ def ensure_pgvector_schema(
     """Create extension/table for curriculum-only RAG storage (Postgres only)."""
     if connection.vendor != "postgresql":
         return False
-    safe_table_name = _safe_table_name(table_name)
-    quoted_table_name = connection.ops.quote_name(safe_table_name)
-    safe_index_name = _safe_table_name(f"{safe_table_name}_reference_key_idx")
-    quoted_index_name = connection.ops.quote_name(safe_index_name)
+    table_ident = _sql_table_identifier(table_name)
+    table_parts = _relation_identifier_parts(table_name)
+    index_ident = _sql_index_identifier(table_name, suffix="reference_key_idx")
     dims = max(int(embedding_dimensions or 0), 1)
     with connection.cursor() as cursor:
         cursor.execute("CREATE EXTENSION IF NOT EXISTS vector")
         cursor.execute(
-            f"""
-            CREATE TABLE IF NOT EXISTS {quoted_table_name} (
-                id BIGSERIAL PRIMARY KEY,
-                reference_key VARCHAR(128) NOT NULL,
-                source_label VARCHAR(128) NOT NULL,
-                chunk_id VARCHAR(64) NOT NULL,
-                chunk_order INTEGER NOT NULL,
-                chunk_text TEXT NOT NULL,
-                embedding vector({dims}) NOT NULL,
-                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                UNIQUE(reference_key, chunk_id)
+            sql.SQL(
+                """
+                CREATE TABLE IF NOT EXISTS {table} (
+                    id BIGSERIAL PRIMARY KEY,
+                    reference_key VARCHAR(128) NOT NULL,
+                    source_label VARCHAR(128) NOT NULL,
+                    chunk_id VARCHAR(64) NOT NULL,
+                    chunk_order INTEGER NOT NULL,
+                    chunk_text TEXT NOT NULL,
+                    embedding vector({dims}) NOT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    UNIQUE(reference_key, chunk_id)
+                )
+                """
+            ).format(
+                table=table_ident,
+                dims=sql.Literal(dims),
             )
-            """
         )
         cursor.execute(
-            f"""
-            CREATE INDEX IF NOT EXISTS {quoted_index_name}
-            ON {quoted_table_name}(reference_key)
-            """
+            sql.SQL(
+                """
+                CREATE INDEX IF NOT EXISTS {index}
+                ON {table}(reference_key)
+                """
+            ).format(
+                index=index_ident,
+                table=table_ident,
+            )
         )
-    logger.info("helper_rag_schema_ready table=%s dims=%s", safe_table_name, dims)
+    logger.info("helper_rag_schema_ready table=%s dims=%s", ".".join(table_parts), dims)
     return True
 
 
 def clear_reference_rows(*, connection, reference_key: str, table_name: str = RAG_TABLE_NAME) -> int:
     if connection.vendor != "postgresql":
         return 0
-    quoted_table_name = connection.ops.quote_name(_safe_table_name(table_name))
+    table_ident = _sql_table_identifier(table_name)
     with connection.cursor() as cursor:
-        cursor.execute(f"DELETE FROM {quoted_table_name} WHERE reference_key = %s", [reference_key])
+        cursor.execute(
+            sql.SQL("DELETE FROM {table} WHERE reference_key = %s").format(
+                table=table_ident,
+            ),
+            [reference_key],
+        )
         return int(cursor.rowcount or 0)
 
 
@@ -115,7 +131,7 @@ def upsert_reference_embeddings(
     """Upsert chunk embeddings for a single curriculum reference key."""
     if connection.vendor != "postgresql":
         return 0, len(chunks)
-    quoted_table_name = connection.ops.quote_name(_safe_table_name(table_name))
+    table_ident = _sql_table_identifier(table_name)
     dims = max(int(embedding_dimensions or 0), 1)
     written = 0
     skipped = 0
@@ -137,26 +153,28 @@ def upsert_reference_embeddings(
                 continue
             chunk_id = hashlib.sha256(text.encode("utf-8")).hexdigest()[:64]
             cursor.execute(
-                f"""
-                INSERT INTO {quoted_table_name} (
-                    reference_key,
-                    source_label,
-                    chunk_id,
-                    chunk_order,
-                    chunk_text,
-                    embedding,
-                    updated_at
-                )
-                VALUES (%s, %s, %s, %s, %s, %s::vector, NOW())
-                ON CONFLICT (reference_key, chunk_id)
-                DO UPDATE
-                SET
-                    source_label = EXCLUDED.source_label,
-                    chunk_order = EXCLUDED.chunk_order,
-                    chunk_text = EXCLUDED.chunk_text,
-                    embedding = EXCLUDED.embedding,
-                    updated_at = NOW()
-                """,
+                sql.SQL(
+                    """
+                    INSERT INTO {table} (
+                        reference_key,
+                        source_label,
+                        chunk_id,
+                        chunk_order,
+                        chunk_text,
+                        embedding,
+                        updated_at
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s::vector, NOW())
+                    ON CONFLICT (reference_key, chunk_id)
+                    DO UPDATE
+                    SET
+                        source_label = EXCLUDED.source_label,
+                        chunk_order = EXCLUDED.chunk_order,
+                        chunk_text = EXCLUDED.chunk_text,
+                        embedding = EXCLUDED.embedding,
+                        updated_at = NOW()
+                    """
+                ).format(table=table_ident),
                 [
                     reference_key,
                     source_label,
@@ -185,13 +203,12 @@ def retrieve_curriculum_citations(
     """Fetch nearest curriculum chunks from local pgvector index."""
     if connection.vendor != "postgresql":
         return []
-    safe_table_name = _safe_table_name(table_name)
-    quoted_table_name = connection.ops.quote_name(safe_table_name)
     ref = str(reference_key or "").strip().lower()
     if not SAFE_REF_KEY_RE.fullmatch(ref):
         return []
-    if not _table_exists(connection=connection, table_name=safe_table_name):
+    if not _table_exists(connection=connection, table_name=table_name):
         return []
+    table_ident = _sql_table_identifier(table_name)
     dims = max(int(embedding_dimensions or 0), 1)
     query_vec = embed_text_fn(" ".join(str(query_text or "").split()))
     if len(query_vec) != dims:
@@ -202,16 +219,18 @@ def retrieve_curriculum_citations(
     max_distance = max(float(max_cosine_distance or 0.0), 0.0)
     with connection.cursor() as cursor:
         cursor.execute(
-            f"""
-            SELECT
-                chunk_text,
-                source_label,
-                (embedding <=> %s::vector) AS distance
-            FROM {quoted_table_name}
-            WHERE reference_key = %s
-            ORDER BY embedding <=> %s::vector ASC
-            LIMIT %s
-            """,
+            sql.SQL(
+                """
+                SELECT
+                    chunk_text,
+                    source_label,
+                    (embedding <=> %s::vector) AS distance
+                FROM {table}
+                WHERE reference_key = %s
+                ORDER BY embedding <=> %s::vector ASC
+                LIMIT %s
+                """
+            ).format(table=table_ident),
             [vector, ref, vector, limit],
         )
         rows = list(cursor.fetchall() or [])
@@ -291,18 +310,36 @@ def _vector_literal(values: list[float]) -> str:
     return "[" + ",".join(f"{value:.8f}" for value in values) + "]"
 
 
-def _safe_table_name(table_name: str) -> str:
-    token = str(table_name or "").strip().lower()
-    if not _SAFE_TABLE_NAME_RE.fullmatch(token):
-        raise ValueError("invalid_rag_table_name")
-    return token
-
-
 def _table_exists(*, connection, table_name: str) -> bool:
+    _relation_identifier_parts(table_name)
     with connection.cursor() as cursor:
         cursor.execute("SELECT to_regclass(%s)", [table_name])
         row = cursor.fetchone()
     return bool(row and row[0])
+
+
+def _relation_identifier_parts(table_name: str) -> tuple[str, ...]:
+    raw = str(table_name or "").strip()
+    parts = [part.strip() for part in raw.split(".")]
+    if not raw or any(not part for part in parts):
+        raise ValueError("invalid_rag_table_name")
+    if len(parts) > 2:
+        raise ValueError("invalid_rag_table_name")
+    if not all(_IDENTIFIER_PART_RE.fullmatch(part) for part in parts):
+        raise ValueError("invalid_rag_table_name")
+    return tuple(parts)
+
+
+def _sql_table_identifier(table_name: str) -> sql.SQL:
+    return sql.Identifier(*_relation_identifier_parts(table_name))
+
+
+def _sql_index_identifier(table_name: str, *, suffix: str) -> sql.SQL:
+    parts = _relation_identifier_parts(table_name)
+    index_name = f"{parts[-1]}_{suffix}"
+    if len(parts) == 2:
+        return sql.Identifier(parts[0], index_name)
+    return sql.Identifier(index_name)
 
 
 def _is_child_path(candidate: Path, root: Path) -> bool:
