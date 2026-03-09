@@ -1,11 +1,12 @@
 import zipfile
 import tempfile
 import urllib.error
+import re
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
@@ -57,6 +58,7 @@ from .services.teacher_tracker import (
     _build_helper_signal_snapshot,
     _build_lesson_tracker_rows,
 )
+from .services.teacher_home_templates import generate_authoring_templates_from_form
 from .services.upload_policy import (
     front_matter_submission,
     parse_extensions,
@@ -124,6 +126,87 @@ class UploadPolicyServiceTests(SimpleTestCase):
         self.assertEqual(row["type"], "")
         self.assertEqual(row["accepted_exts"], [".sb3", ".png"])
         self.assertEqual(row["naming"], "")
+
+
+class TeacherHomeTemplatesServiceTests(SimpleTestCase):
+    def _parse_positive_int(self, raw: str, *, min_value: int, max_value: int) -> int | None:
+        try:
+            parsed = int(raw)
+        except (TypeError, ValueError):
+            return None
+        if parsed < min_value or parsed > max_value:
+            return None
+        return parsed
+
+    def test_generate_authoring_templates_from_form_rejects_invalid_slug(self):
+        generation_mock = MagicMock()
+        result = generate_authoring_templates_from_form(
+            post_data={
+                "template_slug": "Bad Slug",
+                "template_title": "Sample Course",
+                "template_sessions": "12",
+                "template_duration": "75",
+            },
+            template_slug_re=re.compile(r"^[a-z0-9_-]+$"),
+            parse_positive_int_fn=self._parse_positive_int,
+            generate_authoring_templates_fn=generation_mock,
+        )
+        self.assertEqual(
+            result.error,
+            "Course slug can use lowercase letters, numbers, underscores, and dashes.",
+        )
+        generation_mock.assert_not_called()
+
+    @override_settings(
+        CLASSHUB_AUTHORING_TEMPLATE_AGE_BAND_DEFAULT="8th-10th",
+        CLASSHUB_AUTHORING_TEMPLATE_DIR="/tmp/template-out",
+    )
+    def test_generate_authoring_templates_from_form_returns_generation_metadata(self):
+        generation_mock = MagicMock(
+            return_value=SimpleNamespace(
+                output_paths=[
+                    Path("/tmp/template-out/sample_slug-teacher-plan-template.md"),
+                    Path("/tmp/template-out/sample_slug-public-overview-template.md"),
+                ]
+            )
+        )
+        result = generate_authoring_templates_from_form(
+            post_data={
+                "template_slug": "sample_slug",
+                "template_title": "Sample Course",
+                "template_sessions": "12",
+                "template_duration": "75",
+            },
+            template_slug_re=re.compile(r"^[a-z0-9_-]+$"),
+            parse_positive_int_fn=self._parse_positive_int,
+            generate_authoring_templates_fn=generation_mock,
+        )
+        self.assertEqual(result.error, "")
+        self.assertEqual(result.slug, "sample_slug")
+        self.assertEqual(result.title, "Sample Course")
+        self.assertEqual(result.sessions, 12)
+        self.assertEqual(result.duration, 75)
+        self.assertEqual(result.output_dir, Path("/tmp/template-out"))
+        self.assertEqual(
+            list(result.output_paths),
+            [
+                "/tmp/template-out/sample_slug-teacher-plan-template.md",
+                "/tmp/template-out/sample_slug-public-overview-template.md",
+            ],
+        )
+        self.assertEqual(
+            result.notice,
+            "Generated templates for sample_slug in /tmp/template-out.",
+        )
+        generation_mock.assert_called_once_with(
+            slug="sample_slug",
+            title="Sample Course",
+            sessions=12,
+            duration=75,
+            age_band="8th-10th",
+            out_dir=Path("/tmp/template-out"),
+            overwrite=True,
+        )
 
 
 class HelperControlServiceTests(SimpleTestCase):

@@ -21,10 +21,10 @@ from .content_rbac_tools import (
     rbac_tools_requested,
 )
 from .content_syllabus_exports import build_syllabus_export_state
+from ...services.teacher_home_templates import generate_authoring_templates_from_form
 from .shared import (
     FileResponse,
     HttpResponse,
-    Path,
     _AUTHORING_TEMPLATE_SUFFIXES,
     _TEMPLATE_SLUG_RE,
     _audit,
@@ -41,7 +41,6 @@ from .shared import (
     render,
     require_POST,
     safe_attachment_filename,
-    settings,
     staff_accessible_classes_ranked,
     staff_member_required,
     timedelta,
@@ -153,79 +152,17 @@ def teach_home(request):
 @staff_member_required
 @require_POST
 def teach_generate_authoring_templates(request):
-    slug = (request.POST.get("template_slug") or "").strip().lower()
-    title = (request.POST.get("template_title") or "").strip()
-    sessions_raw = (request.POST.get("template_sessions") or "").strip()
-    duration_raw = (request.POST.get("template_duration") or "").strip()
-
-    form_values = {
-        "template_slug": slug,
-        "template_title": title,
-        "template_sessions": sessions_raw,
-        "template_duration": duration_raw,
-    }
     return_to = "/teach"
-
-    if not slug:
+    generation_result = generate_authoring_templates_from_form(
+        post_data=request.POST,
+        template_slug_re=_TEMPLATE_SLUG_RE,
+        parse_positive_int_fn=_parse_positive_int,
+        generate_authoring_templates_fn=generate_authoring_templates,
+    )
+    if generation_result.error:
         return _safe_internal_redirect(
             request,
-            _with_notice(return_to, error="Course slug is required.", extra=form_values),
-            fallback=return_to,
-        )
-    if not _TEMPLATE_SLUG_RE.match(slug):
-        return _safe_internal_redirect(
-            request,
-            _with_notice(
-                return_to,
-                error="Course slug can use lowercase letters, numbers, underscores, and dashes.",
-                extra=form_values,
-            ),
-            fallback=return_to,
-        )
-    if not title:
-        return _safe_internal_redirect(
-            request,
-            _with_notice(return_to, error="Course title is required.", extra=form_values),
-            fallback=return_to,
-        )
-
-    sessions = _parse_positive_int(sessions_raw, min_value=1, max_value=60)
-    if sessions is None:
-        return _safe_internal_redirect(
-            request,
-            _with_notice(return_to, error="Sessions must be a whole number between 1 and 60.", extra=form_values),
-            fallback=return_to,
-        )
-
-    duration = _parse_positive_int(duration_raw, min_value=15, max_value=240)
-    if duration is None:
-        return _safe_internal_redirect(
-            request,
-            _with_notice(
-                return_to,
-                error="Session duration must be between 15 and 240 minutes.",
-                extra=form_values,
-            ),
-            fallback=return_to,
-        )
-
-    age_band = (getattr(settings, "CLASSHUB_AUTHORING_TEMPLATE_AGE_BAND_DEFAULT", "5th-7th") or "5th-7th").strip()
-    output_dir = Path(getattr(settings, "CLASSHUB_AUTHORING_TEMPLATE_DIR", "/uploads/authoring_templates"))
-
-    try:
-        result = generate_authoring_templates(
-            slug=slug,
-            title=title,
-            sessions=sessions,
-            duration=duration,
-            age_band=age_band,
-            out_dir=output_dir,
-            overwrite=True,
-        )
-    except (OSError, ValueError) as exc:
-        return _safe_internal_redirect(
-            request,
-            _with_notice(return_to, error=f"Template generation failed: {exc}", extra=form_values),
+            _with_notice(return_to, error=generation_result.error, extra=generation_result.form_values),
             fallback=return_to,
         )
 
@@ -233,21 +170,20 @@ def teach_generate_authoring_templates(request):
         request,
         action="teacher_templates.generate",
         target_type="AuthoringTemplates",
-        target_id=slug,
-        summary=f"Generated authoring templates for {slug}",
+        target_id=generation_result.slug,
+        summary=f"Generated authoring templates for {generation_result.slug}",
         metadata={
-            "slug": slug,
-            "title": title,
-            "sessions": sessions,
-            "duration": duration,
-            "output_dir": str(output_dir),
-            "files": [str(path) for path in result.output_paths],
+            "slug": generation_result.slug,
+            "title": generation_result.title,
+            "sessions": generation_result.sessions,
+            "duration": generation_result.duration,
+            "output_dir": str(generation_result.output_dir),
+            "files": list(generation_result.output_paths),
         },
     )
-    notice = f"Generated templates for {slug} in {output_dir}."
     return _safe_internal_redirect(
         request,
-        _with_notice(return_to, notice=notice, extra=form_values),
+        _with_notice(return_to, notice=generation_result.notice, extra=generation_result.form_values),
         fallback=return_to,
     )
 
