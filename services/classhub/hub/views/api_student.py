@@ -10,7 +10,7 @@ from django.views.decorators.http import require_GET
 
 from common.request_safety import client_ip_from_request, fixed_window_allow
 from ..http.headers import apply_no_store
-from ..models import Submission
+from ..models import Material, Submission
 from ..services.student_home import (
     build_class_landing_context,
     build_material_access_map,
@@ -162,7 +162,7 @@ def api_student_submissions(request):
     student = request.student
 
     material_ids = list(
-        classroom.modules.values_list("materials__id", flat=True)
+        Material.objects.filter(module__classroom=classroom).values_list("id", flat=True)
     )
 
     # Pagination logic bounds
@@ -172,6 +172,22 @@ def api_student_submissions(request):
     except ValueError:
         limit = 50
         offset = 0
+
+    if not material_ids:
+        return _json_no_store_response(
+            {
+                "submissions": [],
+                "pagination": {
+                    "limit": limit,
+                    "offset": offset,
+                    "total": 0,
+                },
+                "submissions_by_material": {},
+                "material_responses": {},
+                "gallery_entries_by_material": {},
+            },
+            private=True,
+        )
 
     submissions_qs = (
         Submission.objects.filter(student=student, material_id__in=material_ids)
