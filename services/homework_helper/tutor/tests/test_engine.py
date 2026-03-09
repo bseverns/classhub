@@ -336,6 +336,16 @@ class RAGEngineTests(SimpleTestCase):
         )
         self.assertEqual(citations, [])
 
+    def test_relation_identifier_parts_support_schema_qualified_table_name(self):
+        parts = rag._relation_identifier_parts("public.tutor_curriculum_rag_chunks")
+        self.assertEqual(parts, ("public", "tutor_curriculum_rag_chunks"))
+
+    def test_relation_identifier_parts_rejects_invalid_table_names(self):
+        for raw in ("", "public..table", "public.table;drop", "public.\"Table\"", "a.b.c"):
+            with self.subTest(raw=raw):
+                with self.assertRaises(ValueError):
+                    rag._relation_identifier_parts(raw)
+
 
 class ContextEnvelopeEngineTests(SimpleTestCase):
     def test_resolve_context_envelope_loads_signed_scope(self):

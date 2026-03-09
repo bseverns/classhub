@@ -2210,3 +2210,15 @@ Execution runbook:
 **Why this remains active:**
 - Reduces operator cognitive load by giving non-specialists a single, repeatable command for full-stack confidence checks.
 - Preserves script composability while making routine operations easier to delegate across staff turnover.
+
+## Helper RAG SQL identifier compatibility + safety
+
+**Current decision:**
+- Keep SQL-composed identifiers in `services/homework_helper/tutor/engine/rag.py` for DDL/DML.
+- Treat `table_name` as a relation name with 1-2 identifier parts (`table` or `schema.table`), split into parts and pass to `sql.Identifier(*parts)`.
+- Reject invalid relation names (`invalid_rag_table_name`) before issuing SQL.
+- Build index identifiers in the same schema as the target table so schema-qualified table names remain behavior-compatible.
+
+**Why this remains active:**
+- Prevents SQL-identifier injection risks while preserving callers that pass schema-qualified table names.
+- Avoids accidental relation mismatches caused by quoting `schema.table` as a single identifier.

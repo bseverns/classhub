@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -15,6 +16,7 @@ from psycopg import sql
 from .reference import SAFE_REF_KEY_RE
 
 RAG_TABLE_NAME = "tutor_curriculum_rag_chunks"
+_IDENTIFIER_PART_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 def build_reference_inventory(reference_dir: str, reference_map_raw: str) -> dict[str, str]:
@@ -60,6 +62,9 @@ def ensure_pgvector_schema(
     if connection.vendor != "postgresql":
         return False
     dims = max(int(embedding_dimensions or 0), 1)
+    table_ident = _sql_table_identifier(table_name)
+    table_parts = _relation_identifier_parts(table_name)
+    index_ident = _sql_index_identifier(table_name, suffix="reference_key_idx")
     with connection.cursor() as cursor:
         cursor.execute("CREATE EXTENSION IF NOT EXISTS vector")
         cursor.execute(
@@ -79,7 +84,7 @@ def ensure_pgvector_schema(
                 )
                 """
             ).format(
-                table=sql.Identifier(table_name),
+                table=table_ident,
                 dims=sql.Literal(dims),
             )
         )
@@ -90,21 +95,22 @@ def ensure_pgvector_schema(
                 ON {table}(reference_key)
                 """
             ).format(
-                index=sql.Identifier(f"{table_name}_reference_key_idx"),
-                table=sql.Identifier(table_name),
+                index=index_ident,
+                table=table_ident,
             )
         )
-    logger.info("helper_rag_schema_ready table=%s dims=%s", table_name, dims)
+    logger.info("helper_rag_schema_ready table=%s dims=%s", ".".join(table_parts), dims)
     return True
 
 
 def clear_reference_rows(*, connection, reference_key: str, table_name: str = RAG_TABLE_NAME) -> int:
     if connection.vendor != "postgresql":
         return 0
+    table_ident = _sql_table_identifier(table_name)
     with connection.cursor() as cursor:
         cursor.execute(
             sql.SQL("DELETE FROM {table} WHERE reference_key = %s").format(
-                table=sql.Identifier(table_name),
+                table=table_ident,
             ),
             [reference_key],
         )
@@ -126,6 +132,7 @@ def upsert_reference_embeddings(
     if connection.vendor != "postgresql":
         return 0, len(chunks)
     dims = max(int(embedding_dimensions or 0), 1)
+    table_ident = _sql_table_identifier(table_name)
     written = 0
     skipped = 0
     with connection.cursor() as cursor:
@@ -167,7 +174,7 @@ def upsert_reference_embeddings(
                         embedding = EXCLUDED.embedding,
                         updated_at = NOW()
                     """
-                ).format(table=sql.Identifier(table_name)),
+                ).format(table=table_ident),
                 [
                     reference_key,
                     source_label,
@@ -201,6 +208,7 @@ def retrieve_curriculum_citations(
         return []
     if not _table_exists(connection=connection, table_name=table_name):
         return []
+    table_ident = _sql_table_identifier(table_name)
     dims = max(int(embedding_dimensions or 0), 1)
     query_vec = embed_text_fn(" ".join(str(query_text or "").split()))
     if len(query_vec) != dims:
@@ -222,7 +230,7 @@ def retrieve_curriculum_citations(
                 ORDER BY embedding <=> %s::vector ASC
                 LIMIT %s
                 """
-            ).format(table=sql.Identifier(table_name)),
+            ).format(table=table_ident),
             [vector, ref, vector, limit],
         )
         rows = list(cursor.fetchall() or [])
@@ -303,10 +311,35 @@ def _vector_literal(values: list[float]) -> str:
 
 
 def _table_exists(*, connection, table_name: str) -> bool:
+    _relation_identifier_parts(table_name)
     with connection.cursor() as cursor:
         cursor.execute("SELECT to_regclass(%s)", [table_name])
         row = cursor.fetchone()
     return bool(row and row[0])
+
+
+def _relation_identifier_parts(table_name: str) -> tuple[str, ...]:
+    raw = str(table_name or "").strip()
+    parts = [part.strip() for part in raw.split(".")]
+    if not raw or any(not part for part in parts):
+        raise ValueError("invalid_rag_table_name")
+    if len(parts) > 2:
+        raise ValueError("invalid_rag_table_name")
+    if not all(_IDENTIFIER_PART_RE.fullmatch(part) for part in parts):
+        raise ValueError("invalid_rag_table_name")
+    return tuple(parts)
+
+
+def _sql_table_identifier(table_name: str) -> sql.SQL:
+    return sql.Identifier(*_relation_identifier_parts(table_name))
+
+
+def _sql_index_identifier(table_name: str, *, suffix: str) -> sql.SQL:
+    parts = _relation_identifier_parts(table_name)
+    index_name = f"{parts[-1]}_{suffix}"
+    if len(parts) == 2:
+        return sql.Identifier(parts[0], index_name)
+    return sql.Identifier(index_name)
 
 
 def _is_child_path(candidate: Path, root: Path) -> bool:
