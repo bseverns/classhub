@@ -19,6 +19,17 @@ _OPERATOR_CONFIG_DOCS = [
     "docs/OPENAI_HELPER.md",
 ]
 
+_TELEMETRY_ROLLOUT_DOCS = [
+    "docs/TELEMETRY_DB_SPLIT_PLAN.md",
+    "docs/RUNBOOK.md",
+    "docs/DECISIONS.md",
+]
+
+_TELEMETRY_ROLLOUT_COMMANDS = [
+    "bash scripts/telemetry_stabilization_evidence.sh --window-days 7 --perform-rollback-drill",
+    "cd /srv/lms/app/compose && docker compose exec -T classhub_web python manage.py check_telemetry_parity --window-days 7",
+]
+
 
 def _env_setting(name: str) -> str:
     return str(os.environ.get(name, "") or "").strip()
@@ -77,6 +88,43 @@ def _telemetry_config_rows():
     ]
 
 
+def _telemetry_rollout_checks():
+    telemetry_url = str(getattr(settings, "CLASSHUB_TELEMETRY_DATABASE_URL", "") or "").strip()
+    write_mode = str(getattr(settings, "CLASSHUB_TELEMETRY_WRITE_MODE", "off") or "off").strip().lower()
+    read_mode = str(getattr(settings, "CLASSHUB_TELEMETRY_READ_MODE", "core") or "core").strip().lower()
+    stabilization_runtime_ready = bool(telemetry_url and write_mode == "dual" and read_mode == "telemetry")
+    return [
+        {
+            "label": "Telemetry database configured",
+            "done": bool(telemetry_url),
+            "detail": "CLASSHUB_TELEMETRY_DATABASE_URL must be set on this node.",
+        },
+        {
+            "label": "Slice 7 runtime mode active (WRITE_MODE=dual, READ_MODE=telemetry)",
+            "done": stabilization_runtime_ready,
+            "detail": f"Current modes: write={write_mode}, read={read_mode}.",
+        },
+        {
+            "label": "Parity + rollback evidence captured",
+            "done": None,
+            "detail": "Manual gate: archive parity/smoke/rollback artifacts for one full release cycle.",
+        },
+        {
+            "label": "Gate D sign-off recorded (steady-state write mode decision)",
+            "done": None,
+            "detail": "Manual gate: document final decision (dual vs telemetry_only) in DECISIONS.md.",
+        },
+    ]
+
+
+def _telemetry_rollout_summary(checks: list[dict]) -> str:
+    runtime_checks = [row for row in checks if row.get("done") is not None]
+    runtime_complete = all(bool(row.get("done")) for row in runtime_checks)
+    if runtime_complete:
+        return "Runtime gates are ready; manual evidence/sign-off items remain."
+    return "Telemetry split is still in rollout gating; complete pending runtime checks first."
+
+
 def _helper_config_rows(*, defaults: dict, helper_config_file: str):
     return [
         {
@@ -131,15 +179,26 @@ def build_operator_config_snapshot(*, user):
             "show_operator_config_snapshot": False,
             "operator_config_rows": [],
             "operator_config_docs": [],
+            "show_telemetry_rollout_status": False,
+            "telemetry_rollout_summary": "",
+            "telemetry_rollout_checks": [],
+            "telemetry_rollout_docs": [],
+            "telemetry_rollout_commands": [],
         }
     profile = str(getattr(settings, "CLASSHUB_PROGRAM_PROFILE", "secondary") or "secondary").strip().lower()
     if profile not in _HELPER_POLICY_PROFILE_DEFAULTS:
         profile = "secondary"
     helper_config_file = _env_setting("HELPER_CONFIG_FILE")
+    rollout_checks = _telemetry_rollout_checks()
     return {
         "show_operator_config_snapshot": True,
         "operator_config_rows": _operator_config_rows(profile=profile, helper_config_file=helper_config_file),
         "operator_config_docs": _OPERATOR_CONFIG_DOCS,
+        "show_telemetry_rollout_status": True,
+        "telemetry_rollout_summary": _telemetry_rollout_summary(rollout_checks),
+        "telemetry_rollout_checks": rollout_checks,
+        "telemetry_rollout_docs": _TELEMETRY_ROLLOUT_DOCS,
+        "telemetry_rollout_commands": _TELEMETRY_ROLLOUT_COMMANDS,
     }
 
 

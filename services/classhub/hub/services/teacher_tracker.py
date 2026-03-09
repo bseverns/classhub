@@ -19,6 +19,7 @@ from ..models import (
     StudentIdentity,
     Submission,
 )
+from .telemetry_reads import student_events_queryset
 from .content_links import parse_course_lesson_url
 from .helper_topics import build_allowed_topics, build_lesson_topics
 from .markdown_content import load_lesson_markdown, load_teacher_material_html
@@ -138,7 +139,7 @@ def _compute_class_digest_rows(classes: list[Class], *, since: timezone.datetime
 
     helper_events_since: dict[int, int] = {}
     for row in (
-        StudentEvent.objects.filter(
+        student_events_queryset().filter(
             classroom_id__in=class_ids,
             event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
             created_at__gte=since,
@@ -271,8 +272,8 @@ def _compute_helper_signal_snapshot(
     since = timezone.now() - timedelta(hours=window_hours)
 
     rows = list(
-        StudentEvent.objects.filter(
-            classroom=classroom,
+        student_events_queryset().filter(
+            classroom_id=int(classroom.id),
             event_type=StudentEvent.EVENT_HELPER_CHAT_ACCESS,
             created_at__gte=since,
         ).values("student_id", "details")

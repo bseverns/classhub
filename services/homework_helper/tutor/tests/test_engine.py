@@ -345,6 +345,69 @@ class RAGEngineTests(SimpleTestCase):
             with self.subTest(raw=raw):
                 with self.assertRaises(ValueError):
                     rag._relation_identifier_parts(raw)
+    def test_ensure_pgvector_schema_rejects_invalid_table_name(self):
+        connection = SimpleNamespace(
+            vendor="postgresql",
+            ops=SimpleNamespace(quote_name=lambda name: f'"{name}"'),
+            cursor=lambda: (_ for _ in ()).throw(AssertionError("cursor should not be called")),
+        )
+        with self.assertRaisesMessage(ValueError, "invalid_rag_table_name"):
+            rag.ensure_pgvector_schema(
+                connection=connection,
+                logger=MagicMock(),
+                embedding_dimensions=768,
+                table_name="rag_chunks; DROP TABLE users; --",
+            )
+
+    def test_clear_reference_rows_rejects_invalid_table_name(self):
+        connection = SimpleNamespace(
+            vendor="postgresql",
+            ops=SimpleNamespace(quote_name=lambda name: f'"{name}"'),
+            cursor=lambda: (_ for _ in ()).throw(AssertionError("cursor should not be called")),
+        )
+        with self.assertRaisesMessage(ValueError, "invalid_rag_table_name"):
+            rag.clear_reference_rows(
+                connection=connection,
+                reference_key="piper_scratch",
+                table_name="rag_chunks; DROP TABLE users; --",
+            )
+
+    def test_upsert_reference_embeddings_rejects_invalid_table_name(self):
+        connection = SimpleNamespace(
+            vendor="postgresql",
+            ops=SimpleNamespace(quote_name=lambda name: f'"{name}"'),
+            cursor=lambda: (_ for _ in ()).throw(AssertionError("cursor should not be called")),
+        )
+        with self.assertRaisesMessage(ValueError, "invalid_rag_table_name"):
+            rag.upsert_reference_embeddings(
+                connection=connection,
+                reference_key="piper_scratch",
+                source_label="Piper Scratch",
+                chunks=("chunk 1",),
+                embedding_dimensions=2,
+                embed_text_fn=lambda _text: [0.1, 0.2],
+                logger=MagicMock(),
+                table_name="rag_chunks; DROP TABLE users; --",
+            )
+
+    def test_retrieve_curriculum_citations_rejects_invalid_table_name(self):
+        connection = SimpleNamespace(
+            vendor="postgresql",
+            ops=SimpleNamespace(quote_name=lambda name: f'"{name}"'),
+            cursor=lambda: (_ for _ in ()).throw(AssertionError("cursor should not be called")),
+        )
+        with self.assertRaisesMessage(ValueError, "invalid_rag_table_name"):
+            rag.retrieve_curriculum_citations(
+                connection=connection,
+                logger=MagicMock(),
+                query_text="How do I debug a sprite?",
+                reference_key="piper_scratch",
+                max_items=3,
+                max_cosine_distance=0.4,
+                embedding_dimensions=768,
+                embed_text_fn=lambda _text: [0.1] * 768,
+                table_name="rag_chunks; DROP TABLE users; --",
+            )
 
 
 class ContextEnvelopeEngineTests(SimpleTestCase):

@@ -4,8 +4,6 @@ These handlers ensure uploaded files are removed when rows are deleted or when
 file fields are replaced with new uploads.
 """
 
-from __future__ import annotations
-
 from django.db.models.signals import post_delete, pre_save
 from django.dispatch import receiver
 
@@ -73,4 +71,3 @@ def _lesson_video_file_replaced(sender, instance: LessonVideo, **kwargs):
 @receiver(post_delete, sender=LessonVideo)
 def _lesson_video_file_deleted(sender, instance: LessonVideo, **kwargs):
     _remove_file_from_storage(getattr(instance, "video_file", None))
-

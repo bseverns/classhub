@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 
 from django.db import models
+from django.utils import timezone
 
 
 _TELEMETRY_STUDENT_EVENT_DELETE_ALLOWED = ContextVar(
@@ -43,13 +44,14 @@ class TelemetryStudentOutcomeEventQuerySet(models.QuerySet):
 class TelemetryStudentEvent(models.Model):
     """Append-only telemetry event stream with scalar references only."""
 
+    core_event_id = models.PositiveBigIntegerField(null=True, blank=True, unique=True)
     classroom_id = models.PositiveBigIntegerField(null=True, blank=True)
     student_id = models.PositiveBigIntegerField(null=True, blank=True)
     event_type = models.CharField(max_length=48)
     source = models.CharField(max_length=40, default="classhub")
     details = models.JSONField(default=dict, blank=True)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ["-created_at", "-id"]
@@ -85,6 +87,7 @@ class TelemetryStudentEvent(models.Model):
 class TelemetryStudentOutcomeEvent(models.Model):
     """Append-only telemetry outcomes stream with scalar references only."""
 
+    core_outcome_event_id = models.PositiveBigIntegerField(null=True, blank=True, unique=True)
     classroom_id = models.PositiveBigIntegerField(null=True, blank=True)
     student_id = models.PositiveBigIntegerField(null=True, blank=True)
     module_id = models.PositiveBigIntegerField(null=True, blank=True)
@@ -92,7 +95,7 @@ class TelemetryStudentOutcomeEvent(models.Model):
     event_type = models.CharField(max_length=40)
     source = models.CharField(max_length=40, default="classhub")
     details = models.JSONField(default=dict, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ["-created_at", "-id"]
@@ -122,4 +125,3 @@ class TelemetryStudentOutcomeEvent(models.Model):
         if not _telemetry_student_outcome_event_delete_allowed():
             raise ValueError("TelemetryStudentOutcomeEvent deletion is restricted to retention workflows.")
         return super().delete(*args, **kwargs)
-

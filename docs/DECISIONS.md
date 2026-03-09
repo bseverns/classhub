@@ -10,6 +10,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Offline upload queue for intermittent networks](#offline-upload-queue-for-intermittent-networks)
 - [Student kiosk shell mode](#student-kiosk-shell-mode)
 - [Database workload split roadmap](#database-workload-split-roadmap)
+- [Telemetry endpoint addressing policy](#telemetry-endpoint-addressing-policy)
+- [Execution sequencing: 30/60/90 reliability-first plan](#execution-sequencing-306090-reliability-first-plan)
 - [Artifact-first sharing defaults](#artifact-first-sharing-defaults)
 - [Program profiles for cohort age bands](#program-profiles-for-cohort-age-bands)
 - [Stability freeze and change budget](#stability-freeze-and-change-budget)
@@ -64,6 +66,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Lesson file path containment](#lesson-file-path-containment)
 - [Untrusted token validation without regex](#untrusted-token-validation-without-regex)
 - [Error-response redaction](#error-response-redaction)
+- [Signal wiring and RAG SQL identifier hardening](#signal-wiring-and-rag-sql-identifier-hardening)
 - [Teacher authoring templates](#teacher-authoring-templates)
 - [Syllabus export access and backups](#syllabus-export-access-and-backups)
 - [Teacher UI comfort mode](#teacher-ui-comfort-mode)
@@ -89,6 +92,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Migration execution at deploy time](#migration-execution-at-deploy-time)
 - [Teacher daily digest + closeout workflow](#teacher-daily-digest-and-closeout-workflow)
 - [Submission query composite indexes](#submission-query-composite-indexes)
+- [Module/material prefetch contract for roster and UI density](#modulematerial-prefetch-contract-for-roster-and-ui-density)
 - [Student portfolio export](#student-portfolio-export)
 - [Checklist, reflection, and rubric material types](#checklist-reflection-and-rubric-material-types)
 - [Outcome events and certificate rollups](#outcome-events-and-certificate-rollups)
@@ -204,12 +208,52 @@ Historical implementation logs and superseded decisions are archived by month in
 Execution runbook:
 - [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md)
 - Telemetry split plan now includes execution-slice backlog, code touchpoint inventory, gate-based exit criteria, and operator verification commands for phased rollout ownership.
-- Phase 1 Slice 0/1/2/3 scaffolding is now shipped: telemetry mode env guardrails (`off|dual|telemetry_only`, `core|telemetry`), optional telemetry DB registration in settings, telemetry router + dedicated `hub_telemetry` schema app, centralized dual-write service seams for student event/outcome emit points, and baseline split-write instrumentation counters/log fields are in place.
+- Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is now shipped: telemetry mode env guardrails (`off|dual|telemetry_only`, `core|telemetry`), optional telemetry DB registration in settings, telemetry router + dedicated `hub_telemetry` schema app, centralized dual-write service seams for student event/outcome emit points, telemetry-aware read abstraction for support/rollup/lifespan event queries, baseline split-write instrumentation counters/log fields, an idempotent `backfill_telemetry_events` management command, and a strict `check_telemetry_parity` management command for cutover gates are in place. Slice 7 operator evidence tooling (`scripts/telemetry_stabilization_evidence.sh`) is available for parity/smoke/rollback artifact capture; release-cycle sign-off is still required.
 
 **Why this remains active:**
 - Reduces blast radius from telemetry spikes and prune operations.
 - Improves restore/recovery posture for core LMS operations.
 - Preserves a reversible migration path via environment toggles.
+
+## Telemetry endpoint addressing policy
+
+**Current decision:**
+- `CLASSHUB_TELEMETRY_DATABASE_URL` must target an established private telemetry database endpoint (private DNS or managed DB endpoint), not a public app URL.
+- Keep internal helper/classhub callback URLs on private/container routing (for example `http://helper_web:8000/...` and `http://classhub_web:8000/...`), not public domain routes.
+- Keep rollout posture aligned with the telemetry split runbook:
+  - local/day-1: telemetry URL unset, `WRITE_MODE=off`, `READ_MODE=core`,
+  - staging: private telemetry URL + `WRITE_MODE=dual` + parity-gated `READ_MODE` cutover,
+  - production: private telemetry URL + `READ_MODE=telemetry`, default `WRITE_MODE=dual` until Gate D sign-off.
+
+**Why this remains active:**
+- Preserves edge hardening and internal endpoint isolation.
+- Reduces accidental coupling to external routing and TLS edge behavior for service-to-service traffic.
+- Keeps telemetry rollout reproducible across local, staging, and production.
+
+## Execution sequencing: 30/60/90 reliability-first plan
+
+**Current decision:**
+- Adopt a concrete 30/60/90 execution sequence starting March 7, 2026, with dated checkpoints captured in [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md).
+- Prioritize work in this order:
+  - Phase 1 telemetry stabilization evidence + SLO guardrails first,
+  - strict organization-boundary rollout (`REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True`) second,
+  - hotspot-first teacher portal service extraction third,
+  - RBAC Phase 2 operator UX enablement after boundary hardening is stable.
+- Keep Telemetry Phase 2 implementation blocked until explicit go/no-go review passes (no automatic start after Day 90).
+- Treat helper RAG expansion beyond curriculum as opt-in only:
+  - class-scoped,
+  - staff-approved source set,
+  - auditable source list in operator evidence artifacts.
+
+Execution ownership and gates:
+- 30-day checkpoint (April 6, 2026): first full telemetry evidence packet + rollback drill.
+- 60-day checkpoint (May 6, 2026): consecutive green evidence windows and explicit write-mode sign-off (`dual` vs `telemetry_only`).
+- 90-day checkpoint (June 5, 2026): approved Phase 2 design packet or documented deferral with next review date.
+
+**Why this remains active:**
+- Prevents migration churn from outrunning operational evidence.
+- Keeps privacy boundary correctness ahead of ergonomics/features.
+- Makes scale-up decisions falsifiable through dated checkpoints and SLO gates rather than intuition.
 
 ## Artifact-first sharing defaults
 
@@ -728,6 +772,7 @@ Execution runbook:
 
 **Current decision:**
 - Docs build now includes `docs/stylesheets/extra.css` via `extra_css` in `mkdocs.yml`.
+- Mermaid runtime is vendored in-repo (`docs/javascripts/vendor/mermaid.min.js`) and loaded from `mkdocs.yml` as a local static asset instead of a third-party CDN.
 - Mermaid blocks are rendered with horizontal overflow instead of forced shrink-to-fit so diagram text stays legible at normal browser zoom.
 - Mermaid defaults are tuned in `docs/javascripts/mermaid-init.js` with `themeVariables.fontSize=22px` and `useMaxWidth=false` for common diagram types.
 - Mermaid SVG output now has a large minimum width in `docs/stylesheets/extra.css` (`min-width: 1200px`, reduced to `960px` on narrower viewports) so diagrams scale up first and use horizontal scroll when needed.
@@ -737,6 +782,7 @@ Execution runbook:
 **Why this remains active:**
 - Prevents operational and architecture diagrams from becoming unreadable on standard laptop displays.
 - Keeps mobile behavior usable by allowing horizontal scroll on large diagrams instead of shrinking text.
+- Reduces supply-chain fragility for docs rendering by avoiding runtime fetches from external script CDNs.
 
 ## Secret handling: env-only secret sources
 
@@ -2222,3 +2268,112 @@ Execution runbook:
 **Why this remains active:**
 - Prevents SQL-identifier injection risks while preserving callers that pass schema-qualified table names.
 - Avoids accidental relation mismatches caused by quoting `schema.table` as a single identifier.
+## Student submissions API material-id extraction contract
+
+**Current decision:**
+- In `api_student_submissions`, derive `material_ids` from `Material` rows scoped to the classroom (`Material.objects.filter(module__classroom=...)`) instead of reverse `modules.values_list("materials__id", flat=True)`.
+- Short-circuit the endpoint response when no classroom materials exist, returning empty payload maps without querying submission/response/gallery tables.
+
+**Why this remains active:**
+- Prevents `None` IDs from reverse-join value lists from bypassing helper empty-list fast paths.
+- Avoids unnecessary queries for newly created or partially populated classes while preserving response shape.
+## Module/material prefetch contract for roster and UI density
+
+**Current decision:**
+- Treat module/material iteration in teacher dashboard and student UI-density resolution as prefetch-required paths.
+- Keep `build_dashboard_context` to a single module/material prefetch pass and reuse the same in-memory module list after order normalization.
+- Make `resolve_ui_density_mode_for_modules` fail fast when modules are not prefetched with `materials`:
+  - raises `ValueError` with explicit `prefetch_related('materials')` guidance.
+- Add service tests for:
+  - parsing edge cases in `parse_extensions`,
+  - malformed/missing-key handling in `_safe_reference_rows`,
+  - prefetch enforcement in UI-density resolution,
+  - single-fetch regression guard for dashboard context.
+
+**Why this remains active:**
+- Prevents accidental N+1 query regressions in hot class-home and teacher-dashboard paths.
+- Keeps service contracts explicit and test-enforced so future callers do not silently fall back to per-module DB reads.
+- Improves reviewer/operator confidence by codifying the query-safety decision in both tests and docs.
+
+## Signal wiring and RAG SQL identifier hardening
+
+**Current decision:**
+- Keep Django signal registration in `HubConfig.ready()` as an explicit side-effect import using `import_module("hub.signals")`, instead of deleting the import.
+- Remove unused `from __future__ import annotations` lines in `hub/forms.py` and `hub/signals.py`.
+- Treat helper RAG table names as untrusted identifiers and enforce a strict allowlist before interpolating any SQL identifier:
+  - allow only lowercase snake-case identifiers (`^[a-z_][a-z0-9_]*$`),
+  - quote validated identifiers through Django DB ops (`connection.ops.quote_name(...)`),
+  - raise `ValueError("invalid_rag_table_name")` for invalid inputs.
+- Add helper-engine tests to assert invalid table names are rejected across schema/create, delete, upsert, and retrieval paths.
+
+**Why this remains active:**
+- Preserves required signal hookup behavior while eliminating style/lint noise.
+- Closes identifier-interpolation risk in raw SQL paths even if future table-name configuration becomes dynamic.
+- Keeps security posture inspectable through explicit tests instead of relying on assumptions about constant-only inputs.
+
+## Canonical docs front door + strict production org-boundary defaults
+
+**Current decision:**
+- Consolidate repository onboarding around one canonical front-door contract:
+  - `README.md` is the repo entrypoint (quick start + high-level architecture).
+  - `docs/START_HERE.md` is the role router.
+  - `docs/PUBLIC_OVERVIEW.md` is external evaluator/funder framing.
+  - `docs/CURRENT_STATE.md` is shipped-state evidence for `main`.
+- Remove overlapping README onboarding/architecture blocks so there is a single source of truth for first-read paths.
+- Standardize top-level product naming in front-door docs as **Class Hub**.
+- Change `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` runtime default to `True` in Class Hub settings.
+- Keep explicit fallback posture only where intended:
+  - `compose/.env.example.local` and local/day-1 presets keep `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0`.
+  - `compose/.env.example.domain` sets `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`.
+- Align teacher/security/deploy/maturity docs with this posture and add explicit screenshot-status guidance in `CURRENT_STATE.md`.
+
+**Why this remains active:**
+- Reduces docs drift risk by giving each front-door document one ownership role.
+- Makes the public-deploy path secure by default while preserving practical migration/local escape hatches.
+- Improves external evaluator trust by making screenshot evidence state explicit instead of implicit.
+
+## Teacher portal mode switcher for surface-density control
+
+**Current decision:**
+- Keep `/teach` as the same route, but add an explicit mode switcher contract via query param `portal_mode`.
+- Supported modes:
+  - `all` (default),
+  - `day`,
+  - `setup`,
+  - `admin` (superuser-only),
+  - `policy` (superuser or RBAC-enabled staff).
+- Apply mode visibility as rendering filters over existing sections/cards:
+  - `day`: class-focus + digest + closeout + recent submissions.
+  - `setup`: class setup, profile, import/template tools.
+  - `admin`: organization/staff/operator surfaces.
+  - `policy`: RBAC/policy/operator surfaces.
+- Do not add new routes or new top-level workflow primitives as part of this change.
+
+**Why this remains active:**
+- Reduces first-contact cognitive load in `/teach` without removing existing capability.
+- Preserves backward compatibility (`/teach` default remains full cockpit).
+- Aligns with stability-plan constraints to simplify entry-path complexity before adding net-new surface area.
+
+## Strict org-boundary compatibility for legacy unscoped classes
+
+**Current decision:**
+- Keep strict org-boundary behavior for org-scoped classes when `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`.
+- Preserve access fallback for legacy classes with no organization (`organization_id is null`) so existing class operations still work during migration.
+- Permit `class.create` for staff without memberships only when there are zero active organizations, to support bootstrap/day-0 setup before org memberships exist.
+
+**Why this remains active:**
+- Prevents operational lockouts for legacy unscoped classes while still enforcing strict boundaries on org-scoped data.
+- Preserves a controlled bootstrap path for first-run deployments without reopening broad legacy fallback once organizations are configured.
+
+## Teacher home view-size guard split
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/content_home.py` focused on endpoints only.
+- Move home-page state/context builders into:
+  - `services/classhub/hub/views/teacher_parts/content_home_context.py`
+  - `services/classhub/hub/views/teacher_parts/content_home_org_admin.py`
+- Preserve behavior and template contract while satisfying `scripts/check_view_size_budgets.py` limits.
+
+**Why this remains active:**
+- Keeps view modules below dense-size thresholds so future changes stay reviewable.
+- Reduces coupling by separating request handlers from context construction logic.

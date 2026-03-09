@@ -38,3 +38,26 @@ mkdocs build --strict
 
 - Docs deploy workflow: `.github/workflows/docs.yml`
 - Triggered when docs files, `mkdocs.yml`, or `requirements-docs.txt` change.
+
+## Mermaid bundle maintenance
+
+Docs Mermaid rendering is pinned to a repo-local asset:
+- `docs/javascripts/vendor/mermaid.min.js`
+- referenced by `mkdocs.yml` via `javascripts/vendor/mermaid.min.js?v=10.9.4`
+
+Current pinned bundle:
+- version: `10.9.4`
+- source: `https://unpkg.com/mermaid@10.9.4/dist/mermaid.min.js`
+- sha256: `1360dfc1fbdbf83466b8c49c778c17a23bbb15718c176356a7f4d2c95c54da07`
+
+Update procedure:
+
+```bash
+curl -fL https://unpkg.com/mermaid@<version>/dist/mermaid.min.js -o docs/javascripts/vendor/mermaid.min.js
+shasum -a 256 docs/javascripts/vendor/mermaid.min.js
+```
+
+After download:
+1. Update the version query string in `mkdocs.yml`.
+2. Update version/source/hash in this doc.
+3. Run `mkdocs build --strict`.

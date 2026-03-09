@@ -32,90 +32,163 @@
           <div class="error" role="alert" aria-live="assertive">{{ error }}</div>
         {% endif %}
 
-        {% if show_operator_config_snapshot %}
-          <div class="card card-secondary">
-            <div class="row">
-              <h2 class="section-title-tight">Operator config snapshot</h2>
-              <div class="muted">Read-only summary of active profile/flag behavior on this node.</div>
-            </div>
-            <div class="table-wrap operator-config-table-wrap">
-              <table>
-                <caption class="visually-hidden">Operator config snapshot</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Setting</th>
-                    <th scope="col">Value</th>
-                    <th scope="col">Source</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for row in operator_config_rows %}
+        <div class="card card-secondary portal-mode-card">
+          <div class="row">
+            <h2 class="section-title-tight">Portal modes</h2>
+            <div class="muted">Choose a focused surface for this session.</div>
+          </div>
+          <div class="portal-mode-grid">
+            {% for row in portal_mode_rows %}
+              <a
+                class="portal-mode-chip{% if row.active %} portal-mode-chip--active{% endif %}"
+                href="{{ row.url }}"
+                {% if row.active %}aria-current="page"{% endif %}
+              >
+                <strong>{{ row.label }}</strong>
+                <span class="muted">{{ row.description }}</span>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        {% if show_policy_sections or show_admin_sections %}
+          {% if show_operator_config_snapshot %}
+            <div class="card card-secondary">
+              <div class="row">
+                <h2 class="section-title-tight">Operator config snapshot</h2>
+                <div class="muted">Read-only summary of active profile/flag behavior on this node.</div>
+              </div>
+              <div class="table-wrap operator-config-table-wrap">
+                <table>
+                  <caption class="visually-hidden">Operator config snapshot</caption>
+                  <thead>
                     <tr>
-                      <th scope="row"><strong>{{ row.label }}</strong></th>
-                      <td><code>{{ row.value }}</code></td>
-                      <td class="muted">{{ row.source }}</td>
+                      <th scope="col">Setting</th>
+                      <th scope="col">Value</th>
+                      <th scope="col">Source</th>
                     </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {% for row in operator_config_rows %}
+                      <tr>
+                        <th scope="row"><strong>{{ row.label }}</strong></th>
+                        <td><code>{{ row.value }}</code></td>
+                        <td class="muted">{{ row.source }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="muted operator-config-footnote">
+                Use these docs for rollout/maturity guidance:
+                {% for doc_path in operator_config_docs %}
+                  <code>{{ doc_path }}</code>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </div>
             </div>
-            <div class="muted operator-config-footnote">
-              Use these docs for rollout/maturity guidance:
-              {% for doc_path in operator_config_docs %}
-                <code>{{ doc_path }}</code>{% if not forloop.last %}, {% endif %}
-              {% endfor %}
+          {% endif %}
+          {% if show_telemetry_rollout_status %}
+            <div class="card card-secondary">
+              <div class="row">
+                <h2 class="section-title-tight">Telemetry rollout status</h2>
+                <div class="muted">{{ telemetry_rollout_summary }}</div>
+              </div>
+              <div class="table-wrap operator-config-table-wrap">
+                <table>
+                  <caption class="visually-hidden">Telemetry rollout status checklist</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Gate item</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Detail</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in telemetry_rollout_checks %}
+                      <tr>
+                        <th scope="row"><strong>{{ row.label }}</strong></th>
+                        <td>
+                          {% if row.done is True %}
+                            <span class="state-pill state-pill--open">Complete</span>
+                          {% elif row.done is False %}
+                            <span class="state-pill state-pill--locked">Pending</span>
+                          {% else %}
+                            <span class="muted">Manual</span>
+                          {% endif %}
+                        </td>
+                        <td class="muted">{{ row.detail }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="muted operator-config-footnote">
+                Commands:
+                {% for cmd in telemetry_rollout_commands %}
+                  <code>{{ cmd }}</code>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </div>
+              <div class="muted operator-config-footnote">
+                Docs:
+                {% for doc_path in telemetry_rollout_docs %}
+                  <code>{{ doc_path }}</code>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </div>
             </div>
+          {% endif %}
+        {% endif %}
+
+        {% if show_day_sections %}
+          <div class="card classroom-focus">
+            <div class="row">
+              <h2 class="section-title-tight">Classroom focus</h2>
+              <div class="muted">Lead from the class you are actively teaching.</div>
+            </div>
+            {% if assigned_classes %}
+              <div class="classroom-focus-grid">
+                {% for c in assigned_classes %}
+                  <article class="classroom-focus-item">
+                    <div class="classroom-focus-header">
+                      <h3 class="section-title-compact">{{ c.name }}</h3>
+                      <span class="state-pill state-pill--open">Assigned</span>
+                    </div>
+                    <div class="classroom-focus-meta">
+                      <span class="pill">{{ c.join_code }}</span>
+                      <button type="button" class="inline-copy" data-copy-value="{{ c.join_code }}">Copy code</button>
+                      {% if c.is_locked %}
+                        <span class="state-pill state-pill--locked">Locked</span>
+                      {% else %}
+                        <span class="state-pill state-pill--open">Open</span>
+                      {% endif %}
+                    </div>
+                    <div class="classroom-focus-actions">
+                      <a href="/teach/class/{{ c.id }}">Open class</a>
+                      <a href="/teach/lessons?class_id={{ c.id }}">Lessons</a>
+                      <a href="/teach/class/{{ c.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
+                    </div>
+                  </article>
+                {% endfor %}
+              </div>
+              {% if classes|length > assigned_classes|length %}
+                <p class="muted classroom-focus-note">
+                  Additional accessible classes are listed in the full class table below.
+                </p>
+              {% endif %}
+            {% elif classes %}
+              <p class="muted">No classes are marked assigned yet. Use the class list below to pick your active class.</p>
+            {% else %}
+              <p class="muted">No classes yet. Create your first class in Class setup.</p>
+            {% endif %}
           </div>
         {% endif %}
 
-        <div class="card classroom-focus">
-          <div class="row">
-            <h2 class="section-title-tight">Classroom focus</h2>
-            <div class="muted">Lead from the class you are actively teaching.</div>
-          </div>
-          {% if assigned_classes %}
-            <div class="classroom-focus-grid">
-              {% for c in assigned_classes %}
-                <article class="classroom-focus-item">
-                  <div class="classroom-focus-header">
-                    <h3 class="section-title-compact">{{ c.name }}</h3>
-                    <span class="state-pill state-pill--open">Assigned</span>
-                  </div>
-                  <div class="classroom-focus-meta">
-                    <span class="pill">{{ c.join_code }}</span>
-                    <button type="button" class="inline-copy" data-copy-value="{{ c.join_code }}">Copy code</button>
-                    {% if c.is_locked %}
-                      <span class="state-pill state-pill--locked">Locked</span>
-                    {% else %}
-                      <span class="state-pill state-pill--open">Open</span>
-                    {% endif %}
-                  </div>
-                  <div class="classroom-focus-actions">
-                    <a href="/teach/class/{{ c.id }}">Open class</a>
-                    <a href="/teach/lessons?class_id={{ c.id }}">Lessons</a>
-                    <a href="/teach/class/{{ c.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
-                  </div>
-                </article>
-              {% endfor %}
+        {% if show_setup_console %}
+          <div class="card card-secondary" data-tabs data-initial-tab="{{ initial_top_tab|default:'quick-actions' }}">
+            <h2 class="section-title">Portal setup + account tools</h2>
+            <div class="muted section-subtitle">
+              Use these controls to support class delivery, staffing, and policy operations.
             </div>
-            {% if classes|length > assigned_classes|length %}
-              <p class="muted classroom-focus-note">
-                Additional accessible classes are listed in the full class table below.
-              </p>
-            {% endif %}
-          {% elif classes %}
-            <p class="muted">No classes are marked assigned yet. Use the class list below to pick your active class.</p>
-          {% else %}
-            <p class="muted">No classes yet. Create your first class in Class setup.</p>
-          {% endif %}
-        </div>
-
-        <div class="card card-secondary" data-tabs data-initial-tab="{{ initial_top_tab|default:'quick-actions' }}">
-          <h2 class="section-title">Portal setup + account tools</h2>
-          <div class="muted section-subtitle">
-            Use these controls to support class delivery, staffing, and policy operations.
-          </div>
-          <div class="top-tabs" role="tablist" aria-label="Teacher top actions">
+            <div class="top-tabs" role="tablist" aria-label="Teacher top actions">
             <button type="button" class="top-tab" id="tab-quick-actions" role="tab" aria-controls="panel-quick-actions" aria-selected="true">
               Class setup
             </button>
@@ -135,7 +208,7 @@
                 Organizations
               </button>
             {% endif %}
-          </div>
+            </div>
 
           <section class="top-tab-panel" id="panel-quick-actions" role="tabpanel" aria-labelledby="tab-quick-actions">
             <h2 class="section-title">Create a class</h2>
@@ -1361,19 +1434,21 @@
             </section>
           {% endif %}
         </div>
+        {% endif %}
 
-        <div class="card card-secondary card-secondary--tools">
-          <details class="support-collapsible">
-            <summary class="support-summary">
-              <span class="support-summary-text">
-                <span class="support-summary-title">Import Syllabus Source</span>
-                <span class="support-summary-note muted">Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`).</span>
-              </span>
-            </summary>
-            <div class="support-collapsible-body">
-              <form method="post" action="/teach/import-syllabus-source" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="grid-2">
+        {% if show_setup_sections %}
+          <div class="card card-secondary card-secondary--tools">
+            <details class="support-collapsible">
+              <summary class="support-summary">
+                <span class="support-summary-text">
+                  <span class="support-summary-title">Import Syllabus Source</span>
+                  <span class="support-summary-note muted">Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`).</span>
+                </span>
+              </summary>
+              <div class="support-collapsible-body">
+                <form method="post" action="/teach/import-syllabus-source" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="grid-2">
                   <div>
                     <label for="import-course-slug">Course slug (optional)</label>
                     <input id="import-course-slug" name="import_course_slug" value="{{ import_course_slug }}" placeholder="swarm_aesthetics" />
@@ -1413,26 +1488,26 @@
                     </label>
                   </div>
                 </div>
-                <div class="submit-wrap">
-                  <button type="submit">Import source</button>
-                </div>
-              </form>
-            </div>
-          </details>
-        </div>
+                  <div class="submit-wrap">
+                    <button type="submit">Import source</button>
+                  </div>
+                </form>
+              </div>
+            </details>
+          </div>
 
-        <div class="card card-secondary card-secondary--tools">
-          <details class="support-collapsible">
-            <summary class="support-summary">
-              <span class="support-summary-text">
-                <span class="support-summary-title">Generate Course Authoring Templates</span>
-                <span class="support-summary-note muted">Create pre-formatted `.md` and `.docx` starter files for teachers.</span>
-              </span>
-            </summary>
-            <div class="support-collapsible-body">
-              <form method="post" action="/teach/generate-authoring-templates">
-                {% csrf_token %}
-                <div class="grid-2">
+          <div class="card card-secondary card-secondary--tools">
+            <details class="support-collapsible">
+              <summary class="support-summary">
+                <span class="support-summary-text">
+                  <span class="support-summary-title">Generate Course Authoring Templates</span>
+                  <span class="support-summary-note muted">Create pre-formatted `.md` and `.docx` starter files for teachers.</span>
+                </span>
+              </summary>
+              <div class="support-collapsible-body">
+                <form method="post" action="/teach/generate-authoring-templates">
+                  {% csrf_token %}
+                  <div class="grid-2">
                   <div>
                     <label for="template-slug">Course slug</label>
                     <input id="template-slug" name="template_slug" value="{{ template_slug }}" placeholder="scratch_game_design" required />
@@ -1450,76 +1525,78 @@
                     <input id="template-duration" name="template_duration" type="number" min="15" max="240" value="{{ template_duration }}" required />
                   </div>
                 </div>
-                <div class="muted template-output-note">Files are written to <code>{{ template_output_dir }}</code>.</div>
-                <div class="submit-wrap">
-                  <button type="submit">Generate templates</button>
-                </div>
-              </form>
-              {% if template_download_rows %}
-                <h3 class="section-title-compact">Download files for <code>{{ template_slug }}</code></h3>
-                <ul class="download-list">
-                  {% for row in template_download_rows %}
-                    <li>
-                      {% if row.exists %}
-                        <a href="{{ row.url }}">{{ row.label }}</a>
-                      {% else %}
-                        <span class="muted">{{ row.label }} (not generated yet)</span>
-                      {% endif %}
-                    </li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
-            </div>
-          </details>
-        </div>
-
-        {% if syllabus_export_enabled %}
-          <div class="card card-secondary card-secondary--tools">
-            <details class="support-collapsible">
-              <summary class="support-summary">
-                <span class="support-summary-text">
-                  <span class="support-summary-title">Syllabus Exports</span>
-                  <span class="support-summary-note muted">Admin/superuser backup and catalog downloads for repo-authored course syllabi.</span>
-                </span>
-              </summary>
-              <div class="support-collapsible-body">
-                <div class="closeout-actions">
-                  <a class="button mini" href="/teach/syllabus-export?kind=catalog_csv">Download catalog CSV</a>
-                  <a class="button mini" href="/teach/syllabus-export?kind=backup_zip">Download full backup ZIP</a>
-                </div>
-
-                {% if syllabus_export_courses %}
-                  <h3 class="section-title-compact">Single-course backup ZIP</h3>
-                  <form method="get" action="/teach/syllabus-export">
-                    <input type="hidden" name="kind" value="course_zip" />
-                    <div class="grid-2">
-                      <div>
-                        <label for="syllabus-course-slug">Course</label>
-                        <select id="syllabus-course-slug" name="course_slug" required>
-                          {% for course_row in syllabus_export_courses %}
-                            <option
-                              value="{{ course_row.slug }}"
-                              {% if syllabus_export_selected_course_slug == course_row.slug %}selected{% endif %}
-                            >
-                              {{ course_row.title }} ({{ course_row.slug }}) · {{ course_row.lesson_count }} lessons
-                            </option>
-                          {% endfor %}
-                        </select>
-                      </div>
-                    </div>
-                    <div class="submit-wrap">
-                      <button type="submit">Download course ZIP</button>
-                    </div>
-                  </form>
-                {% else %}
-                  <p class="muted">No syllabus courses found.</p>
+                  <div class="muted template-output-note">Files are written to <code>{{ template_output_dir }}</code>.</div>
+                  <div class="submit-wrap">
+                    <button type="submit">Generate templates</button>
+                  </div>
+                </form>
+                {% if template_download_rows %}
+                  <h3 class="section-title-compact">Download files for <code>{{ template_slug }}</code></h3>
+                  <ul class="download-list">
+                    {% for row in template_download_rows %}
+                      <li>
+                        {% if row.exists %}
+                          <a href="{{ row.url }}">{{ row.label }}</a>
+                        {% else %}
+                          <span class="muted">{{ row.label }} (not generated yet)</span>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
                 {% endif %}
               </div>
             </details>
           </div>
+
+          {% if syllabus_export_enabled %}
+            <div class="card card-secondary card-secondary--tools">
+              <details class="support-collapsible">
+                <summary class="support-summary">
+                  <span class="support-summary-text">
+                    <span class="support-summary-title">Syllabus Exports</span>
+                    <span class="support-summary-note muted">Admin/superuser backup and catalog downloads for repo-authored course syllabi.</span>
+                  </span>
+                </summary>
+                <div class="support-collapsible-body">
+                  <div class="closeout-actions">
+                    <a class="button mini" href="/teach/syllabus-export?kind=catalog_csv">Download catalog CSV</a>
+                    <a class="button mini" href="/teach/syllabus-export?kind=backup_zip">Download full backup ZIP</a>
+                  </div>
+
+                  {% if syllabus_export_courses %}
+                    <h3 class="section-title-compact">Single-course backup ZIP</h3>
+                    <form method="get" action="/teach/syllabus-export">
+                      <input type="hidden" name="kind" value="course_zip" />
+                      <div class="grid-2">
+                        <div>
+                          <label for="syllabus-course-slug">Course</label>
+                          <select id="syllabus-course-slug" name="course_slug" required>
+                            {% for course_row in syllabus_export_courses %}
+                              <option
+                                value="{{ course_row.slug }}"
+                                {% if syllabus_export_selected_course_slug == course_row.slug %}selected{% endif %}
+                              >
+                                {{ course_row.title }} ({{ course_row.slug }}) · {{ course_row.lesson_count }} lessons
+                              </option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="submit-wrap">
+                        <button type="submit">Download course ZIP</button>
+                      </div>
+                    </form>
+                  {% else %}
+                    <p class="muted">No syllabus courses found.</p>
+                  {% endif %}
+                </div>
+              </details>
+            </div>
+          {% endif %}
         {% endif %}
 
-        <div class="card">
+        {% if show_day_sections %}
+          <div class="card">
           <div class="row">
             <h2 class="section-title-tight">Classes</h2>
             <div class="muted">Assigned classes appear first. Tip: keep codes visible in-room, not in email.</div>
@@ -1575,9 +1652,9 @@
           {% else %}
             <p class="muted">No classes yet.</p>
           {% endif %}
-        </div>
+          </div>
 
-        <div class="card card-secondary">
+          <div class="card card-secondary">
           <div class="row">
             <h2 class="section-title-tight">What Changed Since Yesterday</h2>
             <div class="muted">Window started {{ digest_since|date:"M j, g:i A" }}</div>
@@ -1620,9 +1697,9 @@
           {% else %}
             <p class="muted">No classes yet.</p>
           {% endif %}
-        </div>
+          </div>
 
-        <div class="card card-secondary">
+          <div class="card card-secondary">
           <div class="row">
             <h2 class="section-title-tight">End-of-Class Closeout</h2>
             <div class="muted">Keep this collapsed until you need actions.</div>
@@ -1651,9 +1728,9 @@
           {% else %}
             <p class="muted">No classes yet.</p>
           {% endif %}
-        </div>
+          </div>
 
-        <div class="card card-secondary">
+          <div class="card card-secondary">
           <div class="row">
             <h2 class="section-title-tight">Recent submissions</h2>
             <div class="muted">Latest uploads across all classes</div>
@@ -1688,7 +1765,8 @@
           {% else %}
             <p class="muted">No submissions yet.</p>
           {% endif %}
-        </div>
+          </div>
+        {% endif %}
       </main>
     </div>
     <script src="{% static 'js/teach_home.js' %}" defer></script>

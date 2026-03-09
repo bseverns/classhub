@@ -117,6 +117,22 @@ class StudentSubmissionsEndpointTests(_StudentAPIBase):
         self.assertEqual(len(data["submissions"]), 0)
         self.assertEqual(data["pagination"]["total"], 0)
 
+    def test_empty_material_set_short_circuits_submission_queries(self):
+        self.material.delete()
+        self._login_student()
+
+        with CaptureQueriesContext(connection) as capture:
+            resp = self.client.get("/api/v1/student/submissions")
+
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["submissions"], [])
+        self.assertEqual(data["submissions_by_material"], {})
+        self.assertEqual(data["material_responses"], {})
+        self.assertEqual(data["gallery_entries_by_material"], {})
+        self.assertEqual(data["pagination"]["total"], 0)
+        self.assertFalse(any("hub_submission" in q["sql"].lower() for q in capture.captured_queries))
+
     def test_returns_submissions_with_pagination_metadata(self):
         self._login_student()
         with tempfile.TemporaryDirectory() as media_root:

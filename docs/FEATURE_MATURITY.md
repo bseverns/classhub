@@ -23,7 +23,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | `CLASSHUB_PROGRAM_PROFILE` | `secondary` | ClassHub + Helper behavior defaults | Baseline pacing + helper policy defaults. |
 | `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED` | `0` | Student shell constraints | Enables kiosk route allowlist + focused student navigation shell. |
 | `CLASSHUB_STUDENT_KIOSK_DEFAULT` | `0` | Student shell default mode | Forces kiosk mode on by default unless toggled off per device. |
-| `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` | `0` | ClassHub access control | Controls whether staff without active org membership can access classes. |
+| `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` | `1` in production presets (`0` in local/dev preset) | ClassHub access control | Controls whether staff without active org membership can access classes. |
 | `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED` | `0` | RBAC evaluator behavior | Enables module-range scoped grant enforcement. |
 | `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED` | `0` | RBAC mutation workflow | Routes RBAC writes into approval queue instead of immediate apply. |
 | `CLASSHUB_TELEMETRY_DATABASE_URL` + `CLASSHUB_TELEMETRY_WRITE_MODE` + `CLASSHUB_TELEMETRY_READ_MODE` | URL unset / `off` / `core` | Telemetry split rollout controls | Reserved for staged telemetry DB split rollout; non-default modes require explicit parity/rollback validation. |
@@ -45,7 +45,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | Helper policy strictness/scope/topic filtering | Live (default, profile-driven) | Env override > helper YAML > profile default | `/helper/chat` policy response behavior matches expected strictness. |
 | Helper YAML config layering | Live (default, optional) | `HELPER_CONFIG_FILE` path (optional) | Helper engine config-source tests in `tutor.tests.test_engine`. |
 | Async/self-paced sequencing workflows | RFC | See `ASYNC_SELF_PACED_RFC.md` | No runtime SLA yet; treat as roadmap only. |
-| Telemetry DB split | RFC / staged plan | See `TELEMETRY_DB_SPLIT_PLAN.md` | Phase 1 Slice 0/1/2/3 scaffolding is shipped (flags + telemetry schema app + router + centralized dual-write write seam); read cutover/backfill/parity gates remain pending. |
+| Telemetry DB split | RFC / staged plan | See `TELEMETRY_DB_SPLIT_PLAN.md` | Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is shipped (flags + telemetry schema app + router + centralized dual-write seam + read abstraction on key teacher/operator rollups + idempotent backfill command + parity checker command). Slice 7 evidence tooling (`scripts/telemetry_stabilization_evidence.sh`) is shipped, while stabilization evidence and final cutover gates remain pending. |
 
 ## Recommended rollout sequence (RBAC + helper)
 1. Keep `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=0` and `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0`.

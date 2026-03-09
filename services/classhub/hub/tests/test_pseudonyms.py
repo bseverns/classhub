@@ -69,6 +69,24 @@ class NameSafetyValidationTests(SimpleTestCase):
         self.assertTrue(flagged)
         self.assertEqual(reason, "email_pattern")
 
+    def test_invalid_email_domain_labels_are_not_flagged(self):
+        from ..services.student_join import validate_display_name_safety
+
+        for token in ("kid@-school.com", "kid@school-.com", "kid@school..com"):
+            with self.subTest(token=token):
+                flagged, reason = validate_display_name_safety(token)
+                self.assertFalse(flagged)
+                self.assertEqual(reason, "")
+
+    def test_invalid_email_local_parts_are_not_flagged(self):
+        from ..services.student_join import validate_display_name_safety
+
+        for token in (".kid@school.com", "kid.@school.com", "ki..d@school.com"):
+            with self.subTest(token=token):
+                flagged, reason = validate_display_name_safety(token)
+                self.assertFalse(flagged)
+                self.assertEqual(reason, "")
+
     def test_phone_detected(self):
         from ..services.student_join import validate_display_name_safety
 

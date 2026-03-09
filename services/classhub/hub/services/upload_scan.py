@@ -62,6 +62,7 @@ def scan_uploaded_file(uploaded_file) -> ScanResult:
             capture_output=True,
             text=True,
             timeout=int(getattr(settings, "CLASSHUB_UPLOAD_SCAN_TIMEOUT_SECONDS", 20)),
+            shell=False,
             check=False,
         )
         if completed.returncode == 0:
