@@ -61,7 +61,11 @@ ROUTE_CAPABILITY_MAP: dict[str, RouteContract] = {
         "api_teacher_set_enrollment_mode",
     ),
     "/api/v1/teacher/rbac/simulate": RouteContract("rbac.simulate", "api_teacher_rbac_simulate"),
-    "/teach": RouteContract("class.view", "teach_home"),
+    "/teach": RouteContract(
+        "class.view",
+        "teach_home",
+        required_tokens=("build_teacher_home_context_data(",),
+    ),
     "/teach/data-lifespan": RouteContract("syllabus.export", "teach_data_lifespan"),
     "/teach/data-lifespan/export": RouteContract("syllabus.export", "teach_data_lifespan_export"),
     "/teach/login": RouteContract("auth_or_public", "teach_login"),

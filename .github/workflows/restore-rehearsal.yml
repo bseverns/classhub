@@ -66,9 +66,28 @@ jobs:
           END_EPOCH="$(date +%s)"
           DURATION_SECONDS="$((END_EPOCH - START_EPOCH))"
 
-          POSTGRES_BACKUP="$(ls -1t backups/postgres/classhub_*.sql | head -n1)"
-          UPLOADS_BACKUP="$(ls -1t backups/uploads/classhub_uploads_*.tgz | head -n1)"
-          MINIO_BACKUP="$(ls -1t backups/minio/minio_*.tgz | head -n1)"
+          POSTGRES_BACKUP="$(
+            find backups/postgres -maxdepth 1 -type f -name 'classhub_*.sql' -printf '%T@ %p\n' \
+              | sort -nr \
+              | head -n1 \
+              | cut -d' ' -f2-
+          )"
+          UPLOADS_BACKUP="$(
+            find backups/uploads -maxdepth 1 -type f -name 'classhub_uploads_*.tgz' -printf '%T@ %p\n' \
+              | sort -nr \
+              | head -n1 \
+              | cut -d' ' -f2-
+          )"
+          MINIO_BACKUP="$(
+            find backups/minio -maxdepth 1 -type f -name 'minio_*.tgz' -printf '%T@ %p\n' \
+              | sort -nr \
+              | head -n1 \
+              | cut -d' ' -f2-
+          )"
+          if [[ -z "${POSTGRES_BACKUP}" || -z "${UPLOADS_BACKUP}" || -z "${MINIO_BACKUP}" ]]; then
+            echo "[rehearsal-workflow] expected backup artifacts were not found" >&2
+            exit 1
+          fi
 
           BACKUP_STAMP="$(basename "${POSTGRES_BACKUP}")"
           BACKUP_STAMP="${BACKUP_STAMP#classhub_}"
