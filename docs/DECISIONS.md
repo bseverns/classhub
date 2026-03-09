@@ -2257,6 +2257,15 @@ Execution ownership and gates:
 - Reduces operator cognitive load by giving non-specialists a single, repeatable command for full-stack confidence checks.
 - Preserves script composability while making routine operations easier to delegate across staff turnover.
 
+## Student submissions API material-id extraction contract
+
+**Current decision:**
+- In `api_student_submissions`, derive `material_ids` from `Material` rows scoped to the classroom (`Material.objects.filter(module__classroom=...)`) instead of reverse `modules.values_list("materials__id", flat=True)`.
+- Short-circuit the endpoint response when no classroom materials exist, returning empty payload maps without querying submission/response/gallery tables.
+
+**Why this remains active:**
+- Prevents `None` IDs from reverse-join value lists from bypassing helper empty-list fast paths.
+- Avoids unnecessary queries for newly created or partially populated classes while preserving response shape.
 ## Module/material prefetch contract for roster and UI density
 
 **Current decision:**
