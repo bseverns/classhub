@@ -51,6 +51,50 @@ def _api_rate_limit(limit: int = 120, window_seconds: int = 60):
     return decorator
 
 
+def _parse_submissions_pagination(request) -> tuple[int, int]:
+    try:
+        limit = max(1, min(100, int(request.GET.get("limit", 50))))
+        offset = max(0, int(request.GET.get("offset", 0)))
+    except ValueError:
+        return 50, 0
+    return limit, offset
+
+
+def _submissions_payload(
+    *,
+    submissions: list[dict],
+    limit: int,
+    offset: int,
+    total: int,
+    submissions_by_material: dict,
+    material_responses: dict,
+    gallery_entries_by_material: dict,
+) -> dict:
+    return {
+        "submissions": submissions,
+        "pagination": {
+            "limit": limit,
+            "offset": offset,
+            "total": total,
+        },
+        "submissions_by_material": submissions_by_material,
+        "material_responses": material_responses,
+        "gallery_entries_by_material": gallery_entries_by_material,
+    }
+
+
+def _empty_submissions_payload(*, limit: int, offset: int) -> dict:
+    return _submissions_payload(
+        submissions=[],
+        limit=limit,
+        offset=offset,
+        total=0,
+        submissions_by_material={},
+        material_responses={},
+        gallery_entries_by_material={},
+    )
+
+
 @require_GET
 @_api_rate_limit(limit=120, window_seconds=60)
 def api_student_session(request):
@@ -164,30 +208,10 @@ def api_student_submissions(request):
     material_ids = list(
         Material.objects.filter(module__classroom=classroom).values_list("id", flat=True)
     )
-
-    # Pagination logic bounds
-    try:
-        limit = max(1, min(100, int(request.GET.get("limit", 50))))
-        offset = max(0, int(request.GET.get("offset", 0)))
-    except ValueError:
-        limit = 50
-        offset = 0
+    limit, offset = _parse_submissions_pagination(request)
 
     if not material_ids:
-        return _json_no_store_response(
-            {
-                "submissions": [],
-                "pagination": {
-                    "limit": limit,
-                    "offset": offset,
-                    "total": 0,
-                },
-                "submissions_by_material": {},
-                "material_responses": {},
-                "gallery_entries_by_material": {},
-            },
-            private=True,
-        )
+        return _json_no_store_response(_empty_submissions_payload(limit=limit, offset=offset), private=True)
 
     submissions_qs = (
         Submission.objects.filter(student=student, material_id__in=material_ids)
@@ -197,33 +221,26 @@ def api_student_submissions(request):
     total_submissions = submissions_qs.count()
     submissions_page = submissions_qs[offset:offset + limit]
 
-    submissions_list = []
-    for sub in submissions_page:
-        submissions_list.append({
+    submissions_list = [{
             "id": sub.id,
             "material_id": sub.material_id,
             "uploaded_at": sub.uploaded_at,
             "original_filename": sub.original_filename,
-        })
+        } for sub in submissions_page]
 
     submissions_by_material = build_submissions_by_material(student=student, material_ids=material_ids)
     material_responses = build_material_response_map(student=student, material_ids=material_ids)
     gallery_entries_by_material = build_gallery_entries_map(classroom=classroom, viewer_student=student, material_ids=material_ids)
-
-    return _json_no_store_response(
-        {
-            "submissions": submissions_list,
-            "pagination": {
-                "limit": limit,
-                "offset": offset,
-                "total": total_submissions,
-            },
-            "submissions_by_material": submissions_by_material,
-            "material_responses": material_responses,
-            "gallery_entries_by_material": gallery_entries_by_material,
-        },
-        private=True,
+    payload = _submissions_payload(
+        submissions=submissions_list,
+        limit=limit,
+        offset=offset,
+        total=total_submissions,
+        submissions_by_material=submissions_by_material,
+        material_responses=material_responses,
+        gallery_entries_by_material=gallery_entries_by_material,
     )
+    return _json_no_store_response(payload, private=True)
 
 __all__ = [
     "api_student_session",
