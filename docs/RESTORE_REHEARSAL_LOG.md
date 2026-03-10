@@ -27,6 +27,7 @@ Add one row per rehearsal.
 
 | Rehearsal date | Deployment | Operator(s) | Result | RTO seconds | RPO seconds | Thresholds (RTO/RPO) | Evidence directory | Next rehearsal date | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-03-10 | prod | ben | PASS | 12 | 12 | `3600/900` | `artifacts/stability/2026-03-10/` | 2026-06-10 | Restore DB `classhub_restore_20260310160634`; backups + checksums captured |
 | YYYY-MM-DD | prod | names | PASS/FAIL | N | N | `3600/900` | `artifacts/stability/<date>/` | YYYY-MM-DD | blockers/follow-up |
 
 ## Acceptance Rule
