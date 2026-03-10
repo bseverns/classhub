@@ -2766,6 +2766,103 @@ class TeacherOrganizationAccessTests(TestCase):
         event = AuditEvent.objects.filter(action="rbac.simulate.portal", target_id=str(target_staff.id)).first()
         self.assertIsNotNone(event)
 
+    def test_org_admin_bulk_simulation_matrix_scopes_to_class_org(self):
+        self._promote_staff_to_superuser()
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+
+        alpha_staff = get_user_model().objects.create_user(
+            username="rbac_bulk_alpha",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        beta_staff = get_user_model().objects.create_user(
+            username="rbac_bulk_beta",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=alpha_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_b,
+            user=beta_staff,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+
+        resp = self.client.get(
+            "/teach",
+            {
+                "portal_mode": "policy",
+                "rbac_tools": "1",
+                "rbac_bulk_class_id": str(self.class_a.id),
+                "rbac_bulk_capability": OrganizationRoleCapability.CAP_CLASS_VIEW,
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Bulk simulation result")
+        self.assertContains(resp, "class=Alpha Cohort")
+        self.assertContains(resp, alpha_staff.username)
+        self.assertContains(resp, beta_staff.username)
+        self.assertContains(resp, "no_membership_for_class_org")
+
+    def test_org_admin_can_filter_rbac_audit_ops_feed(self):
+        self._promote_staff_to_superuser()
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_ADMIN
+        membership.save(update_fields=["role"])
+
+        AuditEvent.objects.create(
+            actor_user=self.staff,
+            classroom=self.class_a,
+            action="rbac.scope_grant.portal_upsert",
+            target_type="ClassStaffModuleScopeGrant",
+            target_id="alpha-1",
+            summary="audit keep alpha",
+            metadata={"organization_id": self.org_a.id},
+        )
+        AuditEvent.objects.create(
+            actor_user=self.staff,
+            classroom=self.class_b,
+            action="rbac.scope_grant.portal_upsert",
+            target_type="ClassStaffModuleScopeGrant",
+            target_id="beta-1",
+            summary="audit drop beta class",
+            metadata={"organization_id": self.org_b.id},
+        )
+        AuditEvent.objects.create(
+            actor_user=self.staff,
+            classroom=self.class_a,
+            action="organization.membership.upsert",
+            target_type="OrganizationMembership",
+            target_id="alpha-2",
+            summary="audit drop action family",
+            metadata={"organization_id": self.org_a.id},
+        )
+
+        resp = self.client.get(
+            "/teach",
+            {
+                "portal_mode": "policy",
+                "rbac_tools": "1",
+                "rbac_audit_action": "rbac.scope_grant.",
+                "rbac_audit_class_id": str(self.class_a.id),
+                "rbac_audit_limit": "25",
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "RBAC audit operations")
+        self.assertContains(resp, "audit keep alpha")
+        self.assertNotContains(resp, "audit drop beta class")
+        self.assertNotContains(resp, "audit drop action family")
+
     def test_org_admin_rbac_query_param_does_not_enable_bulk_simulation_ui(self):
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
