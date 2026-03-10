@@ -2495,3 +2495,17 @@ Execution ownership and gates:
 **Why this remains active:**
 - Converts reporting confidence from narrative assertion to repeatable operational evidence.
 - Reduces outcome/certificate semantics drift by forcing periodic cross-role validation.
+
+## Retention health snapshot command for risk R4 cadence
+
+**Current decision:**
+- Add `scripts/retention_health_snapshot.sh` as the canonical monthly retention-health command.
+- The snapshot must include:
+  - `classhub-retention.timer` state (when systemd is available),
+  - recent `classhub-retention.service` logs (when available),
+  - `retention_maintenance.sh --dry-run` output.
+- Store output under `artifacts/stability/<date>/retention_health.log`.
+
+**Why this remains active:**
+- Reduces operational ambiguity by replacing multi-command spot checks with one evidence-ready command.
+- Makes retention verification easier to run consistently during turnover and freeze periods.

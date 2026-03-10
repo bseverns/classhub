@@ -635,6 +635,15 @@ systemctl list-timers | grep classhub-retention
 journalctl -u classhub-retention.service -n 200 --no-pager
 ```
 
+One-command monthly retention health snapshot (recommended):
+
+```bash
+cd /srv/lms/app
+bash scripts/retention_health_snapshot.sh \
+  --compose-mode prod \
+  --out artifacts/stability/$(date +%F)/retention_health.log
+```
+
 ## Disk Space Management
 
 ClassHub is designed to be operationally calm and run on a single host. If disk space exceeds 85%, take these steps:

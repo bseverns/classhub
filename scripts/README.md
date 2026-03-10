@@ -26,6 +26,7 @@ Operator shortcut:
 | `backup_uploads.sh` | Creates a tarball of user-uploaded files for safe keeping. |
 | `backup_restore_rehearsal.sh`| Automated script for rehearsing and verifying disaster recovery. |
 | `retention_maintenance.sh` | Automates execution of data retention policies (deleting old submissions/events). |
+| `retention_health_snapshot.sh` | Captures timer status, recent retention logs, and a retention dry-run in one evidence-ready report. |
 
 ## Health & CI Testing
 | Script | Intent |

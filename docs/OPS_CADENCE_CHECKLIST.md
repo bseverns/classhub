@@ -45,15 +45,17 @@ Evidence:
 
 ```bash
 cd /srv/lms/app
-bash scripts/retention_maintenance.sh --dry-run
+bash scripts/retention_health_snapshot.sh \
+  --compose-mode prod \
+  --out artifacts/stability/<YYYY-MM-DD>/retention_health.log
 ```
 
 Expected:
 - command exits `0`
-- output clearly shows matched/skipped/deletion candidate counts
+- output captures timer state/recent runs and matched/skipped/deletion candidate counts
 
 Evidence:
-- retention dry-run output attached to monthly ops note
+- `artifacts/stability/<date>/retention_health.log`
 
 ### 4) Staff access + org-boundary posture
 

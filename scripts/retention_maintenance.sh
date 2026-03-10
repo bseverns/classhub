@@ -12,6 +12,7 @@ RETENTION_HELPER_EXPORT_DIR="${RETENTION_HELPER_EXPORT_DIR:-}"
 RETENTION_SCAVENGE_MODE="${RETENTION_SCAVENGE_MODE:-report}" # report|delete|off
 RETENTION_ALERT_WEBHOOK_URL="${RETENTION_ALERT_WEBHOOK_URL:-}"
 RETENTION_ALERT_ON_SUCCESS="${RETENTION_ALERT_ON_SUCCESS:-0}"
+RETENTION_DRY_RUN="${RETENTION_DRY_RUN:-0}"
 
 CURRENT_STEP=""
 
@@ -38,6 +39,7 @@ Options:
   --scavenge <report|delete|off>  Orphan upload cleanup mode (default: report)
   --alert-webhook-url <url>       Optional webhook for failure/success alerts
   --alert-on-success              Send success alert in addition to failures
+  --dry-run                       Preview actions without deleting rows/files
   -h, --help                      Show this help
 EOF
 }
@@ -78,6 +80,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --alert-on-success)
       RETENTION_ALERT_ON_SUCCESS=1
+      shift
+      ;;
+    --dry-run)
+      RETENTION_DRY_RUN=1
       shift
       ;;
     -h|--help)
@@ -130,6 +136,10 @@ case "${RETENTION_SCAVENGE_MODE}" in
     exit 1
     ;;
 esac
+if [[ "${RETENTION_DRY_RUN}" != "0" && "${RETENTION_DRY_RUN}" != "1" ]]; then
+  echo "[retention] --dry-run flag is invalid" >&2
+  exit 1
+fi
 
 notify_webhook() {
   local status="$1"
@@ -166,7 +176,15 @@ timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
 if (( RETENTION_SUBMISSION_DAYS > 0 )); then
   CURRENT_STEP="prune_submissions"
   echo "[retention] pruning submissions older than ${RETENTION_SUBMISSION_DAYS} days"
-  run_compose exec -T classhub_web python manage.py prune_submissions --older-than-days "${RETENTION_SUBMISSION_DAYS}"
+  submission_cmd=(
+    run_compose exec -T classhub_web
+    python manage.py prune_submissions
+    --older-than-days "${RETENTION_SUBMISSION_DAYS}"
+  )
+  if [[ "${RETENTION_DRY_RUN}" == "1" ]]; then
+    submission_cmd+=(--dry-run)
+  fi
+  "${submission_cmd[@]}"
 else
   echo "[retention] skipping prune_submissions (submission-days=0)"
 fi
@@ -181,9 +199,16 @@ if (( RETENTION_EVENT_DAYS > 0 )); then
   )
   if [[ -n "${RETENTION_EVENT_EXPORT_DIR}" ]]; then
     export_path="${RETENTION_EVENT_EXPORT_DIR%/}/student_events_before_prune_${timestamp}.csv"
-    echo "[retention] exporting matching student events to ${export_path} before delete"
+    if [[ "${RETENTION_DRY_RUN}" == "1" ]]; then
+      echo "[retention] exporting matching student events to ${export_path} during dry-run"
+    else
+      echo "[retention] exporting matching student events to ${export_path} before delete"
+    fi
     run_compose exec -T classhub_web sh -lc "mkdir -p '${RETENTION_EVENT_EXPORT_DIR}'"
     event_cmd+=(--export-csv "${export_path}")
+  fi
+  if [[ "${RETENTION_DRY_RUN}" == "1" ]]; then
+    event_cmd+=(--dry-run)
   fi
   "${event_cmd[@]}"
 else
@@ -223,6 +248,10 @@ if (( RETENTION_HELPER_EXPORT_DAYS > 0 )); then
         echo "[retention] no helper reset exports older than ${days} days in ${dir}"
         exit 0
       fi
+      if [ "${RETENTION_DRY_RUN}" = "1" ]; then
+        echo "[retention] [dry-run] would delete ${count} helper reset export(s) older than ${days} days from ${dir}"
+        exit 0
+      fi
       echo "[retention] deleting ${count} helper reset export(s) older than ${days} days from ${dir}"
       find "${dir}" -type f -name "class_*_helper_reset_*.json" -mtime +"${cutoff}" -delete
     '
@@ -241,12 +270,17 @@ case "${RETENTION_SCAVENGE_MODE}" in
     ;;
   delete)
     CURRENT_STEP="scavenge_orphan_uploads_delete"
-    echo "[retention] deleting orphan upload files"
-    run_compose exec -T classhub_web python manage.py scavenge_orphan_uploads --delete
+    if [[ "${RETENTION_DRY_RUN}" == "1" ]]; then
+      echo "[retention] [dry-run] delete requested for scavenger; running report mode instead"
+      run_compose exec -T classhub_web python manage.py scavenge_orphan_uploads
+    else
+      echo "[retention] deleting orphan upload files"
+      run_compose exec -T classhub_web python manage.py scavenge_orphan_uploads --delete
+    fi
     ;;
 esac
 
-success_msg="[retention] complete (submission-days=${RETENTION_SUBMISSION_DAYS}, event-days=${RETENTION_EVENT_DAYS}, helper-export-days=${RETENTION_HELPER_EXPORT_DAYS}, scavenge=${RETENTION_SCAVENGE_MODE})"
+success_msg="[retention] complete (submission-days=${RETENTION_SUBMISSION_DAYS}, event-days=${RETENTION_EVENT_DAYS}, helper-export-days=${RETENTION_HELPER_EXPORT_DAYS}, scavenge=${RETENTION_SCAVENGE_MODE}, dry-run=${RETENTION_DRY_RUN})"
 echo "${success_msg}"
 if [[ "${RETENTION_ALERT_ON_SUCCESS}" == "1" ]]; then
   notify_webhook "success" "${success_msg}"

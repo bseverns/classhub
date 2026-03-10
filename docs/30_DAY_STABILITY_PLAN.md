@@ -121,6 +121,7 @@ Deliverables:
 Command checklist (monthly minimum):
 
 - `bash scripts/retention_maintenance.sh --dry-run`
+- `bash scripts/retention_health_snapshot.sh --compose-mode prod --out artifacts/stability/<date>/retention_health.log`
 - `bash scripts/backup_restore_rehearsal.sh --compose-mode prod`
 - `bash scripts/system_doctor.sh --compose-mode prod --smoke-mode golden`
 

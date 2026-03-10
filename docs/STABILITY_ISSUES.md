@@ -246,11 +246,14 @@ Verify retention jobs are healthy and observable so retention policy remains ope
 - Verify `classhub-retention.timer` status and recent runs.
 - Verify retention command path and optional webhook alert configuration.
 - Document monthly verification steps.
+- Add and use one command for evidence capture:
+  - `bash scripts/retention_health_snapshot.sh --compose-mode prod --out artifacts/stability/<date>/retention_health.log`
 
 ### Done means
 
 - Retention status can be checked with a short documented sequence.
 - Ops has clear owner for monthly retention verification.
+- A dated retention health snapshot artifact exists for the cycle.
 
 ---
 
