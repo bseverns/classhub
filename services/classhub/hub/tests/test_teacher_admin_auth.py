@@ -133,6 +133,56 @@ class TeacherOTPEnforcementTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
 
+class TeacherSSOScaffoldTests(TestCase):
+    def test_teach_login_hides_sso_buttons_when_disabled(self):
+        resp = self.client.get("/teach/login")
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, "Continue with Google Workspace")
+
+    @override_settings(
+        CLASSHUB_TEACHER_SSO_ENABLED=True,
+        CLASSHUB_TEACHER_SSO_ENABLED_PROVIDERS=("google", "microsoft"),
+        CLASSHUB_TEACHER_SSO_PROVIDERS={"google": object(), "microsoft": object()},
+    )
+    def test_teach_login_shows_configured_sso_buttons(self):
+        resp = self.client.get("/teach/login?next=/teach/lessons")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Continue with Google Workspace")
+        self.assertContains(resp, "Continue with Microsoft")
+        self.assertContains(resp, "/teach/sso/start/google?next=%2Fteach%2Flessons")
+        self.assertContains(resp, "/teach/sso/start/microsoft?next=%2Fteach%2Flessons")
+
+    @override_settings(CLASSHUB_TEACHER_SSO_ENABLED=False)
+    def test_sso_start_returns_404_when_disabled(self):
+        resp = self.client.get("/teach/sso/start/google")
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+
+    @override_settings(
+        CLASSHUB_TEACHER_SSO_ENABLED=True,
+        CLASSHUB_TEACHER_SSO_ENABLED_PROVIDERS=("google",),
+        CLASSHUB_TEACHER_SSO_PROVIDERS={"google": object()},
+    )
+    def test_sso_start_redirects_to_login_notice_when_enabled(self):
+        resp = self.client.get("/teach/sso/start/google?next=/teach/lessons")
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/login?next=%2Fteach%2Flessons", resp["Location"])
+        self.assertIn("Google+Workspace+SSO+is+not+active+yet+in+this+build", resp["Location"])
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+
+    @override_settings(
+        CLASSHUB_TEACHER_SSO_ENABLED=True,
+        CLASSHUB_TEACHER_SSO_ENABLED_PROVIDERS=("google",),
+        CLASSHUB_TEACHER_SSO_PROVIDERS={"google": object()},
+    )
+    def test_sso_callback_redirects_to_login_notice_when_enabled(self):
+        resp = self.client.get("/teach/sso/callback/google?next=/teach")
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/login?", resp["Location"])
+        self.assertIn("Google+Workspace+SSO+callback+is+not+active+yet+in+this+build", resp["Location"])
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+
+
 class Admin2FATests(TestCase):
     def setUp(self):
         self.superuser = get_user_model().objects.create_superuser(
@@ -250,4 +300,3 @@ class BootstrapAdminOTPCommandTests(TestCase):
         )
         with self.assertRaises(CommandError):
             call_command("bootstrap_admin_otp", username="teacher")
-

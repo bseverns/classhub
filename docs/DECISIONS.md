@@ -144,6 +144,9 @@ Historical implementation logs and superseded decisions are archived by month in
 - Maintain a documented implementation path for future identity expansion at:
   - [IDENTITY_SSO_EXPANSION_PLAN.md](IDENTITY_SSO_EXPANSION_PLAN.md)
 - Ship T0 provider/config scaffolding first (settings parsing + env validation + template keys), without enabling any SSO login route by default.
+- Ship T1 UI/routing scaffold behind the same feature flag:
+  - `/teach/login` provider buttons + guarded `/teach/sso/start/<provider>` and `/teach/sso/callback/<provider>` routes,
+  - with explicit "not active yet" responses until full OIDC exchange is implemented.
 - Sequence identity work as:
   1. teacher SSO first (Google/Microsoft via OIDC seam),
   2. optional student school-account login only as opt-in per org/class,

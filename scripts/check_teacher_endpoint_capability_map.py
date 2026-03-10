@@ -69,6 +69,8 @@ ROUTE_CAPABILITY_MAP: dict[str, RouteContract] = {
     "/teach/data-lifespan": RouteContract("syllabus.export", "teach_data_lifespan"),
     "/teach/data-lifespan/export": RouteContract("syllabus.export", "teach_data_lifespan_export"),
     "/teach/login": RouteContract("auth_or_public", "teach_login"),
+    "/teach/sso/start/<slug:provider>": RouteContract("auth_or_public", "teach_sso_start"),
+    "/teach/sso/callback/<slug:provider>": RouteContract("auth_or_public", "teach_sso_callback"),
     "/teach/profile/update": RouteContract("staff_only", "teach_update_profile"),
     "/teach/profile/password": RouteContract("staff_only", "teach_change_password"),
     "/teach/2fa/setup": RouteContract("auth_or_public", "teach_teacher_2fa_setup"),

@@ -36,6 +36,18 @@
             {% endfor %}
             {% endif %}
 
+            {% if sso_options %}
+            <div class="card sso-card">
+                <h2 class="login-card-title">{% trans "Sign in with your organization account" %}</h2>
+                <div class="sso-actions">
+                    {% for option in sso_options %}
+                    <a class="sso-btn" href="{{ option.start_path }}">{% blocktrans with label=option.label %}Continue with {{ label }}{% endblocktrans %}</a>
+                    {% endfor %}
+                </div>
+                <p class="muted sso-note">{% trans "You can also use username/password below." %}</p>
+            </div>
+            {% endif %}
+
             <div class="card">
                 <h2 class="login-card-title">{% trans "Sign in to your account" %}</h2>
                 <form method="post" autocomplete="on">

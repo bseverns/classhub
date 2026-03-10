@@ -1,5 +1,6 @@
 """Teacher login/logout endpoints."""
 
+from .auth_sso import teacher_sso_options_for_login
 from .shared import (
     AuthenticationForm,
     _safe_internal_redirect,
@@ -17,6 +18,7 @@ from .shared import (
 def teach_login(request):
     next_raw = (request.GET.get("next") or request.POST.get("next") or "/teach").strip()
     next_path = _safe_teacher_return_path(next_raw, "/teach")
+    notice = (request.GET.get("notice") or "").strip()
 
     user = getattr(request, "user", None)
     if user and user.is_authenticated:
@@ -30,7 +32,7 @@ def teach_login(request):
         auth_logout(request)
         request.session.flush()
 
-    error = ""
+    error = (request.GET.get("error") or "").strip()
     form = AuthenticationForm(request, data=request.POST or None)
     if request.method == "POST":
         if form.is_valid():
@@ -59,6 +61,9 @@ def teach_login(request):
             "form": form,
             "next_path": next_path,
             "error": error,
+            "notice": notice,
+            "sso_options": teacher_sso_options_for_login(next_path=next_path),
+            "sso_enabled": bool(getattr(settings, "CLASSHUB_TEACHER_SSO_ENABLED", False)),
         },
     )
     apply_no_store(response, private=True, pragma=True)

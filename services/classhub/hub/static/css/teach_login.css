@@ -76,6 +76,37 @@ button[type="submit"]:hover {
   margin: 0 0 16px 0;
 }
 
+.sso-card {
+  margin-bottom: 12px;
+}
+
+.sso-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.sso-btn {
+  display: block;
+  border-radius: 12px;
+  border: 1px solid rgba(22, 59, 80, 0.24);
+  background: rgba(255, 255, 255, 0.84);
+  color: #143244;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.sso-btn:hover {
+  filter: brightness(1.02);
+}
+
+.sso-note {
+  margin: 10px 0 0 0;
+  font-size: 13px;
+}
+
 .field-error-inline {
   margin: 4px 0 12px 0;
   padding: 4px 8px;

@@ -4,6 +4,8 @@ from .teacher_parts.auth import (
     teach_change_password,
     teach_create_teacher,
     teach_login,
+    teach_sso_callback,
+    teach_sso_start,
     teach_reset_teacher_account_password,
     teach_resend_teacher_invite,
     teach_set_teacher_account_active,
@@ -83,6 +85,8 @@ from .teacher_parts.videos import teach_assets, teach_videos
 
 __all__ = [
     "teach_login",
+    "teach_sso_start",
+    "teach_sso_callback",
     "teacher_logout",
     "teach_update_profile",
     "teach_change_password",

@@ -76,6 +76,8 @@ urlpatterns = [
     path("teach/data-lifespan", views.teach_data_lifespan),
     path("teach/data-lifespan/export", views.teach_data_lifespan_export),
     path("teach/login", views.teach_login),
+    path("teach/sso/start/<slug:provider>", views.teach_sso_start),
+    path("teach/sso/callback/<slug:provider>", views.teach_sso_callback),
     path("teach/profile/update", views.teach_update_profile),
     path("teach/profile/password", views.teach_change_password),
     path("teach/2fa/setup", views.teach_teacher_2fa_setup),
