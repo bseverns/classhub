@@ -238,6 +238,19 @@ Store under `artifacts/stability/<release-date>/`:
 - `release_artifact_lint.log`
 - `operator_scorecard.md` (live flags, known risks, manual checks remaining)
 
+## Identity Expansion Outline (Post-Phase 1)
+
+If the team decides to add managed identity next, use:
+
+- [IDENTITY_SSO_EXPANSION_PLAN.md](IDENTITY_SSO_EXPANSION_PLAN.md)
+
+Scope covered in that outline:
+
+- teacher SSO rollout steps (Google/Microsoft/OIDC),
+- optional student school-account login path,
+- pseudonym-preserving defaults for public/class-facing identity surfaces,
+- security/privacy/operations trade-offs and rollout gates.
+
 ## Next-Cycle Closeout (Phase 1 + Slice 7)
 
 Use this for one full sign-off cycle that closes Day 0-30 Phase 1 tracks and telemetry Slice 7 evidence.

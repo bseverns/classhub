@@ -303,6 +303,6 @@ default.
 
 ## Future hardening candidates
 
-- Google SSO for teacher accounts.
+- Teacher SSO and optional student school-login rollout plan: [IDENTITY_SSO_EXPANSION_PLAN.md](IDENTITY_SSO_EXPANSION_PLAN.md).
 - Separate databases per service if isolation requirements increase.
 - Keep `RUN_MIGRATIONS_ON_START=0` in production so migrations run only through explicit deploy steps.

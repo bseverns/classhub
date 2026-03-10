@@ -6,6 +6,7 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Active Decisions Snapshot
 
 - [Auth model: student access](#auth-model-student-access)
+- [Identity SSO expansion path](#identity-sso-expansion-path)
 - [Trust primitives: student data controls](#trust-primitives-student-data-controls)
 - [Offline upload queue for intermittent networks](#offline-upload-queue-for-intermittent-networks)
 - [Student kiosk shell mode](#student-kiosk-shell-mode)
@@ -133,6 +134,23 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Keeps student friction low while limiting impersonation risk.
 - Maintains minimal student PII collection in MVP.
+
+## Identity SSO expansion path
+
+**Current decision:**
+- Keep current runtime auth posture unchanged:
+  - students default to class code + display name (pseudonym-first),
+  - teachers/admins continue on Django auth + OTP.
+- Maintain a documented implementation path for future identity expansion at:
+  - [IDENTITY_SSO_EXPANSION_PLAN.md](IDENTITY_SSO_EXPANSION_PLAN.md)
+- Sequence identity work as:
+  1. teacher SSO first (Google/Microsoft via OIDC seam),
+  2. optional student school-account login only as opt-in per org/class,
+  3. pseudonym-preserving display defaults remain enforced for classroom/public surfaces.
+
+**Why this remains active:**
+- Preserves low-friction, privacy-forward current behavior while still defining a concrete enterprise-auth path.
+- Prevents ad-hoc auth changes by requiring a staged rollout with explicit security/privacy gates.
 
 ## Trust primitives: student data controls
 
