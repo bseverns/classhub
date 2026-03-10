@@ -278,6 +278,32 @@ else
     --active
 fi
 
+echo "[golden-smoke] ensuring teacher org access for smoke class"
+run_compose exec -T \
+  -e SMOKE_CLASS_NAME="${CLASS_NAME}" \
+  -e SMOKE_TEACHER_USERNAME="${TEACHER_USERNAME}" \
+  classhub_web \
+  python manage.py shell -c \
+  "import os; from django.contrib.auth import get_user_model; from hub.models import Class, Organization, OrganizationMembership; classroom = Class.objects.get(name=os.environ['SMOKE_CLASS_NAME']); teacher = get_user_model().objects.get(username=os.environ['SMOKE_TEACHER_USERNAME']); org = classroom.organization; \
+if org is None: \
+    org = Organization.objects.filter(is_active=True).order_by('id').first(); \
+if org is None: \
+    org = Organization.objects.create(name='Smoke Validation Org', is_active=True); \
+if classroom.organization_id != org.id: \
+    classroom.organization = org; \
+    classroom.save(update_fields=['organization']); \
+membership, _ = OrganizationMembership.objects.get_or_create(organization=org, user=teacher, defaults={'role': OrganizationMembership.ROLE_TEACHER, 'is_active': True}); \
+changed = []; \
+if membership.role != OrganizationMembership.ROLE_TEACHER: \
+    membership.role = OrganizationMembership.ROLE_TEACHER; \
+    changed.append('role'); \
+if not membership.is_active: \
+    membership.is_active = True; \
+    changed.append('is_active'); \
+if changed: \
+    membership.save(update_fields=changed); \
+print(f'org_id={org.id} class_id={classroom.id} teacher_id={teacher.id} membership_active={membership.is_active}')"
+
 TEACHER_SESSION_KEY="$(
   run_compose exec -T \
     -e SMOKE_TEACHER_USERNAME="${TEACHER_USERNAME}" \

@@ -27,6 +27,7 @@ data/
 logs/
 backups/
 dist/
+artifacts/stability/
 
 # Local env/secrets (keep templates tracked)
 .env
