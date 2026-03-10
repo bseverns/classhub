@@ -70,7 +70,8 @@ bash scripts/retention_maintenance.sh --dry-run
 
 1. Confirm current `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` value in runtime env.
 2. Confirm teacher/admin access posture in `/teach`.
-3. Confirm last evidence pack location and scorecard:
+3. Record policy check output in [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md).
+4. Confirm last evidence pack location and scorecard:
 
 ```bash
 cd /srv/lms/app
@@ -170,3 +171,4 @@ Use this for handoff notes and leadership review.
 - [RUNBOOK.md](RUNBOOK.md)
 - [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 - [OPS_CADENCE_CHECKLIST.md](OPS_CADENCE_CHECKLIST.md)
+- [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)

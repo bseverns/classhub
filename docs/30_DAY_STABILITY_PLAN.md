@@ -113,6 +113,7 @@ Deliverables:
 - Named owners for restore, retention, access review, and release sign-off.
 - Documented cadence table for monthly and quarterly rituals.
 - Monthly/quarterly cadence checklist is documented in [OPS_CADENCE_CHECKLIST.md](OPS_CADENCE_CHECKLIST.md).
+- Org-boundary policy audit template is documented in [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md).
 
 Command checklist (monthly minimum):
 
@@ -244,3 +245,4 @@ Store under `artifacts/stability/<release-date>/`:
 - [RUNBOOK.md](RUNBOOK.md)
 - [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 - [TURNOVER_PACKET.md](TURNOVER_PACKET.md)
+- [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)

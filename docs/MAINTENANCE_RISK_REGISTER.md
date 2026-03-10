@@ -47,6 +47,7 @@ This register names the five highest long-term maintenance risks visible in the 
   - pick one org boundary policy per deployment and document it in the ops handoff
   - review `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` during each quarterly restore rehearsal
   - add explicit operator-facing warnings/checklists wherever the policy is discussed
+  - record each monthly boundary review using [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)
   - do not add new role semantics until the current boundary model is operationally boring
 - Owner role: Ops Director
 - Cadence: Monthly

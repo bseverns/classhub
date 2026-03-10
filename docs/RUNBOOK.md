@@ -186,6 +186,9 @@ Outcome/reporting semantics reference:
 Recurring ops cadence checklist:
 - [OPS_CADENCE_CHECKLIST.md](OPS_CADENCE_CHECKLIST.md)
 
+Org boundary policy audit template:
+- [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)
+
 ## Public domain deployment notes
 
 When running behind Caddy on a real domain, use these defaults to avoid false rate-limit identity and upload mismatches:

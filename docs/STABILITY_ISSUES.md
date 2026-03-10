@@ -110,6 +110,7 @@ Choose and document intended posture for `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` and 
 - Confirm intended value (`0` transition vs `1` strict) for current deployment.
 - Record who approved any non-strict exception.
 - Add next review date.
+- Record audit output using [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md).
 
 ### Done means
 

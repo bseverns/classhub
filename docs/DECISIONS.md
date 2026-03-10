@@ -2455,3 +2455,18 @@ Execution ownership and gates:
 **Why this remains active:**
 - Prevents drift from "we usually run this" to explicit audited cadence.
 - Improves survivability by making routine ops executable by backup maintainers.
+
+## Org-boundary policy audit record for strict-mode governance
+
+**Current decision:**
+- Publish `docs/ORG_BOUNDARY_POLICY_AUDIT.md` as the canonical monthly policy-audit record for org-boundary posture.
+- Require the audit to capture:
+  - configured env value (`compose/.env`),
+  - runtime Django setting value,
+  - `/teach` warning-banner state,
+  - reviewer + approver + next review date.
+- Treat fallback mode (`REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0`) as exception posture requiring explicit approval metadata.
+
+**Why this remains active:**
+- Converts boundary-policy intent into an auditable recurring control.
+- Reduces risk that fallback mode remains active silently in production.

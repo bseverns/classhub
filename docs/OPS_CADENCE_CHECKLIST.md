@@ -61,6 +61,7 @@ Manual checks:
 - Confirm current `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` runtime value.
 - Confirm `/teach` warning posture matches expected policy.
 - Confirm recent org membership/class-assignment changes were intentional.
+- Record results using [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md).
 
 Evidence:
 - monthly access-review note (date, reviewer, decision)
@@ -140,3 +141,4 @@ make stability-evidence STABILITY_RELEASE_DATE=<YYYY-MM-DD> STABILITY_SKIP_DOCKE
 - [30_DAY_STABILITY_PLAN.md](30_DAY_STABILITY_PLAN.md)
 - [TURNOVER_PACKET.md](TURNOVER_PACKET.md)
 - [STABILITY_CHARTER.md](STABILITY_CHARTER.md)
+- [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)
