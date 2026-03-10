@@ -139,6 +139,8 @@ esac
 
 EVIDENCE_DIR="${ROOT_DIR}/artifacts/stability/${RELEASE_DATE}"
 mkdir -p "${EVIDENCE_DIR}"
+RESTORE_METRICS_PATH="${EVIDENCE_DIR}/restore_rehearsal_metrics.json"
+RESTORE_SUMMARY_PATH="${EVIDENCE_DIR}/restore_rehearsal_summary.md"
 
 FAILED=0
 CHECK_ROWS=()
@@ -219,6 +221,40 @@ run_restore_rehearsal() {
     --out-dir "${EVIDENCE_DIR}"
 }
 
+write_restore_skipped_placeholders() {
+  cat > "${RESTORE_METRICS_PATH}" <<EOF
+{
+  "workflow": "restore-rehearsal",
+  "status": "skipped",
+  "release_date": "${RELEASE_DATE}",
+  "compose_mode": "${COMPOSE_MODE}"
+}
+EOF
+
+  cat > "${RESTORE_SUMMARY_PATH}" <<EOF
+### Restore Rehearsal Evidence
+- Status: SKIPPED
+- Release date: ${RELEASE_DATE}
+- Reason: --skip-restore or --skip-docker-checks was used for this evidence run.
+- Follow-up: run bash scripts/restore_rehearsal_evidence.sh --compose-mode ${COMPOSE_MODE} --out-dir artifacts/stability/${RELEASE_DATE} before release sign-off.
+EOF
+}
+
+verify_restore_artifacts_present() {
+  local missing=0
+  if [[ ! -f "${RESTORE_METRICS_PATH}" ]]; then
+    echo "[stability-evidence] missing restore artifact: artifacts/stability/${RELEASE_DATE}/restore_rehearsal_metrics.json" >&2
+    missing=1
+  fi
+  if [[ ! -f "${RESTORE_SUMMARY_PATH}" ]]; then
+    echo "[stability-evidence] missing restore artifact: artifacts/stability/${RELEASE_DATE}/restore_rehearsal_summary.md" >&2
+    missing=1
+  fi
+  if [[ "${missing}" == "1" ]]; then
+    FAILED=1
+  fi
+}
+
 run_kiosk_resilience() {
   bash scripts/kiosk_resilience_check.sh --non-interactive
 }
@@ -258,10 +294,12 @@ if [[ "${SKIP_RESTORE}" == "1" ]]; then
   log_abs="${EVIDENCE_DIR}/restore_rehearsal.log"
   : > "${log_abs}"
   echo "[stability-evidence] Restore rehearsal skipped by flag" | tee -a "${log_abs}"
+  write_restore_skipped_placeholders
   add_row "Restore rehearsal" "SKIPPED" "${log_rel}" "skipped by flag"
 else
   run_check "Restore rehearsal" "restore_rehearsal.log" run_restore_rehearsal
 fi
+verify_restore_artifacts_present
 
 if [[ "${SKIP_KIOSK}" == "1" ]]; then
   log_rel="artifacts/stability/${RELEASE_DATE}/kiosk_resilience.log"
