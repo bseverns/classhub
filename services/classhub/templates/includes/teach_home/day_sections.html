@@ -1,0 +1,172 @@
+        {% if show_day_sections %}
+          <div class="card">
+          <div class="row">
+            <h2 class="section-title-tight">Classes</h2>
+            <div class="muted">Assigned classes appear first. Tip: keep codes visible in-room, not in email.</div>
+          </div>
+          <p id="copy-status" class="muted copy-status" role="status" aria-live="polite"></p>
+
+          {% if classes %}
+            <div class="table-wrap">
+              <table>
+                <caption class="visually-hidden">Classes available in the teacher portal</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Class</th>
+                    <th scope="col">Join code</th>
+                    <th scope="col">Status</th>
+                    <th scope="col"><span class="visually-hidden">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for c in classes %}
+                    <tr>
+                      <th scope="row">
+                        <strong>{{ c.name }}</strong>
+                        {% if c.id in assigned_class_ids %}
+                          <span class="state-pill state-pill--open">Assigned</span>
+                        {% endif %}
+                      </th>
+                      <td>
+                        <span class="pill">{{ c.join_code }}</span>
+                        <button type="button" class="inline-copy" data-copy-value="{{ c.join_code }}">Copy</button>
+                      </td>
+                      <td>
+                        {% if c.is_locked %}
+                          <span class="state-pill state-pill--locked">Locked</span>
+                        {% else %}
+                          <span class="state-pill state-pill--open">Open</span>
+                        {% endif %}
+                      </td>
+                      <td class="class-link">
+                        <a href="/teach/class/{{ c.id }}">Open</a> ·
+                        <a href="/teach/lessons?class_id={{ c.id }}">Lessons</a> ·
+                        <a href="/teach/class/{{ c.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
+                        {% if request.user.is_superuser %}
+                          · <a href="/teach?org_admin=1&class_assignment_class_id={{ c.id }}">Assign teacher</a>
+                          · <a href="/teach?org_admin=1&class_move_class_id={{ c.id }}">Set organization</a>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="muted">No classes yet.</p>
+          {% endif %}
+          </div>
+
+          <div class="card card-secondary">
+          <div class="row">
+            <h2 class="section-title-tight">What Changed Since Yesterday</h2>
+            <div class="muted">Window started {{ digest_since|date:"M j, g:i A" }}</div>
+          </div>
+
+          {% if class_digest_rows %}
+            <div class="table-wrap">
+              <table>
+                <caption class="visually-hidden">Daily class activity digest</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Class</th>
+                    <th scope="col">New students</th>
+                    <th scope="col">Uploads</th>
+                    <th scope="col">Helper chats</th>
+                    <th scope="col">Need first upload</th>
+                    <th scope="col">Last upload</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in class_digest_rows %}
+                    <tr>
+                      <th scope="row"><strong>{{ row.classroom.name }}</strong></th>
+                      <td>{{ row.new_students_since }}</td>
+                      <td>{{ row.submission_total_since }}</td>
+                      <td>{{ row.helper_access_total_since }}</td>
+                      <td>{{ row.students_without_submissions }} / {{ row.student_total }}</td>
+                      <td class="muted">
+                        {% if row.last_submission_at %}
+                          {{ row.last_submission_at|date:"M j, g:i A" }}
+                        {% else %}
+                          No uploads yet
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="muted">No classes yet.</p>
+          {% endif %}
+          </div>
+
+          <div class="card card-secondary">
+          <div class="row">
+            <h2 class="section-title-tight">End-of-Class Closeout</h2>
+            <div class="muted">Keep this collapsed until you need actions.</div>
+          </div>
+          {% if class_digest_rows %}
+            <div class="closeout-list">
+              {% for row in class_digest_rows %}
+                <details class="closeout-item">
+                  <summary>{{ row.classroom.name }} · {{ row.student_total }} students</summary>
+                  <div class="muted closeout-student-note">
+                    {{ row.students_without_submissions }} still need a first upload.
+                  </div>
+                  <div class="closeout-actions">
+                    <form method="post" action="/teach/class/{{ row.classroom.id }}/lock">
+                      {% csrf_token %}
+                      <button class="mini" type="submit">
+                        {% if row.classroom.is_locked %}Class already locked{% else %}Lock class{% endif %}
+                      </button>
+                    </form>
+                    <a class="button mini" href="/teach/class/{{ row.classroom.id }}/export-submissions-today">Export today's submissions</a>
+                    <a class="button mini" href="/teach/class/{{ row.classroom.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
+                  </div>
+                </details>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="muted">No classes yet.</p>
+          {% endif %}
+          </div>
+
+          <div class="card card-secondary">
+          <div class="row">
+            <h2 class="section-title-tight">Recent submissions</h2>
+            <div class="muted">Latest uploads across all classes</div>
+          </div>
+
+          {% if recent_submissions %}
+            <div class="table-wrap">
+              <table>
+                <caption class="visually-hidden">Recent submissions across classes</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">When</th>
+                    <th scope="col">Student</th>
+                    <th scope="col">Class</th>
+                    <th scope="col">Material</th>
+                    <th scope="col"><span class="visually-hidden">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for sub in recent_submissions %}
+                    <tr>
+                      <td class="muted">{{ sub.uploaded_at }}</td>
+                      <td><strong>{{ sub.student.display_name }}</strong></td>
+                      <td class="muted">{{ sub.material.module.classroom.name }}</td>
+                      <td class="muted">{{ sub.material.title }}</td>
+                      <td><a href="/teach/material/{{ sub.material.id }}/submissions">Open queue</a> · <a href="/submission/{{ sub.id }}/download">Download</a></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="muted">No submissions yet.</p>
+          {% endif %}
+          </div>
+        {% endif %}

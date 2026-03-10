@@ -1,0 +1,43 @@
+        {% if show_day_sections %}
+          <div class="card classroom-focus">
+            <div class="row">
+              <h2 class="section-title-tight">Classroom focus</h2>
+              <div class="muted">Lead from the class you are actively teaching.</div>
+            </div>
+            {% if assigned_classes %}
+              <div class="classroom-focus-grid">
+                {% for c in assigned_classes %}
+                  <article class="classroom-focus-item">
+                    <div class="classroom-focus-header">
+                      <h3 class="section-title-compact">{{ c.name }}</h3>
+                      <span class="state-pill state-pill--open">Assigned</span>
+                    </div>
+                    <div class="classroom-focus-meta">
+                      <span class="pill">{{ c.join_code }}</span>
+                      <button type="button" class="inline-copy" data-copy-value="{{ c.join_code }}">Copy code</button>
+                      {% if c.is_locked %}
+                        <span class="state-pill state-pill--locked">Locked</span>
+                      {% else %}
+                        <span class="state-pill state-pill--open">Open</span>
+                      {% endif %}
+                    </div>
+                    <div class="classroom-focus-actions">
+                      <a href="/teach/class/{{ c.id }}">Open class</a>
+                      <a href="/teach/lessons?class_id={{ c.id }}">Lessons</a>
+                      <a href="/teach/class/{{ c.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
+                    </div>
+                  </article>
+                {% endfor %}
+              </div>
+              {% if classes|length > assigned_classes|length %}
+                <p class="muted classroom-focus-note">
+                  Additional accessible classes are listed in the full class table below.
+                </p>
+              {% endif %}
+            {% elif classes %}
+              <p class="muted">No classes are marked assigned yet. Use the class list below to pick your active class.</p>
+            {% else %}
+              <p class="muted">No classes yet. Create your first class in Class setup.</p>
+            {% endif %}
+          </div>
+        {% endif %}

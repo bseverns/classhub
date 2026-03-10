@@ -1,0 +1,86 @@
+        {% if show_policy_sections or show_admin_sections %}
+          {% if show_operator_config_snapshot %}
+            <div class="card card-secondary">
+              <div class="row">
+                <h2 class="section-title-tight">Operator config snapshot</h2>
+                <div class="muted">Read-only summary of active profile/flag behavior on this node.</div>
+              </div>
+              <div class="table-wrap operator-config-table-wrap">
+                <table>
+                  <caption class="visually-hidden">Operator config snapshot</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Setting</th>
+                      <th scope="col">Value</th>
+                      <th scope="col">Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in operator_config_rows %}
+                      <tr>
+                        <th scope="row"><strong>{{ row.label }}</strong></th>
+                        <td><code>{{ row.value }}</code></td>
+                        <td class="muted">{{ row.source }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="muted operator-config-footnote">
+                Use these docs for rollout/maturity guidance:
+                {% for doc_path in operator_config_docs %}
+                  <code>{{ doc_path }}</code>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+          {% if show_telemetry_rollout_status %}
+            <div class="card card-secondary">
+              <div class="row">
+                <h2 class="section-title-tight">Telemetry rollout status</h2>
+                <div class="muted">{{ telemetry_rollout_summary }}</div>
+              </div>
+              <div class="table-wrap operator-config-table-wrap">
+                <table>
+                  <caption class="visually-hidden">Telemetry rollout status checklist</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Gate item</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Detail</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in telemetry_rollout_checks %}
+                      <tr>
+                        <th scope="row"><strong>{{ row.label }}</strong></th>
+                        <td>
+                          {% if row.done is True %}
+                            <span class="state-pill state-pill--open">Complete</span>
+                          {% elif row.done is False %}
+                            <span class="state-pill state-pill--locked">Pending</span>
+                          {% else %}
+                            <span class="muted">Manual</span>
+                          {% endif %}
+                        </td>
+                        <td class="muted">{{ row.detail }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="muted operator-config-footnote">
+                Commands:
+                {% for cmd in telemetry_rollout_commands %}
+                  <code>{{ cmd }}</code>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </div>
+              <div class="muted operator-config-footnote">
+                Docs:
+                {% for doc_path in telemetry_rollout_docs %}
+                  <code>{{ doc_path }}</code>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        {% endif %}
