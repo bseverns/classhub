@@ -158,9 +158,49 @@ STATUS_ROLLBACK="skipped"
 RUNTIME_SMOKE_CLASS_CODE=""
 RUNTIME_SMOKE_TEACHER_USERNAME=""
 RUNTIME_SMOKE_TEACHER_PASSWORD=""
+RUNTIME_SMOKE_TEACHER_SESSION_KEY=""
+
+derive_base_url() {
+  local caddyfile_template domain
+  caddyfile_template="$(env_file_value CADDYFILE_TEMPLATE)"
+  domain="$(env_file_value DOMAIN)"
+  if [[ "${caddyfile_template}" == "Caddyfile.local" ]]; then
+    echo "http://localhost"
+  elif [[ -n "${domain}" ]]; then
+    echo "https://${domain}"
+  else
+    echo "http://localhost"
+  fi
+}
+
+resolved_smoke_base_url() {
+  if [[ -n "${SMOKE_BASE_URL}" ]]; then
+    echo "${SMOKE_BASE_URL}"
+  else
+    echo "$(derive_base_url)"
+  fi
+}
+
+wait_for_smoke_healthz() {
+  local base_url code
+  base_url="$(resolved_smoke_base_url)"
+  for _ in $(seq 1 30); do
+    if (( SMOKE_INSECURE_TLS == 1 )); then
+      code="$(curl -k -sS --max-time 2 -o /dev/null -w "%{http_code}" "${base_url}/healthz" || true)"
+    else
+      code="$(curl -sS --max-time 2 -o /dev/null -w "%{http_code}" "${base_url}/healthz" || true)"
+    fi
+    if [[ "${code}" == "200" ]]; then
+      return 0
+    fi
+    sleep 2
+  done
+  echo "[telemetry-evidence] smoke warmup failed: ${base_url}/healthz did not return 200 within 60s" >&2
+  return 1
+}
 
 prepare_runtime_smoke_inputs() {
-  local class_name teacher_username teacher_password teacher_email course_slug class_code_raw class_code
+  local class_name teacher_username teacher_password teacher_email course_slug class_code_raw class_code teacher_session_key
 
   class_name="$(env_file_value SMOKE_CLASS_NAME)"
   class_name="${class_name:-Smoke Validation Class}"
@@ -222,9 +262,23 @@ prepare_runtime_smoke_inputs() {
     exit 1
   fi
 
+  teacher_session_key="$(
+    run_compose exec -T \
+      -e SMOKE_TEACHER_USERNAME="${teacher_username}" \
+      classhub_web \
+      python manage.py shell -c \
+      "import os; from django.contrib.auth import BACKEND_SESSION_KEY, HASH_SESSION_KEY, SESSION_KEY, get_user_model; from django.contrib.sessions.backends.db import SessionStore; from django_otp.plugins.otp_totp.models import TOTPDevice; user = get_user_model().objects.get(username=os.environ['SMOKE_TEACHER_USERNAME']); device, _ = TOTPDevice.objects.get_or_create(user=user, name='teacher-primary', defaults={'confirmed': True}); device.confirmed = True; device.save(update_fields=['confirmed']); session = SessionStore(); session[SESSION_KEY] = str(user.pk); session[BACKEND_SESSION_KEY] = 'django.contrib.auth.backends.ModelBackend'; session[HASH_SESSION_KEY] = user.get_session_auth_hash(); session['otp_device_id'] = device.persistent_id; session.save(); print(session.session_key)" \
+      | tr -d '\r' | tail -n1
+  )"
+  if [[ -z "${teacher_session_key}" ]]; then
+    echo "[telemetry-evidence] unable to mint runtime teacher session key for '${teacher_username}'" >&2
+    exit 1
+  fi
+
   RUNTIME_SMOKE_CLASS_CODE="${class_code}"
   RUNTIME_SMOKE_TEACHER_USERNAME="${teacher_username}"
   RUNTIME_SMOKE_TEACHER_PASSWORD="${teacher_password}"
+  RUNTIME_SMOKE_TEACHER_SESSION_KEY="${teacher_session_key}"
 }
 
 run_strict_smoke_command() {
@@ -243,6 +297,7 @@ run_strict_smoke_command() {
     "SMOKE_CLASS_CODE=${RUNTIME_SMOKE_CLASS_CODE}" \
     "SMOKE_TEACHER_USERNAME=${RUNTIME_SMOKE_TEACHER_USERNAME}" \
     "SMOKE_TEACHER_PASSWORD=${RUNTIME_SMOKE_TEACHER_PASSWORD}" \
+    "SMOKE_TEACHER_SESSION_KEY=${RUNTIME_SMOKE_TEACHER_SESSION_KEY}" \
     "${smoke_cmd[@]}"
 }
 
@@ -286,7 +341,10 @@ echo "[telemetry-evidence] parity status: ${STATUS_PARITY} (${PARITY_LOG})"
 if (( RUN_SMOKE == 1 )); then
   SMOKE_LOG="${OUT_DIR}/smoke_strict.log"
   set +e
-  run_strict_smoke_command > "${SMOKE_LOG}" 2>&1
+  wait_for_smoke_healthz > "${SMOKE_LOG}" 2>&1
+  if (( $? == 0 )); then
+    run_strict_smoke_command >> "${SMOKE_LOG}" 2>&1
+  fi
   SMOKE_EXIT=$?
   set -e
   if (( SMOKE_EXIT == 0 )); then
@@ -314,7 +372,10 @@ if (( RUN_ROLLBACK_DRILL == 1 )); then
   set +e
   replace_env_key "CLASSHUB_TELEMETRY_READ_MODE" "core"
   run_compose up -d classhub_web caddy >> "${ROLLBACK_LOG}" 2>&1
-  run_strict_smoke_command >> "${ROLLBACK_LOG}" 2>&1
+  wait_for_smoke_healthz >> "${ROLLBACK_LOG}" 2>&1
+  if (( $? == 0 )); then
+    run_strict_smoke_command >> "${ROLLBACK_LOG}" 2>&1
+  fi
   DRILL_EXIT=$?
 
   cp "${ENV_BACKUP}" "${ENV_FILE}"
