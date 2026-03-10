@@ -1343,6 +1343,32 @@ class SubmissionQuotaServiceTests(SimpleTestCase):
                 refreshed = get_classroom_submission_bytes(classroom_id=classroom_id)
                 self.assertEqual(refreshed, 9)
 
+    @patch("hub.services.submission_quota.cache.get", side_effect=RuntimeError("cache_down"))
+    @patch("hub.services.submission_quota.cache.set", side_effect=RuntimeError("cache_down"))
+    def test_quota_scan_survives_cache_backend_errors(self, _set_mock, _get_mock):
+        from ..services.submission_quota import get_classroom_submission_bytes
+
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                classroom_id = 88
+                class_dir = Path(media_root) / "submissions" / f"class_{classroom_id}"
+                class_dir.mkdir(parents=True, exist_ok=True)
+                (class_dir / "project.bin").write_bytes(b"1234")
+                total = get_classroom_submission_bytes(classroom_id=classroom_id)
+                self.assertEqual(total, 4)
+
+    @patch("hub.services.submission_quota.cache.delete", side_effect=RuntimeError("cache_down"))
+    @patch("hub.services.submission_quota.cache.get", side_effect=RuntimeError("cache_down"))
+    @patch("hub.services.submission_quota.cache.set", side_effect=RuntimeError("cache_down"))
+    def test_quota_bump_and_invalidate_survive_cache_backend_errors(self, _set_mock, _get_mock, _delete_mock):
+        from ..services.submission_quota import (
+            bump_cached_classroom_submission_bytes,
+            invalidate_classroom_submission_quota_cache,
+        )
+
+        bump_cached_classroom_submission_bytes(classroom_id=22, delta_bytes=50)
+        invalidate_classroom_submission_quota_cache(classroom_id=22)
+
 
 class SubmissionDownloadHardeningTests(TestCase):
     def setUp(self):
