@@ -177,10 +177,8 @@
   };
 
   const isRetryableUploadFailure = (statusCode, payload) => {
-    const errorCode = String((payload && payload.error) || "").trim();
     if (statusCode === 429) return true;
     if (statusCode >= 500) return true;
-    if (statusCode === 403 && errorCode === "upload_locked") return true;
     return false;
   };
 
