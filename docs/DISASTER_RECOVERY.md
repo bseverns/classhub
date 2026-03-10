@@ -5,7 +5,9 @@ This is a quick checklist to rebuild the server from scratch after a total loss.
 Routine rehearsal command:
 
 ```bash
-bash scripts/backup_restore_rehearsal.sh --compose-mode prod
+bash scripts/restore_rehearsal_evidence.sh \
+  --compose-mode prod \
+  --out-dir artifacts/stability/$(date +%F)
 ```
 
 Run this periodically so backup+restore is tested before an incident.

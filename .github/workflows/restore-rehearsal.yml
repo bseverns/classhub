@@ -56,90 +56,12 @@ jobs:
       - name: Run backup + restore rehearsal
         run: |
           set -euo pipefail
-
-          START_TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          START_EPOCH="$(date +%s)"
-
-          bash scripts/backup_restore_rehearsal.sh --compose-mode prod | tee /tmp/backup_restore_rehearsal.log
-
-          END_TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          END_EPOCH="$(date +%s)"
-          DURATION_SECONDS="$((END_EPOCH - START_EPOCH))"
-
-          POSTGRES_BACKUP="$(
-            find backups/postgres -maxdepth 1 -type f -name 'classhub_*.sql' -printf '%T@ %p\n' \
-              | sort -nr \
-              | head -n1 \
-              | cut -d' ' -f2-
-          )"
-          UPLOADS_BACKUP="$(
-            find backups/uploads -maxdepth 1 -type f -name 'classhub_uploads_*.tgz' -printf '%T@ %p\n' \
-              | sort -nr \
-              | head -n1 \
-              | cut -d' ' -f2-
-          )"
-          MINIO_BACKUP="$(
-            find backups/minio -maxdepth 1 -type f -name 'minio_*.tgz' -printf '%T@ %p\n' \
-              | sort -nr \
-              | head -n1 \
-              | cut -d' ' -f2-
-          )"
-          if [[ -z "${POSTGRES_BACKUP}" || -z "${UPLOADS_BACKUP}" || -z "${MINIO_BACKUP}" ]]; then
-            echo "[rehearsal-workflow] expected backup artifacts were not found" >&2
-            exit 1
-          fi
-
-          BACKUP_STAMP="$(basename "${POSTGRES_BACKUP}")"
-          BACKUP_STAMP="${BACKUP_STAMP#classhub_}"
-          BACKUP_STAMP="${BACKUP_STAMP%.sql}"
-          if [[ ! "${BACKUP_STAMP}" =~ ^[0-9]{8}T[0-9]{6}Z$ ]]; then
-            echo "[rehearsal-workflow] unexpected backup stamp format: ${BACKUP_STAMP}" >&2
-            exit 1
-          fi
-          BACKUP_ISO="${BACKUP_STAMP:0:4}-${BACKUP_STAMP:4:2}-${BACKUP_STAMP:6:2}T${BACKUP_STAMP:9:2}:${BACKUP_STAMP:11:2}:${BACKUP_STAMP:13:2}Z"
-          BACKUP_EPOCH="$(date -u -d "${BACKUP_ISO}" +%s)"
-          RPO_SECONDS="$((END_EPOCH - BACKUP_EPOCH))"
-
-          mkdir -p /tmp/restore-rehearsal-evidence/backups
-          cp /tmp/backup_restore_rehearsal.log /tmp/restore-rehearsal-evidence/rehearsal.log
-          cp "${POSTGRES_BACKUP}" /tmp/restore-rehearsal-evidence/backups/
-          cp "${UPLOADS_BACKUP}" /tmp/restore-rehearsal-evidence/backups/
-          cp "${MINIO_BACKUP}" /tmp/restore-rehearsal-evidence/backups/
-          sha256sum /tmp/restore-rehearsal-evidence/backups/* > /tmp/restore-rehearsal-evidence/backups/checksums.sha256
-
-          cat > /tmp/restore-rehearsal-evidence/metrics.json <<EOF
-          {
-            "workflow": "restore-rehearsal",
-            "started_at_utc": "${START_TS}",
-            "ended_at_utc": "${END_TS}",
-            "duration_seconds": ${DURATION_SECONDS},
-            "rto_threshold_seconds": ${RTO_THRESHOLD_SECONDS},
-            "rpo_seconds": ${RPO_SECONDS},
-            "rpo_threshold_seconds": ${RPO_THRESHOLD_SECONDS},
-            "postgres_backup": "$(basename "${POSTGRES_BACKUP}")",
-            "uploads_backup": "$(basename "${UPLOADS_BACKUP}")",
-            "minio_backup": "$(basename "${MINIO_BACKUP}")"
-          }
-          EOF
-
-          {
-            echo "### Restore Rehearsal Evidence"
-            echo "- Started (UTC): ${START_TS}"
-            echo "- Ended (UTC): ${END_TS}"
-            echo "- Duration (RTO): ${DURATION_SECONDS}s (threshold: ${RTO_THRESHOLD_SECONDS}s)"
-            echo "- Backup age at completion (RPO): ${RPO_SECONDS}s (threshold: ${RPO_THRESHOLD_SECONDS}s)"
-            echo "- Artifacts: $(basename "${POSTGRES_BACKUP}"), $(basename "${UPLOADS_BACKUP}"), $(basename "${MINIO_BACKUP}")"
-          } > /tmp/restore-rehearsal-evidence/summary.md
-          cat /tmp/restore-rehearsal-evidence/summary.md >> "$GITHUB_STEP_SUMMARY"
-
-          if (( DURATION_SECONDS > RTO_THRESHOLD_SECONDS )); then
-            echo "[rehearsal-workflow] RTO threshold exceeded: ${DURATION_SECONDS}s > ${RTO_THRESHOLD_SECONDS}s" >&2
-            exit 1
-          fi
-          if (( RPO_SECONDS > RPO_THRESHOLD_SECONDS )); then
-            echo "[rehearsal-workflow] RPO threshold exceeded: ${RPO_SECONDS}s > ${RPO_THRESHOLD_SECONDS}s" >&2
-            exit 1
-          fi
+          bash scripts/restore_rehearsal_evidence.sh \
+            --compose-mode prod \
+            --rto-threshold-seconds "${RTO_THRESHOLD_SECONDS}" \
+            --rpo-threshold-seconds "${RPO_THRESHOLD_SECONDS}" \
+            --out-dir /tmp/restore-rehearsal-evidence
+          cat /tmp/restore-rehearsal-evidence/restore_rehearsal_summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload rehearsal evidence artifact
         if: always()

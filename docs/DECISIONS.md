@@ -2509,3 +2509,19 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces operational ambiguity by replacing multi-command spot checks with one evidence-ready command.
 - Makes retention verification easier to run consistently during turnover and freeze periods.
+
+## Restore rehearsal evidence wrapper for risk R4 quarterly drills
+
+**Current decision:**
+- Add `scripts/restore_rehearsal_evidence.sh` as the canonical quarterly restore rehearsal command.
+- This wrapper must:
+  - run `backup_restore_rehearsal.sh`,
+  - capture rehearsal log,
+  - write metrics (`RTO`/`RPO`) JSON,
+  - copy backup artifacts and write checksums,
+  - emit a human-readable summary markdown.
+- Record each rehearsal in `docs/RESTORE_REHEARSAL_LOG.md` with date, result, evidence path, and next review date.
+
+**Why this remains active:**
+- Converts restore confidence from periodic ad-hoc checks into durable, auditable evidence.
+- Gives turnover and release governance one stable source of truth for quarterly recovery readiness.

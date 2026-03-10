@@ -220,11 +220,15 @@ Institutionalize restore rehearsal and record outcomes to prevent backup confide
 - Run: `bash scripts/backup_restore_rehearsal.sh --compose-mode prod`
 - Record date, pass/fail, and blockers.
 - Schedule next quarterly rehearsal.
+- Capture artifacts and summary with:
+  - `bash scripts/restore_rehearsal_evidence.sh --compose-mode prod --out-dir artifacts/stability/<date>`
+- Log the run in [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md).
 
 ### Done means
 
 - Most recent rehearsal date is documented.
 - Next rehearsal is on calendar with owner.
+- [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md) contains a dated evidence row with artifact path.
 
 ---
 
@@ -433,3 +437,4 @@ Make submission review paths obvious and consistent so teachers can reliably com
 - [STAFF_TURNOVER_SURVIVABILITY.md](STAFF_TURNOVER_SURVIVABILITY.md)
 - [STABILITY_OWNER_CADENCE.md](STABILITY_OWNER_CADENCE.md)
 - [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
+- [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md)

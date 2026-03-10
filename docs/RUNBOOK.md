@@ -371,7 +371,8 @@ Backup scripts:
 - `scripts/backup_postgres.sh`
 - `scripts/backup_minio.sh`
 - `scripts/backup_uploads.sh`
-- `scripts/backup_restore_rehearsal.sh` (one-command backup + restore drill)
+- `scripts/backup_restore_rehearsal.sh` (core backup + restore rehearsal engine)
+- `scripts/restore_rehearsal_evidence.sh` (recommended evidence wrapper)
 
 Disaster recovery guide:
 
@@ -380,24 +381,32 @@ Disaster recovery guide:
 Recommended restore drill (single command):
 
 ```bash
-bash scripts/backup_restore_rehearsal.sh --compose-mode prod
+bash scripts/restore_rehearsal_evidence.sh \
+  --compose-mode prod \
+  --out-dir artifacts/stability/$(date +%F)
 ```
 
 Automated cadence:
 - GitHub Actions workflow: `.github/workflows/restore-rehearsal.yml` (weekly + manual dispatch)
 - Artifacts: rehearsal log, metrics (`RTO`/`RPO`), and backup checksums retained per run
 
-This script:
-1. Creates fresh Postgres/uploads/MinIO backups.
-2. Restores the Postgres dump into a temporary database.
-3. Extracts uploads/MinIO archives into a temporary restore directory.
-4. Runs ClassHub/Helper `migrate` + `check` against the restored DB.
+This command:
+1. Runs `backup_restore_rehearsal.sh` (fresh backups + non-destructive restore validation).
+2. Captures rehearsal log and metrics (`RTO`/`RPO`) to the evidence directory.
+3. Copies backup artifacts and writes checksums for auditability.
+4. Writes a markdown summary for operator review.
 
 Optional reuse of existing artifacts:
 
 ```bash
-bash scripts/backup_restore_rehearsal.sh --skip-backup --compose-mode prod
+bash scripts/restore_rehearsal_evidence.sh \
+  --compose-mode prod \
+  --skip-backup \
+  --out-dir artifacts/stability/$(date +%F)
 ```
+
+Rehearsal evidence log template:
+- [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md)
 
 ## Release artifact packaging
 

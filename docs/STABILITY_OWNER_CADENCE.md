@@ -19,7 +19,7 @@ Use this file to make ownership and review cadence explicit:
 | R1 | Teacher portal surface area | Maintainer + Ops Director | Teacher Lead | Monthly | 2026-04-10 | `artifacts/stability/<date>/operator_scorecard.md` + teacher walkthrough notes |
 | R2 | Org boundary fallback drift | Ops Director | Executive Director | Monthly | 2026-04-10 | [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md) |
 | R3 | Outcomes/certificate semantic drift | Ops Director | Executive Director | Monthly | 2026-04-10 | [OUTCOME_SEMANTICS.md](OUTCOME_SEMANTICS.md) review notes + [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md) evidence row |
-| R4 | Retention/recovery ritual drift | Ops Director + Maintainer | Engineering manager | Monthly retention, quarterly restore | 2026-04-10 (monthly), 2026-06-10 (quarterly) | `artifacts/stability/<date>/restore_rehearsal.log` + `artifacts/stability/<date>/retention_health.log` |
+| R4 | Retention/recovery ritual drift | Ops Director + Maintainer | Engineering manager | Monthly retention, quarterly restore | 2026-04-10 (monthly), 2026-06-10 (quarterly) | `artifacts/stability/<date>/restore_rehearsal.log` + `restore_rehearsal_metrics.json` + `retention_health.log` + [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md) |
 | R5 | Turnover survivability dependence | Executive Director + Ops Director + Maintainer | Secondary maintainer | Quarterly | 2026-06-10 | [TURNOVER_PACKET.md](TURNOVER_PACKET.md) drill notes |
 
 ## Review Run Template
@@ -47,3 +47,4 @@ Issue 1 is complete when:
 - [STABILITY_CHARTER.md](STABILITY_CHARTER.md)
 - [30_DAY_STABILITY_PLAN.md](30_DAY_STABILITY_PLAN.md)
 - [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
+- [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md)

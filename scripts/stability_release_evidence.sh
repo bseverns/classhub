@@ -214,7 +214,9 @@ run_a11y() {
 }
 
 run_restore_rehearsal() {
-  bash scripts/backup_restore_rehearsal.sh --compose-mode "${COMPOSE_MODE}"
+  bash scripts/restore_rehearsal_evidence.sh \
+    --compose-mode "${COMPOSE_MODE}" \
+    --out-dir "${EVIDENCE_DIR}"
 }
 
 run_kiosk_resilience() {

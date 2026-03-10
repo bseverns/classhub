@@ -74,14 +74,19 @@ Evidence:
 
 ```bash
 cd /srv/lms/app
-bash scripts/backup_restore_rehearsal.sh --compose-mode prod
+bash scripts/restore_rehearsal_evidence.sh \
+  --compose-mode prod \
+  --out-dir artifacts/stability/<YYYY-MM-DD>
 ```
 
 Expected:
-- rehearsal finishes with explicit success output
+- rehearsal finishes with explicit success output and metrics/checksum artifacts
 
 Evidence:
 - `artifacts/stability/<date>/restore_rehearsal.log`
+- `artifacts/stability/<date>/restore_rehearsal_metrics.json`
+- `artifacts/stability/<date>/restore_rehearsal_summary.md`
+- [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md) dated evidence row
 
 ### 2) Kiosk resilience drill
 
@@ -147,3 +152,4 @@ make stability-evidence STABILITY_RELEASE_DATE=<YYYY-MM-DD> STABILITY_SKIP_DOCKE
 - [STABILITY_CHARTER.md](STABILITY_CHARTER.md)
 - [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)
 - [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
+- [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md)

@@ -122,7 +122,7 @@ Command checklist (monthly minimum):
 
 - `bash scripts/retention_maintenance.sh --dry-run`
 - `bash scripts/retention_health_snapshot.sh --compose-mode prod --out artifacts/stability/<date>/retention_health.log`
-- `bash scripts/backup_restore_rehearsal.sh --compose-mode prod`
+- `bash scripts/restore_rehearsal_evidence.sh --compose-mode prod --out-dir artifacts/stability/<date>`
 - `bash scripts/system_doctor.sh --compose-mode prod --smoke-mode golden`
 
 Exit criteria:
@@ -216,7 +216,7 @@ Required recurring commands:
 
 - Monthly: `bash scripts/system_doctor.sh --compose-mode prod --smoke-mode golden`
 - Monthly: `bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact critical`
-- Quarterly: `bash scripts/backup_restore_rehearsal.sh --compose-mode prod`
+- Quarterly: `bash scripts/restore_rehearsal_evidence.sh --compose-mode prod --out-dir artifacts/stability/<date>`
 - Release-time: `python scripts/lint_release_artifact.py <release-zip-path>`
 
 Exit criteria:
@@ -231,6 +231,8 @@ Store under `artifacts/stability/<release-date>/`:
 - `system_doctor.log`
 - `a11y_smoke.log`
 - `restore_rehearsal.log`
+- `restore_rehearsal_metrics.json`
+- `restore_rehearsal_summary.md`
 - `guardrails.log` (view budgets, endpoint guards, route map guards)
 - `release_artifact_lint.log`
 - `operator_scorecard.md` (live flags, known risks, manual checks remaining)
@@ -253,3 +255,4 @@ Store under `artifacts/stability/<release-date>/`:
 - [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)
 - [STABILITY_OWNER_CADENCE.md](STABILITY_OWNER_CADENCE.md)
 - [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
+- [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md)

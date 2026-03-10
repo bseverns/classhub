@@ -58,12 +58,16 @@ bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact critical
 
 ```bash
 cd /srv/lms/app
-bash scripts/backup_restore_rehearsal.sh --compose-mode prod
+bash scripts/restore_rehearsal_evidence.sh \
+  --compose-mode prod \
+  --out-dir artifacts/stability/$(date +%F)
 ```
 
 ```bash
 cd /srv/lms/app
-bash scripts/retention_maintenance.sh --dry-run
+bash scripts/retention_health_snapshot.sh \
+  --compose-mode prod \
+  --out artifacts/stability/$(date +%F)/retention_health.log
 ```
 
 ### 45-60 minutes: policy and boundary posture
@@ -116,11 +120,11 @@ Run from `/srv/lms/app`.
 
 - `bash scripts/system_doctor.sh --compose-mode prod --smoke-mode golden`
 - `bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact critical`
-- `bash scripts/retention_maintenance.sh --dry-run`
+- `bash scripts/retention_health_snapshot.sh --compose-mode prod --out artifacts/stability/<date>/retention_health.log`
 
 ### Quarterly survivability
 
-- `bash scripts/backup_restore_rehearsal.sh --compose-mode prod`
+- `bash scripts/restore_rehearsal_evidence.sh --compose-mode prod --out-dir artifacts/stability/<date>`
 - `bash scripts/kiosk_resilience_check.sh --non-interactive`
 
 ### Incident triage baseline
@@ -134,8 +138,8 @@ Run from `/srv/lms/app`.
 | Responsibility | Primary role | Backup role | Artifact/evidence path |
 | --- | --- | --- | --- |
 | Release evidence generation | Maintainer | Secondary maintainer | `artifacts/stability/<date>/operator_scorecard.md` |
-| Restore rehearsal execution | Ops Director | Engineering manager | `artifacts/stability/<date>/restore_rehearsal.log` |
-| Retention health verification | Maintainer | Ops Director | `artifacts/stability/<date>/guardrails.log` + retention run output |
+| Restore rehearsal execution | Ops Director | Engineering manager | `artifacts/stability/<date>/restore_rehearsal.log` + `restore_rehearsal_metrics.json` |
+| Retention health verification | Maintainer | Ops Director | `artifacts/stability/<date>/retention_health.log` |
 | Staff access + org boundary review | Ops Director | Executive Director | policy review notes + `/teach` admin checks |
 | Final release sign-off | Executive Director | Ops Director | release scorecard + manual sign-off notes |
 
