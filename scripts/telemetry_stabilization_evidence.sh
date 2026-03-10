@@ -155,6 +155,96 @@ META_FILE="${OUT_DIR}/metadata.env"
 STATUS_PARITY="pending"
 STATUS_SMOKE="skipped"
 STATUS_ROLLBACK="skipped"
+RUNTIME_SMOKE_CLASS_CODE=""
+RUNTIME_SMOKE_TEACHER_USERNAME=""
+RUNTIME_SMOKE_TEACHER_PASSWORD=""
+
+prepare_runtime_smoke_inputs() {
+  local class_name teacher_username teacher_password teacher_email course_slug class_code_raw class_code
+
+  class_name="$(env_file_value SMOKE_CLASS_NAME)"
+  class_name="${class_name:-Smoke Validation Class}"
+  teacher_username="$(env_file_value SMOKE_TEACHER_USERNAME)"
+  teacher_username="${teacher_username:-smoke_teacher}"
+  teacher_password="$(env_file_value SMOKE_TEACHER_PASSWORD)"
+  teacher_password="${teacher_password:-Sm0keTeacherPass123!}"
+  teacher_email="$(env_file_value SMOKE_TEACHER_EMAIL)"
+  teacher_email="${teacher_email:-${teacher_username}@example.org}"
+  course_slug="$(env_file_value SMOKE_COURSE_SLUG)"
+  course_slug="${course_slug:-piper_scratch_12_session}"
+
+  run_compose exec -T classhub_web \
+    python manage.py create_teacher \
+    --username "${teacher_username}" \
+    --email "${teacher_email}" \
+    --password "${teacher_password}" \
+    --active \
+    --update \
+    >/dev/null
+
+  class_code_raw="$(
+    set +e
+    run_compose exec -T \
+      -e SMOKE_CLASS_NAME="${class_name}" \
+      classhub_web \
+      python manage.py shell -c \
+      "import os; from hub.models import Class; cls = Class.objects.get(name=os.environ['SMOKE_CLASS_NAME']); cls.enrollment_mode = Class.ENROLLMENT_OPEN; cls.save(update_fields=['enrollment_mode']); print(cls.join_code)" \
+      2>/dev/null
+    echo ".__exit:$?"
+  )"
+  if [[ "${class_code_raw}" == *".__exit:0" ]]; then
+    class_code="${class_code_raw%.__exit:0}"
+  else
+    class_code=""
+  fi
+  class_code="$(echo "${class_code}" | tr -d '\r' | tail -n1)"
+
+  if [[ -z "${class_code}" ]]; then
+    run_compose exec -T classhub_web \
+      python manage.py import_coursepack \
+      --course-slug "${course_slug}" \
+      --class-name "${class_name}" \
+      --create-class \
+      --replace \
+      >/dev/null
+    class_code="$(
+      run_compose exec -T \
+        -e SMOKE_CLASS_NAME="${class_name}" \
+        classhub_web \
+        python manage.py shell -c \
+        "import os; from hub.models import Class; cls = Class.objects.get(name=os.environ['SMOKE_CLASS_NAME']); cls.enrollment_mode = Class.ENROLLMENT_OPEN; cls.save(update_fields=['enrollment_mode']); print(cls.join_code)" \
+        | tr -d '\r' | tail -n1
+    )"
+  fi
+
+  if [[ -z "${class_code}" ]]; then
+    echo "[telemetry-evidence] unable to resolve runtime smoke class code for '${class_name}'" >&2
+    exit 1
+  fi
+
+  RUNTIME_SMOKE_CLASS_CODE="${class_code}"
+  RUNTIME_SMOKE_TEACHER_USERNAME="${teacher_username}"
+  RUNTIME_SMOKE_TEACHER_PASSWORD="${teacher_password}"
+}
+
+run_strict_smoke_command() {
+  local smoke_cmd=(
+    bash "${ROOT_DIR}/scripts/smoke_check.sh"
+    --strict
+    --timeout-seconds "${SMOKE_TIMEOUT_SECONDS}"
+  )
+  if [[ -n "${SMOKE_BASE_URL}" ]]; then
+    smoke_cmd+=(--base-url "${SMOKE_BASE_URL}")
+  fi
+  if (( SMOKE_INSECURE_TLS == 1 )); then
+    smoke_cmd+=(--insecure-tls)
+  fi
+  env \
+    "SMOKE_CLASS_CODE=${RUNTIME_SMOKE_CLASS_CODE}" \
+    "SMOKE_TEACHER_USERNAME=${RUNTIME_SMOKE_TEACHER_USERNAME}" \
+    "SMOKE_TEACHER_PASSWORD=${RUNTIME_SMOKE_TEACHER_PASSWORD}" \
+    "${smoke_cmd[@]}"
+}
 
 {
   echo "captured_at_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -168,6 +258,10 @@ STATUS_ROLLBACK="skipped"
 
 echo "[telemetry-evidence] output dir: ${OUT_DIR}"
 echo "[telemetry-evidence] metadata: ${META_FILE}"
+
+if (( RUN_SMOKE == 1 || RUN_ROLLBACK_DRILL == 1 )); then
+  prepare_runtime_smoke_inputs
+fi
 
 PARITY_LOG="${OUT_DIR}/parity_check.log"
 set +e
@@ -192,14 +286,7 @@ echo "[telemetry-evidence] parity status: ${STATUS_PARITY} (${PARITY_LOG})"
 if (( RUN_SMOKE == 1 )); then
   SMOKE_LOG="${OUT_DIR}/smoke_strict.log"
   set +e
-  smoke_cmd=(bash "${ROOT_DIR}/scripts/smoke_check.sh" --strict --timeout-seconds "${SMOKE_TIMEOUT_SECONDS}")
-  if [[ -n "${SMOKE_BASE_URL}" ]]; then
-    smoke_cmd+=(--base-url "${SMOKE_BASE_URL}")
-  fi
-  if (( SMOKE_INSECURE_TLS == 1 )); then
-    smoke_cmd+=(--insecure-tls)
-  fi
-  "${smoke_cmd[@]}" > "${SMOKE_LOG}" 2>&1
+  run_strict_smoke_command > "${SMOKE_LOG}" 2>&1
   SMOKE_EXIT=$?
   set -e
   if (( SMOKE_EXIT == 0 )); then
@@ -221,19 +308,13 @@ if (( RUN_ROLLBACK_DRILL == 1 )); then
     echo "rollback_drill_started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     echo "original_read_mode=${ORIGINAL_READ_MODE:-<unset>}"
     echo "step=set_read_mode_core"
+    echo "runtime_smoke_teacher=${RUNTIME_SMOKE_TEACHER_USERNAME}"
   } > "${ROLLBACK_LOG}"
 
   set +e
   replace_env_key "CLASSHUB_TELEMETRY_READ_MODE" "core"
   run_compose up -d classhub_web caddy >> "${ROLLBACK_LOG}" 2>&1
-  smoke_cmd=(bash "${ROOT_DIR}/scripts/smoke_check.sh" --strict --timeout-seconds "${SMOKE_TIMEOUT_SECONDS}")
-  if [[ -n "${SMOKE_BASE_URL}" ]]; then
-    smoke_cmd+=(--base-url "${SMOKE_BASE_URL}")
-  fi
-  if (( SMOKE_INSECURE_TLS == 1 )); then
-    smoke_cmd+=(--insecure-tls)
-  fi
-  "${smoke_cmd[@]}" >> "${ROLLBACK_LOG}" 2>&1
+  run_strict_smoke_command >> "${ROLLBACK_LOG}" 2>&1
   DRILL_EXIT=$?
 
   cp "${ENV_BACKUP}" "${ENV_FILE}"
