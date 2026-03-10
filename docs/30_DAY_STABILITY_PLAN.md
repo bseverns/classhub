@@ -29,6 +29,9 @@ Secondary goal: ship proof artifacts with each release so operations are inspect
 | Teacher Lead | Top-task validation, classroom workflow feedback, onboarding clarity | Instructional coach |
 | Executive Director | Policy sign-off, reporting semantics sign-off, survivability governance | Ops Director |
 
+Owner/cadence tracker:
+- [STABILITY_OWNER_CADENCE.md](STABILITY_OWNER_CADENCE.md)
+
 ## Workstreams
 
 1. Teacher workflow calm (`/teach` sequencing and progressive disclosure).
@@ -161,6 +164,7 @@ Deliverables:
 - Canonical semantics doc for `session_completed`, `artifact_submitted`, `eligible`, `issued`.
 - Canonical semantics doc is published at [OUTCOME_SEMANTICS.md](OUTCOME_SEMANTICS.md).
 - One end-to-end reporting rehearsal: join -> submit -> complete -> export -> certificate issue.
+- Reporting rehearsal template + evidence log is documented in [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md).
 - Operator-facing explanation copy in relevant `/teach` surfaces.
 
 Command checklist:
@@ -246,3 +250,5 @@ Store under `artifacts/stability/<release-date>/`:
 - [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 - [TURNOVER_PACKET.md](TURNOVER_PACKET.md)
 - [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)
+- [STABILITY_OWNER_CADENCE.md](STABILITY_OWNER_CADENCE.md)
+- [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)

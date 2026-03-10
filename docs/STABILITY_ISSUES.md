@@ -30,11 +30,13 @@ Adopt [STABILITY_CHARTER.md](STABILITY_CHARTER.md) as active PR policy and assig
 - Assign a named owner and cadence for each risk.
 - Add next review date for each risk to the team calendar.
 - Confirm freeze checklist is used in review comments.
+- Keep owner/cadence/next-review tracking in [STABILITY_OWNER_CADENCE.md](STABILITY_OWNER_CADENCE.md).
 
 ### Done means
 
 - Every risk has a named owner and review date.
 - Freeze checklist is visible in active PR reviews.
+- [STABILITY_OWNER_CADENCE.md](STABILITY_OWNER_CADENCE.md) is current.
 
 ---
 
@@ -190,11 +192,13 @@ Run an operational dry run of the full reporting path: join -> submission -> mar
 - Execute full workflow in a rehearsal class.
 - Record friction points and ambiguities.
 - Convert findings into docs/copy tickets (not new features).
+- Record run evidence using [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md).
 
 ### Done means
 
 - Rehearsal notes are saved and linked.
 - Follow-up tasks are narrowed to stabilization scope.
+- [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md) has a dated evidence row.
 
 ---
 
@@ -424,3 +428,5 @@ Make submission review paths obvious and consistent so teachers can reliably com
 - [30_DAY_STABILITY_PLAN.md](30_DAY_STABILITY_PLAN.md)
 - [TEACHER_TOP_TASKS.md](TEACHER_TOP_TASKS.md)
 - [STAFF_TURNOVER_SURVIVABILITY.md](STAFF_TURNOVER_SURVIVABILITY.md)
+- [STABILITY_OWNER_CADENCE.md](STABILITY_OWNER_CADENCE.md)
+- [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)

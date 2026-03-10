@@ -2470,3 +2470,28 @@ Execution ownership and gates:
 **Why this remains active:**
 - Converts boundary-policy intent into an auditable recurring control.
 - Reduces risk that fallback mode remains active silently in production.
+
+## Stability owner/cadence tracker for risk governance
+
+**Current decision:**
+- Publish `docs/STABILITY_OWNER_CADENCE.md` as the canonical tracker for Risk IDs R1-R5 owner roles, backup roles, cadence, and next review dates.
+- Require this tracker to be updated during each review cycle and linked from stability governance docs.
+
+**Why this remains active:**
+- Closes the gap between “risk register exists” and “risk governance runs on schedule.”
+- Makes ownership continuity explicit during turnover and freeze periods.
+
+## End-to-end reporting rehearsal playbook for risk R3
+
+**Current decision:**
+- Publish `docs/REPORTING_REHEARSAL.md` as the canonical playbook and evidence template for the reporting path rehearsal:
+  - join,
+  - artifact submission,
+  - session completion review,
+  - outcomes export,
+  - certificate issue/re-issue.
+- Require one dated evidence row per cadence cycle and link this playbook from stability ops docs.
+
+**Why this remains active:**
+- Converts reporting confidence from narrative assertion to repeatable operational evidence.
+- Reduces outcome/certificate semantics drift by forcing periodic cross-role validation.

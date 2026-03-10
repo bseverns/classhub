@@ -183,6 +183,9 @@ Notes:
 Outcome/reporting semantics reference:
 - [OUTCOME_SEMANTICS.md](OUTCOME_SEMANTICS.md)
 
+End-to-end reporting rehearsal playbook:
+- [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
+
 Recurring ops cadence checklist:
 - [OPS_CADENCE_CHECKLIST.md](OPS_CADENCE_CHECKLIST.md)
 

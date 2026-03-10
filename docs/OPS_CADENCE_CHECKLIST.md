@@ -99,9 +99,11 @@ Evidence:
 Manual checks:
 - Review [OUTCOME_SEMANTICS.md](OUTCOME_SEMANTICS.md) with Ops + ED.
 - Confirm threshold policy (`CLASSHUB_CERTIFICATE_MIN_SESSIONS`, `CLASSHUB_CERTIFICATE_MIN_ARTIFACTS`) for next cycle.
+- Run one full join -> submit -> export -> certificate issue rehearsal using [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md).
 
 Evidence:
 - dated semantics review note with approvers
+- one evidence row in [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
 
 ## Per-Release Checklist
 
@@ -142,3 +144,4 @@ make stability-evidence STABILITY_RELEASE_DATE=<YYYY-MM-DD> STABILITY_SKIP_DOCKE
 - [TURNOVER_PACKET.md](TURNOVER_PACKET.md)
 - [STABILITY_CHARTER.md](STABILITY_CHARTER.md)
 - [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)
+- [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
