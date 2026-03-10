@@ -168,6 +168,7 @@ Notes:
 - Writes release artifacts under `artifacts/stability/<date>/` and telemetry artifacts under `artifacts/stability/<date>/telemetry/`.
 - Fails the run if parity/smoke/rollback drill do not pass or required artifacts are missing.
 - Produces `cycle_closeout_summary.md` with doc-update checklist before sign-off.
+- For cycles where kiosk drill is tracked separately, set `STABILITY_SKIP_KIOSK=1` to skip kiosk resilience in this command.
 
 Accessibility smoke:
 

@@ -14,6 +14,7 @@ SMOKE_A11Y_TIMEOUT_MS ?= 30000
 STABILITY_RELEASE_DATE ?= $(shell date +%F)
 STABILITY_SKIP_DOCKER_CHECKS ?= 0
 TELEMETRY_WINDOW_DAYS ?= 7
+STABILITY_SKIP_KIOSK ?= 0
 
 INSECURE_TLS_FLAG :=
 ifeq ($(SMOKE_INSECURE_TLS),1)
@@ -35,6 +36,11 @@ ifneq ($(strip $(SMOKE_BASE_URL)),)
 BASE_URL_FLAG := --base-url "$(SMOKE_BASE_URL)"
 endif
 
+SKIP_KIOSK_FLAG :=
+ifeq ($(STABILITY_SKIP_KIOSK),1)
+SKIP_KIOSK_FLAG := --skip-kiosk
+endif
+
 help:
 	@echo "ClassHub operator shortcuts:"
 	@echo "  make smoke-full"
@@ -52,6 +58,7 @@ help:
 	@echo "  SMOKE_FAIL_IMPACT=minor|moderate|serious|critical"
 	@echo "  STABILITY_RELEASE_DATE=YYYY-MM-DD"
 	@echo "  STABILITY_SKIP_DOCKER_CHECKS=0|1"
+	@echo "  STABILITY_SKIP_KIOSK=0|1"
 	@echo "  TELEMETRY_WINDOW_DAYS=7"
 
 smoke-golden:
@@ -97,4 +104,5 @@ stability-cycle-closeout:
 	  --fail-impact "$(SMOKE_FAIL_IMPACT)" \
 	  --a11y-timeout-ms "$(SMOKE_A11Y_TIMEOUT_MS)" \
 	  $(INSTALL_BROWSERS_FLAG) \
+	  $(SKIP_KIOSK_FLAG) \
 	  $(BASE_URL_FLAG)

@@ -15,6 +15,7 @@ INSTALL_BROWSERS=0
 BASE_URL=""
 SKIP_STABILITY_EVIDENCE=0
 SKIP_TELEMETRY_EVIDENCE=0
+SKIP_KIOSK=0
 
 usage() {
   cat <<'EOF'
@@ -36,6 +37,7 @@ Options:
   --base-url <url>                  Optional base URL override for smoke/a11y/telemetry smoke
   --skip-stability-evidence         Reuse existing release evidence artifacts
   --skip-telemetry-evidence         Reuse existing telemetry evidence artifacts
+  --skip-kiosk                      Skip kiosk resilience inside stability evidence
   -h, --help                        Show this help
 EOF
 }
@@ -84,6 +86,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --skip-telemetry-evidence)
       SKIP_TELEMETRY_EVIDENCE=1
+      shift
+      ;;
+    --skip-kiosk)
+      SKIP_KIOSK=1
       shift
       ;;
     -h|--help)
@@ -205,6 +211,9 @@ if (( SKIP_STABILITY_EVIDENCE == 0 )); then
   )
   if (( INSTALL_BROWSERS == 1 )); then
     stable_cmd+=(--install-browsers)
+  fi
+  if (( SKIP_KIOSK == 1 )); then
+    stable_cmd+=(--skip-kiosk)
   fi
   if [[ -n "${BASE_URL}" ]]; then
     stable_cmd+=(--base-url "${BASE_URL}")
