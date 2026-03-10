@@ -264,6 +264,20 @@ class StudentUploadEndpointTests(_StudentAPIBase):
         self.assertIn(f"/material/{self.material.id}/upload", payload["redirect_url"])
         self.assertEqual(Submission.objects.filter(material=self.material, student=self.student).count(), 1)
 
+    @patch("hub.views.api_student_upload.process_material_upload_form", side_effect=RuntimeError("boom"))
+    def test_internal_upload_error_returns_non_retryable_json(self, _upload_mock):
+        self._login_student()
+        upload = SimpleUploadedFile("project.sb3", _sample_sb3_bytes(), content_type="application/octet-stream")
+        resp = self.client.post(
+            f"/api/v1/student/material/{self.material.id}/upload",
+            {"file": upload},
+        )
+        self.assertEqual(resp.status_code, 500)
+        payload = resp.json()
+        self.assertEqual(payload["error"], "upload_internal_error")
+        self.assertFalse(payload["retry"])
+        self.assertIn("temporarily unavailable", payload["message"])
+
 
 class StudentUploadSyncWorkerEndpointTests(TestCase):
     """Tests for GET /student-upload-sync-sw.js."""

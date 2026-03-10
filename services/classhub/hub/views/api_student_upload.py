@@ -137,6 +137,18 @@ def _upload_result_response(*, material: Material, upload_result):
     )
 
 
+def _upload_internal_error_response() -> JsonResponse:
+    return _json_no_store_response(
+        {
+            "error": "upload_internal_error",
+            "message": "Upload temporarily unavailable. Please ask your teacher to retry.",
+            "retry": False,
+        },
+        status=500,
+        private=True,
+    )
+
+
 @require_GET
 @_api_rate_limit(limit=120, window_seconds=60)
 def api_student_csrf(request):
@@ -174,18 +186,26 @@ def api_student_material_upload(request, material_id: int):
     allowed_exts = parse_extensions(material.accepted_extensions) or [".sb3"]
     max_bytes = int(material.max_upload_mb) * 1024 * 1024
     share_with_class = _share_with_class_requested(request, material=material)
-    upload_result = process_material_upload_form(
-        request=request,
-        material=material,
-        form=form,
-        allowed_exts=allowed_exts,
-        max_bytes=max_bytes,
-        validate_upload_content_fn=validate_upload_content,
-        scan_uploaded_file_fn=scan_uploaded_file,
-        emit_student_event_fn=_emit_student_event,
-        logger=logger,
-        share_with_class=share_with_class,
-    )
+    try:
+        upload_result = process_material_upload_form(
+            request=request,
+            material=material,
+            form=form,
+            allowed_exts=allowed_exts,
+            max_bytes=max_bytes,
+            validate_upload_content_fn=validate_upload_content,
+            scan_uploaded_file_fn=scan_uploaded_file,
+            emit_student_event_fn=_emit_student_event,
+            logger=logger,
+            share_with_class=share_with_class,
+        )
+    except Exception:
+        logger.exception(
+            "api_student_upload_internal_error material_id=%s student_id=%s",
+            material.id,
+            getattr(getattr(request, "student", None), "id", "unknown"),
+        )
+        return _upload_internal_error_response()
     return _upload_result_response(material=material, upload_result=upload_result)
 
 

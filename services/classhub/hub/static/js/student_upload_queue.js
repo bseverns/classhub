@@ -176,7 +176,7 @@
     return cachedCsrfToken;
   };
 
-  const isRetryableUploadFailure = (statusCode, payload) => {
+  const isRetryableUploadFailure = (statusCode) => {
     if (statusCode === 429) return true;
     if (statusCode >= 500) return true;
     return false;
@@ -216,7 +216,9 @@
       }
       return {
         ok: false,
-        retry: isRetryableUploadFailure(response.status, payload),
+        retry: typeof payload.retry === "boolean"
+          ? payload.retry
+          : isRetryableUploadFailure(response.status),
         message: String(payload.message || i18n.uploadFailed),
       };
     } catch (_err) {
