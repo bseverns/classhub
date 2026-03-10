@@ -361,7 +361,21 @@ fi
 TMP_COOKIE_JAR="$(mktemp)"
 TMP_JOIN_BODY="$(mktemp)"
 TMP_CSV_BODY="$(mktemp)"
-trap 'rm -f "${TMP_COOKIE_JAR}" "${TMP_JOIN_BODY}" "${TMP_CSV_BODY}"' EXIT
+INVITE_CLASS_ID=""
+INVITE_ORIGINAL_ENROLLMENT_MODE=""
+cleanup_golden_smoke() {
+  rm -f "${TMP_COOKIE_JAR}" "${TMP_JOIN_BODY}" "${TMP_CSV_BODY}"
+  if [[ -n "${INVITE_CLASS_ID}" && -n "${INVITE_ORIGINAL_ENROLLMENT_MODE}" ]]; then
+    run_compose exec -T \
+      -e SMOKE_CLASS_ID="${INVITE_CLASS_ID}" \
+      -e SMOKE_ORIGINAL_ENROLLMENT_MODE="${INVITE_ORIGINAL_ENROLLMENT_MODE}" \
+      classhub_web \
+      python manage.py shell -c \
+      "import os; from hub.models import Class; cls = Class.objects.get(id=int(os.environ['SMOKE_CLASS_ID'])); cls.enrollment_mode = os.environ['SMOKE_ORIGINAL_ENROLLMENT_MODE']; cls.save(update_fields=['enrollment_mode'])" \
+      >/dev/null 2>&1 || true
+  fi
+}
+trap cleanup_golden_smoke EXIT
 
 CLASS_AND_INVITE="$(
   run_compose exec -T \
@@ -369,12 +383,12 @@ CLASS_AND_INVITE="$(
     -e SMOKE_TEACHER_USERNAME="${TEACHER_USERNAME}" \
     classhub_web \
     python manage.py shell -c \
-    "import os; from django.contrib.auth import get_user_model; from hub.models import Class, ClassInviteLink; cls = Class.objects.get(name=os.environ['SMOKE_CLASS_NAME']); cls.enrollment_mode = Class.ENROLLMENT_INVITE_ONLY; cls.save(update_fields=['enrollment_mode']); teacher = get_user_model().objects.get(username=os.environ['SMOKE_TEACHER_USERNAME']); invite = ClassInviteLink.objects.create(classroom=cls, label='golden-smoke-invite', max_uses=5, created_by=teacher); print(f'{cls.id}:{invite.token}')"
+    "import os; from django.contrib.auth import get_user_model; from hub.models import Class, ClassInviteLink; cls = Class.objects.get(name=os.environ['SMOKE_CLASS_NAME']); original_mode = cls.enrollment_mode; cls.enrollment_mode = Class.ENROLLMENT_INVITE_ONLY; cls.save(update_fields=['enrollment_mode']); teacher = get_user_model().objects.get(username=os.environ['SMOKE_TEACHER_USERNAME']); invite = ClassInviteLink.objects.create(classroom=cls, label='golden-smoke-invite', max_uses=5, created_by=teacher); print(f'{cls.id}:{invite.token}:{original_mode}')"
 )"
 CLASS_AND_INVITE="$(echo "${CLASS_AND_INVITE}" | tr -d '\r' | tail -n1)"
-CLASS_ID="${CLASS_AND_INVITE%%:*}"
-INVITE_TOKEN="${CLASS_AND_INVITE#*:}"
-[[ -n "${CLASS_ID}" && -n "${INVITE_TOKEN}" && "${CLASS_AND_INVITE}" == *:* ]] || fail "unable to create invite-only fixture"
+IFS=':' read -r CLASS_ID INVITE_TOKEN INVITE_ORIGINAL_ENROLLMENT_MODE <<< "${CLASS_AND_INVITE}"
+INVITE_CLASS_ID="${CLASS_ID}"
+[[ -n "${CLASS_ID}" && -n "${INVITE_TOKEN}" && -n "${INVITE_ORIGINAL_ENROLLMENT_MODE}" ]] || fail "unable to create invite-only fixture"
 
 curl "${CURL_FLAGS[@]}" -c "${TMP_COOKIE_JAR}" -b "${TMP_COOKIE_JAR}" "${BASE_URL}/invite/${INVITE_TOKEN}" >/dev/null
 CSRF_TOKEN="$(awk '$6=="csrftoken"{print $7}' "${TMP_COOKIE_JAR}" | tail -n1)"
