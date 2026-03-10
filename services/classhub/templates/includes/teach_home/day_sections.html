@@ -2,7 +2,7 @@
           <div class="card">
           <div class="row">
             <h2 class="section-title-tight">Classes</h2>
-            <div class="muted">Assigned classes appear first. Tip: keep codes visible in-room, not in email.</div>
+            <div class="muted">Start here: open class, share join code, then review submissions. Assigned classes appear first.</div>
           </div>
           <p id="copy-status" class="muted copy-status" role="status" aria-live="polite"></p>
 
@@ -39,8 +39,8 @@
                         {% endif %}
                       </td>
                       <td class="class-link">
-                        <a href="/teach/class/{{ c.id }}">Open</a> ·
-                        <a href="/teach/lessons?class_id={{ c.id }}">Lessons</a> ·
+                        <a href="/teach/class/{{ c.id }}">Open class</a> ·
+                        <a href="/teach/lessons?class_id={{ c.id }}">Lesson tracker</a> ·
                         <a href="/teach/class/{{ c.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
                         {% if request.user.is_superuser %}
                           · <a href="/teach?org_admin=1&class_assignment_class_id={{ c.id }}">Assign teacher</a>

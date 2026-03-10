@@ -2426,3 +2426,32 @@ Execution ownership and gates:
 **Why this remains active:**
 - Converts survivability guidance into an executable handoff checklist instead of narrative-only policy.
 - Reduces maintainer dependency risk by making role ownership and required evidence explicit.
+
+## Canonical outcomes/certificate semantics note
+
+**Current decision:**
+- Publish `docs/OUTCOME_SEMANTICS.md` as the canonical semantics reference for:
+  - `artifact_submitted`,
+  - `session_completed`,
+  - `milestone_earned`,
+  - certificate `eligible` and `issued` meanings.
+- Link this semantics note from teacher and operator docs so reporting language stays consistent.
+
+**Why this remains active:**
+- Reduces interpretation drift between instructional, ops, and external reporting contexts.
+- Keeps certificate/outcome communication aligned with the actual threshold/event contract in code.
+
+## Ops cadence checklist for monthly/quarterly rituals
+
+**Current decision:**
+- Publish `docs/OPS_CADENCE_CHECKLIST.md` as the canonical recurring-operations checklist.
+- Standardize monthly, quarterly, and per-release cadence steps with:
+  - command sequence,
+  - expected pass condition,
+  - artifact/evidence location,
+  - escalation rules.
+- Link checklist from runbook and turnover packet docs.
+
+**Why this remains active:**
+- Prevents drift from "we usually run this" to explicit audited cadence.
+- Improves survivability by making routine ops executable by backup maintainers.

@@ -180,6 +180,12 @@ Notes:
 - Prompts through unstable-network upload queue validation steps and writes a report to `/tmp/classhub_kiosk_resilience_<timestamp>.md`.
 - Use `--non-interactive` to emit a checklist-only report for later manual completion.
 
+Outcome/reporting semantics reference:
+- [OUTCOME_SEMANTICS.md](OUTCOME_SEMANTICS.md)
+
+Recurring ops cadence checklist:
+- [OPS_CADENCE_CHECKLIST.md](OPS_CADENCE_CHECKLIST.md)
+
 ## Public domain deployment notes
 
 When running behind Caddy on a real domain, use these defaults to avoid false rate-limit identity and upload mismatches:

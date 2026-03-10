@@ -112,6 +112,7 @@ Deliverables:
 - Turnover packet v1 is documented in [TURNOVER_PACKET.md](TURNOVER_PACKET.md).
 - Named owners for restore, retention, access review, and release sign-off.
 - Documented cadence table for monthly and quarterly rituals.
+- Monthly/quarterly cadence checklist is documented in [OPS_CADENCE_CHECKLIST.md](OPS_CADENCE_CHECKLIST.md).
 
 Command checklist (monthly minimum):
 
@@ -157,6 +158,7 @@ Owner: Executive Director + Ops Director + Maintainer
 Deliverables:
 
 - Canonical semantics doc for `session_completed`, `artifact_submitted`, `eligible`, `issued`.
+- Canonical semantics doc is published at [OUTCOME_SEMANTICS.md](OUTCOME_SEMANTICS.md).
 - One end-to-end reporting rehearsal: join -> submit -> complete -> export -> certificate issue.
 - Operator-facing explanation copy in relevant `/teach` surfaces.
 

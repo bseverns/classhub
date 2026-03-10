@@ -411,6 +411,9 @@ Student join behavior:
 5. For eligible students, issue/re-issue certificate.
 6. Download PDF or TXT certificate from the student row.
 
+Canonical meaning reference:
+- [OUTCOME_SEMANTICS.md](OUTCOME_SEMANTICS.md)
+
 Role note:
 
 - `viewer` can open eligibility pages but cannot submit mark/issue actions.

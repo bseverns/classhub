@@ -1,5 +1,7 @@
 """Teacher home and authoring template endpoints."""
 
+from django.conf import settings
+
 from .content_home_context import (
     _build_org_admin_context,
     _build_teach_home_class_context,
@@ -129,6 +131,7 @@ def teach_home(request):
         **rbac_tools_context,
         **operator_config_snapshot,
         **portal_mode_context,
+        "org_membership_strict_mode": bool(getattr(settings, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", False)),
     }
     response = render(
         request,

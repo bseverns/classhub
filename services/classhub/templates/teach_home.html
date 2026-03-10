@@ -31,6 +31,11 @@
         {% if error %}
           <div class="error" role="alert" aria-live="assertive">{{ error }}</div>
         {% endif %}
+        {% if not org_membership_strict_mode %}
+          <div class="error" role="alert" aria-live="assertive">
+            Org-boundary warning: strict org membership mode is currently off. Staff without organization memberships may retain legacy global class access.
+          </div>
+        {% endif %}
 
         <div class="card card-secondary portal-mode-card">
           <div class="row">
@@ -55,9 +60,9 @@
 
         {% include "includes/teach_home/classroom_focus.html" %}
 
-        {% include "includes/teach_home/setup_sections.html" %}
-
         {% include "includes/teach_home/day_sections.html" %}
+
+        {% include "includes/teach_home/setup_sections.html" %}
       </main>
     </div>
     <script src="{% static 'js/teach_home.js' %}" defer></script>
