@@ -166,18 +166,31 @@ def process_material_upload_form(
     module_gallery_enabled = bool(getattr(material.module, "gallery_enabled", True))
     student_published = bool(publish_requested and module_gallery_enabled)
 
-    submission = Submission.objects.create(
-        material=material,
-        student=request.student,
-        original_filename=name,
-        file=uploaded_file,
-        note=(note or process_note),
-        process_note=process_note,
-        station_label=station_label,
-        is_gallery_shared=False,
-        is_published=student_published,
-        published_at=timezone.now() if student_published else None,
-    )
+    try:
+        submission = Submission.objects.create(
+            material=material,
+            student=request.student,
+            original_filename=name,
+            file=uploaded_file,
+            note=(note or process_note),
+            process_note=process_note,
+            station_label=station_label,
+            is_gallery_shared=False,
+            is_published=student_published,
+            published_at=timezone.now() if student_published else None,
+        )
+    except Exception:
+        logger.exception(
+            "upload_storage_write_failed material_id=%s student_id=%s",
+            material.id,
+            request.student.id,
+        )
+        return upload_error(
+            reason_code="storage_write_failed",
+            error="Upload storage unavailable right now. Please try again shortly.",
+            response_status=503,
+            scan_status=scan_result.status,
+        )
     bump_cached_classroom_submission_bytes(classroom_id=request.classroom.id, delta_bytes=size_bytes)
     emit_student_event_fn(
         event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD,

@@ -278,6 +278,20 @@ class StudentUploadEndpointTests(_StudentAPIBase):
         self.assertFalse(payload["retry"])
         self.assertIn("temporarily unavailable", payload["message"])
 
+    @patch("hub.services.student_uploads.Submission.objects.create", side_effect=OSError("disk full"))
+    @patch("hub.views.api_student_upload.scan_uploaded_file", return_value=ScanResult(status="clean", message=""))
+    def test_storage_write_failure_returns_upload_failed_503(self, _scan_mock, _create_mock):
+        self._login_student()
+        upload = SimpleUploadedFile("project.sb3", _sample_sb3_bytes(), content_type="application/octet-stream")
+        resp = self.client.post(
+            f"/api/v1/student/material/{self.material.id}/upload",
+            {"file": upload},
+        )
+        self.assertEqual(resp.status_code, 503)
+        payload = resp.json()
+        self.assertEqual(payload["error"], "upload_failed")
+        self.assertIn("storage unavailable", payload["message"].lower())
+
     @patch("hub.views.api_student_upload._upload_locked_response", side_effect=RuntimeError("boom"))
     def test_preprocessing_error_returns_non_retryable_json(self, _lock_mock):
         self._login_student()
