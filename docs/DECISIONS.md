@@ -2553,6 +2553,12 @@ Execution ownership and gates:
   - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`
   - `CLASSHUB_TELEMETRY_WRITE_MODE=dual`
   - `CLASSHUB_TELEMETRY_READ_MODE=telemetry`
+- As of March 10, 2026, Gate C technical evidence capture passed for this cycle:
+  - `artifacts/stability/2026-03-10/cycle_closeout_summary.md`
+  - `artifacts/stability/2026-03-10/telemetry/parity_check.log`
+  - `artifacts/stability/2026-03-10/telemetry/smoke_strict.log`
+  - `artifacts/stability/2026-03-10/telemetry/rollback_drill.log`
+- Gate D remains deferred; production write mode stays `dual` until the next full-cycle review.
 
 **Why this remains active:**
 - Enforces proof-first sign-off criteria for stability and telemetry rollouts.

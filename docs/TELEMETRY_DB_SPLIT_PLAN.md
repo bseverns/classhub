@@ -10,15 +10,15 @@ Goal:
 Non-goal (Phase 1):
 - do not split core transactional models (`Class`, `Module`, `Material`, `Submission`, auth tables).
 
-## Implementation status (as of 2026-03-06)
+## Implementation status (as of 2026-03-10)
 - Slice 0-6 implementation is shipped on `main` (flags, telemetry schema/router, dual-write seams, read abstraction, backfill command, parity command).
-- Slice 7 tooling is shipped (`scripts/telemetry_stabilization_evidence.sh`), but release-cycle evidence capture is still pending.
+- Slice 7 tooling is shipped (`scripts/telemetry_stabilization_evidence.sh`) and first release-cycle evidence capture is complete at `artifacts/stability/2026-03-10/telemetry/` (`parity`, strict smoke, rollback drill all pass).
 
 ## What to do now
-1. Run one full release cycle with `WRITE_MODE=dual` and `READ_MODE=telemetry`.
-2. Capture and archive evidence artifacts (`parity`, `smoke`, optional rollback drill) using `scripts/telemetry_stabilization_evidence.sh`.
-3. Enforce strict zero parity drift for the cycle gate; resolve any deltas before sign-off.
-4. Decide steady-state write mode (`dual` vs `telemetry_only`) and document sign-off.
+1. Run a second full release cycle with `WRITE_MODE=dual` and `READ_MODE=telemetry` to prove repeatability.
+2. Capture and archive a second evidence packet (`parity`, `smoke`, rollback drill) using `scripts/telemetry_stabilization_evidence.sh`.
+3. Maintain strict zero parity drift; resolve any deltas before sign-off.
+4. Decide steady-state write mode (`dual` vs `telemetry_only`) and document the dated decision.
 
 ## 30/60/90-day execution checklist (kickoff: March 7, 2026)
 
@@ -41,14 +41,14 @@ Use the same metrics in staging and production evidence packets.
 
 ### Day 0-30 (March 7-April 6, 2026): stabilize Phase 1 and collect first evidence cycle
 
-- [ ] Keep production in `WRITE_MODE=dual` and `READ_MODE=telemetry` for one full release cycle.
-- [ ] Run `check_telemetry_parity --window-days 7` at least daily in staging and at least once per production deploy.
-- [ ] Capture one full evidence packet using `scripts/telemetry_stabilization_evidence.sh`:
+- [x] Keep production in `WRITE_MODE=dual` and `READ_MODE=telemetry` for one full release cycle.
+- [x] Run `check_telemetry_parity --window-days 7` at least daily in staging and at least once per production deploy.
+- [x] Capture one full evidence packet using `scripts/telemetry_stabilization_evidence.sh`:
   - parity output,
   - smoke output,
   - rollback drill output (`--perform-rollback-drill`).
-- [ ] Publish a one-page SLO summary for student home latency, upload success, and helper 5xx rates.
-- [ ] Log and resolve all parity deltas; strict gate for this cycle is zero unresolved drift.
+- [ ] Publish a one-page SLO summary for student home latency, upload success, and helper 5xx rates (replace `TODO` values in `artifacts/stability/2026-03-10/telemetry/slo_summary.md`).
+- [x] Log and resolve all parity deltas; strict gate for this cycle is zero unresolved drift.
 
 Exit criteria for Day 30:
 - one complete evidence packet archived,

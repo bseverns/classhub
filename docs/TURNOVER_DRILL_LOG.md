@@ -27,7 +27,7 @@ Add one row per drill.
 
 | Drill date | Operator(s) | 60-minute path result | first-day path result | Independent run without coaching? | Key blockers found | Docs patched same day? | Evidence directory | Next drill date | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-03-10 | ben | FAIL | FAIL | no | Backup-maintainer drill not yet executed end-to-end for this cycle; closeout remains blocked until run is completed and documented. | no | `artifacts/stability/2026-03-10/` | 2026-03-17 | Tracking row added to make the open turnover blocker explicit in the current cycle. |
+| 2026-03-10 | ben | FAIL | FAIL | no | Backup-maintainer drill not yet executed end-to-end for this cycle; closeout evidence is complete, but final sign-off remains open until this drill is run and documented. | no | `artifacts/stability/2026-03-10/` | 2026-03-17 | Tracking row keeps the remaining R5 turnover blocker explicit after telemetry closeout passed. |
 | YYYY-MM-DD | names | PASS/FAIL | PASS/FAIL | yes/no | short list | yes/no | `artifacts/stability/<date>/` | YYYY-MM-DD | drill summary |
 
 ## Acceptance Rule
