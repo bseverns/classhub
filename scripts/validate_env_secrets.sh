@@ -44,6 +44,13 @@ normalize_mode() {
   echo "${normalized}"
 }
 
+trim_spaces() {
+  local raw="$1"
+  raw="${raw#"${raw%%[![:space:]]*}"}"
+  raw="${raw%"${raw##*[![:space:]]}"}"
+  printf '%s' "${raw}"
+}
+
 contains_icase() {
   local haystack="$1"
   local needle="$2"
@@ -271,6 +278,63 @@ TELEMETRY_DATABASE_URL="$(env_file_value CLASSHUB_TELEMETRY_DATABASE_URL)"
 if [[ "${TELEMETRY_WRITE_MODE}" != "off" || "${TELEMETRY_READ_MODE}" == "telemetry" ]]; then
   if [[ -z "${TELEMETRY_DATABASE_URL}" ]]; then
     fail "CLASSHUB_TELEMETRY_DATABASE_URL is required when telemetry write mode is not 'off' or read mode is 'telemetry'"
+  fi
+fi
+
+TEACHER_SSO_ENABLED="$(env_file_value CLASSHUB_TEACHER_SSO_ENABLED)"
+TEACHER_SSO_ENABLED="${TEACHER_SSO_ENABLED:-0}"
+if [[ "${TEACHER_SSO_ENABLED}" != "0" && "${TEACHER_SSO_ENABLED}" != "1" ]]; then
+  fail "CLASSHUB_TEACHER_SSO_ENABLED must be 0 or 1"
+fi
+
+TEACHER_SSO_ALLOW_PASSWORD_FALLBACK="$(env_file_value CLASSHUB_TEACHER_SSO_ALLOW_PASSWORD_FALLBACK)"
+TEACHER_SSO_ALLOW_PASSWORD_FALLBACK="${TEACHER_SSO_ALLOW_PASSWORD_FALLBACK:-1}"
+if [[ "${TEACHER_SSO_ALLOW_PASSWORD_FALLBACK}" != "0" && "${TEACHER_SSO_ALLOW_PASSWORD_FALLBACK}" != "1" ]]; then
+  fail "CLASSHUB_TEACHER_SSO_ALLOW_PASSWORD_FALLBACK must be 0 or 1"
+fi
+
+if [[ "${TEACHER_SSO_ENABLED}" == "1" ]]; then
+  SSO_PROVIDERS_RAW="$(env_file_value CLASSHUB_TEACHER_SSO_PROVIDERS)"
+  if [[ -z "${SSO_PROVIDERS_RAW}" ]]; then
+    fail "CLASSHUB_TEACHER_SSO_PROVIDERS is required when CLASSHUB_TEACHER_SSO_ENABLED=1"
+  fi
+
+  declare -A seen_sso_provider=()
+  enabled_provider_count=0
+  IFS=',' read -r -a sso_provider_items <<< "${SSO_PROVIDERS_RAW}"
+  for provider_item in "${sso_provider_items[@]}"; do
+    provider="$(normalize_mode "$(trim_spaces "${provider_item}")")"
+    if [[ -z "${provider}" ]]; then
+      continue
+    fi
+    if [[ -n "${seen_sso_provider["${provider}"]+x}" ]]; then
+      continue
+    fi
+    seen_sso_provider["${provider}"]=1
+    enabled_provider_count=$((enabled_provider_count + 1))
+    case "${provider}" in
+      google)
+        require_nonempty "CLASSHUB_SSO_GOOGLE_CLIENT_ID"
+        require_nonempty "CLASSHUB_SSO_GOOGLE_CLIENT_SECRET"
+        ;;
+      microsoft)
+        require_nonempty "CLASSHUB_SSO_MICROSOFT_CLIENT_ID"
+        require_nonempty "CLASSHUB_SSO_MICROSOFT_CLIENT_SECRET"
+        ;;
+      oidc_custom)
+        require_nonempty "CLASSHUB_SSO_OIDC_CUSTOM_CLIENT_ID"
+        require_nonempty "CLASSHUB_SSO_OIDC_CUSTOM_CLIENT_SECRET"
+        require_nonempty "CLASSHUB_SSO_OIDC_CUSTOM_ISSUER"
+        require_nonempty "CLASSHUB_SSO_OIDC_CUSTOM_DISCOVERY_URL"
+        ;;
+      *)
+        fail "CLASSHUB_TEACHER_SSO_PROVIDERS contains unsupported provider '${provider}' (allowed: google,microsoft,oidc_custom)"
+        ;;
+    esac
+  done
+
+  if [[ "${enabled_provider_count}" -le 0 ]]; then
+    fail "CLASSHUB_TEACHER_SSO_PROVIDERS must include at least one provider when CLASSHUB_TEACHER_SSO_ENABLED=1"
   fi
 fi
 

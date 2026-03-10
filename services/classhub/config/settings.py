@@ -20,6 +20,7 @@ from pathlib import Path
 
 import environ
 from common.csp import normalize_csp_mode
+from config.identity_sso import build_teacher_sso_settings
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -125,6 +126,11 @@ TEACHER_2FA_INVITE_MAX_AGE_SECONDS = env.int("TEACHER_2FA_INVITE_MAX_AGE_SECONDS
 TEACHER_2FA_DEVICE_NAME = (
     env("TEACHER_2FA_DEVICE_NAME", default="teacher-primary").strip() or "teacher-primary"
 )
+TEACHER_SSO_SETTINGS = build_teacher_sso_settings(env)
+CLASSHUB_TEACHER_SSO_ENABLED = TEACHER_SSO_SETTINGS.enabled
+CLASSHUB_TEACHER_SSO_ALLOW_PASSWORD_FALLBACK = TEACHER_SSO_SETTINGS.allow_password_fallback
+CLASSHUB_TEACHER_SSO_ENABLED_PROVIDERS = TEACHER_SSO_SETTINGS.enabled_providers
+CLASSHUB_TEACHER_SSO_PROVIDERS = TEACHER_SSO_SETTINGS.providers
 
 INSTALLED_APPS = [
     "config.apps.ClassHubAdminConfig",

@@ -73,6 +73,22 @@ Implementation note:
   - org auto-mapping rules
 - Add env guards for missing/invalid provider config.
 
+T0 implementation scaffold (now shipped):
+
+- Django settings parse/normalize:
+  - `CLASSHUB_TEACHER_SSO_ENABLED`
+  - `CLASSHUB_TEACHER_SSO_ALLOW_PASSWORD_FALLBACK`
+  - `CLASSHUB_TEACHER_SSO_PROVIDERS`
+  - provider-specific keys for `google`, `microsoft`, and `oidc_custom`
+- Environment guardrails enforce:
+  - provider list is present when SSO is enabled,
+  - enabled provider keys are recognized,
+  - required client id/secret (and custom issuer/discovery) are present.
+- Example env templates include all SSO keys:
+  - `compose/.env.example`
+  - `compose/.env.example.local`
+  - `compose/.env.example.domain`
+
 ### T1: Login UX and callback flow
 
 - Extend `/teach/login` with explicit SSO entry buttons (feature-flagged).
@@ -240,4 +256,3 @@ Before enabling in production:
 - Operator runbook updates complete.
 - Smoke + rollback drills complete.
 - Dated decision row added to [DECISIONS.md](DECISIONS.md).
-

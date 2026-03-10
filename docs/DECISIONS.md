@@ -143,6 +143,7 @@ Historical implementation logs and superseded decisions are archived by month in
   - teachers/admins continue on Django auth + OTP.
 - Maintain a documented implementation path for future identity expansion at:
   - [IDENTITY_SSO_EXPANSION_PLAN.md](IDENTITY_SSO_EXPANSION_PLAN.md)
+- Ship T0 provider/config scaffolding first (settings parsing + env validation + template keys), without enabling any SSO login route by default.
 - Sequence identity work as:
   1. teacher SSO first (Google/Microsoft via OIDC seam),
   2. optional student school-account login only as opt-in per org/class,
