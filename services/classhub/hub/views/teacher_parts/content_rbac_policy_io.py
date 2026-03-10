@@ -23,7 +23,6 @@ from .shared import (
     apply_no_store,
     require_POST,
     safe_attachment_filename,
-    staff_can_export_syllabi,
     staff_member_required,
     timezone,
 )
@@ -44,9 +43,9 @@ def _rbac_redirect(request, *, notice: str = "", error: str = ""):
 
 
 def _require_rbac_tools_access(request):
-    if staff_can_export_syllabi(request.user):
+    if bool(getattr(request.user, "is_superuser", False)):
         return None
-    return _rbac_redirect(request, error="RBAC tools require owner/admin role.")
+    return _rbac_redirect(request, error="RBAC tools require superuser access.")
 
 
 def _load_policy_json(request):

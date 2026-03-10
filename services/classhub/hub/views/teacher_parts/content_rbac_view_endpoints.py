@@ -48,7 +48,6 @@ from .shared import (
     require_POST,
     settings,
     staff_accessible_classes_ranked,
-    staff_can_export_syllabi,
     staff_classroom_or_none,
     staff_member_required,
     timezone,
@@ -269,9 +268,9 @@ def build_rbac_tools_context(*, request, classes) -> dict:
 
 
 def _require_rbac_tools_access(request):
-    if staff_can_export_syllabi(request.user):
+    if rbac_tools_enabled_for_user(request.user):
         return None
-    return _rbac_redirect(request, error="RBAC tools require owner/admin role.")
+    return _rbac_redirect(request, error="RBAC tools require superuser access.")
 
 
 @staff_member_required

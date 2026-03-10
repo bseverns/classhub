@@ -2596,6 +2596,10 @@ class TeacherOrganizationAccessTests(TestCase):
         self.class_b = Class.objects.create(name="Beta Cohort", join_code="ORGB1234", organization=self.org_b)
         _force_login_staff_verified(self.client, self.staff)
 
+    def _promote_staff_to_superuser(self):
+        self.staff.is_superuser = True
+        self.staff.save(update_fields=["is_superuser"])
+
     def test_teach_home_lists_only_accessible_org_classes(self):
         resp = self.client.get("/teach")
         self.assertEqual(resp.status_code, 200)
@@ -2640,6 +2644,7 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertIn("attachment;", resp["Content-Disposition"])
 
     def test_org_admin_can_upsert_scoped_grant_from_teach_home(self):
+        self._promote_staff_to_superuser()
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
@@ -2686,6 +2691,7 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertEqual(event.actor_user_id, self.staff.id)
 
     def test_org_admin_can_toggle_scoped_grant_active_from_teach_home(self):
+        self._promote_staff_to_superuser()
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
@@ -2722,6 +2728,7 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertIsNotNone(event)
 
     def test_org_admin_can_simulate_rbac_from_teach_home(self):
+        self._promote_staff_to_superuser()
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
@@ -2795,6 +2802,7 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertNotContains(resp, "RBAC audit operations")
 
     def test_org_admin_can_export_rbac_policy_json(self):
+        self._promote_staff_to_superuser()
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
@@ -2840,6 +2848,7 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertEqual(event.actor_user_id, self.staff.id)
 
     def test_org_admin_can_import_rbac_policy_json(self):
+        self._promote_staff_to_superuser()
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
@@ -2918,6 +2927,7 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertEqual(event.actor_user_id, self.staff.id)
 
     def test_org_admin_policy_export_includes_custom_roles_and_assignments(self):
+        self._promote_staff_to_superuser()
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
@@ -2964,6 +2974,7 @@ class TeacherOrganizationAccessTests(TestCase):
         )
 
     def test_org_admin_policy_import_can_upsert_custom_roles_and_assignments(self):
+        self._promote_staff_to_superuser()
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
@@ -3035,6 +3046,7 @@ class TeacherOrganizationAccessTests(TestCase):
         )
 
     def test_org_admin_can_upsert_custom_roles_from_teach_home(self):
+        self._promote_staff_to_superuser()
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
@@ -3107,6 +3119,7 @@ class TeacherOrganizationAccessTests(TestCase):
 
     @override_settings(CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=True)
     def test_policy_approval_workflow_requires_separate_reviewer(self):
+        self._promote_staff_to_superuser()
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
@@ -3169,6 +3182,7 @@ class TeacherOrganizationAccessTests(TestCase):
 
     @override_settings(CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=True)
     def test_policy_import_is_queued_and_applied_after_approval(self):
+        self._promote_staff_to_superuser()
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
@@ -3255,6 +3269,7 @@ class TeacherOrganizationAccessTests(TestCase):
 
     @override_settings(CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=True)
     def test_teacher_with_export_capability_cannot_review_policy_change_request(self):
+        self._promote_staff_to_superuser()
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
@@ -3316,7 +3331,7 @@ class TeacherOrganizationAccessTests(TestCase):
             },
         )
         self.assertEqual(review_resp.status_code, 302)
-        self.assertIn("owners%2Fadmins", review_resp["Location"])
+        self.assertIn("superuser", review_resp["Location"].lower())
         change.refresh_from_db()
         self.assertEqual(change.status, RbacPolicyChangeRequest.STATUS_PENDING)
         self.assertIsNone(change.reviewed_by_id)
