@@ -13,9 +13,15 @@ from django.db import models
 from django.utils import timezone
 
 from .model_helpers import (
+    gen_certificate_code,
     gen_class_code,
     gen_student_invite_token,
     gen_student_return_code,
+    _lesson_asset_upload_to,
+    _lesson_video_upload_to,
+    _normalize_asset_folder_path,
+    _safe_asset_filename,
+    _safe_path_part,
     _submission_upload_to,
 )
 

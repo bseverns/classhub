@@ -25,7 +25,7 @@ def gen_student_invite_token(length: int = 24) -> str:
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
-def _submission_upload_to(instance: "Submission", filename: str) -> str:
+def _submission_upload_to(instance, filename: str) -> str:
     """Upload path for student submissions."""
     ext = Path(str(filename or "")).suffix.lower()
     if not ext.startswith("."):
@@ -48,7 +48,7 @@ def _safe_path_part(raw: str) -> str:
     return value or "unknown"
 
 
-def _lesson_video_upload_to(instance: "LessonVideo", filename: str) -> str:
+def _lesson_video_upload_to(instance, filename: str) -> str:
     course = _safe_path_part(instance.course_slug)
     lesson = _safe_path_part(instance.lesson_slug)
     return f"lesson_videos/{course}/{lesson}/{filename}"
@@ -76,7 +76,7 @@ def gen_certificate_code(length: int = 12) -> str:
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
-def _lesson_asset_upload_to(instance: "LessonAsset", filename: str) -> str:
+def _lesson_asset_upload_to(instance, filename: str) -> str:
     folder_path = _normalize_asset_folder_path(getattr(instance.folder, "path", "general"))
     return f"lesson_assets/{folder_path}/{_safe_asset_filename(filename)}"
 
