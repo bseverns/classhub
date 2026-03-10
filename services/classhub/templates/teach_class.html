@@ -50,13 +50,13 @@
               </select>
               <button type="submit">Set retention</button>
             </form>
-            <form method="post" action="/teach/class/{{ classroom.id }}/toggle-lock">
+            <form method="post" action="/teach/class/{{ classroom.id }}/toggle-lock" data-confirm="{% if classroom.is_locked %}Unlock class access now? Students can rejoin immediately.{% else %}Lock class access now? New student joins will be blocked until you unlock.{% endif %}">
               {% csrf_token %}
-              <button type="submit">{% if classroom.is_locked %}Unlock{% else %}Lock{% endif %}</button>
+              <button type="submit">{% if classroom.is_locked %}Unlock class access{% else %}Lock class access{% endif %}</button>
             </form>
-            <form method="post" action="/teach/class/{{ classroom.id }}/rotate-code">
+            <form method="post" action="/teach/class/{{ classroom.id }}/rotate-code" data-confirm="Rotate class join code now? Existing printed cards and copied codes will stop working.">
               {% csrf_token %}
-              <button type="submit">Rotate code</button>
+              <button type="submit">Rotate class join code</button>
             </form>
             <a href="/teach/class/{{ classroom.id }}/export-outcomes-csv">Export outcomes CSV</a>
             <a href="/teach/class/{{ classroom.id }}/export-summary-csv">Export summary CSV</a>
@@ -361,14 +361,14 @@
                               />
                               <button type="submit">Rename</button>
                             </form>
-                            <form method="post" action="/teach/class/{{ classroom.id }}/delete-student-data" class="delete-row" data-confirm="Delete all stored data for this student now?">
+                            <form method="post" action="/teach/class/{{ classroom.id }}/delete-student-data" class="delete-row" data-confirm="Permanently delete all stored data for this student now? This cannot be undone.">
                               {% csrf_token %}
                               <input type="hidden" name="student_id" value="{{ st.id }}" />
                               <label class="inline-check-label">
                                 <input type="checkbox" name="confirm_delete" value="1" class="inline-check-input" required />
-                                Confirm delete
+                                I understand this permanently deletes this student's data
                               </label>
-                              <button type="submit" class="danger-inline">Delete student data</button>
+                              <button type="submit" class="danger-inline">Delete student data now</button>
                             </form>
                           </td>
                         </tr>
@@ -390,7 +390,7 @@
                   <form
                     method="post"
                     action="/teach/class/{{ classroom.id }}/merge-students"
-                    data-confirm="Merge selected student records? This cannot be undone."
+                    data-confirm="Permanently merge selected student records now? This cannot be undone."
                   >
                     {% csrf_token %}
                     <div class="merge-row">
@@ -414,7 +414,7 @@
                       </label>
                       <label class="inline-check-label merge-confirm-label">
                         <input type="checkbox" name="confirm_merge" value="1" class="inline-check-input" required />
-                        Confirm merge
+                        I understand this merge is permanent
                       </label>
                       <button type="submit">Merge students</button>
                     </div>
@@ -423,24 +423,24 @@
               {% endif %}
 
               <div class="danger-zone">
-                <strong>Reset roster</strong>
+                <strong>Reset roster (destructive)</strong>
                 <p class="muted mini danger-copy">
                   This removes all students in this class and deletes their submissions. Active student sessions are invalidated immediately.
                 </p>
-                <form method="post" action="/teach/class/{{ classroom.id }}/reset-roster" data-confirm="Reset roster for this class? This deletes students and submissions.">
+                <form method="post" action="/teach/class/{{ classroom.id }}/reset-roster" data-confirm="Reset roster for this class now? This permanently deletes all students and submissions in this class.">
                   {% csrf_token %}
                   <label class="inline-check-label no-top-margin">
                     <input type="checkbox" name="rotate_code" value="1" checked class="inline-check-input" />
-                    Rotate class join code after reset
+                    Rotate class join code after roster reset
                   </label>
-                  <button type="submit">Reset roster now</button>
+                  <button type="submit">Reset roster now (delete roster + submissions)</button>
                 </form>
                 <hr class="danger-divider" />
-                <strong>Reset helper conversations</strong>
+                <strong>Reset helper conversations (destructive)</strong>
                 <p class="muted mini danger-copy">
                   Exports a class helper snapshot (for internal research) and then clears cached helper chat history for this class only.
                 </p>
-                <form method="post" action="/teach/class/{{ classroom.id }}/reset-helper-conversations" data-confirm="Reset helper conversations for this class?">
+                <form method="post" action="/teach/class/{{ classroom.id }}/reset-helper-conversations" data-confirm="Reset helper conversations for this class now? Cached helper chat history for this class will be cleared.">
                   {% csrf_token %}
                   <input type="hidden" name="export_before_reset" value="0" />
                   <label class="inline-check-label no-top-margin">
@@ -450,7 +450,7 @@
                   <p class="muted mini merge-note">
                     Access to exported helper data is limited to class teachers and createMPLS administrators.
                   </p>
-                  <button type="submit">Reset helper conversations</button>
+                  <button type="submit">Reset helper conversations now</button>
                 </form>
               </div>
             </div>
@@ -815,8 +815,8 @@
                               <div><a href="/teach/material/{{ dropbox.id }}/submissions">{{ dropbox.title }}</a></div>
                               <div class="muted mini">Submitted {{ dropbox.submitted }} / {{ student_count }} · Missing {{ dropbox.missing }}{% if dropbox.last_uploaded_at %} · Latest {{ dropbox.last_uploaded_at }}{% endif %}</div>
                               <div class="actions">
-                                <a href="/teach/material/{{ dropbox.id }}/submissions">All</a>
-                                <a href="/teach/material/{{ dropbox.id }}/submissions?show=missing">Missing</a>
+                                <a href="/teach/material/{{ dropbox.id }}/submissions">Review submissions</a>
+                                <a href="/teach/material/{{ dropbox.id }}/submissions?show=missing">Review missing</a>
                                 <a href="/teach/material/{{ dropbox.id }}/submissions?download=zip_latest">ZIP latest</a>
                               </div>
                             </div>
@@ -888,9 +888,9 @@
                             </div>
                             <div class="muted mini">
                               {% if mat.type == 'upload' or mat.type == 'gallery' %}
-                                Submitted: {{ submission_counts|get_item:mat.id|default:0 }} / {{ student_count }} · <a href="/teach/material/{{ mat.id }}/submissions">Submissions</a>
+                                Submitted: {{ submission_counts|get_item:mat.id|default:0 }} / {{ student_count }} · <a href="/teach/material/{{ mat.id }}/submissions">Review submissions</a>
                               {% elif mat.type == 'rubric' %}
-                                Responses: <a href="/teach/material/{{ mat.id }}/submissions">View</a>
+                                Responses: <a href="/teach/material/{{ mat.id }}/submissions">Review responses</a>
                               {% endif %}
                             </div>
                           </div>
