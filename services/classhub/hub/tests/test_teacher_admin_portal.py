@@ -2609,11 +2609,13 @@ class TeacherOrganizationAccessTests(TestCase):
         self.assertNotContains(resp, "RBAC tools")
         self.assertNotContains(resp, "Operator config snapshot")
 
-    def test_non_superuser_invalid_portal_mode_falls_back_to_all(self):
+    def test_non_superuser_invalid_portal_mode_falls_back_to_setup(self):
         resp = self.client.get("/teach?portal_mode=admin")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Portal setup + account tools")
-        self.assertContains(resp, "Classroom focus")
+        self.assertContains(resp, "Class setup")
+        self.assertNotContains(resp, "All panels")
+        self.assertNotContains(resp, "Classroom focus")
         self.assertNotContains(resp, "Operator config snapshot")
         self.assertNotContains(resp, "Organizations + Staff Memberships")
 

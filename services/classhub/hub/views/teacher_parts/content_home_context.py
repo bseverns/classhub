@@ -58,13 +58,15 @@ def _resolve_initial_top_tab(*, user, profile_tab_active, org_admin_active, teac
 
 def _read_portal_mode(request, *, user, rbac_tools_enabled: bool) -> str:
     requested = (request.GET.get("portal_mode") or "").strip().lower()
-    allowed = {"all", "day", "setup"}
+    default_mode = "all" if user.is_superuser else "setup"
+    allowed = {"day", "setup"}
     if user.is_superuser:
+        allowed.add("all")
         allowed.add("admin")
     if user.is_superuser or rbac_tools_enabled:
         allowed.add("policy")
     if requested not in allowed:
-        return "all"
+        return default_mode
     return requested
 
 
@@ -75,13 +77,6 @@ def _portal_mode_context(*, user, portal_mode: str, rbac_tools_enabled: bool) ->
     show_policy_sections = (user.is_superuser or rbac_tools_enabled) and portal_mode in {"all", "policy"}
 
     mode_rows = [
-        {
-            "id": "all",
-            "label": "All panels",
-            "description": "Full teacher cockpit.",
-            "url": "/teach?portal_mode=all",
-            "active": portal_mode == "all",
-        },
         {
             "id": "day",
             "label": "Day-of-class",
@@ -97,6 +92,17 @@ def _portal_mode_context(*, user, portal_mode: str, rbac_tools_enabled: bool) ->
             "active": portal_mode == "setup",
         },
     ]
+    if user.is_superuser:
+        mode_rows.insert(
+            0,
+            {
+                "id": "all",
+                "label": "All panels",
+                "description": "Full teacher cockpit.",
+                "url": "/teach?portal_mode=all",
+                "active": portal_mode == "all",
+            },
+        )
     if user.is_superuser:
         mode_rows.append(
             {
