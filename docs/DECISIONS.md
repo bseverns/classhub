@@ -146,9 +146,14 @@ Historical implementation logs and superseded decisions are archived by month in
 - Ship T0 provider/config scaffolding first (settings parsing + env validation + template keys), without enabling any SSO login route by default.
 - Ship T1 UI/routing scaffold behind the same feature flag:
   - `/teach/login` provider buttons + guarded `/teach/sso/start/<provider>` and `/teach/sso/callback/<provider>` routes,
-  - with explicit "not active yet" responses until full OIDC exchange is implemented.
+  - with explicit scaffold responses for providers not yet activated.
+- Ship T2 Google callback flow:
+  - real Google OIDC authorize/callback exchange with signed state + nonce validation,
+  - pre-provisioned staff account mapping by email,
+  - provider/domain guardrails and no-store auth redirects,
+  - password fallback behavior controlled by `CLASSHUB_TEACHER_SSO_ALLOW_PASSWORD_FALLBACK`.
 - Sequence identity work as:
-  1. teacher SSO first (Google/Microsoft via OIDC seam),
+  1. teacher SSO first (Google callback live, Microsoft/custom next),
   2. optional student school-account login only as opt-in per org/class,
   3. pseudonym-preserving display defaults remain enforced for classroom/public surfaces.
 

@@ -293,6 +293,16 @@ if [[ "${TEACHER_SSO_ALLOW_PASSWORD_FALLBACK}" != "0" && "${TEACHER_SSO_ALLOW_PA
   fail "CLASSHUB_TEACHER_SSO_ALLOW_PASSWORD_FALLBACK must be 0 or 1"
 fi
 
+TEACHER_SSO_STATE_MAX_AGE_RAW="$(env_file_value CLASSHUB_TEACHER_SSO_STATE_MAX_AGE_SECONDS)"
+if [[ -n "${TEACHER_SSO_STATE_MAX_AGE_RAW}" ]]; then
+  if ! [[ "${TEACHER_SSO_STATE_MAX_AGE_RAW}" =~ ^[0-9]+$ ]]; then
+    fail "CLASSHUB_TEACHER_SSO_STATE_MAX_AGE_SECONDS must be a positive integer when set"
+  fi
+  if [[ "${TEACHER_SSO_STATE_MAX_AGE_RAW}" -lt 60 ]]; then
+    fail "CLASSHUB_TEACHER_SSO_STATE_MAX_AGE_SECONDS must be >= 60"
+  fi
+fi
+
 if [[ "${TEACHER_SSO_ENABLED}" == "1" ]]; then
   SSO_PROVIDERS_RAW="$(env_file_value CLASSHUB_TEACHER_SSO_PROVIDERS)"
   if [[ -z "${SSO_PROVIDERS_RAW}" ]]; then

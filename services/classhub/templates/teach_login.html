@@ -48,6 +48,7 @@
             </div>
             {% endif %}
 
+            {% if allow_password_fallback or not sso_enabled %}
             <div class="card">
                 <h2 class="login-card-title">{% trans "Sign in to your account" %}</h2>
                 <form method="post" autocomplete="on">
@@ -75,6 +76,12 @@
                     </div>
                 </form>
             </div>
+            {% elif sso_enabled %}
+            <div class="card">
+                <h2 class="login-card-title">{% trans "Password login disabled" %}</h2>
+                <p class="muted">{% trans "This deployment requires organization SSO for teacher login." %}</p>
+            </div>
+            {% endif %}
             {% include "includes/language_chooser.html" %}
         </main>
     </div>

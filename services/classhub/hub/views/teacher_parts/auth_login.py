@@ -32,10 +32,14 @@ def teach_login(request):
         auth_logout(request)
         request.session.flush()
 
+    allow_password_fallback = bool(getattr(settings, "CLASSHUB_TEACHER_SSO_ALLOW_PASSWORD_FALLBACK", True))
+    sso_enabled = bool(getattr(settings, "CLASSHUB_TEACHER_SSO_ENABLED", False))
     error = (request.GET.get("error") or "").strip()
     form = AuthenticationForm(request, data=request.POST or None)
     if request.method == "POST":
-        if form.is_valid():
+        if sso_enabled and not allow_password_fallback:
+            error = "Password login is disabled for this deployment. Use organization SSO."
+        elif form.is_valid():
             authenticated_user = form.get_user()
             if not authenticated_user.is_active or not authenticated_user.is_staff:
                 auth_logout(request)
@@ -63,7 +67,8 @@ def teach_login(request):
             "error": error,
             "notice": notice,
             "sso_options": teacher_sso_options_for_login(next_path=next_path),
-            "sso_enabled": bool(getattr(settings, "CLASSHUB_TEACHER_SSO_ENABLED", False)),
+            "sso_enabled": sso_enabled,
+            "allow_password_fallback": allow_password_fallback,
         },
     )
     apply_no_store(response, private=True, pragma=True)

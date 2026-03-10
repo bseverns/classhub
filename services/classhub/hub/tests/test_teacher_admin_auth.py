@@ -134,6 +134,21 @@ class TeacherOTPEnforcementTests(TestCase):
 
 
 class TeacherSSOScaffoldTests(TestCase):
+    def _google_provider_config(self):
+        from types import SimpleNamespace
+
+        return SimpleNamespace(
+            client_id="google-client-id",
+            client_secret="google-client-secret",
+            discovery_url="https://accounts.google.com/.well-known/openid-configuration",
+            allowed_domains=("example.org",),
+        )
+
+    def _google_identity(self, *, email: str):
+        from types import SimpleNamespace
+
+        return SimpleNamespace(email=email, hosted_domain=email.split("@", 1)[-1])
+
     def test_teach_login_hides_sso_buttons_when_disabled(self):
         resp = self.client.get("/teach/login")
         self.assertEqual(resp.status_code, 200)
@@ -163,11 +178,40 @@ class TeacherSSOScaffoldTests(TestCase):
         CLASSHUB_TEACHER_SSO_ENABLED_PROVIDERS=("google",),
         CLASSHUB_TEACHER_SSO_PROVIDERS={"google": object()},
     )
-    def test_sso_start_redirects_to_login_notice_when_enabled(self):
-        resp = self.client.get("/teach/sso/start/google?next=/teach/lessons")
+    def test_sso_start_redirects_to_google_authorize_endpoint(self):
+        from urllib.parse import parse_qs, urlparse
+
+        with override_settings(CLASSHUB_TEACHER_SSO_PROVIDERS={"google": self._google_provider_config()}), patch(
+            "hub.views.teacher_parts.auth_sso._load_provider_discovery",
+            return_value={
+                "authorization_endpoint": "https://accounts.google.com/o/oauth2/v2/auth",
+                "token_endpoint": "https://oauth2.googleapis.com/token",
+            },
+        ):
+            resp = self.client.get("/teach/sso/start/google?next=/teach/lessons")
         self.assertEqual(resp.status_code, 302)
-        self.assertIn("/teach/login?next=%2Fteach%2Flessons", resp["Location"])
-        self.assertIn("Google+Workspace+SSO+is+not+active+yet+in+this+build", resp["Location"])
+        parsed = urlparse(resp["Location"])
+        self.assertEqual(parsed.scheme, "https")
+        self.assertEqual(parsed.netloc, "accounts.google.com")
+        params = parse_qs(parsed.query)
+        self.assertEqual(params.get("client_id"), ["google-client-id"])
+        self.assertEqual(params.get("response_type"), ["code"])
+        self.assertEqual(params.get("scope"), ["openid email profile"])
+        self.assertEqual(params.get("hd"), ["example.org"])
+        self.assertTrue(params.get("state"))
+        self.assertTrue(params.get("nonce"))
+        self.assertEqual(resp["Cache-Control"], "private, no-store")
+
+    @override_settings(
+        CLASSHUB_TEACHER_SSO_ENABLED=True,
+        CLASSHUB_TEACHER_SSO_ENABLED_PROVIDERS=("microsoft",),
+        CLASSHUB_TEACHER_SSO_PROVIDERS={"microsoft": object()},
+    )
+    def test_sso_callback_redirects_to_login_notice_when_enabled_for_non_google(self):
+        resp = self.client.get("/teach/sso/callback/microsoft?next=/teach")
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/login?", resp["Location"])
+        self.assertIn("Microsoft+SSO+callback+is+not+active+yet+in+this+build", resp["Location"])
         self.assertEqual(resp["Cache-Control"], "private, no-store")
 
     @override_settings(
@@ -175,12 +219,69 @@ class TeacherSSOScaffoldTests(TestCase):
         CLASSHUB_TEACHER_SSO_ENABLED_PROVIDERS=("google",),
         CLASSHUB_TEACHER_SSO_PROVIDERS={"google": object()},
     )
-    def test_sso_callback_redirects_to_login_notice_when_enabled(self):
-        resp = self.client.get("/teach/sso/callback/google?next=/teach")
+    def test_google_callback_requires_state_and_code(self):
+        with override_settings(CLASSHUB_TEACHER_SSO_PROVIDERS={"google": self._google_provider_config()}):
+            resp = self.client.get("/teach/sso/callback/google")
         self.assertEqual(resp.status_code, 302)
         self.assertIn("/teach/login?", resp["Location"])
-        self.assertIn("Google+Workspace+SSO+callback+is+not+active+yet+in+this+build", resp["Location"])
-        self.assertEqual(resp["Cache-Control"], "private, no-store")
+        self.assertIn("did+not+include+required+callback+parameters", resp["Location"])
+
+    @override_settings(
+        CLASSHUB_TEACHER_SSO_ENABLED=True,
+        CLASSHUB_TEACHER_SSO_ENABLED_PROVIDERS=("google",),
+        CLASSHUB_TEACHER_SSO_PROVIDERS={"google": object()},
+        TEACHER_2FA_REQUIRED=False,
+    )
+    def test_google_callback_logs_in_staff_user_on_success(self):
+        teacher = get_user_model().objects.create_user(
+            username="teacher_google",
+            email="teacher_google@example.org",
+            password="pw12345",
+            is_staff=True,
+            is_active=True,
+        )
+        with override_settings(CLASSHUB_TEACHER_SSO_PROVIDERS={"google": self._google_provider_config()}), patch(
+            "hub.views.teacher_parts.auth_sso._consume_sso_state",
+            return_value={"next": "/teach/lessons", "nonce": "nonce-123"},
+        ), patch(
+            "hub.views.teacher_parts.auth_sso._google_exchange_code_for_identity",
+            return_value=self._google_identity(email=teacher.email),
+        ):
+            resp = self.client.get("/teach/sso/callback/google?state=state-1&code=code-1")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/teach/lessons")
+        self.assertEqual(int(self.client.session.get("_auth_user_id")), teacher.id)
+
+    @override_settings(
+        CLASSHUB_TEACHER_SSO_ENABLED=True,
+        CLASSHUB_TEACHER_SSO_ENABLED_PROVIDERS=("google",),
+        CLASSHUB_TEACHER_SSO_PROVIDERS={"google": object()},
+    )
+    def test_google_callback_rejects_unlinked_identity(self):
+        with override_settings(CLASSHUB_TEACHER_SSO_PROVIDERS={"google": self._google_provider_config()}), patch(
+            "hub.views.teacher_parts.auth_sso._consume_sso_state",
+            return_value={"next": "/teach", "nonce": "nonce-123"},
+        ), patch(
+            "hub.views.teacher_parts.auth_sso._google_exchange_code_for_identity",
+            return_value=self._google_identity(email="missing_staff@example.org"),
+        ):
+            resp = self.client.get("/teach/sso/callback/google?state=state-1&code=code-1")
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/login?", resp["Location"])
+        self.assertIn("No+teacher+account+is+linked+to+this+organization+email", resp["Location"])
+
+    @override_settings(
+        CLASSHUB_TEACHER_SSO_ENABLED=True,
+        CLASSHUB_TEACHER_SSO_ALLOW_PASSWORD_FALLBACK=False,
+        CLASSHUB_TEACHER_SSO_ENABLED_PROVIDERS=("google",),
+        CLASSHUB_TEACHER_SSO_PROVIDERS={"google": object()},
+    )
+    def test_teach_login_hides_password_form_when_fallback_disabled(self):
+        with override_settings(CLASSHUB_TEACHER_SSO_PROVIDERS={"google": self._google_provider_config()}):
+            resp = self.client.get("/teach/login")
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, "Sign in to your account")
+        self.assertContains(resp, "Password login disabled")
 
 
 class Admin2FATests(TestCase):

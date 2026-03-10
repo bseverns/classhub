@@ -102,6 +102,18 @@ T1 scaffold status (March 10, 2026):
 - Routes currently return explicit "not active yet" notices (no external OIDC exchange yet).
 - Next implementation step is real OIDC state/nonce + redirect/callback token handling.
 
+T2 implementation update (March 10, 2026):
+
+- Google Workspace teacher SSO now performs real OIDC authorize + callback handling:
+  - signed `state` + one-time cache-bound callback validation,
+  - nonce roundtrip validation,
+  - code exchange against provider token endpoint,
+  - Google `id_token` verification via tokeninfo claims checks (`aud`, `iss`, `nonce`, `email_verified`),
+  - optional hosted-domain allowlist enforcement (`CLASSHUB_SSO_GOOGLE_HOSTED_DOMAINS`),
+  - pre-provisioned teacher account mapping by staff email.
+- Non-Google providers (`microsoft`, `oidc_custom`) remain scaffolded with explicit "not active yet" callback notices.
+- Password fallback now respects `CLASSHUB_TEACHER_SSO_ALLOW_PASSWORD_FALLBACK` on `/teach/login`.
+
 ### T2: Provisioning and mapping policy
 
 - Default: invite-first or pre-provisioned staff only (safer).
