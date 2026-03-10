@@ -165,28 +165,28 @@ def api_student_material_upload(request, material_id: int):
     if _student_session_missing(request):
         return _json_no_store_response({"error": "unauthorized"}, status=401, private=True)
 
-    material = _student_upload_material(request, material_id)
-    if material is None:
-        return _json_no_store_response({"error": "not_found"}, status=404, private=True)
-    if material.type not in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}:
-        return _json_no_store_response({"error": "not_upload_material"}, status=404, private=True)
-
-    locked_response = _upload_locked_response(request, material=material)
-    if locked_response is not None:
-        return locked_response
-
-    form = SubmissionUploadForm(request.POST, request.FILES)
-    if not form.is_valid():
-        return _json_no_store_response(
-            {"error": "invalid_form", "message": _first_form_error(form)},
-            status=400,
-            private=True,
-        )
-
-    allowed_exts = parse_extensions(material.accepted_extensions) or [".sb3"]
-    max_bytes = int(material.max_upload_mb) * 1024 * 1024
-    share_with_class = _share_with_class_requested(request, material=material)
     try:
+        material = _student_upload_material(request, material_id)
+        if material is None:
+            return _json_no_store_response({"error": "not_found"}, status=404, private=True)
+        if material.type not in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}:
+            return _json_no_store_response({"error": "not_upload_material"}, status=404, private=True)
+
+        locked_response = _upload_locked_response(request, material=material)
+        if locked_response is not None:
+            return locked_response
+
+        form = SubmissionUploadForm(request.POST, request.FILES)
+        if not form.is_valid():
+            return _json_no_store_response(
+                {"error": "invalid_form", "message": _first_form_error(form)},
+                status=400,
+                private=True,
+            )
+
+        allowed_exts = parse_extensions(material.accepted_extensions) or [".sb3"]
+        max_bytes = int(material.max_upload_mb) * 1024 * 1024
+        share_with_class = _share_with_class_requested(request, material=material)
         upload_result = process_material_upload_form(
             request=request,
             material=material,
@@ -199,14 +199,14 @@ def api_student_material_upload(request, material_id: int):
             logger=logger,
             share_with_class=share_with_class,
         )
+        return _upload_result_response(material=material, upload_result=upload_result)
     except Exception:
         logger.exception(
             "api_student_upload_internal_error material_id=%s student_id=%s",
-            material.id,
+            material_id,
             getattr(getattr(request, "student", None), "id", "unknown"),
         )
         return _upload_internal_error_response()
-    return _upload_result_response(material=material, upload_result=upload_result)
 
 
 __all__ = ["api_student_csrf", "api_student_material_upload"]

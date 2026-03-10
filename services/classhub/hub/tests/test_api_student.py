@@ -278,6 +278,16 @@ class StudentUploadEndpointTests(_StudentAPIBase):
         self.assertFalse(payload["retry"])
         self.assertIn("temporarily unavailable", payload["message"])
 
+    @patch("hub.views.api_student_upload._upload_locked_response", side_effect=RuntimeError("boom"))
+    def test_preprocessing_error_returns_non_retryable_json(self, _lock_mock):
+        self._login_student()
+        resp = self.client.post(f"/api/v1/student/material/{self.material.id}/upload")
+        self.assertEqual(resp.status_code, 500)
+        payload = resp.json()
+        self.assertEqual(payload["error"], "upload_internal_error")
+        self.assertFalse(payload["retry"])
+        self.assertIn("temporarily unavailable", payload["message"])
+
 
 class StudentUploadSyncWorkerEndpointTests(TestCase):
     """Tests for GET /student-upload-sync-sw.js."""
