@@ -75,6 +75,7 @@ Fill one row per rehearsal run.
 
 | Rehearsal date | Deployment | Reviewer(s) | Class id/code | Thresholds (`sessions/artifacts`) | Student sample | Outcomes export path | Summary export path | Certificate issued? | Semantics drift found? | Follow-up ticket(s) | Next review date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-03-10 | prod | ben | `4/<unknown>` | `6/1` | `Noble Raven 32` | `artifacts/stability/2026-03-10/outcomes_export.csv` | `artifacts/stability/2026-03-10/summary_export.csv` | yes (PDF) | no | none | 2026-04-10 |
 | YYYY-MM-DD | prod | names | `<id>/<code>` | `X/Y` | `display_name` | `artifacts/stability/...` | `artifacts/stability/...` | yes/no | yes/no | issue refs | YYYY-MM-DD |
 
 ## Done Criteria
