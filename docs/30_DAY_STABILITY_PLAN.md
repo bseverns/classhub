@@ -55,6 +55,7 @@ Owner: Maintainer + Teacher Lead
 Deliverables:
 
 - One canonical "Top 10 teacher tasks" list for `/teach`.
+- Canonical task map is documented in [TEACHER_TOP_TASKS.md](TEACHER_TOP_TASKS.md).
 - Task-first navigation labels and copy for daily teacher flows.
 - Separation language that distinguishes classroom actions from org/operator actions.
 - Friction log from one observed teacher run (notes only, no surveillance instrumentation).
@@ -93,6 +94,7 @@ Command checklist (per release candidate):
 - `bash scripts/backup_restore_rehearsal.sh --compose-mode prod`
 - `bash scripts/kiosk_resilience_check.sh --non-interactive`
 - `python scripts/lint_release_artifact.py <release-zip-path>`
+- `bash scripts/stability_release_evidence.sh --compose-mode prod --release-date <YYYY-MM-DD>` (recommended one-command collector)
 
 Exit criteria:
 

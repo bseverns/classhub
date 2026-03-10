@@ -2377,3 +2377,36 @@ Execution ownership and gates:
 **Why this remains active:**
 - Keeps view modules below dense-size thresholds so future changes stay reviewable.
 - Reduces coupling by separating request handlers from context construction logic.
+
+## Stability evidence pack automation (Day 0-30 Track B)
+
+**Current decision:**
+- Add `scripts/stability_release_evidence.sh` as the one-command collector for Day 0-30 release proof artifacts.
+- Standardize evidence output under `artifacts/stability/<release-date>/` with:
+  - `guardrails.log`
+  - `test_inventory_coverage.log`
+  - `system_doctor.log`
+  - `a11y_smoke.log`
+  - `restore_rehearsal.log`
+  - `kiosk_resilience.log`
+  - `release_artifact_lint.log`
+  - `operator_scorecard.md`
+- Add `make stability-evidence` to provide a stable operator entrypoint.
+
+**Why this remains active:**
+- Converts “run these checks” guidance into repeatable operational evidence.
+- Reduces release sign-off ambiguity by producing one consistent artifact folder and scorecard each cycle.
+
+## Canonical top-10 teacher task map for stability walkthroughs
+
+**Current decision:**
+- Create `docs/TEACHER_TOP_TASKS.md` as the canonical top-task list for `/teach`.
+- Define each task with:
+  - primary route/action contract,
+  - explicit completion signal,
+  - weekly walkthrough sequence (daily path first, then admin path).
+- Link this task map from stability planning docs.
+
+**Why this remains active:**
+- Keeps teacher-surface stabilization tied to observed workflows, not theoretical portal structure.
+- Provides a shared reference for copy/order improvements without introducing new workflow primitives.

@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
-.PHONY: help smoke-golden smoke-a11y smoke-full
+.PHONY: help smoke-golden smoke-a11y smoke-full stability-evidence
 
 SMOKE_COMPOSE_MODE ?= prod
 SMOKE_BASE_URL ?=
@@ -11,6 +11,8 @@ SMOKE_HELPER_MESSAGE ?= Help me with AP calculus limits.
 SMOKE_INSTALL_BROWSERS ?= 1
 SMOKE_FAIL_IMPACT ?= critical
 SMOKE_A11Y_TIMEOUT_MS ?= 30000
+STABILITY_RELEASE_DATE ?= $(shell date +%F)
+STABILITY_SKIP_DOCKER_CHECKS ?= 0
 
 INSECURE_TLS_FLAG :=
 ifeq ($(SMOKE_INSECURE_TLS),1)
@@ -20,6 +22,11 @@ endif
 INSTALL_BROWSERS_FLAG :=
 ifeq ($(SMOKE_INSTALL_BROWSERS),1)
 INSTALL_BROWSERS_FLAG := --install-browsers
+endif
+
+SKIP_DOCKER_CHECKS_FLAG :=
+ifeq ($(STABILITY_SKIP_DOCKER_CHECKS),1)
+SKIP_DOCKER_CHECKS_FLAG := --skip-docker-checks
 endif
 
 BASE_URL_FLAG :=
@@ -32,6 +39,7 @@ help:
 	@echo "  make smoke-full"
 	@echo "  make smoke-golden"
 	@echo "  make smoke-a11y"
+	@echo "  make stability-evidence"
 	@echo ""
 	@echo "Optional overrides:"
 	@echo "  SMOKE_COMPOSE_MODE=prod|dev"
@@ -40,6 +48,8 @@ help:
 	@echo "  SMOKE_INSECURE_TLS=0|1"
 	@echo "  SMOKE_INSTALL_BROWSERS=0|1"
 	@echo "  SMOKE_FAIL_IMPACT=minor|moderate|serious|critical"
+	@echo "  STABILITY_RELEASE_DATE=YYYY-MM-DD"
+	@echo "  STABILITY_SKIP_DOCKER_CHECKS=0|1"
 
 smoke-golden:
 	bash scripts/system_doctor.sh \
@@ -61,3 +71,15 @@ smoke-a11y:
 
 smoke-full: smoke-golden smoke-a11y
 	@echo "[smoke-full] PASS"
+
+stability-evidence:
+	bash scripts/stability_release_evidence.sh \
+	  --release-date "$(STABILITY_RELEASE_DATE)" \
+	  --compose-mode "$(SMOKE_COMPOSE_MODE)" \
+	  --timeout-seconds "$(SMOKE_TIMEOUT_SECONDS)" \
+	  --helper-message "$(SMOKE_HELPER_MESSAGE)" \
+	  --fail-impact "$(SMOKE_FAIL_IMPACT)" \
+	  --a11y-timeout-ms "$(SMOKE_A11Y_TIMEOUT_MS)" \
+	  $(INSTALL_BROWSERS_FLAG) \
+	  $(SKIP_DOCKER_CHECKS_FLAG) \
+	  $(BASE_URL_FLAG)

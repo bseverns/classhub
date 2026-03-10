@@ -35,6 +35,7 @@ Operator shortcut:
 | `a11y_smoke.sh` | Automated accessibility test leveraging Playwright to find WCAG compliance errors. |
 | `kiosk_resilience_check.sh` | Runs kiosk/PWA endpoint checks and captures unstable-network upload drill outcomes in a timestamped report. |
 | `telemetry_stabilization_evidence.sh` | Captures telemetry split Slice 7 evidence (parity + smoke + optional rollback drill) into timestamped artifacts. |
+| `stability_release_evidence.sh` | Captures Day 0-30 stability evidence pack artifacts (guardrails, smoke, a11y, restore, kiosk, release lint + scorecard), with optional skip flags for non-docker environments. |
 | `test_teacher_admin.sh`| CI gate validating teacher and admin interface functionality. |
 | `run_bandit.sh` | Python security linter enforcing safe coding practices. |
 | `lint_release_artifact.py` | Validates zip release packages before GH Release publishing. |
