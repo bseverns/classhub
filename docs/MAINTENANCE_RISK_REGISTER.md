@@ -130,3 +130,4 @@ This register names the five highest long-term maintenance risks visible in the 
 - [STABILITY_OWNER_CADENCE.md](STABILITY_OWNER_CADENCE.md)
 - [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
 - [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md)
+- [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)

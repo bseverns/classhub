@@ -113,6 +113,7 @@ Deliverables:
 
 - Turnover packet v1 with one-hour start path and one-week confidence path.
 - Turnover packet v1 is documented in [TURNOVER_PACKET.md](TURNOVER_PACKET.md).
+- Turnover drill evidence log is documented in [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md).
 - Named owners for restore, retention, access review, and release sign-off.
 - Documented cadence table for monthly and quarterly rituals.
 - Monthly/quarterly cadence checklist is documented in [OPS_CADENCE_CHECKLIST.md](OPS_CADENCE_CHECKLIST.md).
@@ -256,3 +257,4 @@ Store under `artifacts/stability/<release-date>/`:
 - [STABILITY_OWNER_CADENCE.md](STABILITY_OWNER_CADENCE.md)
 - [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
 - [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md)
+- [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)

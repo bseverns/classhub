@@ -279,11 +279,13 @@ Run a live turnover drill using [STAFF_TURNOVER_SURVIVABILITY.md](STAFF_TURNOVER
 - Execute 60-minute onboarding path with a backup maintainer.
 - Execute first-day path (smoke + policy + recovery orientation).
 - Log unclear steps and patch docs immediately.
+- Record drill evidence in [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md).
 
 ### Done means
 
 - Backup maintainer can run critical checks without coaching.
 - Turnover packet gaps are closed with doc updates.
+- [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md) has a dated drill row with next drill date.
 
 ---
 
@@ -438,3 +440,4 @@ Make submission review paths obvious and consistent so teachers can reliably com
 - [STABILITY_OWNER_CADENCE.md](STABILITY_OWNER_CADENCE.md)
 - [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
 - [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md)
+- [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)

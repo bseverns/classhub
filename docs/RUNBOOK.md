@@ -189,6 +189,9 @@ End-to-end reporting rehearsal playbook:
 Recurring ops cadence checklist:
 - [OPS_CADENCE_CHECKLIST.md](OPS_CADENCE_CHECKLIST.md)
 
+Turnover drill evidence log:
+- [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)
+
 Org boundary policy audit template:
 - [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)
 

@@ -106,6 +106,7 @@ cat artifacts/stability/<YYYY-MM-DD>/operator_scorecard.md
 - Review org boundary posture and staff memberships with Ops Director.
 - Review outcome/certificate semantics with Executive Director.
 - Confirm next monthly and quarterly rituals are calendared.
+- Record drill outcomes in [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md).
 
 ## Command Checklist
 
@@ -160,6 +161,9 @@ Use this for handoff notes and leadership review.
 | --- | --- | --- | --- | --- | --- |
 | YYYY-MM-DD | name | `make stability-evidence ...` | PASS/FAIL | `artifacts/stability/<date>/operator_scorecard.md` | yes/no |
 
+Turnover drill evidence log:
+- [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)
+
 ## Escalation Rules
 
 - If restore rehearsal fails: freeze feature deploys until restore path is healthy.
@@ -176,3 +180,4 @@ Use this for handoff notes and leadership review.
 - [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 - [OPS_CADENCE_CHECKLIST.md](OPS_CADENCE_CHECKLIST.md)
 - [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)
+- [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)

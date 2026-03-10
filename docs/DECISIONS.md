@@ -2525,3 +2525,19 @@ Execution ownership and gates:
 **Why this remains active:**
 - Converts restore confidence from periodic ad-hoc checks into durable, auditable evidence.
 - Gives turnover and release governance one stable source of truth for quarterly recovery readiness.
+
+## Turnover drill log for risk R5 survivability evidence
+
+**Current decision:**
+- Publish `docs/TURNOVER_DRILL_LOG.md` as the canonical evidence log for maintainer turnover drills.
+- Require each drill to record:
+  - 60-minute path result,
+  - first-day path result,
+  - whether backup maintainer completed checks without coaching,
+  - blockers and doc patch follow-ups,
+  - next drill date.
+- Link this log from turnover packet and cadence docs.
+
+**Why this remains active:**
+- Converts turnover readiness from a one-time narrative into repeatable evidence.
+- Makes survivability regressions visible before a real staff transition occurs.

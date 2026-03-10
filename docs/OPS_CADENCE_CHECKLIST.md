@@ -112,6 +112,15 @@ Evidence:
 - dated semantics review note with approvers
 - one evidence row in [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
 
+### 4) Turnover drill checkpoint
+
+Manual checks:
+- Execute the 60-minute and first-day drill paths from [TURNOVER_PACKET.md](TURNOVER_PACKET.md) with a backup maintainer.
+- Record blockers and any doc gaps discovered.
+
+Evidence:
+- one dated row in [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)
+
 ## Per-Release Checklist
 
 Preferred:
@@ -153,3 +162,4 @@ make stability-evidence STABILITY_RELEASE_DATE=<YYYY-MM-DD> STABILITY_SKIP_DOCKE
 - [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md)
 - [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md)
 - [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md)
+- [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)

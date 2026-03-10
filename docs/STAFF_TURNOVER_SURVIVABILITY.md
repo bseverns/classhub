@@ -67,10 +67,11 @@ These rituals must survive personnel changes.
 
 ### Quarterly
 
-- run full restore rehearsal: `bash scripts/backup_restore_rehearsal.sh --compose-mode prod`
+- run full restore rehearsal: `bash scripts/restore_rehearsal_evidence.sh --compose-mode prod --out-dir artifacts/stability/<date>`
 - run accessibility smoke: `bash scripts/a11y_smoke.sh --compose-mode prod --install-browsers`
 - run security posture review against current deployment settings
 - review certificate threshold values and reporting semantics with ops
+- run one turnover drill checkpoint and record it in [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)
 
 ### Before each release or significant deploy
 
@@ -133,6 +134,9 @@ Keep a lightweight turnover packet in a shared location outside any one person's
 Canonical packet document:
 - [TURNOVER_PACKET.md](TURNOVER_PACKET.md)
 
+Canonical turnover drill evidence log:
+- [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)
+
 ## Red flags that survivability is slipping
 
 - only one person knows how to run restore rehearsal
@@ -151,3 +155,4 @@ Canonical packet document:
 - [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 - [ACCESSIBILITY.md](ACCESSIBILITY.md)
 - [TURNOVER_PACKET.md](TURNOVER_PACKET.md)
+- [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)
