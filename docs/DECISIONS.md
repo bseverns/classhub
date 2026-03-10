@@ -2410,3 +2410,19 @@ Execution ownership and gates:
 **Why this remains active:**
 - Keeps teacher-surface stabilization tied to observed workflows, not theoretical portal structure.
 - Provides a shared reference for copy/order improvements without introducing new workflow primitives.
+
+## Turnover packet v1 as the canonical handoff artifact
+
+**Current decision:**
+- Add `docs/TURNOVER_PACKET.md` as the canonical turnover packet for Track C in the 30/60/90 stability plan.
+- Standardize packet contents around:
+  - 60-minute safe takeover path,
+  - first-week confidence path,
+  - command checklist by cadence (release/monthly/quarterly/incident),
+  - owner + backup matrix,
+  - cadence table and evidence log template.
+- Link turnover packet from stability planning and survivability docs to keep handoff guidance centralized.
+
+**Why this remains active:**
+- Converts survivability guidance into an executable handoff checklist instead of narrative-only policy.
+- Reduces maintainer dependency risk by making role ownership and required evidence explicit.

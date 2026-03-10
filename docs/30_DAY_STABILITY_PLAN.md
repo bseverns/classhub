@@ -109,6 +109,7 @@ Owner: Ops Director + Maintainer
 Deliverables:
 
 - Turnover packet v1 with one-hour start path and one-week confidence path.
+- Turnover packet v1 is documented in [TURNOVER_PACKET.md](TURNOVER_PACKET.md).
 - Named owners for restore, retention, access review, and release sign-off.
 - Documented cadence table for monthly and quarterly rituals.
 
@@ -240,3 +241,4 @@ Store under `artifacts/stability/<release-date>/`:
 - [STAFF_TURNOVER_SURVIVABILITY.md](STAFF_TURNOVER_SURVIVABILITY.md)
 - [RUNBOOK.md](RUNBOOK.md)
 - [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
+- [TURNOVER_PACKET.md](TURNOVER_PACKET.md)

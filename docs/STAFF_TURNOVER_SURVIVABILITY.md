@@ -130,6 +130,9 @@ Keep a lightweight turnover packet in a shared location outside any one person's
 - links to the current runbook, recovery, accessibility, and teacher portal docs
 - open operational risks that are still being tolerated on purpose
 
+Canonical packet document:
+- [TURNOVER_PACKET.md](TURNOVER_PACKET.md)
+
 ## Red flags that survivability is slipping
 
 - only one person knows how to run restore rehearsal
@@ -147,3 +150,4 @@ Keep a lightweight turnover packet in a shared location outside any one person's
 - [RUNBOOK.md](RUNBOOK.md)
 - [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 - [ACCESSIBILITY.md](ACCESSIBILITY.md)
+- [TURNOVER_PACKET.md](TURNOVER_PACKET.md)
