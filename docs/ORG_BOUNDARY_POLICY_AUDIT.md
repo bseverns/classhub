@@ -56,6 +56,7 @@ Fill one row per audit run.
 
 | Audit date | Deployment | Reviewer | Approver | Intended policy value | Configured value (`.env`) | Runtime value | UI warning state | Exception approved? | Exception owner | Exception end date | Next review date | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-03-10 | prod | ben | ben | `1` | `1` | `1` | hidden | no | n/a | n/a | 2026-04-10 | Strict mode confirmed. Ben memberships (`createMPLS` teacher, `testorg` owner) resolved class visibility after scoping classes. UI move workflow produced `class.organization.set` audit events for class `2` at `2026-03-10T20:40:29Z` and `2026-03-10T20:40:41Z`. |
 | YYYY-MM-DD | prod | name | name | `1` | `1` | `1` | hidden/shown | yes/no | name | YYYY-MM-DD | YYYY-MM-DD | brief notes |
 
 ## Acceptance Criteria

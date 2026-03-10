@@ -133,6 +133,17 @@ make stability-evidence STABILITY_RELEASE_DATE=<YYYY-MM-DD> SMOKE_COMPOSE_MODE=p
 Expected:
 - scorecard generated at `artifacts/stability/<date>/operator_scorecard.md`
 
+For full Day 0-30 Phase 1 + telemetry Slice 7 closeout:
+
+```bash
+cd /srv/lms/app
+make stability-cycle-closeout STABILITY_RELEASE_DATE=<YYYY-MM-DD> SMOKE_COMPOSE_MODE=prod TELEMETRY_WINDOW_DAYS=7
+```
+
+Expected:
+- closeout summary generated at `artifacts/stability/<date>/cycle_closeout_summary.md`
+- telemetry packet generated under `artifacts/stability/<date>/telemetry/`
+
 If running from a non-docker local workstation:
 
 ```bash

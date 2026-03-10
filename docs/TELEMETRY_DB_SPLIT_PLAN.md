@@ -17,7 +17,7 @@ Non-goal (Phase 1):
 ## What to do now
 1. Run one full release cycle with `WRITE_MODE=dual` and `READ_MODE=telemetry`.
 2. Capture and archive evidence artifacts (`parity`, `smoke`, optional rollback drill) using `scripts/telemetry_stabilization_evidence.sh`.
-3. Resolve any parity deltas and repeat evidence capture until stable.
+3. Enforce strict zero parity drift for the cycle gate; resolve any deltas before sign-off.
 4. Decide steady-state write mode (`dual` vs `telemetry_only`) and document sign-off.
 
 ## 30/60/90-day execution checklist (kickoff: March 7, 2026)
@@ -48,12 +48,21 @@ Use the same metrics in staging and production evidence packets.
   - smoke output,
   - rollback drill output (`--perform-rollback-drill`).
 - [ ] Publish a one-page SLO summary for student home latency, upload success, and helper 5xx rates.
-- [ ] Log and resolve all parity deltas above agreed threshold before Day 30 checkpoint.
+- [ ] Log and resolve all parity deltas; strict gate for this cycle is zero unresolved drift.
 
 Exit criteria for Day 30:
 - one complete evidence packet archived,
-- no unresolved parity deltas above threshold for the checkpoint window,
+- no unresolved parity deltas (strict zero-drift cycle gate),
 - rollback drill proven with env-toggle-only recovery.
+
+### Current-cycle gate policy (Phase 1 Slice 7 closeout)
+
+Lock these policies for the current sign-off cycle:
+
+- keep `CLASSHUB_TELEMETRY_WRITE_MODE=dual`
+- keep `CLASSHUB_TELEMETRY_READ_MODE=telemetry`
+- parity threshold is strict zero drift
+- Gate D (`telemetry_only`) decision is deferred to the next cycle unless an explicit dated decision overrides this section
 
 ### Day 31-60 (April 7-May 6, 2026): decision gate for Phase 1 steady state
 

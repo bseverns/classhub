@@ -152,6 +152,23 @@ Notes:
 - Keep telemetry `READ_MODE=core` if parity reports drift.
 - Endpoint policy and env presets for telemetry rollout live in [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md#endpoint-policy-and-concrete-env-presets).
 
+Full stability + telemetry closeout cycle (Phase 1 + Slice 7):
+
+```bash
+cd /srv/lms/app
+make stability-cycle-closeout STABILITY_RELEASE_DATE=<YYYY-MM-DD> SMOKE_COMPOSE_MODE=prod TELEMETRY_WINDOW_DAYS=7
+```
+
+Notes:
+
+- Enforces runtime lock values in `compose/.env`:
+  - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`
+  - `CLASSHUB_TELEMETRY_WRITE_MODE=dual`
+  - `CLASSHUB_TELEMETRY_READ_MODE=telemetry`
+- Writes release artifacts under `artifacts/stability/<date>/` and telemetry artifacts under `artifacts/stability/<date>/telemetry/`.
+- Fails the run if parity/smoke/rollback drill do not pass or required artifacts are missing.
+- Produces `cycle_closeout_summary.md` with doc-update checklist before sign-off.
+
 Accessibility smoke:
 
 ```bash

@@ -28,6 +28,7 @@ Use one row per review cycle.
 
 | Date | Risk IDs reviewed | Reviewer(s) | Result | Follow-up actions | Due date | Evidence path |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-03-10 | R1,R2,R3,R4,R5 | ben (maintainer) | concerns | Complete turnover drill row, capture telemetry Slice 7 packet with rollback drill, and finalize Gate C decision note (`dual` retained / Gate D deferred). | 2026-03-17 | `artifacts/stability/2026-03-10/operator_scorecard.md` + [TEACHER_TOP_TASKS.md](TEACHER_TOP_TASKS.md) + [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md) |
 | YYYY-MM-DD | R1,R2 | names/roles | pass / concerns | short list | YYYY-MM-DD | `artifacts/stability/...` |
 
 ## Completion Rule For Issue 1

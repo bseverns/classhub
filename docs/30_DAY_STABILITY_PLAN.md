@@ -238,6 +238,56 @@ Store under `artifacts/stability/<release-date>/`:
 - `release_artifact_lint.log`
 - `operator_scorecard.md` (live flags, known risks, manual checks remaining)
 
+## Next-Cycle Closeout (Phase 1 + Slice 7)
+
+Use this for one full sign-off cycle that closes Day 0-30 Phase 1 tracks and telemetry Slice 7 evidence.
+
+### Runtime lock (Day 1)
+
+Before running evidence capture, confirm:
+
+- `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`
+- `CLASSHUB_TELEMETRY_WRITE_MODE=dual`
+- `CLASSHUB_TELEMETRY_READ_MODE=telemetry`
+- no net-new primitives in scope (stabilization/docs/evidence only)
+
+### One-command closeout run
+
+```bash
+cd /srv/lms/app
+make stability-cycle-closeout \
+  STABILITY_RELEASE_DATE=<YYYY-MM-DD> \
+  SMOKE_COMPOSE_MODE=prod \
+  TELEMETRY_WINDOW_DAYS=7
+```
+
+Expected outputs:
+
+- `artifacts/stability/<date>/operator_scorecard.md`
+- `artifacts/stability/<date>/runtime_lock_check.log`
+- `artifacts/stability/<date>/cycle_closeout_summary.md`
+- `artifacts/stability/<date>/telemetry/parity_check.log`
+- `artifacts/stability/<date>/telemetry/smoke_strict.log`
+- `artifacts/stability/<date>/telemetry/rollback_drill.log`
+- `artifacts/stability/<date>/telemetry/slo_summary.md`
+
+### Required manual follow-up before sign-off
+
+- Add one dated review row for `R1-R5` in [STABILITY_OWNER_CADENCE.md](STABILITY_OWNER_CADENCE.md).
+- Add one dated turnover drill row in [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md).
+- Confirm org-boundary row in [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md).
+- Add a dated closeout decision note in [DECISIONS.md](DECISIONS.md):
+  - Gate C evidence complete for this cycle,
+  - write mode remains `dual`,
+  - Gate D (`telemetry_only`) deferred.
+
+### Hard blockers (do not sign off)
+
+- missing `operator_scorecard.md`
+- missing turnover drill row or owner-cadence review row
+- any unresolved telemetry parity delta (strict zero drift for this cycle)
+- missing rollback drill artifact in telemetry evidence packet
+
 ## Plan Guardrails
 
 - No surveillance expansion.

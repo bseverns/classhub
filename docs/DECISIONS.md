@@ -2541,3 +2541,19 @@ Execution ownership and gates:
 **Why this remains active:**
 - Converts turnover readiness from a one-time narrative into repeatable evidence.
 - Makes survivability regressions visible before a real staff transition occurs.
+
+## Stability Phase 1 + telemetry Slice 7 cycle gate policy (2026-03-10)
+
+**Current decision:**
+- Current-cycle closeout for Day 0-30 stability Phase 1 and telemetry Slice 7 requires one command-backed evidence packet under `artifacts/stability/<YYYY-MM-DD>/` plus telemetry artifacts under `artifacts/stability/<YYYY-MM-DD>/telemetry/`.
+- Gate C parity threshold for this cycle is strict zero drift; any unresolved parity delta is a hard blocker for sign-off.
+- Keep telemetry steady state at `CLASSHUB_TELEMETRY_WRITE_MODE=dual` for this cycle.
+- Defer Gate D (`telemetry_only`) decision to the next review cycle after another full evidence pass.
+- Runtime lock for this cycle is explicit:
+  - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`
+  - `CLASSHUB_TELEMETRY_WRITE_MODE=dual`
+  - `CLASSHUB_TELEMETRY_READ_MODE=telemetry`
+
+**Why this remains active:**
+- Enforces proof-first sign-off criteria for stability and telemetry rollouts.
+- Reduces cutover risk by requiring strict parity and rollback drill evidence before any write-mode escalation.
