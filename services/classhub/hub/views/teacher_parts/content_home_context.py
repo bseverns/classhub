@@ -70,63 +70,74 @@ def _read_portal_mode(request, *, user, rbac_tools_enabled: bool) -> str:
     return requested
 
 
+def _portal_mode_row(*, mode_id: str, label: str, description: str, portal_mode: str) -> dict:
+    return {
+        "id": mode_id,
+        "label": label,
+        "description": description,
+        "url": f"/teach?portal_mode={mode_id}",
+        "active": portal_mode == mode_id,
+    }
+
+
+def _portal_mode_rows(*, user, portal_mode: str, rbac_tools_enabled: bool) -> list[dict]:
+    rows = [
+        _portal_mode_row(
+            mode_id="day",
+            label="Day-of-class",
+            description="Live class digest and closeout.",
+            portal_mode=portal_mode,
+        ),
+        _portal_mode_row(
+            mode_id="setup",
+            label="Class setup",
+            description="Class creation and content tools.",
+            portal_mode=portal_mode,
+        ),
+    ]
+    if user.is_superuser:
+        rows.insert(
+            0,
+            _portal_mode_row(
+                mode_id="all",
+                label="All panels",
+                description="Full teacher cockpit.",
+                portal_mode=portal_mode,
+            ),
+        )
+        rows.append(
+            _portal_mode_row(
+                mode_id="admin",
+                label="Org/admin",
+                description="Teacher invites and organization controls.",
+                portal_mode=portal_mode,
+            )
+        )
+    if user.is_superuser or rbac_tools_enabled:
+        rows.append(
+            _portal_mode_row(
+                mode_id="policy",
+                label="Policy/RBAC",
+                description="RBAC tools and operator policy posture.",
+                portal_mode=portal_mode,
+            )
+        )
+    return rows
+
+
 def _portal_mode_context(*, user, portal_mode: str, rbac_tools_enabled: bool) -> dict:
     show_day_sections = portal_mode in {"all", "day"}
     show_setup_sections = portal_mode in {"all", "setup"}
     show_admin_sections = user.is_superuser and portal_mode in {"all", "admin"}
     show_policy_sections = (user.is_superuser or rbac_tools_enabled) and portal_mode in {"all", "policy"}
 
-    mode_rows = [
-        {
-            "id": "day",
-            "label": "Day-of-class",
-            "description": "Live class digest and closeout.",
-            "url": "/teach?portal_mode=day",
-            "active": portal_mode == "day",
-        },
-        {
-            "id": "setup",
-            "label": "Class setup",
-            "description": "Class creation and content tools.",
-            "url": "/teach?portal_mode=setup",
-            "active": portal_mode == "setup",
-        },
-    ]
-    if user.is_superuser:
-        mode_rows.insert(
-            0,
-            {
-                "id": "all",
-                "label": "All panels",
-                "description": "Full teacher cockpit.",
-                "url": "/teach?portal_mode=all",
-                "active": portal_mode == "all",
-            },
-        )
-    if user.is_superuser:
-        mode_rows.append(
-            {
-                "id": "admin",
-                "label": "Org/admin",
-                "description": "Teacher invites and organization controls.",
-                "url": "/teach?portal_mode=admin",
-                "active": portal_mode == "admin",
-            }
-        )
-    if user.is_superuser or rbac_tools_enabled:
-        mode_rows.append(
-            {
-                "id": "policy",
-                "label": "Policy/RBAC",
-                "description": "RBAC tools and operator policy posture.",
-                "url": "/teach?portal_mode=policy",
-                "active": portal_mode == "policy",
-            }
-        )
-
     return {
         "portal_mode": portal_mode,
-        "portal_mode_rows": mode_rows,
+        "portal_mode_rows": _portal_mode_rows(
+            user=user,
+            portal_mode=portal_mode,
+            rbac_tools_enabled=rbac_tools_enabled,
+        ),
         "show_day_sections": show_day_sections,
         "show_setup_sections": show_setup_sections,
         "show_admin_sections": show_admin_sections,
