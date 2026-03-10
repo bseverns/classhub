@@ -1,0 +1,13 @@
+          <section class="top-tab-panel" id="panel-quick-actions" role="tabpanel" aria-labelledby="tab-quick-actions">
+            <h2 class="section-title">Create a class</h2>
+            <form method="post" action="/teach/create-class">
+              {% csrf_token %}
+              <div class="create-class-name-wrap">
+                <label for="class-name">Class name</label>
+                <input id="class-name" name="name" placeholder="e.g., Piper + Scratch (Period 3)" />
+              </div>
+              <div class="submit-wrap">
+                <button type="submit">Create class</button>
+              </div>
+            </form>
+          </section>

@@ -1,0 +1,138 @@
+            <section class="top-tab-panel" id="panel-invite-teacher" role="tabpanel" aria-labelledby="tab-invite-teacher" hidden>
+              <h2 class="section-title">Create Teacher Account + Invite</h2>
+              <div class="muted section-subtitle">
+                Creates a staff account and emails a one-click 2FA setup link.
+              </div>
+              <form method="post" action="/teach/create-teacher">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="teacher-username">Username</label>
+                    <input id="teacher-username" name="username" value="{{ teacher_username }}" required />
+                  </div>
+                  <div>
+                    <label for="teacher-email">Email</label>
+                    <input id="teacher-email" name="email" type="email" value="{{ teacher_email }}" required />
+                  </div>
+                  <div>
+                    <label for="teacher-first-name">First name</label>
+                    <input id="teacher-first-name" name="first_name" value="{{ teacher_first_name }}" />
+                  </div>
+                  <div>
+                    <label for="teacher-last-name">Last name</label>
+                    <input id="teacher-last-name" name="last_name" value="{{ teacher_last_name }}" />
+                  </div>
+                  <div>
+                    <label for="teacher-password">Starting password</label>
+                    <input id="teacher-password" name="password" type="password" required />
+                  </div>
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
+                      <input type="checkbox" name="email_include_password" value="1" />
+                      Include temporary password in email
+                    </label>
+                  </div>
+                </div>
+                <p class="helper-note">If unchecked, share the starting password with the teacher in a separate secure channel.</p>
+                <div class="submit-wrap">
+                  <button type="submit">Create teacher + send invite</button>
+                </div>
+              </form>
+
+              {% if teacher_accounts %}
+                <div class="table-wrap teacher-account-table-wrap">
+                  <table class="teacher-account-table">
+                    <caption class="visually-hidden">Teacher accounts</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Username</th>
+                        <th scope="col">Name / Email</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for account in teacher_accounts %}
+                        <tr>
+                          <td><strong>{{ account.username }}</strong></td>
+                          <td>
+                            <div>{{ account.first_name }} {{ account.last_name }}</div>
+                            <div class="muted">{{ account.email|default:"(no email)" }}</div>
+                          </td>
+                          <td>
+                            {% if account.is_superuser %}
+                              Superuser
+                            {% else %}
+                              Staff
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if account.is_active %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Disabled</span>
+                            {% endif %}
+                          </td>
+                          <td>
+                            <div class="teacher-account-actions">
+                              <form method="post" action="/teach/teacher-account/set-active">
+                                {% csrf_token %}
+                                <input type="hidden" name="teacher_account_user_id" value="{{ account.id }}" />
+                                {% if account.is_active %}
+                                  <input type="hidden" name="teacher_account_active" value="0" />
+                                  <button
+                                    type="submit"
+                                    class="mini"
+                                    {% if account.id == request.user.id %}disabled title="You cannot disable your current account."{% endif %}
+                                  >Disable</button>
+                                {% else %}
+                                  <input type="hidden" name="teacher_account_active" value="1" />
+                                  <button type="submit" class="mini">Enable</button>
+                                {% endif %}
+                              </form>
+                              <form method="post" action="/teach/teacher-account/set-superuser">
+                                {% csrf_token %}
+                                <input type="hidden" name="teacher_account_user_id" value="{{ account.id }}" />
+                                {% if account.is_superuser %}
+                                  <input type="hidden" name="teacher_account_superuser" value="0" />
+                                  <button
+                                    type="submit"
+                                    class="mini"
+                                    {% if account.id == request.user.id %}disabled title="You cannot demote your current account."{% endif %}
+                                  >Demote</button>
+                                {% else %}
+                                  <input type="hidden" name="teacher_account_superuser" value="1" />
+                                  <button type="submit" class="mini">Promote</button>
+                                {% endif %}
+                              </form>
+                              <form method="post" action="/teach/teacher-account/resend-invite">
+                                {% csrf_token %}
+                                <input type="hidden" name="teacher_account_user_id" value="{{ account.id }}" />
+                                <button
+                                  type="submit"
+                                  class="mini"
+                                  {% if not account.is_active or not account.email %}disabled title="Active account and valid email required."{% endif %}
+                                >Resend invite</button>
+                              </form>
+                              <form method="post" action="/teach/teacher-account/reset-password" class="teacher-account-password-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="teacher_account_user_id" value="{{ account.id }}" />
+                                <input
+                                  type="password"
+                                  name="teacher_account_password"
+                                  placeholder="Temporary password"
+                                  autocomplete="new-password"
+                                  required
+                                />
+                                <button type="submit" class="mini">Set password</button>
+                              </form>
+                            </div>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% endif %}
+            </section>
