@@ -2631,9 +2631,9 @@ class TeacherOrganizationAccessTests(TestCase):
         home_resp = self.client.get("/teach")
         self.assertEqual(home_resp.status_code, 200)
         self.assertContains(home_resp, "Syllabus Exports")
-        self.assertContains(home_resp, "RBAC tools")
-        self.assertContains(home_resp, "/teach/rbac/module-scope-grant/upsert")
-        self.assertContains(home_resp, "/teach/rbac/simulate")
+        self.assertNotContains(home_resp, "RBAC tools")
+        self.assertNotContains(home_resp, "/teach/rbac/module-scope-grant/upsert")
+        self.assertNotContains(home_resp, "/teach/rbac/simulate")
 
         resp = self.client.get("/teach/syllabus-export?kind=catalog_csv")
         self.assertEqual(resp.status_code, 200)
@@ -2759,34 +2759,10 @@ class TeacherOrganizationAccessTests(TestCase):
         event = AuditEvent.objects.filter(action="rbac.simulate.portal", target_id=str(target_staff.id)).first()
         self.assertIsNotNone(event)
 
-    def test_org_admin_bulk_simulation_matrix_scopes_to_class_org(self):
+    def test_org_admin_rbac_query_param_does_not_enable_bulk_simulation_ui(self):
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
-        viewer_staff = get_user_model().objects.create_user(
-            username="rbac_bulk_viewer",
-            password="pw12345",
-            is_staff=True,
-            is_superuser=False,
-        )
-        OrganizationMembership.objects.create(
-            organization=self.org_a,
-            user=viewer_staff,
-            role=OrganizationMembership.ROLE_VIEWER,
-            is_active=True,
-        )
-        outsider_staff = get_user_model().objects.create_user(
-            username="rbac_bulk_outsider",
-            password="pw12345",
-            is_staff=True,
-            is_superuser=False,
-        )
-        OrganizationMembership.objects.create(
-            organization=self.org_b,
-            user=outsider_staff,
-            role=OrganizationMembership.ROLE_TEACHER,
-            is_active=True,
-        )
 
         resp = self.client.get(
             "/teach",
@@ -2797,50 +2773,13 @@ class TeacherOrganizationAccessTests(TestCase):
             },
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Bulk simulation result")
-        self.assertContains(resp, "rbac_bulk_viewer")
-        self.assertContains(resp, "role_missing_capability")
-        self.assertContains(resp, "allowed=1")
-        self.assertContains(resp, "denied=1")
-        self.assertNotContains(resp, "rbac_bulk_outsider")
+        self.assertNotContains(resp, "RBAC tools")
+        self.assertNotContains(resp, "Bulk simulation result")
 
-    def test_org_admin_can_filter_rbac_audit_ops_feed(self):
+    def test_org_admin_rbac_query_param_does_not_enable_audit_feed_ui(self):
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
-        outsider = get_user_model().objects.create_user(
-            username="rbac_audit_outsider",
-            password="pw12345",
-            is_staff=True,
-            is_superuser=False,
-        )
-        event_in_scope = AuditEvent.objects.create(
-            actor_user=self.staff,
-            classroom=self.class_a,
-            action="rbac.scope_grant.portal_upsert",
-            target_type="ClassStaffModuleScopeGrant",
-            target_id="101",
-            summary="In-scope scoped grant audit row",
-            metadata={"class_id": self.class_a.id},
-        )
-        AuditEvent.objects.create(
-            actor_user=self.staff,
-            classroom=self.class_a,
-            action="rbac.simulate.portal",
-            target_type="User",
-            target_id=str(self.staff.id),
-            summary="In-scope simulation row",
-            metadata={"class_id": self.class_a.id},
-        )
-        AuditEvent.objects.create(
-            actor_user=outsider,
-            classroom=self.class_b,
-            action="rbac.scope_grant.portal_upsert",
-            target_type="ClassStaffModuleScopeGrant",
-            target_id="202",
-            summary="Out-of-scope grant row",
-            metadata={"class_id": self.class_b.id},
-        )
 
         resp = self.client.get(
             "/teach",
@@ -2852,10 +2791,8 @@ class TeacherOrganizationAccessTests(TestCase):
             },
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "RBAC audit operations")
-        self.assertContains(resp, event_in_scope.summary)
-        self.assertNotContains(resp, "In-scope simulation row")
-        self.assertNotContains(resp, "Out-of-scope grant row")
+        self.assertNotContains(resp, "RBAC tools")
+        self.assertNotContains(resp, "RBAC audit operations")
 
     def test_org_admin_can_export_rbac_policy_json(self):
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)

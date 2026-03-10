@@ -102,7 +102,7 @@ _RBAC_STATE_DEFAULTS = {
 
 
 def rbac_tools_enabled_for_user(user) -> bool:
-    return staff_can_export_syllabi(user)
+    return bool(getattr(user, "is_superuser", False))
 
 
 def rbac_tools_requested(request) -> bool:
