@@ -273,6 +273,149 @@ Run a live turnover drill using [STAFF_TURNOVER_SURVIVABILITY.md](STAFF_TURNOVER
 - Backup maintainer can run critical checks without coaching.
 - Turnover packet gaps are closed with doc updates.
 
+---
+
+## Issue 11: Day-of-class first-contact lane clarity on `/teach`
+
+- Suggested labels:
+  - `stability-freeze`
+  - `teacher-portal`
+  - `ux-smoothing`
+  - `risk-R1`
+- Owner role:
+  - `maintainer` + instructor lead
+
+### Description
+
+Improve first-contact clarity for daily teaching actions on `/teach` by tightening section labels/order for top tasks 1-4 in [TEACHER_TOP_TASKS.md](TEACHER_TOP_TASKS.md). Copy and ordering only.
+
+### Routes in scope
+
+- `/teach`
+- includes under `templates/includes/teach_home/*`
+
+### Tasks
+
+- Ensure first visible language prioritizes:
+  - create/open class,
+  - share join access,
+  - review submission queue.
+- Standardize CTA wording for class-opening actions (`Open class`, `Lessons`, `Print join card`) across day/setup surfaces.
+- Move admin/operator language below classroom-first language when both are visible.
+- Keep existing controls and route contracts unchanged.
+
+### Out of scope
+
+- New tabs, routes, workflows, or RBAC primitives.
+- Data model changes.
+
+### Done means
+
+- A first-time teacher can complete top tasks 1-4 from `/teach` without opening docs.
+- No conflicting wording for equivalent actions across day/setup panels.
+- Capability and guardrail checks pass.
+
+### Verification commands
+
+- `python scripts/check_view_size_budgets.py`
+- `python scripts/check_view_function_budgets.py`
+- `python scripts/check_teacher_endpoint_capability_map.py`
+- `python scripts/check_frontend_static_refs.py`
+
+---
+
+## Issue 12: Class dashboard safety copy pass for destructive actions
+
+- Suggested labels:
+  - `stability-freeze`
+  - `teacher-portal`
+  - `hardening`
+  - `risk-R1`
+- Owner role:
+  - `maintainer`
+
+### Description
+
+Reduce accidental destructive operations on `/teach/class/<id>` by making reset/delete/lock language explicit and action intent unambiguous. Copy and confirmation-language pass only.
+
+### Routes in scope
+
+- `/teach/class/<id>`
+- related teacher templates for class controls
+
+### Tasks
+
+- Normalize destructive-action copy (`reset`, `delete`, `lock`, `rotate code`) to explicit impact language.
+- Ensure destructive forms include clear confirmation text and consistent warning tone.
+- Keep non-destructive actions visually and textually distinct from destructive actions.
+- Add/update tests for text visibility where behavior changes.
+
+### Out of scope
+
+- Permission model or endpoint behavior changes.
+- New moderation or policy workflows.
+
+### Done means
+
+- A teacher can distinguish reversible vs irreversible actions at a glance.
+- Existing destructive flows retain behavior but are harder to trigger accidentally.
+- No route-map or RBAC guard drift.
+
+### Verification commands
+
+- `python scripts/check_view_size_budgets.py`
+- `python scripts/check_teacher_endpoint_capability_map.py`
+- `python scripts/check_rbac_endpoint_guards.py`
+- `python scripts/check_no_inline_template_js.py`
+- `python scripts/check_no_inline_template_css.py`
+
+---
+
+## Issue 13: Submission review discoverability and wording consistency
+
+- Suggested labels:
+  - `stability-freeze`
+  - `teacher-portal`
+  - `ux-smoothing`
+  - `risk-R1`
+- Owner role:
+  - `maintainer` + instructor lead
+
+### Description
+
+Make submission review paths obvious and consistent so teachers can reliably complete top task 4 (review/download submissions) from both `/teach` and `/teach/class/<id>`.
+
+### Routes in scope
+
+- `/teach`
+- `/teach/class/<id>`
+- `/teach/material/<material_id>/submissions` entry links
+
+### Tasks
+
+- Standardize queue-entry wording (`Open queue`, `Review submissions`, `Submissions`) to one canonical phrase.
+- Ensure at least one clear submission-review entry appears in classroom-first sections.
+- Keep export/download wording consistent between list views and class dashboard.
+- Add/update tests where link text assertions or visibility assumptions change.
+
+### Out of scope
+
+- New analytics surfaces.
+- Changes to submission data model or export formats.
+
+### Done means
+
+- Teachers can find submission review from the home and class dashboards with no route hunting.
+- Equivalent actions have one consistent label.
+- Existing endpoint/capability contracts remain intact.
+
+### Verification commands
+
+- `python scripts/check_teacher_endpoint_capability_map.py`
+- `python scripts/check_frontend_static_refs.py`
+- `python scripts/check_no_inline_template_js.py`
+- `python scripts/check_no_inline_template_css.py`
+
 ## Related docs
 
 - [STABILITY_CHARTER.md](STABILITY_CHARTER.md)
