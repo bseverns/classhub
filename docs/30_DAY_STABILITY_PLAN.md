@@ -1,140 +1,240 @@
-# 30-Day Stability Plan
+# 30-Day Stability Plan (30/60/90 Execution)
 
 ## Summary
 
-This is a four-week stability plan for ClassHub. It does not add features. It reduces operational ambiguity, trims maintenance risk, and proves the existing system can survive ordinary staff turnover.
+This plan converts the stability freeze into a command-backed operating plan.
 
-## Week 1: Freeze, inventory, and simplify the teacher portal entry path
+Primary goal: make ClassHub calmer to run and easier to hand off.
+Secondary goal: ship proof artifacts with each release so operations are inspectable.
 
-### Objectives
+## Plan Window
 
-- establish the freeze rules
-- identify the current top teacher/admin flows that actually matter
-- reduce first-contact confusion in the teacher portal without adding anything new
+- Plan start: March 10, 2026
+- Day 30 checkpoint: April 9, 2026
+- Day 60 checkpoint: May 9, 2026
+- Day 90 checkpoint: June 8, 2026
 
-### Concrete tasks
+## Scope And Constraints
 
-- Adopt [STABILITY_CHARTER.md](STABILITY_CHARTER.md) and use it in review.
-- Inventory the top 10 teacher tasks performed through `/teach`.
-- Walk the current `/teach` entry path with one instructor and one ops person.
-- Remove or reorder confusing copy in the existing portal where the same meaning is repeated.
-- Review destructive teacher actions and confirm warnings are explicit and proportionate.
-- Confirm `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` policy for the live deployment and write it down in the ops packet.
+- No new product primitives during Day 0-30.
+- Any exception must follow [STABILITY_CHARTER.md](STABILITY_CHARTER.md).
+- Prefer workflow simplification, guardrails, and rehearsal over feature expansion.
 
-### Acceptance criteria
+## Owner Map
 
-- reviewers are using the freeze checklist in PRs
-- there is one agreed list of core teacher tasks
-- `/teach` has a clearer start path without adding routes or controls
-- org boundary policy is written, not assumed
+| Role | Responsibility | Backup |
+| --- | --- | --- |
+| Maintainer | Code changes, guardrail enforcement, release evidence assembly | Secondary maintainer |
+| Ops Director | Runtime checks, restore drills, retention verification, incident rituals | Engineering manager |
+| Teacher Lead | Top-task validation, classroom workflow feedback, onboarding clarity | Instructional coach |
+| Executive Director | Policy sign-off, reporting semantics sign-off, survivability governance | Ops Director |
 
-### Done means...
+## Workstreams
 
-- a new staff member can identify where to start in `/teach` in under 2 minutes
-- the team can state whether org strict mode is on or off without checking chat history
-- no feature work was merged under the label of "cleanup"
+1. Teacher workflow calm (`/teach` sequencing and progressive disclosure).
+2. Release evidence culture (proof artifacts per release, not narrative-only confidence).
+3. Survivability and turnover (restore, retention, access-review, handoff packet).
+4. Accessibility and localization coverage for core teacher/student paths.
+5. Outcome and certificate semantic clarity for operator/reporting consistency.
+6. Coursepack portability hardening (validation + authoring ergonomics, no marketplace pivot).
 
-## Week 2: Stabilize outcomes, certificates, and reporting language
+## 30/60/90 Milestones
 
-### Objectives
+| Horizon | Focus | Owners | Required Artifacts | Exit Criteria |
+| --- | --- | --- | --- | --- |
+| Day 0-30 | Teacher calm + release proof + survivability baselines | Maintainer, Ops Director, Teacher Lead | Top-10 task map, first release evidence pack, turnover packet v1 | New staff can start `/teach` in under 2 minutes, restore drill completed with dated evidence, release artifacts generated for one full release cycle |
+| Day 31-60 | Accessibility/localization core + outcomes/reporting semantics | Maintainer, Teacher Lead, Executive Director | Core-flow a11y checklist, translation coverage matrix, outcomes semantics note | Core teacher/student flows pass critical a11y smoke and have reviewed copy/translation coverage; reporting terms are canonical and reused |
+| Day 61-90 | Coursepack portability + long-term survivability cadence | Maintainer, Ops Director | Coursepack validation report template, quarterly ritual calendar, turnover packet v2 | Coursepack import/export quality is measurable and repeatable; quarterly rituals are scheduled with owners and runbooks |
 
-- align staff understanding of outcomes and certificates with the real code paths
-- make reporting semantics boring and repeatable
-- reduce the chance that fundraising, ops, and teaching staff tell different stories
+## Day 0-30 Detailed Execution
 
-### Concrete tasks
+### Track A: Teacher Workflow Calm
 
-- Review the current outcomes flow in `/teach/class/<id>/certificate-eligibility`.
-- Verify the configured values of `CLASSHUB_CERTIFICATE_MIN_SESSIONS` and `CLASSHUB_CERTIFICATE_MIN_ARTIFACTS`.
-- Create one internal note that defines what counts as `session_completed`, `artifact_submitted`, and certificate issuance.
-- Rehearse the full path: join -> submission -> mark completion -> export outcomes CSV -> issue certificate.
-- Make any doc-only clarifications needed so the same terms are used everywhere.
+Owner: Maintainer + Teacher Lead
 
-### Acceptance criteria
+Deliverables:
 
-- one canonical semantics note exists and is shared with ops + fundraising
-- export and certificate flows are rehearsed end to end
-- no one needs maintainer interpretation to explain what a certificate means
+- One canonical "Top 10 teacher tasks" list for `/teach`.
+- Task-first navigation labels and copy for daily teacher flows.
+- Separation language that distinguishes classroom actions from org/operator actions.
+- Friction log from one observed teacher run (notes only, no surveillance instrumentation).
 
-### Done means...
+Command checklist (per PR touching teacher surfaces):
 
-- a staff member can explain certificate eligibility in plain language in under 60 seconds
-- the class summary and outcomes export are known, named artifacts in reporting workflows
-- threshold values are recorded in the operator handoff packet
+- `python scripts/check_view_size_budgets.py`
+- `python scripts/check_view_function_budgets.py`
+- `python scripts/check_teacher_endpoint_capability_map.py`
+- `python scripts/check_rbac_endpoint_guards.py`
+- `python scripts/check_frontend_static_refs.py`
+- `python scripts/check_no_inline_template_js.py`
+- `python scripts/check_no_inline_template_css.py`
 
-## Week 3: Rehearse scenarios and survival rituals
+Exit criteria:
 
-### Objectives
+- Top-10 task list approved by Teacher Lead and Maintainer.
+- `/teach` first-contact path reviewed in a live walkthrough.
+- No duplicated/conflicting action wording in high-risk teacher paths.
 
-- turn important failure cases into routine drills
-- verify that retention, restore, and accessibility checks are operational, not aspirational
-- reduce dependence on one maintainer's memory
+### Track B: Release Evidence Culture
 
-### Concrete tasks
+Owner: Maintainer + Ops Director
 
-- Run `bash scripts/backup_restore_rehearsal.sh --compose-mode prod` and record the result.
-- Run `bash scripts/system_doctor.sh --smoke-mode golden`.
-- Run `bash scripts/a11y_smoke.sh --compose-mode prod --install-browsers`.
-- Verify retention automation status and document whether `classhub-retention.timer` is enabled.
-- Rehearse common scenarios with ops and one instructor:
-  - invite link full/expired
-  - helper offline
-  - staff member leaves
-  - org boundary confusion
-- Record what was unclear and fix the docs, not just the meeting notes.
+Deliverables:
 
-### Acceptance criteria
+- One release evidence folder per release under `artifacts/stability/<release-date>/`.
+- A short release scorecard markdown file describing live flags/modes and pass/fail checks.
+- A repeatable artifact checklist attached to PR/release process.
 
-- restore rehearsal completed or blocked with a documented reason
-- accessibility smoke and golden smoke both pass or have explicit remediation tickets
-- retention status is known
-- common scenarios have named owner responses
+Command checklist (per release candidate):
 
-### Done means...
+- `python scripts/check_test_inventory_coverage.py`
+- `bash scripts/system_doctor.sh --compose-mode prod --smoke-mode golden`
+- `bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact critical --install-browsers`
+- `bash scripts/backup_restore_rehearsal.sh --compose-mode prod`
+- `bash scripts/kiosk_resilience_check.sh --non-interactive`
+- `python scripts/lint_release_artifact.py <release-zip-path>`
 
-- the team can answer "when did we last test restore?" with a date
-- the team can answer "does accessibility smoke pass?" with evidence
-- the team can answer "who handles offboarding and access review?" without guessing
+Exit criteria:
 
-## Week 4: Pilot observation and turnover hardening
+- One complete evidence pack published for at least one real release.
+- Operator scorecard is generated and reviewed before release sign-off.
+- No release without attached artifacts for smoke, a11y, and restore rehearsal.
 
-### Objectives
+### Track C: Survivability And Turnover Baseline
 
-- observe real staff use without adding surveillance
-- convert observations into boring operational fixes
-- finalize the turnover packet for the next maintainer and ops lead
+Owner: Ops Director + Maintainer
 
-### Concrete tasks
+Deliverables:
 
-- Observe one real or simulated teacher session using note-taking only, not new analytics.
-- Record where teachers hesitate in the current flow.
-- Make doc or copy fixes for the highest-friction steps only.
-- Build the turnover packet around access, deploy, smoke, restore, retention, and reporting.
-- Confirm which commands are automated and which require human review.
-- Schedule recurring rituals for the next quarter.
+- Turnover packet v1 with one-hour start path and one-week confidence path.
+- Named owners for restore, retention, access review, and release sign-off.
+- Documented cadence table for monthly and quarterly rituals.
 
-### Acceptance criteria
+Command checklist (monthly minimum):
 
-- one pilot observation write-up exists with concrete friction notes
-- the turnover packet is complete enough for a new maintainer to start safely
-- the recurring ritual calendar exists and has named owners
+- `bash scripts/retention_maintenance.sh --dry-run`
+- `bash scripts/backup_restore_rehearsal.sh --compose-mode prod`
+- `bash scripts/system_doctor.sh --compose-mode prod --smoke-mode golden`
 
-### Done means...
+Exit criteria:
 
-- teacher hesitation points are documented in plain language
-- a replacement maintainer has a 60-minute starting path and a one-week confidence path
-- the next quarter's restore, accessibility, and security checks are scheduled
+- Team can answer "when did we last test restore?" with a date and artifact path.
+- Team can answer "is retention active and healthy?" with command output.
+- New maintainer can run core health checks without maintainer-only tribal knowledge.
 
-## Plan guardrails
+## Day 31-60 Detailed Execution
 
-- no schema changes unless delaying them is riskier than shipping them
-- no new product primitives
-- no surveillance observation; use direct staff notes and rehearsal outcomes instead
-- every stability task should reduce support burden, regression risk, or handoff time
+### Track D: Accessibility And Localization Core Coverage
 
-## Related docs
+Owner: Teacher Lead + Maintainer
+
+Deliverables:
+
+- Core-route accessibility checklist for student join/session/module and top teacher actions.
+- Translation coverage matrix for trust pages, kiosk shell, join flow, and top teacher tasks.
+- Priority fixes for keyboard order, focus visibility, and screen-reader labels in dense teacher flows.
+
+Command checklist:
+
+- `bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact critical`
+- `python scripts/check_frontend_static_refs.py`
+- `python scripts/check_no_inline_template_js.py`
+- `python scripts/check_no_inline_template_css.py`
+
+Exit criteria:
+
+- Critical a11y smoke passes for core routes.
+- Translation coverage decisions are explicit (what is complete, partial, deferred).
+- Keyboard-first flow succeeds for top teacher daily tasks.
+
+### Track E: Outcome And Reporting Semantics
+
+Owner: Executive Director + Ops Director + Maintainer
+
+Deliverables:
+
+- Canonical semantics doc for `session_completed`, `artifact_submitted`, `eligible`, `issued`.
+- One end-to-end reporting rehearsal: join -> submit -> complete -> export -> certificate issue.
+- Operator-facing explanation copy in relevant `/teach` surfaces.
+
+Command checklist:
+
+- `bash scripts/system_doctor.sh --compose-mode prod --smoke-mode golden`
+- `python scripts/check_test_inventory_coverage.py`
+
+Exit criteria:
+
+- Fundraising, ops, and teachers use the same definitions.
+- Certificate thresholds and semantics are confirmed in handoff docs.
+
+## Day 61-90 Detailed Execution
+
+### Track F: Coursepack Portability Hardening
+
+Owner: Maintainer
+
+Deliverables:
+
+- Coursepack validation/report template for import/export quality checks.
+- Authoring error taxonomy (what failed, where, and what to fix) for teacher-facing ingestion.
+- RFC-ready note for decentralized discovery that preserves non-marketplace posture.
+
+Command checklist:
+
+- `python scripts/coursepack_sdk.py --help`
+- `python scripts/validate_coursepack.py --help`
+- `python scripts/new_course_scaffold.py --help`
+- `python scripts/ingest_syllabus_md.py --help`
+
+Exit criteria:
+
+- Coursepack quality is measured by repeatable checks, not ad-hoc judgment.
+- Import failures produce actionable operator/author guidance.
+
+### Track G: Survivability Cadence Lock-In
+
+Owner: Ops Director + Executive Director
+
+Deliverables:
+
+- Quarterly ritual calendar committed to docs and shared operations calendar.
+- Turnover packet v2 with scenario playbooks (helper outage, Wi-Fi degradation, staff offboarding, org boundary confusion).
+- Signed owner matrix for all recurring checks.
+
+Required recurring commands:
+
+- Monthly: `bash scripts/system_doctor.sh --compose-mode prod --smoke-mode golden`
+- Monthly: `bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact critical`
+- Quarterly: `bash scripts/backup_restore_rehearsal.sh --compose-mode prod`
+- Release-time: `python scripts/lint_release_artifact.py <release-zip-path>`
+
+Exit criteria:
+
+- Rituals are scheduled and actually run on cadence.
+- Operational confidence no longer depends on one maintainer's memory.
+
+## Artifact Checklist (Per Release)
+
+Store under `artifacts/stability/<release-date>/`:
+
+- `system_doctor.log`
+- `a11y_smoke.log`
+- `restore_rehearsal.log`
+- `guardrails.log` (view budgets, endpoint guards, route map guards)
+- `release_artifact_lint.log`
+- `operator_scorecard.md` (live flags, known risks, manual checks remaining)
+
+## Plan Guardrails
+
+- No surveillance expansion.
+- No engagement/growth mechanics.
+- No widening of teacher control surface without clearer sequencing.
+- Every accepted task must reduce support load, ambiguity, or recoverability risk.
+
+## Related Docs
 
 - [STABILITY_CHARTER.md](STABILITY_CHARTER.md)
 - [MAINTENANCE_RISK_REGISTER.md](MAINTENANCE_RISK_REGISTER.md)
 - [STAFF_TURNOVER_SURVIVABILITY.md](STAFF_TURNOVER_SURVIVABILITY.md)
-- [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
+- [RUNBOOK.md](RUNBOOK.md)
+- [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
