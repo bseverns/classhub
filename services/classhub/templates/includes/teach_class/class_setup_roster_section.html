@@ -1,0 +1,187 @@
+{% load hub_extras %}
+          <details class="section-toggle" id="section-roster">
+            <summary>
+              <span class="section-title">Roster</span>
+              <span class="section-subtitle">Rename or merge duplicate students quickly. Reset roster between drop-in cohorts.</span>
+            </summary>
+            <div class="section-body">
+              {% if students %}
+                <div class="roster-table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Student roster for {{ classroom.name }}</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Student</th>
+                        <th scope="col">Return code</th>
+                        <th scope="col">Submissions</th>
+                        <th scope="col">Support tags</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for st in students %}
+                        <tr>
+                          <th scope="row"><strong>{{ st.display_name }}</strong></th>
+                          <td>
+                            <span
+                              id="student-return-code-{{ st.id }}"
+                              class="pill secret-code"
+                              data-return-code-student-id="{{ st.id }}"
+                              data-shown="0"
+                            >••••••</span>
+                            <button
+                              type="button"
+                              class="inline-copy"
+                              data-secret-target="student-return-code-{{ st.id }}"
+                              data-show-label="Show return code for {{ st.display_name }}"
+                              data-hide-label="Hide return code for {{ st.display_name }}"
+                              aria-controls="student-return-code-{{ st.id }}"
+                              aria-pressed="false"
+                              aria-label="Show return code for {{ st.display_name }}"
+                            >Show</button>
+                            <button
+                              type="button"
+                              class="inline-copy"
+                              data-copy-secret-target="student-return-code-{{ st.id }}"
+                              aria-label="Copy return code for {{ st.display_name }}"
+                            >Copy</button>
+                          </td>
+                          <td class="muted mini">{{ submission_counts_by_student|get_item:st.id|default:0 }}</td>
+                          <td>
+                            {% with student_tags=support_tags_by_student|get_item:st.id %}
+                              {% if student_tags %}
+                                <ul class="support-tag-list">
+                                  {% for tag in student_tags %}
+                                    <li>
+                                      <span class="pill">{{ tag.label }}</span>
+                                      <form method="post" action="/teach/class/{{ classroom.id }}/support-tag/remove" class="inline-remove-tag">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="student_id" value="{{ st.id }}" />
+                                        <input type="hidden" name="tag" value="{{ tag.value }}" />
+                                        <button type="submit">Remove</button>
+                                      </form>
+                                    </li>
+                                  {% endfor %}
+                                </ul>
+                              {% else %}
+                                <span class="muted mini">No tags yet.</span>
+                              {% endif %}
+                            {% endwith %}
+                            <form method="post" action="/teach/class/{{ classroom.id }}/support-tag/add" class="support-tag-row">
+                              {% csrf_token %}
+                              <input type="hidden" name="student_id" value="{{ st.id }}" />
+                              <label class="visually-hidden" for="support-tag-{{ st.id }}">Support tag for {{ st.display_name }}</label>
+                              <select id="support-tag-{{ st.id }}" name="tag">
+                                {% for tag in support_tag_choices %}
+                                  <option value="{{ tag.value }}">{{ tag.label }}</option>
+                                {% endfor %}
+                              </select>
+                              <button type="submit">Add tag</button>
+                            </form>
+                          </td>
+                          <td>
+                            <form method="post" action="/teach/class/{{ classroom.id }}/rename-student" class="rename-row">
+                              {% csrf_token %}
+                              <input type="hidden" name="student_id" value="{{ st.id }}" />
+                              <input
+                                name="display_name"
+                                value="{{ st.display_name }}"
+                                maxlength="80"
+                                aria-label="Rename {{ st.display_name }}"
+                              />
+                              <button type="submit">Rename</button>
+                            </form>
+                            <form method="post" action="/teach/class/{{ classroom.id }}/delete-student-data" class="delete-row" data-confirm="Permanently delete all stored data for this student now? This cannot be undone.">
+                              {% csrf_token %}
+                              <input type="hidden" name="student_id" value="{{ st.id }}" />
+                              <label class="inline-check-label">
+                                <input type="checkbox" name="confirm_delete" value="1" class="inline-check-input" required />
+                                I understand this permanently deletes this student's data
+                              </label>
+                              <button type="submit" class="danger-inline">Delete student data now</button>
+                            </form>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted section-empty-note">No students in roster yet.</p>
+              {% endif %}
+
+              {% if students|length > 1 %}
+                <div class="merge-zone">
+                  <strong>Merge student records</strong>
+                  <p class="muted mini merge-note">
+                    Use this when the same student appears twice after rejoining with class code.
+                    The source student is removed, and submissions/events are moved to the destination student.
+                  </p>
+                  <form
+                    method="post"
+                    action="/teach/class/{{ classroom.id }}/merge-students"
+                    data-confirm="Permanently merge selected student records now? This cannot be undone."
+                  >
+                    {% csrf_token %}
+                    <div class="merge-row">
+                      <label>
+                        Source student
+                        <select name="source_student_id" required>
+                          <option value="">Select source</option>
+                          {% for st in students %}
+                            <option value="{{ st.id }}">{{ st.display_name }} (#{{ st.id }})</option>
+                          {% endfor %}
+                        </select>
+                      </label>
+                      <label>
+                        Destination student
+                        <select name="target_student_id" required>
+                          <option value="">Select destination</option>
+                          {% for st in students %}
+                            <option value="{{ st.id }}">{{ st.display_name }} (#{{ st.id }})</option>
+                          {% endfor %}
+                        </select>
+                      </label>
+                      <label class="inline-check-label merge-confirm-label">
+                        <input type="checkbox" name="confirm_merge" value="1" class="inline-check-input" required />
+                        I understand this merge is permanent
+                      </label>
+                      <button type="submit">Merge students</button>
+                    </div>
+                  </form>
+                </div>
+              {% endif %}
+
+              <div class="danger-zone">
+                <strong>Reset roster (destructive)</strong>
+                <p class="muted mini danger-copy">
+                  This removes all students in this class and deletes their submissions. Active student sessions are invalidated immediately.
+                </p>
+                <form method="post" action="/teach/class/{{ classroom.id }}/reset-roster" data-confirm="Reset roster for this class now? This permanently deletes all students and submissions in this class.">
+                  {% csrf_token %}
+                  <label class="inline-check-label no-top-margin">
+                    <input type="checkbox" name="rotate_code" value="1" checked class="inline-check-input" />
+                    Rotate class join code after roster reset
+                  </label>
+                  <button type="submit">Reset roster now (delete roster + submissions)</button>
+                </form>
+                <hr class="danger-divider" />
+                <strong>Reset helper conversations (destructive)</strong>
+                <p class="muted mini danger-copy">
+                  Exports a class helper snapshot (for internal research) and then clears cached helper chat history for this class only.
+                </p>
+                <form method="post" action="/teach/class/{{ classroom.id }}/reset-helper-conversations" data-confirm="Reset helper conversations for this class now? Cached helper chat history for this class will be cleared.">
+                  {% csrf_token %}
+                  <input type="hidden" name="export_before_reset" value="0" />
+                  <label class="inline-check-label no-top-margin">
+                    <input type="checkbox" name="export_before_reset" value="1" checked class="inline-check-input" />
+                    Export snapshot before clearing cache
+                  </label>
+                  <p class="muted mini merge-note">
+                    Access to exported helper data is limited to class teachers and createMPLS administrators.
+                  </p>
+                  <button type="submit">Reset helper conversations now</button>
+                </form>
+              </div>
+            </div>
+          </details>

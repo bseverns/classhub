@@ -8,7 +8,11 @@ from pathlib import Path
 
 
 SECTION_BUDGETS: dict[Path, int] = {
-    Path("services/classhub/templates/includes/teach_class/class_setup_and_roster_card.html"): 420,
+    Path("services/classhub/templates/includes/teach_class/class_setup_and_roster_card.html"): 80,
+    Path("services/classhub/templates/includes/teach_class/class_setup_landing_section.html"): 70,
+    Path("services/classhub/templates/includes/teach_class/class_setup_invites_section.html"): 130,
+    Path("services/classhub/templates/includes/teach_class/class_setup_staff_assignments_section.html"): 95,
+    Path("services/classhub/templates/includes/teach_class/class_setup_roster_section.html"): 210,
     Path("services/classhub/templates/includes/teach_class/lesson_tracker_card.html"): 220,
     Path("services/classhub/templates/includes/teach_class/support_board_card.html"): 140,
     Path("services/classhub/templates/includes/teach_class/module_editor_card.html"): 120,

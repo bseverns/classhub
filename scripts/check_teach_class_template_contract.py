@@ -9,6 +9,7 @@ from pathlib import Path
 
 MAIN_TEMPLATE = Path("services/classhub/templates/teach_class.html")
 MAX_MAIN_TEMPLATE_LINES = 220
+TEACH_CLASS_INCLUDE_DIR = Path("services/classhub/templates/includes/teach_class")
 EXPECTED_INCLUDES: tuple[Path, ...] = (
     Path("services/classhub/templates/includes/teach_class/class_setup_and_roster_card.html"),
     Path("services/classhub/templates/includes/teach_class/support_board_card.html"),
@@ -68,6 +69,33 @@ def main() -> int:
             failures.append(str(exc))
             continue
         combined_include_text += "\n" + include_text
+
+    class_setup_template = Path(
+        "services/classhub/templates/includes/teach_class/class_setup_and_roster_card.html"
+    )
+    try:
+        class_setup_text = _read(class_setup_template)
+    except RuntimeError as exc:
+        failures.append(str(exc))
+        class_setup_text = ""
+    _require_snippets(
+        class_setup_text,
+        path=class_setup_template,
+        snippets=[
+            '{% include "includes/teach_class/class_setup_landing_section.html" %}',
+            '{% include "includes/teach_class/class_setup_invites_section.html" %}',
+            '{% include "includes/teach_class/class_setup_staff_assignments_section.html" %}',
+            '{% include "includes/teach_class/class_setup_roster_section.html" %}',
+        ],
+        failures=failures,
+    )
+
+    # Include nested section partials in anchor checks.
+    for nested_path in sorted(TEACH_CLASS_INCLUDE_DIR.glob("*.html")):
+        try:
+            combined_include_text += "\n" + _read(nested_path)
+        except RuntimeError as exc:
+            failures.append(str(exc))
 
     # Keep section anchors in decomposed partials, not the root template.
     moved_section_ids = [

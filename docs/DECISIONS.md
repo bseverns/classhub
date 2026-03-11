@@ -2746,3 +2746,19 @@ Execution ownership and gates:
 **Why this remains active:**
 - Keeps public/press evidence lag visible and bounded instead of ad-hoc.
 - Prevents redistributed complexity in section partials/services from becoming the next monolith.
+
+## Teach class setup/roster card split into sub-partials (2026-03-11)
+
+**Current decision:**
+- Split `class_setup_and_roster_card.html` into focused sub-partials:
+  - `class_setup_landing_section.html`
+  - `class_setup_invites_section.html`
+  - `class_setup_staff_assignments_section.html`
+  - `class_setup_roster_section.html`
+- Keep the parent card as orchestration + notice/error shell only.
+- Tighten section budgets so complexity pressure applies to each subsection, not just the aggregate card.
+- Extend `check_teach_class_template_contract.py` to validate nested include wiring for this card.
+
+**Why this remains active:**
+- Continues reducing cognitive load in the heaviest `/teach/class` section without behavior change.
+- Avoids recreating a monolith inside one "section partial" by enforcing subsection boundaries.

@@ -1,0 +1,73 @@
+          {% if request.user.is_superuser %}
+            <details class="section-toggle" id="section-staff-assignments">
+              <summary>
+                <span class="section-title">Teaching Staff Assignments</span>
+                <span class="section-subtitle">Set who is assigned to this class for teacher portal priority views.</span>
+              </summary>
+              <div class="section-body">
+                <form method="post" action="/teach/class-staff-assignment/upsert" class="class-assignment-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="class_assignment_class_id" value="{{ classroom.id }}" />
+                  <input type="hidden" name="class_assignment_return_to" value="/teach/class/{{ classroom.id }}" />
+                  <label for="class-assignment-user-select">Teacher account</label>
+                  <select id="class-assignment-user-select" name="class_assignment_user_id" required>
+                    <option value="">Select teacher account</option>
+                    {% for account in class_assignment_staff_users %}
+                      <option value="{{ account.id }}">{{ account.username }}</option>
+                    {% endfor %}
+                  </select>
+                  <label class="inline-check-label no-top-margin">
+                    <input type="checkbox" name="class_assignment_active" value="1" class="inline-check-input" checked />
+                    Assignment active
+                  </label>
+                  <button type="submit">Save assignment</button>
+                </form>
+
+                {% if class_staff_assignments %}
+                  <div class="roster-table-wrap assignment-table-wrap">
+                    <table>
+                      <caption class="visually-hidden">Teaching staff assignments for {{ classroom.name }}</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">User</th>
+                          <th scope="col">Status</th>
+                          <th scope="col"><span class="visually-hidden">Action</span></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for assignment in class_staff_assignments %}
+                          <tr>
+                            <th scope="row">{{ assignment.user.username }}</th>
+                            <td>
+                              {% if assignment.is_active %}
+                                <span class="state-pill state-pill--open">Active</span>
+                              {% else %}
+                                <span class="state-pill state-pill--locked">Inactive</span>
+                              {% endif %}
+                            </td>
+                            <td>
+                              <form method="post" action="/teach/class-staff-assignment/upsert" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="class_assignment_class_id" value="{{ classroom.id }}" />
+                                <input type="hidden" name="class_assignment_user_id" value="{{ assignment.user.id }}" />
+                                <input type="hidden" name="class_assignment_return_to" value="/teach/class/{{ classroom.id }}" />
+                                {% if assignment.is_active %}
+                                  <input type="hidden" name="class_assignment_active" value="0" />
+                                  <button type="submit">Set inactive</button>
+                                {% else %}
+                                  <input type="hidden" name="class_assignment_active" value="1" />
+                                  <button type="submit">Set active</button>
+                                {% endif %}
+                              </form>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                {% else %}
+                  <p class="muted section-empty-note">No teaching staff assignments yet for this class.</p>
+                {% endif %}
+              </div>
+            </details>
+          {% endif %}
