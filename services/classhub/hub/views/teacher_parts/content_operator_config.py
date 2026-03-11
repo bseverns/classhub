@@ -30,6 +30,13 @@ _TELEMETRY_ROLLOUT_COMMANDS = [
     "cd /srv/lms/app/compose && docker compose exec -T classhub_web python manage.py check_telemetry_parity --window-days 7",
 ]
 
+_RUNTIME_POLICY_LOCK_DOCS = [
+    "docs/RUNBOOK.md",
+    "docs/30_DAY_STABILITY_PLAN.md",
+    "docs/TELEMETRY_DB_SPLIT_PLAN.md",
+    "docs/ORG_BOUNDARY_POLICY_AUDIT.md",
+]
+
 
 def _env_setting(name: str) -> str:
     return str(os.environ.get(name, "") or "").strip()
@@ -125,6 +132,65 @@ def _telemetry_rollout_summary(checks: list[dict]) -> str:
     return "Telemetry split is still in rollout gating; complete pending runtime checks first."
 
 
+def _runtime_policy_lock_checks():
+    require_org_membership = bool(getattr(settings, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", False))
+    write_mode = str(getattr(settings, "CLASSHUB_TELEMETRY_WRITE_MODE", "off") or "off").strip().lower()
+    read_mode = str(getattr(settings, "CLASSHUB_TELEMETRY_READ_MODE", "core") or "core").strip().lower()
+    certificate_min_sessions = int(getattr(settings, "CLASSHUB_CERTIFICATE_MIN_SESSIONS", 8) or 8)
+    certificate_min_artifacts = int(getattr(settings, "CLASSHUB_CERTIFICATE_MIN_ARTIFACTS", 6) or 6)
+    certificate_min_sessions_env = _env_setting("CLASSHUB_CERTIFICATE_MIN_SESSIONS")
+    certificate_min_artifacts_env = _env_setting("CLASSHUB_CERTIFICATE_MIN_ARTIFACTS")
+    return [
+        {
+            "label": "Org boundary strict mode",
+            "expected": "On (1)",
+            "value": "On" if require_org_membership else "Off",
+            "source": _operator_config_source("REQUIRE_ORG_MEMBERSHIP_FOR_STAFF"),
+            "done": require_org_membership,
+            "detail": "Expected production lock: REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1.",
+        },
+        {
+            "label": "Telemetry write mode",
+            "expected": "dual",
+            "value": write_mode,
+            "source": _operator_config_source("CLASSHUB_TELEMETRY_WRITE_MODE", fallback="default"),
+            "done": write_mode == "dual",
+            "detail": f"Current mode: {write_mode}.",
+        },
+        {
+            "label": "Telemetry read mode",
+            "expected": "telemetry",
+            "value": read_mode,
+            "source": _operator_config_source("CLASSHUB_TELEMETRY_READ_MODE", fallback="default"),
+            "done": read_mode == "telemetry",
+            "detail": f"Current mode: {read_mode}.",
+        },
+        {
+            "label": "Certificate min sessions env",
+            "expected": "env override >= 1",
+            "value": str(certificate_min_sessions),
+            "source": _operator_config_source("CLASSHUB_CERTIFICATE_MIN_SESSIONS", fallback="default"),
+            "done": bool(certificate_min_sessions_env) and certificate_min_sessions >= 1,
+            "detail": "Set CLASSHUB_CERTIFICATE_MIN_SESSIONS explicitly in runtime env.",
+        },
+        {
+            "label": "Certificate min artifacts env",
+            "expected": "env override >= 1",
+            "value": str(certificate_min_artifacts),
+            "source": _operator_config_source("CLASSHUB_CERTIFICATE_MIN_ARTIFACTS", fallback="default"),
+            "done": bool(certificate_min_artifacts_env) and certificate_min_artifacts >= 1,
+            "detail": "Set CLASSHUB_CERTIFICATE_MIN_ARTIFACTS explicitly in runtime env.",
+        },
+    ]
+
+
+def _runtime_policy_lock_summary(checks: list[dict]) -> str:
+    runtime_checks = [row for row in checks if row.get("done") is not None]
+    if all(bool(row.get("done")) for row in runtime_checks):
+        return "All runtime lock checks pass for this node."
+    return "Runtime lock mismatch detected; align runtime values before release sign-off."
+
+
 def _helper_config_rows(*, defaults: dict, helper_config_file: str):
     return [
         {
@@ -179,6 +245,10 @@ def build_operator_config_snapshot(*, user):
             "show_operator_config_snapshot": False,
             "operator_config_rows": [],
             "operator_config_docs": [],
+            "show_runtime_policy_lock": False,
+            "runtime_policy_lock_summary": "",
+            "runtime_policy_lock_checks": [],
+            "runtime_policy_lock_docs": [],
             "show_telemetry_rollout_status": False,
             "telemetry_rollout_summary": "",
             "telemetry_rollout_checks": [],
@@ -190,10 +260,15 @@ def build_operator_config_snapshot(*, user):
         profile = "secondary"
     helper_config_file = _env_setting("HELPER_CONFIG_FILE")
     rollout_checks = _telemetry_rollout_checks()
+    runtime_policy_lock_checks = _runtime_policy_lock_checks()
     return {
         "show_operator_config_snapshot": True,
         "operator_config_rows": _operator_config_rows(profile=profile, helper_config_file=helper_config_file),
         "operator_config_docs": _OPERATOR_CONFIG_DOCS,
+        "show_runtime_policy_lock": True,
+        "runtime_policy_lock_summary": _runtime_policy_lock_summary(runtime_policy_lock_checks),
+        "runtime_policy_lock_checks": runtime_policy_lock_checks,
+        "runtime_policy_lock_docs": _RUNTIME_POLICY_LOCK_DOCS,
         "show_telemetry_rollout_status": True,
         "telemetry_rollout_summary": _telemetry_rollout_summary(rollout_checks),
         "telemetry_rollout_checks": rollout_checks,

@@ -2628,3 +2628,17 @@ Execution ownership and gates:
 **Why this remains active:**
 - Enforces proof-first sign-off criteria for stability and telemetry rollouts.
 - Reduces cutover risk by requiring strict parity and rollback drill evidence before any write-mode escalation.
+
+## Runtime policy lock surfaced in `/teach` and evidence guardrails (2026-03-11)
+
+**Current decision:**
+- Add a superuser-only runtime lock panel to `/teach` advanced mode (`/teach?advanced=1&portal_mode=admin`) that reports PASS/FAIL for:
+  - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` strict mode,
+  - telemetry rollout modes (`CLASSHUB_TELEMETRY_WRITE_MODE`, `CLASSHUB_TELEMETRY_READ_MODE`),
+  - explicit certificate threshold env posture (`CLASSHUB_CERTIFICATE_MIN_SESSIONS`, `CLASSHUB_CERTIFICATE_MIN_ARTIFACTS`).
+- Add `scripts/check_runtime_policy_lock.py` and run it inside `scripts/stability_release_evidence.sh` guardrails.
+- Treat runtime lock mismatch as a release-evidence blocker until env values are aligned.
+
+**Why this remains active:**
+- Converts policy-sensitive deployment assumptions into in-product and command-backed checks.
+- Reduces reliance on maintainer memory when validating org-boundary and telemetry posture before release sign-off.

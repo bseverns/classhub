@@ -525,6 +525,59 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Program profile")
         self.assertContains(resp, "docs/FEATURE_MATURITY.md")
 
+    @override_settings(
+        REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=False,
+        CLASSHUB_TELEMETRY_WRITE_MODE="off",
+        CLASSHUB_TELEMETRY_READ_MODE="core",
+        CLASSHUB_CERTIFICATE_MIN_SESSIONS=8,
+        CLASSHUB_CERTIFICATE_MIN_ARTIFACTS=6,
+    )
+    @patch.dict(
+        "os.environ",
+        {
+            "CLASSHUB_CERTIFICATE_MIN_SESSIONS": "",
+            "CLASSHUB_CERTIFICATE_MIN_ARTIFACTS": "",
+        },
+        clear=False,
+    )
+    def test_superuser_runtime_policy_lock_surfaces_mismatches(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach?advanced=1&portal_mode=admin")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Runtime policy lock")
+        self.assertContains(resp, "Runtime lock mismatch detected; align runtime values before release sign-off.")
+        self.assertContains(resp, "Org boundary strict mode")
+        self.assertContains(resp, "Telemetry write mode")
+        self.assertContains(resp, "Telemetry read mode")
+        self.assertContains(resp, "Certificate min sessions env")
+        self.assertContains(resp, "Certificate min artifacts env")
+        self.assertContains(resp, "FAIL")
+
+    @override_settings(
+        REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True,
+        CLASSHUB_TELEMETRY_WRITE_MODE="dual",
+        CLASSHUB_TELEMETRY_READ_MODE="telemetry",
+        CLASSHUB_CERTIFICATE_MIN_SESSIONS=2,
+        CLASSHUB_CERTIFICATE_MIN_ARTIFACTS=2,
+    )
+    @patch.dict(
+        "os.environ",
+        {
+            "CLASSHUB_CERTIFICATE_MIN_SESSIONS": "2",
+            "CLASSHUB_CERTIFICATE_MIN_ARTIFACTS": "2",
+        },
+        clear=False,
+    )
+    def test_superuser_runtime_policy_lock_passes_when_expected_values_are_set(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach?advanced=1&portal_mode=admin")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Runtime policy lock")
+        self.assertContains(resp, "All runtime lock checks pass for this node.")
+        self.assertContains(resp, "PASS")
+
     def test_superuser_can_export_syllabus_catalog_csv(self):
         _force_login_staff_verified(self.client, self.staff)
 

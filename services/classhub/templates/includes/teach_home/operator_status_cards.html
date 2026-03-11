@@ -34,6 +34,51 @@
               </div>
             </div>
           {% endif %}
+          {% if show_runtime_policy_lock %}
+            <div class="card card-secondary">
+              <div class="row">
+                <h2 class="section-title-tight">Runtime policy lock</h2>
+                <div class="muted">{{ runtime_policy_lock_summary }}</div>
+              </div>
+              <div class="table-wrap operator-config-table-wrap">
+                <table>
+                  <caption class="visually-hidden">Runtime policy lock checklist</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Policy lock item</th>
+                      <th scope="col">Expected</th>
+                      <th scope="col">Current</th>
+                      <th scope="col">Source</th>
+                      <th scope="col">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in runtime_policy_lock_checks %}
+                      <tr>
+                        <th scope="row"><strong>{{ row.label }}</strong><div class="muted">{{ row.detail }}</div></th>
+                        <td><code>{{ row.expected }}</code></td>
+                        <td><code>{{ row.value }}</code></td>
+                        <td class="muted">{{ row.source }}</td>
+                        <td>
+                          {% if row.done %}
+                            <span class="state-pill state-pill--open">PASS</span>
+                          {% else %}
+                            <span class="state-pill state-pill--locked">FAIL</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="muted operator-config-footnote">
+                Docs:
+                {% for doc_path in runtime_policy_lock_docs %}
+                  <code>{{ doc_path }}</code>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
           {% if show_telemetry_rollout_status %}
             <div class="card card-secondary">
               <div class="row">
