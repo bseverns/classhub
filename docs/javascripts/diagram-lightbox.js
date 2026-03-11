@@ -95,6 +95,24 @@ function enhanceMermaidContainers(root) {
       "aria-label",
       "Open diagram zoom view (press Enter or click)"
     );
+
+    if (container.dataset.diagramLightboxBound === "1") {
+      return;
+    }
+    container.dataset.diagramLightboxBound = "1";
+
+    container.addEventListener("click", function (event) {
+      event.preventDefault();
+      openDiagramLightbox(container);
+    });
+
+    container.addEventListener("keydown", function (event) {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+      event.preventDefault();
+      openDiagramLightbox(container);
+    });
   });
 }
 
@@ -124,10 +142,6 @@ function bindDiagramLightboxOnce() {
       return;
     }
 
-    if (event.target.closest("a")) {
-      return;
-    }
-
     openDiagramLightbox(container);
     },
     true
@@ -139,12 +153,12 @@ function bindDiagramLightboxOnce() {
       return;
     }
 
-    if (event.key !== "Enter" && event.key !== " ") {
+    var container = findMermaidFromEvent(event);
+    if (!container) {
       return;
     }
 
-    var container = findMermaidFromEvent(event);
-    if (!container) {
+    if (event.key !== "Enter" && event.key !== " ") {
       return;
     }
 
