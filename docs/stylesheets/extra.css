@@ -48,8 +48,9 @@ body.diagram-lightbox-open {
 }
 
 .diagram-lightbox__content {
-  background: rgba(20, 20, 20, 0.92);
+  background: #ffffff;
   border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   box-sizing: border-box;
   display: flex;
   height: 96vh;
@@ -62,6 +63,7 @@ body.diagram-lightbox-open {
 
 .diagram-lightbox__frame {
   align-items: center;
+  background: #ffffff;
   display: flex;
   height: 100%;
   justify-content: center;
@@ -80,10 +82,11 @@ body.diagram-lightbox-open {
 
 .diagram-lightbox__close {
   align-items: center;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.95);
   border: 0;
   border-radius: 999px;
-  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  color: #111;
   cursor: pointer;
   display: inline-flex;
   font-size: 1.1rem;
@@ -98,6 +101,6 @@ body.diagram-lightbox-open {
 
 .diagram-lightbox__close:hover,
 .diagram-lightbox__close:focus-visible {
-  background: rgba(255, 255, 255, 0.24);
+  background: #ffffff;
   outline: none;
 }
