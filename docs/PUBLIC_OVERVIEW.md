@@ -92,7 +92,7 @@ Captured workflow references:
 
 ![RBAC tools tab](images/press/19-rbac-tools-tab.png)
 
-Pending captures are tracked in `press/screenshots/PLACEHOLDERS.md` (`20`/`21` plus optional RBAC approval-on companion).
+Pending captures are tracked in `press/screenshots/PLACEHOLDERS.md` (`20`/`21` plus optional RBAC approval-on companion; target closeout 2026-03-15).
 Capture instructions live in `press/screenshots/SHOTLIST.md`.
 
 ## Technical ops and security links

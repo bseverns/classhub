@@ -3,6 +3,12 @@
 ## Summary
 This file tracks remaining screenshot backlog and refresh items.
 
+## Backlog governance
+- Owner: Maintainer (repo-level accountability for press capture closeout)
+- Target closeout date: 2026-03-15
+- Maximum allowed backlog size: 3 items
+- Review cadence: confirm status in each release-cycle docs sweep
+
 ## What to do now
 1. Capture each target in a demo environment.
 2. Save with the exact filename below in `press/screenshots/`.

@@ -75,7 +75,9 @@ Operator shortcut:
 | `check_teacher_endpoint_capability_map.py` | Enforces explicit capability contracts for all teacher/API-teacher routes. |
 | `check_teacher_top_tasks_contract.py` | Enforces `/teach` top-task choreography wiring against `docs/TEACHER_TOP_TASKS.md` contracts. |
 | `check_teach_class_template_contract.py` | Enforces `/teach/class` template decomposition contracts (root-size budget + required include section anchors). |
+| `check_teach_class_section_budgets.py` | Enforces line budgets for `/teach/class` section partials and section service modules so complexity stays prunable. |
 | `check_teacher_roster_service_contract.py` | Enforces `/teach/class` dashboard service decomposition contracts (`teacher_roster_class.py` orchestration + section builders in `teacher_dashboard_sections/*`). |
+| `check_press_capture_backlog_contract.py` | Enforces press/screenshot backlog governance contracts (bounded backlog size, ownership/target metadata, and docs linkage markers). |
 | `check_runtime_policy_lock.py` | Validates runtime lock posture with explicit profiles: `baseline` (safe/default env contract) and `release` (strict closeout lock values). |
 | `check_docs_truth.py` | Verifies high-signal docs claims (risk-register metrics + screenshot tracker truth) stay in sync with repo state. |
 

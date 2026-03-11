@@ -2730,3 +2730,19 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces maintenance risk by aligning backend structure with `/teach/class` section boundaries.
 - Prevents regressions from refactor drift while preserving current external call sites.
+
+## Press backlog governance + teach class section budgets (2026-03-11)
+
+**Current decision:**
+- Add `scripts/check_press_capture_backlog_contract.py` to enforce press-layer governance contracts:
+  - bounded capture backlog size (max 3),
+  - explicit owner + target closeout date in `press/screenshots/PLACEHOLDERS.md`,
+  - required linkage markers in `docs/PUBLIC_OVERVIEW.md` and `docs/CURRENT_STATE.md`.
+- Add `scripts/check_teach_class_section_budgets.py` to enforce line budgets for:
+  - `/teach/class` include partials,
+  - `/teach/class` section service modules (`teacher_dashboard_sections/*`).
+- Run both checks in `scripts/stability_release_evidence.sh` guardrails.
+
+**Why this remains active:**
+- Keeps public/press evidence lag visible and bounded instead of ad-hoc.
+- Prevents redistributed complexity in section partials/services from becoming the next monolith.
