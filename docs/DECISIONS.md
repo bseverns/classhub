@@ -2667,3 +2667,14 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces documentation tax by making fewer files responsible for truth ownership.
 - Lowers stale-doc risk by tying high-impact status claims to concrete evidence artifacts and guardrail checks.
+
+## Screenshot gallery status split: captured baseline vs pending backlog (2026-03-11)
+
+**Current decision:**
+- Keep `docs/SCREENSHOT_GALLERY.md` scoped to currently captured screenshots only.
+- Track uncaptured screenshot slots in `press/screenshots/PLACEHOLDERS.md` (including optional companion captures) and avoid implying full-shotlist completion in public docs until files exist.
+- Keep `docs/PUBLIC_OVERVIEW.md` wording aligned with this split by labeling embeds as captured baseline and linking pending slots to the placeholder tracker.
+
+**Why this remains active:**
+- Prevents public-facing documentation from overstating visual evidence coverage.
+- Gives reviewers one reliable place to distinguish shipped screenshots from backlog captures.

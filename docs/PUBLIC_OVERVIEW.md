@@ -56,7 +56,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 
 ## Visual reference
 
-Current captures:
+Current captured baseline (`01`-`19`):
 
 ![Student join screen](images/press/01-student-join.png)
 
@@ -68,7 +68,7 @@ Current captures:
 
 ![Teacher dashboard](images/press/03-teacher-dashboard.png)
 
-Additional workflow captures:
+Captured workflow references:
 
 ![Teacher profile tab](images/press/09-teacher-profile-tab.png)
 
@@ -92,6 +92,7 @@ Additional workflow captures:
 
 ![RBAC tools tab](images/press/19-rbac-tools-tab.png)
 
+Pending captures are tracked in `press/screenshots/PLACEHOLDERS.md` (`20`/`21` plus optional RBAC approval-on companion).
 Capture instructions live in `press/screenshots/SHOTLIST.md`.
 
 ## Technical ops and security links

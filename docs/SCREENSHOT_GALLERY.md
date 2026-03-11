@@ -1,6 +1,7 @@
 # Screenshot Gallery
 
-This gallery embeds every screenshot slot defined in `press/screenshots/SHOTLIST.md`.
+This gallery embeds the current captured screenshot baseline from `press/screenshots/SHOTLIST.md`.
+Pending backlog targets are tracked separately in `press/screenshots/PLACEHOLDERS.md`.
 
 Status model:
 - `Captured`: real screenshot from current product UI.
@@ -74,3 +75,9 @@ Optional companion capture (approval workflow ON) is tracked as `19-rbac-tools-t
 
 - Shot list: `press/screenshots/SHOTLIST.md`
 - Placeholder tracker: `press/screenshots/PLACEHOLDERS.md`
+
+## Pending capture slots (not yet embedded)
+
+- `19-rbac-tools-tab-approval-on.png` (optional companion with approval workflow ON)
+- `20-data-lifespan-evidence.png`
+- `21-data-lifespan-export-terminal.png`
