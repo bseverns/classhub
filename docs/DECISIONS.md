@@ -2678,3 +2678,18 @@ Execution ownership and gates:
 **Why this remains active:**
 - Prevents public-facing documentation from overstating visual evidence coverage.
 - Gives reviewers one reliable place to distinguish shipped screenshots from backlog captures.
+
+## Runtime policy lock profiles: baseline vs release (2026-03-11)
+
+**Current decision:**
+- Split `scripts/check_runtime_policy_lock.py` into explicit profiles:
+  - `baseline`: validates explicit boundary/telemetry/certificate env posture without enforcing release-only rollout gates.
+  - `release`: enforces strict closeout lock values for org-boundary and telemetry rollout (`1 / dual / telemetry`) plus explicit certificate thresholds.
+- Wire release evidence paths to call `--profile release` explicitly:
+  - `scripts/stability_release_evidence.sh`
+  - `scripts/stability_phase1_closeout.sh`
+- Keep `runtime_lock_check.log` as a generated artifact during cycle closeout using the same script (`--markdown`), so closeout and guardrails share one source of truth.
+
+**Why this remains active:**
+- Removes ambiguity where example env files looked "wrong" against release-only checks.
+- Reduces drift risk by eliminating duplicate runtime-lock logic across scripts.

@@ -161,14 +161,17 @@ make stability-cycle-closeout STABILITY_RELEASE_DATE=<YYYY-MM-DD> SMOKE_COMPOSE_
 
 Notes:
 
-- Enforces runtime lock values in `compose/.env`:
+- Enforces `scripts/check_runtime_policy_lock.py --profile release` against `compose/.env`:
   - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`
   - `CLASSHUB_TELEMETRY_WRITE_MODE=dual`
   - `CLASSHUB_TELEMETRY_READ_MODE=telemetry`
+  - explicit `CLASSHUB_CERTIFICATE_MIN_SESSIONS` / `CLASSHUB_CERTIFICATE_MIN_ARTIFACTS` values (`>=1`)
 - Writes release artifacts under `artifacts/stability/<date>/` and telemetry artifacts under `artifacts/stability/<date>/telemetry/`.
 - Fails the run if parity/smoke/rollback drill do not pass or required artifacts are missing.
 - Produces `cycle_closeout_summary.md` with doc-update checklist before sign-off.
 - For cycles where kiosk drill is tracked separately, set `STABILITY_SKIP_KIOSK=1` to skip kiosk resilience in this command.
+- To validate example env files without release lock expectations, run:
+  - `python3 scripts/check_runtime_policy_lock.py --profile baseline --env-file compose/.env.example.local`
 
 Accessibility smoke:
 

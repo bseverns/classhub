@@ -130,60 +130,11 @@ SLO_SUMMARY_PATH="${TELEMETRY_DIR}/slo_summary.md"
 CYCLE_SUMMARY_PATH="${EVIDENCE_DIR}/cycle_closeout_summary.md"
 mkdir -p "${TELEMETRY_DIR}"
 
-env_file_value() {
-  local key="$1"
-  local raw
-  raw="$(grep -E "^${key}=" "${ENV_FILE}" | tail -n1 | cut -d= -f2- || true)"
-  raw="${raw%\"}"
-  raw="${raw#\"}"
-  raw="${raw%\'}"
-  raw="${raw#\'}"
-  echo "${raw}"
-}
-
 assert_runtime_lock() {
-  local failures=0
-  : > "${RUNTIME_LOCK_LOG}"
-
-  {
-    echo "# Runtime Lock Check"
-    echo "- Captured at (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    echo "- Source: compose/.env"
-    echo ""
-    echo "| Key | Expected | Actual | Status |"
-    echo "| --- | --- | --- | --- |"
-  } >> "${RUNTIME_LOCK_LOG}"
-
-  local expected actual status
-
-  expected="1"
-  actual="$(env_file_value REQUIRE_ORG_MEMBERSHIP_FOR_STAFF)"
-  status="PASS"
-  if [[ "${actual}" != "${expected}" ]]; then
-    status="FAIL"
-    failures=1
-  fi
-  echo "| REQUIRE_ORG_MEMBERSHIP_FOR_STAFF | ${expected} | ${actual:-<unset>} | ${status} |" >> "${RUNTIME_LOCK_LOG}"
-
-  expected="dual"
-  actual="$(env_file_value CLASSHUB_TELEMETRY_WRITE_MODE)"
-  status="PASS"
-  if [[ "${actual}" != "${expected}" ]]; then
-    status="FAIL"
-    failures=1
-  fi
-  echo "| CLASSHUB_TELEMETRY_WRITE_MODE | ${expected} | ${actual:-<unset>} | ${status} |" >> "${RUNTIME_LOCK_LOG}"
-
-  expected="telemetry"
-  actual="$(env_file_value CLASSHUB_TELEMETRY_READ_MODE)"
-  status="PASS"
-  if [[ "${actual}" != "${expected}" ]]; then
-    status="FAIL"
-    failures=1
-  fi
-  echo "| CLASSHUB_TELEMETRY_READ_MODE | ${expected} | ${actual:-<unset>} | ${status} |" >> "${RUNTIME_LOCK_LOG}"
-
-  if (( failures != 0 )); then
+  if ! python3 "${ROOT_DIR}/scripts/check_runtime_policy_lock.py" \
+    --profile release \
+    --env-file "${ENV_FILE}" \
+    --markdown > "${RUNTIME_LOCK_LOG}" 2>&1; then
     echo "[cycle-closeout] runtime lock check failed; see artifacts/stability/${RELEASE_DATE}/runtime_lock_check.log" >&2
     exit 1
   fi
