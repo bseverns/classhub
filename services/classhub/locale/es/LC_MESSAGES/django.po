@@ -39,7 +39,7 @@ msgid "On shared devices, enter your return code so you do not join as another s
 msgstr "En dispositivos compartidos, ingresa tu código de retorno para no unirte como otro estudiante."
 
 msgid "Same classroom device? You can usually leave return code blank."
-msgstr "\u00bfMismo dispositivo del sal\u00f3n? Generalmente puedes dejar el c\u00f3digo de retorno en blanco."
+msgstr "¿Mismo dispositivo del salón? Generalmente puedes dejar el código de retorno en blanco."
 
 msgid "On shared devices, use your own return code to avoid signing in as someone else."
 msgstr "En dispositivos compartidos, usa tu propio código de retorno para no iniciar sesión como otra persona."
@@ -86,14 +86,14 @@ msgstr "Retención:"
 
 msgid "submissions are kept up to %(counter)s day unless deleted sooner."
 msgid_plural "submissions are kept up to %(counter)s days unless deleted sooner."
-msgstr[0] "las entregas se conservan hasta %(counter)s d\u00eda a menos que se eliminen antes."
-msgstr[1] "las entregas se conservan hasta %(counter)s d\u00edas a menos que se eliminen antes."
+msgstr[0] "las entregas se conservan hasta %(counter)s día a menos que se eliminen antes."
+msgstr[1] "las entregas se conservan hasta %(counter)s días a menos que se eliminen antes."
 
 msgid "submissions stay until a teacher or admin removes them."
 msgstr "las entregas permanecen hasta que un maestro o administrador las elimine."
 
 msgid "Delete now: after joining, open <a href=\"/student/my-data\">My Data</a> to delete your work or end this device session."
-msgstr "Eliminar ahora: despu\u00e9s de unirte, abre <a href=\"/student/my-data\">Mis datos</a>."
+msgstr "Eliminar ahora: después de unirte, abre <a href=\"/student/my-data\">Mis datos</a>."
 
 msgid "Teacher? Use <a href=\"/teach\">/teach</a>."
 msgstr "¿Maestro? Usa <a href=\"/teach\">/teach</a>."
@@ -290,6 +290,228 @@ msgstr "Cuenta"
 
 msgid "End my session on this device"
 msgstr "Terminar mi sesión en este dispositivo"
+
+msgid "Studio handles"
+msgstr "Controles de estudio"
+
+msgid "highlighted"
+msgstr "destacado"
+
+msgid "Advanced mode keeps core controls visible for autonomy and accountability."
+msgstr "El modo avanzado mantiene visibles los controles principales para autonomía y responsabilidad."
+
+msgid "Export portfolio snapshot"
+msgstr "Exportar instantánea del portafolio"
+
+msgid "Rubric links"
+msgstr "Enlaces de rúbrica"
+
+msgid "Gallery share toggles"
+msgstr "Controles de compartir en galería"
+
+msgid "Done"
+msgstr "Hecho"
+
+msgid "saved"
+msgstr "guardado"
+
+msgid "do now"
+msgstr "hacer ahora"
+
+msgid "wait"
+msgstr "espera"
+
+msgid "saved and reviewable"
+msgstr "guardado y revisable"
+
+msgid "active now"
+msgstr "activo ahora"
+
+msgid "date-gated"
+msgstr "con fecha de apertura"
+
+msgid "Studio accountability: add design-log notes, a short changelog, and release notes for finished builds."
+msgstr "Responsabilidad de estudio: agrega notas del registro de diseño, un changelog breve y notas de versión para los trabajos terminados."
+
+msgid "saved and visible"
+msgstr "guardado y visible"
+
+msgid "ready now"
+msgstr "listo ahora"
+
+msgid "opens on date shown"
+msgstr "se abre en la fecha mostrada"
+
+msgid "Preview intro-only page"
+msgstr "Ver página solo de introducción"
+
+msgid "Full lesson unlocks on <strong>{{ open_date }}</strong>."
+msgstr "La lección completa se desbloquea el <strong>{{ open_date }}</strong>."
+
+msgid "Accepted: {{ exts }} · Max {{ max_mb }}MB"
+msgstr "Aceptado: {{ exts }} · Máx {{ max_mb }}MB"
+
+msgid "Submissions open on <strong>{{ open_date }}</strong>."
+msgstr "Las entregas se abren el <strong>{{ open_date }}</strong>."
+
+msgid "· {{ upload_count }} uploaded (latest saved)"
+msgstr "· {{ upload_count }} subido(s) (último guardado)"
+
+msgid "Gallery opens on <strong>{{ open_date }}</strong>."
+msgstr "La galería se abre el <strong>{{ open_date }}</strong>."
+
+msgid "· {{ upload_count }} uploaded"
+msgstr "· {{ upload_count }} subido(s)"
+
+msgid "Shared gallery"
+msgstr "Galería compartida"
+
+msgid "you"
+msgstr "tú"
+
+msgid "Checklist opens on <strong>{{ open_date }}</strong>."
+msgstr "La lista de verificación se abre el <strong>{{ open_date }}</strong>."
+
+msgid "Review checklist"
+msgstr "Revisar lista de verificación"
+
+msgid "Open checklist"
+msgstr "Abrir lista de verificación"
+
+msgid "Checklist has no items yet."
+msgstr "La lista de verificación aún no tiene elementos."
+
+msgid "Reflection opens on <strong>{{ open_date }}</strong>."
+msgstr "La reflexión se abre el <strong>{{ open_date }}</strong>."
+
+msgid "Design log prompt: note what you changed, why you changed it, and what evidence shows improvement."
+msgstr "Indicador del registro de diseño: anota qué cambiaste, por qué lo cambiaste y qué evidencia muestra mejora."
+
+msgid "Review reflection"
+msgstr "Revisar reflexión"
+
+msgid "Open reflection"
+msgstr "Abrir reflexión"
+
+msgid "Your private reflection"
+msgstr "Tu reflexión privada"
+
+msgid "Write a short reflection."
+msgstr "Escribe una reflexión breve."
+
+msgid "Rubric opens on <strong>{{ open_date }}</strong>."
+msgstr "La rúbrica se abre el <strong>{{ open_date }}</strong>."
+
+msgid "Review rubric"
+msgstr "Revisar rúbrica"
+
+msgid "Open rubric"
+msgstr "Abrir rúbrica"
+
+msgid "Rate each criterion from 1 to {{ scale_max }}."
+msgstr "Califica cada criterio del 1 al {{ scale_max }}."
+
+msgid "Studio expectation: scores should line up with your changelog and release-note claims."
+msgstr "Expectativa de estudio: las puntuaciones deben coincidir con tu changelog y con lo indicado en las notas de versión."
+
+msgid "Not scored"
+msgstr "Sin puntuar"
+
+msgid "Optional feedback"
+msgstr "Comentarios opcionales"
+
+msgid "Short note to your teacher (optional)."
+msgstr "Nota breve para tu maestro (opcional)."
+
+msgid "Rubric criteria not configured yet."
+msgstr "Los criterios de rúbrica aún no están configurados."
+
+msgid "Empty material — teacher will fill this in."
+msgstr "Material vacío: el maestro lo completará."
+
+msgid "No materials yet."
+msgstr "Aún no hay materiales."
+
+msgid "No modules yet. A teacher/admin can add them in /admin."
+msgstr "Aún no hay módulos. Un maestro/admin puede agregarlos en /admin."
+
+msgid "Open My Data for account controls."
+msgstr "Abre Mis datos para controles de cuenta."
+
+msgid "Open My Data"
+msgstr "Abrir Mis datos"
+
+msgid "Manage account + device data."
+msgstr "Administrar cuenta y datos del dispositivo."
+
+msgid "What I made"
+msgstr "Lo que hice"
+
+msgid "Session gallery"
+msgstr "Galería de la sesión"
+
+msgid "Quick check-in"
+msgstr "Registro rápido"
+
+msgid "Share how this session feels right now. These signals help your facilitator support you."
+msgstr "Comparte cómo se siente esta sesión ahora mismo. Estas señales ayudan a tu facilitador a apoyarte."
+
+msgid "I can do this"
+msgstr "Puedo hacerlo"
+
+msgid "I'm stuck"
+msgstr "Estoy atascado"
+
+msgid "I taught someone"
+msgstr "Le enseñé a alguien"
+
+msgid "Last check-in:"
+msgstr "Último registro:"
+
+msgid "Class return image"
+msgstr "Imagen de regreso de la clase"
+
+msgid "Return image: look for this picture when you come back to class."
+msgstr "Imagen de regreso: busca esta imagen cuando vuelvas a clase."
+
+msgid "Enable kiosk mode"
+msgstr "Activar modo quiosco"
+
+msgid "Exit kiosk mode"
+msgstr "Salir del modo quiosco"
+
+msgid "Kiosk mode keeps navigation inside the student class flow."
+msgstr "El modo quiosco mantiene la navegación dentro del flujo de clase del estudiante."
+
+msgid "Hide"
+msgstr "Ocultar"
+
+msgid "Return code hidden."
+msgstr "Código de retorno oculto."
+
+msgid "Return code shown."
+msgstr "Código de retorno mostrado."
+
+msgid "Could not load return code. Refresh and try again."
+msgstr "No se pudo cargar el código de retorno. Actualiza e inténtalo de nuevo."
+
+msgid "Copied to clipboard."
+msgstr "Copiado al portapapeles."
+
+msgid "Copy failed. Please copy manually."
+msgstr "Falló la copia. Copia manualmente, por favor."
+
+msgid "Sentence starter added."
+msgstr "Inicio de oración agregado."
+
+msgid "Sentence starters (optional)"
+msgstr "Inicios de oración (opcional)"
+
+msgid "Icon code: "
+msgstr "Código de icono: "
+
+msgid "Trust notes"
+msgstr "Notas de confianza"
 
 #
 # ── Student My Data page ─────────────────────────────────────────────

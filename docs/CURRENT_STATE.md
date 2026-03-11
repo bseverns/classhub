@@ -47,7 +47,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Privacy-forward default: student rename/export/delete controls.
 - Privacy-forward default: structured staff-only support tags (no default freeform note field).
 - No rankings/leaderboards in student-facing artifact and feedback flows.
-- Multilingual UI is active for supported strings (`en`, `es`) with ongoing i18n cleanup work.
+- Multilingual UI is active for supported strings (`en`, `es`) across join/login and core student class chrome + activity copy, with broader flow coverage still in progress.
 
 ## Active known constraints
 - Scoped RBAC grants are still feature-flagged for controlled rollout.

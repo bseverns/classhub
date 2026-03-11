@@ -2865,3 +2865,17 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces handoff ambiguity by defining the minimum operator capability explicitly.
 - Improves release-bundle inspectability by turning artifact discovery into a stable, generated index.
+
+## Localization slice: student class core translation pass (2026-03-11)
+
+**Current decision:**
+- Expand i18n coverage from join/login-only into core student class experience (`services/classhub/templates/student_class.html`) by wrapping remaining high-frequency user-facing strings in `{% trans %}` / `{% blocktrans %}`.
+- Add/refresh Spanish translations in `services/classhub/locale/es/LC_MESSAGES/django.po` and compile locale catalogs.
+- Add regression coverage in `hub.tests.test_i18n` for Spanish rendering on `/student` (`Enlaces del curso` assertion).
+- Update localization/docs posture to reflect current coverage honestly:
+  - `docs/LOCALIZATION.md`
+  - `docs/CURRENT_STATE.md`
+
+**Why this remains active:**
+- Closes part of the values-to-implementation gap for multilingual classroom use.
+- Keeps localization progress inspectable and test-backed instead of aspirational.

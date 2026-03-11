@@ -46,7 +46,7 @@
             · <a href="/privacy" data-kiosk-hide>{% trans "Privacy" %}</a>
             · <a href="/trust" data-kiosk-hide>{% trans "Trust notes" %}</a>
             {% if ui_density_mode == "expanded" %}
-            · <a href="#studio-handles" data-kiosk-hide>Studio handles</a>
+            · <a href="#studio-handles" data-kiosk-hide>{% trans "Studio handles" %}</a>
             {% endif %}
             {% else %}
             · <a href="/privacy" data-kiosk-hide>{% trans "Privacy" %}</a>
@@ -137,21 +137,21 @@
         </section>
 
         <section class="landing-section">
-          <h3>Course links</h3>
+          <h3>{% trans "Course links" %}</h3>
           {% if class_landing.course_lesson_links %}
           <details class="landing-course-map" {% if ui_density_mode == "expanded" %}open{% endif %}>
-            <summary>View full course lesson links</summary>
+            <summary>{% trans "View full course lesson links" %}</summary>
             <ul>
               {% for row in class_landing.course_lesson_links %}
               <li>
                 <a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.module_title }}</a>
                 {% if row.is_highlight %}
-                <span class="muted">(highlighted)</span>
+                <span class="muted">({% trans "highlighted" %})</span>
                 {% endif %}
                 {% if row.is_locked %}
-                <span class="state-pill state-pill--locked">Locked</span>
+                <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
                 {% else %}
-                <span class="state-pill state-pill--open">Open</span>
+                <span class="state-pill state-pill--open">{% trans "Open" %}</span>
                 {% endif %}
                 {% if row.available_on %}
                 <span class="muted">· {{ row.available_on|date:"M j, Y" }}</span>
@@ -192,15 +192,15 @@
 
       {% if ui_density_mode == "expanded" %}
       <div id="studio-handles" class="card studio-handles" data-kiosk-hide>
-        <h2>Studio handles</h2>
-        <p class="muted">Advanced mode keeps core controls visible for autonomy and accountability.</p>
+        <h2>{% trans "Studio handles" %}</h2>
+        <p class="muted">{% trans "Advanced mode keeps core controls visible for autonomy and accountability." %}</p>
         <div class="studio-handle-row">
-          <a class="landing-primary-action" href="/student/portfolio-export">Export portfolio snapshot</a>
+          <a class="landing-primary-action" href="/student/portfolio-export">{% trans "Export portfolio snapshot" %}</a>
         </div>
 
         <div class="studio-handle-grid">
           <section>
-            <h3>Rubric links</h3>
+            <h3>{% trans "Rubric links" %}</h3>
             <ul>
               {% for m in modules %}
               {% for mat in m.materials.all %}
@@ -212,7 +212,7 @@
             </ul>
           </section>
           <section>
-            <h3>Gallery share toggles</h3>
+            <h3>{% trans "Gallery share toggles" %}</h3>
             <ul>
               {% for m in modules %}
               {% for mat in m.materials.all %}
@@ -230,19 +230,18 @@
       <div class="card done-guide">
         <h2>{% trans "How to tell you are done" %}</h2>
         {% if ui_density_mode == "compact" %}
-        <p class="muted"><span class="state-pill state-pill--done">Done</span> saved · <span
-            class="state-pill state-pill--open">Open</span> do now · <span
-            class="state-pill state-pill--locked">Locked</span> wait</p>
+        <p class="muted"><span class="state-pill state-pill--done">{% trans "Done" %}</span> {% trans "saved" %} · <span
+            class="state-pill state-pill--open">{% trans "Open" %}</span> {% trans "do now" %} · <span
+            class="state-pill state-pill--locked">{% trans "Locked" %}</span> {% trans "wait" %}</p>
         {% elif ui_density_mode == "expanded" %}
-        <p class="muted"><span class="state-pill state-pill--done">Done</span> saved and reviewable · <span
-            class="state-pill state-pill--open">Open</span> active now · <span
-            class="state-pill state-pill--locked">Locked</span> date-gated</p>
-        <p class="muted">Studio accountability: add design-log notes, a short changelog, and release notes for finished
-          builds.</p>
+        <p class="muted"><span class="state-pill state-pill--done">{% trans "Done" %}</span> {% trans "saved and reviewable" %} · <span
+            class="state-pill state-pill--open">{% trans "Open" %}</span> {% trans "active now" %} · <span
+            class="state-pill state-pill--locked">{% trans "Locked" %}</span> {% trans "date-gated" %}</p>
+        <p class="muted">{% trans "Studio accountability: add design-log notes, a short changelog, and release notes for finished builds." %}</p>
         {% else %}
-        <p class="muted"><span class="state-pill state-pill--done">Done</span> saved and visible · <span
-            class="state-pill state-pill--open">Open</span> ready now · <span
-            class="state-pill state-pill--locked">Locked</span> opens on date shown</p>
+        <p class="muted"><span class="state-pill state-pill--done">{% trans "Done" %}</span> {% trans "saved and visible" %} · <span
+            class="state-pill state-pill--open">{% trans "Open" %}</span> {% trans "ready now" %} · <span
+            class="state-pill state-pill--locked">{% trans "Locked" %}</span> {% trans "opens on date shown" %}</p>
         {% endif %}
       </div>
 
@@ -254,9 +253,9 @@
           <span class="module-title">{{ m.title }}</span>
           {% if module_release %}
           {% if module_release.is_locked %}
-          <span class="state-pill state-pill--locked">Locked</span>
+          <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
           {% else %}
-          <span class="state-pill state-pill--open">Open</span>
+          <span class="state-pill state-pill--open">{% trans "Open" %}</span>
           {% endif %}
           {% endif %}
         </summary>
@@ -269,18 +268,17 @@
           {% with access=material_access|get_item:mat.id %}
           {% if access.is_lesson_link and access.is_locked %}
           <div class="status-row">
-            <span class="state-pill state-pill--locked">Locked</span>
+            <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
           </div>
           {% elif access.is_lesson_link %}
           <div class="status-row">
-            <span class="state-pill state-pill--open">Open</span>
+            <span class="state-pill state-pill--open">{% trans "Open" %}</span>
           </div>
           {% endif %}
           {% if access.is_lesson_link and access.is_locked %}
-          <div class="mat-link"><span class="state-pill state-pill--locked">Locked</span></div>
-          <div class="mat-link muted-link"><a href="{{ mat.url }}" target="_blank" rel="noopener">Preview intro-only
-              page</a></div>
-          <div class="muted">Full lesson unlocks on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          <div class="mat-link"><span class="state-pill state-pill--locked">{% trans "Locked" %}</span></div>
+          <div class="mat-link muted-link"><a href="{{ mat.url }}" target="_blank" rel="noopener">{% trans "Preview intro-only page" %}</a></div>
+          <div class="muted">{% blocktrans with open_date=access.available_on|date:"M j, Y" %}Full lesson unlocks on <strong>{{ open_date }}</strong>.{% endblocktrans %}</div>
           {% else %}
           <div class="mat-link"><a href="{{ mat.url }}" target="_blank" rel="noopener">{% trans "Open lesson" %}</a>
           </div>
@@ -292,29 +290,28 @@
           {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id %}
           {% if access.is_lesson_upload and access.is_locked %}
           <div class="status-row">
-            <span class="state-pill state-pill--locked">Locked</span>
+            <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
           </div>
           {% elif access.is_lesson_upload %}
           <div class="status-row">
-            <span class="state-pill state-pill--open">Open</span>
+            <span class="state-pill state-pill--open">{% trans "Open" %}</span>
           </div>
           {% endif %}
-          <div class="muted">Accepted: {{ mat.accepted_extensions|default:'.sb3' }} · Max {{ mat.max_upload_mb }}MB
-          </div>
+          <div class="muted">{% blocktrans with exts=mat.accepted_extensions|default:'.sb3' max_mb=mat.max_upload_mb %}Accepted: {{ exts }} · Max {{ max_mb }}MB{% endblocktrans %}</div>
           {% if access.is_lesson_upload and access.is_locked %}
-          <div class="muted">Submissions open on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          <div class="muted">{% blocktrans with open_date=access.available_on|date:"M j, Y" %}Submissions open on <strong>{{ open_date }}</strong>.{% endblocktrans %}</div>
           {% else %}
           <div class="status-row">
             {% if s %}
-            <span class="state-pill state-pill--done">Done</span>
+            <span class="state-pill state-pill--done">{% trans "Done" %}</span>
             {% else %}
-            <span class="state-pill state-pill--open">Open</span>
+            <span class="state-pill state-pill--open">{% trans "Open" %}</span>
             {% endif %}
           </div>
           <div class="mat-link">
             <a href="/material/{{ mat.id }}/upload">{% trans "Upload / view submissions" %}</a>
             {% if s %}
-            <span class="muted">· {{ s.count }} uploaded (latest saved)</span>
+            <span class="muted">{% blocktrans with upload_count=s.count %}· {{ upload_count }} uploaded (latest saved){% endblocktrans %}</span>
             {% endif %}
           </div>
           {% endif %}
@@ -323,40 +320,39 @@
           {% with s=submissions_by_material|get_item:mat.id access=material_access|get_item:mat.id gallery_entries=gallery_entries_by_material|get_item:mat.id %}
           {% if access.is_lesson_upload and access.is_locked %}
           <div class="status-row">
-            <span class="state-pill state-pill--locked">Locked</span>
+            <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
           </div>
           {% elif access.is_lesson_upload %}
           <div class="status-row">
-            <span class="state-pill state-pill--open">Open</span>
+            <span class="state-pill state-pill--open">{% trans "Open" %}</span>
           </div>
           {% endif %}
-          <div class="muted">Accepted: {{ mat.accepted_extensions|default:'.png,.jpg,.jpeg,.webp,.gif,.pdf,.sb3' }} ·
-            Max {{ mat.max_upload_mb }}MB</div>
+          <div class="muted">{% blocktrans with exts=mat.accepted_extensions|default:'.png,.jpg,.jpeg,.webp,.gif,.pdf,.sb3' max_mb=mat.max_upload_mb %}Accepted: {{ exts }} · Max {{ max_mb }}MB{% endblocktrans %}</div>
           {% if access.is_lesson_upload and access.is_locked %}
-          <div class="muted">Gallery opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          <div class="muted">{% blocktrans with open_date=access.available_on|date:"M j, Y" %}Gallery opens on <strong>{{ open_date }}</strong>.{% endblocktrans %}</div>
           {% else %}
           <div class="status-row">
             {% if s %}
-            <span class="state-pill state-pill--done">Done</span>
+            <span class="state-pill state-pill--done">{% trans "Done" %}</span>
             {% else %}
-            <span class="state-pill state-pill--open">Open</span>
+            <span class="state-pill state-pill--open">{% trans "Open" %}</span>
             {% endif %}
           </div>
           <div class="mat-link">
             <a href="/material/{{ mat.id }}/upload">{% trans "Upload / manage gallery" %}</a>
             {% if s %}
-            <span class="muted">· {{ s.count }} uploaded</span>
+            <span class="muted">{% blocktrans with upload_count=s.count %}· {{ upload_count }} uploaded{% endblocktrans %}</span>
             {% endif %}
           </div>
           {% endif %}
           {% if gallery_entries %}
           <div class="gallery-shared-wrap">
-            <div class="muted">Shared gallery</div>
+            <div class="muted">{% trans "Shared gallery" %}</div>
             <ul class="gallery-shared-list">
               {% for g in gallery_entries %}
               <li>
                 <a href="/submission/{{ g.submission_id }}/download">{{ g.original_filename }}</a>
-                <span class="muted">· {{ g.display_name }}{% if g.is_owner %} (you){% endif %} · {{ g.uploaded_at|date:"M j, g:i a" }}</span>
+                <span class="muted">· {{ g.display_name }}{% if g.is_owner %} ({% trans "you" %}){% endif %} · {{ g.uploaded_at|date:"M j, g:i a" }}</span>
               </li>
               {% endfor %}
             </ul>
@@ -367,20 +363,19 @@
           {% with access=material_access|get_item:mat.id items=material_checklist_items|get_item:mat.id state=material_responses|get_item:mat.id %}
           {% if access.is_lesson_activity and access.is_locked %}
           <div class="status-row">
-            <span class="state-pill state-pill--locked">Locked</span>
+            <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
           </div>
-          <div class="muted">Checklist opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          <div class="muted">{% blocktrans with open_date=access.available_on|date:"M j, Y" %}Checklist opens on <strong>{{ open_date }}</strong>.{% endblocktrans %}</div>
           {% elif items %}
           <div class="status-row">
             {% if state and state.checklist_checked|length >= items|length %}
-            <span class="state-pill state-pill--done">Done</span>
+            <span class="state-pill state-pill--done">{% trans "Done" %}</span>
             {% else %}
-            <span class="state-pill state-pill--open">Open</span>
+            <span class="state-pill state-pill--open">{% trans "Open" %}</span>
             {% endif %}
           </div>
           <details class="material-action-details">
-            <summary>{% if state and state.checklist_checked|length >= items|length %}Review checklist{% else %}Open
-              checklist{% endif %}</summary>
+            <summary>{% if state and state.checklist_checked|length >= items|length %}{% trans "Review checklist" %}{% else %}{% trans "Open checklist" %}{% endif %}</summary>
             <form method="post" action="/material/{{ mat.id }}/checklist" class="checklist-form">
               {% csrf_token %}
               {% for item in items %}
@@ -393,37 +388,35 @@
             </form>
           </details>
           {% else %}
-          <div class="muted empty-state">(Checklist has no items yet.)</div>
+          <div class="muted empty-state">({% trans "Checklist has no items yet." %})</div>
           {% endif %}
           {% endwith %}
           {% elif mat.type == 'reflection' %}
           {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id starters=material_feedback_starters|get_item:mat.id %}
           {% if access.is_lesson_activity and access.is_locked %}
           <div class="status-row">
-            <span class="state-pill state-pill--locked">Locked</span>
+            <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
           </div>
-          <div class="muted">Reflection opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          <div class="muted">{% blocktrans with open_date=access.available_on|date:"M j, Y" %}Reflection opens on <strong>{{ open_date }}</strong>.{% endblocktrans %}</div>
           {% else %}
           {% if mat.body %}
           <pre class="text-material-preview">{{ mat.body }}</pre>
           {% endif %}
           {% if ui_density_mode == "expanded" %}
-          <div class="muted">Design log prompt: note what you changed, why you changed it, and what evidence shows
-            improvement.</div>
+          <div class="muted">{% trans "Design log prompt: note what you changed, why you changed it, and what evidence shows improvement." %}</div>
           {% endif %}
           <div class="status-row">
             {% if state and state.reflection_text %}
-            <span class="state-pill state-pill--done">Done</span>
+            <span class="state-pill state-pill--done">{% trans "Done" %}</span>
             {% else %}
-            <span class="state-pill state-pill--open">Open</span>
+            <span class="state-pill state-pill--open">{% trans "Open" %}</span>
             {% endif %}
           </div>
           <details class="material-action-details">
-            <summary>{% if state and state.reflection_text %}Review reflection{% else %}Open reflection{% endif %}
-            </summary>
+            <summary>{% if state and state.reflection_text %}{% trans "Review reflection" %}{% else %}{% trans "Open reflection" %}{% endif %}</summary>
             <form method="post" action="/material/{{ mat.id }}/reflection" class="reflection-form">
               {% csrf_token %}
-              <label for="reflection-{{ mat.id }}" class="muted">Your private reflection</label>
+              <label for="reflection-{{ mat.id }}" class="muted">{% trans "Your private reflection" %}</label>
               {% if starters %}
               <div class="feedback-starter-row">
                 <span class="muted feedback-starter-label">{% trans "Sentence starters (optional)" %}</span>
@@ -435,7 +428,7 @@
               </div>
               {% endif %}
               <textarea id="reflection-{{ mat.id }}" name="reflection_text" rows="5"
-                placeholder="Write a short reflection.">{{ state.reflection_text|default:'' }}</textarea>
+                placeholder="{% trans 'Write a short reflection.' %}">{{ state.reflection_text|default:'' }}</textarea>
               <button type="submit">{% trans "Save reflection" %}</button>
             </form>
           </details>
@@ -445,38 +438,37 @@
           {% with access=material_access|get_item:mat.id state=material_responses|get_item:mat.id spec=material_rubric_specs|get_item:mat.id starters=material_feedback_starters|get_item:mat.id %}
           {% if access.is_lesson_activity and access.is_locked %}
           <div class="status-row">
-            <span class="state-pill state-pill--locked">Locked</span>
+            <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
           </div>
-          <div class="muted">Rubric opens on <strong>{{ access.available_on|date:"M j, Y" }}</strong>.</div>
+          <div class="muted">{% blocktrans with open_date=access.available_on|date:"M j, Y" %}Rubric opens on <strong>{{ open_date }}</strong>.{% endblocktrans %}</div>
           {% elif spec and spec.criteria %}
           <div class="status-row">
             {% if state and state.rubric_scores %}
-            <span class="state-pill state-pill--done">Done</span>
+            <span class="state-pill state-pill--done">{% trans "Done" %}</span>
             {% else %}
-            <span class="state-pill state-pill--open">Open</span>
+            <span class="state-pill state-pill--open">{% trans "Open" %}</span>
             {% endif %}
           </div>
           <details id="rubric-{{ mat.id }}" class="material-action-details">
-            <summary>{% if state and state.rubric_scores %}Review rubric{% else %}Open rubric{% endif %}</summary>
+            <summary>{% if state and state.rubric_scores %}{% trans "Review rubric" %}{% else %}{% trans "Open rubric" %}{% endif %}</summary>
             <form method="post" action="/material/{{ mat.id }}/rubric" class="reflection-form">
               {% csrf_token %}
-              <div class="muted">Rate each criterion from 1 to {{ spec.scale_max }}.</div>
+              <div class="muted">{% blocktrans with scale_max=spec.scale_max %}Rate each criterion from 1 to {{ scale_max }}.{% endblocktrans %}</div>
               {% if ui_density_mode == "expanded" %}
-              <div class="muted">Studio expectation: scores should line up with your changelog and release-note claims.
-              </div>
+              <div class="muted">{% trans "Studio expectation: scores should line up with your changelog and release-note claims." %}</div>
               {% endif %}
               {% for criterion in spec.criteria %}
               {% with criterion_index=forloop.counter0 selected_score=state.rubric_scores|get_item:forloop.counter0 %}
               <label for="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" class="muted stacked-rubric-label">{{ criterion }}</label>
               <select id="rubric-criterion-{{ mat.id }}-{{ criterion_index }}" name="criterion_{{ criterion_index }}">
-                <option value="">Not scored</option>
+                <option value="">{% trans "Not scored" %}</option>
                 {% for score in spec.scale_values %}
                 <option value="{{ score }}" {% if selected_score == score %}selected{% endif %}>{{ score }}</option>
                 {% endfor %}
               </select>
               {% endwith %}
               {% endfor %}
-              <label for="rubric-feedback-{{ mat.id }}" class="muted">Optional feedback</label>
+              <label for="rubric-feedback-{{ mat.id }}" class="muted">{% trans "Optional feedback" %}</label>
               {% if starters %}
               <div class="feedback-starter-row">
                 <span class="muted feedback-starter-label">{% trans "Sentence starters (optional)" %}</span>
@@ -488,45 +480,45 @@
               </div>
               {% endif %}
               <textarea id="rubric-feedback-{{ mat.id }}" name="rubric_feedback" rows="4"
-                placeholder="Short note to your teacher (optional).">{{ state.rubric_feedback|default:'' }}</textarea>
+                placeholder="{% trans 'Short note to your teacher (optional).' %}">{{ state.rubric_feedback|default:'' }}</textarea>
               <button type="submit">{% trans "Save rubric" %}</button>
             </form>
           </details>
           {% else %}
-          <div class="muted empty-state">(Rubric criteria not configured yet.)</div>
+          <div class="muted empty-state">({% trans "Rubric criteria not configured yet." %})</div>
           {% endif %}
           {% endwith %}
           {% else %}
-          <div class="muted empty-state">(Empty material — teacher will fill this in.)</div>
+          <div class="muted empty-state">({% trans "Empty material — teacher will fill this in." %})</div>
           {% endif %}
         </div>
         {% endfor %}
         {% else %}
-        <div class="muted empty-state">No materials yet.</div>
+        <div class="muted empty-state">{% trans "No materials yet." %}</div>
         {% endif %}
       </details>
       {% endwith %}
       {% endfor %}
       {% else %}
       <div class="card">
-        <p class="muted">No modules yet. A teacher/admin can add them in /admin.</p>
+        <p class="muted">{% trans "No modules yet. A teacher/admin can add them in /admin." %}</p>
       </div>
       {% endif %}
 
       <div class="card done-guide{% if ui_density_mode == 'compact' %} done-guide--compact{% endif %}">
         <h2>{% trans "Account" %}</h2>
         {% if ui_density_mode == "compact" %}
-        <p class="muted">Open My Data for account controls.</p>
+        <p class="muted">{% trans "Open My Data for account controls." %}</p>
         <div class="my-data-actions">
-          <a href="/student/my-data">Open My Data</a>
+          <a href="/student/my-data">{% trans "Open My Data" %}</a>
         </div>
         {% else %}
-        <p class="muted">Manage account + device data.</p>
+        <p class="muted">{% trans "Manage account + device data." %}</p>
         <div class="my-data-actions">
-            <a href="/student/my-data">Open My Data</a>
-            <a href="/student/portfolio">What I made</a>
-            <a href="/student/portfolio-export">Download my work</a>
-            <a href="/student/gallery">Session gallery</a>
+            <a href="/student/my-data">{% trans "Open My Data" %}</a>
+            <a href="/student/portfolio">{% trans "What I made" %}</a>
+            <a href="/student/portfolio-export">{% trans "Download my work" %}</a>
+            <a href="/student/gallery">{% trans "Session gallery" %}</a>
             <form method="post" action="/student/end-session">
             {% csrf_token %}
             <button type="submit">{% trans "End my session on this device" %}</button>

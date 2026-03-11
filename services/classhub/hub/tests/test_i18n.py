@@ -70,3 +70,15 @@ class I18nSmokeTests(TestCase):
                 follow=True,
             )
             self.assertEqual(resp.status_code, 200)
+
+    def test_student_class_page_spanish_renders_translated_core_copy(self):
+        classroom = Class.objects.create(name="I18N Class", join_code="I18N1234")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        session = self.client.session
+        session["class_id"] = classroom.id
+        session["student_id"] = student.id
+        session.save()
+
+        resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="es")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Enlaces del curso")

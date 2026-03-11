@@ -28,11 +28,16 @@ ClassHub supports multiple UI languages through Django's built-in i18n framework
 
 ## Current coverage
 
-Translations are provided for the **student join page** and **teacher login page**:
+Translations are provided for:
+- student join page (`/`)
+- teacher login page (`/teach/login`)
+- core student class page chrome and activity labels (`/student`)
+
+Languages currently shipped:
 - English (default)
 - Spanish (`es`)
 
-Other pages render in English. The scaffold is ready to expand.
+Coverage outside those paths is still partial and should be treated as in-progress.
 
 ## Adding a language
 
