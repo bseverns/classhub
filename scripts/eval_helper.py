@@ -3,16 +3,59 @@ import argparse
 import json
 import sys
 import time
+import urllib.error
 import urllib.request
 from collections import Counter
 
 
-def _post_json(url: str, payload: dict, timeout: int) -> dict:
+def _post_json(
+    url: str,
+    payload: dict,
+    timeout: int,
+    *,
+    cookie_header: str = "",
+    csrf_token: str = "",
+    referer: str = "",
+) -> dict:
     data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        body = resp.read().decode("utf-8")
-    return json.loads(body)
+    headers = {"Content-Type": "application/json"}
+    if cookie_header:
+        headers["Cookie"] = cookie_header
+    if csrf_token:
+        headers["X-CSRFToken"] = csrf_token
+    if referer:
+        headers["Referer"] = referer
+
+    req = urllib.request.Request(url, data=data, headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            body = resp.read().decode("utf-8")
+            status_code = int(getattr(resp, "status", 200) or 200)
+        parsed = json.loads(body) if body.strip() else {}
+        if isinstance(parsed, dict):
+            parsed.setdefault("status_code", status_code)
+            return parsed
+        return {"status_code": status_code, "text": str(parsed)}
+    except urllib.error.HTTPError as exc:
+        body = ""
+        try:
+            body = exc.read().decode("utf-8")
+        except Exception:
+            body = ""
+        error_payload: dict[str, object] = {
+            "error": f"HTTP Error {exc.code}: {exc.reason}",
+            "status_code": int(exc.code),
+        }
+        if body.strip():
+            try:
+                parsed = json.loads(body)
+                if isinstance(parsed, dict):
+                    error_payload["error_body"] = parsed
+                else:
+                    error_payload["error_body"] = body
+            except Exception:
+                error_payload["error_body"] = body
+        return error_payload
 
 
 def _iter_prompts(path: str):
@@ -315,6 +358,36 @@ def main() -> int:
         default="",
         help="Optional output path for aggregate scoring summary markdown.",
     )
+    parser.add_argument(
+        "--cookie-header",
+        default="",
+        help="Optional raw Cookie header value for authenticated requests.",
+    )
+    parser.add_argument(
+        "--csrf-token",
+        default="",
+        help="Optional CSRF token header value (X-CSRFToken).",
+    )
+    parser.add_argument(
+        "--referer",
+        default="",
+        help="Optional Referer header for CSRF checks.",
+    )
+    parser.add_argument(
+        "--scope-token",
+        default="",
+        help="Optional helper scope token to inject when prompts do not define one.",
+    )
+    parser.add_argument(
+        "--default-context",
+        default="",
+        help="Optional context value when no scope token is present.",
+    )
+    parser.add_argument(
+        "--default-topics",
+        default="",
+        help="Optional topics value when no scope token is present.",
+    )
     args = parser.parse_args()
 
     results = []
@@ -324,12 +397,24 @@ def main() -> int:
             break
         count += 1
         payload = {"message": prompt.get("prompt", "")}
+        if args.scope_token and not prompt.get("scope_token"):
+            payload["scope_token"] = args.scope_token
+        if "scope_token" not in payload:
+            if args.default_context:
+                payload["context"] = args.default_context
+            if args.default_topics:
+                payload["topics"] = args.default_topics
         print(f"[{count}] {prompt.get('id','(no-id)')}", file=sys.stderr)
-        try:
-            resp = _post_json(args.url, payload, timeout=args.timeout)
-        except Exception as exc:
-            resp = {"error": str(exc)}
+        resp = _post_json(
+            args.url,
+            payload,
+            timeout=args.timeout,
+            cookie_header=args.cookie_header,
+            csrf_token=args.csrf_token,
+            referer=args.referer,
+        )
         result = dict(prompt)
+        result["request"] = payload
         result["response"] = resp
         if args.score:
             result["score"] = _score_result(prompt, resp)

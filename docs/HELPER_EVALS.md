@@ -25,6 +25,8 @@ Each JSONL row includes:
 ```bash
 bash scripts/run_helper_classroom_eval.sh \
   --url http://localhost/helper/chat \
+  --student-auth \
+  --class-code "$SMOKE_CLASS_CODE" \
   --out-dir /tmp/classhub_helper_eval_light
 ```
 
@@ -39,10 +41,14 @@ For a hard gate:
 ```bash
 bash scripts/run_helper_classroom_eval.sh \
   --url http://localhost/helper/chat \
+  --student-auth \
+  --class-code "$SMOKE_CLASS_CODE" \
   --out-dir /tmp/classhub_helper_eval_light \
   --min-pass-rate 0.80 \
   --enforce-threshold
 ```
+
+If `--class-code` is omitted, the script falls back to `SMOKE_CLASS_CODE` (env) or `compose/.env`.
 
 ## Two-pass review workflow
 

@@ -408,5 +408,5 @@ Local curriculum RAG is available now when enabled:
 
 - `services/homework_helper/tutor/fixtures/eval_prompts.jsonl`
 - `services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl`
-- `bash scripts/run_helper_classroom_eval.sh --url http://localhost/helper/chat --out-dir /tmp/classhub_helper_eval_light`
+- `bash scripts/run_helper_classroom_eval.sh --url http://localhost/helper/chat --student-auth --class-code "$SMOKE_CLASS_CODE" --out-dir /tmp/classhub_helper_eval_light`
 - [HELPER_EVALS.md](HELPER_EVALS.md)
