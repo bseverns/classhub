@@ -448,12 +448,12 @@ class TeacherPortalTests(TestCase):
         self.assertNotContains(resp, "const tabRoot = document.querySelector", html=False)
         self.assertContains(resp, "Recent submissions")
         self.assertContains(resp, "Ada")
-        self.assertContains(resp, "Import Syllabus Source")
-        self.assertContains(resp, "Generate Course Authoring Templates")
-        self.assertContains(resp, "Syllabus Exports")
+        self.assertNotContains(resp, "Import Syllabus Source")
+        self.assertNotContains(resp, "Generate Course Authoring Templates")
+        self.assertNotContains(resp, "Syllabus Exports")
         self.assertContains(resp, "Show operator tools")
         self.assertNotContains(resp, "Invite teacher")
-        self.assertContains(resp, "My profile")
+        self.assertNotContains(resp, "My profile")
 
     @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=False)
     def test_teach_home_warns_when_org_membership_strict_mode_off(self):
