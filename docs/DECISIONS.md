@@ -2811,3 +2811,27 @@ Execution ownership and gates:
 **Why this remains active:**
 - Keeps the highest-density teacher roster controls prunable and easier to reason about.
 - Prevents destructive-action and student-row complexity from regrowing inside one section file.
+
+## Ops-readiness command + policy-mode access contract guard (2026-03-11)
+
+**Current decision:**
+- Add a single host-level readiness command path:
+  - `make ops-readiness`
+  - backed by `scripts/ops_readiness_check.sh` (default `baseline` runtime lock profile, optional `release` profile argument).
+- Include runtime-lock + decomposition + truth/backlog checks in that path:
+  - `check_runtime_policy_lock.py`
+  - `check_teach_class_template_contract.py`
+  - `check_teach_class_section_budgets.py`
+  - `check_teacher_roster_service_contract.py`
+  - `check_docs_truth.py`
+  - `check_test_inventory_coverage.py`
+  - `check_press_capture_backlog_contract.py`
+- Add `scripts/check_teacher_policy_mode_contract.py` to lock advanced-tools semantics:
+  - advanced tools require superuser,
+  - policy/RBAC tools require superuser + advanced mode.
+- Run this policy-mode guard in both lint CI and release-evidence guardrails.
+- Tighten selected teach-class budgets to preserve headroom before files regrow near ceilings.
+
+**Why this remains active:**
+- Moves another high-risk operational expectation from "remembered ritual" to executable contract.
+- Prevents docs/wording drift around policy/RBAC access semantics by asserting one source of truth in code + template wiring.

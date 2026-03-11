@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
-.PHONY: help smoke-golden smoke-a11y smoke-full stability-evidence stability-cycle-closeout
+.PHONY: help smoke-golden smoke-a11y smoke-full stability-evidence stability-cycle-closeout ops-readiness
 
 SMOKE_COMPOSE_MODE ?= prod
 SMOKE_BASE_URL ?=
@@ -15,6 +15,8 @@ STABILITY_RELEASE_DATE ?= $(shell date +%F)
 STABILITY_SKIP_DOCKER_CHECKS ?= 0
 TELEMETRY_WINDOW_DAYS ?= 7
 STABILITY_SKIP_KIOSK ?= 0
+OPS_READINESS_PROFILE ?= baseline
+OPS_READINESS_ENV_FILE ?= compose/.env
 
 INSECURE_TLS_FLAG :=
 ifeq ($(SMOKE_INSECURE_TLS),1)
@@ -48,6 +50,7 @@ help:
 	@echo "  make smoke-a11y"
 	@echo "  make stability-evidence"
 	@echo "  make stability-cycle-closeout"
+	@echo "  make ops-readiness"
 	@echo ""
 	@echo "Optional overrides:"
 	@echo "  SMOKE_COMPOSE_MODE=prod|dev"
@@ -60,6 +63,8 @@ help:
 	@echo "  STABILITY_SKIP_DOCKER_CHECKS=0|1"
 	@echo "  STABILITY_SKIP_KIOSK=0|1"
 	@echo "  TELEMETRY_WINDOW_DAYS=7"
+	@echo "  OPS_READINESS_PROFILE=baseline|release"
+	@echo "  OPS_READINESS_ENV_FILE=compose/.env"
 
 smoke-golden:
 	bash scripts/system_doctor.sh \
@@ -106,3 +111,6 @@ stability-cycle-closeout:
 	  $(INSTALL_BROWSERS_FLAG) \
 	  $(SKIP_KIOSK_FLAG) \
 	  $(BASE_URL_FLAG)
+
+ops-readiness:
+	bash scripts/ops_readiness_check.sh "$(OPS_READINESS_PROFILE)" "$(OPS_READINESS_ENV_FILE)"

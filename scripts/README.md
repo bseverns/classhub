@@ -6,6 +6,7 @@ These tools are designed to be run from the repository root: `bash scripts/scrip
 
 Operator shortcut:
 - `make smoke-full` runs golden stack smoke (`system_doctor --smoke-mode golden`) and accessibility smoke in one command.
+- `make ops-readiness` runs baseline runtime-lock + teach-class contracts + docs/inventory/backlog guards in one command (`OPS_READINESS_PROFILE=baseline|release`, `OPS_READINESS_ENV_FILE=compose/.env`).
 
 ## Core Operations & Deployment
 | Script | Intent |
@@ -39,6 +40,7 @@ Operator shortcut:
 | `telemetry_stabilization_evidence.sh` | Captures telemetry split Slice 7 evidence (parity + smoke + optional rollback drill) into timestamped artifacts. |
 | `stability_release_evidence.sh` | Captures Day 0-30 stability evidence pack artifacts (guardrails, smoke, a11y, restore, kiosk, release lint + scorecard), with optional skip flags for non-docker environments. |
 | `stability_phase1_closeout.sh` | Runs one full closeout cycle for stability Phase 1 + telemetry Slice 7, enforces the runtime lock `release` profile, validates required artifacts, and writes cycle summary output. |
+| `ops_readiness_check.sh` | Fast operator readiness gate (runtime lock profile + teach-class contracts + policy-mode guard + docs/inventory/backlog truth checks). |
 | `test_teacher_admin.sh`| CI gate validating teacher and admin interface functionality. |
 | `run_bandit.sh` | Python security linter enforcing safe coding practices. |
 | `lint_release_artifact.py` | Validates zip release packages before GH Release publishing. |
@@ -77,6 +79,7 @@ Operator shortcut:
 | `check_teach_class_template_contract.py` | Enforces `/teach/class` template decomposition contracts (root-size budget + required include section anchors). |
 | `check_teach_class_section_budgets.py` | Enforces line budgets for `/teach/class` section partials and section service modules so complexity stays prunable. |
 | `check_teacher_roster_service_contract.py` | Enforces `/teach/class` dashboard service decomposition contracts (`teacher_roster_class.py` orchestration + section builders in `teacher_dashboard_sections/*`). |
+| `check_teacher_policy_mode_contract.py` | Enforces that policy/RBAC tools remain gated behind superuser + advanced mode semantics. |
 | `check_press_capture_backlog_contract.py` | Enforces press/screenshot backlog governance contracts (bounded backlog size, ownership/target metadata, and docs linkage markers). |
 | `check_runtime_policy_lock.py` | Validates runtime lock posture with explicit profiles: `baseline` (safe/default env contract) and `release` (strict closeout lock values). |
 | `check_docs_truth.py` | Verifies high-signal docs claims (risk-register metrics + screenshot tracker truth) stay in sync with repo state. |
