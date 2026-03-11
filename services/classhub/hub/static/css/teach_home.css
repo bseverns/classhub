@@ -84,6 +84,17 @@
 .classroom-focus-note {
   margin-top: 10px;
 }
+.start-here-list {
+  margin: 8px 0 0 18px;
+  display: grid;
+  gap: 6px;
+}
+.start-here-list--operator {
+  margin-bottom: 0;
+}
+.start-here-list li a {
+  font-weight: 600;
+}
 .table-wrap {
   margin-top: 12px;
   border: 1px solid rgba(22, 59, 80, 0.16);

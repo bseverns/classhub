@@ -73,6 +73,7 @@ Operator shortcut:
 | `check_no_latest_tags.py` | Enforces explicit version pinning in Dockerfiles and Compose files. |
 | `check_rbac_endpoint_guards.py` | Enforces capability-specific RBAC guard helpers on critical endpoints. |
 | `check_teacher_endpoint_capability_map.py` | Enforces explicit capability contracts for all teacher/API-teacher routes. |
+| `check_teacher_top_tasks_contract.py` | Enforces `/teach` top-task choreography wiring against `docs/TEACHER_TOP_TASKS.md` contracts. |
 | `check_runtime_policy_lock.py` | Enforces production runtime lock env values (`REQUIRE_ORG_MEMBERSHIP_FOR_STAFF`, telemetry modes, and explicit certificate thresholds). |
 | `check_docs_truth.py` | Verifies high-signal docs claims (risk-register metrics + screenshot tracker truth) stay in sync with repo state. |
 

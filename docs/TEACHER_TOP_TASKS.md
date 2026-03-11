@@ -7,7 +7,12 @@ Use it for:
 - copy/order decisions in teacher surfaces
 - release readiness checks against real teacher workflows
 
-Last updated: March 10, 2026
+Last updated: March 11, 2026
+
+Current UI contract:
+- `/teach` now surfaces a **Start Here Today** block that maps this list into:
+  - daily teaching workflows (tasks 1-8),
+  - operator/policy workflows (tasks 9-10, superuser + advanced mode).
 
 ## Task Map
 

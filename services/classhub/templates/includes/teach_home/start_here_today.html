@@ -1,0 +1,47 @@
+        {% if show_teacher_start_here %}
+          <div class="card card-secondary">
+            <div class="row">
+              <h2 class="section-title-tight">Start Here Today</h2>
+              <div class="muted">Teacher top-task choreography (daily first, operator second).</div>
+            </div>
+
+            <h3 class="section-title-compact">Daily teaching workflows (tasks 1-8)</h3>
+            <ol class="start-here-list">
+              <li><a href="{{ setup_mode_url }}#panel-quick-actions">Create class</a></li>
+              {% if teacher_start_class %}
+                <li><a href="/teach/class/{{ teacher_start_class.id }}/join-card" target="_blank" rel="noopener">Share join access (print join card)</a></li>
+                <li><a href="/teach/class/{{ teacher_start_class.id }}">Open class dashboard</a></li>
+                {% if teacher_start_submission_material_id %}
+                  <li><a href="/teach/material/{{ teacher_start_submission_material_id }}/submissions">Review submission queue</a></li>
+                {% else %}
+                  <li><a href="/teach/class/{{ teacher_start_class.id }}">Review submission queue</a></li>
+                {% endif %}
+                <li><a href="/teach/class/{{ teacher_start_class.id }}">Close/open class access</a></li>
+                <li><a href="/teach/lessons?class_id={{ teacher_start_class.id }}">Set lesson release + helper scope</a></li>
+                <li><a href="/teach/class/{{ teacher_start_class.id }}/export-summary-csv">Export day-of-class outputs</a></li>
+                <li><a href="/teach/class/{{ teacher_start_class.id }}">Correct roster identity mistakes</a></li>
+              {% else %}
+                <li class="muted">Share join access (available after first class is created)</li>
+                <li class="muted">Open class dashboard (available after first class is created)</li>
+                <li class="muted">Review submission queue (available after first class is created)</li>
+                <li class="muted">Close/open class access (available after first class is created)</li>
+                <li class="muted">Set lesson release + helper scope (available after first class is created)</li>
+                <li class="muted">Export day-of-class outputs (available after first class is created)</li>
+                <li class="muted">Correct roster identity mistakes (available after first class is created)</li>
+              {% endif %}
+            </ol>
+
+            {% if request.user.is_superuser %}
+              <h3 class="section-title-compact">Operator + policy workflows (tasks 9-10)</h3>
+              <ol class="start-here-list start-here-list--operator">
+                {% if advanced_tools_enabled %}
+                  <li><a href="{{ admin_mode_url }}">Create/invite and maintain teacher accounts</a></li>
+                  <li><a href="{{ admin_mode_url }}">Maintain organization boundaries and assignments</a></li>
+                {% else %}
+                  <li class="muted">Turn on <strong>Show operator tools</strong> to access teacher-account workflows.</li>
+                  <li class="muted">Turn on <strong>Show operator tools</strong> to access organization-boundary workflows.</li>
+                {% endif %}
+              </ol>
+            {% endif %}
+          </div>
+        {% endif %}

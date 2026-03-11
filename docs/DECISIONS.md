@@ -2642,3 +2642,16 @@ Execution ownership and gates:
 **Why this remains active:**
 - Converts policy-sensitive deployment assumptions into in-product and command-backed checks.
 - Reduces reliance on maintainer memory when validating org-boundary and telemetry posture before release sign-off.
+
+## Teacher top-task choreography surfaced in `/teach` (2026-03-11)
+
+**Current decision:**
+- Add a `Start Here Today` contract block to `/teach` for `portal_mode=setup|day|all`:
+  - daily teaching workflows (tasks 1-8),
+  - operator/policy workflows (tasks 9-10) only for superuser context.
+- Keep task definitions canonical in `docs/TEACHER_TOP_TASKS.md` and enforce wiring with `scripts/check_teacher_top_tasks_contract.py`.
+- Run this guard from `scripts/stability_release_evidence.sh` guardrails.
+
+**Why this remains active:**
+- Reduces teacher UI ambiguity by giving one explicit default sequence for recurring class operations.
+- Prevents future drift between documented top tasks and actual `/teach` discoverability.

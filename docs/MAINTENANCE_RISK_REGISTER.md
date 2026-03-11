@@ -10,7 +10,7 @@ This register names the five highest long-term maintenance risks visible in the 
 - Evidence:
   - `/teach` and related routes aggregate many staff workflows in one surface: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
   - `teach_home` assembles class list, profile, teacher invites, org admin, submissions, and template generation in one view: `services/classhub/hub/views/teacher_parts/content_home.py`
-  - UI size is already large: `services/classhub/templates/teach_home.html` is 79 lines; `services/classhub/templates/teach_class.html` is 932 lines; `services/classhub/hub/views/teacher_parts/roster_class.py` is 404 lines
+  - UI size is already large: `services/classhub/templates/teach_home.html` is 81 lines; `services/classhub/templates/teach_class.html` is 932 lines; `services/classhub/hub/views/teacher_parts/roster_class.py` is 404 lines
 - Failure mode:
   - Small edits in `/teach` create regressions in unrelated staff workflows.
   - New staff see too many controls at once and rely on informal coaching instead of the product.

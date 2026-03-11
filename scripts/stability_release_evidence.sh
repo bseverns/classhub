@@ -175,6 +175,7 @@ run_guardrails() {
   python3 scripts/check_view_size_budgets.py
   python3 scripts/check_view_function_budgets.py
   python3 scripts/check_teacher_endpoint_capability_map.py
+  python3 scripts/check_teacher_top_tasks_contract.py
   python3 scripts/check_rbac_endpoint_guards.py
   python3 scripts/check_runtime_policy_lock.py
   python3 scripts/check_docs_truth.py

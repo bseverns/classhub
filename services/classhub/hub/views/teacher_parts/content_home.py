@@ -84,6 +84,11 @@ def teach_home(request):
     )
     context_data = build_teacher_home_context_data(user=request.user)
     classes = context_data["classes"]
+    assigned_classes = context_data["assigned_classes"]
+    recent_submissions = context_data["recent_submissions"]
+    teacher_start_class = assigned_classes[0] if assigned_classes else (classes[0] if classes else None)
+    first_submission = recent_submissions[0] if recent_submissions else None
+    teacher_start_submission_material_id = int(getattr(getattr(first_submission, "material", None), "id", 0) or 0)
     output_dir = _authoring_template_output_dir()
     template_download_rows = _build_template_download_rows(template_slug, output_dir)
     syllabus_export_state = build_syllabus_export_state(request)
@@ -99,10 +104,12 @@ def teach_home(request):
         **_build_teach_home_class_context(
             classes=classes,
             assigned_class_ids=context_data["assigned_class_ids"],
-            assigned_classes=context_data["assigned_classes"],
+            assigned_classes=assigned_classes,
+            teacher_start_class=teacher_start_class,
+            teacher_start_submission_material_id=teacher_start_submission_material_id,
             class_digest_rows=context_data["class_digest_rows"],
             digest_since=context_data["digest_since"],
-            recent_submissions=context_data["recent_submissions"],
+            recent_submissions=recent_submissions,
             notice=notice,
             error=error,
             template_slug=template_slug,

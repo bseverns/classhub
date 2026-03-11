@@ -477,6 +477,7 @@ class TeacherPortalTests(TestCase):
 
         resp = self.client.get("/teach?portal_mode=day")
         self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Start Here Today")
         self.assertContains(resp, "Portal modes")
         self.assertContains(resp, "Classroom focus")
         self.assertContains(resp, "Recent submissions")
@@ -489,6 +490,9 @@ class TeacherPortalTests(TestCase):
 
         resp = self.client.get("/teach?portal_mode=setup")
         self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Start Here Today")
+        self.assertContains(resp, "Daily teaching workflows (tasks 1-8)")
+        self.assertContains(resp, "Operator + policy workflows (tasks 9-10)")
         self.assertContains(resp, "Portal setup + account tools")
         self.assertContains(resp, "Import Syllabus Source")
         self.assertNotContains(resp, "Classroom focus")
@@ -502,6 +506,7 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Operator config snapshot")
         self.assertContains(resp, "Organizations + Staff Memberships")
         self.assertContains(resp, "Portal setup + account tools")
+        self.assertNotContains(resp, "Start Here Today")
         self.assertNotContains(resp, "Classroom focus")
         self.assertNotContains(resp, "Recent submissions")
 
@@ -510,6 +515,7 @@ class TeacherPortalTests(TestCase):
 
         resp = self.client.get("/teach")
         self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Start Here Today")
         self.assertNotContains(resp, "Operator config snapshot")
         self.assertContains(resp, "Show operator tools")
 
@@ -2671,6 +2677,9 @@ class TeacherOrganizationAccessTests(TestCase):
     def test_teach_home_hides_syllabus_exports_for_teacher_role(self):
         resp = self.client.get("/teach")
         self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Start Here Today")
+        self.assertContains(resp, "Daily teaching workflows (tasks 1-8)")
+        self.assertNotContains(resp, "Operator + policy workflows (tasks 9-10)")
         self.assertNotContains(resp, "Syllabus Exports")
         self.assertNotContains(resp, "RBAC tools")
         self.assertNotContains(resp, "Operator config snapshot")
