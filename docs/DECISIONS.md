@@ -839,7 +839,7 @@ Execution ownership and gates:
 - Mermaid diagrams are click-to-zoom: selecting a diagram opens a lightbox overlay sized to viewport height for focused reading, with `Esc` and outside-click close behavior.
 - Lightbox interaction is implemented in `docs/javascripts/diagram-lightbox.js` and loaded from `mkdocs.yml` as a first-party asset.
 - Mermaid containers keep horizontal-scroll fallback enabled for oversized render edge-cases.
-- Mermaid defaults are tuned in `docs/javascripts/mermaid-init.js` with `themeVariables.fontSize=22px` and `useMaxWidth=false` for common diagram types.
+- Mermaid defaults are tuned in `docs/javascripts/mermaid-init.js` with `themeVariables.fontSize=22px` and `useMaxWidth=true` for common diagram types.
 - Mermaid init now catches render promise failures and logs structured parse/render diagnostics to the console (page path + error payload) to avoid opaque unhandled-promise errors.
 - Docs layout now widens Material's default grid limit (`.md-grid`) on desktop (`min-width: 60em`) to `max-width: min(96vw, 120rem)` so wiki pages use window width more effectively.
 

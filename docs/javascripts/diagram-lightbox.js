@@ -14,27 +14,19 @@ function ensureDiagramLightbox() {
     '<div class="diagram-lightbox__frame"></div>' +
     "</div>";
 
-  overlay.addEventListener("click", function (event) {
-    if (
-      event.target === overlay ||
-      event.target.classList.contains("diagram-lightbox__close")
-    ) {
-      closeDiagramLightbox();
-    }
-  });
-
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") {
-      closeDiagramLightbox();
-    }
-  });
-
   document.body.appendChild(overlay);
   return overlay;
 }
 
-function openDiagramLightbox(mermaidContainer) {
-  var svg = mermaidContainer.querySelector("svg");
+function getMermaidContainer(target) {
+  if (!target || !target.closest) {
+    return null;
+  }
+  return target.closest(".md-typeset .mermaid");
+}
+
+function openDiagramLightbox(container) {
+  var svg = container.querySelector("svg");
   if (!svg) {
     return;
   }
@@ -76,65 +68,83 @@ function closeDiagramLightbox() {
   document.body.classList.remove("diagram-lightbox-open");
 }
 
-function tryBindMermaidZoom(container) {
-  if (container.dataset.diagramZoomBound === "1") {
-    return true;
+function enhanceMermaidContainers(root) {
+  var containers = root.querySelectorAll(".md-typeset .mermaid");
+  containers.forEach(function (container) {
+    container.classList.add("diagram-zoomable");
+    container.setAttribute("role", "button");
+    container.setAttribute("tabindex", "0");
+    container.setAttribute(
+      "aria-label",
+      "Open diagram zoom view (press Enter or click)"
+    );
+  });
+}
+
+function bindDiagramLightboxOnce() {
+  if (window.__diagramLightboxBound) {
+    return;
   }
+  window.__diagramLightboxBound = true;
 
-  if (!container.querySelector("svg")) {
-    return false;
-  }
+  document.addEventListener("click", function (event) {
+    var overlay = document.getElementById("diagram-lightbox");
+    if (
+      overlay &&
+      overlay.classList.contains("is-open") &&
+      (event.target === overlay ||
+        (event.target.classList &&
+          event.target.classList.contains("diagram-lightbox__close")))
+    ) {
+      closeDiagramLightbox();
+      return;
+    }
 
-  container.dataset.diagramZoomBound = "1";
-  container.classList.add("diagram-zoomable");
-  container.setAttribute("role", "button");
-  container.setAttribute("tabindex", "0");
-  container.setAttribute(
-    "aria-label",
-    "Open diagram zoom view (press Enter or click)"
-  );
+    var container = getMermaidContainer(event.target);
+    if (!container) {
+      return;
+    }
 
-  container.addEventListener("click", function (event) {
     if (event.target.closest("a")) {
       return;
     }
+
     openDiagramLightbox(container);
   });
 
-  container.addEventListener("keydown", function (event) {
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeDiagramLightbox();
+      return;
+    }
+
     if (event.key !== "Enter" && event.key !== " ") {
       return;
     }
+
+    var container = getMermaidContainer(event.target);
+    if (!container) {
+      return;
+    }
+
     event.preventDefault();
     openDiagramLightbox(container);
   });
+}
 
-  if (container.__diagramObserver) {
-    container.__diagramObserver.disconnect();
-    container.__diagramObserver = null;
+function initDiagramLightbox() {
+  if (!document.body) {
+    return;
   }
-
-  return true;
-}
-
-function bindMermaidZoom(root) {
-  var containers = root.querySelectorAll(".md-typeset .mermaid");
-  containers.forEach(function (container) {
-    if (tryBindMermaidZoom(container)) {
-      return;
-    }
-    if (container.__diagramObserver) {
-      return;
-    }
-    var observer = new MutationObserver(function () {
-      tryBindMermaidZoom(container);
-    });
-    observer.observe(container, { childList: true, subtree: true });
-    container.__diagramObserver = observer;
-  });
-}
-
-document$.subscribe(function () {
   ensureDiagramLightbox();
-  bindMermaidZoom(document);
-});
+  bindDiagramLightboxOnce();
+  enhanceMermaidContainers(document);
+}
+
+if (typeof document$ !== "undefined" && document$.subscribe) {
+  document$.subscribe(initDiagramLightbox);
+} else if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initDiagramLightbox);
+} else {
+  initDiagramLightbox();
+}

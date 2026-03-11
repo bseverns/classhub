@@ -9,16 +9,16 @@ document$.subscribe(function () {
       fontSize: "22px",
     },
     flowchart: {
-      useMaxWidth: false,
+      useMaxWidth: true,
     },
     sequence: {
-      useMaxWidth: false,
+      useMaxWidth: true,
     },
     journey: {
-      useMaxWidth: false,
+      useMaxWidth: true,
     },
     gantt: {
-      useMaxWidth: false,
+      useMaxWidth: true,
     },
   });
   mermaid.parseError = function (error, hash) {
