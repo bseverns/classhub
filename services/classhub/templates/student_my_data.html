@@ -29,7 +29,11 @@
         <h2 class="section-title-tight">{% trans "Privacy at a glance" %}</h2>
         <div class="privacy-note">
           <p class="muted">{% trans "Stored data: your display name, submissions, and class event timestamps." %}</p>
-          <p class="muted">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
+          {% if operator_profile.storage_location_text %}
+          <p class="muted">{% blocktrans with location=operator_profile.storage_location_text %}Storage location: {{ location }}{% endblocktrans %}</p>
+          {% else %}
+          <p class="muted">{% trans "Storage location: this server is hosted locally by your school or organization." %}</p>
+          {% endif %}
           <p class="muted">
             {% trans "Retention:" %}
             {% if submission_retention_days %}
@@ -38,7 +42,11 @@
             {% trans "submissions stay until a teacher or admin removes them." %}
             {% endif %}
           </p>
-          <p class="muted">{{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
+          {% if operator_profile.privacy_promise_text %}
+          <p class="muted">{{ operator_profile.privacy_promise_text }}</p>
+          {% else %}
+          <p class="muted">{% trans "No tracking. No ads. No data broker sharing." %}</p>
+          {% endif %}
         </div>
         <form method="post" action="/student/rename" class="rename-self-form">
           {% csrf_token %}
@@ -84,7 +92,7 @@
         <h2 class="section-title-tight">{% trans "My submissions" %}</h2>
         {% if submissions %}
         <table class="table-top-gap">
-          <caption class="visually-hidden">Stored submissions for {{ student.display_name }}</caption>
+          <caption class="visually-hidden">{% blocktrans with student_name=student.display_name %}Stored submissions for {{ student_name }}{% endblocktrans %}</caption>
           <thead>
             <tr>
               <th scope="col">{% trans "When" %}</th>

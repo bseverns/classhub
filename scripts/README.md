@@ -89,4 +89,5 @@ Operator shortcut:
 | Script | Intent |
 |---|---|
 | `eval_helper.py` | Evaluation harness testing the response quality of the AI tutor configuration. |
+| `run_helper_classroom_eval.sh` | One-command classroom-realistic helper eval runner (writes raw results + summary artifacts and optional pass-rate gate). |
 | `add_helper_allowed_topics.py` | CLI tool to append safe topics to the LLM interaction guardrails. |

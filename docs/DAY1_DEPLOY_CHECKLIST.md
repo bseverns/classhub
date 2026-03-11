@@ -36,6 +36,9 @@ flowchart TD
 - Pick staff/org boundary mode:
   - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1` (production default; hard org boundary)
   - `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0` (local/dev or time-boxed migration fallback only)
+  - Validate lock posture before first deploy:
+    - `python3 scripts/check_runtime_policy_lock.py --profile baseline --env-file compose/.env`
+  - Record the selected org-boundary posture in [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md) as the first audit row for this deployment.
 - Keep admin 2FA enforcement enabled: `DJANGO_ADMIN_2FA_REQUIRED=1`
 - For domain/TLS mode, set:
   - `DJANGO_SECURE_SSL_REDIRECT=1`

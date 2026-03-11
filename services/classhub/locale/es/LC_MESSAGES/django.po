@@ -556,6 +556,64 @@ msgstr "Descargar"
 msgid "No submissions stored yet."
 msgstr "Aún no hay entregas almacenadas."
 
+msgid "Storage location: this server is hosted locally by your school or organization."
+msgstr "Ubicación de almacenamiento: este servidor está alojado localmente por tu escuela u organización."
+
+msgid "No tracking. No ads. No data broker sharing."
+msgstr "Sin rastreo. Sin anuncios. Sin intercambio con corredores de datos."
+
+msgid "Stored submissions for %(student_name)s"
+msgstr "Entregas guardadas de %(student_name)s"
+
+#
+# ── Student portfolio pages ──────────────────────────────────────────
+#
+
+msgid "Filters"
+msgstr "Filtros"
+
+msgid "Available"
+msgstr "Disponible"
+
+msgid "%(display_name)s Portfolio"
+msgstr "Portafolio de %(display_name)s"
+
+msgid "%(display_name)s Portfolio Export"
+msgstr "Exportación del portafolio de %(display_name)s"
+
+msgid "Class: %(classroom_name)s"
+msgstr "Clase: %(classroom_name)s"
+
+msgid "Generated: %(generated_at)s"
+msgstr "Generado: %(generated_at)s"
+
+msgid "Submissions: %(included_count)s included / %(submission_count)s total"
+msgstr "Entregas: %(included_count)s incluidas / %(submission_count)s en total"
+
+msgid "Submission export rows for %(display_name)s"
+msgstr "Filas de exportación de entregas para %(display_name)s"
+
+msgid "Original file"
+msgstr "Archivo original"
+
+msgid "Archive path"
+msgstr "Ruta del archivo"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Note"
+msgstr "Nota"
+
+msgid "Included"
+msgstr "Incluido"
+
+msgid "Missing source file"
+msgstr "Falta el archivo de origen"
+
+msgid "No submissions yet."
+msgstr "Aún no hay entregas."
+
 #
 # ── Privacy page ─────────────────────────────────────────────────────
 #

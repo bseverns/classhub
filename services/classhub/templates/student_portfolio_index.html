@@ -1,29 +1,30 @@
+{% load i18n %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ student.display_name }} Portfolio</title>
+    <title>{% blocktrans with display_name=student.display_name %}{{ display_name }} Portfolio{% endblocktrans %}</title>
   </head>
   <body>
     <main>
-      <h1>{{ student.display_name }} Portfolio Export</h1>
-      <p class="muted">Class: {{ classroom.name }}</p>
-      <p class="muted">Generated: {{ generated_at|date:"Y-m-d H:i T" }}</p>
-      <p class="muted">Submissions: {{ included_count }} included / {{ submission_count }} total</p>
+      <h1>{% blocktrans with display_name=student.display_name %}{{ display_name }} Portfolio Export{% endblocktrans %}</h1>
+      <p class="muted">{% blocktrans with classroom_name=classroom.name %}Class: {{ classroom_name }}{% endblocktrans %}</p>
+      <p class="muted">{% blocktrans with generated_at=generated_at|date:"Y-m-d H:i T" %}Generated: {{ generated_at }}{% endblocktrans %}</p>
+      <p class="muted">{% blocktrans with included_count=included_count submission_count=submission_count %}Submissions: {{ included_count }} included / {{ submission_count }} total{% endblocktrans %}</p>
 
       {% if rows %}
         <table>
-          <caption>Submission export rows for {{ student.display_name }}</caption>
+          <caption>{% blocktrans with display_name=student.display_name %}Submission export rows for {{ display_name }}{% endblocktrans %}</caption>
           <thead>
             <tr>
-              <th scope="col">When</th>
-              <th scope="col">Module</th>
-              <th scope="col">Material</th>
-              <th scope="col">Original file</th>
-              <th scope="col">Archive path</th>
-              <th scope="col">Status</th>
-              <th scope="col">Note</th>
+              <th scope="col">{% trans "When" %}</th>
+              <th scope="col">{% trans "Module" %}</th>
+              <th scope="col">{% trans "Material" %}</th>
+              <th scope="col">{% trans "Original file" %}</th>
+              <th scope="col">{% trans "Archive path" %}</th>
+              <th scope="col">{% trans "Status" %}</th>
+              <th scope="col">{% trans "Note" %}</th>
             </tr>
           </thead>
           <tbody>
@@ -34,14 +35,14 @@
                 <td>{{ row.material_title }}</td>
                 <td>{{ row.original_filename }}</td>
                 <td><code>{{ row.archive_path }}</code></td>
-                <td>{% if row.included %}Included{% else %}Missing source file{% endif %}</td>
+                <td>{% if row.included %}{% trans "Included" %}{% else %}{% trans "Missing source file" %}{% endif %}</td>
                 <td>{{ row.note|default:"" }}</td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       {% else %}
-        <p>No submissions yet.</p>
+        <p>{% trans "No submissions yet." %}</p>
       {% endif %}
     </main>
   </body>

@@ -29,9 +29,17 @@ Optional output path:
 bash scripts/make_release_zip.sh /srv/lms/releases/classhub_release.zip
 ```
 
-## What is excluded
+## What is included (and excluded by design)
 
-Release archives intentionally exclude local/runtime artifacts, including:
+`make_release_zip.sh` builds from tracked git files only (`git ls-files`), then runs `lint_release_artifact.py`.
+
+That means:
+
+- tracked source/docs/config files are included
+- untracked local runtime files are excluded by default
+- generated stability evidence under `artifacts/stability/<date>/` is not included in the source zip
+
+In addition, lint blocks forbidden runtime/local paths even if accidentally tracked, including:
 
 - `.git/`
 - `.venv/`
@@ -43,6 +51,28 @@ Release archives intentionally exclude local/runtime artifacts, including:
 - `compose/.env` and local backup variants (`compose/.env.bak*`, `compose/.env.local*`)
 - `dist/`
 - common OS metadata (`.DS_Store`, `__MACOSX`)
+
+## Source zip vs companion evidence bundle
+
+For release review or evaluator handoff, treat these as separate artifacts:
+
+1. Source bundle (`dist/classhub_release_*.zip`) built by `make_release_zip.sh`
+2. Companion evidence bundle (`artifacts/stability/<release-date>/`) captured during closeout
+
+Build/share both from the server:
+
+```bash
+cd /srv/lms/app
+RELEASE_DATE=2026-03-10
+
+bash scripts/make_release_zip.sh
+tar -C artifacts/stability -czf "dist/classhub_evidence_${RELEASE_DATE}.tgz" "${RELEASE_DATE}"
+sha256sum dist/classhub_release_*.zip "dist/classhub_evidence_${RELEASE_DATE}.tgz" > "dist/release_checksums_${RELEASE_DATE}.sha256"
+```
+
+Evidence consumers should start with:
+
+- `artifacts/stability/<release-date>/EVIDENCE_INDEX.md` (inside the companion evidence bundle)
 
 ## Verify artifact contents locally
 

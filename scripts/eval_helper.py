@@ -4,6 +4,7 @@ import json
 import sys
 import time
 import urllib.request
+from collections import Counter
 
 
 def _post_json(url: str, payload: dict, timeout: int) -> dict:
@@ -26,6 +27,18 @@ def _iter_prompts(path: str):
 def _contains_any(text: str, phrases: list[str]) -> bool:
     lowered = (text or "").lower()
     return any(phrase in lowered for phrase in phrases)
+
+
+def _normalize_phrase_list(value) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    out: list[str] = []
+    for item in value:
+        if isinstance(item, str):
+            normalized = item.strip().lower()
+            if normalized:
+                out.append(normalized)
+    return out
 
 
 def _score_piper_hardware_case(prompt_id: str, text: str, flags: list[str]) -> None:
@@ -77,6 +90,26 @@ def _score_piper_hardware_case(prompt_id: str, text: str, flags: list[str]) -> N
             flags.append("missing_mouse_first_guidance")
 
 
+def _score_phrase_contract(prompt: dict, text: str, flags: list[str]) -> None:
+    lowered = (text or "").lower()
+    required_any = _normalize_phrase_list(prompt.get("required_any"))
+    required_all = _normalize_phrase_list(prompt.get("required_all"))
+    forbidden_any = _normalize_phrase_list(prompt.get("forbidden_any"))
+
+    if required_any and not any(phrase in lowered for phrase in required_any):
+        flags.append("missing_required_any_phrase")
+
+    for phrase in required_all:
+        if phrase not in lowered:
+            flags.append("missing_required_phrase")
+            break
+
+    for phrase in forbidden_any:
+        if phrase in lowered:
+            flags.append("contains_forbidden_phrase")
+            break
+
+
 def _score_result(prompt: dict, response: dict) -> dict:
     flags: list[str] = []
     text = ""
@@ -108,7 +141,112 @@ def _score_result(prompt: dict, response: dict) -> dict:
     if topic == "piper_hardware" or prompt_id.startswith("piper-hw-"):
         _score_piper_hardware_case(prompt_id, text, flags)
 
+    _score_phrase_contract(prompt, text, flags)
+
     return {"passed": len(flags) == 0, "flags": flags}
+
+
+def _build_summary(results: list[dict]) -> dict:
+    total = len(results)
+    failed_rows = [row for row in results if row.get("score", {}).get("passed") is False]
+    failed = len(failed_rows)
+    passed = total - failed
+    pass_rate = (passed / total) if total else 0.0
+
+    by_topic: dict[str, dict[str, int]] = {}
+    by_grade_band: dict[str, dict[str, int]] = {}
+    flag_counts: Counter[str] = Counter()
+    failing_ids: list[dict] = []
+
+    for row in results:
+        score = row.get("score", {})
+        is_passed = bool(score.get("passed"))
+        topic = str(row.get("topic") or "unknown")
+        grade_band = str(row.get("grade_band") or "unknown")
+
+        if topic not in by_topic:
+            by_topic[topic] = {"total": 0, "passed": 0, "failed": 0}
+        if grade_band not in by_grade_band:
+            by_grade_band[grade_band] = {"total": 0, "passed": 0, "failed": 0}
+
+        by_topic[topic]["total"] += 1
+        by_grade_band[grade_band]["total"] += 1
+        if is_passed:
+            by_topic[topic]["passed"] += 1
+            by_grade_band[grade_band]["passed"] += 1
+        else:
+            by_topic[topic]["failed"] += 1
+            by_grade_band[grade_band]["failed"] += 1
+            flags = [str(flag) for flag in score.get("flags") or []]
+            for flag in flags:
+                flag_counts[flag] += 1
+            failing_ids.append({"id": row.get("id"), "topic": topic, "grade_band": grade_band, "flags": flags})
+
+    return {
+        "total": total,
+        "passed": passed,
+        "failed": failed,
+        "pass_rate": round(pass_rate, 4),
+        "by_topic": dict(sorted(by_topic.items())),
+        "by_grade_band": dict(sorted(by_grade_band.items())),
+        "flag_counts": dict(sorted(flag_counts.items())),
+        "failing_ids": failing_ids,
+    }
+
+
+def _render_summary_markdown(summary: dict) -> str:
+    lines: list[str] = []
+    lines.append("# Helper Eval Summary")
+    lines.append("")
+    lines.append(f"- Total prompts: {summary['total']}")
+    lines.append(f"- Passed: {summary['passed']}")
+    lines.append(f"- Failed: {summary['failed']}")
+    lines.append(f"- Pass rate: {summary['pass_rate']:.2%}")
+    lines.append("")
+
+    lines.append("## By Topic")
+    lines.append("")
+    lines.append("| Topic | Total | Passed | Failed |")
+    lines.append("| --- | ---: | ---: | ---: |")
+    for topic, counts in summary["by_topic"].items():
+        lines.append(
+            f"| {topic} | {counts['total']} | {counts['passed']} | {counts['failed']} |"
+        )
+    lines.append("")
+
+    lines.append("## By Grade Band")
+    lines.append("")
+    lines.append("| Grade band | Total | Passed | Failed |")
+    lines.append("| --- | ---: | ---: | ---: |")
+    for grade_band, counts in summary["by_grade_band"].items():
+        lines.append(
+            f"| {grade_band} | {counts['total']} | {counts['passed']} | {counts['failed']} |"
+        )
+    lines.append("")
+
+    lines.append("## Flag Counts")
+    lines.append("")
+    if summary["flag_counts"]:
+        lines.append("| Flag | Count |")
+        lines.append("| --- | ---: |")
+        for flag, count in summary["flag_counts"].items():
+            lines.append(f"| {flag} | {count} |")
+    else:
+        lines.append("No scoring flags.")
+    lines.append("")
+
+    lines.append("## Failing Prompt IDs")
+    lines.append("")
+    if summary["failing_ids"]:
+        lines.append("| Prompt ID | Topic | Grade band | Flags |")
+        lines.append("| --- | --- | --- | --- |")
+        for row in summary["failing_ids"]:
+            joined_flags = ", ".join(row["flags"])
+            lines.append(f"| {row['id']} | {row['topic']} | {row['grade_band']} | {joined_flags} |")
+    else:
+        lines.append("No failing prompts.")
+    lines.append("")
+    return "\n".join(lines)
 
 
 def main() -> int:
@@ -156,6 +294,27 @@ def main() -> int:
         action="store_true",
         help="When --score is enabled, exit non-zero if any prompts fail scoring.",
     )
+    parser.add_argument(
+        "--min-pass-rate",
+        type=float,
+        default=0.0,
+        help="Optional minimum pass-rate gate (0.0-1.0). Applied when --score is enabled.",
+    )
+    parser.add_argument(
+        "--fail-on-min-pass-rate",
+        action="store_true",
+        help="When --score is enabled, exit non-zero if pass rate is below --min-pass-rate.",
+    )
+    parser.add_argument(
+        "--summary-json",
+        default="",
+        help="Optional output path for aggregate scoring summary JSON.",
+    )
+    parser.add_argument(
+        "--summary-md",
+        default="",
+        help="Optional output path for aggregate scoring summary markdown.",
+    )
     args = parser.parse_args()
 
     results = []
@@ -170,14 +329,8 @@ def main() -> int:
             resp = _post_json(args.url, payload, timeout=args.timeout)
         except Exception as exc:
             resp = {"error": str(exc)}
-        result = {
-            "id": prompt.get("id"),
-            "grade_band": prompt.get("grade_band"),
-            "topic": prompt.get("topic"),
-            "prompt": prompt.get("prompt"),
-            "expected_behavior": prompt.get("expected_behavior"),
-            "response": resp,
-        }
+        result = dict(prompt)
+        result["response"] = resp
         if args.score:
             result["score"] = _score_result(prompt, resp)
         results.append(result)
@@ -194,12 +347,25 @@ def main() -> int:
             print(json.dumps(row, ensure_ascii=True))
 
     if args.score:
-        total = len(results)
-        failed = sum(1 for row in results if not row.get("score", {}).get("passed", False))
-        passed = total - failed
-        print(f"Score summary: {passed}/{total} passed; {failed} failed", file=sys.stderr)
-        if args.fail_on_score and failed > 0:
+        summary = _build_summary(results)
+        print(
+            f"Score summary: {summary['passed']}/{summary['total']} passed; "
+            f"{summary['failed']} failed (pass_rate={summary['pass_rate']:.2%})",
+            file=sys.stderr,
+        )
+        if args.summary_json:
+            with open(args.summary_json, "w", encoding="utf-8") as handle:
+                handle.write(json.dumps(summary, indent=2, sort_keys=True))
+                handle.write("\n")
+            print(f"Wrote summary JSON to {args.summary_json}", file=sys.stderr)
+        if args.summary_md:
+            with open(args.summary_md, "w", encoding="utf-8") as handle:
+                handle.write(_render_summary_markdown(summary))
+            print(f"Wrote summary markdown to {args.summary_md}", file=sys.stderr)
+        if args.fail_on_score and summary["failed"] > 0:
             return 2
+        if args.fail_on_min_pass_rate and summary["pass_rate"] < args.min_pass_rate:
+            return 3
 
     return 0
 

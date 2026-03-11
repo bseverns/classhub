@@ -59,6 +59,7 @@
 
       <div class="card">
         <h2 class="section-title-tight">{% trans "Artifacts" %}</h2>
+        {% trans "Available" as status_available %}
         {% if artifacts %}
           <table class="table-top-gap">
             <caption class="visually-hidden">{% trans "Portfolio artifacts" %}</caption>
@@ -83,7 +84,7 @@
                   <th scope="row">{{ sub.original_filename }}</th>
                   <td class="muted">{{ sub.station_label|default:"—" }}</td>
                   <td class="muted">{% if sub.is_published %}{% trans "Published" %}{% else %}{% trans "Teacher-only" %}{% endif %}</td>
-                  <td class="muted">{{ artifact_statuses|get_item:sub.id|default:"Available" }}</td>
+                  <td class="muted">{{ artifact_statuses|get_item:sub.id|default:status_available }}</td>
                   <td><a href="/submission/{{ sub.id }}/download">{% trans "Download" %}</a></td>
                 </tr>
                 {% if sub.process_note %}

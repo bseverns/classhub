@@ -2869,9 +2869,16 @@ Execution ownership and gates:
 ## Localization slice: student class core translation pass (2026-03-11)
 
 **Current decision:**
-- Expand i18n coverage from join/login-only into core student class experience (`services/classhub/templates/student_class.html`) by wrapping remaining high-frequency user-facing strings in `{% trans %}` / `{% blocktrans %}`.
+- Expand i18n coverage from join/login-only into core student flows by wrapping high-frequency user-facing strings in `{% trans %}` / `{% blocktrans %}` across:
+  - `services/classhub/templates/student_class.html`
+  - `services/classhub/templates/student_my_data.html`
+  - `services/classhub/templates/student_portfolio.html`
+  - `services/classhub/templates/student_portfolio_index.html`
 - Add/refresh Spanish translations in `services/classhub/locale/es/LC_MESSAGES/django.po` and compile locale catalogs.
-- Add regression coverage in `hub.tests.test_i18n` for Spanish rendering on `/student` (`Enlaces del curso` assertion).
+- Add regression coverage in `hub.tests.test_i18n` for Spanish rendering on:
+  - `/student` (`Enlaces del curso`)
+  - `/student/my-data` (`Privacidad en resumen`)
+  - `/student/portfolio` (`Filtros`)
 - Update localization/docs posture to reflect current coverage honestly:
   - `docs/LOCALIZATION.md`
   - `docs/CURRENT_STATE.md`
@@ -2879,3 +2886,38 @@ Execution ownership and gates:
 **Why this remains active:**
 - Closes part of the values-to-implementation gap for multilingual classroom use.
 - Keeps localization progress inspectable and test-backed instead of aspirational.
+
+## Release handoff packaging contract: source zip + companion evidence bundle (2026-03-11)
+
+**Current decision:**
+- Keep `scripts/make_release_zip.sh` as a tracked-source-only archive path (`git ls-files` + release artifact lint).
+- Treat release-cycle evidence under `artifacts/stability/<release-date>/` as a companion artifact set, not part of the source zip contract.
+- Require evaluator/operator handoff language in docs to point reviewers to:
+  - source bundle (`dist/classhub_release_*.zip`)
+  - companion evidence bundle (`artifacts/stability/<release-date>/`, typically packaged as `dist/classhub_evidence_<release-date>.tgz`)
+  - `EVIDENCE_INDEX.md` as first-stop artifact index.
+- Document baseline-vs-release runtime lock profile expectations in one canonical page:
+  - `docs/RUNTIME_LOCK_PROFILES.md`
+
+**Why this remains active:**
+- Removes ambiguity where reviewers expect runtime evidence artifacts inside the source archive.
+- Improves external inspectability by making source code provenance and release evidence provenance explicit and separate.
+
+## Classroom-realistic helper evaluation protocol + model decision rubric (2026-03-11)
+
+**Current decision:**
+- Add a classroom-realistic prompt pack for Helper quality checks:
+  - `services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl`
+  - includes teacher expectations and lightweight phrase contracts (`required_any`, `required_all`, `forbidden_any`).
+- Extend `scripts/eval_helper.py` with:
+  - aggregate summary outputs (`--summary-json`, `--summary-md`),
+  - optional pass-rate gate (`--min-pass-rate`, `--fail-on-min-pass-rate`),
+  - phrase-contract scoring hooks.
+- Add one-command runner:
+  - `scripts/run_helper_classroom_eval.sh`
+  - writes `results.jsonl`, `summary.json`, `summary.md` to a timestamped output folder.
+- Publish decision rubric in docs (`docs/HELPER_EVALS.md`) for when to keep local `llama3.2:1b` versus trial a stronger model backend.
+
+**Why this remains active:**
+- Moves Helper model-quality discussions from anecdotal feedback to repeatable evidence.
+- Gives ops/teaching leads a concrete signal for model sufficiency without requiring paid services in the evaluation loop.

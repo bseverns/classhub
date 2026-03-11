@@ -1,36 +1,68 @@
 # Helper evals
 
-We keep a small, human-reviewable eval set to track quality across grade bands
-and strictness modes.
+Use this to measure whether the deployed Helper behavior is good enough for real class prompts.
 
-## Prompt set
+## Prompt packs
 
-Default prompts:
+- Baseline smoke prompts: `services/homework_helper/tutor/fixtures/eval_prompts.jsonl`
+- Classroom-realistic prompts: `services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl`
 
-- `services/homework_helper/tutor/fixtures/eval_prompts.jsonl`
-
-Each line is JSON with fields:
+Each JSONL row includes:
 
 - `id`
 - `grade_band`
 - `topic`
 - `prompt`
+- `teacher_expectation`
 - `expected_behavior`
+- optional scoring contracts:
+  - `required_any`
+  - `required_all`
+  - `forbidden_any`
 
-## Run the eval script
+## Recommended run command (classroom pack)
 
 ```bash
-python scripts/eval_helper.py \
+bash scripts/run_helper_classroom_eval.sh \
   --url http://localhost/helper/chat \
-  --out /tmp/helper_eval_results.jsonl
+  --out-dir /tmp/classhub_helper_eval_light
 ```
 
-Notes:
-- The script sleeps between requests by default to avoid rate limits.
-- Use `--limit` for quick smoke checks.
+This writes:
 
-## Review workflow
+- `results.jsonl` (raw prompt/response rows)
+- `summary.json` (aggregate metrics)
+- `summary.md` (review-ready summary)
 
-1) Run once with `HELPER_STRICTNESS=light`.
-2) Flip to `HELPER_STRICTNESS=strict` and run again.
-3) Compare responses for policy adherence and grade-appropriateness.
+For a hard gate:
+
+```bash
+bash scripts/run_helper_classroom_eval.sh \
+  --url http://localhost/helper/chat \
+  --out-dir /tmp/classhub_helper_eval_light \
+  --min-pass-rate 0.80 \
+  --enforce-threshold
+```
+
+## Two-pass review workflow
+
+1. Run with `HELPER_STRICTNESS=light` and capture artifacts.
+2. Run with `HELPER_STRICTNESS=strict` and capture artifacts.
+3. Compare both summaries for:
+   - cheating refusal reliability
+   - Piper hardware grounding
+   - privacy-safe responses (no surveillance promises)
+   - tone and confidence for frustrated students
+
+## Decision rubric: local 1B vs stronger model
+
+Treat this as release-decision guidance:
+
+- Keep local `llama3.2:1b` when both `light` and `strict` runs show:
+  - pass rate `>= 0.80`
+  - no repeated high-risk flags (`response_error`, unsafe/privacy violations, missing refusal on cheating prompts)
+- Consider stronger model (larger local model or remote backend) when either run shows:
+  - pass rate `< 0.80`, or
+  - repeated classroom-critical misses (unsafe/off-scope guidance, weak hardware grounding, low usefulness on debugging prompts)
+
+When escalating model strength, keep the same prompt pack and re-run so comparisons remain apples-to-apples.

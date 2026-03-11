@@ -167,6 +167,7 @@ Notes:
   - `CLASSHUB_TELEMETRY_WRITE_MODE=dual`
   - `CLASSHUB_TELEMETRY_READ_MODE=telemetry`
   - explicit `CLASSHUB_CERTIFICATE_MIN_SESSIONS` / `CLASSHUB_CERTIFICATE_MIN_ARTIFACTS` values (`>=1`)
+- Baseline-vs-release runtime lock profile behavior is documented in [RUNTIME_LOCK_PROFILES.md](RUNTIME_LOCK_PROFILES.md).
 - Writes release artifacts under `artifacts/stability/<date>/` and telemetry artifacts under `artifacts/stability/<date>/telemetry/`.
 - Includes evaluator-facing evidence index at `artifacts/stability/<date>/EVIDENCE_INDEX.md`.
 - Fails the run if parity/smoke/rollback drill do not pass or required artifacts are missing.
@@ -458,6 +459,19 @@ python3 scripts/lint_release_artifact.py /srv/lms/releases/classhub_release.zip
 Release packaging policy and verification details:
 
 - [RELEASING.md](RELEASING.md)
+
+Companion evidence bundle packaging (separate from source zip):
+
+```bash
+cd /srv/lms/app
+RELEASE_DATE=2026-03-10
+tar -C artifacts/stability -czf "dist/classhub_evidence_${RELEASE_DATE}.tgz" "${RELEASE_DATE}"
+```
+
+For evaluator/partner handoff, provide both:
+
+1. `dist/classhub_release_*.zip` (source bundle)
+2. `dist/classhub_evidence_<release-date>.tgz` (closeout evidence bundle with `EVIDENCE_INDEX.md`)
 
 ## Retention operations
 

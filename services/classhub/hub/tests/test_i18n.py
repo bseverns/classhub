@@ -4,6 +4,15 @@ from ._shared import *  # noqa: F401,F403
 class I18nSmokeTests(TestCase):
     """Integration tests for i18n scaffolding."""
 
+    def _set_student_session(self) -> tuple[Class, StudentIdentity]:
+        classroom = Class.objects.create(name="I18N Class", join_code="I18N1234")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        session = self.client.session
+        session["class_id"] = classroom.id
+        session["student_id"] = student.id
+        session.save()
+        return classroom, student
+
     def test_join_page_english_by_default(self):
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, 200)
@@ -72,13 +81,23 @@ class I18nSmokeTests(TestCase):
             self.assertEqual(resp.status_code, 200)
 
     def test_student_class_page_spanish_renders_translated_core_copy(self):
-        classroom = Class.objects.create(name="I18N Class", join_code="I18N1234")
-        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
-        session = self.client.session
-        session["class_id"] = classroom.id
-        session["student_id"] = student.id
-        session.save()
+        self._set_student_session()
 
         resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="es")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Enlaces del curso")
+
+    def test_student_my_data_page_spanish_renders_translated_core_copy(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student/my-data", HTTP_ACCEPT_LANGUAGE="es")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Privacidad en resumen")
+        self.assertContains(resp, "Sin rastreo. Sin anuncios. Sin intercambio con corredores de datos.")
+
+    def test_student_portfolio_page_spanish_renders_translated_core_copy(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student/portfolio", HTTP_ACCEPT_LANGUAGE="es")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Filtros")

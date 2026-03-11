@@ -10,6 +10,7 @@ Use this page if you are reviewing ClassHub fit and do not need to inspect imple
 4. Run the guided local walkthrough in [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md) with your technical lead.
 5. For a compact visual evidence packet, use `press/evaluator_quick_pack.md`.
 6. Optional technical evidence export: ask your technical lead to run `bash scripts/demo_data_lifespan_evidence.sh --base-url <DOMAIN> --cookie-file <SESSION_COOKIE_FILE>`.
+7. For release-cycle verification, ask for the companion evidence bundle from `artifacts/stability/<release-date>/` (not only the source zip) and review `EVIDENCE_INDEX.md` first.
 
 ## Verification signal
 Within 30 minutes, you can answer: what is live, what is optional, and what is still roadmap-only.
@@ -21,7 +22,7 @@ Within 30 minutes, you can answer: what is live, what is optional, and what is s
 | 10 min | Understand classroom model and privacy posture | [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md), [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) |
 | 10 min | Validate current shipped scope | [CURRENT_STATE.md](CURRENT_STATE.md), [FEATURE_MATURITY.md](FEATURE_MATURITY.md) |
 | 10 min | Watch core teacher/admin workflow live | `/teach`, `/teach/class/<id>`, `/teach/lessons` |
-| 5-15 min | Confirm operational readiness + evidence export path | [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md), [RUNBOOK.md](RUNBOOK.md), `/teach/data-lifespan` |
+| 5-15 min | Confirm operational readiness + evidence export path | [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md), [RUNBOOK.md](RUNBOOK.md), `artifacts/stability/<release-date>/EVIDENCE_INDEX.md`, `/teach/data-lifespan` |
 
 ## Operator demo script (privacy evidence)
 You can skip this section if you are a non-technical reviewer.  
@@ -55,3 +56,4 @@ bash scripts/demo_data_lifespan_evidence.sh \
 - [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md)
 - [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md)
 - [SECURITY.md](SECURITY.md)
+- [RELEASING.md](RELEASING.md)

@@ -14,6 +14,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Homework Helper runs as a separate Django service behind `/helper/*`.
 - Homework Helper supports optional bounded local curriculum RAG (pgvector) with curriculum-only retrieval scope.
 - Helper exposes an internal RAG posture contract at `/helper/internal/rag-status` (token-protected) for ClassHub operator evidence panels.
+- Helper classroom-quality eval tooling is live (`scripts/run_helper_classroom_eval.sh` + classroom prompt pack in `services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl`).
 - Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts).
 - Teacher syllabus zip import now maps session-prefixed support images into lesson assets.
 - Organization boundaries and RBAC capability checks are live.
@@ -47,7 +48,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Privacy-forward default: student rename/export/delete controls.
 - Privacy-forward default: structured staff-only support tags (no default freeform note field).
 - No rankings/leaderboards in student-facing artifact and feedback flows.
-- Multilingual UI is active for supported strings (`en`, `es`) across join/login and core student class chrome + activity copy, with broader flow coverage still in progress.
+- Multilingual UI is active for supported strings (`en`, `es`) across join/login and core student flows (`/student`, `/student/my-data`, `/student/portfolio`, `/student/gallery`), with broader flow coverage still in progress.
 
 ## Active known constraints
 - Scoped RBAC grants are still feature-flagged for controlled rollout.
