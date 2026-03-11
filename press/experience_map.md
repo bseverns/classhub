@@ -15,15 +15,15 @@ This page maps how different audiences experience ClassHub so external materials
 | Teacher (help-first facilitation) | `/teach/class/<id>` support board | Prioritize unresolved “I’m stuck” signals, review upload errors, resolve support requests without ranking students | `03-teacher-dashboard.png`, `04-teacher-lesson-tracker.png` |
 | Teacher (reporting) | `/teach/class/<id>` reporting actions | Export outcomes and certificates, issue signed certificates, share parent/funder-facing proof | `12-certificate-eligibility.png` |
 | Superuser | `/teach` organizations tab | Create organizations, set memberships/roles, enforce staff boundaries | `10-org-management-tab.png` |
-| Owner/admin (RBAC operations) | `/teach?rbac_tools=1` | Apply module-range scoped allow/deny grants and run simulation checks before policy changes | `19-rbac-tools-tab.png` |
-| Operator / maintainer | shell + health endpoints | Health checks, a11y smoke, deploy/runbook workflows | `08-health-checks-terminal.png`, `13-a11y-smoke-terminal.png` |
+| Owner/admin (advanced permissions / RBAC) | `/teach?rbac_tools=1` | Apply fine-grained allow/deny permissions and run simulation checks before policy changes | `19-rbac-tools-tab.png` |
+| Technical team | shell + health endpoints | Health checks, accessibility smoke checks, deploy/runbook workflows | `08-health-checks-terminal.png`, `13-a11y-smoke-terminal.png` |
 
 ## Narrative paths for external audiences
 1. **Classroom path**: student joins quickly, sees the weekly launch point, completes lesson + submission, teacher reviews.
 2. **Trust path**: student/family can read `/trust` and use `/student/my-data` without support tickets.
 3. **Artifact path**: student portfolio is personal by default; gallery visibility requires explicit publish + teacher approval.
 4. **Program operations path**: teacher configures enrollment mode and invite links, manages roster, and works from help-first facilitator signals.
-5. **Reliability path**: operator validates health and accessibility checks using documented runbooks.
+5. **Reliability path**: technical team validates health and accessibility checks using documented runbooks.
 
 ## Scope guardrails for press language
 - Describe verified workflows, not roadmap ideas.

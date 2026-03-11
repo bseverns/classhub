@@ -38,6 +38,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Cookie secure flags follow transport mode](#cookie-secure-flags-follow-transport-mode)
 - [Authoring template lesson slug convention](#authoring-template-lesson-slug-convention)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
+- [Teacher docs journey layering](#teacher-docs-journey-layering)
+- [Public docs plain-language default](#public-docs-plain-language-default)
 - [Feature maturity ledger and evaluator quickstart](#feature-maturity-ledger-and-evaluator-quickstart)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
 - [Secret handling: env-only secret sources](#secret-handling-env-only-secret-sources)
@@ -779,6 +781,39 @@ Execution ownership and gates:
 - This repository is both an operational system and a teaching object.
 - Maintainers need repeatable onboarding and incident handling, not tribal knowledge.
 - Shipping docs in lockstep with code reduces deployment and handoff risk.
+
+## Teacher docs journey layering
+
+**Current decision:**
+- Maintain a teacher-first guided read path at [TEACHER_DOCS_JOURNEY.md](TEACHER_DOCS_JOURNEY.md).
+- Keep teacher documentation layered by depth:
+  - orientation/intent: [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md),
+  - class-day execution: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md),
+  - plain-language workflow: [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md),
+  - screen-level reference: [TEACHER_PORTAL.md](TEACHER_PORTAL.md),
+  - issue handling: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md) and [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+- Link this journey from shared landing surfaces (`START_HERE`, `DOCS_MAP`, docs `index`) so non-developer staff can navigate without guessing.
+
+**Why this remains active:**
+- Teacher users need "what do I read next?" guidance more than API-level detail.
+- A layered path reduces cognitive load while keeping advanced docs available on demand.
+- It improves onboarding consistency for schools where facilitator technical comfort varies.
+
+## Public docs plain-language default
+
+**Current decision:**
+- Public/role-facing docs default to plain-language wording first, with technical detail clearly labeled as optional or advanced.
+- Avoid engineering shorthand in public pages when a plain equivalent exists:
+  - prefer "current release" over "MVP",
+  - prefer "optional features" over "flags",
+  - prefer "planned" over "RFC-only",
+  - prefer "technical lead/setup team" over internal role jargon when audience is non-technical.
+- Keep implementation-level specifics in operator/developer docs and explicitly tagged technical blocks inside shared pages.
+
+**Why this remains active:**
+- Mixed audiences (teachers, leadership, partners) need clear operational meaning before implementation detail.
+- Plain language improves trust and reduces onboarding friction in school/community contexts.
+- Labeled advanced sections preserve technical accuracy without overwhelming non-technical readers.
 
 ## Feature maturity ledger and evaluator quickstart
 
