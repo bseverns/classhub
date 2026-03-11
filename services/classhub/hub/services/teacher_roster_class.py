@@ -17,14 +17,27 @@ from ..models import (
     StudentEvent,
     StudentIdentity,
     StudentMaterialResponse,
-    StudentOutcomeEvent,
-    StudentSupportTag,
     Submission,
 )
 from .content_links import parse_course_lesson_url
 from .filenames import safe_filename
 from .markdown_content import load_lesson_markdown
-from .telemetry_reads import student_events_queryset, student_outcome_events_queryset
+from .telemetry_reads import student_events_queryset
+from .teacher_dashboard_sections.facilitator_support import (
+    build_facilitator_support_snapshot as _facilitator_support_snapshot_impl,
+)
+from .teacher_dashboard_sections.outcomes import (
+    build_certificate_eligibility_rows as _certificate_eligibility_rows_impl,
+    build_outcome_rollup as _outcome_rollup_impl,
+    build_outcome_snapshot as _outcome_snapshot_impl,
+)
+from .teacher_dashboard_sections.roster import (
+    material_submission_counts as _material_submission_counts_impl,
+    submission_counts_by_student as _submission_counts_by_student_impl,
+    support_tag_choices as _support_tag_choices_impl,
+    support_tags_by_student as _support_tags_by_student_impl,
+)
+from .teacher_dashboard_sections.shared import detail_int as _detail_int_impl, int_setting as _int_setting_impl
 from .teacher_tracker import _build_helper_signal_snapshot, _build_lesson_tracker_rows
 from .zip_exports import (
     reserve_archive_path,
@@ -34,56 +47,19 @@ from .zip_exports import (
 
 
 def _material_submission_counts(upload_material_ids: list[int]) -> dict[int, int]:
-    submission_counts: dict[int, int] = {}
-    if not upload_material_ids:
-        return submission_counts
-    rows = (
-        Submission.objects.filter(material_id__in=upload_material_ids)
-        .values("material_id")
-        .annotate(total=models.Count("student_id", distinct=True))
-    )
-    for row in rows:
-        material_id = int(row["material_id"])
-        submission_counts[material_id] = int(row["total"])
-    return submission_counts
+    return _material_submission_counts_impl(upload_material_ids)
 
 
 def _submission_counts_by_student(*, classroom, students: list) -> dict[int, int]:
-    submission_counts: dict[int, int] = {}
-    if not students:
-        return submission_counts
-    rows = (
-        Submission.objects.filter(student__classroom=classroom)
-        .values("student_id")
-        .annotate(total=models.Count("id"))
-    )
-    for row in rows:
-        submission_counts[int(row["student_id"])] = int(row["total"])
-    return submission_counts
+    return _submission_counts_by_student_impl(classroom=classroom, students=students)
 
 
 def _support_tag_choices() -> list[dict[str, str]]:
-    return [{"value": str(value), "label": str(label)} for value, label in StudentSupportTag.TAG_CHOICES]
+    return _support_tag_choices_impl()
 
 
 def _support_tags_by_student(*, classroom, students: list[StudentIdentity]) -> dict[int, list[dict[str, str]]]:
-    by_student: dict[int, list[dict[str, str]]] = {}
-    student_ids = [int(student.id) for student in students if getattr(student, "id", None) is not None]
-    if not student_ids:
-        return by_student
-    rows = (
-        StudentSupportTag.objects.filter(classroom=classroom, student_id__in=student_ids)
-        .values("student_id", "tag")
-        .order_by("student_id", "tag", "-id")
-    )
-    for row in rows:
-        student_id = int(row["student_id"])
-        tag = str(row["tag"] or "")
-        if not tag:
-            continue
-        bucket = by_student.setdefault(student_id, [])
-        bucket.append({"value": tag, "label": StudentSupportTag.label_for(tag)})
-    return by_student
+    return _support_tags_by_student_impl(classroom=classroom, students=students)
 
 
 def _build_outcome_rollup(
@@ -94,77 +70,13 @@ def _build_outcome_rollup(
     include_class_metrics: bool = False,
     include_outcome_windows: bool = False,
 ) -> dict:
-    student_ids = [int(student.id) for student in students]
-    events_qs = student_outcome_events_queryset().filter(classroom_id=int(classroom.id))
-    sessions_by_student: dict[int, int] = {}
-    artifacts_by_student: dict[int, int] = {}
-    milestones_by_student: dict[int, int] = {}
-    if student_ids:
-        for row in (
-            events_qs.filter(student_id__in=student_ids)
-            .values("student_id", "event_type")
-            .annotate(total=models.Count("id"))
-        ):
-            student_id = int(row["student_id"])
-            total = int(row["total"] or 0)
-            event_type = str(row["event_type"] or "")
-            if event_type == StudentOutcomeEvent.EVENT_SESSION_COMPLETED:
-                sessions_by_student[student_id] = total
-            elif event_type == StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED:
-                artifacts_by_student[student_id] = total
-            elif event_type == StudentOutcomeEvent.EVENT_MILESTONE_EARNED:
-                milestones_by_student[student_id] = total
-
-    outcome_windows: dict[int, tuple[str, str]] = {}
-    if include_outcome_windows and student_ids:
-        for row in (
-            events_qs.filter(student_id__in=student_ids)
-            .values("student_id")
-            .annotate(first=models.Min("created_at"), last=models.Max("created_at"))
-        ):
-            student_id = int(row["student_id"])
-            first = row.get("first")
-            last = row.get("last")
-            outcome_windows[student_id] = (
-                first.isoformat() if first else "",
-                last.isoformat() if last else "",
-            )
-
-    total_sessions = 0
-    total_artifacts = 0
-    total_milestones = 0
-    active_students = 0
-    if include_class_metrics:
-        active_since = timezone.now() - timedelta(days=max(int(active_window_days or 0), 1))
-        total_sessions = events_qs.filter(
-            event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
-        ).count()
-        total_artifacts = events_qs.filter(
-            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
-        ).count()
-        total_milestones = events_qs.filter(
-            event_type=StudentOutcomeEvent.EVENT_MILESTONE_EARNED,
-        ).count()
-        active_students = (
-            events_qs.filter(
-                created_at__gte=active_since,
-                student_id__isnull=False,
-            )
-            .values("student_id")
-            .distinct()
-            .count()
-        )
-
-    return {
-        "sessions_by_student": sessions_by_student,
-        "artifacts_by_student": artifacts_by_student,
-        "milestones_by_student": milestones_by_student,
-        "outcome_windows": outcome_windows,
-        "total_sessions": int(total_sessions),
-        "total_artifacts": int(total_artifacts),
-        "total_milestones": int(total_milestones),
-        "active_students": int(active_students),
-    }
+    return _outcome_rollup_impl(
+        classroom=classroom,
+        students=students,
+        active_window_days=active_window_days,
+        include_class_metrics=include_class_metrics,
+        include_outcome_windows=include_outcome_windows,
+    )
 
 
 def build_certificate_eligibility_rows(
@@ -174,303 +86,29 @@ def build_certificate_eligibility_rows(
     certificate_min_sessions: int | None = None,
     certificate_min_artifacts: int | None = None,
 ) -> dict:
-    certificate_min_sessions = (
-        _int_setting("CLASSHUB_CERTIFICATE_MIN_SESSIONS", 8)
-        if certificate_min_sessions is None
-        else max(int(certificate_min_sessions), 1)
+    return _certificate_eligibility_rows_impl(
+        classroom=classroom,
+        students=students,
+        certificate_min_sessions=certificate_min_sessions,
+        certificate_min_artifacts=certificate_min_artifacts,
     )
-    certificate_min_artifacts = (
-        _int_setting("CLASSHUB_CERTIFICATE_MIN_ARTIFACTS", 6)
-        if certificate_min_artifacts is None
-        else max(int(certificate_min_artifacts), 1)
-    )
-    if students is None:
-        students = list(
-            StudentIdentity.objects.filter(classroom=classroom)
-            .only("id", "display_name")
-            .order_by("display_name", "id")
-        )
-    rollup = _build_outcome_rollup(classroom=classroom, students=students)
-    sessions_by_student: dict[int, int] = rollup["sessions_by_student"]
-    artifacts_by_student: dict[int, int] = rollup["artifacts_by_student"]
-    milestones_by_student: dict[int, int] = rollup["milestones_by_student"]
-
-    eligible_students = 0
-    rows: list[dict] = []
-    for student in students:
-        student_id = int(student.id)
-        session_count = int(sessions_by_student.get(student_id, 0))
-        artifact_count = int(artifacts_by_student.get(student_id, 0))
-        milestone_count = int(milestones_by_student.get(student_id, 0))
-        certificate_eligible = (
-            session_count >= certificate_min_sessions and artifact_count >= certificate_min_artifacts
-        )
-        if certificate_eligible:
-            eligible_students += 1
-        rows.append(
-            {
-                "student_id": student_id,
-                "display_name": student.display_name,
-                "session_count": session_count,
-                "artifact_count": artifact_count,
-                "milestone_count": milestone_count,
-                "certificate_eligible": certificate_eligible,
-            }
-        )
-    return {
-        "rows": rows,
-        "eligible_students": int(eligible_students),
-        "total_students": len(students),
-        "certificate_min_sessions": int(certificate_min_sessions),
-        "certificate_min_artifacts": int(certificate_min_artifacts),
-    }
 
 
 def _build_outcome_snapshot(*, classroom, students: list[StudentIdentity]) -> dict:
-    window_days = _int_setting("CLASSHUB_OUTCOME_WINDOW_DAYS", 30)
-    top_students_limit = _int_setting("CLASSHUB_OUTCOME_TOP_STUDENTS", 5)
-    certificate_min_sessions = _int_setting("CLASSHUB_CERTIFICATE_MIN_SESSIONS", 8)
-    certificate_min_artifacts = _int_setting("CLASSHUB_CERTIFICATE_MIN_ARTIFACTS", 6)
-    rollup = _build_outcome_rollup(
-        classroom=classroom,
-        students=students,
-        active_window_days=window_days,
-        include_class_metrics=True,
-    )
-    sessions_by_student: dict[int, int] = rollup["sessions_by_student"]
-    artifacts_by_student: dict[int, int] = rollup["artifacts_by_student"]
-    milestones_by_student: dict[int, int] = rollup["milestones_by_student"]
-
-    eligible_students = 0
-    rows: list[dict] = []
-    for student in students:
-        sid = int(student.id)
-        sessions = sessions_by_student.get(sid, 0)
-        artifacts = artifacts_by_student.get(sid, 0)
-        milestones = milestones_by_student.get(sid, 0)
-        eligible = sessions >= certificate_min_sessions and artifacts >= certificate_min_artifacts
-        if eligible:
-            eligible_students += 1
-        if sessions or artifacts or milestones:
-            rows.append(
-                {
-                    "display_name": student.display_name,
-                    "session_count": sessions,
-                    "artifact_count": artifacts,
-                    "milestone_count": milestones,
-                    "certificate_eligible": eligible,
-                }
-            )
-    rows.sort(
-        key=lambda row: (
-            -int(row["session_count"]),
-            -int(row["artifact_count"]),
-            -int(row["milestone_count"]),
-            str(row["display_name"]).lower(),
-        )
-    )
-
-    return {
-        "window_days": window_days,
-        "total_sessions": int(rollup["total_sessions"]),
-        "total_artifacts": int(rollup["total_artifacts"]),
-        "total_milestones": int(rollup["total_milestones"]),
-        "active_students": int(rollup["active_students"]),
-        "eligible_students": int(eligible_students),
-        "total_students": len(students),
-        "certificate_min_sessions": certificate_min_sessions,
-        "certificate_min_artifacts": certificate_min_artifacts,
-        "top_students": rows[:top_students_limit],
-    }
+    return _outcome_snapshot_impl(classroom=classroom, students=students)
 
 
 def _detail_int(details: dict, key: str) -> int:
-    try:
-        return int((details or {}).get(key) or 0)
-    except Exception:
-        return 0
+    # Compatibility shim for older tests/imports.
+    return _detail_int_impl(details, key)
 
 
 def _build_facilitator_support_snapshot(*, classroom, students: list[StudentIdentity], modules: list[Module]) -> dict:
-    now = timezone.now()
-    module_titles = {int(module.id): str(module.title) for module in modules}
-    material_rows = Material.objects.filter(module__classroom=classroom).values("id", "title", "module_id")
-    material_lookup: dict[int, dict] = {}
-    for row in material_rows:
-        material_lookup[int(row["id"])] = {
-            "title": str(row["title"] or ""),
-            "module_title": module_titles.get(int(row["module_id"] or 0), ""),
-        }
-    student_by_id = {int(student.id): student for student in students}
-
-    micro_event_types = {
-        StudentEvent.EVENT_MICRO_CHECK_CAN_DO_THIS,
-        StudentEvent.EVENT_MICRO_CHECK_STUCK,
-        StudentEvent.EVENT_MICRO_CHECK_TAUGHT_SOMEONE,
-    }
-    activity_events = student_events_queryset().filter(
-        classroom_id=int(classroom.id),
-        student_id__isnull=False,
-        event_type__in=list(micro_event_types | {StudentEvent.EVENT_MICRO_CHECK_STUCK_RESOLVED}),
-    ).only("student_id", "event_type", "details", "created_at").order_by("-created_at", "-id")
-
-    latest_signal_by_student: dict[int, StudentEvent] = {}
-    latest_stuck_by_student: dict[int, StudentEvent] = {}
-    latest_resolved_by_student: dict[int, StudentEvent] = {}
-    for event in activity_events:
-        student_id = int(event.student_id or 0)
-        if student_id <= 0:
-            continue
-        if event.event_type in micro_event_types and student_id not in latest_signal_by_student:
-            latest_signal_by_student[student_id] = event
-        if event.event_type == StudentEvent.EVENT_MICRO_CHECK_STUCK and student_id not in latest_stuck_by_student:
-            latest_stuck_by_student[student_id] = event
-        if event.event_type == StudentEvent.EVENT_MICRO_CHECK_STUCK_RESOLVED and student_id not in latest_resolved_by_student:
-            latest_resolved_by_student[student_id] = event
-
-    stuck_rows: list[dict] = []
-    for student_id, stuck_event in latest_stuck_by_student.items():
-        student = student_by_id.get(student_id)
-        if student is None:
-            continue
-        resolved_event = latest_resolved_by_student.get(student_id)
-        if resolved_event and resolved_event.created_at >= stuck_event.created_at:
-            continue
-        latest_signal = latest_signal_by_student.get(student_id)
-        if latest_signal and latest_signal.created_at > stuck_event.created_at and latest_signal.event_type != StudentEvent.EVENT_MICRO_CHECK_STUCK:
-            continue
-        module_id = _detail_int(stuck_event.details, "module_id")
-        waiting_minutes = max(int((now - stuck_event.created_at).total_seconds() // 60), 0)
-        stuck_rows.append(
-            {
-                "student_id": student_id,
-                "display_name": student.display_name,
-                "module_id": module_id,
-                "module_title": module_titles.get(module_id, ""),
-                "requested_at": stuck_event.created_at,
-                "waiting_minutes": waiting_minutes,
-            }
-        )
-    stuck_rows.sort(
-        key=lambda row: (
-            -int(row["waiting_minutes"]),
-            str(row["display_name"]).lower(),
-        )
+    return _facilitator_support_snapshot_impl(
+        classroom=classroom,
+        students=students,
+        modules=modules,
     )
-
-    delete_request_events = (
-        student_events_queryset().filter(
-            classroom_id=int(classroom.id),
-            student_id__isnull=False,
-            event_type__in=[
-                StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST,
-                StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST_RESOLVED,
-            ],
-        )
-        .only("student_id", "event_type", "created_at")
-        .order_by("-created_at", "-id")
-    )
-    latest_delete_request_by_student: dict[int, StudentEvent] = {}
-    latest_delete_resolved_by_student: dict[int, StudentEvent] = {}
-    for event in delete_request_events:
-        student_id = int(event.student_id or 0)
-        if student_id <= 0:
-            continue
-        if (
-            event.event_type == StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST
-            and student_id not in latest_delete_request_by_student
-        ):
-            latest_delete_request_by_student[student_id] = event
-        if (
-            event.event_type == StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST_RESOLVED
-            and student_id not in latest_delete_resolved_by_student
-        ):
-            latest_delete_resolved_by_student[student_id] = event
-
-    delete_request_rows: list[dict] = []
-    for student_id, request_event in latest_delete_request_by_student.items():
-        student = student_by_id.get(student_id)
-        if student is None:
-            continue
-        resolved_event = latest_delete_resolved_by_student.get(student_id)
-        if resolved_event and resolved_event.created_at >= request_event.created_at:
-            continue
-        waiting_minutes = max(int((now - request_event.created_at).total_seconds() // 60), 0)
-        delete_request_rows.append(
-            {
-                "student_id": student_id,
-                "display_name": student.display_name,
-                "requested_at": request_event.created_at,
-                "waiting_minutes": waiting_minutes,
-            }
-        )
-    delete_request_rows.sort(
-        key=lambda row: (
-            -int(row["waiting_minutes"]),
-            str(row["display_name"]).lower(),
-        )
-    )
-
-    upload_error_limit = _int_setting("CLASSHUB_UPLOAD_ERROR_FEED_LIMIT", 10)
-    upload_error_rows: list[dict] = []
-    recent_upload_errors = (
-        student_events_queryset().filter(
-            classroom_id=int(classroom.id),
-            event_type=StudentEvent.EVENT_SUBMISSION_UPLOAD_ERROR,
-            student_id__isnull=False,
-        )
-        .only("student_id", "details", "created_at")
-        .order_by("-created_at", "-id")[:upload_error_limit]
-    )
-    for event in recent_upload_errors:
-        student_id = int(event.student_id or 0)
-        student = student_by_id.get(student_id)
-        if student is None:
-            continue
-        details = event.details if isinstance(event.details, dict) else {}
-        material_id = _detail_int(details, "material_id")
-        material_meta = material_lookup.get(material_id, {})
-        reason_code = str(details.get("reason_code") or "").strip() or "upload_error"
-        upload_error_rows.append(
-            {
-                "display_name": student.display_name,
-                "material_title": str(material_meta.get("title") or ""),
-                "module_title": str(material_meta.get("module_title") or ""),
-                "reason_code": reason_code.replace("_", " "),
-                "created_at": event.created_at,
-            }
-        )
-
-    idle_minutes_threshold = _int_setting("CLASSHUB_FACILITATOR_IDLE_MINUTES", 20)
-    idle_rows: list[dict] = []
-    for student in students:
-        if student.last_seen_at is None:
-            continue
-        idle_minutes = int((now - student.last_seen_at).total_seconds() // 60)
-        if idle_minutes < idle_minutes_threshold:
-            continue
-        idle_rows.append(
-            {
-                "student_id": int(student.id),
-                "display_name": student.display_name,
-                "idle_minutes": max(idle_minutes, 0),
-                "last_seen_at": student.last_seen_at,
-            }
-        )
-    idle_rows.sort(key=lambda row: (-int(row["idle_minutes"]), str(row["display_name"]).lower()))
-    idle_rows = idle_rows[: _int_setting("CLASSHUB_FACILITATOR_IDLE_LIST_LIMIT", 12)]
-
-    return {
-        "generated_at": now,
-        "stuck_rows": stuck_rows,
-        "stuck_count": len(stuck_rows),
-        "delete_request_rows": delete_request_rows,
-        "delete_request_count": len(delete_request_rows),
-        "upload_error_rows": upload_error_rows,
-        "upload_error_count": len(upload_error_rows),
-        "idle_rows": idle_rows,
-        "idle_minutes_threshold": idle_minutes_threshold,
-    }
 
 
 def build_dashboard_context(*, request, classroom, normalize_order_fn) -> dict:
@@ -788,12 +426,7 @@ def export_class_summary_csv(*, classroom, active_window_days: int = 7) -> str:
 
 
 def _int_setting(setting_name: str, default: int, *, minimum: int = 1) -> int:
-    raw = getattr(settings, setting_name, default)
-    try:
-        value = int(raw)
-    except (TypeError, ValueError):
-        value = int(default)
-    return max(value, minimum)
+    return _int_setting_impl(setting_name, default, minimum=minimum)
 
 
 def export_class_outcomes_csv(

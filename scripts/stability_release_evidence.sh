@@ -177,6 +177,7 @@ run_guardrails() {
   python3 scripts/check_teacher_endpoint_capability_map.py
   python3 scripts/check_teacher_top_tasks_contract.py
   python3 scripts/check_teach_class_template_contract.py
+  python3 scripts/check_teacher_roster_service_contract.py
   python3 scripts/check_rbac_endpoint_guards.py
   python3 scripts/check_runtime_policy_lock.py --profile release
   python3 scripts/check_docs_truth.py

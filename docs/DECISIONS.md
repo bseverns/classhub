@@ -2714,3 +2714,19 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces cognitive load in the main `/teach/class` template without changing behavior.
 - Prevents silent template re-growth by making decomposition an explicit contract.
+
+## Teach class dashboard service decomposition contract (2026-03-11)
+
+**Current decision:**
+- Keep `services/classhub/hub/services/teacher_roster_class.py` as orchestration + export entry points.
+- Move section-level context logic into dedicated modules under `services/classhub/hub/services/teacher_dashboard_sections/`:
+  - `roster.py` (submission/tag context),
+  - `facilitator_support.py` (support board snapshot),
+  - `outcomes.py` (outcome rollups + certificate snapshot helpers),
+  - `shared.py` (typed setting/detail helpers).
+- Keep compatibility wrapper function names in `teacher_roster_class.py` for existing imports/tests (`_build_outcome_snapshot`, `_build_facilitator_support_snapshot`, `_material_submission_counts`, etc.).
+- Add `scripts/check_teacher_roster_service_contract.py` and run it in stability release guardrails.
+
+**Why this remains active:**
+- Reduces maintenance risk by aligning backend structure with `/teach/class` section boundaries.
+- Prevents regressions from refactor drift while preserving current external call sites.
