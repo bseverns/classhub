@@ -835,15 +835,16 @@ Execution ownership and gates:
 **Current decision:**
 - Docs build now includes `docs/stylesheets/extra.css` via `extra_css` in `mkdocs.yml`.
 - Mermaid runtime is vendored in-repo (`docs/javascripts/vendor/mermaid.min.js`) and loaded from `mkdocs.yml` as a local static asset instead of a third-party CDN.
-- Mermaid blocks are rendered with horizontal overflow instead of forced shrink-to-fit so diagram text stays legible at normal browser zoom.
+- Mermaid blocks default to fit the full width of the content column for in-flow readability.
+- Mermaid diagrams are click-to-zoom: selecting a diagram opens a lightbox overlay sized to viewport height for focused reading, with `Esc` and outside-click close behavior.
+- Lightbox interaction is implemented in `docs/javascripts/diagram-lightbox.js` and loaded from `mkdocs.yml` as a first-party asset.
 - Mermaid defaults are tuned in `docs/javascripts/mermaid-init.js` with `themeVariables.fontSize=22px` and `useMaxWidth=false` for common diagram types.
-- Mermaid SVG output now has a large minimum width in `docs/stylesheets/extra.css` (`min-width: 1200px`, reduced to `960px` on narrower viewports) so diagrams scale up first and use horizontal scroll when needed.
 - Mermaid init now catches render promise failures and logs structured parse/render diagnostics to the console (page path + error payload) to avoid opaque unhandled-promise errors.
 - Docs layout now widens Material's default grid limit (`.md-grid`) on desktop (`min-width: 60em`) to `max-width: min(96vw, 120rem)` so wiki pages use window width more effectively.
 
 **Why this remains active:**
-- Prevents operational and architecture diagrams from becoming unreadable on standard laptop displays.
-- Keeps mobile behavior usable by allowing horizontal scroll on large diagrams instead of shrinking text.
+- Keeps diagrams readable in normal page flow while preserving a large-focus view for dense content.
+- Reduces friction for non-technical readers by making zoom behavior discoverable (click diagram) instead of requiring horizontal scroll.
 - Reduces supply-chain fragility for docs rendering by avoiding runtime fetches from external script CDNs.
 
 ## Secret handling: env-only secret sources

@@ -31,6 +31,7 @@ extra_javascript:
   - javascripts/vendor/mermaid.min.js?v=10.9.4
   - javascripts/nav-accordion.js?v=2
   - javascripts/mermaid-init.js
+  - javascripts/diagram-lightbox.js?v=1
 extra_css:
   - stylesheets/extra.css
 
