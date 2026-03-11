@@ -2655,3 +2655,15 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces teacher UI ambiguity by giving one explicit default sequence for recurring class operations.
 - Prevents future drift between documented top tasks and actual `/teach` discoverability.
+
+## Canonical docs truth map and stale-status refresh discipline (2026-03-11)
+
+**Current decision:**
+- Treat `docs/CURRENT_STATE.md` as the canonical shipped-state page and keep its date aligned with significant state changes.
+- Keep `docs/DOCS_MAP.md` authoritative for "which doc wins" when readers encounter overlapping guidance.
+- Keep `docs/MAINTENANCE_RISK_REGISTER.md` risk evidence grounded in guardrail-enforced signals (for example view-size/function budget checks), not only narrative claims.
+- When telemetry/stability gate status changes, update `CURRENT_STATE.md` and reference concrete artifact paths under `artifacts/stability/<date>/`.
+
+**Why this remains active:**
+- Reduces documentation tax by making fewer files responsible for truth ownership.
+- Lowers stale-doc risk by tying high-impact status claims to concrete evidence artifacts and guardrail checks.

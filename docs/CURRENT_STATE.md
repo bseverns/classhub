@@ -1,4 +1,4 @@
-# Current State (March 6, 2026)
+# Current State (March 11, 2026)
 
 ## Summary
 This page is the live snapshot of what ClassHub currently ships on `main`.
@@ -29,7 +29,9 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Facilitator CLI (`hubctl`) is live from repo tooling for teacher API class controls (`tools/hubctl/`).
 - Security and ops guardrails are live in CI (smoke, migration gate, endpoint guard checks, view-size/function budgets, workflow lint).
 - Q2-Q3 ecosystem milestones are complete; implementation status now lives here and in feature-specific docs (the temporary milestones plan doc is retired).
-- Telemetry split Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is live (validated telemetry mode envs, optional telemetry DB registration in settings, telemetry router + dedicated `hub_telemetry` schema app, centralized dual-write service seam for event/outcome emit paths, read abstraction for support/rollup/lifespan event queries, baseline split-write instrumentation counters/log fields, an idempotent `backfill_telemetry_events` command with dry-run/batch resume controls, and a strict `check_telemetry_parity` command for cutover gates). Slice 7 evidence tooling is available via `scripts/telemetry_stabilization_evidence.sh`; release-cycle evidence capture is still pending.
+- Telemetry split Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is live (validated telemetry mode envs, optional telemetry DB registration in settings, telemetry router + dedicated `hub_telemetry` schema app, centralized dual-write service seam for event/outcome emit paths, read abstraction for support/rollup/lifespan event queries, baseline split-write instrumentation counters/log fields, an idempotent `backfill_telemetry_events` command with dry-run/batch resume controls, and a strict `check_telemetry_parity` command for cutover gates). Slice 7 release-cycle evidence capture is complete at `artifacts/stability/2026-03-10/telemetry/` (parity + strict smoke + rollback drill).
+- Superuser runtime policy lock checks are live in `/teach?advanced=1&portal_mode=admin` and in stability guardrails via `scripts/check_runtime_policy_lock.py`.
+- Teacher top-task choreography and `Start Here Today` contract wiring are live in `/teach` and guarded by `scripts/check_teacher_top_tasks_contract.py`.
 
 ## Deployment and reliability posture
 - Day-1 local mode: `compose/Caddyfile.local` over HTTP.
