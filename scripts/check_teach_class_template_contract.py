@@ -90,6 +90,42 @@ def main() -> int:
         failures=failures,
     )
 
+    roster_section_template = Path(
+        "services/classhub/templates/includes/teach_class/class_setup_roster_section.html"
+    )
+    try:
+        roster_section_text = _read(roster_section_template)
+    except RuntimeError as exc:
+        failures.append(str(exc))
+        roster_section_text = ""
+    _require_snippets(
+        roster_section_text,
+        path=roster_section_template,
+        snippets=[
+            '{% include "includes/teach_class/class_setup_roster_table.html" %}',
+            '{% include "includes/teach_class/class_setup_roster_merge_zone.html" %}',
+            '{% include "includes/teach_class/class_setup_roster_danger_zone.html" %}',
+        ],
+        failures=failures,
+    )
+
+    roster_table_template = Path(
+        "services/classhub/templates/includes/teach_class/class_setup_roster_table.html"
+    )
+    try:
+        roster_table_text = _read(roster_table_template)
+    except RuntimeError as exc:
+        failures.append(str(exc))
+        roster_table_text = ""
+    _require_snippets(
+        roster_table_text,
+        path=roster_table_template,
+        snippets=[
+            '{% include "includes/teach_class/class_setup_roster_student_row.html" %}',
+        ],
+        failures=failures,
+    )
+
     lesson_tracker_template = Path(
         "services/classhub/templates/includes/teach_class/lesson_tracker_card.html"
     )

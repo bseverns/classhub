@@ -1,0 +1,83 @@
+{% load hub_extras %}
+<tr>
+  <th scope="row"><strong>{{ st.display_name }}</strong></th>
+  <td>
+    <span
+      id="student-return-code-{{ st.id }}"
+      class="pill secret-code"
+      data-return-code-student-id="{{ st.id }}"
+      data-shown="0"
+    >••••••</span>
+    <button
+      type="button"
+      class="inline-copy"
+      data-secret-target="student-return-code-{{ st.id }}"
+      data-show-label="Show return code for {{ st.display_name }}"
+      data-hide-label="Hide return code for {{ st.display_name }}"
+      aria-controls="student-return-code-{{ st.id }}"
+      aria-pressed="false"
+      aria-label="Show return code for {{ st.display_name }}"
+    >Show</button>
+    <button
+      type="button"
+      class="inline-copy"
+      data-copy-secret-target="student-return-code-{{ st.id }}"
+      aria-label="Copy return code for {{ st.display_name }}"
+    >Copy</button>
+  </td>
+  <td class="muted mini">{{ submission_counts_by_student|get_item:st.id|default:0 }}</td>
+  <td>
+    {% with student_tags=support_tags_by_student|get_item:st.id %}
+      {% if student_tags %}
+        <ul class="support-tag-list">
+          {% for tag in student_tags %}
+            <li>
+              <span class="pill">{{ tag.label }}</span>
+              <form method="post" action="/teach/class/{{ classroom.id }}/support-tag/remove" class="inline-remove-tag">
+                {% csrf_token %}
+                <input type="hidden" name="student_id" value="{{ st.id }}" />
+                <input type="hidden" name="tag" value="{{ tag.value }}" />
+                <button type="submit">Remove</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <span class="muted mini">No tags yet.</span>
+      {% endif %}
+    {% endwith %}
+    <form method="post" action="/teach/class/{{ classroom.id }}/support-tag/add" class="support-tag-row">
+      {% csrf_token %}
+      <input type="hidden" name="student_id" value="{{ st.id }}" />
+      <label class="visually-hidden" for="support-tag-{{ st.id }}">Support tag for {{ st.display_name }}</label>
+      <select id="support-tag-{{ st.id }}" name="tag">
+        {% for tag in support_tag_choices %}
+          <option value="{{ tag.value }}">{{ tag.label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Add tag</button>
+    </form>
+  </td>
+  <td>
+    <form method="post" action="/teach/class/{{ classroom.id }}/rename-student" class="rename-row">
+      {% csrf_token %}
+      <input type="hidden" name="student_id" value="{{ st.id }}" />
+      <input
+        name="display_name"
+        value="{{ st.display_name }}"
+        maxlength="80"
+        aria-label="Rename {{ st.display_name }}"
+      />
+      <button type="submit">Rename</button>
+    </form>
+    <form method="post" action="/teach/class/{{ classroom.id }}/delete-student-data" class="delete-row" data-confirm="Permanently delete all stored data for this student now? This cannot be undone.">
+      {% csrf_token %}
+      <input type="hidden" name="student_id" value="{{ st.id }}" />
+      <label class="inline-check-label">
+        <input type="checkbox" name="confirm_delete" value="1" class="inline-check-input" required />
+        I understand this permanently deletes this student's data
+      </label>
+      <button type="submit" class="danger-inline">Delete student data now</button>
+    </form>
+  </td>
+</tr>

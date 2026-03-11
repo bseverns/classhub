@@ -1,0 +1,31 @@
+<div class="danger-zone">
+  <strong>Reset roster (destructive)</strong>
+  <p class="muted mini danger-copy">
+    This removes all students in this class and deletes their submissions. Active student sessions are invalidated immediately.
+  </p>
+  <form method="post" action="/teach/class/{{ classroom.id }}/reset-roster" data-confirm="Reset roster for this class now? This permanently deletes all students and submissions in this class.">
+    {% csrf_token %}
+    <label class="inline-check-label no-top-margin">
+      <input type="checkbox" name="rotate_code" value="1" checked class="inline-check-input" />
+      Rotate class join code after roster reset
+    </label>
+    <button type="submit">Reset roster now (delete roster + submissions)</button>
+  </form>
+  <hr class="danger-divider" />
+  <strong>Reset helper conversations (destructive)</strong>
+  <p class="muted mini danger-copy">
+    Exports a class helper snapshot (for internal research) and then clears cached helper chat history for this class only.
+  </p>
+  <form method="post" action="/teach/class/{{ classroom.id }}/reset-helper-conversations" data-confirm="Reset helper conversations for this class now? Cached helper chat history for this class will be cleared.">
+    {% csrf_token %}
+    <input type="hidden" name="export_before_reset" value="0" />
+    <label class="inline-check-label no-top-margin">
+      <input type="checkbox" name="export_before_reset" value="1" checked class="inline-check-input" />
+      Export snapshot before clearing cache
+    </label>
+    <p class="muted mini merge-note">
+      Access to exported helper data is limited to class teachers and createMPLS administrators.
+    </p>
+    <button type="submit">Reset helper conversations now</button>
+  </form>
+</div>

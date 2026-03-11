@@ -2795,3 +2795,19 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces maintenance risk by separating aggregation/query logic from section orchestration surfaces.
 - Prevents “split once, regrow later” drift by enforcing budgets/contracts on the new helper modules too.
+
+## Teach class roster section split into focused roster sub-partials (2026-03-11)
+
+**Current decision:**
+- Split `class_setup_roster_section.html` into focused sub-partials:
+  - `class_setup_roster_table.html`
+  - `class_setup_roster_student_row.html`
+  - `class_setup_roster_merge_zone.html`
+  - `class_setup_roster_danger_zone.html`
+- Keep `class_setup_roster_section.html` as section wrapper/orchestration only.
+- Extend `check_teach_class_template_contract.py` to enforce nested include wiring for roster section/table.
+- Tighten `check_teach_class_section_budgets.py` so each new roster sub-partial has an explicit line budget.
+
+**Why this remains active:**
+- Keeps the highest-density teacher roster controls prunable and easier to reason about.
+- Prevents destructive-action and student-row complexity from regrowing inside one section file.
