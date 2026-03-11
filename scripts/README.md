@@ -73,6 +73,7 @@ Operator shortcut:
 | `check_no_latest_tags.py` | Enforces explicit version pinning in Dockerfiles and Compose files. |
 | `check_rbac_endpoint_guards.py` | Enforces capability-specific RBAC guard helpers on critical endpoints. |
 | `check_teacher_endpoint_capability_map.py` | Enforces explicit capability contracts for all teacher/API-teacher routes. |
+| `check_docs_truth.py` | Verifies high-signal docs claims (risk-register metrics + screenshot tracker truth) stay in sync with repo state. |
 
 ## LLM / AI Helper Tooling
 | Script | Intent |

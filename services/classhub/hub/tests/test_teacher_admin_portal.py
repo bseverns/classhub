@@ -451,7 +451,8 @@ class TeacherPortalTests(TestCase):
         self.assertContains(resp, "Import Syllabus Source")
         self.assertContains(resp, "Generate Course Authoring Templates")
         self.assertContains(resp, "Syllabus Exports")
-        self.assertContains(resp, "Invite teacher")
+        self.assertContains(resp, "Show operator tools")
+        self.assertNotContains(resp, "Invite teacher")
         self.assertContains(resp, "My profile")
 
     @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=False)
@@ -496,7 +497,7 @@ class TeacherPortalTests(TestCase):
     def test_teach_home_admin_mode_shows_operator_snapshot_and_org_controls(self):
         _force_login_staff_verified(self.client, self.staff)
 
-        resp = self.client.get("/teach?portal_mode=admin")
+        resp = self.client.get("/teach?portal_mode=admin&advanced=1")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Operator config snapshot")
         self.assertContains(resp, "Organizations + Staff Memberships")
@@ -504,10 +505,18 @@ class TeacherPortalTests(TestCase):
         self.assertNotContains(resp, "Classroom focus")
         self.assertNotContains(resp, "Recent submissions")
 
-    def test_superuser_teach_home_shows_operator_config_snapshot(self):
+    def test_superuser_teach_home_hides_operator_config_snapshot_by_default(self):
         _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.get("/teach")
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, "Operator config snapshot")
+        self.assertContains(resp, "Show operator tools")
+
+    def test_superuser_teach_home_shows_operator_config_snapshot_in_advanced_mode(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach?advanced=1&portal_mode=all")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Operator config snapshot")
         self.assertContains(resp, "Telemetry rollout status")
@@ -2801,6 +2810,7 @@ class TeacherOrganizationAccessTests(TestCase):
             "/teach",
             {
                 "portal_mode": "policy",
+                "advanced": "1",
                 "rbac_tools": "1",
                 "rbac_bulk_class_id": str(self.class_a.id),
                 "rbac_bulk_capability": OrganizationRoleCapability.CAP_CLASS_VIEW,
@@ -2851,6 +2861,7 @@ class TeacherOrganizationAccessTests(TestCase):
             "/teach",
             {
                 "portal_mode": "policy",
+                "advanced": "1",
                 "rbac_tools": "1",
                 "rbac_audit_action": "rbac.scope_grant.",
                 "rbac_audit_class_id": str(self.class_a.id),

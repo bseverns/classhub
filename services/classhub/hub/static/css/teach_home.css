@@ -7,6 +7,10 @@
   align-items: baseline;
   gap: 10px;
 }
+.portal-mode-advanced-toggle {
+  margin-left: auto;
+  font-weight: 600;
+}
 .portal-mode-grid {
   display: grid;
   gap: 10px;

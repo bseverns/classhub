@@ -56,46 +56,63 @@ def _resolve_initial_top_tab(*, user, profile_tab_active, org_admin_active, teac
     return "quick-actions"
 
 
-def _read_portal_mode(request, *, user, rbac_tools_enabled: bool) -> str:
+def _read_advanced_tools_state(request, *, user) -> bool:
+    if not user.is_superuser:
+        return False
+    return (request.GET.get("advanced") or "").strip() == "1"
+
+
+def _read_portal_mode(
+    request,
+    *,
+    user,
+    rbac_tools_enabled: bool,
+    advanced_tools_enabled: bool,
+) -> str:
     requested = (request.GET.get("portal_mode") or "").strip().lower()
-    default_mode = "all" if user.is_superuser else "setup"
+    default_mode = "setup"
     allowed = {"day", "setup"}
-    if user.is_superuser:
+    if user.is_superuser and advanced_tools_enabled:
         allowed.add("all")
         allowed.add("admin")
-    if user.is_superuser or rbac_tools_enabled:
+    if advanced_tools_enabled and (user.is_superuser or rbac_tools_enabled):
         allowed.add("policy")
     if requested not in allowed:
         return default_mode
     return requested
 
 
-def _portal_mode_row(*, mode_id: str, label: str, description: str, portal_mode: str) -> dict:
+def _portal_mode_row(*, mode_id: str, label: str, description: str, portal_mode: str, advanced_tools_enabled: bool) -> dict:
+    url = f"/teach?portal_mode={mode_id}"
+    if advanced_tools_enabled:
+        url = f"{url}&advanced=1"
     return {
         "id": mode_id,
         "label": label,
         "description": description,
-        "url": f"/teach?portal_mode={mode_id}",
+        "url": url,
         "active": portal_mode == mode_id,
     }
 
 
-def _portal_mode_rows(*, user, portal_mode: str, rbac_tools_enabled: bool) -> list[dict]:
+def _portal_mode_rows(*, user, portal_mode: str, rbac_tools_enabled: bool, advanced_tools_enabled: bool) -> list[dict]:
     rows = [
         _portal_mode_row(
             mode_id="day",
             label="Day-of-class",
             description="Live class digest and closeout.",
             portal_mode=portal_mode,
+            advanced_tools_enabled=advanced_tools_enabled,
         ),
         _portal_mode_row(
             mode_id="setup",
             label="Class setup",
             description="Class creation and content tools.",
             portal_mode=portal_mode,
+            advanced_tools_enabled=advanced_tools_enabled,
         ),
     ]
-    if user.is_superuser:
+    if user.is_superuser and advanced_tools_enabled:
         rows.insert(
             0,
             _portal_mode_row(
@@ -103,6 +120,7 @@ def _portal_mode_rows(*, user, portal_mode: str, rbac_tools_enabled: bool) -> li
                 label="All panels",
                 description="Full teacher cockpit.",
                 portal_mode=portal_mode,
+                advanced_tools_enabled=advanced_tools_enabled,
             ),
         )
         rows.append(
@@ -111,32 +129,42 @@ def _portal_mode_rows(*, user, portal_mode: str, rbac_tools_enabled: bool) -> li
                 label="Org/admin",
                 description="Teacher invites and organization controls.",
                 portal_mode=portal_mode,
+                advanced_tools_enabled=advanced_tools_enabled,
             )
         )
-    if user.is_superuser or rbac_tools_enabled:
+    if advanced_tools_enabled and (user.is_superuser or rbac_tools_enabled):
         rows.append(
             _portal_mode_row(
                 mode_id="policy",
                 label="Policy/RBAC",
                 description="RBAC tools and operator policy posture.",
                 portal_mode=portal_mode,
+                advanced_tools_enabled=advanced_tools_enabled,
             )
         )
     return rows
 
 
-def _portal_mode_context(*, user, portal_mode: str, rbac_tools_enabled: bool) -> dict:
+def _portal_mode_context(*, user, portal_mode: str, rbac_tools_enabled: bool, advanced_tools_enabled: bool) -> dict:
+    advanced_tools_available = bool(user.is_superuser)
     show_day_sections = portal_mode in {"all", "day"}
     show_setup_sections = portal_mode in {"all", "setup"}
-    show_admin_sections = user.is_superuser and portal_mode in {"all", "admin"}
-    show_policy_sections = (user.is_superuser or rbac_tools_enabled) and portal_mode in {"all", "policy"}
+    show_admin_sections = bool(user.is_superuser and advanced_tools_enabled and portal_mode in {"all", "admin"})
+    show_policy_sections = bool(
+        advanced_tools_enabled and (user.is_superuser or rbac_tools_enabled) and portal_mode in {"all", "policy"}
+    )
 
     return {
         "portal_mode": portal_mode,
+        "advanced_tools_available": advanced_tools_available,
+        "advanced_tools_enabled": bool(advanced_tools_enabled),
+        "advanced_tools_enable_url": "/teach?portal_mode=setup&advanced=1",
+        "advanced_tools_disable_url": "/teach?portal_mode=setup",
         "portal_mode_rows": _portal_mode_rows(
             user=user,
             portal_mode=portal_mode,
             rbac_tools_enabled=rbac_tools_enabled,
+            advanced_tools_enabled=advanced_tools_enabled,
         ),
         "show_day_sections": show_day_sections,
         "show_setup_sections": show_setup_sections,
@@ -146,12 +174,19 @@ def _portal_mode_context(*, user, portal_mode: str, rbac_tools_enabled: bool) ->
     }
 
 
-def _tab_for_portal_mode(initial_tab: str, *, portal_mode: str, user, rbac_tools_enabled: bool) -> str:
-    if portal_mode == "admin" and user.is_superuser:
+def _tab_for_portal_mode(
+    initial_tab: str,
+    *,
+    portal_mode: str,
+    user,
+    rbac_tools_enabled: bool,
+    advanced_tools_enabled: bool,
+) -> str:
+    if portal_mode == "admin" and user.is_superuser and advanced_tools_enabled:
         return "org-admin"
-    if portal_mode == "policy" and rbac_tools_enabled:
+    if portal_mode == "policy" and rbac_tools_enabled and advanced_tools_enabled:
         return "rbac-tools"
-    if portal_mode == "setup" and initial_tab in {"org-admin", "invite-teacher", "rbac-tools"}:
+    if portal_mode in {"setup", "day"} and initial_tab in {"org-admin", "invite-teacher", "rbac-tools"}:
         return "quick-actions"
     return initial_tab
 

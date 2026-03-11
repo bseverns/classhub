@@ -60,11 +60,11 @@ Current captures:
 
 ![Student join screen](images/press/01-student-join.png)
 
-![Student class landing (refresh queued)](images/press/02-student-class-view.png)
+![Student class landing](images/press/02-student-class-view.png)
 
-![Lesson page with helper (refresh queued)](images/press/05-lesson-with-helper.png)
+![Lesson page with helper](images/press/05-lesson-with-helper.png)
 
-![Submission dropbox (refresh queued)](images/press/06-submission-dropbox.png)
+![Submission dropbox](images/press/06-submission-dropbox.png)
 
 ![Teacher dashboard](images/press/03-teacher-dashboard.png)
 
@@ -89,6 +89,8 @@ Additional workflow captures:
 ![Student expanded view](images/press/17-student-expanded-view.png)
 
 ![Teacher landing editor](images/press/18-teacher-landing-editor.png)
+
+![RBAC tools tab](images/press/19-rbac-tools-tab.png)
 
 Capture instructions live in `press/screenshots/SHOTLIST.md`.
 

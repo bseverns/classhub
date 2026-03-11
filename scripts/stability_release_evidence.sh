@@ -176,6 +176,7 @@ run_guardrails() {
   python3 scripts/check_view_function_budgets.py
   python3 scripts/check_teacher_endpoint_capability_map.py
   python3 scripts/check_rbac_endpoint_guards.py
+  python3 scripts/check_docs_truth.py
   python3 scripts/check_frontend_static_refs.py
   python3 scripts/check_no_inline_template_js.py
   python3 scripts/check_no_inline_template_css.py

@@ -8,6 +8,7 @@ from .content_home_context import (
     _build_teach_home_staff_context,
     _build_template_download_rows,
     _portal_mode_context,
+    _read_advanced_tools_state,
     _read_org_admin_state,
     _read_portal_mode,
     _read_profile_state,
@@ -64,11 +65,12 @@ def teach_home(request):
     profile_state = _read_profile_state(request, request.user)
     rbac_tools_enabled = rbac_tools_enabled_for_user(request.user)
     rbac_tools_active = rbac_tools_requested(request) and rbac_tools_enabled
-    portal_mode = _read_portal_mode(request, user=request.user, rbac_tools_enabled=rbac_tools_enabled)
+    advanced_tools_enabled = _read_advanced_tools_state(request, user=request.user)
+    portal_mode = _read_portal_mode(
+        request, user=request.user, rbac_tools_enabled=rbac_tools_enabled, advanced_tools_enabled=advanced_tools_enabled
+    )
     portal_mode_context = _portal_mode_context(
-        user=request.user,
-        portal_mode=portal_mode,
-        rbac_tools_enabled=rbac_tools_enabled,
+        user=request.user, portal_mode=portal_mode, rbac_tools_enabled=rbac_tools_enabled, advanced_tools_enabled=advanced_tools_enabled
     )
     initial_tab = _resolve_initial_top_tab(
         user=request.user,
@@ -78,10 +80,7 @@ def teach_home(request):
         rbac_tools_active=rbac_tools_active,
     )
     initial_tab = _tab_for_portal_mode(
-        initial_tab,
-        portal_mode=portal_mode,
-        user=request.user,
-        rbac_tools_enabled=rbac_tools_enabled,
+        initial_tab, portal_mode=portal_mode, user=request.user, rbac_tools_enabled=rbac_tools_enabled, advanced_tools_enabled=advanced_tools_enabled
     )
     context_data = build_teacher_home_context_data(user=request.user)
     classes = context_data["classes"]
@@ -133,11 +132,7 @@ def teach_home(request):
         **portal_mode_context,
         "org_membership_strict_mode": bool(getattr(settings, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", False)),
     }
-    response = render(
-        request,
-        "teach_home.html",
-        context,
-    )
+    response = render(request, "teach_home.html", context)
     apply_no_store(response, private=True, pragma=True)
     return response
 

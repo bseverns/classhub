@@ -108,7 +108,7 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 - Redact: real class names and real external image URLs if needed
 
 19. `19-rbac-tools-tab.png`
-- Screen: teacher home (`/teach?rbac_tools=1`) RBAC tools tab
+- Screen: teacher home (`/teach?advanced=1&portal_mode=policy`) RBAC tools tab
 - Include: scoped grant upsert form + existing grants table + simulation result block
 - Include: custom-role forms/tables (custom roles, capabilities, and assignments)
 - Include: policy import/export area
@@ -142,13 +142,9 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 ## Priority order
 - Capture with approval workflow OFF (`CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0`) first, then optional refresh with workflow ON.
 - Optional supplemental file for ON mode: `19-rbac-tools-tab-approval-on.png`.
-12. `20-data-lifespan-evidence.png`
-13. `21-data-lifespan-export-terminal.png`
-
-### Then refresh older captures
-1. `02-student-class-view.png`
-2. `05-lesson-with-helper.png`
-3. `06-submission-dropbox.png`
+- Pending in current backlog:
+  - `20-data-lifespan-evidence.png`
+  - `21-data-lifespan-export-terminal.png`
 
 ## Placeholders
 - If these new screenshots are not captured yet, keep placeholders in

@@ -41,6 +41,15 @@
           <div class="row">
             <h2 class="section-title-tight">Portal modes</h2>
             <div class="muted">Choose a focused surface for this session.</div>
+            {% if advanced_tools_available %}
+              <div class="portal-mode-advanced-toggle">
+                {% if advanced_tools_enabled %}
+                  <a href="{{ advanced_tools_disable_url }}">Hide operator tools</a>
+                {% else %}
+                  <a href="{{ advanced_tools_enable_url }}">Show operator tools</a>
+                {% endif %}
+              </div>
+            {% endif %}
           </div>
           <div class="portal-mode-grid">
             {% for row in portal_mode_rows %}

@@ -13,11 +13,6 @@ Every filename listed in backlog has a clear owner and can be validated as captu
 - `press/screenshots/`
 - `docs/images/press/`
 
-## Refresh captures (real screenshot exists)
-- `02-student-class-view.png` (refresh capture to show current landing structure)
-- `05-lesson-with-helper.png` (refresh capture to show helper collapsed/open behavior)
-- `06-submission-dropbox.png` (refresh capture for simplified status copy)
-
 ## Capture backlog
 1. `19-rbac-tools-tab-approval-on.png` (optional RBAC companion capture with `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`)
 2. `20-data-lifespan-evidence.png` (retention trend + export controls + RAG panel with curriculum-only statement)
@@ -30,6 +25,7 @@ Every filename listed in backlog has a clear owner and can be validated as captu
 - `19-rbac-tools-tab-approval-on.png` (optional): show queued change requests and review controls with approval workflow ON.
 
 ## Notes
+- Baseline capture set `01` through `19` is complete.
 - Do not use production or real student/staff data.
 - Prefer local/demo class names and clearly synthetic emails.
 - Keep visual style consistent with existing screenshot set (browser width, zoom, and crop).

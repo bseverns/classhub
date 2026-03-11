@@ -2,7 +2,7 @@
           <div class="card card-secondary" data-tabs data-initial-tab="{{ initial_top_tab|default:'quick-actions' }}">
             <h2 class="section-title">Portal setup + account tools</h2>
             <div class="muted section-subtitle">
-              Start with Class setup. Use the other tabs for account, staffing, and policy operations.
+              Start with Class setup. Use advanced tools for staffing and policy operations.
             </div>
             <div class="top-tabs" role="tablist" aria-label="Teacher top actions">
             <button type="button" class="top-tab" id="tab-quick-actions" role="tab" aria-controls="panel-quick-actions" aria-selected="true">
@@ -11,12 +11,12 @@
             <button type="button" class="top-tab" id="tab-profile" role="tab" aria-controls="panel-profile" aria-selected="false">
               My profile
             </button>
-            {% if rbac_tools_enabled %}
+            {% if rbac_tools_enabled and advanced_tools_enabled %}
               <button type="button" class="top-tab" id="tab-rbac-tools" role="tab" aria-controls="panel-rbac-tools" aria-selected="false">
                 RBAC tools
               </button>
             {% endif %}
-            {% if request.user.is_superuser %}
+            {% if request.user.is_superuser and advanced_tools_enabled %}
               <button type="button" class="top-tab" id="tab-invite-teacher" role="tab" aria-controls="panel-invite-teacher" aria-selected="false">
                 Invite teacher
               </button>
@@ -30,9 +30,11 @@
 
           {% include "includes/teach_home/setup_sections_profile_panel.html" %}
 
-          {% include "includes/teach_home/setup_sections_rbac_panel.html" %}
+          {% if rbac_tools_enabled and advanced_tools_enabled %}
+            {% include "includes/teach_home/setup_sections_rbac_panel.html" %}
+          {% endif %}
 
-          {% if request.user.is_superuser %}
+          {% if request.user.is_superuser and advanced_tools_enabled %}
             {% include "includes/teach_home/setup_sections_invite_teacher_panel.html" %}
 
             {% include "includes/teach_home/setup_sections_org_admin_panel.html" %}
