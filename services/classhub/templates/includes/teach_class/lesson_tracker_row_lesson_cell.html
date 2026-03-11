@@ -1,0 +1,19 @@
+<td class="lesson-cell">
+  <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
+  <div class="muted mini">{{ row.course_slug }} / {{ row.lesson_slug }}</div>
+  <a class="quick" href="/teach/videos?class_id={{ classroom.id }}&course_slug={{ row.course_slug }}&lesson_slug={{ row.lesson_slug }}">Manage videos</a>
+  <a class="quick" href="/teach/assets?folder_id=0&course_slug={{ row.course_slug }}&lesson_slug={{ row.lesson_slug }}&status=all">Manage assets</a>
+  {% if row.review_url %}
+    <a class="quick" href="{{ row.review_url }}">{{ row.review_label }}</a>
+  {% endif %}
+  {% if row.teacher_material_html %}
+    <details class="teacher-note">
+      <summary>Teacher notes</summary>
+      <div class="teacher-note-body">{{ row.teacher_material_html|safe }}</div>
+    </details>
+  {% endif %}
+  <div class="release-box">
+    {% include "includes/teach_class/lesson_tracker_release_controls.html" %}
+    {% include "includes/teach_class/lesson_tracker_helper_tuning.html" %}
+  </div>
+</td>

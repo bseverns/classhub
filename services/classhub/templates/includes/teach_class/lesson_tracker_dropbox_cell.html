@@ -1,0 +1,17 @@
+<td class="dropbox-cell">
+  {% if row.dropboxes %}
+    {% for dropbox in row.dropboxes %}
+      <div class="dropbox">
+        <div><a href="/teach/material/{{ dropbox.id }}/submissions">{{ dropbox.title }}</a></div>
+        <div class="muted mini">Submitted {{ dropbox.submitted }} / {{ student_count }} · Missing {{ dropbox.missing }}{% if dropbox.last_uploaded_at %} · Latest {{ dropbox.last_uploaded_at }}{% endif %}</div>
+        <div class="actions">
+          <a href="/teach/material/{{ dropbox.id }}/submissions">Review submissions</a>
+          <a href="/teach/material/{{ dropbox.id }}/submissions?show=missing">Review missing</a>
+          <a href="/teach/material/{{ dropbox.id }}/submissions?download=zip_latest">ZIP latest</a>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <span class="muted mini">No upload dropbox in this module.</span>
+  {% endif %}
+</td>

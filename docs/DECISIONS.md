@@ -2762,3 +2762,19 @@ Execution ownership and gates:
 **Why this remains active:**
 - Continues reducing cognitive load in the heaviest `/teach/class` section without behavior change.
 - Avoids recreating a monolith inside one "section partial" by enforcing subsection boundaries.
+
+## Teach lesson tracker split into focused row/release/dropbox partials (2026-03-11)
+
+**Current decision:**
+- Split `lesson_tracker_card.html` into focused lesson-tracker partials:
+  - `lesson_tracker_row_lesson_cell.html`
+  - `lesson_tracker_dropbox_cell.html`
+  - `lesson_tracker_release_controls.html`
+  - `lesson_tracker_helper_tuning.html`
+- Keep `lesson_tracker_card.html` as section/table orchestration only.
+- Extend `check_teach_class_template_contract.py` to enforce nested include wiring for lesson tracker row/release/helper/dropbox partials.
+- Tighten `check_teach_class_section_budgets.py` with explicit budgets for each new lesson-tracker partial.
+
+**Why this remains active:**
+- Reduces cognitive load in lesson-tracker maintenance by isolating independent responsibilities.
+- Keeps release/helper tuning complexity from silently re-accumulating in the section wrapper.

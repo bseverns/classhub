@@ -90,6 +90,42 @@ def main() -> int:
         failures=failures,
     )
 
+    lesson_tracker_template = Path(
+        "services/classhub/templates/includes/teach_class/lesson_tracker_card.html"
+    )
+    try:
+        lesson_tracker_text = _read(lesson_tracker_template)
+    except RuntimeError as exc:
+        failures.append(str(exc))
+        lesson_tracker_text = ""
+    _require_snippets(
+        lesson_tracker_text,
+        path=lesson_tracker_template,
+        snippets=[
+            '{% include "includes/teach_class/lesson_tracker_row_lesson_cell.html" %}',
+            '{% include "includes/teach_class/lesson_tracker_dropbox_cell.html" %}',
+        ],
+        failures=failures,
+    )
+
+    lesson_tracker_row_template = Path(
+        "services/classhub/templates/includes/teach_class/lesson_tracker_row_lesson_cell.html"
+    )
+    try:
+        lesson_tracker_row_text = _read(lesson_tracker_row_template)
+    except RuntimeError as exc:
+        failures.append(str(exc))
+        lesson_tracker_row_text = ""
+    _require_snippets(
+        lesson_tracker_row_text,
+        path=lesson_tracker_row_template,
+        snippets=[
+            '{% include "includes/teach_class/lesson_tracker_release_controls.html" %}',
+            '{% include "includes/teach_class/lesson_tracker_helper_tuning.html" %}',
+        ],
+        failures=failures,
+    )
+
     # Include nested section partials in anchor checks.
     for nested_path in sorted(TEACH_CLASS_INCLUDE_DIR.glob("*.html")):
         try:

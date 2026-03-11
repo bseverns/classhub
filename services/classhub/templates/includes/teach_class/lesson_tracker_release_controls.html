@@ -1,0 +1,65 @@
+{% with release=row.release_state %}
+  <div class="release-status">
+    Release:
+    {% if release.is_locked %}
+      <span class="state-pill state-pill--locked">Locked</span>
+    {% else %}
+      <span class="state-pill state-pill--open">Open</span>
+    {% endif %}
+    {% if release.available_on %}
+      · Date <strong>{{ release.available_on|date:"M j, Y" }}</strong>
+    {% endif %}
+    {% if release.has_override %}
+      · Override active
+    {% else %}
+      · Content default
+    {% endif %}
+  </div>
+  <div class="release-actions">
+    <form method="post" action="/teach/lessons/release">
+      {% csrf_token %}
+      <input type="hidden" name="class_id" value="{{ classroom.id }}" />
+      <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
+      <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
+      <input type="hidden" name="action" value="set_date" />
+      <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
+      <label class="visually-hidden" for="release-date-class-{{ row.module.id }}">
+        Availability date for {{ row.lesson_title }}
+      </label>
+      <input
+        id="release-date-class-{{ row.module.id }}"
+        type="date"
+        name="available_on"
+        value="{% if release.override_available_on %}{{ release.override_available_on|date:'Y-m-d' }}{% endif %}"
+      />
+      <button type="submit">Set date</button>
+    </form>
+    <form method="post" action="/teach/lessons/release">
+      {% csrf_token %}
+      <input type="hidden" name="class_id" value="{{ classroom.id }}" />
+      <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
+      <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
+      <input type="hidden" name="action" value="toggle_lock" />
+      <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
+      <button type="submit">Toggle lock</button>
+    </form>
+    <form method="post" action="/teach/lessons/release">
+      {% csrf_token %}
+      <input type="hidden" name="class_id" value="{{ classroom.id }}" />
+      <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
+      <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
+      <input type="hidden" name="action" value="unlock_now" />
+      <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
+      <button type="submit">Open now</button>
+    </form>
+    <form method="post" action="/teach/lessons/release">
+      {% csrf_token %}
+      <input type="hidden" name="class_id" value="{{ classroom.id }}" />
+      <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
+      <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
+      <input type="hidden" name="action" value="reset_default" />
+      <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
+      <button type="submit">Reset default</button>
+    </form>
+  </div>
+{% endwith %}

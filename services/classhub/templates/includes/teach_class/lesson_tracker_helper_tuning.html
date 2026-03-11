@@ -1,0 +1,62 @@
+<details class="helper-tune">
+  <summary>
+    Helper tuning
+    {% if row.helper_tuning.has_override %}
+      <span class="muted mini">· Custom scope active</span>
+    {% else %}
+      <span class="muted mini">· Using lesson defaults</span>
+    {% endif %}
+  </summary>
+  <p class="muted mini hint">
+    Leave fields blank to use lesson defaults for this class.
+  </p>
+  <form method="post" action="/teach/lessons/release" class="helper-grid">
+    {% csrf_token %}
+    <input type="hidden" name="class_id" value="{{ classroom.id }}" />
+    <input type="hidden" name="course_slug" value="{{ row.course_slug }}" />
+    <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
+    <input type="hidden" name="action" value="set_helper_scope" />
+    <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
+
+    <label for="helper-context-{{ forloop.counter0 }}">Helper context</label>
+    <input
+      id="helper-context-{{ forloop.counter0 }}"
+      name="helper_context_override"
+      value="{{ row.helper_tuning.context_value }}"
+      maxlength="200"
+      placeholder="{{ row.helper_tuning.default_context }}"
+    />
+
+    <label for="helper-topics-{{ forloop.counter0 }}">Focus topics (one per line)</label>
+    <textarea
+      id="helper-topics-{{ forloop.counter0 }}"
+      name="helper_topics_override"
+    >{{ row.helper_tuning.topics_value }}</textarea>
+
+    <label for="helper-allowed-{{ forloop.counter0 }}">Allowed topics gate (one per line)</label>
+    <textarea
+      id="helper-allowed-{{ forloop.counter0 }}"
+      name="helper_allowed_topics_override"
+    >{{ row.helper_tuning.allowed_topics_value }}</textarea>
+
+    <label for="helper-reference-{{ forloop.counter0 }}">Reference key</label>
+    <input
+      id="helper-reference-{{ forloop.counter0 }}"
+      name="helper_reference_override"
+      value="{{ row.helper_tuning.reference_value }}"
+      maxlength="200"
+      placeholder="{{ row.helper_tuning.default_reference }}"
+    />
+    <button type="submit">Save helper tuning</button>
+  </form>
+  <div class="helper-defaults muted mini">
+    Defaults:
+    context <strong>{{ row.helper_tuning.default_context }}</strong>
+    {% if row.helper_tuning.default_topics %}
+      · topics {{ row.helper_tuning.default_topics|join:", " }}
+    {% endif %}
+    {% if row.helper_tuning.default_allowed_topics %}
+      · allowed {{ row.helper_tuning.default_allowed_topics|join:", " }}
+    {% endif %}
+  </div>
+</details>
