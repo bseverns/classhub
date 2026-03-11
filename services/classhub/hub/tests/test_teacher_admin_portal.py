@@ -1001,6 +1001,26 @@ class TeacherPortalTests(TestCase):
         self.assertNotContains(resp, f">{student.return_code}<", html=False)
         self.assertContains(resp, "Show")
 
+    def test_teach_class_start_here_links_match_section_anchors(self):
+        classroom = Class.objects.create(name="Period Layout", join_code="LAY12345")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Start Here In This Class")
+        self.assertContains(resp, 'href="#section-invite-links"')
+        self.assertContains(resp, 'href="#section-roster"')
+        self.assertContains(resp, 'href="#section-support-board"')
+        self.assertContains(resp, 'href="#section-outcomes"')
+        self.assertContains(resp, 'href="#section-helper-signals"')
+        self.assertContains(resp, 'href="#section-module-editor"')
+        self.assertContains(resp, 'id="section-invite-links"', html=False)
+        self.assertContains(resp, 'id="section-roster"', html=False)
+        self.assertContains(resp, 'id="section-support-board"', html=False)
+        self.assertContains(resp, 'id="section-outcomes"', html=False)
+        self.assertContains(resp, 'id="section-helper-signals"', html=False)
+        self.assertContains(resp, 'id="section-module-editor"', html=False)
+
     def test_teach_student_return_code_requires_staff(self):
         classroom = Class.objects.create(name="Period Roster", join_code="MASK1234")
         student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")

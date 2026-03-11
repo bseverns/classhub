@@ -1,0 +1,41 @@
+        <div class="card">
+          <details class="section-toggle" id="section-helper-signals">
+            <summary>
+              <span class="section-title">Helper Signals</span>
+              <span class="section-subtitle">Class helper usage insights from the last {{ helper_signals.window_hours }} hours</span>
+            </summary>
+            <div class="section-body">
+              <div class="signal-kpis">
+                <div class="signal-kpi"><strong>{{ helper_signals.total_events }}</strong> helper chats</div>
+                <div class="signal-kpi"><strong>{{ helper_signals.compacted_events }}</strong> compacted conversations</div>
+                <div class="signal-kpi">Avg follow-up suggestions <strong>{{ helper_signals.avg_follow_up_suggestions }}</strong></div>
+              </div>
+              {% if helper_signals.total_events %}
+                <div class="signal-grid">
+                  <div class="signal-panel">
+                    <strong>Intent mix</strong>
+                    <ul class="signal-list">
+                      {% for row in helper_signals.intent_rows %}
+                        <li><span class="pill">{{ row.intent }}</span> {{ row.count }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  <div class="signal-panel">
+                    <strong>Busiest students</strong>
+                    <ul class="signal-list">
+                      {% for row in helper_signals.busiest_students %}
+                        <li>
+                          <strong>{{ row.display_name }}</strong> · {{ row.chat_count }} chats
+                          {% if row.primary_intent %} · {{ row.primary_intent }}{% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              {% else %}
+                <p class="muted mini section-empty-note">No helper activity in this window yet.</p>
+              {% endif %}
+            </div>
+          </details>
+        </div>
+

@@ -1,0 +1,394 @@
+{% load hub_extras %}
+        <div class="card">
+          {% if notice %}
+            <p class="notice flash-banner">{{ notice }}</p>
+          {% endif %}
+          {% if error %}
+            <p class="error flash-banner">{{ error }}</p>
+          {% endif %}
+          <details class="section-toggle" id="section-landing-page">
+            <summary>
+              <span class="section-title">Student Landing Page</span>
+              <span class="section-subtitle">Set the title, message, and optional hero image students see first at /student.</span>
+            </summary>
+            <div class="section-body">
+              <form method="post" action="/teach/class/{{ classroom.id }}/update-landing-page" class="landing-edit-form">
+                {% csrf_token %}
+                <label for="student-landing-title">Landing title</label>
+                <input
+                  id="student-landing-title"
+                  name="student_landing_title"
+                  maxlength="200"
+                  value="{{ classroom.student_landing_title }}"
+                  placeholder="e.g., Week 3: Story + Motion"
+                />
+                <label for="student-landing-message">Landing message</label>
+                <textarea
+                  id="student-landing-message"
+                  name="student_landing_message"
+                  rows="4"
+                  maxlength="4000"
+                  placeholder="Optional notes for students, families, or assistants."
+                >{{ classroom.student_landing_message }}</textarea>
+                <label for="student-landing-hero-url">Hero image URL (optional)</label>
+                <input
+                  id="student-landing-hero-url"
+                  name="student_landing_hero_url"
+                  maxlength="500"
+                  value="{{ classroom.student_landing_hero_url }}"
+                  placeholder="/lesson-asset/123/download or https://example.org/banner.png"
+                />
+                <p class="muted mini no-top-margin">Use a same-origin path or an http/https URL. The weekly highlighted lesson is still controlled by lesson release dates.</p>
+                <button type="submit">Save landing page</button>
+              </form>
+            </div>
+          </details>
+          <details class="section-toggle" id="section-invite-links">
+            <summary>
+              <span class="section-title">Student Invite Links</span>
+              <span class="section-subtitle">Generate no-login links with optional expiry and seat caps.</span>
+            </summary>
+            <div class="section-body">
+              <form method="post" action="/teach/class/{{ classroom.id }}/create-invite-link" class="invite-create-form">
+                {% csrf_token %}
+                <label>
+                  Label (optional)
+                  <input name="label" maxlength="120" placeholder="e.g., Period 3 paid cohort" />
+                </label>
+                <label>
+                  Expires in hours (optional)
+                  <input name="expires_in_hours" type="number" min="1" max="2160" placeholder="e.g., 72" />
+                </label>
+                <label>
+                  Seat cap (optional)
+                  <input name="seat_cap" type="number" min="1" max="5000" placeholder="e.g., 24" />
+                </label>
+                <button type="submit">Create invite link</button>
+              </form>
+              {% if invite_links %}
+                <div class="roster-table-wrap invite-table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Student invite links for {{ classroom.name }}</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Label</th>
+                        <th scope="col">Link</th>
+                        <th scope="col">Seats</th>
+                        <th scope="col">Expires</th>
+                        <th scope="col">Status</th>
+                        <th scope="col"><span class="visually-hidden">Action</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for invite in invite_links %}
+                        <tr>
+                          <th scope="row">{{ invite.label|default:"(no label)" }}</th>
+                          <td>
+                            <code>{{ invite.invite_url }}</code>
+                            <button type="button" class="inline-copy" data-copy-value="{{ invite.invite_url }}">Copy</button>
+                          </td>
+                          <td>
+                            {% if invite.max_uses %}
+                              {{ invite.use_count }} / {{ invite.max_uses }}
+                              {% if invite.seats_remaining_value is not None %}
+                                <span class="muted mini"> · {{ invite.seats_remaining_value }} left</span>
+                              {% endif %}
+                            {% else %}
+                              Unlimited
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if invite.expires_at %}
+                              {{ invite.expires_at|date:"M j, Y g:i A" }}
+                            {% else %}
+                              Never
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if invite.is_active and not invite.is_expired_now %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% elif not invite.is_active %}
+                              <span class="state-pill state-pill--locked">Disabled</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Expired</span>
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if invite.is_active %}
+                              <form method="post" action="/teach/class/{{ classroom.id }}/disable-invite-link">
+                                {% csrf_token %}
+                                <input type="hidden" name="invite_id" value="{{ invite.id }}" />
+                                <button type="submit">Disable</button>
+                              </form>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted section-empty-note">No invite links yet.</p>
+              {% endif %}
+            </div>
+          </details>
+          {% if request.user.is_superuser %}
+            <details class="section-toggle" id="section-staff-assignments">
+              <summary>
+                <span class="section-title">Teaching Staff Assignments</span>
+                <span class="section-subtitle">Set who is assigned to this class for teacher portal priority views.</span>
+              </summary>
+              <div class="section-body">
+                <form method="post" action="/teach/class-staff-assignment/upsert" class="class-assignment-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="class_assignment_class_id" value="{{ classroom.id }}" />
+                  <input type="hidden" name="class_assignment_return_to" value="/teach/class/{{ classroom.id }}" />
+                  <label for="class-assignment-user-select">Teacher account</label>
+                  <select id="class-assignment-user-select" name="class_assignment_user_id" required>
+                    <option value="">Select teacher account</option>
+                    {% for account in class_assignment_staff_users %}
+                      <option value="{{ account.id }}">{{ account.username }}</option>
+                    {% endfor %}
+                  </select>
+                  <label class="inline-check-label no-top-margin">
+                    <input type="checkbox" name="class_assignment_active" value="1" class="inline-check-input" checked />
+                    Assignment active
+                  </label>
+                  <button type="submit">Save assignment</button>
+                </form>
+
+                {% if class_staff_assignments %}
+                  <div class="roster-table-wrap assignment-table-wrap">
+                    <table>
+                      <caption class="visually-hidden">Teaching staff assignments for {{ classroom.name }}</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">User</th>
+                          <th scope="col">Status</th>
+                          <th scope="col"><span class="visually-hidden">Action</span></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for assignment in class_staff_assignments %}
+                          <tr>
+                            <th scope="row">{{ assignment.user.username }}</th>
+                            <td>
+                              {% if assignment.is_active %}
+                                <span class="state-pill state-pill--open">Active</span>
+                              {% else %}
+                                <span class="state-pill state-pill--locked">Inactive</span>
+                              {% endif %}
+                            </td>
+                            <td>
+                              <form method="post" action="/teach/class-staff-assignment/upsert" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="class_assignment_class_id" value="{{ classroom.id }}" />
+                                <input type="hidden" name="class_assignment_user_id" value="{{ assignment.user.id }}" />
+                                <input type="hidden" name="class_assignment_return_to" value="/teach/class/{{ classroom.id }}" />
+                                {% if assignment.is_active %}
+                                  <input type="hidden" name="class_assignment_active" value="0" />
+                                  <button type="submit">Set inactive</button>
+                                {% else %}
+                                  <input type="hidden" name="class_assignment_active" value="1" />
+                                  <button type="submit">Set active</button>
+                                {% endif %}
+                              </form>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                {% else %}
+                  <p class="muted section-empty-note">No teaching staff assignments yet for this class.</p>
+                {% endif %}
+              </div>
+            </details>
+          {% endif %}
+          <details class="section-toggle" id="section-roster">
+            <summary>
+              <span class="section-title">Roster</span>
+              <span class="section-subtitle">Rename or merge duplicate students quickly. Reset roster between drop-in cohorts.</span>
+            </summary>
+            <div class="section-body">
+              {% if students %}
+                <div class="roster-table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Student roster for {{ classroom.name }}</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Student</th>
+                        <th scope="col">Return code</th>
+                        <th scope="col">Submissions</th>
+                        <th scope="col">Support tags</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for st in students %}
+                        <tr>
+                          <th scope="row"><strong>{{ st.display_name }}</strong></th>
+                          <td>
+                            <span
+                              id="student-return-code-{{ st.id }}"
+                              class="pill secret-code"
+                              data-return-code-student-id="{{ st.id }}"
+                              data-shown="0"
+                            >••••••</span>
+                            <button
+                              type="button"
+                              class="inline-copy"
+                              data-secret-target="student-return-code-{{ st.id }}"
+                              data-show-label="Show return code for {{ st.display_name }}"
+                              data-hide-label="Hide return code for {{ st.display_name }}"
+                              aria-controls="student-return-code-{{ st.id }}"
+                              aria-pressed="false"
+                              aria-label="Show return code for {{ st.display_name }}"
+                            >Show</button>
+                            <button
+                              type="button"
+                              class="inline-copy"
+                              data-copy-secret-target="student-return-code-{{ st.id }}"
+                              aria-label="Copy return code for {{ st.display_name }}"
+                            >Copy</button>
+                          </td>
+                          <td class="muted mini">{{ submission_counts_by_student|get_item:st.id|default:0 }}</td>
+                          <td>
+                            {% with student_tags=support_tags_by_student|get_item:st.id %}
+                              {% if student_tags %}
+                                <ul class="support-tag-list">
+                                  {% for tag in student_tags %}
+                                    <li>
+                                      <span class="pill">{{ tag.label }}</span>
+                                      <form method="post" action="/teach/class/{{ classroom.id }}/support-tag/remove" class="inline-remove-tag">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="student_id" value="{{ st.id }}" />
+                                        <input type="hidden" name="tag" value="{{ tag.value }}" />
+                                        <button type="submit">Remove</button>
+                                      </form>
+                                    </li>
+                                  {% endfor %}
+                                </ul>
+                              {% else %}
+                                <span class="muted mini">No tags yet.</span>
+                              {% endif %}
+                            {% endwith %}
+                            <form method="post" action="/teach/class/{{ classroom.id }}/support-tag/add" class="support-tag-row">
+                              {% csrf_token %}
+                              <input type="hidden" name="student_id" value="{{ st.id }}" />
+                              <label class="visually-hidden" for="support-tag-{{ st.id }}">Support tag for {{ st.display_name }}</label>
+                              <select id="support-tag-{{ st.id }}" name="tag">
+                                {% for tag in support_tag_choices %}
+                                  <option value="{{ tag.value }}">{{ tag.label }}</option>
+                                {% endfor %}
+                              </select>
+                              <button type="submit">Add tag</button>
+                            </form>
+                          </td>
+                          <td>
+                            <form method="post" action="/teach/class/{{ classroom.id }}/rename-student" class="rename-row">
+                              {% csrf_token %}
+                              <input type="hidden" name="student_id" value="{{ st.id }}" />
+                              <input
+                                name="display_name"
+                                value="{{ st.display_name }}"
+                                maxlength="80"
+                                aria-label="Rename {{ st.display_name }}"
+                              />
+                              <button type="submit">Rename</button>
+                            </form>
+                            <form method="post" action="/teach/class/{{ classroom.id }}/delete-student-data" class="delete-row" data-confirm="Permanently delete all stored data for this student now? This cannot be undone.">
+                              {% csrf_token %}
+                              <input type="hidden" name="student_id" value="{{ st.id }}" />
+                              <label class="inline-check-label">
+                                <input type="checkbox" name="confirm_delete" value="1" class="inline-check-input" required />
+                                I understand this permanently deletes this student's data
+                              </label>
+                              <button type="submit" class="danger-inline">Delete student data now</button>
+                            </form>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted section-empty-note">No students in roster yet.</p>
+              {% endif %}
+
+              {% if students|length > 1 %}
+                <div class="merge-zone">
+                  <strong>Merge student records</strong>
+                  <p class="muted mini merge-note">
+                    Use this when the same student appears twice after rejoining with class code.
+                    The source student is removed, and submissions/events are moved to the destination student.
+                  </p>
+                  <form
+                    method="post"
+                    action="/teach/class/{{ classroom.id }}/merge-students"
+                    data-confirm="Permanently merge selected student records now? This cannot be undone."
+                  >
+                    {% csrf_token %}
+                    <div class="merge-row">
+                      <label>
+                        Source student
+                        <select name="source_student_id" required>
+                          <option value="">Select source</option>
+                          {% for st in students %}
+                            <option value="{{ st.id }}">{{ st.display_name }} (#{{ st.id }})</option>
+                          {% endfor %}
+                        </select>
+                      </label>
+                      <label>
+                        Destination student
+                        <select name="target_student_id" required>
+                          <option value="">Select destination</option>
+                          {% for st in students %}
+                            <option value="{{ st.id }}">{{ st.display_name }} (#{{ st.id }})</option>
+                          {% endfor %}
+                        </select>
+                      </label>
+                      <label class="inline-check-label merge-confirm-label">
+                        <input type="checkbox" name="confirm_merge" value="1" class="inline-check-input" required />
+                        I understand this merge is permanent
+                      </label>
+                      <button type="submit">Merge students</button>
+                    </div>
+                  </form>
+                </div>
+              {% endif %}
+
+              <div class="danger-zone">
+                <strong>Reset roster (destructive)</strong>
+                <p class="muted mini danger-copy">
+                  This removes all students in this class and deletes their submissions. Active student sessions are invalidated immediately.
+                </p>
+                <form method="post" action="/teach/class/{{ classroom.id }}/reset-roster" data-confirm="Reset roster for this class now? This permanently deletes all students and submissions in this class.">
+                  {% csrf_token %}
+                  <label class="inline-check-label no-top-margin">
+                    <input type="checkbox" name="rotate_code" value="1" checked class="inline-check-input" />
+                    Rotate class join code after roster reset
+                  </label>
+                  <button type="submit">Reset roster now (delete roster + submissions)</button>
+                </form>
+                <hr class="danger-divider" />
+                <strong>Reset helper conversations (destructive)</strong>
+                <p class="muted mini danger-copy">
+                  Exports a class helper snapshot (for internal research) and then clears cached helper chat history for this class only.
+                </p>
+                <form method="post" action="/teach/class/{{ classroom.id }}/reset-helper-conversations" data-confirm="Reset helper conversations for this class now? Cached helper chat history for this class will be cleared.">
+                  {% csrf_token %}
+                  <input type="hidden" name="export_before_reset" value="0" />
+                  <label class="inline-check-label no-top-margin">
+                    <input type="checkbox" name="export_before_reset" value="1" checked class="inline-check-input" />
+                    Export snapshot before clearing cache
+                  </label>
+                  <p class="muted mini merge-note">
+                    Access to exported helper data is limited to class teachers and createMPLS administrators.
+                  </p>
+                  <button type="submit">Reset helper conversations now</button>
+                </form>
+              </div>
+            </div>
+          </details>
+        </div>

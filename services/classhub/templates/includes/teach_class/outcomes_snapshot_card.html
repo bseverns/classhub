@@ -1,0 +1,41 @@
+        <div class="card">
+          <details class="section-toggle" id="section-outcomes">
+            <summary>
+              <span class="section-title">Outcomes Snapshot</span>
+              <span class="section-subtitle">Certificate-ready learner progress from the last {{ outcome_snapshot.window_days }} days</span>
+            </summary>
+            <div class="section-body">
+              <div class="signal-kpis">
+                <div class="signal-kpi"><strong>{{ outcome_snapshot.total_sessions }}</strong> session completions</div>
+                <div class="signal-kpi"><strong>{{ outcome_snapshot.total_artifacts }}</strong> artifact submissions</div>
+                <div class="signal-kpi"><strong>{{ outcome_snapshot.total_milestones }}</strong> milestones</div>
+                <div class="signal-kpi"><strong>{{ outcome_snapshot.eligible_students }}/{{ outcome_snapshot.total_students }}</strong> certificate eligible</div>
+              </div>
+              <p class="muted mini merge-note">
+                Eligibility threshold: {{ outcome_snapshot.certificate_min_sessions }} sessions and {{ outcome_snapshot.certificate_min_artifacts }} artifacts.
+              </p>
+              <p class="muted mini merge-note">
+                <a href="/teach/class/{{ classroom.id }}/certificate-eligibility">Open full eligibility view</a> to review all students and manually mark offline session completion.
+              </p>
+              {% if outcome_snapshot.top_students %}
+                <div class="signal-panel">
+                  <strong>Top outcome students</strong>
+                  <ul class="signal-list">
+                    {% for row in outcome_snapshot.top_students %}
+                      <li>
+                        <strong>{{ row.display_name }}</strong>
+                        · {{ row.session_count }} sessions
+                        · {{ row.artifact_count }} artifacts
+                        · {{ row.milestone_count }} milestones
+                        {% if row.certificate_eligible %} · eligible{% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% else %}
+                <p class="muted mini section-empty-note">No outcome events recorded yet.</p>
+              {% endif %}
+            </div>
+          </details>
+        </div>
+

@@ -2693,3 +2693,24 @@ Execution ownership and gates:
 **Why this remains active:**
 - Removes ambiguity where example env files looked "wrong" against release-only checks.
 - Reduces drift risk by eliminating duplicate runtime-lock logic across scripts.
+
+## Teach class template decomposition contract (2026-03-11)
+
+**Current decision:**
+- Keep `services/classhub/templates/teach_class.html` as the orchestration shell only (header, class focus block, include wiring).
+- Move heavy section cards into `services/classhub/templates/includes/teach_class/*` partials:
+  - class setup + roster,
+  - facilitator support board,
+  - outcomes snapshot,
+  - helper signals,
+  - lesson tracker,
+  - module editor.
+- Add `scripts/check_teach_class_template_contract.py` as a guardrail that enforces:
+  - root template size budget (`teach_class.html` <= 220 lines),
+  - required include wiring,
+  - required section anchor IDs in partials.
+- Run this guard in `scripts/stability_release_evidence.sh` guardrails.
+
+**Why this remains active:**
+- Reduces cognitive load in the main `/teach/class` template without changing behavior.
+- Prevents silent template re-growth by making decomposition an explicit contract.
