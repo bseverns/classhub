@@ -6,15 +6,17 @@
 
 .md-typeset .mermaid {
   margin: 1.25em 0;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.25rem;
 }
 
 .md-typeset .mermaid > svg {
   display: block;
-  width: 100%;
-  height: auto;
-  max-width: 100%;
-  min-width: 0;
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
 }
 
 .md-typeset .mermaid.diagram-zoomable {
