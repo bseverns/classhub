@@ -63,6 +63,33 @@
           </div>
         </div>
 
+        <div class="card card-secondary class-focus-card">
+          <div class="row">
+            <h2 class="section-title-tight">Start Here In This Class</h2>
+            <div class="muted">Use day-of-class actions first, then open deeper setup/policy panels only as needed.</div>
+          </div>
+          <div class="class-focus-grid">
+            <div class="class-focus-column">
+              <h3 class="section-title-compact">Run class now</h3>
+              <ul class="class-focus-list">
+                <li><a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">Print or share join card</a></li>
+                <li><a href="/teach/lessons?class_id={{ classroom.id }}">Open lesson tracker + release controls</a></li>
+                <li><a href="#section-support-board">Check facilitator support board</a></li>
+                <li><a href="#section-outcomes">Check outcomes snapshot</a></li>
+              </ul>
+            </div>
+            <div class="class-focus-column">
+              <h3 class="section-title-compact">Setup + cleanup</h3>
+              <ul class="class-focus-list">
+                <li><a href="#section-invite-links">Manage invite links + seat caps</a></li>
+                <li><a href="#section-roster">Fix roster identity issues</a></li>
+                <li><a href="#section-helper-signals">Review helper signal trends</a></li>
+                <li><a href="#section-module-editor">Edit module order/content</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           {% if notice %}
             <p class="notice flash-banner">{{ notice }}</p>
@@ -70,7 +97,7 @@
           {% if error %}
             <p class="error flash-banner">{{ error }}</p>
           {% endif %}
-          <details class="section-toggle">
+          <details class="section-toggle" id="section-landing-page">
             <summary>
               <span class="section-title">Student Landing Page</span>
               <span class="section-subtitle">Set the title, message, and optional hero image students see first at /student.</span>
@@ -107,7 +134,7 @@
               </form>
             </div>
           </details>
-          <details class="section-toggle">
+          <details class="section-toggle" id="section-invite-links">
             <summary>
               <span class="section-title">Student Invite Links</span>
               <span class="section-subtitle">Generate no-login links with optional expiry and seat caps.</span>
@@ -197,7 +224,7 @@
             </div>
           </details>
           {% if request.user.is_superuser %}
-            <details class="section-toggle">
+            <details class="section-toggle" id="section-staff-assignments">
               <summary>
                 <span class="section-title">Teaching Staff Assignments</span>
                 <span class="section-subtitle">Set who is assigned to this class for teacher portal priority views.</span>
@@ -269,7 +296,7 @@
               </div>
             </details>
           {% endif %}
-          <details class="section-toggle">
+          <details class="section-toggle" id="section-roster">
             <summary>
               <span class="section-title">Roster</span>
               <span class="section-subtitle">Rename or merge duplicate students quickly. Reset roster between drop-in cohorts.</span>
@@ -458,7 +485,7 @@
         </div>
 
         <div class="card">
-          <details class="section-toggle" open>
+          <details class="section-toggle" id="section-support-board">
             <summary>
               <span class="section-title">Facilitator Support Board</span>
               <span class="section-subtitle">Help-first signals for this class (manual refresh)</span>
@@ -561,7 +588,7 @@
         </div>
 
         <div class="card">
-          <details class="section-toggle">
+          <details class="section-toggle" id="section-outcomes">
             <summary>
               <span class="section-title">Outcomes Snapshot</span>
               <span class="section-subtitle">Certificate-ready learner progress from the last {{ outcome_snapshot.window_days }} days</span>
@@ -602,7 +629,7 @@
         </div>
 
         <div class="card">
-          <details class="section-toggle">
+          <details class="section-toggle" id="section-helper-signals">
             <summary>
               <span class="section-title">Helper Signals</span>
               <span class="section-subtitle">Class helper usage insights from the last {{ helper_signals.window_hours }} hours</span>
@@ -643,7 +670,7 @@
         </div>
 
         <div class="card">
-          <details class="section-toggle">
+          <details class="section-toggle" id="section-lesson-tracker">
             <summary>
               <span class="section-title">Lesson Tracker</span>
               <span class="section-subtitle">Course/lesson links with submission coverage</span>
@@ -838,7 +865,7 @@
         </div>
 
         <div class="card">
-          <details class="section-toggle">
+          <details class="section-toggle" id="section-module-editor">
             <summary>
               <span class="section-title">Module Editor</span>
               <span class="section-subtitle">Order matters. Keep it predictable.</span>

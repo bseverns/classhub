@@ -67,10 +67,10 @@ def teach_home(request):
     rbac_tools_active = rbac_tools_requested(request) and rbac_tools_enabled
     advanced_tools_enabled = _read_advanced_tools_state(request, user=request.user)
     portal_mode = _read_portal_mode(
-        request, user=request.user, rbac_tools_enabled=rbac_tools_enabled, advanced_tools_enabled=advanced_tools_enabled
+        request, user=request.user, advanced_tools_enabled=advanced_tools_enabled
     )
     portal_mode_context = _portal_mode_context(
-        user=request.user, portal_mode=portal_mode, rbac_tools_enabled=rbac_tools_enabled, advanced_tools_enabled=advanced_tools_enabled
+        user=request.user, portal_mode=portal_mode, advanced_tools_enabled=advanced_tools_enabled
     )
     initial_tab = _resolve_initial_top_tab(
         user=request.user,
@@ -80,7 +80,7 @@ def teach_home(request):
         rbac_tools_active=rbac_tools_active,
     )
     initial_tab = _tab_for_portal_mode(
-        initial_tab, portal_mode=portal_mode, user=request.user, rbac_tools_enabled=rbac_tools_enabled, advanced_tools_enabled=advanced_tools_enabled
+        initial_tab, portal_mode=portal_mode, user=request.user, advanced_tools_enabled=advanced_tools_enabled
     )
     context_data = build_teacher_home_context_data(user=request.user)
     classes = context_data["classes"]

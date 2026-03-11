@@ -72,7 +72,7 @@ def main() -> int:
         setup_sections_text,
         path=SETUP_SECTIONS_TEMPLATE,
         snippets=[
-            "Operator + policy workflows live behind advanced tools.",
+            "Superuser operator + policy workflows live behind Show operator tools.",
         ],
         failures=failures,
     )

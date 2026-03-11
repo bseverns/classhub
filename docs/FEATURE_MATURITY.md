@@ -41,11 +41,11 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | Organization boundaries (membership + role templates) | Live (default) | `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` controls fallback behavior | Cross-org class visibility tests in `test_teacher_admin_portal.py`. |
 | RBAC scoped grants | Live (flagged) | `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=1` | RBAC simulation + scoped grant tests pass. |
 | RBAC delegated approvals | Live (flagged) | `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1` | Pending queue + review actions visible in `/teach` RBAC tools. |
-| RBAC policy import/export | Live (default) | Owner/admin/superuser capability scope | `/teach/rbac/policy/export` + import validation checks. |
+| RBAC policy import/export | Live (default) | Superuser RBAC tools scope (`/teach` advanced policy mode) | `/teach/rbac/policy/export` + import validation checks. |
 | Helper policy strictness/scope/topic filtering | Live (default, profile-driven) | Env override > helper YAML > profile default | `/helper/chat` policy response behavior matches expected strictness. |
 | Helper YAML config layering | Live (default, optional) | `HELPER_CONFIG_FILE` path (optional) | Helper engine config-source tests in `tutor.tests.test_engine`. |
 | Async/self-paced sequencing workflows | RFC | See `ASYNC_SELF_PACED_RFC.md` | No runtime SLA yet; treat as roadmap only. |
-| Telemetry DB split | RFC / staged plan | See `TELEMETRY_DB_SPLIT_PLAN.md` | Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is shipped (flags + telemetry schema app + router + centralized dual-write seam + read abstraction on key teacher/operator rollups + idempotent backfill command + parity checker command). Slice 7 evidence tooling (`scripts/telemetry_stabilization_evidence.sh`) is shipped, while stabilization evidence and final cutover gates remain pending. |
+| Telemetry DB split | RFC / staged plan | See `TELEMETRY_DB_SPLIT_PLAN.md` | Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is shipped and Slice 7 release-cycle evidence capture is complete (`artifacts/stability/2026-03-10/telemetry/` parity + strict smoke + rollback drill). Final write-mode cutover gates remain intentionally deferred. |
 
 ## Recommended rollout sequence (RBAC + helper)
 1. Keep `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=0` and `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0`.

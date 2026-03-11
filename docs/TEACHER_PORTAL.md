@@ -212,11 +212,11 @@ Use this section in two passes:
 
 - `/teach`:
   - optional view mode switcher (`?portal_mode=`):
-    - `all` (default): show all teacher surfaces
+    - `setup` (default): setup/import/template surfaces
     - `day`: class-day surfaces only (focus + digest + closeout + recent submissions)
-    - `setup`: setup/import/template surfaces
-    - `admin`: superuser-only organization/setup surfaces
-    - `policy`: advanced permission/policy surfaces (superuser or policy-enabled staff)
+    - `all`: superuser + advanced-mode full cockpit
+    - `admin`: superuser + advanced-mode organization/setup surfaces
+    - `policy`: superuser + advanced-mode RBAC/policy surfaces
   - class list
   - one-click `Copy` for class join codes
   - superuser-only operator config snapshot card:

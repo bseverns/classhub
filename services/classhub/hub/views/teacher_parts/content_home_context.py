@@ -66,7 +66,6 @@ def _read_portal_mode(
     request,
     *,
     user,
-    rbac_tools_enabled: bool,
     advanced_tools_enabled: bool,
 ) -> str:
     requested = (request.GET.get("portal_mode") or "").strip().lower()
@@ -75,7 +74,7 @@ def _read_portal_mode(
     if user.is_superuser and advanced_tools_enabled:
         allowed.add("all")
         allowed.add("admin")
-    if advanced_tools_enabled and (user.is_superuser or rbac_tools_enabled):
+    if advanced_tools_enabled and user.is_superuser:
         allowed.add("policy")
     if requested not in allowed:
         return default_mode
@@ -95,7 +94,7 @@ def _portal_mode_row(*, mode_id: str, label: str, description: str, portal_mode:
     }
 
 
-def _portal_mode_rows(*, user, portal_mode: str, rbac_tools_enabled: bool, advanced_tools_enabled: bool) -> list[dict]:
+def _portal_mode_rows(*, user, portal_mode: str, advanced_tools_enabled: bool) -> list[dict]:
     rows = [
         _portal_mode_row(
             mode_id="day",
@@ -132,7 +131,7 @@ def _portal_mode_rows(*, user, portal_mode: str, rbac_tools_enabled: bool, advan
                 advanced_tools_enabled=advanced_tools_enabled,
             )
         )
-    if advanced_tools_enabled and (user.is_superuser or rbac_tools_enabled):
+    if advanced_tools_enabled and user.is_superuser:
         rows.append(
             _portal_mode_row(
                 mode_id="policy",
@@ -145,14 +144,12 @@ def _portal_mode_rows(*, user, portal_mode: str, rbac_tools_enabled: bool, advan
     return rows
 
 
-def _portal_mode_context(*, user, portal_mode: str, rbac_tools_enabled: bool, advanced_tools_enabled: bool) -> dict:
+def _portal_mode_context(*, user, portal_mode: str, advanced_tools_enabled: bool) -> dict:
     advanced_tools_available = bool(user.is_superuser)
     show_day_sections = portal_mode in {"all", "day"}
     show_setup_sections = portal_mode in {"all", "setup"}
     show_admin_sections = bool(user.is_superuser and advanced_tools_enabled and portal_mode in {"all", "admin"})
-    show_policy_sections = bool(
-        advanced_tools_enabled and (user.is_superuser or rbac_tools_enabled) and portal_mode in {"all", "policy"}
-    )
+    show_policy_sections = bool(advanced_tools_enabled and user.is_superuser and portal_mode in {"all", "policy"})
 
     return {
         "portal_mode": portal_mode,
@@ -166,7 +163,6 @@ def _portal_mode_context(*, user, portal_mode: str, rbac_tools_enabled: bool, ad
         "portal_mode_rows": _portal_mode_rows(
             user=user,
             portal_mode=portal_mode,
-            rbac_tools_enabled=rbac_tools_enabled,
             advanced_tools_enabled=advanced_tools_enabled,
         ),
         "show_day_sections": show_day_sections,
@@ -182,12 +178,11 @@ def _tab_for_portal_mode(
     *,
     portal_mode: str,
     user,
-    rbac_tools_enabled: bool,
     advanced_tools_enabled: bool,
 ) -> str:
     if portal_mode == "admin" and user.is_superuser and advanced_tools_enabled:
         return "org-admin"
-    if portal_mode == "policy" and rbac_tools_enabled and advanced_tools_enabled:
+    if portal_mode == "policy" and user.is_superuser and advanced_tools_enabled:
         return "rbac-tools"
     if portal_mode in {"setup", "day"} and initial_tab in {"org-admin", "invite-teacher", "rbac-tools"}:
         return "quick-actions"

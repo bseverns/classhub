@@ -2402,11 +2402,11 @@ Execution ownership and gates:
 **Current decision:**
 - Keep `/teach` as the same route, but add an explicit mode switcher contract via query param `portal_mode`.
 - Supported modes:
-  - `all` (default),
+  - `setup` (default),
   - `day`,
-  - `setup`,
-  - `admin` (superuser-only),
-  - `policy` (superuser or RBAC-enabled staff).
+  - `all` (superuser + advanced mode),
+  - `admin` (superuser + advanced mode),
+  - `policy` (superuser + advanced mode).
 - Apply mode visibility as rendering filters over existing sections/cards:
   - `day`: class-focus + digest + closeout + recent submissions.
   - `setup`: class setup, profile, import/template tools.
@@ -2416,7 +2416,7 @@ Execution ownership and gates:
 
 **Why this remains active:**
 - Reduces first-contact cognitive load in `/teach` without removing existing capability.
-- Preserves backward compatibility (`/teach` default remains full cockpit).
+- Preserves backward compatibility (`/teach` remains the same route with mode filtering rather than route sprawl).
 - Aligns with stability-plan constraints to simplify entry-path complexity before adding net-new surface area.
 
 ## Strict org-boundary compatibility for legacy unscoped classes
