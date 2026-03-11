@@ -76,21 +76,56 @@ load_class_code_from_env_file() {
 }
 
 build_cookie_header_from_jar() {
-  awk '
-    BEGIN { first=1 }
-    !/^#/ && NF >= 7 {
-      if (!first) {
-        printf "; "
-      }
-      printf "%s=%s", $6, $7
-      first=0
-    }
-    END { print "" }
-  ' "$1"
+  python3 - "$1" <<'PY'
+import sys
+from pathlib import Path
+
+jar_path = Path(sys.argv[1])
+pairs = []
+for raw_line in jar_path.read_text(encoding="utf-8").splitlines():
+    line = raw_line.strip()
+    if not line:
+        continue
+    if line.startswith("#HttpOnly_"):
+        line = line.replace("#HttpOnly_", "", 1)
+    elif line.startswith("#"):
+        continue
+    parts = line.split("\t")
+    if len(parts) < 7:
+        continue
+    name = parts[5].strip()
+    value = parts[6].strip()
+    if not name:
+        continue
+    pairs.append(f"{name}={value}")
+
+print("; ".join(pairs))
+PY
 }
 
 extract_csrf_from_jar() {
-  awk '$6=="csrftoken"{print $7}' "$1" | tail -n1
+  python3 - "$1" <<'PY'
+import sys
+from pathlib import Path
+
+jar_path = Path(sys.argv[1])
+token = ""
+for raw_line in jar_path.read_text(encoding="utf-8").splitlines():
+    line = raw_line.strip()
+    if not line:
+        continue
+    if line.startswith("#HttpOnly_"):
+        line = line.replace("#HttpOnly_", "", 1)
+    elif line.startswith("#"):
+        continue
+    parts = line.split("\t")
+    if len(parts) < 7:
+        continue
+    if parts[5].strip() == "csrftoken":
+        token = parts[6].strip()
+
+print(token)
+PY
 }
 
 bootstrap_student_auth() {
