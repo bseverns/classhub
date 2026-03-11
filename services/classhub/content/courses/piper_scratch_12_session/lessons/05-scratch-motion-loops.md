@@ -1,5 +1,5 @@
 ---
-course: piper-scratch-12
+course: piper_scratch_12_session
 session: 5
 slug: s05-scratch-motion-loops
 title: "Level 1 Design: Win Conditions + Game Map"

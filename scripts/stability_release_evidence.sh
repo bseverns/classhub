@@ -141,6 +141,7 @@ EVIDENCE_DIR="${ROOT_DIR}/artifacts/stability/${RELEASE_DATE}"
 mkdir -p "${EVIDENCE_DIR}"
 RESTORE_METRICS_PATH="${EVIDENCE_DIR}/restore_rehearsal_metrics.json"
 RESTORE_SUMMARY_PATH="${EVIDENCE_DIR}/restore_rehearsal_summary.md"
+EVIDENCE_INDEX_PATH="${EVIDENCE_DIR}/EVIDENCE_INDEX.md"
 
 FAILED=0
 CHECK_ROWS=()
@@ -172,21 +173,24 @@ run_check() {
 }
 
 run_guardrails() {
-  python3 scripts/check_view_size_budgets.py
-  python3 scripts/check_view_function_budgets.py
-  python3 scripts/check_teacher_endpoint_capability_map.py
-  python3 scripts/check_teacher_top_tasks_contract.py
-  python3 scripts/check_teach_class_template_contract.py
-  python3 scripts/check_teach_class_section_budgets.py
-  python3 scripts/check_teacher_roster_service_contract.py
-  python3 scripts/check_teacher_policy_mode_contract.py
-  python3 scripts/check_press_capture_backlog_contract.py
-  python3 scripts/check_rbac_endpoint_guards.py
-  python3 scripts/check_runtime_policy_lock.py --profile release
-  python3 scripts/check_docs_truth.py
-  python3 scripts/check_frontend_static_refs.py
-  python3 scripts/check_no_inline_template_js.py
-  python3 scripts/check_no_inline_template_css.py
+  local failed=0
+  python3 scripts/check_lesson_course_slug_consistency.py || failed=1
+  python3 scripts/check_view_size_budgets.py || failed=1
+  python3 scripts/check_view_function_budgets.py || failed=1
+  python3 scripts/check_teacher_endpoint_capability_map.py || failed=1
+  python3 scripts/check_teacher_top_tasks_contract.py || failed=1
+  python3 scripts/check_teach_class_template_contract.py || failed=1
+  python3 scripts/check_teach_class_section_budgets.py || failed=1
+  python3 scripts/check_teacher_roster_service_contract.py || failed=1
+  python3 scripts/check_teacher_policy_mode_contract.py || failed=1
+  python3 scripts/check_press_capture_backlog_contract.py || failed=1
+  python3 scripts/check_rbac_endpoint_guards.py || failed=1
+  python3 scripts/check_runtime_policy_lock.py --profile release || failed=1
+  python3 scripts/check_docs_truth.py || failed=1
+  python3 scripts/check_frontend_static_refs.py || failed=1
+  python3 scripts/check_no_inline_template_js.py || failed=1
+  python3 scripts/check_no_inline_template_css.py || failed=1
+  return "${failed}"
 }
 
 run_test_inventory() {
@@ -275,6 +279,61 @@ run_release_artifact_lint() {
   fi
 }
 
+write_evidence_index() {
+  local overall_status="PASS"
+  if [[ "${FAILED}" == "1" ]]; then
+    overall_status="FAIL"
+  fi
+
+  {
+    echo "# Stability Evidence Index"
+    echo ""
+    echo "- Release date: ${RELEASE_DATE}"
+    echo "- Generated at (UTC): $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+    echo "- Git SHA: $(git rev-parse --short HEAD 2>/dev/null || echo "unknown")"
+    echo "- Overall status: ${overall_status}"
+    echo ""
+    echo "## Check Logs"
+    echo ""
+    echo "| Check | Status | Log | Notes |"
+    echo "| --- | --- | --- | --- |"
+    for row in "${CHECK_ROWS[@]}"; do
+      IFS='|' read -r name status log_path notes <<< "${row}"
+      echo "| ${name} | ${status} | \`${log_path}\` | ${notes} |"
+    done
+    echo ""
+    echo "## Key Artifacts"
+    echo ""
+
+    local key_artifacts=(
+      "guardrails.log"
+      "test_inventory_coverage.log"
+      "system_doctor.log"
+      "a11y_smoke.log"
+      "restore_rehearsal.log"
+      "restore_rehearsal_metrics.json"
+      "restore_rehearsal_summary.md"
+      "kiosk_resilience.log"
+      "release_artifact_lint.log"
+      "operator_scorecard.md"
+    )
+    local filename
+    for filename in "${key_artifacts[@]}"; do
+      if [[ -f "${EVIDENCE_DIR}/${filename}" ]]; then
+        echo "- \`artifacts/stability/${RELEASE_DATE}/${filename}\`"
+      fi
+    done
+
+    echo ""
+    echo "## Full File Listing"
+    echo ""
+    while IFS= read -r file_path; do
+      file_path="${file_path#${ROOT_DIR}/}"
+      echo "- \`${file_path}\`"
+    done < <(find "${EVIDENCE_DIR}" -maxdepth 2 -type f | sort)
+  } > "${EVIDENCE_INDEX_PATH}"
+}
+
 run_check "Guardrails" "guardrails.log" run_guardrails
 run_check "Test inventory coverage" "test_inventory_coverage.log" run_test_inventory
 if [[ "${SKIP_SYSTEM_DOCTOR}" == "1" ]]; then
@@ -360,6 +419,8 @@ SCORECARD_PATH="${EVIDENCE_DIR}/operator_scorecard.md"
 } > "${SCORECARD_PATH}"
 
 echo "[stability-evidence] scorecard written: artifacts/stability/${RELEASE_DATE}/operator_scorecard.md"
+write_evidence_index
+echo "[stability-evidence] evidence index written: artifacts/stability/${RELEASE_DATE}/EVIDENCE_INDEX.md"
 
 if [[ "${FAILED}" == "1" ]]; then
   echo "[stability-evidence] FAIL: one or more checks failed" >&2

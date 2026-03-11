@@ -1,5 +1,5 @@
 ---
-course: piper-scratch-12
+course: piper_scratch_12_session
 session: 3
 slug: s03-storymode-confidence
 title: "Runway Session: StoryMode Controls + Confidence"

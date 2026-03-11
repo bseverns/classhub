@@ -167,7 +167,7 @@ If you need to change the course slug after creating content, follow this order:
    - Change `slug: <new_slug>`
 
 3) Update lesson front matter:
-   - In every lesson file, change `course: <new_slug>`
+   - In every lesson file, change `course: <new_slug>` (or `course_slug: <new_slug>`)
 
 4) Update helper references (optional):
    - If you use `helper_reference: <old_slug>`, update to `<new_slug>`
@@ -315,6 +315,7 @@ This validates:
 - `course.yaml` structure (required keys, duplicates, lesson file references)
 - lesson markdown front matter presence + parseability
 - manifest/front-matter slug/session consistency
+- front matter `course`/`course_slug` exactly matches the course folder/manifest slug
 
 Then run the full preflight:
 

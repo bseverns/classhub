@@ -1,5 +1,5 @@
 ---
-course: piper-scratch-12
+course: piper_scratch_12_session
 session: 7
 slug: s07-animation-scene-sound
 title: "Cutscenes: Freeze Controls, Tell a Story, Return to Play"

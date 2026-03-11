@@ -1,5 +1,5 @@
 ---
-course: piper-scratch-12
+course: piper_scratch_12_session
 session: 10
 slug: s10-game-levels-difficulty
 title: "Polish Pass: Instructions, Win/Lose Screens, Game Feel"

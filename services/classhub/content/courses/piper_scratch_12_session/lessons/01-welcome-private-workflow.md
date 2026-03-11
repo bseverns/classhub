@@ -1,5 +1,5 @@
 ---
-course: piper-scratch-12
+course: piper_scratch_12_session
 session: 1
 slug: s01-welcome-private-workflow
 title: "Welcome to the Studio: Build the Controls (Piper StoryMode)"

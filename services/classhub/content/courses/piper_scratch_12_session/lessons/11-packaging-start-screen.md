@@ -1,5 +1,5 @@
 ---
-course: piper-scratch-12
+course: piper_scratch_12_session
 session: 11
 slug: s11-packaging-start-screen
 title: "Debug + Playtest Notes → Revisions"

@@ -54,6 +54,8 @@ jobs:
         run: python scripts/check_teacher_endpoint_capability_map.py
       - name: Guard advanced policy/RBAC mode access contract
         run: python scripts/check_teacher_policy_mode_contract.py
+      - name: Guard lesson front matter course slug consistency
+        run: python scripts/check_lesson_course_slug_consistency.py
       - name: Guard dense view module size budgets
         run: python scripts/check_view_size_budgets.py
       - name: Guard dense view function size budgets

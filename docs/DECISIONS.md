@@ -2835,3 +2835,33 @@ Execution ownership and gates:
 **Why this remains active:**
 - Moves another high-risk operational expectation from "remembered ritual" to executable contract.
 - Prevents docs/wording drift around policy/RBAC access semantics by asserting one source of truth in code + template wiring.
+
+## Lesson front matter course-slug consistency guard (2026-03-11)
+
+**Current decision:**
+- Enforce lesson front matter `course`/`course_slug` consistency with course folder + manifest slug.
+- Add dependency-free guard `scripts/check_lesson_course_slug_consistency.py` and run it in:
+  - lint CI (`.github/workflows/lint.yml`)
+  - stability release guardrails (`scripts/stability_release_evidence.sh`)
+  - ops readiness check (`scripts/ops_readiness_check.sh`)
+- Extend `scripts/validate_coursepack.py` to fail when lesson front matter course slug is missing, invalid, or mismatched.
+- Normalize existing Piper lesson front matter to use `piper_scratch_12_session` for strict consistency.
+
+**Why this remains active:**
+- Prevents content-identity drift across lessons inside a coursepack.
+- Catches high-impact authoring mistakes before deploy and before release evidence closeout.
+
+## Minimum-viable operator floor + release evidence index (2026-03-11)
+
+**Current decision:**
+- Publish `docs/MINIMUM_VIABLE_OPERATOR.md` as a one-page operator skill-floor contract.
+- Link this skill-floor doc from:
+  - `docs/DAY1_DEPLOY_CHECKLIST.md`
+  - `docs/RUNBOOK.md`
+  - `docs/ORG_BOUNDARY_POLICY_AUDIT.md`
+- Generate `artifacts/stability/<date>/EVIDENCE_INDEX.md` in `scripts/stability_release_evidence.sh` so evaluators/operators can inspect one canonical artifact index per run.
+- Treat `EVIDENCE_INDEX.md` as a required artifact in `scripts/stability_phase1_closeout.sh`.
+
+**Why this remains active:**
+- Reduces handoff ambiguity by defining the minimum operator capability explicitly.
+- Improves release-bundle inspectability by turning artifact discovery into a stable, generated index.

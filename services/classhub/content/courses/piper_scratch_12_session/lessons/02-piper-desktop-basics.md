@@ -1,5 +1,5 @@
 ---
-course: piper-scratch-12
+course: piper_scratch_12_session
 session: 2
 slug: s02-piper-desktop-basics
 title: "Animation Magic: Costumes + Timing"

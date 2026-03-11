@@ -3,6 +3,7 @@
 This is the operator playbook for running the stack safely in production.
 
 If you are new, start with [START_HERE.md](START_HERE.md) and [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) first.
+If you need the exact operator skill floor first, read [MINIMUM_VIABLE_OPERATOR.md](MINIMUM_VIABLE_OPERATOR.md).
 
 ```mermaid
 flowchart TD
@@ -167,6 +168,7 @@ Notes:
   - `CLASSHUB_TELEMETRY_READ_MODE=telemetry`
   - explicit `CLASSHUB_CERTIFICATE_MIN_SESSIONS` / `CLASSHUB_CERTIFICATE_MIN_ARTIFACTS` values (`>=1`)
 - Writes release artifacts under `artifacts/stability/<date>/` and telemetry artifacts under `artifacts/stability/<date>/telemetry/`.
+- Includes evaluator-facing evidence index at `artifacts/stability/<date>/EVIDENCE_INDEX.md`.
 - Fails the run if parity/smoke/rollback drill do not pass or required artifacts are missing.
 - Produces `cycle_closeout_summary.md` with doc-update checklist before sign-off.
 - For cycles where kiosk drill is tracked separately, set `STABILITY_SKIP_KIOSK=1` to skip kiosk resilience in this command.

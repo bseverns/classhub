@@ -53,6 +53,7 @@ REQUIRED_TOKENS: dict[str, tuple[str, ...]] = {
         "python scripts/check_rbac_endpoint_guards.py",
         "python scripts/check_teacher_endpoint_capability_map.py",
         "python scripts/check_teacher_policy_mode_contract.py",
+        "python scripts/check_lesson_course_slug_consistency.py",
         "python scripts/check_view_size_budgets.py",
         "python scripts/check_no_service_imports_from_views.py",
     ),

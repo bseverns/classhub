@@ -1,5 +1,5 @@
 ---
-course: piper-scratch-12
+course: piper_scratch_12_session
 session: 8
 slug: s08-game-controls-boundaries
 title: "Level 2: New Mechanic, New Mood"

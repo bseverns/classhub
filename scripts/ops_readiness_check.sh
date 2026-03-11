@@ -25,6 +25,7 @@ python3 scripts/check_teacher_policy_mode_contract.py
 echo "[ops-readiness] docs and inventory truth"
 python3 scripts/check_docs_truth.py
 python3 scripts/check_test_inventory_coverage.py
+python3 scripts/check_lesson_course_slug_consistency.py
 
 echo "[ops-readiness] press backlog governance"
 python3 scripts/check_press_capture_backlog_contract.py

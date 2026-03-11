@@ -1,6 +1,7 @@
 # Day 1 deploy checklist (Ubuntu)
 
 See `scripts/bootstrap_day1.sh` for an automated starter.
+Operator skill-floor reference: [MINIMUM_VIABLE_OPERATOR.md](MINIMUM_VIABLE_OPERATOR.md).
 
 ```mermaid
 flowchart TD

@@ -362,6 +362,8 @@ def validate_coursepack(course_dir: Path) -> list[str]:
         fm_slug = str(fm.get("slug") or "").strip()
         fm_title = str(fm.get("title") or "").strip()
         fm_session = fm.get("session")
+        fm_course = str(fm.get("course") or "").strip()
+        fm_course_slug = str(fm.get("course_slug") or "").strip()
 
         if not fm_slug:
             errors.append(f"{resolved}: front matter missing required field 'slug'")
@@ -372,6 +374,26 @@ def validate_coursepack(course_dir: Path) -> list[str]:
 
         if not fm_title:
             errors.append(f"{resolved}: front matter missing required field 'title'")
+
+        if fm_course and fm_course_slug and fm_course != fm_course_slug:
+            errors.append(
+                f"{resolved}: front matter 'course' ('{fm_course}') does not match "
+                f"'course_slug' ('{fm_course_slug}')"
+            )
+
+        effective_course_slug = fm_course_slug or fm_course
+        if not effective_course_slug:
+            errors.append(f"{resolved}: front matter missing required field 'course' (or 'course_slug')")
+        elif not COURSE_SLUG_RE.fullmatch(effective_course_slug):
+            errors.append(
+                f"{resolved}: front matter course slug '{effective_course_slug}' is invalid "
+                "(expected letters/numbers/_/- only)"
+            )
+        elif effective_course_slug != course_slug:
+            errors.append(
+                f"{resolved}: front matter course slug '{effective_course_slug}' does not match "
+                f"course folder/manifest slug '{course_slug}'"
+            )
 
         if lesson_session is not None and fm_session is not None and fm_session != lesson_session:
             errors.append(

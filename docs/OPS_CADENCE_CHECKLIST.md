@@ -132,6 +132,7 @@ make stability-evidence STABILITY_RELEASE_DATE=<YYYY-MM-DD> SMOKE_COMPOSE_MODE=p
 
 Expected:
 - scorecard generated at `artifacts/stability/<date>/operator_scorecard.md`
+- evidence index generated at `artifacts/stability/<date>/EVIDENCE_INDEX.md`
 
 For full Day 0-30 Phase 1 + telemetry Slice 7 closeout:
 

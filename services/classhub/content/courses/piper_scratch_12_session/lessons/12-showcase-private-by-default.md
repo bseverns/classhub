@@ -1,5 +1,5 @@
 ---
-course: piper-scratch-12
+course: piper_scratch_12_session
 session: 12
 slug: s12-showcase-private-by-default
 title: "Showcase: Game Festival + Creator Talk"

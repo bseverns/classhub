@@ -216,6 +216,7 @@ required_release_files=(
   "${EVIDENCE_DIR}/guardrails.log"
   "${EVIDENCE_DIR}/release_artifact_lint.log"
   "${EVIDENCE_DIR}/operator_scorecard.md"
+  "${EVIDENCE_DIR}/EVIDENCE_INDEX.md"
   "${EVIDENCE_DIR}/runtime_lock_check.log"
 )
 
@@ -258,6 +259,7 @@ cat > "${CYCLE_SUMMARY_PATH}" <<EOF
 ## Artifact Packet
 
 - Release evidence root: \`artifacts/stability/${RELEASE_DATE}/\`
+- Evidence index: \`artifacts/stability/${RELEASE_DATE}/EVIDENCE_INDEX.md\`
 - Telemetry evidence root: \`artifacts/stability/${RELEASE_DATE}/telemetry/\`
 - Runtime lock check: \`artifacts/stability/${RELEASE_DATE}/runtime_lock_check.log\`
 

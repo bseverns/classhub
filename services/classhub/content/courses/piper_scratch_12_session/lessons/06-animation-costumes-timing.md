@@ -1,5 +1,5 @@
 ---
-course: piper-scratch-12
+course: piper_scratch_12_session
 session: 6
 slug: s06-animation-costumes-timing
 title: "Scene Switching: Backdrops as Rooms (Menu → Level 1)"
