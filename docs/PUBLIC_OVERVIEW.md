@@ -1,12 +1,12 @@
 # Public Overview
 
 ## Summary
-Class Hub is a classroom-first, self-hosted micro-LMS with a separate Homework Helper service. It is designed for calm classroom operations, low-friction student access, and operator control over infrastructure and data.
+Class Hub is a self-hosted classroom platform with a separate Homework Helper service. It is designed for calm classroom operations, easy student access, and clear control over infrastructure and data.
 
 ## What to do now
 1. Decide if this fits your context (quick bullets below).
 2. Try the local demo path in [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md).
-3. If you plan public deployment, read [SECURITY.md](SECURITY.md), then [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) and [RUNBOOK.md](RUNBOOK.md).
+3. If your team plans to host this publicly, read [SECURITY.md](SECURITY.md), then [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) and [RUNBOOK.md](RUNBOOK.md).
 4. For plain-language trust boundaries, review [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) and [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md).
 
 If you are reading this as leadership rather than as a technical evaluator, start with:
@@ -24,29 +24,29 @@ If this page is useful, you should be able to answer: who this is for, what it d
 
 ## What it is
 - A self-hosted learning hub for classes, modules, and lesson materials.
-- A simple student join flow (`class code + pseudonym display name`) without student password accounts in MVP.
-- A teacher/admin workflow built on Django auth sessions (with optional Google SSO), with safety controls for public-domain operation.
+- A simple student join flow (`class code + pseudonym display name`) without student password accounts in the current release.
+- A teacher/admin workflow with staff sign-in and safety controls for public websites.
 
 ## Who it is for
 - Small schools and programs that want self-hosted control.
 - Makerspaces, after-school labs, and classroom pilots.
-- Teams that prefer simple operational primitives over large platform complexity.
+- Teams that prefer straightforward operations over platform sprawl.
 
 ## What makes it different
-- Privacy-first defaults (minimal student identity model, explicit retention controls).
+- Privacy-first defaults (minimal student identity and clear retention controls).
 - Plain-language trust controls in-product (`/trust`, `/student/my-data`) for rename/export/delete without filing a ticket.
-- Per-class retention presets integrated with existing prune/retention operations.
-- Calm student join model (no student email/password in MVP).
+- Class-by-class data retention settings.
+- Calm student join model (no student email/password in the current release).
 - Student home starts with a clear weekly launch path (`This week` + `Course links` + `Account`).
 - Artifact-first student flow (`/student/portfolio`) with opt-in gallery sharing (`/student/gallery`) and teacher moderation.
 - Help-first facilitation support board surfaces “I'm stuck”, deletion requests, upload errors, and context without rankings.
 - Multi-lingual UI support on student-facing content.
-- Public-domain hardening options (CSP, site-mode degradation, proxy guardrails).
-- Self-hosted architecture with boring, inspectable components (Django, Postgres, Redis, Caddy).
+- Public website hardening options (content-security policy, safe-site modes, and proxy protections).
+- Self-hosted architecture using widely used components (Django, Postgres, Redis, Caddy).
 - Helper support is lesson-scoped and does not archive student prompts.
 
 ## What it will not do
-- No surveillance analytics posture.
+- No student surveillance scoring.
 - No ad-tech or data resale model.
 - No dark-pattern growth loops.
 - No hidden SaaS lock-in requirement for core operation.
@@ -92,7 +92,7 @@ Additional workflow captures:
 
 Capture instructions live in `press/screenshots/SHOTLIST.md`.
 
-## Ops and security links
+## Technical ops and security links
 - [SECURITY.md](SECURITY.md)
 - [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md)
 - [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)

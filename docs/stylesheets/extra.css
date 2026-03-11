@@ -13,24 +13,94 @@
 
 .md-typeset .mermaid > svg {
   display: block;
-  height: auto;
-  max-width: none;
-  min-width: 1200px;
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
 }
 
-/* Architecture.md Map C is intentionally dense; render it at a smaller baseline. */
-.md-typeset #classhub-module-graph-map-c + .mermaid > svg {
-  max-width: 100%;
-  min-width: 0;
+.md-typeset .mermaid.diagram-zoomable {
+  cursor: zoom-in;
+}
+
+.md-typeset .mermaid.diagram-zoomable:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+}
+
+body.diagram-lightbox-open {
+  overflow: hidden;
+}
+
+.diagram-lightbox {
+  align-items: center;
+  background: rgba(9, 9, 11, 0.7);
+  display: none;
+  inset: 0;
+  justify-content: center;
+  padding: 2vh 2vw;
+  position: fixed;
+  z-index: 10000;
+}
+
+.diagram-lightbox.is-open {
+  display: flex;
+}
+
+.diagram-lightbox__content {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+  display: flex;
+  height: 96vh;
+  justify-content: center;
+  max-width: min(98vw, 1800px);
+  padding: 1rem;
+  position: relative;
+  width: 98vw;
+}
+
+.diagram-lightbox__frame {
+  align-items: center;
+  background: #ffffff;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  overflow: auto;
   width: 100%;
 }
 
-@media (max-width: 1200px) {
-  .md-typeset .mermaid > svg {
-    min-width: 960px;
-  }
+.diagram-lightbox__frame svg,
+.diagram-lightbox__frame img {
+  display: block;
+  height: 100%;
+  max-height: 100%;
+  max-width: 100%;
+  width: auto;
+}
 
-  .md-typeset #classhub-module-graph-map-c + .mermaid > svg {
-    min-width: 0;
-  }
+.diagram-lightbox__close {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  color: #111;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 1.1rem;
+  height: 2rem;
+  justify-content: center;
+  line-height: 1;
+  position: absolute;
+  right: 0.6rem;
+  top: 0.6rem;
+  width: 2rem;
+}
+
+.diagram-lightbox__close:hover,
+.diagram-lightbox__close:focus-visible {
+  background: #ffffff;
+  outline: none;
 }

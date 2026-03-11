@@ -4,6 +4,8 @@ If you are not writing code, start here.
 
 You do not need to read every docs file. For normal classroom use, this page plus [TEACHER_PORTAL.md](TEACHER_PORTAL.md) is enough.
 
+If you want a guided wiki reading order, open [TEACHER_DOCS_JOURNEY.md](TEACHER_DOCS_JOURNEY.md).
+
 If you want the shortest role-based path, open [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md). If you need an action-only checklist for tomorrow's class, use [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md).
 
 ## Visual references
@@ -21,6 +23,18 @@ flowchart LR
   C --> D[If issues<br/>Troubleshooting]
   D --> A
 ```
+
+## Teacher wiki journey (recommended order)
+
+If you are deciding "what should I read next?" use this order:
+
+1. [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md) for the big picture.
+2. [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md) for class-day execution.
+3. This page for plain-language classroom workflow.
+4. [TEACHER_PORTAL.md](TEACHER_PORTAL.md) for step-by-step screen guidance.
+5. [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md) and [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for failures.
+
+Full guided version: [TEACHER_DOCS_JOURNEY.md](TEACHER_DOCS_JOURNEY.md).
 
 ## What this system does
 
@@ -93,9 +107,10 @@ Deep walkthrough: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 
 ## Read only what you need next
 
+- Guided teacher read path: [TEACHER_DOCS_JOURNEY.md](TEACHER_DOCS_JOURNEY.md)
 - First-time teacher checklist: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
 - Short playbooks for common issues: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md)
 - Teacher workflow and screen-by-screen guide: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
-- Day-1 setup (operators/admins): [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
+- Day-1 setup (technical setup team): [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
 - Incident recovery: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-- Security and privacy boundaries (policy level): [SECURITY.md](SECURITY.md)
+- Security and privacy boundaries (policy and governance): [SECURITY.md](SECURITY.md)

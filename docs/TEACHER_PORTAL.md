@@ -42,25 +42,21 @@ flowchart TD
   E --> F[Review uploads / manage releases]
 ```
 
-## Access model
+## Access model (plain language first)
 
-- Student access: class code + display name.
-- Teacher portal: staff-only (`is_staff=True`) Django users.
-- Django admin: usually superusers (`is_superuser=True`).
-- Authority layers:
-  - `L0 Global`: superuser bypasses org/capability checks.
-  - `L1 Organization`: membership role (`owner`/`admin`/`teacher`/`viewer`) plus optional custom-role assignments.
-  - `L2 Class`: scoped grants and class-staff assignments for within-class workflow targeting.
-- Class visibility:
-  - superusers can access all classes.
-  - staff with active org memberships can access classes in those orgs.
-  - staff with no active org memberships follow `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF`:
-    - `1` (production default): no class access until an active org membership exists.
-    - `0` (local/dev or migration fallback): legacy global class access.
-- Assigned classes appear first in `/teach` and `/teach/lessons`, but assignments do not reduce org-level access.
+- Students join with class code + display name.
+- Teachers use staff accounts for daily class work.
+- Admins/superusers have broader setup permissions.
+- Most teacher access is scoped by organization and class assignment.
+- Assigned classes appear first in `/teach` and `/teach/lessons`.
+
+Technical note (for setup/admin teams):
+
+- Teacher portal requires staff users (`is_staff=True`).
+- Django admin access is typically superuser (`is_superuser=True`).
+- If `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1` (production default), staff need active organization membership before class access.
+- If `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0`, legacy global class access is allowed for staff without active org memberships.
 - Detailed org-boundary examples: [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md).
-
-Use superusers for setup and operations. Use staff (non-superuser) for daily teaching.
 
 ## Create teacher accounts
 
@@ -205,19 +201,26 @@ disable the old account after handoff.
 
 Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.md).
 
-## Teacher portal routes
+## Teacher portal screens
+
+Use this section in two passes:
+
+1. `Daily teacher use` (most readers should start here).
+2. `Advanced admin/policy controls` (setup and governance teams).
+
+### Daily teacher use
 
 - `/teach`:
-  - portal mode switcher (`?portal_mode=`) to reduce visible surface density per session:
-    - `all` (default): full cockpit
-    - `day`: day-of-class surfaces only (focus + digest + closeout + recent submissions)
-    - `setup`: setup/import/template surfaces only
-    - `admin`: superuser-only organization/operator surfaces
-    - `policy`: RBAC/operator policy surfaces (superuser or RBAC-enabled staff)
+  - optional view mode switcher (`?portal_mode=`):
+    - `all` (default): show all teacher surfaces
+    - `day`: class-day surfaces only (focus + digest + closeout + recent submissions)
+    - `setup`: setup/import/template surfaces
+    - `admin`: superuser-only organization/setup surfaces
+    - `policy`: advanced permission/policy surfaces (superuser or policy-enabled staff)
   - class list
   - one-click `Copy` for class join codes
   - superuser-only operator config snapshot card:
-    - read-only summary of active program profile, org/RBAC flags, helper mode, and helper policy defaults/overrides
+    - read-only summary of active program profile, organization/permission settings, helper mode, and helper behavior defaults/customizations
     - links to `docs/FEATURE_MATURITY.md` and `docs/START_HERE_EVALUATOR.md` for rollout and evaluator context
   - superuser class row action: `Set organization` (opens org-admin move form)
   - `My profile` tab for all staff:
@@ -236,35 +239,8 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
       - archive is blocked while classes are still assigned to that organization
     - assign/update org memberships for staff users (`owner` / `admin` / `teacher` / `viewer`)
     - move classes between active organizations
-    - assign teachers to classes (single upsert + bulk teacher-to-classes set)
+    - assign teachers to classes (single assign/update + bulk teacher-to-classes set)
       - assignment selectors are teacher-account-focused (active non-superuser staff)
-- owner/admin/superuser RBAC tools tab:
-  - upsert module-scope grants per class/user/capability/effect/range
-  - supports submission, roster, and policy scoped-grant capabilities
-  - use range `0-0` for class-wide roster/policy controls
-  - enable/disable existing scoped grants without admin-site access
-  - run "simulate access" checks to inspect allow/deny reason codes before changing live permissions
-  - run a bulk simulation matrix across staff for one class/capability scope
-  - upsert custom roles, custom role capabilities, and custom role assignments
-  - export policy-as-code JSON and import reviewed policy bundles
-  - policy bundles include `custom_roles[]` and `custom_role_assignments[]`
-  - optional approval workflow (`CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`) queues RBAC mutations for separate reviewer approval
-  - review filterable RBAC audit operations feed for recent policy/scope changes
-  - review/approve/reject pending RBAC policy change requests from the tools tab queue
-  - tab appears only for accounts with syllabus-export capability (`staff_can_export_syllabi`)
-  - create class
-  - import syllabus sources into coursepacks:
-    - accepts `.md`, `.docx`, and `.zip`
-    - supports optional overview file (`.md`/`.docx`) and parser mode (`auto`/`template`/`verbose`)
-    - can overwrite an existing slug when updating a course
-  - operator link: `/teach/data-lifespan` (owner/admin/superuser) for retention verification snapshot
-  - generate authoring templates (`.md` + `.docx`) by setting:
-    - `course slug`
-    - `course title`
-    - `sessions`
-    - `session duration (minutes)`
-  - download generated template files directly from the same card (per slug)
-  - recent submissions queue
 - `/teach/lessons`:
   - lesson tracker grouped by class
   - per-dropbox quick actions: `All`, `Missing`, `ZIP latest`
@@ -313,7 +289,7 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
   - exports audit-stamped evidence snapshots as JSON/CSV via `/teach/data-lifespan/export?format=<json|csv>`
   - shows exact timestamp of the last successful retention prune run
   - includes recent `retention.prune_*` audit rows for quick verification
-  - includes helper RAG posture panel (enabled/index-ready state, chunk/source counts, last index build, curriculum-only boundary statement)
+  - includes helper knowledge-source status panel (enabled/index-ready status, content source counts, last index build, curriculum-only boundary statement)
 - `/teach/class/<id>/join-card`:
   - print-friendly join instructions + class code
   - prefilled join URL (`/?class_code=<JOIN_CODE>`)
@@ -338,6 +314,37 @@ Operational checklist: [TEACHER_HANDOFF_CHECKLIST.md](TEACHER_HANDOFF_CHECKLIST.
   - supports signed invite links from onboarding emails
   - invite links are one-time use and expire after `TEACHER_2FA_INVITE_MAX_AGE_SECONDS` (default 24h)
   - shows QR + manual secret and verifies one-time code
+
+### Advanced admin and policy controls
+
+Most classroom teachers can skip this section.
+
+- owner/admin/superuser permissions + policy tools tab:
+  - assign fine-grained permission grants by class/user/action/range
+  - support submission, roster, and policy grant scopes
+  - use range `0-0` for class-wide roster/policy controls
+  - enable/disable existing grants without Django admin
+  - run "simulate access" checks before applying live changes
+  - run a bulk simulation matrix across staff for one class/capability scope
+  - manage custom roles, custom-role capabilities, and assignments
+  - export/import policy bundles (JSON)
+  - optional approval queue for policy changes (`CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`)
+  - review audit feed for recent policy/scope changes
+  - review/approve/reject pending policy change requests
+  - tab appears only for accounts with syllabus-export capability (`staff_can_export_syllabi`)
+  - create class
+  - import syllabus sources into coursepacks:
+    - accepts `.md`, `.docx`, and `.zip`
+    - supports optional overview file (`.md`/`.docx`) and parser mode (`auto`/`template`/`verbose`)
+    - can overwrite an existing slug when updating a course
+  - operator link: `/teach/data-lifespan` (owner/admin/superuser) for retention verification snapshot
+  - generate authoring templates (`.md` + `.docx`) by setting:
+    - `course slug`
+    - `course title`
+    - `sessions`
+    - `session duration (minutes)`
+  - download generated template files directly from the same card (per slug)
+  - recent submissions queue
 
 ## Facilitation guide: respond without shame
 

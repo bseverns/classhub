@@ -48,6 +48,7 @@ Learner-view captures:
 
 ## What to review next
 
+- Guided teacher docs path: [TEACHER_DOCS_JOURNEY.md](TEACHER_DOCS_JOURNEY.md)
 - Fast operational walkthrough: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
 - Teacher UI details and exports: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - Plain-language teacher workflow: [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md)

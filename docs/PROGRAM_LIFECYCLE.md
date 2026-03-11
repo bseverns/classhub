@@ -4,14 +4,14 @@ This page explains how ClassHub supports a program from first outreach through r
 
 ## Revenue lens
 
-If your organization runs earned-income programs, the relevant value is operational leverage:
+If your organization runs earned-income programs, the biggest value is less admin work and faster reporting:
 
 - `Invite link` controls make paid or limited-seat cohorts easier to manage.
 - `Outcomes export` reduces the work needed for sponsor, payer, or parent-facing reporting.
 - `Certificate eligibility/issuance` gives programs a concrete completion artifact.
-- org and role controls reduce the need for shared accounts when multiple staff or partner teams are involved.
+- organization and staff-role controls reduce the need for shared accounts when multiple staff or partner teams are involved.
 
-ClassHub does not include billing. It does reduce the amount of manual coordination around enrollment, delivery evidence, and repeat-program setup.
+ClassHub does not include billing. It does reduce manual coordination around enrollment, delivery evidence, and repeat-program setup.
 
 ## Lifecycle visuals
 
@@ -58,7 +58,7 @@ Lifecycle captures:
 - Staff effort saved:
   - reduces manual account creation and one-off onboarding support
 - Revenue support:
-  - makes limited-seat or paid cohorts easier to gate and audit operationally
+  - makes limited-seat or paid cohorts easier to control and document
 
 ## Deliver
 
@@ -77,7 +77,7 @@ Lifecycle captures:
 - Features in ClassHub:
   - student submissions
   - session completion tracking
-  - helper access counting in reporting-safe form
+  - helper usage counts in reporting-safe form
 - Artifact produced:
   - `Outcomes export`
   - class summary export
@@ -107,7 +107,7 @@ Lifecycle captures:
   - outcomes export
   - certificate issuance records
 - Artifact produced:
-  - bounded reporting packet built from exports and issued certificates
+  - reporting packet built from exports and issued certificates
 - Staff effort saved:
   - reduces manual counting for funder updates, board summaries, and partner check-ins
 - Revenue support:
@@ -124,7 +124,7 @@ Lifecycle captures:
 - Staff effort saved:
   - reduces rework when a partner or funder asks, "Can you run this again next term?"
 - Revenue support:
-  - improves repeat-program readiness, which matters if earned revenue depends on offering the same cohort reliably
+  - improves repeat-program readiness for organizations that depend on reliably running recurring cohorts
 
 ## Go deeper
 

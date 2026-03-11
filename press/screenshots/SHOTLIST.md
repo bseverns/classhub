@@ -140,10 +140,10 @@ When complete, `press/screenshots/` contains all filenames in this list and each
   - `11-invite-only-enrollment.png` (or equivalent class dashboard view): include teacher moderation controls/state if available.
 
 ## Priority order
-### Capture remaining backlog first
-1. `19-rbac-tools-tab-approval-on.png` (optional RBAC companion capture with `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`)
-2. `20-data-lifespan-evidence.png`
-3. `21-data-lifespan-export-terminal.png`
+- Capture with approval workflow OFF (`CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0`) first, then optional refresh with workflow ON.
+- Optional supplemental file for ON mode: `19-rbac-tools-tab-approval-on.png`.
+12. `20-data-lifespan-evidence.png`
+13. `21-data-lifespan-export-terminal.png`
 
 ### Then refresh older captures
 1. `02-student-class-view.png`

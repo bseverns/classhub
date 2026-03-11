@@ -1,7 +1,7 @@
 # Class Hub One-Pager
 
 ## Summary
-Class Hub is a self-hosted, classroom-first micro-LMS with a separate Homework Helper service for guided hints.
+Class Hub is a self-hosted, classroom-first learning platform with a separate Homework Helper service for guided hints.
 
 ## What to do now
 1. Share this page for quick project context.
@@ -21,7 +21,7 @@ A reader should understand the system scope, deployment shape, and privacy stanc
 - Teams that prefer low-complexity, inspectable infrastructure.
 
 ## Key features
-- Student join by class code + pseudonym display name (no student password accounts in MVP).
+- Student join by class code + pseudonym display name (no student password accounts in the current release).
 - Plain-language trust page (`/trust`) and student self-service data controls (`/student/my-data`).
 - Multi-lingual UI support on student-facing content.
 - Student home centered on `This week`, `Course links`, and `Account` so first actions are obvious.
@@ -33,17 +33,17 @@ A reader should understand the system scope, deployment shape, and privacy stanc
 - Lesson release controls, upload dropboxes, and privacy-safe export tooling.
 - Help-first facilitation board prioritizing “I’m stuck” signals and upload friction without ranking students.
 - Outcomes and certificate eligibility/issuance workflows for teacher reporting.
-- Site degradation modes for operational incidents.
-- Accessibility smoke gate in CI for core student/teacher routes.
+- Safe fallback site modes for operational incidents.
+- Automated accessibility smoke checks for core student/teacher routes.
 
 ## Deployment summary
 - Local demo: Docker Compose (`Caddyfile.local`).
-- Public deployment: domain Caddy template with TLS and operator guardrails.
+- Public deployment: domain Caddy template with TLS and deployment guardrails.
 - Operations playbooks in `docs/DAY1_DEPLOY_CHECKLIST.md` and `docs/RUNBOOK.md`.
 
 ## Privacy and safety stance
 - Minimal student identity model.
-- No surveillance analytics posture.
+- No student surveillance scoring.
 - No helper prompt archive.
 - Student artifacts are teacher-only by default unless explicitly published by the student and approved by staff.
 - Explicit retention and cleanup operations.

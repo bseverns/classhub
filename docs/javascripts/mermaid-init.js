@@ -1,7 +1,34 @@
+function normalizeMermaidBlocks(root) {
+  var blocks = root.querySelectorAll(".md-typeset .mermaid");
+  blocks.forEach(function (block) {
+    if (block.dataset.mermaidNormalized === "1") {
+      return;
+    }
+
+    var normalized = block;
+
+    if (block.tagName === "PRE") {
+      var replacement = document.createElement("div");
+      replacement.className = block.className;
+      replacement.textContent = block.textContent.trim();
+      block.replaceWith(replacement);
+      normalized = replacement;
+    } else {
+      var directCode = block.querySelector(":scope > code");
+      if (directCode) {
+        block.textContent = directCode.textContent.trim();
+      }
+    }
+
+    normalized.dataset.mermaidNormalized = "1";
+  });
+}
+
 document$.subscribe(function () {
   if (typeof mermaid === "undefined") {
     return;
   }
+  normalizeMermaidBlocks(document);
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: "strict",
@@ -9,16 +36,16 @@ document$.subscribe(function () {
       fontSize: "22px",
     },
     flowchart: {
-      useMaxWidth: false,
+      useMaxWidth: true,
     },
     sequence: {
-      useMaxWidth: false,
+      useMaxWidth: true,
     },
     journey: {
-      useMaxWidth: false,
+      useMaxWidth: true,
     },
     gantt: {
-      useMaxWidth: false,
+      useMaxWidth: true,
     },
   });
   mermaid.parseError = function (error, hash) {
@@ -30,7 +57,7 @@ document$.subscribe(function () {
   };
   mermaid
     .run({
-      querySelector: ".mermaid",
+      querySelector: ".md-typeset .mermaid",
     })
     .catch(function (error) {
       console.error("[docs] Mermaid render failed", {
