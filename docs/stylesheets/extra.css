@@ -69,7 +69,8 @@ body.diagram-lightbox-open {
   width: 100%;
 }
 
-.diagram-lightbox__frame svg {
+.diagram-lightbox__frame svg,
+.diagram-lightbox__frame img {
   display: block;
   height: 100%;
   max-height: 100%;

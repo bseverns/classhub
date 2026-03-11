@@ -25,9 +25,26 @@ function getMermaidContainer(target) {
   return target.closest(".md-typeset .mermaid");
 }
 
+function findMermaidFromEvent(event) {
+  if (event && typeof event.composedPath === "function") {
+    var path = event.composedPath();
+    for (var i = 0; i < path.length; i += 1) {
+      var node = path[i];
+      if (!node || !node.classList || !node.classList.contains("mermaid")) {
+        continue;
+      }
+      if (node.closest && node.closest(".md-typeset")) {
+        return node;
+      }
+    }
+  }
+  return getMermaidContainer(event ? event.target : null);
+}
+
 function openDiagramLightbox(container) {
-  var svg = container.querySelector("svg");
-  if (!svg) {
+  var diagramNode =
+    container.querySelector("svg") || container.querySelector("img");
+  if (!diagramNode) {
     return;
   }
 
@@ -39,7 +56,7 @@ function openDiagramLightbox(container) {
 
   frame.innerHTML = "";
 
-  var clone = svg.cloneNode(true);
+  var clone = diagramNode.cloneNode(true);
   clone.removeAttribute("width");
   clone.removeAttribute("height");
   clone.style.removeProperty("width");
@@ -87,7 +104,9 @@ function bindDiagramLightboxOnce() {
   }
   window.__diagramLightboxBound = true;
 
-  document.addEventListener("click", function (event) {
+  document.addEventListener(
+    "click",
+    function (event) {
     var overlay = document.getElementById("diagram-lightbox");
     if (
       overlay &&
@@ -100,7 +119,7 @@ function bindDiagramLightboxOnce() {
       return;
     }
 
-    var container = getMermaidContainer(event.target);
+      var container = findMermaidFromEvent(event);
     if (!container) {
       return;
     }
@@ -110,7 +129,9 @@ function bindDiagramLightboxOnce() {
     }
 
     openDiagramLightbox(container);
-  });
+    },
+    true
+  );
 
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
@@ -122,7 +143,7 @@ function bindDiagramLightboxOnce() {
       return;
     }
 
-    var container = getMermaidContainer(event.target);
+    var container = findMermaidFromEvent(event);
     if (!container) {
       return;
     }
@@ -132,6 +153,18 @@ function bindDiagramLightboxOnce() {
   });
 }
 
+function observeMermaidContainers() {
+  if (window.__diagramLightboxObserverBound || !document.body) {
+    return;
+  }
+  window.__diagramLightboxObserverBound = true;
+
+  var observer = new MutationObserver(function () {
+    enhanceMermaidContainers(document);
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 function initDiagramLightbox() {
   if (!document.body) {
     return;
@@ -139,6 +172,7 @@ function initDiagramLightbox() {
   ensureDiagramLightbox();
   bindDiagramLightboxOnce();
   enhanceMermaidContainers(document);
+  observeMermaidContainers();
 }
 
 if (typeof document$ !== "undefined" && document$.subscribe) {
