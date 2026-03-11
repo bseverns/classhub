@@ -72,7 +72,7 @@ bash scripts/load_demo_coursepack.sh
 Then open:
 
 - Student join: `http://localhost/`
-- Teacher login: `http://localhost/admin/login/`
+- Teacher login: `http://localhost/teach/login` (or `http://localhost/admin/login/` for admin console access)
 
 ## Production posture (important)
 

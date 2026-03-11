@@ -80,7 +80,7 @@ This means helper outages are less likely to take down core LMS pages.
 ```mermaid
 flowchart LR
   S[Student session<br/>class code + display name] --> W[Class Hub]
-  T[Teacher/Admin Django auth + OTP] --> W
+  T[Teacher/Admin Django auth session + OTP<br/>optional Google SSO] --> W
   W -->|signed scope token| H[Homework Helper]
   H -->|metadata-only event| W
 ```

@@ -27,11 +27,11 @@ ClassHub is a program delivery system that can produce bounded evidence of parti
 
 ![Teacher dashboard](images/press/03-teacher-dashboard.png)
 
-Planned reporting captures:
+Reporting captures:
 
-![Invite-only enrollment (placeholder)](images/press/11-invite-only-enrollment.png)
+![Invite-only enrollment](images/press/11-invite-only-enrollment.png)
 
-![Certificate eligibility (placeholder)](images/press/12-certificate-eligibility.png)
+![Certificate eligibility](images/press/12-certificate-eligibility.png)
 
 ## What success looks like
 

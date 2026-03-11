@@ -12,11 +12,11 @@ Use this checklist when you need a first-time teacher flow that works end-to-end
 
 ![Submission dropbox](images/press/06-submission-dropbox.png)
 
-Planned workflow captures:
+Workflow captures:
 
-![Invite-only enrollment (placeholder)](images/press/11-invite-only-enrollment.png)
+![Invite-only enrollment](images/press/11-invite-only-enrollment.png)
 
-![Certificate eligibility (placeholder)](images/press/12-certificate-eligibility.png)
+![Certificate eligibility](images/press/12-certificate-eligibility.png)
 
 ## Action checklist
 

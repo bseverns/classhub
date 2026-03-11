@@ -24,7 +24,7 @@ flowchart LR
   C --> H2[Route armor<br/>/admin + /teach]
   C --> A[Class Hub]
   C --> B[Homework Helper]
-  A --> D[Django auth + OTP]
+  A --> D[Django auth session + OTP<br/>optional Google SSO]
   B --> E[Scope token + rate limits]
   A --> F[(Postgres/Redis)]
   B --> F
@@ -35,7 +35,7 @@ flowchart LR
 | Area | Current posture |
 |---|---|
 | Student identity | Pseudonymous (`class code + display name`) |
-| Teacher/admin auth | Django auth; OTP required by default for `/admin` and `/teach` |
+| Teacher/admin auth | Django auth session; optional Google SSO; OTP required by default for `/admin` and `/teach` |
 | Transport | Caddy at edge; HTTPS expected in production |
 | Service exposure | Postgres/Redis internal-only; Ollama/MinIO localhost-bound on host |
 | Browser hardening | Enforced CSP + report-only CSP + Permissions-Policy + Referrer-Policy + frame protections |
@@ -74,6 +74,7 @@ flowchart LR
 ## Authentication and authorization boundaries
 
 - Students do not have passwords in MVP.
+- Teacher SSO can be enabled per deployment (currently Google flow live; other providers scaffolded).
 - Teachers should be `is_staff=True`, `is_superuser=False` for daily use.
 - `/teach/*` requires OTP-verified staff session when `DJANGO_TEACHER_2FA_REQUIRED=1`.
 - Superusers should be limited to operational tasks.

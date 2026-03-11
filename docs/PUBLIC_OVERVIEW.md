@@ -25,7 +25,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 ## What it is
 - A self-hosted learning hub for classes, modules, and lesson materials.
 - A simple student join flow (`class code + pseudonym display name`) without student password accounts in MVP.
-- A teacher/admin workflow built on Django auth, with safety controls for public-domain operation.
+- A teacher/admin workflow built on Django auth sessions (with optional Google SSO), with safety controls for public-domain operation.
 
 ## Who it is for
 - Small schools and programs that want self-hosted control.
@@ -68,27 +68,27 @@ Current captures:
 
 ![Teacher dashboard](images/press/03-teacher-dashboard.png)
 
-Planned placeholders:
+Additional workflow captures:
 
-![Teacher profile tab (placeholder)](images/press/09-teacher-profile-tab.png)
+![Teacher profile tab](images/press/09-teacher-profile-tab.png)
 
-![Org management tab (placeholder)](images/press/10-org-management-tab.png)
+![Org management tab](images/press/10-org-management-tab.png)
 
-![Invite-only enrollment (placeholder)](images/press/11-invite-only-enrollment.png)
+![Invite-only enrollment](images/press/11-invite-only-enrollment.png)
 
-![Certificate eligibility (placeholder)](images/press/12-certificate-eligibility.png)
+![Certificate eligibility](images/press/12-certificate-eligibility.png)
 
-![A11y smoke terminal (placeholder)](images/press/13-a11y-smoke-terminal.png)
+![A11y smoke terminal](images/press/13-a11y-smoke-terminal.png)
 
-![Student compact view (placeholder)](images/press/14-student-compact-view.png)
+![Student compact view](images/press/14-student-compact-view.png)
 
-![Lesson helper collapsed (placeholder)](images/press/15-lesson-helper-collapsed.png)
+![Lesson helper collapsed](images/press/15-lesson-helper-collapsed.png)
 
-![Student standard view (placeholder)](images/press/16-student-standard-view.png)
+![Student standard view](images/press/16-student-standard-view.png)
 
-![Student expanded view (placeholder)](images/press/17-student-expanded-view.png)
+![Student expanded view](images/press/17-student-expanded-view.png)
 
-![Teacher landing editor (placeholder)](images/press/18-teacher-landing-editor.png)
+![Teacher landing editor](images/press/18-teacher-landing-editor.png)
 
 Capture instructions live in `press/screenshots/SHOTLIST.md`.
 

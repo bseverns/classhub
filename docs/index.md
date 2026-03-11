@@ -43,7 +43,7 @@ Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
 ??? info "Open press screenshots"
     This section mirrors the full shot list in `press/screenshots/SHOTLIST.md`.
 
-    Captured now (`01`–`08`; `02`, `05`, and `06` are queued for refresh):
+    Captured now (`01`–`19`; `02`, `05`, and `06` are queued for refresh):
 
     ![01 Student join](images/press/01-student-join.png)
 
@@ -61,27 +61,27 @@ Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
 
     ![08 Health checks terminal](images/press/08-health-checks-terminal.png)
 
-    Planned placeholders (`09`–`18`):
+    Additional captured workflow screenshots (`09`–`18`):
 
-    ![09 Teacher profile tab (placeholder)](images/press/09-teacher-profile-tab.png)
+    ![09 Teacher profile tab](images/press/09-teacher-profile-tab.png)
 
-    ![10 Org management tab (placeholder)](images/press/10-org-management-tab.png)
+    ![10 Org management tab](images/press/10-org-management-tab.png)
 
-    ![11 Invite-only enrollment (placeholder)](images/press/11-invite-only-enrollment.png)
+    ![11 Invite-only enrollment](images/press/11-invite-only-enrollment.png)
 
-    ![12 Certificate eligibility (placeholder)](images/press/12-certificate-eligibility.png)
+    ![12 Certificate eligibility](images/press/12-certificate-eligibility.png)
 
-    ![13 A11y smoke terminal (placeholder)](images/press/13-a11y-smoke-terminal.png)
+    ![13 A11y smoke terminal](images/press/13-a11y-smoke-terminal.png)
 
-    ![14 Student compact view (placeholder)](images/press/14-student-compact-view.png)
+    ![14 Student compact view](images/press/14-student-compact-view.png)
 
-    ![15 Lesson helper collapsed (placeholder)](images/press/15-lesson-helper-collapsed.png)
+    ![15 Lesson helper collapsed](images/press/15-lesson-helper-collapsed.png)
 
-    ![16 Student standard view (placeholder)](images/press/16-student-standard-view.png)
+    ![16 Student standard view](images/press/16-student-standard-view.png)
 
-    ![17 Student expanded view (placeholder)](images/press/17-student-expanded-view.png)
+    ![17 Student expanded view](images/press/17-student-expanded-view.png)
 
-    ![18 Teacher landing editor (placeholder)](images/press/18-teacher-landing-editor.png)
+    ![18 Teacher landing editor](images/press/18-teacher-landing-editor.png)
 
     Shot list coverage status:
 
@@ -95,15 +95,16 @@ Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
     | `06-submission-dropbox.png` | Captured (refresh queued) | Submission flow |
     | `07-admin-login.png` | Captured | Admin login |
     | `08-health-checks-terminal.png` | Captured | Ops checks |
-    | `09-teacher-profile-tab.png` | Placeholder | Teacher profile tab |
-    | `10-org-management-tab.png` | Placeholder | Superuser org tab |
-    | `11-invite-only-enrollment.png` | Placeholder | Invite controls |
-    | `12-certificate-eligibility.png` | Placeholder | Eligibility page |
-    | `13-a11y-smoke-terminal.png` | Placeholder | A11y smoke |
-    | `14-student-compact-view.png` | Placeholder | Compact density mode |
-    | `15-lesson-helper-collapsed.png` | Placeholder | Helper collapsed state |
-    | `16-student-standard-view.png` | Placeholder | Standard density mode |
-    | `17-student-expanded-view.png` | Placeholder | Expanded density mode |
-    | `18-teacher-landing-editor.png` | Placeholder | Landing editor |
+    | `09-teacher-profile-tab.png` | Captured | Teacher profile tab |
+    | `10-org-management-tab.png` | Captured | Superuser org tab |
+    | `11-invite-only-enrollment.png` | Captured | Invite controls |
+    | `12-certificate-eligibility.png` | Captured | Eligibility page |
+    | `13-a11y-smoke-terminal.png` | Captured | A11y smoke |
+    | `14-student-compact-view.png` | Captured | Compact density mode |
+    | `15-lesson-helper-collapsed.png` | Captured | Helper collapsed state |
+    | `16-student-standard-view.png` | Captured | Standard density mode |
+    | `17-student-expanded-view.png` | Captured | Expanded density mode |
+    | `18-teacher-landing-editor.png` | Captured | Landing editor |
+    | `19-rbac-tools-tab.png` | Captured | RBAC tools tab |
 
-    For capture guidance and placeholders, see `press/screenshots/SHOTLIST.md` and `press/screenshots/PLACEHOLDERS.md`.
+    For capture guidance and remaining backlog, see `press/screenshots/SHOTLIST.md` and `press/screenshots/PLACEHOLDERS.md`.

@@ -95,12 +95,12 @@ T0 implementation scaffold (now shipped):
 - Add OIDC start/callback endpoints for each enabled provider.
 - Keep existing username/password route as fallback unless explicitly disabled.
 
-T1 scaffold status (March 10, 2026):
+T1 scaffold status at ship time (March 10, 2026):
 
 - `/teach/login` renders provider buttons when `CLASSHUB_TEACHER_SSO_ENABLED=1`.
 - `/teach/sso/start/<provider>` and `/teach/sso/callback/<provider>` routes are wired and guarded.
-- Routes currently return explicit "not active yet" notices (no external OIDC exchange yet).
-- Next implementation step is real OIDC state/nonce + redirect/callback token handling.
+- Routes returned explicit "not active yet" notices (no external OIDC exchange yet).
+- T2 follow-up was real OIDC state/nonce + redirect/callback token handling.
 
 T2 implementation update (March 10, 2026):
 

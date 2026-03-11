@@ -28,15 +28,15 @@ ClassHub is an operations-friendly learning hub for running cohorts, managing st
 
 ![Health checks terminal](images/press/08-health-checks-terminal.png)
 
-Planned operations captures:
+Operations captures:
 
-![Org management tab (placeholder)](images/press/10-org-management-tab.png)
+![Org management tab](images/press/10-org-management-tab.png)
 
-![Invite-only enrollment (placeholder)](images/press/11-invite-only-enrollment.png)
+![Invite-only enrollment](images/press/11-invite-only-enrollment.png)
 
-![Certificate eligibility (placeholder)](images/press/12-certificate-eligibility.png)
+![Certificate eligibility](images/press/12-certificate-eligibility.png)
 
-![A11y smoke terminal (placeholder)](images/press/13-a11y-smoke-terminal.png)
+![A11y smoke terminal](images/press/13-a11y-smoke-terminal.png)
 
 ## What success looks like
 

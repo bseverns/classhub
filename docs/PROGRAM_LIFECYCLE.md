@@ -27,11 +27,11 @@ Current captures:
 
 ![Teacher dashboard](images/press/03-teacher-dashboard.png)
 
-Planned lifecycle captures:
+Lifecycle captures:
 
-![Invite-only enrollment (Enroll placeholder)](images/press/11-invite-only-enrollment.png)
+![Invite-only enrollment (Enroll)](images/press/11-invite-only-enrollment.png)
 
-![Certificate eligibility (Certify/Report placeholder)](images/press/12-certificate-eligibility.png)
+![Certificate eligibility (Certify/Report)](images/press/12-certificate-eligibility.png)
 
 ## Recruit
 

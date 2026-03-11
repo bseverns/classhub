@@ -16,13 +16,13 @@ ClassHub is the place where you run a class, share materials, control enrollment
 
 ![Teacher dashboard](images/press/03-teacher-dashboard.png)
 
-Planned learner-view captures:
+Learner-view captures:
 
-![Student compact view (placeholder)](images/press/14-student-compact-view.png)
+![Student compact view](images/press/14-student-compact-view.png)
 
-![Student standard view (placeholder)](images/press/16-student-standard-view.png)
+![Student standard view](images/press/16-student-standard-view.png)
 
-![Student expanded view (placeholder)](images/press/17-student-expanded-view.png)
+![Student expanded view](images/press/17-student-expanded-view.png)
 
 ## 5-minute overview
 
