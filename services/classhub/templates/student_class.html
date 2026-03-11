@@ -87,9 +87,10 @@
       <div class="card class-landing">
         {% if class_landing.landing_hero_url %}
         <div class="landing-hero-wrap">
-          <img src="{{ class_landing.landing_hero_url }}" alt="Class landing image" class="landing-hero-image"
+          <img src="{{ class_landing.landing_hero_url }}" alt="{% trans 'Class return image' %}" class="landing-hero-image"
             loading="lazy" />
         </div>
+        <p class="muted">{% trans "Return image: look for this picture when you come back to class." %}</p>
         {% endif %}
         <h2>{{ class_landing.landing_title }}</h2>
         {% if class_landing.landing_message %}

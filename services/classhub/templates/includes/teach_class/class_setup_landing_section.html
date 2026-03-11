@@ -1,7 +1,7 @@
           <details class="section-toggle" id="section-landing-page">
             <summary>
               <span class="section-title">Student Landing Page</span>
-              <span class="section-subtitle">Set the title, message, and optional hero image students see first at /student.</span>
+              <span class="section-subtitle">Set the title, message, and optional return image students see first at /student.</span>
             </summary>
             <div class="section-body">
               <form method="post" action="/teach/class/{{ classroom.id }}/update-landing-page" class="landing-edit-form">
@@ -20,9 +20,9 @@
                   name="student_landing_message"
                   rows="4"
                   maxlength="4000"
-                  placeholder="Optional notes for students, families, or assistants."
+                  placeholder="Optional notes for students, families, or assistants. Example: 'Look for the return image below when you come back.'"
                 >{{ classroom.student_landing_message }}</textarea>
-                <label for="student-landing-hero-url">Hero image URL (optional)</label>
+                <label for="student-landing-hero-url">Return image URL (optional)</label>
                 <input
                   id="student-landing-hero-url"
                   name="student_landing_hero_url"
@@ -30,7 +30,7 @@
                   value="{{ classroom.student_landing_hero_url }}"
                   placeholder="/lesson-asset/123/download or https://example.org/banner.png"
                 />
-                <p class="muted mini no-top-margin">Use a same-origin path or an http/https URL. The weekly highlighted lesson is still controlled by lesson release dates.</p>
+                <p class="muted mini no-top-margin">Use a same-origin path or an http/https URL. Students can use this return image to quickly find the right class in busy sessions. The weekly highlighted lesson is still controlled by lesson release dates.</p>
                 <button type="submit">Save landing page</button>
               </form>
             </div>
