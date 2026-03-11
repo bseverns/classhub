@@ -439,7 +439,7 @@ class TeacherPortalTests(TestCase):
         self._build_lesson_with_submission()
         _force_login_staff_verified(self.client, self.staff)
 
-        resp = self.client.get("/teach")
+        resp = self.client.get("/teach?portal_mode=day")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "/static/css/teach_home.css")
         self.assertContains(resp, "/static/js/teach_home.js")
@@ -709,7 +709,7 @@ class TeacherPortalTests(TestCase):
         )
         _force_login_staff_verified(self.client, self.staff)
 
-        resp = self.client.get("/teach")
+        resp = self.client.get("/teach?portal_mode=day")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "What Changed Since Yesterday")
         self.assertContains(resp, "End-of-Class Closeout")
@@ -2336,7 +2336,7 @@ Session 02: Final Build
             role=OrganizationMembership.ROLE_TEACHER,
             is_active=True,
         )
-        resp = self.client.get("/teach")
+        resp = self.client.get("/teach?portal_mode=admin&advanced=1")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Organizations + Staff Memberships")
         self.assertContains(resp, "/teach/create-organization")
@@ -2586,7 +2586,7 @@ Session 02: Final Build
         _force_login_staff_verified(self.client, self.staff)
         classroom = Class.objects.create(name="Per Class Assign Link", join_code="ASGN0002")
 
-        resp = self.client.get("/teach")
+        resp = self.client.get("/teach?portal_mode=day")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, f"/teach?org_admin=1&class_assignment_class_id={classroom.id}")
 
