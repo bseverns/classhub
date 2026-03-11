@@ -2778,3 +2778,20 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces cognitive load in lesson-tracker maintenance by isolating independent responsibilities.
 - Keeps release/helper tuning complexity from silently re-accumulating in the section wrapper.
+
+## Teach class section service split: outcomes/facilitator internals (2026-03-11)
+
+**Current decision:**
+- Keep public section-builder entrypoints stable in:
+  - `teacher_dashboard_sections/outcomes.py`
+  - `teacher_dashboard_sections/facilitator_support.py`
+- Move heavy internal aggregation/row-building logic into focused helper modules:
+  - `outcomes_rollup.py`
+  - `outcomes_snapshot.py`
+  - `facilitator_support_builders.py`
+- Expand section budget guard coverage to include these helper modules and tighten wrapper module budgets so orchestration files stay thin.
+- Extend roster service decomposition guard to require the new section helper modules.
+
+**Why this remains active:**
+- Reduces maintenance risk by separating aggregation/query logic from section orchestration surfaces.
+- Prevents “split once, regrow later” drift by enforcing budgets/contracts on the new helper modules too.

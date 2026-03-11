@@ -12,7 +12,10 @@ MAX_ROSTER_SERVICE_LINES = 700
 EXPECTED_SECTION_MODULES = (
     Path("services/classhub/hub/services/teacher_dashboard_sections/roster.py"),
     Path("services/classhub/hub/services/teacher_dashboard_sections/facilitator_support.py"),
+    Path("services/classhub/hub/services/teacher_dashboard_sections/facilitator_support_builders.py"),
     Path("services/classhub/hub/services/teacher_dashboard_sections/outcomes.py"),
+    Path("services/classhub/hub/services/teacher_dashboard_sections/outcomes_rollup.py"),
+    Path("services/classhub/hub/services/teacher_dashboard_sections/outcomes_snapshot.py"),
     Path("services/classhub/hub/services/teacher_dashboard_sections/shared.py"),
 )
 

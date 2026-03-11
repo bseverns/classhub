@@ -22,8 +22,11 @@ SECTION_BUDGETS: dict[Path, int] = {
     Path("services/classhub/templates/includes/teach_class/module_editor_card.html"): 120,
     Path("services/classhub/templates/includes/teach_class/helper_signals_card.html"): 80,
     Path("services/classhub/templates/includes/teach_class/outcomes_snapshot_card.html"): 80,
-    Path("services/classhub/hub/services/teacher_dashboard_sections/outcomes.py"): 260,
-    Path("services/classhub/hub/services/teacher_dashboard_sections/facilitator_support.py"): 240,
+    Path("services/classhub/hub/services/teacher_dashboard_sections/outcomes.py"): 40,
+    Path("services/classhub/hub/services/teacher_dashboard_sections/outcomes_rollup.py"): 140,
+    Path("services/classhub/hub/services/teacher_dashboard_sections/outcomes_snapshot.py"): 170,
+    Path("services/classhub/hub/services/teacher_dashboard_sections/facilitator_support.py"): 100,
+    Path("services/classhub/hub/services/teacher_dashboard_sections/facilitator_support_builders.py"): 240,
     Path("services/classhub/hub/services/teacher_dashboard_sections/roster.py"): 120,
     Path("services/classhub/hub/services/teacher_dashboard_sections/shared.py"): 60,
 }
