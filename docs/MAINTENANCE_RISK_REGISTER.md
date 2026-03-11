@@ -10,8 +10,10 @@ This register names the five highest long-term maintenance risks visible in the 
 - Evidence:
   - `/teach` and related routes aggregate many staff workflows in one surface: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
   - `teach_home` assembles class list, profile, teacher invites, org admin, submissions, and template generation in one view: `services/classhub/hub/views/teacher_parts/content_home.py`
-  - UI size is already large: `services/classhub/templates/teach_home.html` is 81 lines; `services/classhub/templates/teach_class.html` is 103 lines; `services/classhub/hub/views/teacher_parts/roster_class.py` is 404 lines
+  - baseline shell sizes remain tracked: `services/classhub/templates/teach_home.html` is 81 lines; `services/classhub/templates/teach_class.html` is 103 lines; `services/classhub/hub/views/teacher_parts/roster_class.py` is 404 lines
+  - root templates are slimmed, but complexity now lives in bounded section partials/builders: `services/classhub/templates/includes/teach_class/class_setup_roster_student_row.html` is 83 lines; `services/classhub/templates/includes/teach_class/support_board_card.html` is 102 lines; `services/classhub/hub/services/teacher_dashboard_sections/facilitator_support_builders.py` is 213 lines
   - size/function budgets are continuously guarded in CI via `scripts/check_view_size_budgets.py` and `scripts/check_view_function_budgets.py`
+  - section-level budgets and decomposition contracts are guarded via `scripts/check_teach_class_section_budgets.py`, `scripts/check_teach_class_template_contract.py`, and `scripts/check_teacher_roster_service_contract.py`
 - Failure mode:
   - Small edits in `/teach` create regressions in unrelated staff workflows.
   - New staff see too many controls at once and rely on informal coaching instead of the product.
@@ -53,21 +55,21 @@ This register names the five highest long-term maintenance risks visible in the 
 - Owner role: Ops Director
 - Cadence: Monthly
 
-## Risk 3: Outcomes and certificate semantics are split across automatic and manual paths
+## Risk 3: Outcomes and certificate semantics are still policy-sensitive for staff interpretation
 
 - Risk title: Reporting semantics can drift from staff expectations
 - Evidence:
-  - eligibility is derived from append-only `StudentOutcomeEvent` rows: `services/classhub/hub/services/teacher_roster_class.py:62-134`
-  - the dashboard snapshot and eligibility rollup use separate query paths, one of which counts by `student_id` without the classroom filter at aggregation time: `services/classhub/hub/services/teacher_roster_class.py:137-227`
+  - eligibility is derived from append-only `StudentOutcomeEvent` rows: `services/classhub/hub/services/teacher_dashboard_sections/outcomes_rollup.py`
+  - dashboard snapshot and certificate eligibility now share the same section service stack (`outcomes_rollup.py` + `outcomes_snapshot.py`), reducing technical count drift risk
   - offline session completion is a manual staff action: `services/classhub/hub/views/teacher_parts/roster_outcomes.py:65-118`
   - certificate thresholds come from env settings and are explained in docs, not in one operator-owned checklist: [TEACHER_PORTAL.md](TEACHER_PORTAL.md), [DECISIONS.md](DECISIONS.md)
 - Failure mode:
-  - teachers and fundraising staff interpret certificates as a stronger signal than the current event model supports
+  - teachers and reporting stakeholders interpret certificates as competency grades instead of event-threshold signals
   - offline completions are missed or duplicated in practice
-  - exports and certificates remain technically correct but operationally misunderstood
+  - exports and certificates remain technically consistent but operationally misunderstood
 - Leading indicators:
-  - staff ask why a student is not yet eligible despite attending
-  - duplicate or manual session-completion actions increase
+  - repeated questions about why attendance and certificate eligibility do not always align
+  - duplicate manual session-completion actions increase
   - certificate conversations require maintainer interpretation rather than doc lookup
 - Mitigation plan:
   - keep one canonical explanation of what triggers outcomes and what certificate issuance means
