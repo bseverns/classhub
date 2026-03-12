@@ -14,7 +14,7 @@ from .shared import (
 )
 from .auth_teacher_accounts_shared import (
     build_setup_url,
-    require_superuser,
+    require_superuser as _require_superuser,
     resolve_staff_target_user,
     teacher_account_redirect,
 )
@@ -23,7 +23,7 @@ from .auth_teacher_accounts_shared import (
 @staff_member_required
 @require_POST
 def teach_create_teacher(request):
-    denied = require_superuser(request)
+    denied = _require_superuser(request)
     if denied is not None:
         return denied
 
@@ -110,7 +110,7 @@ def teach_create_teacher(request):
 @staff_member_required
 @require_POST
 def teach_resend_teacher_invite(request):
-    denied = require_superuser(request)
+    denied = _require_superuser(request)
     if denied is not None:
         return denied
     target_user, error_response = resolve_staff_target_user(request)

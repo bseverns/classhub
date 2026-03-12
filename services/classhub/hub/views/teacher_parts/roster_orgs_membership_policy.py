@@ -16,7 +16,7 @@ from .roster_orgs_shared import (
     org_form_values,
     parse_membership_ids,
     parse_role_capability_form,
-    require_superuser,
+    require_superuser as _require_superuser,
     resolve_org_and_staff_user,
     role_capability_error,
     upsert_membership,
@@ -27,7 +27,7 @@ from .roster_orgs_shared import (
 @staff_member_required
 @require_POST
 def teach_upsert_organization_membership(request):
-    denied = require_superuser(request)
+    denied = _require_superuser(request)
     if denied is not None:
         return denied
 
@@ -82,7 +82,7 @@ def teach_upsert_organization_membership(request):
 @staff_member_required
 @require_POST
 def teach_upsert_org_role_capability(request):
-    denied = require_superuser(request)
+    denied = _require_superuser(request)
     if denied is not None:
         return denied
 

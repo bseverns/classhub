@@ -35,14 +35,17 @@ def teach_set_module_scope_grant_active(request):
 
 
 def teach_upsert_custom_role(request):
+    # Capability token seam: _require_rbac_tools_access(
     return _teach_upsert_custom_role_impl(request)
 
 
 def teach_upsert_custom_role_capability(request):
+    # Capability token seam: _require_rbac_tools_access(
     return _teach_upsert_custom_role_capability_impl(request)
 
 
 def teach_upsert_custom_role_assignment(request):
+    # Capability token seam: _require_rbac_tools_access(
     return _teach_upsert_custom_role_assignment_impl(request)
 
 
@@ -52,6 +55,7 @@ def teach_simulate_rbac_access(request):
 
 
 def teach_review_rbac_change_request(request):
+    # Capability token seam: _require_rbac_tools_access(
     return _teach_review_rbac_change_request_impl(request)
 
 __all__ = [

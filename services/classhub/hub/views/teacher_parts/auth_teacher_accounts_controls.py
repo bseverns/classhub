@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 
 from .shared import _audit, require_POST, staff_member_required
 from .auth_teacher_accounts_shared import (
-    require_superuser,
+    require_superuser as _require_superuser,
     resolve_staff_target_user,
     teacher_account_redirect,
     would_remove_last_active_superuser,
@@ -15,7 +15,7 @@ from .auth_teacher_accounts_shared import (
 @staff_member_required
 @require_POST
 def teach_set_teacher_account_active(request):
-    denied = require_superuser(request)
+    denied = _require_superuser(request)
     if denied is not None:
         return denied
     target_user, error_response = resolve_staff_target_user(request)
@@ -50,7 +50,7 @@ def teach_set_teacher_account_active(request):
 @staff_member_required
 @require_POST
 def teach_set_teacher_account_superuser(request):
-    denied = require_superuser(request)
+    denied = _require_superuser(request)
     if denied is not None:
         return denied
     target_user, error_response = resolve_staff_target_user(request)
@@ -96,7 +96,7 @@ def teach_set_teacher_account_superuser(request):
 @staff_member_required
 @require_POST
 def teach_reset_teacher_account_password(request):
-    denied = require_superuser(request)
+    denied = _require_superuser(request)
     if denied is not None:
         return denied
     target_user, error_response = resolve_staff_target_user(request)

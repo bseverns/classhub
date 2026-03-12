@@ -10,13 +10,14 @@ from .shared import (
     require_POST,
     staff_member_required,
 )
-from .roster_orgs_shared import org_form_values, organization_error, require_superuser
+from .roster_orgs_shared import require_superuser as _require_superuser
+from .roster_orgs_shared import org_form_values, organization_error
 
 
 @staff_member_required
 @require_POST
 def teach_create_organization(request):
-    denied = require_superuser(request)
+    denied = _require_superuser(request)
     if denied is not None:
         return denied
 
@@ -60,7 +61,7 @@ def teach_create_organization(request):
 @staff_member_required
 @require_POST
 def teach_set_organization_active(request, org_id: int):
-    denied = require_superuser(request)
+    denied = _require_superuser(request)
     if denied is not None:
         return denied
 
