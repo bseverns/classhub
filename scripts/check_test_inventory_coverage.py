@@ -30,13 +30,27 @@ FILE_CONTRACTS: dict[str, dict] = {
         "required_tests": ("test_student_join_then_student_home_returns_200",),
         "tokens": ("StudentHomeSmokeTests",),
     },
-    "services/classhub/hub/tests/test_student_ops.py": {
+    "services/classhub/hub/tests/test_student_ops_join_retention.py": {
         "required_tests": (
             "test_join_prefers_device_hint_cookie_with_dedicated_key",
+            "test_prune_submissions_deletes_old_rows",
+            "test_prune_student_events_deletes_old_rows",
+        ),
+        "tokens": ("JoinClassTests", "SubmissionRetentionCommandTests", "StudentEventRetentionCommandTests"),
+    },
+    "services/classhub/hub/tests/test_student_ops_submission_flows.py": {
+        "required_tests": (
             "test_student_can_publish_later_and_wait_for_teacher_approval",
+            "test_submission_download_sets_hardening_headers",
+        ),
+        "tokens": ("StudentEventSubmissionTests", "SubmissionDownloadHardeningTests", "/material/"),
+    },
+    "services/classhub/hub/tests/test_student_ops_portfolio_controls.py": {
+        "required_tests": (
+            "test_portfolio_export_contains_student_files_and_index",
             "test_student_delete_work_now_clears_submissions_and_upload_events",
         ),
-        "tokens": ("JoinClassTests", "StudentDataControlsTests", "/student/portfolio"),
+        "tokens": ("StudentPortfolioExportTests", "StudentDataControlsTests", "/student/portfolio"),
     },
     "services/classhub/hub/tests/test_teacher_admin_portal.py": {
         "required_tests": (

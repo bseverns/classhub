@@ -3427,3 +3427,17 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces cognitive load in RBAC policy import/export normalization without changing endpoint or management-command behavior.
 - Keeps schema concerns, export shaping, and import validation bounded so future policy changes can be pruned in-place rather than regrowing a single heavy module.
+
+## Student ops test split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/tests/test_student_ops.py` as a compatibility facade import surface.
+- Move student-op test suites into focused modules:
+  - `services/classhub/hub/tests/test_student_ops_join_retention.py`
+  - `services/classhub/hub/tests/test_student_ops_submission_flows.py`
+  - `services/classhub/hub/tests/test_student_ops_portfolio_controls.py`
+- Update flow coverage contracts in `scripts/check_test_inventory_coverage.py` to track required tests/tokens in the new modules.
+
+**Why this remains active:**
+- Reduces cognitive load in the largest student test hotspot without changing class/test names or test discovery behavior.
+- Keeps join/retention, submission flow, and portfolio/data-control behaviors separately bounded so future additions prune by domain instead of regrowing a single test monolith.
