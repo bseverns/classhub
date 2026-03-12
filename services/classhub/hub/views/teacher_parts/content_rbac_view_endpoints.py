@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from ...services.org_access import evaluate_staff_capability
-from .content_rbac_access import rbac_tools_enabled_for_user, rbac_tools_requested
+from .content_rbac_access import (
+    rbac_tools_requested as _rbac_tools_requested_impl,
+)
 from .content_rbac_payload_parsers import (
     parse_scope_grant_payload as _parse_scope_grant_payload,
     parse_simulation_payload as _parse_simulation_payload,
@@ -22,6 +24,14 @@ from .content_rbac_view_review import (
     teach_simulate_rbac_access as _teach_simulate_rbac_access_impl,
 )
 from .shared import staff_classroom_or_none
+
+
+def rbac_tools_enabled_for_user(user) -> bool:
+    return bool(getattr(user, "is_superuser", False))
+
+
+def rbac_tools_requested(request) -> bool:
+    return _rbac_tools_requested_impl(request)
 
 
 def teach_upsert_module_scope_grant(request):
