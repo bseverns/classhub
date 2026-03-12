@@ -43,6 +43,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Teacher home context split seam](#teacher-home-context-split-seam)
 - [Teacher SSO endpoint split seam](#teacher-sso-endpoint-split-seam)
 - [Teacher RBAC endpoint split seam II](#teacher-rbac-endpoint-split-seam-ii)
+- [Teacher RBAC helper split seam](#teacher-rbac-helper-split-seam)
 - [Teacher roster code/reorder helper seam](#teacher-roster-codereorder-helper-seam)
 - [Shared zip export helper seam](#shared-zip-export-helper-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
@@ -3097,6 +3098,21 @@ Execution ownership and gates:
 - Reduces cognitive load in RBAC teacher-home endpoint code without behavior changes.
 - Keeps context assembly, mutation actions, and review flow bounded so governance complexity does not re-form as one hotspot file.
 
+## Teacher RBAC helper split seam
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/content_rbac_view_helpers.py` as a compatibility facade for shared RBAC helper exports.
+- Move RBAC state/redirect helper logic into:
+  - `services/classhub/hub/views/teacher_parts/content_rbac_view_state.py`
+- Move RBAC change-request/policy helper logic into:
+  - `services/classhub/hub/views/teacher_parts/content_rbac_view_change_requests.py`
+- Preserve existing helper import names via facade re-exports so endpoint/context modules do not change behavior.
+- Extend hotspot budgets in `scripts/check_teacher_admin_hotspot_budgets.py` for the new split modules and tighten the facade budget.
+
+**Why this remains active:**
+- Reduces cognitive load in RBAC shared helper code without behavior changes.
+- Keeps state/redirect wiring and change-request policy logic bounded so the helper layer does not become the next governance hotspot.
+
 ## Org access policy pruning: split capability evaluator from class-access facade (2026-03-12)
 
 **Current decision:**
@@ -3322,15 +3338,20 @@ Execution ownership and gates:
 
 **Current decision:**
 - Keep `services/classhub/hub/views/teacher_parts/auth_sso.py` as the compatibility seam module for teacher SSO routes and test patch points.
-- Keep SSO state/provider primitives in:
-  - `services/classhub/hub/views/teacher_parts/auth_sso_core.py`
+- Keep `services/classhub/hub/views/teacher_parts/auth_sso_core.py` as a compatibility facade for shared SSO core helpers.
+- Move SSO core provider/config/redirect primitives into:
+  - `services/classhub/hub/views/teacher_parts/auth_sso_core_providers.py`
+- Move SSO state token lifecycle helpers into:
+  - `services/classhub/hub/views/teacher_parts/auth_sso_core_state.py`
+- Move callback/login completion helpers into:
+  - `services/classhub/hub/views/teacher_parts/auth_sso_core_callback.py`
 - Move Google-specific authorize/callback orchestration into:
   - `services/classhub/hub/views/teacher_parts/auth_sso_google_flow.py`
 - Preserve patchable seam symbols in `auth_sso.py` used by auth tests:
   - `_load_provider_discovery`
   - `_consume_sso_state`
   - `_google_exchange_code_for_identity`
-- Extend hotspot budget contracts in `scripts/check_teacher_admin_hotspot_budgets.py` for the new Google flow module and tighten the `auth_sso.py` facade budget.
+- Extend hotspot budget contracts in `scripts/check_teacher_admin_hotspot_budgets.py` for the core split modules, Google flow module, and tighten facade budgets.
 
 **Why this remains active:**
 - Reduces cognitive load in teacher SSO endpoint code without changing route behavior.
