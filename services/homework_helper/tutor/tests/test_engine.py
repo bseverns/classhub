@@ -144,6 +144,36 @@ class HeuristicsEngineTests(SimpleTestCase):
         self.assertIn("together", text)
         self.assertIn("decide", text)
 
+    def test_class_reentry_privacy_detection_and_guidance(self):
+        self.assertTrue(
+            heuristics.is_class_reentry_privacy_question(
+                "I forgot my return code and name card. Can I get back into class without my full name?"
+            )
+        )
+        text = heuristics.build_class_reentry_privacy_text().lower()
+        self.assertIn("class code", text)
+        self.assertIn("display name", text)
+        self.assertIn("teacher", text)
+
+    def test_publish_privacy_detection_and_guidance(self):
+        self.assertTrue(heuristics.is_publish_privacy_question("Can I publish this without my full name shown?"))
+        text = heuristics.build_publish_privacy_text().lower()
+        self.assertIn("publish", text)
+        self.assertIn("display name", text)
+        self.assertIn("teacher", text)
+
+    def test_score_condition_debug_detection_and_guidance(self):
+        self.assertTrue(heuristics.is_score_condition_debug_question("Score goes up even when I hit the wrong object."))
+        text = heuristics.build_score_condition_debug_text().lower()
+        self.assertIn("if condition", text)
+        self.assertIn("check", text)
+
+    def test_wellbeing_reset_detection_and_guidance(self):
+        self.assertTrue(heuristics.is_wellbeing_reset_question("Nothing works and I feel dumb. I want to quit."))
+        text = heuristics.build_wellbeing_reset_text().lower()
+        self.assertIn("not dumb", text)
+        self.assertIn("small next step", text)
+
 
 class RuntimeConfigEngineTests(SimpleTestCase):
     def test_resolve_program_profile_defaults_to_secondary(self):

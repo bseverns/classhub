@@ -173,6 +173,48 @@ class HelperChatAuthTests(TestCase):
         self.assertIn("decide", text)
         self.assertEqual(body.get("attempts"), 0)
 
+    def test_chat_class_reentry_privacy_guidance_includes_required_terms(self):
+        self._set_student_session()
+        resp = self._post_chat(
+            {"message": "I forgot my return code and name card. How do I get back into class without my full name?"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        text = str(resp.json().get("text") or "").lower()
+        self.assertIn("class code", text)
+        self.assertIn("display name", text)
+        self.assertIn("teacher", text)
+
+    def test_chat_publish_privacy_guidance_includes_required_terms(self):
+        self._set_student_session()
+        resp = self._post_chat(
+            {"message": "Can I publish this if I do not want my full name shown?"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        text = str(resp.json().get("text") or "").lower()
+        self.assertIn("publish", text)
+        self.assertIn("display name", text)
+        self.assertIn("teacher", text)
+
+    def test_chat_score_condition_debug_guidance_includes_required_terms(self):
+        self._set_student_session()
+        resp = self._post_chat(
+            {"message": "Score goes up even when I hit the wrong object. What's one debugging step?"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        text = str(resp.json().get("text") or "").lower()
+        self.assertIn("if condition", text)
+        self.assertIn("check", text)
+
+    def test_chat_wellbeing_reset_guidance_includes_required_terms(self):
+        self._set_student_session()
+        resp = self._post_chat(
+            {"message": "Nothing works and I feel dumb. I want to quit."}
+        )
+        self.assertEqual(resp.status_code, 200)
+        text = str(resp.json().get("text") or "").lower()
+        self.assertIn("not dumb", text)
+        self.assertIn("small next step", text)
+
     @patch("tutor.engine.backends.invoke_backend")
     def test_chat_reuses_recent_turns_when_conversation_id_is_reused(self, invoke_backend_mock):
         self._set_student_session()

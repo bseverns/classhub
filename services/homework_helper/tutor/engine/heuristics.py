@@ -153,6 +153,65 @@ def build_teamwork_decision_text() -> str:
     )
 
 
+def is_class_reentry_privacy_question(message: str) -> bool:
+    lowered = (message or "").lower()
+    has_identity_signal = any(token in lowered for token in ("full name", "real name", "name card"))
+    has_return_signal = any(token in lowered for token in ("return code", "class code", "back into class", "get back into class"))
+    return has_identity_signal and has_return_signal
+
+
+def build_class_reentry_privacy_text() -> str:
+    return (
+        "You can rejoin without a full legal name.\n"
+        "Use your class code and your display name (pseudonym is okay in class workflow).\n"
+        "If your return code is missing, ask your teacher to reset or confirm your class code before you continue."
+    )
+
+
+def is_publish_privacy_question(message: str) -> bool:
+    lowered = (message or "").lower()
+    has_publish = any(token in lowered for token in ("publish", "share", "post"))
+    has_name_privacy = any(token in lowered for token in ("full name", "real name", "name shown"))
+    return has_publish and has_name_privacy
+
+
+def build_publish_privacy_text() -> str:
+    return (
+        "Yes, you can publish without showing your full name.\n"
+        "Use your display name for the share/post identity in class.\n"
+        "If you want confirmation before you publish, ask your teacher to review the visibility settings first."
+    )
+
+
+def is_score_condition_debug_question(message: str) -> bool:
+    lowered = (message or "").lower()
+    has_score = "score" in lowered
+    has_wrong_hit = any(token in lowered for token in ("wrong object", "wrong sprite", "even when i hit", "hit the wrong"))
+    return has_score and has_wrong_hit
+
+
+def build_score_condition_debug_text() -> str:
+    return (
+        "Use one debugging check first: find the score change block and add an if condition so score updates only on the correct target.\n"
+        "Then check that the condition compares against the right sprite/object name.\n"
+        "Run one test after that single check and tell me what changed."
+    )
+
+
+def is_wellbeing_reset_question(message: str) -> bool:
+    lowered = (message or "").lower()
+    has_overwhelm = any(token in lowered for token in ("nothing works", "i want to quit", "feel dumb", "i'm dumb", "im dumb"))
+    return has_overwhelm
+
+
+def build_wellbeing_reset_text() -> str:
+    return (
+        "You are not dumb. This happens to everyone when a build gets noisy.\n"
+        "Take one small next step: test one input/block only, then stop and check the result.\n"
+        "After that next step, tell me exactly what changed so we can pick the next tiny fix."
+    )
+
+
 def tokenize(text: str) -> set[str]:
     parts = re.split(r"[^a-z0-9]+", text.lower())
     return {p for p in parts if len(p) >= 4}

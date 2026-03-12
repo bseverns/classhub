@@ -38,6 +38,14 @@ class ChatDeps:
     build_mouse_only_adaptation_text: Callable[[], str]
     is_teamwork_decision_question: Callable[[str], bool]
     build_teamwork_decision_text: Callable[[], str]
+    is_class_reentry_privacy_question: Callable[[str], bool]
+    build_class_reentry_privacy_text: Callable[[], str]
+    is_publish_privacy_question: Callable[[str], bool]
+    build_publish_privacy_text: Callable[[], str]
+    is_score_condition_debug_question: Callable[[str], bool]
+    build_score_condition_debug_text: Callable[[], str]
+    is_wellbeing_reset_question: Callable[[str], bool]
+    build_wellbeing_reset_text: Callable[[], str]
     allowed_topic_overlap: Callable[[str, list[str]], bool]
     build_instructions: Callable[..., str]
     backend_circuit_is_open: Callable[[str], bool]
@@ -272,6 +280,102 @@ def handle_chat(
             backend=backend,
         )
         guidance_text = deps.build_teamwork_decision_text()
+        _persist_turns(guidance_text)
+        return _response(
+            {
+                "text": guidance_text,
+                "model": "",
+                "backend": backend,
+                "strictness": strictness,
+                "attempts": 0,
+                "scope_verified": scope_verified,
+                "citations": [],
+                "intent": intent,
+                "follow_up_suggestions": follow_up_suggestions,
+            }
+        )
+
+    if deps.is_class_reentry_privacy_question(message):
+        deps.log_chat_event(
+            "info",
+            "policy_redirect_class_reentry_privacy",
+            request_id=request_id,
+            actor_type=actor_type,
+            backend=backend,
+        )
+        guidance_text = deps.build_class_reentry_privacy_text()
+        _persist_turns(guidance_text)
+        return _response(
+            {
+                "text": guidance_text,
+                "model": "",
+                "backend": backend,
+                "strictness": strictness,
+                "attempts": 0,
+                "scope_verified": scope_verified,
+                "citations": [],
+                "intent": intent,
+                "follow_up_suggestions": follow_up_suggestions,
+            }
+        )
+
+    if deps.is_publish_privacy_question(message):
+        deps.log_chat_event(
+            "info",
+            "policy_redirect_publish_privacy",
+            request_id=request_id,
+            actor_type=actor_type,
+            backend=backend,
+        )
+        guidance_text = deps.build_publish_privacy_text()
+        _persist_turns(guidance_text)
+        return _response(
+            {
+                "text": guidance_text,
+                "model": "",
+                "backend": backend,
+                "strictness": strictness,
+                "attempts": 0,
+                "scope_verified": scope_verified,
+                "citations": [],
+                "intent": intent,
+                "follow_up_suggestions": follow_up_suggestions,
+            }
+        )
+
+    if deps.is_score_condition_debug_question(message):
+        deps.log_chat_event(
+            "info",
+            "policy_redirect_score_condition_debug",
+            request_id=request_id,
+            actor_type=actor_type,
+            backend=backend,
+        )
+        guidance_text = deps.build_score_condition_debug_text()
+        _persist_turns(guidance_text)
+        return _response(
+            {
+                "text": guidance_text,
+                "model": "",
+                "backend": backend,
+                "strictness": strictness,
+                "attempts": 0,
+                "scope_verified": scope_verified,
+                "citations": [],
+                "intent": intent,
+                "follow_up_suggestions": follow_up_suggestions,
+            }
+        )
+
+    if deps.is_wellbeing_reset_question(message):
+        deps.log_chat_event(
+            "info",
+            "policy_redirect_wellbeing_reset",
+            request_id=request_id,
+            actor_type=actor_type,
+            backend=backend,
+        )
+        guidance_text = deps.build_wellbeing_reset_text()
         _persist_turns(guidance_text)
         return _response(
             {

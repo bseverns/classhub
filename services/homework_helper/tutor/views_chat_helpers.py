@@ -102,6 +102,38 @@ def _build_teamwork_decision_text() -> str:
     return engine_heuristics.build_teamwork_decision_text()
 
 
+def _is_class_reentry_privacy_question(message: str) -> bool:
+    return engine_heuristics.is_class_reentry_privacy_question(message)
+
+
+def _build_class_reentry_privacy_text() -> str:
+    return engine_heuristics.build_class_reentry_privacy_text()
+
+
+def _is_publish_privacy_question(message: str) -> bool:
+    return engine_heuristics.is_publish_privacy_question(message)
+
+
+def _build_publish_privacy_text() -> str:
+    return engine_heuristics.build_publish_privacy_text()
+
+
+def _is_score_condition_debug_question(message: str) -> bool:
+    return engine_heuristics.is_score_condition_debug_question(message)
+
+
+def _build_score_condition_debug_text() -> str:
+    return engine_heuristics.build_score_condition_debug_text()
+
+
+def _is_wellbeing_reset_question(message: str) -> bool:
+    return engine_heuristics.is_wellbeing_reset_question(message)
+
+
+def _build_wellbeing_reset_text() -> str:
+    return engine_heuristics.build_wellbeing_reset_text()
+
+
 @lru_cache(maxsize=4)
 def _load_reference_chunks(path_str: str) -> tuple[str, ...]:
     return engine_reference.load_reference_chunks(path_str, logger=logger)
@@ -284,10 +316,14 @@ __all__ = [
     "DEFAULT_PIPER_CONTEXT_KEYWORDS",
     "DEFAULT_PIPER_HARDWARE_KEYWORDS",
     "DEFAULT_TEXT_LANGUAGE_KEYWORDS",
+    "_build_class_reentry_privacy_text",
     "_build_follow_up_suggestions",
     "_build_mouse_only_adaptation_text",
     "_build_helper_event_details",
+    "_build_publish_privacy_text",
+    "_build_score_condition_debug_text",
     "_build_teamwork_decision_text",
+    "_build_wellbeing_reset_text",
     "_build_piper_hardware_triage_text",
     "_classify_intent",
     "_clear_conversation_turns",
@@ -297,6 +333,10 @@ __all__ = [
     "_env_float",
     "_env_int",
     "_format_conversation_for_prompt",
+    "_is_class_reentry_privacy_question",
+    "_is_publish_privacy_question",
+    "_is_score_condition_debug_question",
+    "_is_wellbeing_reset_question",
     "_is_piper_context",
     "_is_piper_hardware_question",
     "_is_mouse_only_access_question",
