@@ -88,7 +88,15 @@ FILE_CONTRACTS: dict[str, dict] = {
         ),
         "tokens": ("TeacherPortalTeacherAccountsTests", "/teach/profile/", "/teach/create-teacher"),
     },
-    "services/classhub/hub/tests/test_teacher_admin_portal_org_access.py": {
+    "services/classhub/hub/tests/test_teacher_admin_portal_org_access_boundary.py": {
+        "required_tests": (
+            "test_teach_home_lists_only_accessible_org_classes",
+            "test_non_superuser_staff_cannot_manage_organizations_from_teach",
+            "test_hard_org_boundary_blocks_class_create_without_membership",
+        ),
+        "tokens": ("TeacherOrganizationBoundaryAccessTests", "/teach/class/", "/teach/syllabus-export"),
+    },
+    "services/classhub/hub/tests/test_teacher_admin_portal_org_access_rbac_tooling.py": {
         "required_tests": (
             "test_org_admin_can_upsert_scoped_grant_from_teach_home",
             "test_org_admin_bulk_simulation_matrix_scopes_to_class_org",
@@ -96,7 +104,7 @@ FILE_CONTRACTS: dict[str, dict] = {
             "test_org_admin_can_export_rbac_policy_json",
             "test_org_admin_can_import_rbac_policy_json",
         ),
-        "tokens": ("TeacherOrganizationAccessTests", "/teach/rbac/", "/teach/syllabus-export"),
+        "tokens": ("TeacherOrganizationRbacPolicyToolingTests", "/teach/rbac/", "rbac.policy.export"),
     },
     "services/classhub/hub/tests/test_teacher_admin_auth.py": {
         "required_tests": (

@@ -3441,3 +3441,19 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces cognitive load in the largest student test hotspot without changing class/test names or test discovery behavior.
 - Keeps join/retention, submission flow, and portfolio/data-control behaviors separately bounded so future additions prune by domain instead of regrowing a single test monolith.
+
+## Teacher org-access test split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/tests/test_teacher_admin_portal_org_access.py` as a compatibility stub.
+- Split the prior monolith into:
+  - `services/classhub/hub/tests/test_teacher_admin_portal_org_access_boundary.py`
+  - `services/classhub/hub/tests/test_teacher_admin_portal_org_access_rbac_tooling.py`
+- Keep both suites with independent setup scaffolds so boundary behavior and RBAC tooling behavior can be evolved/tested independently.
+- Update guard contracts in:
+  - `scripts/check_teacher_admin_hotspot_budgets.py`
+  - `scripts/check_test_inventory_coverage.py`
+
+**Why this remains active:**
+- Separates org-boundary/classroom-access expectations from RBAC policy tooling workflows.
+- Keeps the heaviest teacher governance test surface prunable by domain so future changes do not re-aggregate into one file.
