@@ -56,6 +56,12 @@ def _post_json(
             except Exception:
                 error_payload["error_body"] = body
         return error_payload
+    except Exception as exc:
+        return {
+            "error": str(exc),
+            "error_type": type(exc).__name__,
+            "status_code": 0,
+        }
 
 
 def _iter_prompts(path: str):
