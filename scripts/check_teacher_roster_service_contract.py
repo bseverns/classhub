@@ -7,8 +7,10 @@ import sys
 from pathlib import Path
 
 
-ROSTER_SERVICE = Path("services/classhub/hub/services/teacher_roster_class.py")
-MAX_ROSTER_SERVICE_LINES = 700
+ROSTER_FACADE = Path("services/classhub/hub/services/teacher_roster_class.py")
+ROSTER_DASHBOARD = Path("services/classhub/hub/services/teacher_roster_class_dashboard.py")
+MAX_ROSTER_FACADE_LINES = 140
+MAX_ROSTER_DASHBOARD_LINES = 340
 EXPECTED_SECTION_MODULES = (
     Path("services/classhub/hub/services/teacher_dashboard_sections/roster.py"),
     Path("services/classhub/hub/services/teacher_dashboard_sections/facilitator_support.py"),
@@ -40,31 +42,50 @@ def _require_snippets(text: str, *, path: Path, snippets: list[str], failures: l
 def main() -> int:
     failures: list[str] = []
     try:
-        roster_text = _read(ROSTER_SERVICE)
+        roster_facade_text = _read(ROSTER_FACADE)
+        roster_dashboard_text = _read(ROSTER_DASHBOARD)
     except RuntimeError as exc:
         print(f"[teacher-roster-service-guard] FAIL: {exc}", file=sys.stderr)
         return 1
 
-    roster_lines = _line_count(ROSTER_SERVICE)
-    if roster_lines > MAX_ROSTER_SERVICE_LINES:
+    facade_lines = _line_count(ROSTER_FACADE)
+    dashboard_lines = _line_count(ROSTER_DASHBOARD)
+    if facade_lines > MAX_ROSTER_FACADE_LINES:
         failures.append(
-            f"{ROSTER_SERVICE}: expected <= {MAX_ROSTER_SERVICE_LINES} lines, found {roster_lines}"
+            f"{ROSTER_FACADE}: expected <= {MAX_ROSTER_FACADE_LINES} lines, found {facade_lines}"
+        )
+    if dashboard_lines > MAX_ROSTER_DASHBOARD_LINES:
+        failures.append(
+            f"{ROSTER_DASHBOARD}: expected <= {MAX_ROSTER_DASHBOARD_LINES} lines, found {dashboard_lines}"
         )
 
     _require_snippets(
-        roster_text,
-        path=ROSTER_SERVICE,
+        roster_facade_text,
+        path=ROSTER_FACADE,
+        snippets=[
+            "from .teacher_roster_class_dashboard import (",
+            "build_dashboard_context_impl,",
+            "build_certificate_eligibility_rows,",
+            "def build_dashboard_context(*, request, classroom, normalize_order_fn) -> dict:",
+            "return build_dashboard_context_impl(",
+            "from .teacher_roster_class_exports import (",
+        ],
+        failures=failures,
+    )
+    _require_snippets(
+        roster_dashboard_text,
+        path=ROSTER_DASHBOARD,
         snippets=[
             "from .teacher_dashboard_sections.facilitator_support import (",
             "from .teacher_dashboard_sections.outcomes import (",
             "from .teacher_dashboard_sections.roster import (",
-            "int_setting as _int_setting_impl",
             "def _build_facilitator_support_snapshot(*, classroom, students: list[StudentIdentity], modules: list[Module]) -> dict:",
             "return _facilitator_support_snapshot_impl(",
             "def _build_outcome_snapshot(*, classroom, students: list[StudentIdentity]) -> dict:",
             "return _outcome_snapshot_impl(classroom=classroom, students=students)",
             "def _material_submission_counts(upload_material_ids: list[int]) -> dict[int, int]:",
             "return _material_submission_counts_impl(upload_material_ids)",
+            "def build_dashboard_context_impl(",
         ],
         failures=failures,
     )
@@ -78,14 +99,16 @@ def main() -> int:
         for row in failures:
             print(f"  - {row}", file=sys.stderr)
         print(
-            "[teacher-roster-service-guard] keep section builders in teacher_dashboard_sections/* and orchestration in teacher_roster_class.py",
+            "[teacher-roster-service-guard] keep section builders in teacher_dashboard_sections/* and orchestration in teacher_roster_class_dashboard.py",
             file=sys.stderr,
         )
         return 1
 
     print(
         "[teacher-roster-service-guard] OK "
-        f"(service={ROSTER_SERVICE.as_posix()} lines={roster_lines}; sections={len(EXPECTED_SECTION_MODULES)})"
+        f"(facade={ROSTER_FACADE.as_posix()} lines={facade_lines}; "
+        f"dashboard={ROSTER_DASHBOARD.as_posix()} lines={dashboard_lines}; "
+        f"sections={len(EXPECTED_SECTION_MODULES)})"
     )
     return 0
 
