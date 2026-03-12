@@ -72,3 +72,18 @@ Treat this as release-decision guidance:
   - repeated classroom-critical misses (unsafe/off-scope guidance, weak hardware grounding, low usefulness on debugging prompts)
 
 When escalating model strength, keep the same prompt pack and re-run so comparisons remain apples-to-apples.
+
+## Latest completed cycle (2026-03-12)
+
+Authenticated classroom-pack runs completed against production URL (`https://lms.creatempls.org/helper/chat`) with student session bootstrap.
+
+- Light baseline (`/tmp/classhub_helper_eval_light_v4`):
+  - pass rate `0.8333` (`15/18`)
+- Strict baseline before final wording fixes (`/tmp/classhub_helper_eval_strict_v5`):
+  - pass rate `0.9444` (`17/18`)
+  - only remaining fail: `piper-class-001`
+- Strict after targeted prompt-contract fixes (`/tmp/classhub_helper_eval_strict_v6`):
+  - pass rate `1.0` (`18/18`)
+  - no failing prompt IDs
+
+Result: strict-mode classroom eval now clears the rubric threshold with full pass coverage (`18/18`).

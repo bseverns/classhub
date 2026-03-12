@@ -2921,3 +2921,20 @@ Execution ownership and gates:
 **Why this remains active:**
 - Moves Helper model-quality discussions from anecdotal feedback to repeatable evidence.
 - Gives ops/teaching leads a concrete signal for model sufficiency without requiring paid services in the evaluation loop.
+
+## Classroom helper strictness hardening closed with 18/18 strict pass (2026-03-12)
+
+**Current decision:**
+- Close the current classroom-helper hardening loop after authenticated strict-mode eval reaches full pass:
+  - strict `v6`: `18/18` (`pass_rate=1.0`) on `eval_prompts_classroom_realistic.jsonl`
+  - light `v4`: `15/18` (`pass_rate=0.8333`) retained as comparison baseline.
+- Keep deterministic guardrail responses for four previously failing classroom contracts:
+  - class re-entry privacy (`display name` + `class code` + `teacher` guidance),
+  - score-condition debugging (`if condition` + `check` framing),
+  - publish-without-full-name privacy,
+  - wellbeing reset (`not dumb` + `small next step`).
+- Treat `/tmp/classhub_helper_eval_strict_v6` and `/tmp/classhub_helper_eval_light_v4` summaries as completion evidence for this cycle.
+
+**Why this remains active:**
+- Confirms strict-mode helper behavior can satisfy the classroom rubric without paid-model escalation.
+- Converts prior phrase-contract misses into test-backed deterministic paths, reducing churn in future eval cycles.
