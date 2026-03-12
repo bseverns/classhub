@@ -331,11 +331,21 @@ def _normalize_landing_hero_url(raw: str) -> str:
     return safe_external_url(value)
 
 
-def _pick_highlight_lesson(*, lesson_links: list[dict], today):
+def _pick_highlight_lesson(*, lesson_links: list[dict], today, preferred_module_id: int | None = None):
     if not lesson_links:
         return None
     week_start = today - timedelta(days=today.weekday())
     week_end = week_start + timedelta(days=6)
+
+    if preferred_module_id:
+        for row in lesson_links:
+            if int(row.get("module_id") or 0) != int(preferred_module_id):
+                continue
+            highlight = dict(row)
+            available_on = row.get("available_on")
+            highlight["is_this_week"] = bool(available_on and week_start <= available_on <= week_end)
+            highlight["is_teacher_pinned"] = True
+            return highlight
 
     this_week = [
         row for row in lesson_links
@@ -352,6 +362,7 @@ def _pick_highlight_lesson(*, lesson_links: list[dict], today):
         )
         highlight = dict(this_week[0])
         highlight["is_this_week"] = True
+        highlight["is_teacher_pinned"] = False
         return highlight
 
     open_now = [row for row in lesson_links if not row.get("is_locked")]
@@ -359,6 +370,7 @@ def _pick_highlight_lesson(*, lesson_links: list[dict], today):
         open_now.sort(key=lambda row: (row["module_order"], row["module_id"]))
         highlight = dict(open_now[0])
         highlight["is_this_week"] = False
+        highlight["is_teacher_pinned"] = False
         return highlight
 
     upcoming = [row for row in lesson_links if row.get("available_on") and row["available_on"] >= today]
@@ -366,10 +378,12 @@ def _pick_highlight_lesson(*, lesson_links: list[dict], today):
         upcoming.sort(key=lambda row: (row["available_on"], row["module_order"], row["module_id"]))
         highlight = dict(upcoming[0])
         highlight["is_this_week"] = False
+        highlight["is_teacher_pinned"] = False
         return highlight
 
     fallback = dict(lesson_links[0])
     fallback["is_this_week"] = False
+    fallback["is_teacher_pinned"] = False
     return fallback
 
 
@@ -401,7 +415,11 @@ def build_class_landing_context(*, classroom: Class, modules: list[Module], mate
             break
 
     today = timezone.localdate()
-    highlight = _pick_highlight_lesson(lesson_links=lesson_links, today=today)
+    highlight = _pick_highlight_lesson(
+        lesson_links=lesson_links,
+        today=today,
+        preferred_module_id=getattr(classroom, "student_landing_default_module_id", None),
+    )
 
     highlight_module_id = int(highlight["module_id"]) if highlight else 0
     for row in lesson_links:

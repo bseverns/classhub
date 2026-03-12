@@ -30,7 +30,16 @@
                   value="{{ classroom.student_landing_hero_url }}"
                   placeholder="/lesson-asset/123/download or https://example.org/banner.png"
                 />
-                <p class="muted mini no-top-margin">Use a same-origin path or an http/https URL. Students can use this return image to quickly find the right class in busy sessions. The weekly highlighted lesson is still controlled by lesson release dates.</p>
+                <label for="student-landing-default-module">Default highlighted lesson (optional)</label>
+                <select id="student-landing-default-module" name="student_landing_default_module_id">
+                  <option value="">Auto-pick by release dates</option>
+                  {% for row in landing_lesson_choices %}
+                  <option value="{{ row.module_id }}" {% if classroom.student_landing_default_module_id == row.module_id %}selected{% endif %}>
+                    {{ row.module_title }}
+                  </option>
+                  {% endfor %}
+                </select>
+                <p class="muted mini no-top-margin">Use a same-origin path or an http/https URL for the return image. You can leave default lesson on auto, or pin one lesson here so students always land on the same "go here first" action.</p>
                 <button type="submit">Save landing page</button>
               </form>
             </div>

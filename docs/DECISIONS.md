@@ -1979,16 +1979,19 @@ Execution ownership and gates:
 **Current decision:**
 - Keep `/student` as the single student home entry point, but add a landing section that:
   - shows teacher-managed class intro content (title, message, optional hero image),
-  - highlights one lesson for the current week using existing lesson release dates,
+  - highlights one lesson either:
+    - automatically from existing release schedule (default), or
+    - from a teacher-selected default lesson module pinned in class settings,
   - keeps full course lesson links available from the same page.
-- Landing content is stored on `Class` (`student_landing_title`, `student_landing_message`, `student_landing_hero_url`) and managed in the existing teacher class dashboard.
+- Landing content is stored on `Class` (`student_landing_title`, `student_landing_message`, `student_landing_hero_url`, `student_landing_default_module`) and managed in the existing teacher class dashboard.
 - Hero URL validation allows only:
   - same-origin paths starting with `/` (for local assets), or
   - absolute `http/https` URLs.
+- Teacher default-lesson selection is validated to class-scoped modules that contain a valid `/course/<course>/<lesson>` link material.
 
 **Why this remains active:**
 - Gives young learners a clear “start here” focus without removing access to the rest of the course.
-- Reuses existing scheduling primitives (`LessonRelease.available_on`) rather than adding new calendar models.
+- Keeps release-driven behavior as the default while allowing teacher in-the-moment guidance for younger cohorts that need a single obvious next click.
 - Keeps operations centralized: teachers edit landing content in the same class dashboard they already use for invites, roster, and releases.
 
 ## Script stack hardening for local + CI parity

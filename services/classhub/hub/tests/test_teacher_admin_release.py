@@ -188,6 +188,30 @@ class LessonReleaseTests(TestCase):
         self.assertContains(resp, "Session 1")
         self.assertContains(resp, "View full course lesson links")
 
+    def test_student_home_landing_uses_teacher_selected_default_module(self):
+        module_two = Module.objects.create(classroom=self.classroom, title="Session 2", order_index=1)
+        Material.objects.create(
+            module=module_two,
+            title="Session 2 lesson",
+            type=Material.TYPE_LINK,
+            url="/course/piper_scratch_12_session/s02-piper-desktop-basics",
+            order_index=0,
+        )
+        LessonRelease.objects.create(
+            classroom=self.classroom,
+            course_slug="piper_scratch_12_session",
+            lesson_slug="s01-welcome-private-workflow",
+            available_on=timezone.localdate(),
+        )
+        self.classroom.student_landing_default_module = module_two
+        self.classroom.save(update_fields=["student_landing_default_module"])
+        self._login_student()
+
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Session 2")
+        self.assertContains(resp, f'name="module_id" value="{module_two.id}"', html=False)
+
     def test_student_home_compact_mode_shows_single_my_data_link(self):
         self._login_student()
         resp = self.client.get("/student")

@@ -121,6 +121,7 @@ def api_student_session(request):
                 "student_landing_title": classroom.student_landing_title,
                 "student_landing_message": classroom.student_landing_message,
                 "student_landing_hero_url": classroom.student_landing_hero_url,
+                "student_landing_default_module_id": classroom.student_landing_default_module_id,
             },
             "student": {
                 "id": student.id,

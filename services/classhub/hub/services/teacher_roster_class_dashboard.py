@@ -5,6 +5,7 @@ from __future__ import annotations
 from django.conf import settings
 
 from ..models import Material, Module, StudentIdentity
+from .content_links import parse_course_lesson_url
 from .teacher_dashboard_sections.facilitator_support import (
     build_facilitator_support_snapshot as _facilitator_support_snapshot_impl,
 )
@@ -87,6 +88,29 @@ def _build_facilitator_support_snapshot(*, classroom, students: list[StudentIden
     )
 
 
+def _landing_lesson_choices(modules: list[Module]) -> list[dict]:
+    choices: list[dict] = []
+    for module in modules:
+        lesson_url = ""
+        for material in module.materials.all():
+            if material.type != Material.TYPE_LINK or not material.url:
+                continue
+            if not parse_course_lesson_url(material.url):
+                continue
+            lesson_url = material.url
+            break
+        if not lesson_url:
+            continue
+        choices.append(
+            {
+                "module_id": module.id,
+                "module_title": module.title,
+                "lesson_url": lesson_url,
+            }
+        )
+    return choices
+
+
 def build_dashboard_context_impl(
     *,
     request,
@@ -142,6 +166,7 @@ def build_dashboard_context_impl(
             students=students,
         ),
         "lesson_rows": lesson_rows,
+        "landing_lesson_choices": _landing_lesson_choices(modules),
         "helper_signals": helper_signals,
         "facilitator_support": build_facilitator_support_snapshot(
             classroom=classroom,

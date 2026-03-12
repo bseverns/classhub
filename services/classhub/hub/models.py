@@ -64,6 +64,14 @@ class Class(models.Model):
     student_landing_message = models.TextField(blank=True, default="")
     # Accept either an absolute URL or a same-origin path (for /lesson-asset/*).
     student_landing_hero_url = models.CharField(max_length=500, blank=True, default="")
+    # Optional teacher override for the student landing page highlighted lesson.
+    student_landing_default_module = models.ForeignKey(
+        "Module",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
     enrollment_mode = models.CharField(
         max_length=20,
         choices=ENROLLMENT_MODE_CHOICES,

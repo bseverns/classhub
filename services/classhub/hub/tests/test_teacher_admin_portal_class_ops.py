@@ -366,6 +366,14 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
 
     def test_teach_class_can_update_student_landing_page(self):
         classroom = Class.objects.create(name="Paid Cohort", join_code="LND12345")
+        module = Module.objects.create(classroom=classroom, title="Session 4", order_index=4)
+        Material.objects.create(
+            module=module,
+            title="Session 4 lesson",
+            type=Material.TYPE_LINK,
+            url="/course/piper_scratch_12_session/s04-pipercode-debugging",
+            order_index=0,
+        )
         _force_login_staff_verified(self.client, self.staff)
 
         resp = self.client.post(
@@ -374,6 +382,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
                 "student_landing_title": "Week 4: Cutscene polish",
                 "student_landing_message": "Start with your highlighted lesson, then open course links below.",
                 "student_landing_hero_url": "https://example.org/landing.png",
+                "student_landing_default_module_id": str(module.id),
             },
         )
         self.assertEqual(resp.status_code, 302)
@@ -384,10 +393,12 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
             "Start with your highlighted lesson, then open course links below.",
         )
         self.assertEqual(classroom.student_landing_hero_url, "https://example.org/landing.png")
+        self.assertEqual(classroom.student_landing_default_module_id, module.id)
 
         event = AuditEvent.objects.filter(action="class.update_student_landing").order_by("-id").first()
         self.assertIsNotNone(event)
         self.assertEqual(event.classroom_id, classroom.id)
+        self.assertEqual(event.metadata.get("default_module_id"), module.id)
 
     def test_teach_class_rejects_invalid_student_landing_hero_url(self):
         classroom = Class.objects.create(name="Paid Cohort", join_code="LND12346")
@@ -406,6 +417,54 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertIn("error=", resp["Location"])
         classroom.refresh_from_db()
         self.assertEqual(classroom.student_landing_hero_url, "")
+
+    def test_teach_class_rejects_default_landing_module_without_lesson_link(self):
+        classroom = Class.objects.create(name="Paid Cohort", join_code="LND12347")
+        module = Module.objects.create(classroom=classroom, title="Session notes only", order_index=1)
+        Material.objects.create(
+            module=module,
+            title="Session text",
+            type=Material.TYPE_TEXT,
+            body="No lesson link here",
+            order_index=0,
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/update-landing-page",
+            {
+                "student_landing_title": "Week 4",
+                "student_landing_message": "Message",
+                "student_landing_default_module_id": str(module.id),
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("error=", resp["Location"])
+        classroom.refresh_from_db()
+        self.assertIsNone(classroom.student_landing_default_module_id)
+
+    def test_teach_class_landing_form_shows_default_lesson_selector(self):
+        classroom = Class.objects.create(name="Paid Cohort", join_code="LND12348")
+        module = Module.objects.create(classroom=classroom, title="Session 2", order_index=1)
+        Material.objects.create(
+            module=module,
+            title="Session 2 lesson",
+            type=Material.TYPE_LINK,
+            url="/course/piper_scratch_12_session/s02-piper-desktop-basics",
+            order_index=0,
+        )
+        classroom.student_landing_default_module = module
+        classroom.save(update_fields=["student_landing_default_module"])
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'name="student_landing_default_module_id"', html=False)
+        self.assertContains(
+            resp,
+            f'<option value="{module.id}" selected>',
+            html=False,
+        )
 
     def test_teach_class_export_summary_csv_contains_class_student_and_lesson_rows(self):
         classroom, upload = self._build_lesson_with_submission()
@@ -1329,4 +1388,3 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertIsNotNone(event)
         self.assertEqual(event.classroom_id, classroom.id)
         self.assertEqual(event.metadata.get("error_code"), "helper_unreachable")
-
