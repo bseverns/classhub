@@ -118,6 +118,41 @@ def build_piper_hardware_triage_text(message: str) -> str:
     )
 
 
+def is_mouse_only_access_question(message: str) -> bool:
+    lowered = (message or "").lower()
+    if "mouse" not in lowered:
+        return False
+    keyboard_signals = ("no keyboard", "without keyboard", "only have a mouse", "just a mouse")
+    can_i_signals = ("can i", "still do", "session", "lesson")
+    return any(signal in lowered for signal in keyboard_signals) or any(signal in lowered for signal in can_i_signals)
+
+
+def build_mouse_only_adaptation_text() -> str:
+    return (
+        "Yes, you can still do this session with a mouse.\n"
+        "Use a mouse-first path in StoryMode: click through prompts, then test one input/button at a time.\n"
+        "If one control fails, check that button wire path and shared ground, then test again.\n"
+        "Tell me which mission (Mars or Cheeseteroid) you are on and what changed after you test again."
+    )
+
+
+def is_teamwork_decision_question(message: str) -> bool:
+    lowered = (message or "").lower()
+    has_partner = any(token in lowered for token in ("partner", "teammate", "team member"))
+    has_conflict = any(token in lowered for token in ("disagree", "argument", "argue", "whose code", "which code", "decide"))
+    return has_partner and has_conflict
+
+
+def build_teamwork_decision_text() -> str:
+    return (
+        "Decide together using evidence, not volume.\n"
+        "1) Test your version together on the same scenario.\n"
+        "2) Test your partner's version together on that same scenario.\n"
+        "3) Decide which version is clearer and more reliable for class goals.\n"
+        "4) Merge the best ideas and keep a backup copy of both versions."
+    )
+
+
 def tokenize(text: str) -> set[str]:
     parts = re.split(r"[^a-z0-9]+", text.lower())
     return {p for p in parts if len(p) >= 4}

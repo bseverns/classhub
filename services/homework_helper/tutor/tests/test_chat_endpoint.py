@@ -148,6 +148,29 @@ class HelperChatAuthTests(TestCase):
                 self.assertEqual(resp.status_code, 200)
                 self.assertEqual(resp.json().get("strictness"), "strict")
 
+    def test_chat_mouse_only_piper_guidance_returns_deterministic_adaptation(self):
+        self._set_student_session()
+        resp = self._post_chat({"message": "I only have a mouse right now, no keyboard. Can I still do this session?"})
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        text = str(body.get("text") or "").lower()
+        self.assertIn("yes, you can", text)
+        self.assertIn("mouse", text)
+        self.assertIn("storymode", text)
+        self.assertIn("test again", text)
+        self.assertEqual(body.get("attempts"), 0)
+
+    def test_chat_teamwork_disagreement_returns_collaboration_protocol(self):
+        self._set_student_session()
+        resp = self._post_chat({"message": "My partner and I disagree on whose code to keep. How do we decide?"})
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        text = str(body.get("text") or "").lower()
+        self.assertIn("test", text)
+        self.assertIn("together", text)
+        self.assertIn("decide", text)
+        self.assertEqual(body.get("attempts"), 0)
+
     @patch("tutor.engine.backends.invoke_backend")
     def test_chat_reuses_recent_turns_when_conversation_id_is_reused(self, invoke_backend_mock):
         self._set_student_session()

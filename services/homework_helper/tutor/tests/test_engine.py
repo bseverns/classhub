@@ -129,6 +129,21 @@ class HeuristicsEngineTests(SimpleTestCase):
         self.assertIn("do this one check now", lowered)
         self.assertIn("retest only that same input", lowered)
 
+    def test_mouse_only_access_question_detection_and_guidance(self):
+        self.assertTrue(heuristics.is_mouse_only_access_question("I only have a mouse right now, no keyboard. Can I still do this?"))
+        text = heuristics.build_mouse_only_adaptation_text().lower()
+        self.assertIn("yes, you can", text)
+        self.assertIn("mouse", text)
+        self.assertIn("storymode", text)
+        self.assertIn("test again", text)
+
+    def test_teamwork_decision_question_detection_and_guidance(self):
+        self.assertTrue(heuristics.is_teamwork_decision_question("My partner and I disagree on whose code to keep."))
+        text = heuristics.build_teamwork_decision_text().lower()
+        self.assertIn("test", text)
+        self.assertIn("together", text)
+        self.assertIn("decide", text)
+
 
 class RuntimeConfigEngineTests(SimpleTestCase):
     def test_resolve_program_profile_defaults_to_secondary(self):

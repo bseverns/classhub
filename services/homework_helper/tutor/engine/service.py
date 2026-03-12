@@ -34,6 +34,10 @@ class ChatDeps:
     is_piper_context: Callable[[str, list[str], str, str], bool]
     is_piper_hardware_question: Callable[[str], bool]
     build_piper_hardware_triage_text: Callable[[str], str]
+    is_mouse_only_access_question: Callable[[str], bool]
+    build_mouse_only_adaptation_text: Callable[[], str]
+    is_teamwork_decision_question: Callable[[str], bool]
+    build_teamwork_decision_text: Callable[[], str]
     allowed_topic_overlap: Callable[[str, list[str]], bool]
     build_instructions: Callable[..., str]
     backend_circuit_is_open: Callable[[str], bool]
@@ -234,6 +238,55 @@ def handle_chat(
     reference_dir = execution_config.reference_dir
     reference_map_raw = execution_config.reference_map_raw
     default_reference_file = execution_config.default_reference_file
+
+    if deps.is_mouse_only_access_question(message) and deps.is_piper_context(context_value or "", topics, "", reference_key):
+        deps.log_chat_event(
+            "info",
+            "policy_redirect_mouse_only_adaptation",
+            request_id=request_id,
+            actor_type=actor_type,
+            backend=backend,
+        )
+        guidance_text = deps.build_mouse_only_adaptation_text()
+        _persist_turns(guidance_text)
+        return _response(
+            {
+                "text": guidance_text,
+                "model": "",
+                "backend": backend,
+                "strictness": strictness,
+                "attempts": 0,
+                "scope_verified": scope_verified,
+                "citations": [],
+                "intent": intent,
+                "follow_up_suggestions": follow_up_suggestions,
+            }
+        )
+
+    if deps.is_teamwork_decision_question(message):
+        deps.log_chat_event(
+            "info",
+            "policy_redirect_teamwork_protocol",
+            request_id=request_id,
+            actor_type=actor_type,
+            backend=backend,
+        )
+        guidance_text = deps.build_teamwork_decision_text()
+        _persist_turns(guidance_text)
+        return _response(
+            {
+                "text": guidance_text,
+                "model": "",
+                "backend": backend,
+                "strictness": strictness,
+                "attempts": 0,
+                "scope_verified": scope_verified,
+                "citations": [],
+                "intent": intent,
+                "follow_up_suggestions": follow_up_suggestions,
+            }
+        )
+
     if reference_key:
         reference_file = deps.resolve_reference_file(reference_key, reference_dir, reference_map_raw)
     else:
