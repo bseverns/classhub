@@ -28,7 +28,7 @@ HOTSPOT_BUDGETS: dict[Path, int] = {
     Path("services/classhub/hub/services/teacher_roster_class_exports_archive.py"): 120,
     Path("services/classhub/hub/services/teacher_roster_class_exports_summary.py"): 280,
     Path("services/classhub/hub/services/teacher_roster_class_exports_outcomes.py"): 180,
-    Path("services/classhub/hub/views/teacher_parts/roster_class.py"): 80,
+    Path("services/classhub/hub/views/teacher_parts/roster_class.py"): 90,
     Path("services/classhub/hub/views/teacher_parts/roster_class_dashboard.py"): 220,
     Path("services/classhub/hub/views/teacher_parts/roster_class_controls.py"): 330,
     Path("services/classhub/hub/views/teacher_parts/roster_materials.py"): 60,

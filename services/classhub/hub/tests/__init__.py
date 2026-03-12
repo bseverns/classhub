@@ -29,8 +29,8 @@ from .test_teacher_admin_auth import (
 from .test_teacher_admin_portal import (
     DataLifespanDashboardTests,
     RetentionSettingParsingTests,
-    TeacherPortalTests,
 )
+from .test_teacher_admin_portal_class_ops import TeacherPortalClassOpsTests as TeacherPortalTests
 from .test_teacher_admin_release import LessonReleaseTests
 
 __all__ = [
