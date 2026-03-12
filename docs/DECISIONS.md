@@ -3410,3 +3410,20 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces cognitive load in the governance-heavy org access policy surface without changing endpoint semantics.
 - Keeps role/capability source loading, scope range checks, and decision orchestration separately bounded so future changes prune locally instead of regrowing one monolith.
+
+## RBAC policy bundle normalization split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/services/rbac_policy_bundle_normalize.py` as a compatibility facade for RBAC bundle schema/export/import helpers.
+- Move schema/constants/dataclass helpers into:
+  - `services/classhub/hub/services/rbac_policy_bundle_schema.py`
+- Move export payload shaping into:
+  - `services/classhub/hub/services/rbac_policy_bundle_export.py`
+- Move actor-scoped import normalization into:
+  - `services/classhub/hub/services/rbac_policy_bundle_import.py`
+- Keep `build_policy_export_payload`, `normalize_payload_for_actor`, `POLICY_SCHEMA_VERSION`, and `NormalizedPolicyRows` available from the facade so existing imports and apply-service type hints stay stable.
+- Extend hotspot budget contracts in `scripts/check_teacher_admin_hotspot_budgets.py` for all split modules and tighten facade budget.
+
+**Why this remains active:**
+- Reduces cognitive load in RBAC policy import/export normalization without changing endpoint or management-command behavior.
+- Keeps schema concerns, export shaping, and import validation bounded so future policy changes can be pruned in-place rather than regrowing a single heavy module.
