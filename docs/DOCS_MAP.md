@@ -13,17 +13,12 @@ For the live shipped-capabilities snapshot, use [CURRENT_STATE.md](CURRENT_STATE
 A new reader should be able to find their role path without opening more than one extra page.
 
 ## Canonical truths
-When docs appear to overlap, use this table to decide source of truth first.
+When docs appear to overlap, use [CANONICAL_TRUTHS.md](CANONICAL_TRUTHS.md) first.
 
-| Concern | Canonical doc |
-|---|---|
-| What is shipped on `main` right now | [CURRENT_STATE.md](CURRENT_STATE.md) |
-| Why a design/policy choice exists | [DECISIONS.md](DECISIONS.md) |
-| Feature maturity and rollout status | [FEATURE_MATURITY.md](FEATURE_MATURITY.md) |
-| Day-0/30 stability governance and release evidence expectations | [30_DAY_STABILITY_PLAN.md](30_DAY_STABILITY_PLAN.md) |
-| Telemetry split phase/gate status | [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md) |
-| Operator run commands and remediation flow | [RUNBOOK.md](RUNBOOK.md) |
-| Recovery procedure and restore prerequisites | [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md) |
+Fast anchors:
+- live shipped state: [CURRENT_STATE.md](CURRENT_STATE.md)
+- design/policy rationale: [DECISIONS.md](DECISIONS.md)
+- operator commands: [RUNBOOK.md](RUNBOOK.md)
 
 ## Quick picks (by role)
 

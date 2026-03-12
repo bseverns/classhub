@@ -1,21 +1,22 @@
+        {% load i18n %}
         {% if show_day_sections %}
           <div class="card">
           <div class="row">
-            <h2 class="section-title-tight">Classes</h2>
-            <div class="muted">Start here: open class, share join code, then review submissions. Assigned classes appear first.</div>
+            <h2 class="section-title-tight">{% trans "Classes" %}</h2>
+            <div class="muted">{% trans "Start here: open class, share join code, then review submissions. Assigned classes appear first." %}</div>
           </div>
           <p id="copy-status" class="muted copy-status" role="status" aria-live="polite"></p>
 
           {% if classes %}
             <div class="table-wrap">
               <table>
-                <caption class="visually-hidden">Classes available in the teacher portal</caption>
+                <caption class="visually-hidden">{% trans "Classes available in the teacher portal" %}</caption>
                 <thead>
                   <tr>
-                    <th scope="col">Class</th>
-                    <th scope="col">Join code</th>
-                    <th scope="col">Status</th>
-                    <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    <th scope="col">{% trans "Class" %}</th>
+                    <th scope="col">{% trans "Join code" %}</th>
+                    <th scope="col">{% trans "Status" %}</th>
+                    <th scope="col"><span class="visually-hidden">{% trans "Actions" %}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -24,27 +25,27 @@
                       <th scope="row">
                         <strong>{{ c.name }}</strong>
                         {% if c.id in assigned_class_ids %}
-                          <span class="state-pill state-pill--open">Assigned</span>
+                          <span class="state-pill state-pill--open">{% trans "Assigned" %}</span>
                         {% endif %}
                       </th>
                       <td>
                         <span class="pill">{{ c.join_code }}</span>
-                        <button type="button" class="inline-copy" data-copy-value="{{ c.join_code }}">Copy</button>
+                        <button type="button" class="inline-copy" data-copy-value="{{ c.join_code }}">{% trans "Copy" %}</button>
                       </td>
                       <td>
                         {% if c.is_locked %}
-                          <span class="state-pill state-pill--locked">Locked</span>
+                          <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
                         {% else %}
-                          <span class="state-pill state-pill--open">Open</span>
+                          <span class="state-pill state-pill--open">{% trans "Open" %}</span>
                         {% endif %}
                       </td>
                       <td class="class-link">
-                        <a href="/teach/class/{{ c.id }}">Open class</a> ·
-                        <a href="/teach/lessons?class_id={{ c.id }}">Lesson tracker</a> ·
-                        <a href="/teach/class/{{ c.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
+                        <a href="/teach/class/{{ c.id }}">{% trans "Open class" %}</a> ·
+                        <a href="/teach/lessons?class_id={{ c.id }}">{% trans "Lesson tracker" %}</a> ·
+                        <a href="/teach/class/{{ c.id }}/join-card" target="_blank" rel="noopener">{% trans "Print join card" %}</a>
                         {% if request.user.is_superuser %}
-                          · <a href="/teach?org_admin=1&class_assignment_class_id={{ c.id }}">Assign teacher</a>
-                          · <a href="/teach?org_admin=1&class_move_class_id={{ c.id }}">Set organization</a>
+                          · <a href="/teach?org_admin=1&class_assignment_class_id={{ c.id }}">{% trans "Assign teacher" %}</a>
+                          · <a href="/teach?org_admin=1&class_move_class_id={{ c.id }}">{% trans "Set organization" %}</a>
                         {% endif %}
                       </td>
                     </tr>
@@ -53,28 +54,30 @@
               </table>
             </div>
           {% else %}
-            <p class="muted">No classes yet.</p>
+            <p class="muted">{% trans "No classes yet." %}</p>
           {% endif %}
           </div>
 
           <div class="card card-secondary">
           <div class="row">
-            <h2 class="section-title-tight">What Changed Since Yesterday</h2>
-            <div class="muted">Window started {{ digest_since|date:"M j, g:i A" }}</div>
+            <h2 class="section-title-tight">{% trans "What Changed Since Yesterday" %}</h2>
+            <div class="muted">
+              {% blocktrans with window_start=digest_since|date:"M j, g:i A" %}Window started {{ window_start }}{% endblocktrans %}
+            </div>
           </div>
 
           {% if class_digest_rows %}
             <div class="table-wrap">
               <table>
-                <caption class="visually-hidden">Daily class activity digest</caption>
+                <caption class="visually-hidden">{% trans "Daily class activity digest" %}</caption>
                 <thead>
                   <tr>
-                    <th scope="col">Class</th>
-                    <th scope="col">New students</th>
-                    <th scope="col">Uploads</th>
-                    <th scope="col">Helper chats</th>
-                    <th scope="col">Need first upload</th>
-                    <th scope="col">Last upload</th>
+                    <th scope="col">{% trans "Class" %}</th>
+                    <th scope="col">{% trans "New students" %}</th>
+                    <th scope="col">{% trans "Uploads" %}</th>
+                    <th scope="col">{% trans "Helper chats" %}</th>
+                    <th scope="col">{% trans "Need first upload" %}</th>
+                    <th scope="col">{% trans "Last upload" %}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -89,7 +92,7 @@
                         {% if row.last_submission_at %}
                           {{ row.last_submission_at|date:"M j, g:i A" }}
                         {% else %}
-                          No uploads yet
+                          {% trans "No uploads yet" %}
                         {% endif %}
                       </td>
                     </tr>
@@ -98,58 +101,60 @@
               </table>
             </div>
           {% else %}
-            <p class="muted">No classes yet.</p>
+            <p class="muted">{% trans "No classes yet." %}</p>
           {% endif %}
           </div>
 
           <div class="card card-secondary">
           <div class="row">
-            <h2 class="section-title-tight">End-of-Class Closeout</h2>
-            <div class="muted">Keep this collapsed until you need actions.</div>
+            <h2 class="section-title-tight">{% trans "End-of-Class Closeout" %}</h2>
+            <div class="muted">{% trans "Keep this collapsed until you need actions." %}</div>
           </div>
           {% if class_digest_rows %}
             <div class="closeout-list">
               {% for row in class_digest_rows %}
                 <details class="closeout-item">
-                  <summary>{{ row.classroom.name }} · {{ row.student_total }} students</summary>
+                  <summary>
+                    {% blocktrans with class_name=row.classroom.name student_total=row.student_total %}{{ class_name }} · {{ student_total }} students{% endblocktrans %}
+                  </summary>
                   <div class="muted closeout-student-note">
-                    {{ row.students_without_submissions }} still need a first upload.
+                    {% blocktrans with pending_count=row.students_without_submissions %}{{ pending_count }} still need a first upload.{% endblocktrans %}
                   </div>
                   <div class="closeout-actions">
                     <form method="post" action="/teach/class/{{ row.classroom.id }}/lock">
                       {% csrf_token %}
                       <button class="mini" type="submit">
-                        {% if row.classroom.is_locked %}Class already locked{% else %}Lock class{% endif %}
+                        {% if row.classroom.is_locked %}{% trans "Class already locked" %}{% else %}{% trans "Lock class" %}{% endif %}
                       </button>
                     </form>
-                    <a class="button mini" href="/teach/class/{{ row.classroom.id }}/export-submissions-today">Export today's submissions</a>
-                    <a class="button mini" href="/teach/class/{{ row.classroom.id }}/join-card" target="_blank" rel="noopener">Print join card</a>
+                    <a class="button mini" href="/teach/class/{{ row.classroom.id }}/export-submissions-today">{% trans "Export today's submissions" %}</a>
+                    <a class="button mini" href="/teach/class/{{ row.classroom.id }}/join-card" target="_blank" rel="noopener">{% trans "Print join card" %}</a>
                   </div>
                 </details>
               {% endfor %}
             </div>
           {% else %}
-            <p class="muted">No classes yet.</p>
+            <p class="muted">{% trans "No classes yet." %}</p>
           {% endif %}
           </div>
 
           <div class="card card-secondary">
           <div class="row">
-            <h2 class="section-title-tight">Recent submissions</h2>
-            <div class="muted">Latest uploads across all classes</div>
+            <h2 class="section-title-tight">{% trans "Recent submissions" %}</h2>
+            <div class="muted">{% trans "Latest uploads across all classes" %}</div>
           </div>
 
           {% if recent_submissions %}
             <div class="table-wrap">
               <table>
-                <caption class="visually-hidden">Recent submissions across classes</caption>
+                <caption class="visually-hidden">{% trans "Recent submissions across classes" %}</caption>
                 <thead>
                   <tr>
-                    <th scope="col">When</th>
-                    <th scope="col">Student</th>
-                    <th scope="col">Class</th>
-                    <th scope="col">Material</th>
-                    <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    <th scope="col">{% trans "When" %}</th>
+                    <th scope="col">{% trans "Student" %}</th>
+                    <th scope="col">{% trans "Class" %}</th>
+                    <th scope="col">{% trans "Material" %}</th>
+                    <th scope="col"><span class="visually-hidden">{% trans "Actions" %}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -159,14 +164,14 @@
                       <td><strong>{{ sub.student.display_name }}</strong></td>
                       <td class="muted">{{ sub.material.module.classroom.name }}</td>
                       <td class="muted">{{ sub.material.title }}</td>
-                      <td><a href="/teach/material/{{ sub.material.id }}/submissions">Review submissions</a> · <a href="/submission/{{ sub.id }}/download">Download</a></td>
+                      <td><a href="/teach/material/{{ sub.material.id }}/submissions">{% trans "Review submissions" %}</a> · <a href="/submission/{{ sub.id }}/download">{% trans "Download" %}</a></td>
                     </tr>
                   {% endfor %}
                 </tbody>
               </table>
             </div>
           {% else %}
-            <p class="muted">No submissions yet.</p>
+            <p class="muted">{% trans "No submissions yet." %}</p>
           {% endif %}
           </div>
         {% endif %}

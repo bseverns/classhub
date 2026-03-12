@@ -20,6 +20,7 @@ Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
 
 ## Core links
 - [Current State](CURRENT_STATE.md)
+- [Canonical Truths](CANONICAL_TRUTHS.md)
 - [Feature Maturity](FEATURE_MATURITY.md)
 - [Start Here Overview](START_HERE.md)
 - [Teacher Docs Journey](TEACHER_DOCS_JOURNEY.md)

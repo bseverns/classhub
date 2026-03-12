@@ -8,6 +8,7 @@ Class Hub is a self-hosted classroom platform with a separate Homework Helper se
 2. Try the local demo path in [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md).
 3. If your team plans to host this publicly, read [SECURITY.md](SECURITY.md), then [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) and [RUNBOOK.md](RUNBOOK.md).
 4. For plain-language trust boundaries, review [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) and [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md).
+5. If docs feel overlapping, use [CANONICAL_TRUTHS.md](CANONICAL_TRUTHS.md) to identify one source per policy area.
 
 If you are reading this as leadership rather than as a technical evaluator, start with:
 - [START_HERE_ED.md](START_HERE_ED.md)
@@ -40,7 +41,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 - Student home starts with a clear weekly launch path (`This week` + `Course links` + `Account`).
 - Artifact-first student flow (`/student/portfolio`) with opt-in gallery sharing (`/student/gallery`) and teacher moderation.
 - Help-first facilitation support board surfaces “I'm stuck”, deletion requests, upload errors, and context without rankings.
-- Multi-lingual UI support on student-facing content.
+- Multi-lingual UI support on student-facing content (`en`, `es`, `so`).
 - Public website hardening options (content-security policy, safe-site modes, and proxy protections).
 - Self-hosted architecture using widely used components (Django, Postgres, Redis, Caddy).
 - Helper support is lesson-scoped and does not archive student prompts.

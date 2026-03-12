@@ -242,6 +242,14 @@ def main() -> int:
             print(
                 "[runtime-policy-lock-guard] release profile is required for stability closeout sign-off."
             )
+            env_name = env_path.name
+            if env_name.startswith(".env.example") or ".env.example." in env_name:
+                print(
+                    "[runtime-policy-lock-guard] note: release profile is expected to fail on baseline example env files."
+                )
+                print(
+                    "[runtime-policy-lock-guard] use --profile baseline for compose/.env.example.* validation."
+                )
         return 1
 
     print(f"[runtime-policy-lock-guard] OK profile={args.profile} ({env_path.as_posix()})")

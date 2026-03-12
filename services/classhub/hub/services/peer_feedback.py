@@ -13,6 +13,11 @@ _DEFAULT_STARTERS_BY_LANGUAGE = {
         "Me pregunto...",
         "¿Qué pasaría si...?",
     ],
+    "so": [
+        "Waxaan arkay in...",
+        "Waxaan is weydiinayaa...",
+        "Maxaa dhici lahaa haddii...?",
+    ],
 }
 
 

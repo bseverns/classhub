@@ -64,6 +64,7 @@ Operator shortcut:
 | Script | Intent |
 |---|---|
 | `check_view_size_budgets.py` | Fails CI if Django view files grow too large (enforces small, tight views). |
+| `check_teacher_admin_hotspot_budgets.py` | Caps growth in governance-heavy teacher/admin/RBAC hotspot files so complexity cannot silently re-concentrate. |
 | `check_view_function_budgets.py`| Fails CI if a single function exceeds line count budgets. |
 | `check_compose_port_exposure.py`| Security linter ensuring Docker Compose doesn't leak internal DB ports. |
 | `check_frontend_static_refs.py` | Verifies all HTML assets exist in the static tree. |
@@ -81,6 +82,7 @@ Operator shortcut:
 | `check_teacher_roster_service_contract.py` | Enforces `/teach/class` dashboard service decomposition contracts (`teacher_roster_class.py` orchestration + section builders in `teacher_dashboard_sections/*`). |
 | `check_teacher_policy_mode_contract.py` | Enforces that policy/RBAC tools remain gated behind superuser + advanced mode semantics. |
 | `check_lesson_course_slug_consistency.py` | Enforces that lesson front matter `course`/`course_slug` values match each course folder slug. |
+| `check_i18n_family_visible_contract.py` | Enforces bounded localization contracts for family-visible routes (`/student` + `/teach?portal_mode=day`) across docs, tests, templates, and required Spanish/Somali msgids. |
 | `check_press_capture_backlog_contract.py` | Enforces press/screenshot backlog governance contracts (bounded backlog size, ownership/target metadata, and docs linkage markers). |
 | `check_runtime_policy_lock.py` | Validates runtime lock posture with explicit profiles: `baseline` (safe/default env contract) and `release` (strict closeout lock values). |
 | `check_docs_truth.py` | Verifies high-signal docs claims (risk-register metrics + screenshot tracker truth) stay in sync with repo state. |

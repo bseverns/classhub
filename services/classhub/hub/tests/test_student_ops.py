@@ -1172,6 +1172,14 @@ class StudentChecklistReflectionTests(TestCase):
         self.assertContains(resp, "Me pregunto...")
         self.assertContains(resp, "¿Qué pasaría si...?")
 
+    def test_student_home_renders_peer_feedback_starters_in_somali(self):
+        self._login_student()
+        resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="so")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Waxaan arkay in...")
+        self.assertContains(resp, "Waxaan is weydiinayaa...")
+        self.assertContains(resp, "Maxaa dhici lahaa haddii...?")
+
     def test_student_can_save_checklist_and_emit_completion_milestone(self):
         self._login_student()
         resp = self.client.post(
@@ -1290,6 +1298,14 @@ class PeerFeedbackStarterServiceTests(SimpleTestCase):
         self.assertEqual(starters[0], "Noté que...")
         self.assertIn("Me pregunto...", starters)
         self.assertIn("¿Qué pasaría si...?", starters)
+
+    def test_language_defaults_are_available_for_somali(self):
+        from ..services.peer_feedback import resolve_peer_feedback_starters
+
+        starters = resolve_peer_feedback_starters(language_code="so", course_manifest={})
+        self.assertEqual(starters[0], "Waxaan arkay in...")
+        self.assertIn("Waxaan is weydiinayaa...", starters)
+        self.assertIn("Maxaa dhici lahaa haddii...?", starters)
 
     def test_course_manifest_override_wins(self):
         from ..services.peer_feedback import resolve_peer_feedback_starters

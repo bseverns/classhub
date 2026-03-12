@@ -175,7 +175,9 @@ run_check() {
 run_guardrails() {
   local failed=0
   python3 scripts/check_lesson_course_slug_consistency.py || failed=1
+  python3 scripts/check_i18n_family_visible_contract.py || failed=1
   python3 scripts/check_view_size_budgets.py || failed=1
+  python3 scripts/check_teacher_admin_hotspot_budgets.py || failed=1
   python3 scripts/check_view_function_budgets.py || failed=1
   python3 scripts/check_teacher_endpoint_capability_map.py || failed=1
   python3 scripts/check_teacher_top_tasks_contract.py || failed=1

@@ -514,6 +514,115 @@ msgid "Trust notes"
 msgstr "Notas de confianza"
 
 #
+# ── Teacher day-of-class portal (family-visible first tranche) ──────
+#
+
+msgid "Classes"
+msgstr "Clases"
+
+msgid "Start here: open class, share join code, then review submissions. Assigned classes appear first."
+msgstr "Empieza aquí: abre la clase, comparte el código de acceso y luego revisa entregas. Las clases asignadas aparecen primero."
+
+msgid "Classes available in the teacher portal"
+msgstr "Clases disponibles en el portal del maestro"
+
+msgid "Class"
+msgstr "Clase"
+
+msgid "Join code"
+msgstr "Código de acceso"
+
+msgid "Actions"
+msgstr "Acciones"
+
+msgid "Assigned"
+msgstr "Asignada"
+
+msgid "Copy"
+msgstr "Copiar"
+
+msgid "Open class"
+msgstr "Abrir clase"
+
+msgid "Lesson tracker"
+msgstr "Seguimiento de lecciones"
+
+msgid "Print join card"
+msgstr "Imprimir tarjeta de acceso"
+
+msgid "Assign teacher"
+msgstr "Asignar maestro"
+
+msgid "Set organization"
+msgstr "Definir organización"
+
+msgid "No classes yet."
+msgstr "Aún no hay clases."
+
+msgid "What Changed Since Yesterday"
+msgstr "¿Qué cambió desde ayer?"
+
+#, python-format
+msgid "Window started %(window_start)s"
+msgstr "Ventana iniciada %(window_start)s"
+
+msgid "Daily class activity digest"
+msgstr "Resumen diario de actividad por clase"
+
+msgid "New students"
+msgstr "Estudiantes nuevos"
+
+msgid "Uploads"
+msgstr "Subidas"
+
+msgid "Helper chats"
+msgstr "Chats con el asistente"
+
+msgid "Need first upload"
+msgstr "Necesitan primera subida"
+
+msgid "Last upload"
+msgstr "Última subida"
+
+msgid "No uploads yet"
+msgstr "Aún no hay subidas"
+
+msgid "End-of-Class Closeout"
+msgstr "Cierre de fin de clase"
+
+msgid "Keep this collapsed until you need actions."
+msgstr "Mantén esto cerrado hasta que necesites acciones."
+
+#, python-format
+msgid "%(class_name)s · %(student_total)s students"
+msgstr "%(class_name)s · %(student_total)s estudiantes"
+
+#, python-format
+msgid "%(pending_count)s still need a first upload."
+msgstr "%(pending_count)s aún necesitan una primera subida."
+
+msgid "Class already locked"
+msgstr "La clase ya está bloqueada"
+
+msgid "Lock class"
+msgstr "Bloquear clase"
+
+msgid "Export today's submissions"
+msgstr "Exportar entregas de hoy"
+
+msgid "Recent submissions"
+msgstr "Entregas recientes"
+
+msgid "Latest uploads across all classes"
+msgstr "Subidas más recientes en todas las clases"
+
+msgid "Recent submissions across classes"
+msgstr "Entregas recientes entre clases"
+
+msgid "Review submissions"
+msgstr "Revisar entregas"
+
+#
 # ── Student My Data page ─────────────────────────────────────────────
 #
 

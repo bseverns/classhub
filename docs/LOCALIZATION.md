@@ -35,12 +35,35 @@ Translations are provided for:
 - student data controls page (`/student/my-data`)
 - student portfolio pages (`/student/portfolio`, export shell copy)
 - student gallery page (`/student/gallery`)
+- teacher day-of-class portal headings and digest/closeout labels (`/teach?portal_mode=day`)
 
 Languages currently shipped:
 - English (default)
 - Spanish (`es`)
+- Somali (`so`)
 
 Coverage outside those paths is still partial and should be treated as in-progress.
+
+## Family-visible first tranche
+
+Localization completion is intentionally bounded to a family-visible tranche so progress is enforceable:
+
+- Student class experience: `/student`
+- Teacher day-of-class workflow shell: `/teach?portal_mode=day`
+
+Contract guard:
+
+```bash
+python3 scripts/check_i18n_family_visible_contract.py
+```
+
+The guard fails if any of the following drift:
+- tranche definition markers in this doc
+- required i18n tests in `hub.tests.test_i18n`
+- required `{% trans %}`/`{% blocktrans %}` coverage in the route templates
+- required non-empty tranche translations in:
+  - `locale/es/LC_MESSAGES/django.po`
+  - `locale/so/LC_MESSAGES/django.po`
 
 ## Adding a language
 
@@ -49,24 +72,24 @@ Coverage outside those paths is still partial and should be treated as in-progre
    LANGUAGES = [
        ("en", "English"),
        ("es", "Español"),
-       ("so", "Soomaali"),  # ← add here
+       ("fr", "Français"),  # ← add here
    ]
    ```
 
 2. **Create the locale directory and extract strings**:
    ```bash
-   python manage.py makemessages -l so
+   python manage.py makemessages -l fr
    ```
-   This creates `locale/so/LC_MESSAGES/django.po`.
+   This creates `locale/fr/LC_MESSAGES/django.po`.
 
 3. **Translate** — edit the `.po` file. Each entry has a `msgid` (English source) and `msgstr` (translation). Fill in the `msgstr` values.
 
 4. **Compile**:
    ```bash
-   python manage.py compilemessages --locale=so
+   python manage.py compilemessages --locale=fr
    ```
 
-5. **Test** — visit the join page and switch languages using the chooser, or set `Accept-Language: so` in your browser.
+5. **Test** — visit the join page and switch languages using the chooser, or set `Accept-Language: fr` in your browser.
 
 ## Language chooser
 

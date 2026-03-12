@@ -60,8 +60,12 @@ jobs:
         run: python scripts/check_teacher_policy_mode_contract.py
       - name: Guard lesson front matter course slug consistency
         run: python scripts/check_lesson_course_slug_consistency.py
+      - name: Guard family-visible localization tranche contract
+        run: python scripts/check_i18n_family_visible_contract.py
       - name: Guard dense view module size budgets
         run: python scripts/check_view_size_budgets.py
+      - name: Guard teacher/admin/RBAC hotspot file budgets
+        run: python scripts/check_teacher_admin_hotspot_budgets.py
       - name: Guard dense view function size budgets
         run: python scripts/check_view_function_budgets.py
       - name: Guard service-layer imports from view modules

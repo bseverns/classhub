@@ -48,7 +48,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Privacy-forward default: student rename/export/delete controls.
 - Privacy-forward default: structured staff-only support tags (no default freeform note field).
 - No rankings/leaderboards in student-facing artifact and feedback flows.
-- Multilingual UI is active for supported strings (`en`, `es`) across join/login and core student flows (`/student`, `/student/my-data`, `/student/portfolio`, `/student/gallery`), with broader flow coverage still in progress.
+- Multilingual UI is active for supported strings (`en`, `es`, `so`) across join/login, core student flows (`/student`, `/student/my-data`, `/student/portfolio`, `/student/gallery`), and teacher day-of-class shell copy (`/teach?portal_mode=day`), with bounded tranche enforcement via `scripts/check_i18n_family_visible_contract.py`.
 
 ## Active known constraints
 - Scoped RBAC grants are still feature-flagged for controlled rollout.
@@ -65,6 +65,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
   - `Placeholder`: feature is live, screenshot refresh is pending.
 
 ## Where to look next
+- Canonical policy/source map: [CANONICAL_TRUTHS.md](CANONICAL_TRUTHS.md)
 - Strategy and rationale: [DECISIONS.md](DECISIONS.md)
 - Operator onboarding: [START_HERE.md](START_HERE.md)
 - Non-technical evaluation path: [START_HERE_EVALUATOR.md](START_HERE_EVALUATOR.md)

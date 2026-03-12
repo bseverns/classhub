@@ -1,0 +1,212 @@
+# ClassHub Somali translations (family-visible tranche).
+# Copyright (C) 2026 createMPLS
+# This file is distributed under the same license as the ClassHub package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ClassHub 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-12 08:00-0600\n"
+"PO-Revision-Date: 2026-03-12 08:00-0600\n"
+"Last-Translator: ClassHub Contributors\n"
+"Language-Team: Somali\n"
+"Language: so\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#
+# Join + login core
+#
+
+msgid "Join Class"
+msgstr "Ku biir Fasal"
+
+msgid "Skip to main content"
+msgstr "U bood waxa ugu muhiimsan"
+
+msgid "Join your class"
+msgstr "Ku biir fasalkaaga"
+
+msgid "Class code"
+msgstr "Koodhka fasalka"
+
+msgid "Your display name"
+msgstr "Magacaaga muuqda"
+
+msgid "Teacher Login"
+msgstr "Gelitaanka Macallinka"
+
+msgid "Home"
+msgstr "Bogga hore"
+
+msgid "Sign in to your account"
+msgstr "Gal akoonkaaga"
+
+msgid "Log in"
+msgstr "Gal"
+
+msgid "Language"
+msgstr "Luqad"
+
+msgid "Switch"
+msgstr "Beddel"
+
+#
+# Student class core
+#
+
+msgid "Course links"
+msgstr "Xiriirrada koorsada"
+
+msgid "Quick check-in"
+msgstr "Is-weydiin degdeg ah"
+
+msgid "Return image: look for this picture when you come back to class."
+msgstr "Sawirka soo laabashada: raadi sawirkan marka aad fasalka ku soo noqoto."
+
+msgid "Class return image"
+msgstr "Sawirka soo laabashada fasalka"
+
+msgid "What I made"
+msgstr "Waxaan sameeyay"
+
+msgid "Session gallery"
+msgstr "Bandhigga fadhiga"
+
+msgid "Trust notes"
+msgstr "Qoraallada kalsoonida"
+
+#
+# Teacher day-of-class shell
+#
+
+msgid "Classes"
+msgstr "Fasallada"
+
+msgid "Start here: open class, share join code, then review submissions. Assigned classes appear first."
+msgstr "Halkan ka bilow: fur fasalka, wadaag koodhka ku biirista, kadibna eeg gudbinta. Fasallada laguu qoondeeyay ayaa marka hore muuqda."
+
+msgid "Classes available in the teacher portal"
+msgstr "Fasallada laga heli karo bogga macallinka"
+
+msgid "Class"
+msgstr "Fasal"
+
+msgid "Join code"
+msgstr "Koodhka ku biirista"
+
+msgid "Status"
+msgstr "Xaalad"
+
+msgid "Actions"
+msgstr "Tallaabooyin"
+
+msgid "Assigned"
+msgstr "La qoondeeyay"
+
+msgid "Copy"
+msgstr "Nuqul"
+
+msgid "Locked"
+msgstr "Xiran"
+
+msgid "Open"
+msgstr "Furan"
+
+msgid "Open class"
+msgstr "Fur fasalka"
+
+msgid "Lesson tracker"
+msgstr "Raadiyaha casharrada"
+
+msgid "Print join card"
+msgstr "Daabac kaarka ku biirista"
+
+msgid "Assign teacher"
+msgstr "U qoondee macallin"
+
+msgid "Set organization"
+msgstr "Deji ururka"
+
+msgid "No classes yet."
+msgstr "Wali fasallo ma jiraan."
+
+msgid "What Changed Since Yesterday"
+msgstr "Maxaa Isbeddelay Ilaa Shalay"
+
+#, python-format
+msgid "Window started %(window_start)s"
+msgstr "Daaqaddu waxay bilaabatay %(window_start)s"
+
+msgid "Daily class activity digest"
+msgstr "Soo koobidda hawlaha fasalka maalinlaha ah"
+
+msgid "New students"
+msgstr "Arday cusub"
+
+msgid "Uploads"
+msgstr "Soo gelinno"
+
+msgid "Helper chats"
+msgstr "Wadahadallada Kaaliyaha"
+
+msgid "Need first upload"
+msgstr "U baahan soo gelintii ugu horreysay"
+
+msgid "Last upload"
+msgstr "Soo gelintii ugu dambeysay"
+
+msgid "No uploads yet"
+msgstr "Weli soo gelin ma jiro"
+
+msgid "End-of-Class Closeout"
+msgstr "Xiritaanka Dhamaadka Fasalka"
+
+msgid "Keep this collapsed until you need actions."
+msgstr "Isku laabtan ka dhig ilaa aad tallaabo u baahato."
+
+#, python-format
+msgid "%(class_name)s · %(student_total)s students"
+msgstr "%(class_name)s · %(student_total)s arday"
+
+#, python-format
+msgid "%(pending_count)s still need a first upload."
+msgstr "%(pending_count)s wali waxay u baahan yihiin soo gelintooda ugu horreysa."
+
+msgid "Class already locked"
+msgstr "Fasalku mar hore ayuu xiran yahay"
+
+msgid "Lock class"
+msgstr "Xir fasalka"
+
+msgid "Export today's submissions"
+msgstr "Dhoofinta gudbinnada maanta"
+
+msgid "Recent submissions"
+msgstr "Gudbinadii ugu dambeysay"
+
+msgid "Latest uploads across all classes"
+msgstr "Soo gelinnadii ugu dambeeyay ee dhammaan fasallada"
+
+msgid "Recent submissions across classes"
+msgstr "Gudbinadii ugu dambeeyay ee fasallo kala duwan"
+
+msgid "When"
+msgstr "Goorma"
+
+msgid "Student"
+msgstr "Arday"
+
+msgid "Material"
+msgstr "Qalab"
+
+msgid "Review submissions"
+msgstr "Eeg gudbinnada"
+
+msgid "Download"
+msgstr "Soo dejiso"
+
+msgid "No submissions yet."
+msgstr "Wali gudbin ma jiro."

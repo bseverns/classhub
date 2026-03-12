@@ -5,6 +5,7 @@ This is the canonical docs landing page. Use it to pick the shortest path for yo
 
 Evaluating whether this fits your org? Start with [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md).
 Need a live shipped-capabilities snapshot first? Start with [CURRENT_STATE.md](CURRENT_STATE.md).
+Need one source-of-truth map across overlapping docs? Start with [CANONICAL_TRUTHS.md](CANONICAL_TRUTHS.md).
 
 ## What to do now
 1. Pick your role from the table below.

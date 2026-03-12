@@ -37,6 +37,14 @@ Release closeout check (strict):
 python3 scripts/check_runtime_policy_lock.py --profile release --env-file compose/.env
 ```
 
+Expected by design:
+
+```bash
+python3 scripts/check_runtime_policy_lock.py --profile release --env-file compose/.env.example.domain
+```
+
+The command above should fail because `compose/.env.example.domain` is a baseline deployment example (`off`/`core` telemetry), not a release-closeout lock state.
+
 ## Release-profile lock values
 
 During closeout, the `release` profile expects:

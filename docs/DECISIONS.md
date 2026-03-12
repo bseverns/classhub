@@ -2938,3 +2938,83 @@ Execution ownership and gates:
 **Why this remains active:**
 - Confirms strict-mode helper behavior can satisfy the classroom rubric without paid-model escalation.
 - Converts prior phrase-contract misses into test-backed deterministic paths, reducing churn in future eval cycles.
+
+## Teacher/admin hotspot budgets + runtime-lock profile labeling hardening (2026-03-12)
+
+**Current decision:**
+- Add a dedicated governance-surface growth guard:
+  - `scripts/check_teacher_admin_hotspot_budgets.py`
+  - enforces explicit line ceilings on known teacher/admin/RBAC hotspot files:
+    - `hub/tests/test_teacher_admin_portal.py`
+    - `hub/services/org_access.py`
+    - `hub/services/rbac_policy_bundle.py`
+    - `hub/views/teacher_parts/content_rbac_view_endpoints.py`
+    - `templates/includes/teach_home/setup_sections_rbac_panel.html`
+- Wire this guard into:
+  - CI lint workflow (`.github/workflows/lint.yml`)
+  - release-evidence guardrails (`scripts/stability_release_evidence.sh`)
+  - fast operator readiness checks (`scripts/ops_readiness_check.sh`)
+- Make baseline-vs-release runtime lock expectations explicit where operators look first:
+  - annotate `compose/.env.example.domain` telemetry defaults as **baseline-only** and release-profile-fail-by-design.
+  - extend `docs/RUNTIME_LOCK_PROFILES.md` with an explicit expected-failure example for `--profile release` on `.env.example.domain`.
+  - extend `scripts/check_runtime_policy_lock.py` release failure output with a targeted note when the checked file is a `.env.example.*` path.
+
+**Why this remains active:**
+- Prevents governance-heavy staff surfaces from silently becoming the next monolith.
+- Reduces operator confusion between deploy-baseline env examples and strict release-closeout lock posture.
+
+## Localization tranche contract: family-visible first (`/student` + `/teach` day mode) (2026-03-12)
+
+**Current decision:**
+- Define a bounded localization tranche for family-visible flows:
+  - student class route: `/student`
+  - teacher day-of-class route: `/teach?portal_mode=day`
+- Translate top teacher day-of-class copy in `services/classhub/templates/includes/teach_home/day_sections.html` using `{% trans %}` and `{% blocktrans %}` for headings, digest labels, closeout labels, and primary actions.
+- Add/refresh matching Spanish + Somali strings in:
+  - `services/classhub/locale/es/LC_MESSAGES/django.po`
+  - `services/classhub/locale/so/LC_MESSAGES/django.po`
+- Add dedicated route regression coverage in `hub.tests.test_i18n`:
+  - `test_teach_home_day_mode_spanish_renders_translated_core_copy`
+  - `test_teach_home_day_mode_somali_renders_translated_core_copy`
+- Add enforceable contract guard:
+  - `scripts/check_i18n_family_visible_contract.py`
+  - validates doc tranche markers, required tests, required template translation markers, and non-empty Spanish + Somali translations for tranche msgids.
+- Wire this guard into:
+  - CI lint workflow (`.github/workflows/lint.yml`)
+  - release-evidence guardrails (`scripts/stability_release_evidence.sh`)
+  - fast operator readiness checks (`scripts/ops_readiness_check.sh`)
+
+**Why this remains active:**
+- Keeps localization progress bounded, inspectable, and test-backed instead of broad narrative promises.
+- Prioritizes high-frequency classroom/family-visible copy before wider admin-surface translation expansion.
+
+## Somali i18n expansion for family-visible routes + peer-feedback defaults (2026-03-12)
+
+**Current decision:**
+- Add Somali (`so`) to supported UI languages in `config/settings.py`.
+- Add Somali locale catalog scaffold at `services/classhub/locale/so/LC_MESSAGES/django.po` and compile `django.mo`.
+- Extend peer-feedback default sentence starters with Somali copy in `hub/services/peer_feedback.py`.
+- Add Somali route checks in `hub.tests.test_i18n` and Somali starter checks in `hub.tests.test_student_ops`.
+- Keep Somali rollout bounded to family-visible routes and student-facing starter copy first; broader admin translation remains iterative.
+
+**Why this remains active:**
+- Makes multilingual commitments more locally relevant for Minneapolis-family contexts without requiring a full-surface translation freeze.
+- Ensures Somali support is enforced by tests and guardrails rather than left as an unverified promise.
+
+## Documentation mass control: canonical truths index (2026-03-12)
+
+**Current decision:**
+- Add a central source-of-truth index at `docs/CANONICAL_TRUTHS.md`.
+- Use this page as the first resolver when documentation appears to overlap.
+- Keep one canonical doc per policy area and list supporting docs as secondary references.
+- Link the index from core entry points:
+  - `docs/START_HERE.md`
+  - `docs/PUBLIC_OVERVIEW.md`
+  - `docs/RUNBOOK.md`
+  - `docs/DOCS_MAP.md`
+  - `docs/CURRENT_STATE.md`
+  - `docs/index.md`
+
+**Why this remains active:**
+- Reduces decision fatigue for operators and evaluators who face high doc volume.
+- Preserves detailed docs while enforcing a single-entry canonical path per policy concern.
