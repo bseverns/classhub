@@ -9,6 +9,7 @@ ClassHub supports multiple UI languages through Django's built-in i18n framework
 | Extract new strings | `python manage.py makemessages -l <code>` |
 | Compile translations | `python manage.py compilemessages` |
 | Check Spanish/Somali parity | `python3 scripts/check_i18n_spanish_somali_parity.py` |
+| Optional fallback budget gate | `CLASSHUB_I18N_SO_MAX_IDENTICAL=80 python3 scripts/check_i18n_spanish_somali_parity.py` |
 | Add a new language | See [Adding a Language](#adding-a-language) below |
 
 ## How it works
@@ -78,6 +79,14 @@ python3 scripts/check_i18n_spanish_somali_parity.py
 ```
 
 This guard fails if Somali is missing any Spanish `msgid`, or if a Somali entry is empty.
+It also prints a non-blocking LANTERN metric showing how many Somali entries are still identical to English fallback copy.
+
+Optional stricter mode:
+- Set `CLASSHUB_I18N_SO_MAX_IDENTICAL` to enforce a maximum fallback count.
+- Example: `CLASSHUB_I18N_SO_MAX_IDENTICAL=80 python3 scripts/check_i18n_spanish_somali_parity.py`
+
+Human review packet (trust-critical strings):
+- [LOCALIZATION_SO_REVIEW_PACKET.md](LOCALIZATION_SO_REVIEW_PACKET.md)
 
 ## Adding a language
 

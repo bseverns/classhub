@@ -835,6 +835,10 @@ Execution ownership and gates:
 - Require every Spanish `msgid` to have a non-empty Somali `msgstr` entry.
 - Enforce parity with:
   - `python3 scripts/check_i18n_spanish_somali_parity.py`
+- Track a non-blocking "lantern" metric in the same guard:
+  - count of Somali entries still identical to English fallback copy.
+- Keep an explicit human review packet for trust-critical Somali copy:
+  - [LOCALIZATION_SO_REVIEW_PACKET.md](LOCALIZATION_SO_REVIEW_PACKET.md)
 - Extend i18n smoke tests so Somali is validated on the same student surfaces already covered in Spanish:
   - `/student/my-data`
   - `/student/portfolio`

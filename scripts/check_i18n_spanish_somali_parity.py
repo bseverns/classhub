@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import ast
+import os
 import re
 import sys
 from dataclasses import dataclass
@@ -88,6 +89,16 @@ def _is_blank(value: str | None) -> bool:
     return value is None or not value.strip()
 
 
+def _to_int_or_none(raw: str) -> int | None:
+    value = (raw or "").strip()
+    if not value:
+        return None
+    try:
+        return int(value)
+    except ValueError:
+        raise ValueError(f"expected integer, got {value!r}") from None
+
+
 def main() -> int:
     try:
         es_entries = _parse_entries(ES_PO)
@@ -97,6 +108,8 @@ def main() -> int:
         return 1
 
     failures: list[str] = []
+    fallback_singular: list[str] = []
+    fallback_plural_slots = 0
     missing_msgids = sorted(set(es_entries) - set(so_entries))
     for msgid in missing_msgids:
         failures.append(f"Somali locale missing msgid: {msgid!r}")
@@ -108,12 +121,18 @@ def main() -> int:
 
         if _is_blank(so_entry.msgstr_single) and es_entry.msgid_plural is None:
             failures.append(f"Somali msgstr is empty for msgid: {msgid!r}")
+        elif es_entry.msgid_plural is None and so_entry.msgstr_single == msgid:
+            fallback_singular.append(msgid)
 
         if es_entry.msgid_plural is not None:
             if _is_blank(so_entry.msgstr_plural_0):
                 failures.append(f"Somali msgstr[0] is empty for plural msgid: {msgid!r}")
+            elif so_entry.msgstr_plural_0 == msgid:
+                fallback_plural_slots += 1
             if _is_blank(so_entry.msgstr_plural_1):
                 failures.append(f"Somali msgstr[1] is empty for plural msgid: {msgid!r}")
+            elif so_entry.msgstr_plural_1 == es_entry.msgid_plural:
+                fallback_plural_slots += 1
 
     if failures:
         print("[i18n-es-so-parity] FAIL: Spanish/Somali locale parity drift detected:", file=sys.stderr)
@@ -121,6 +140,32 @@ def main() -> int:
             print(f"  - {row}", file=sys.stderr)
         print(
             "[i18n-es-so-parity] keep Somali coverage non-empty for every Spanish msgid",
+            file=sys.stderr,
+        )
+        return 1
+
+    fallback_singular_count = len(fallback_singular)
+    fallback_total = fallback_singular_count + fallback_plural_slots
+    print(
+        "[i18n-es-so-parity] LANTERN: "
+        f"identical_singular_entries={fallback_singular_count} "
+        f"identical_plural_slots={fallback_plural_slots} "
+        f"identical_total={fallback_total}"
+    )
+    if fallback_singular:
+        preview = ", ".join(repr(msgid) for msgid in fallback_singular[:5])
+        print(f"[i18n-es-so-parity] LANTERN sample singular fallbacks: {preview}")
+
+    max_identical_env = os.getenv("CLASSHUB_I18N_SO_MAX_IDENTICAL", "")
+    try:
+        max_identical = _to_int_or_none(max_identical_env)
+    except ValueError as exc:
+        print(f"[i18n-es-so-parity] FAIL: CLASSHUB_I18N_SO_MAX_IDENTICAL {exc}", file=sys.stderr)
+        return 1
+    if max_identical is not None and fallback_total > max_identical:
+        print(
+            "[i18n-es-so-parity] FAIL: fallback metric budget exceeded: "
+            f"identical_total={fallback_total} > CLASSHUB_I18N_SO_MAX_IDENTICAL={max_identical}",
             file=sys.stderr,
         )
         return 1
