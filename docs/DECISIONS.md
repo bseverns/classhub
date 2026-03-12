@@ -32,6 +32,17 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Student home and upload service seam](#student-home-and-upload-service-seam)
 - [Teacher shared helpers split seam](#teacher-shared-helpers-split-seam)
 - [Teacher roster class service seam](#teacher-roster-class-service-seam)
+- [Teacher roster class export split seam](#teacher-roster-class-export-split-seam)
+- [Teacher class endpoint split seam](#teacher-class-endpoint-split-seam)
+- [Teacher materials endpoint split seam](#teacher-materials-endpoint-split-seam)
+- [Teacher students endpoint split seam](#teacher-students-endpoint-split-seam)
+- [Teacher invites endpoint split seam](#teacher-invites-endpoint-split-seam)
+- [Teacher support endpoint split seam](#teacher-support-endpoint-split-seam)
+- [Teacher org endpoints split seam](#teacher-org-endpoints-split-seam)
+- [Teacher account endpoints split seam](#teacher-account-endpoints-split-seam)
+- [Teacher home context split seam](#teacher-home-context-split-seam)
+- [Teacher SSO endpoint split seam](#teacher-sso-endpoint-split-seam)
+- [Teacher RBAC endpoint split seam II](#teacher-rbac-endpoint-split-seam-ii)
 - [Teacher roster code/reorder helper seam](#teacher-roster-codereorder-helper-seam)
 - [Shared zip export helper seam](#shared-zip-export-helper-seam)
 - [Routing mode: local vs domain Caddy configs](#routing-mode-local-vs-domain-caddy-configs)
@@ -3018,3 +3029,345 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces decision fatigue for operators and evaluators who face high doc volume.
 - Preserves detailed docs while enforcing a single-entry canonical path per policy concern.
+
+## Teacher RBAC panel pruning: split monolithic template into bounded partials (2026-03-12)
+
+**Current decision:**
+- Decompose `services/classhub/templates/includes/teach_home/setup_sections_rbac_panel.html` into focused include partials under:
+  - `services/classhub/templates/includes/teach_home/rbac_tools/rbac_tools_scope_and_simulation.html`
+  - `services/classhub/templates/includes/teach_home/rbac_tools/rbac_tools_custom_roles.html`
+  - `services/classhub/templates/includes/teach_home/rbac_tools/rbac_tools_policy_and_audit.html`
+- Keep the root RBAC panel template as a thin orchestration shell that only renders panel header/intro and includes section partials.
+- Tighten hotspot guard budgets in `scripts/check_teacher_admin_hotspot_budgets.py` to enforce the split shape:
+  - root panel budget reduced to `80` lines
+  - each new section partial receives its own explicit budget ceiling
+
+**Why this remains active:**
+- Reduces single-file cognitive load in the highest-pressure governance surface without changing RBAC behavior.
+- Prevents future “sideways monolith” drift by budgeting the new partials directly.
+
+## Teacher org-admin panel pruning: split superuser panel into bounded partials (2026-03-12)
+
+**Current decision:**
+- Decompose `services/classhub/templates/includes/teach_home/setup_sections_org_admin_panel.html` into focused include partials under:
+  - `services/classhub/templates/includes/teach_home/org_admin/org_admin_organizations_and_memberships.html`
+  - `services/classhub/templates/includes/teach_home/org_admin/org_admin_class_assignments_and_moves.html`
+  - `services/classhub/templates/includes/teach_home/org_admin/org_admin_role_capability_templates.html`
+- Keep the root org-admin panel template as a thin orchestration shell.
+- Extend hotspot budgets in `scripts/check_teacher_admin_hotspot_budgets.py` so the split stays enforced:
+  - root panel budget `60`
+  - section partial budgets `220` / `190` / `120`
+
+**Why this remains active:**
+- Lowers cognitive load in the superuser governance surface while preserving current behavior.
+- Keeps decomposition durable by enforcing explicit per-partial line ceilings.
+
+## Teacher RBAC endpoint pruning: move shared view helpers out of endpoint module (2026-03-12)
+
+**Current decision:**
+- Extract shared RBAC view helper logic from `services/classhub/hub/views/teacher_parts/content_rbac_view_endpoints.py` into:
+  - `services/classhub/hub/views/teacher_parts/content_rbac_view_helpers.py`
+- Keep endpoint handlers focused on request/response orchestration while shared redirect/state/change-review helpers live in the new helper module.
+- Tighten hotspot budgets in `scripts/check_teacher_admin_hotspot_budgets.py`:
+  - endpoint module budget reduced to `500`
+  - new helper module budget set to `240`
+
+**Why this remains active:**
+- Reduces single-file cognitive load in the RBAC endpoint hotspot without changing behavior.
+- Prevents complexity from regrowing invisibly by budgeting both the entrypoint module and extracted helper module.
+
+## Teacher RBAC endpoint split seam II
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/content_rbac_view_endpoints.py` as a thin compatibility facade exporting the existing RBAC endpoint/context symbols.
+- Move RBAC access predicates into:
+  - `services/classhub/hub/views/teacher_parts/content_rbac_access.py`
+- Move RBAC context assembly for `teach_home` into:
+  - `services/classhub/hub/views/teacher_parts/content_rbac_view_context.py`
+- Move RBAC mutation handlers into:
+  - `services/classhub/hub/views/teacher_parts/content_rbac_view_mutations.py`
+- Move RBAC simulation/review handlers into:
+  - `services/classhub/hub/views/teacher_parts/content_rbac_view_review.py`
+- Preserve route wiring and imports by keeping export names unchanged in the facade module.
+- Update guard contracts:
+  - move function budget mapping for `teach_review_rbac_change_request` to `content_rbac_view_review.py` in `scripts/view_function_budgets.json`
+  - tighten/add hotspot budgets for facade + new split modules in `scripts/check_teacher_admin_hotspot_budgets.py`
+
+**Why this remains active:**
+- Reduces cognitive load in RBAC teacher-home endpoint code without behavior changes.
+- Keeps context assembly, mutation actions, and review flow bounded so governance complexity does not re-form as one hotspot file.
+
+## Org access policy pruning: split capability evaluator from class-access facade (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/services/org_access.py` as the stable public facade for class-access helpers and public exports.
+- Move capability-policy evaluation internals into:
+  - `services/classhub/hub/services/org_access_capabilities.py`
+- Preserve existing external API contracts (`CAP_*`, `evaluate_staff_capability`, `staff_can*`, `staff_default_organization`) via re-exports from `org_access.py`.
+- Tighten hotspot guard budgets in `scripts/check_teacher_admin_hotspot_budgets.py`:
+  - `org_access.py` reduced to `260`
+  - new `org_access_capabilities.py` budget set to `620`
+
+**Why this remains active:**
+- Reduces cognitive load in one of the highest-pressure governance services without behavior changes.
+- Keeps the capability engine isolated so future policy growth does not re-expand the facade module.
+
+## RBAC policy bundle pruning: split normalize/export/apply layers (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/services/rbac_policy_bundle.py` as the stable public facade exposing:
+  - `POLICY_SCHEMA_VERSION`
+  - `build_rbac_policy_export_payload`
+  - `validate_rbac_policy_payload`
+  - `apply_rbac_policy_payload`
+- Move normalization and export payload shaping into:
+  - `services/classhub/hub/services/rbac_policy_bundle_normalize.py`
+- Move transactional persistence apply logic into:
+  - `services/classhub/hub/services/rbac_policy_bundle_apply.py`
+- Tighten hotspot budgets in `scripts/check_teacher_admin_hotspot_budgets.py`:
+  - `rbac_policy_bundle.py` reduced to `180`
+  - `rbac_policy_bundle_normalize.py` budget `560`
+  - `rbac_policy_bundle_apply.py` budget `180`
+
+**Why this remains active:**
+- Preserves external import stability while reducing cognitive load in the top-level policy bundle service.
+- Isolates high-churn normalization and persistence logic so future growth is bounded and reviewable.
+
+## Teacher tracker pruning: split digest, helper signals, and lesson tracker modules (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/services/teacher_tracker.py` as a compatibility facade exporting existing helper names.
+- Move focused logic into dedicated modules:
+  - `services/classhub/hub/services/teacher_tracker_digest.py`
+  - `services/classhub/hub/services/teacher_tracker_helper_signals.py`
+  - `services/classhub/hub/services/teacher_tracker_lessons.py`
+  - shared panel cache helpers in `services/classhub/hub/services/teacher_tracker_cache.py`
+- Preserve existing external contracts used by views/services/tests:
+  - `_build_class_digest_rows`
+  - `_local_day_window`
+  - `_build_helper_signal_snapshot`
+  - `_build_lesson_tracker_rows`
+  - `_material_submission_counts`
+  - `_material_latest_upload_map`
+- Tighten hotspot budgets in `scripts/check_teacher_admin_hotspot_budgets.py`:
+  - `teacher_tracker.py` budget `90`
+  - `teacher_tracker_digest.py` budget `220`
+  - `teacher_tracker_helper_signals.py` budget `180`
+  - `teacher_tracker_lessons.py` budget `340`
+
+**Why this remains active:**
+- Reduces cognitive load in a high-traffic teacher dashboard service without changing behavior.
+- Makes future tracker changes easier to review and less likely to re-form a single-file hotspot.
+
+## Teacher roster class export split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/services/teacher_roster_class_exports.py` as a compatibility facade exposing:
+  - `export_submissions_today_archive`
+  - `export_class_summary_csv`
+  - `export_class_outcomes_csv`
+- Move export internals into focused modules:
+  - `services/classhub/hub/services/teacher_roster_class_exports_archive.py`
+  - `services/classhub/hub/services/teacher_roster_class_exports_summary.py`
+  - `services/classhub/hub/services/teacher_roster_class_exports_outcomes.py`
+- Preserve existing imports through `services/classhub/hub/services/teacher_roster_class.py` so views/tests do not change call sites.
+- Extend hotspot guardrails in `scripts/check_teacher_admin_hotspot_budgets.py` with explicit line budgets for the facade and each new export module.
+
+**Why this remains active:**
+- Reduces cognitive load in roster export logic without changing export behavior.
+- Prevents the export layer from reforming as a single-file hotspot.
+
+## Teacher class endpoint split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/roster_class.py` as a compatibility facade for class-level roster endpoints.
+- Move class dashboard/create/join-card handlers into:
+  - `services/classhub/hub/views/teacher_parts/roster_class_dashboard.py`
+- Move class control/export handlers into:
+  - `services/classhub/hub/views/teacher_parts/roster_class_controls.py`
+- Preserve existing test monkeypatch contract for helper reset by keeping:
+  - `_reset_helper_class_conversations` import and `teach_reset_helper_conversations` wrapper in `roster_class.py`.
+- Extend `scripts/check_teacher_admin_hotspot_budgets.py` with explicit budgets for the facade and both new modules.
+
+**Why this remains active:**
+- Reduces cognitive load in one of the highest-churn teacher class endpoint surfaces without route behavior changes.
+- Preserves compatibility for existing tests/imports while preventing the split modules from silently regrowing.
+
+## Teacher materials endpoint split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/roster_materials.py` as a compatibility facade for teacher module/material/submission endpoints.
+- Move module/material CRUD and ordering handlers into:
+  - `services/classhub/hub/views/teacher_parts/roster_materials_module_ops.py`
+- Move submission/rubric review and ZIP export endpoint into:
+  - `services/classhub/hub/views/teacher_parts/roster_materials_submissions.py`
+- Preserve external imports and route wiring by keeping endpoint export names unchanged in the facade.
+- Update guard contracts:
+  - move function budget mapping for `teach_material_submissions` to `roster_materials_submissions.py` in `scripts/view_function_budgets.json`
+  - add hotspot budgets for facade + split modules in `scripts/check_teacher_admin_hotspot_budgets.py`
+
+**Why this remains active:**
+- Reduces cognitive load in teacher content-authoring endpoints without changing behavior.
+- Keeps module/material flow growth bounded so it does not reform into another single-file hotspot.
+
+## Teacher students endpoint split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/roster_students.py` as a compatibility facade for student roster endpoints.
+- Move student identity handlers into:
+  - `services/classhub/hub/views/teacher_parts/roster_students_identity.py`
+  - (`teach_student_return_code`, `teach_rename_student`)
+- Move student lifecycle handlers into:
+  - `services/classhub/hub/views/teacher_parts/roster_students_lifecycle.py`
+  - (`teach_merge_students`, `teach_delete_student_data`)
+- Preserve route wiring/import contracts by exporting unchanged endpoint names via the facade module.
+- Update guard contracts:
+  - move function budget entries for merge/delete to `roster_students_lifecycle.py` in `scripts/view_function_budgets.json`
+  - add hotspot budgets for student facade + split modules in `scripts/check_teacher_admin_hotspot_budgets.py`
+
+**Why this remains active:**
+- Reduces cognitive load in student roster maintenance endpoints without changing behavior.
+- Keeps student merge/delete complexity bounded so it does not silently re-aggregate.
+
+## Teacher invites endpoint split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/roster_invites.py` as a compatibility facade for invite/export endpoints.
+- Move invite-link creation/disable flows into:
+  - `services/classhub/hub/views/teacher_parts/roster_invites_links.py`
+- Move summary/outcomes CSV exports and enrollment-mode changes into:
+  - `services/classhub/hub/views/teacher_parts/roster_invites_exports.py`
+- Preserve route wiring and imports by exporting unchanged endpoint names via the facade module.
+- Extend hotspot guard budgets in `scripts/check_teacher_admin_hotspot_budgets.py` for the facade and both split modules.
+
+**Why this remains active:**
+- Reduces cognitive load in invite/export endpoint logic without behavior changes.
+- Prevents invite/enrollment/export complexity from silently re-forming as a single hotspot file.
+
+## Teacher support endpoint split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/roster_support.py` as a compatibility facade.
+- Move support-signal resolution endpoints into:
+  - `services/classhub/hub/views/teacher_parts/roster_support_signals.py`
+  - (`teach_resolve_stuck_flag`, `teach_resolve_delete_request`)
+- Move support-tag mutation endpoints into:
+  - `services/classhub/hub/views/teacher_parts/roster_support_tags.py`
+  - (`teach_add_support_tag`, `teach_remove_support_tag`)
+- Preserve route/export names unchanged through the facade.
+- Extend `scripts/check_teacher_admin_hotspot_budgets.py` with explicit budgets for the facade and both split modules.
+
+**Why this remains active:**
+- Reduces cognitive load in facilitator-support actions without changing behavior.
+- Keeps support-flow complexity bounded across signals and tags so the file does not regrow as a hotspot.
+
+## Teacher org endpoints split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/roster_orgs.py` as a compatibility facade for superuser org endpoints.
+- Move org lifecycle endpoints into:
+  - `services/classhub/hub/views/teacher_parts/roster_orgs_organizations.py`
+  - (`teach_create_organization`, `teach_set_organization_active`)
+- Move org membership/capability endpoints into:
+  - `services/classhub/hub/views/teacher_parts/roster_orgs_membership_policy.py`
+  - (`teach_upsert_organization_membership`, `teach_upsert_org_role_capability`)
+- Move shared parsing/upsert/superuser gate helpers into:
+  - `services/classhub/hub/views/teacher_parts/roster_orgs_shared.py`
+- Preserve route wiring and endpoint names via facade exports.
+- Extend `scripts/check_teacher_admin_hotspot_budgets.py` with explicit budgets for facade + split modules.
+
+**Why this remains active:**
+- Reduces cognitive load in org/governance endpoints without changing behavior.
+- Keeps superuser org-management growth bounded across lifecycle vs membership/policy concerns.
+
+## Teacher account endpoints split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/auth_teacher_accounts.py` as a compatibility facade.
+- Move shared account helper logic into:
+  - `services/classhub/hub/views/teacher_parts/auth_teacher_accounts_shared.py`
+- Move onboarding/invite endpoints into:
+  - `services/classhub/hub/views/teacher_parts/auth_teacher_accounts_onboarding.py`
+  - (`teach_create_teacher`, `teach_resend_teacher_invite`)
+- Move account-state/password endpoints into:
+  - `services/classhub/hub/views/teacher_parts/auth_teacher_accounts_controls.py`
+  - (`teach_set_teacher_account_active`, `teach_set_teacher_account_superuser`, `teach_reset_teacher_account_password`)
+- Preserve route wiring and endpoint names via facade exports.
+- Update guard contracts:
+  - move function budget mapping for `teach_create_teacher` to `auth_teacher_accounts_onboarding.py` in `scripts/view_function_budgets.json`
+  - add hotspot budgets for facade + split modules in `scripts/check_teacher_admin_hotspot_budgets.py`
+
+**Why this remains active:**
+- Reduces cognitive load in superuser teacher-account management endpoints without behavior changes.
+- Keeps onboarding/invite flows separated from account-control flows so they do not re-aggregate.
+
+## Teacher home context split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/content_home_context.py` as a compatibility facade for `teach_home` context helpers.
+- Move state-reading helpers into:
+  - `services/classhub/hub/views/teacher_parts/content_home_context_state.py`
+- Move portal-mode helpers into:
+  - `services/classhub/hub/views/teacher_parts/content_home_context_portal.py`
+- Move payload/data-shaping helpers into:
+  - `services/classhub/hub/views/teacher_parts/content_home_context_payloads.py`
+- Keep org-admin helper imports in the facade so existing `content_home.py` imports remain unchanged.
+- Extend `scripts/check_teacher_admin_hotspot_budgets.py` with explicit budgets for the facade and each split module.
+
+**Why this remains active:**
+- Reduces cognitive load in `teach_home` context assembly without changing behavior.
+- Keeps portal mode, state read, and payload shaping concerns explicitly bounded so they do not regrow into a single hotspot module.
+
+## Teacher SSO endpoint split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/auth_sso.py` as the compatibility seam module for teacher SSO routes and test patch points.
+- Keep SSO state/provider primitives in:
+  - `services/classhub/hub/views/teacher_parts/auth_sso_core.py`
+- Move Google-specific authorize/callback orchestration into:
+  - `services/classhub/hub/views/teacher_parts/auth_sso_google_flow.py`
+- Preserve patchable seam symbols in `auth_sso.py` used by auth tests:
+  - `_load_provider_discovery`
+  - `_consume_sso_state`
+  - `_google_exchange_code_for_identity`
+- Extend hotspot budget contracts in `scripts/check_teacher_admin_hotspot_budgets.py` for the new Google flow module and tighten the `auth_sso.py` facade budget.
+
+**Why this remains active:**
+- Reduces cognitive load in teacher SSO endpoint code without changing route behavior.
+- Keeps provider/state primitives separate from Google flow orchestration while preserving test seam stability.
+
+## Teacher portal test pruning: split org-access/RBAC suite from main portal tests (2026-03-12)
+
+**Current decision:**
+- Move `TeacherOrganizationAccessTests` out of:
+  - `services/classhub/hub/tests/test_teacher_admin_portal.py`
+- Into a dedicated module:
+  - `services/classhub/hub/tests/test_teacher_admin_portal_org_access.py`
+- Keep test discovery/import behavior unchanged by using the same shared test import scaffold (`from ._shared import *`).
+- Tighten hotspot budgets in `scripts/check_teacher_admin_hotspot_budgets.py`:
+  - `test_teacher_admin_portal.py` reduced to `3000`
+  - `test_teacher_admin_portal_org_access.py` budget `1700`
+
+**Why this remains active:**
+- Reduces single-file test maintenance load in the highest-churn teacher/admin surface.
+- Creates a clear domain seam for future test slicing (org-access/RBAC policy flows vs main portal behavior).
+
+## Teacher portal test pruning: split class-ops and teacher-account suites (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/tests/test_teacher_admin_portal.py` for non-portal anchor suites only:
+  - retention setting parsing
+  - data lifespan dashboard
+  - teacher roster class service
+- Move former `TeacherPortalTests` coverage into two focused modules:
+  - `services/classhub/hub/tests/test_teacher_admin_portal_class_ops.py`
+  - `services/classhub/hub/tests/test_teacher_admin_portal_teacher_accounts.py`
+- Add shared setup/helper base:
+  - `services/classhub/hub/tests/_teacher_admin_portal_base.py`
+- Update guard contracts so coverage remains explicit:
+  - `scripts/check_test_inventory_coverage.py`
+  - `scripts/check_teacher_admin_hotspot_budgets.py`
+
+**Why this remains active:**
+- Reduces test-file cognitive load while preserving full domain coverage.
+- Makes portal regressions easier to triage by separating class workflow failures from account/admin failures.

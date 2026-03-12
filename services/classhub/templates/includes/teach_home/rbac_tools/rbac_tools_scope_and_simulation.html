@@ -1,0 +1,203 @@
+              <h3 class="section-title-compact">Upsert scoped grant</h3>
+              <form method="post" action="/teach/rbac/module-scope-grant/upsert">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="rbac-class-id">Class</label>
+                    <select id="rbac-class-id" name="rbac_class_id" required>
+                      <option value="">Select class</option>
+                      {% for c in rbac_classes %}
+                        <option value="{{ c.id }}" {% if rbac_class_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-user-id">Staff user</label>
+                    <select id="rbac-user-id" name="rbac_user_id" required>
+                      <option value="">Select staff user</option>
+                      {% for account in rbac_staff_users %}
+                        <option value="{{ account.id }}" {% if rbac_user_id == account.id|stringformat:"s" %}selected{% endif %}>
+                          {{ account.username }}{% if account.is_superuser %} (superuser){% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-capability">Capability</label>
+                    <select id="rbac-capability" name="rbac_capability" required>
+                      {% for value, label in rbac_scoped_capability_choices %}
+                        <option value="{{ value }}" {% if rbac_capability == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                    <div class="muted">For class-wide capabilities (`Roster manage`, `Policy manage`), use range `0-0`.</div>
+                  </div>
+                  <div>
+                    <label for="rbac-effect">Effect</label>
+                    <select id="rbac-effect" name="rbac_effect" required>
+                      {% for value, label in rbac_effect_choices %}
+                        <option value="{{ value }}" {% if rbac_effect == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-module-start">Module order start</label>
+                    <input id="rbac-module-start" name="rbac_module_start" type="number" min="0" max="50000" value="{{ rbac_module_start }}" required />
+                  </div>
+                  <div>
+                    <label for="rbac-module-end">Module order end</label>
+                    <input id="rbac-module-end" name="rbac_module_end" type="number" min="0" max="50000" value="{{ rbac_module_end }}" required />
+                  </div>
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
+                      <input type="checkbox" name="rbac_grant_active" value="1" {% if rbac_grant_active == "1" %}checked{% endif %} />
+                      Grant active
+                    </label>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Save scoped grant</button>
+                </div>
+              </form>
+
+              <h3 class="section-title-compact">Simulate capability</h3>
+              <form method="post" action="/teach/rbac/simulate">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="rbac-sim-user-id">Staff user</label>
+                    <select id="rbac-sim-user-id" name="rbac_sim_user_id" required>
+                      <option value="">Select staff user</option>
+                      {% for account in rbac_staff_users %}
+                        <option value="{{ account.id }}" {% if rbac_sim_user_id == account.id|stringformat:"s" %}selected{% endif %}>
+                          {{ account.username }}{% if account.is_superuser %} (superuser){% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-sim-capability">Capability</label>
+                    <select id="rbac-sim-capability" name="rbac_sim_capability" required>
+                      {% for value, label in rbac_simulation_capability_choices %}
+                        <option value="{{ value }}" {% if rbac_sim_capability == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-sim-class-id">Class (optional)</label>
+                    <select id="rbac-sim-class-id" name="rbac_sim_class_id">
+                      <option value="">No class scope</option>
+                      {% for c in rbac_classes %}
+                        <option value="{{ c.id }}" {% if rbac_sim_class_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-sim-module-id">Module id (optional)</label>
+                    <input id="rbac-sim-module-id" name="rbac_sim_module_id" type="number" min="1" value="{{ rbac_sim_module_id }}" />
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Run simulation</button>
+                </div>
+              </form>
+
+              {% if rbac_simulation_result %}
+                <div class="rbac-sim-result">
+                  <h4 class="section-title-compact">Simulation result</h4>
+                  {% if rbac_simulation_result.allowed %}
+                    <p><span class="state-pill state-pill--open">Allowed</span></p>
+                  {% else %}
+                    <p><span class="state-pill state-pill--locked">Denied</span></p>
+                  {% endif %}
+                  <div class="muted">
+                    capability={{ rbac_simulation_result.capability }} · reason={{ rbac_simulation_result.reason }} · role={{ rbac_simulation_result.role|default:"(none)" }}
+                  </div>
+                  <div class="muted">
+                    org={{ rbac_simulation_result.organization_id|default:"-" }} · class={{ rbac_simulation_result.classroom_id|default:"-" }} · module={{ rbac_simulation_result.module_id|default:"-" }}
+                  </div>
+                </div>
+              {% endif %}
+
+              <h3 class="section-title-compact">Bulk simulation matrix</h3>
+              <form method="get" action="/teach">
+                <input type="hidden" name="rbac_tools" value="1" />
+                <div class="grid-2">
+                  <div>
+                    <label for="rbac-bulk-class-id">Class</label>
+                    <select id="rbac-bulk-class-id" name="rbac_bulk_class_id" required>
+                      <option value="">Select class</option>
+                      {% for c in rbac_classes %}
+                        <option value="{{ c.id }}" {% if rbac_bulk_class_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-bulk-capability">Capability</label>
+                    <select id="rbac-bulk-capability" name="rbac_bulk_capability" required>
+                      {% for value, label in rbac_simulation_capability_choices %}
+                        <option value="{{ value }}" {% if rbac_bulk_capability == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-bulk-module-id">Module id (optional)</label>
+                    <input id="rbac-bulk-module-id" name="rbac_bulk_module_id" type="number" min="1" value="{{ rbac_bulk_module_id }}" />
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Run bulk simulation</button>
+                </div>
+              </form>
+
+              {% if rbac_bulk_simulation_result %}
+                <div class="rbac-sim-result">
+                  <h4 class="section-title-compact">Bulk simulation result</h4>
+                  <div class="muted">
+                    class={{ rbac_bulk_simulation_result.classroom_name }} · capability={{ rbac_bulk_simulation_result.capability }} · module={{ rbac_bulk_simulation_result.module_id|default:"-" }}
+                  </div>
+                  <div class="muted">
+                    allowed={{ rbac_bulk_simulation_result.allowed_count }} · denied={{ rbac_bulk_simulation_result.denied_count }}
+                  </div>
+                  {% if rbac_bulk_simulation_result.is_truncated %}
+                    <div class="muted">Showing first 250 staff users.</div>
+                  {% endif %}
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Bulk RBAC simulation matrix</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">User</th>
+                        <th scope="col">Decision</th>
+                        <th scope="col">Reason</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Org</th>
+                        <th scope="col">Class</th>
+                        <th scope="col">Module</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for row in rbac_bulk_simulation_result.rows %}
+                        <tr>
+                          <td>
+                            <strong>{{ row.username }}</strong>{% if row.is_superuser %} <span class="muted">(superuser)</span>{% endif %}
+                          </td>
+                          <td>
+                            {% if row.allowed %}
+                              <span class="state-pill state-pill--open">Allowed</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Denied</span>
+                            {% endif %}
+                          </td>
+                          <td class="muted">{{ row.reason|default:"-" }}</td>
+                          <td class="muted">{{ row.role|default:"-" }}</td>
+                          <td class="muted">{{ row.organization_id|default:"-" }}</td>
+                          <td class="muted">{{ row.classroom_id|default:"-" }}</td>
+                          <td class="muted">{{ row.module_id|default:"-" }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% endif %}
+

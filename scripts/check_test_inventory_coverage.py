@@ -40,17 +40,38 @@ FILE_CONTRACTS: dict[str, dict] = {
     },
     "services/classhub/hub/tests/test_teacher_admin_portal.py": {
         "required_tests": (
+            "test_superuser_can_view_data_lifespan_dashboard",
+            "test_material_submission_counts_uses_distinct_student_aggregation",
+        ),
+        "tokens": ("DataLifespanDashboardTests", "TeacherRosterClassServiceTests"),
+    },
+    "services/classhub/hub/tests/test_teacher_admin_portal_class_ops.py": {
+        "required_tests": (
             "test_teach_class_shows_facilitator_support_board",
             "test_teacher_can_moderate_gallery_submission",
             "test_teacher_can_resolve_delete_request",
-            "test_org_admin_can_upsert_scoped_grant_from_teach_home",
             "test_superuser_can_upsert_org_role_capability_from_teach",
+        ),
+        "tokens": ("TeacherPortalClassOpsTests", "/teach/material/", "/teach/module/"),
+    },
+    "services/classhub/hub/tests/test_teacher_admin_portal_teacher_accounts.py": {
+        "required_tests": (
+            "test_teacher_can_update_own_profile_from_teach",
+            "test_teacher_can_change_password_from_teach",
+            "test_superuser_can_create_teacher_and_send_invite",
+            "test_superuser_can_reset_teacher_account_password_from_teach",
+        ),
+        "tokens": ("TeacherPortalTeacherAccountsTests", "/teach/profile/", "/teach/create-teacher"),
+    },
+    "services/classhub/hub/tests/test_teacher_admin_portal_org_access.py": {
+        "required_tests": (
+            "test_org_admin_can_upsert_scoped_grant_from_teach_home",
             "test_org_admin_bulk_simulation_matrix_scopes_to_class_org",
             "test_org_admin_can_filter_rbac_audit_ops_feed",
             "test_org_admin_can_export_rbac_policy_json",
             "test_org_admin_can_import_rbac_policy_json",
         ),
-        "tokens": ("TeacherPortalTests", "/teach/material/", "/teach/module/"),
+        "tokens": ("TeacherOrganizationAccessTests", "/teach/rbac/", "/teach/syllabus-export"),
     },
     "services/classhub/hub/tests/test_teacher_admin_auth.py": {
         "required_tests": (

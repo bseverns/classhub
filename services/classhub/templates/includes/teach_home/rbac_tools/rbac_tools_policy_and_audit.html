@@ -1,0 +1,181 @@
+              <h3 class="section-title-compact">Policy-as-code import/export</h3>
+              <div class="closeout-actions">
+                <a class="button mini" href="/teach/rbac/policy/export">Download RBAC policy JSON</a>
+              </div>
+              <form method="post" action="/teach/rbac/policy/import" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="rbac-policy-file">Import policy JSON file</label>
+                    <input id="rbac-policy-file" name="rbac_policy_file" type="file" accept=".json,application/json" required />
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Import policy</button>
+                </div>
+              </form>
+
+              {% if rbac_policy_approval_required %}
+                <h3 class="section-title-compact">Pending policy change requests</h3>
+                {% if rbac_pending_change_requests %}
+                  <div class="table-wrap">
+                    <table>
+                      <caption class="visually-hidden">Pending RBAC policy change requests</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">When</th>
+                          <th scope="col">Type</th>
+                          <th scope="col">Requested by</th>
+                          <th scope="col">Scope</th>
+                          <th scope="col">Summary</th>
+                          <th scope="col">Review</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for row in rbac_pending_change_requests %}
+                          <tr>
+                            <td class="muted">{{ row.created_at|date:"Y-m-d H:i:s" }}</td>
+                            <td><code>{{ row.request_type }}</code></td>
+                            <td>{{ row.requested_by.username }}</td>
+                            <td class="muted">
+                              {% if row.classroom %}Class: {{ row.classroom.name }}{% elif row.organization %}Org: {{ row.organization.name }}{% else %}-{% endif %}
+                            </td>
+                            <td class="muted">{{ row.summary|default:"-" }}</td>
+                            <td>
+                              <form method="post" action="/teach/rbac/change-request/review" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="rbac_change_review_id" value="{{ row.id }}" />
+                                <input type="hidden" name="rbac_change_review_decision" value="approve" />
+                                <button type="submit" class="mini">Approve</button>
+                              </form>
+                              <form method="post" action="/teach/rbac/change-request/review" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="rbac_change_review_id" value="{{ row.id }}" />
+                                <input type="hidden" name="rbac_change_review_decision" value="reject" />
+                                <button type="submit" class="mini">Reject</button>
+                              </form>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                {% else %}
+                  <p class="muted">No pending RBAC policy change requests in your accessible scope.</p>
+                {% endif %}
+              {% endif %}
+
+              {% if rbac_scope_grants %}
+                <h3 class="section-title-compact">Current scoped grants</h3>
+                <div class="table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Current module scope grants</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Class</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Capability</th>
+                        <th scope="col">Effect</th>
+                        <th scope="col">Range</th>
+                        <th scope="col">Status</th>
+                        <th scope="col"><span class="visually-hidden">Action</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for grant in rbac_scope_grants %}
+                        <tr>
+                          <td><strong>{{ grant.classroom.name }}</strong></td>
+                          <td>{{ grant.user.username }}</td>
+                          <td>{{ grant.capability }}</td>
+                          <td>{{ grant.effect }}</td>
+                          <td>{{ grant.module_order_start }}-{{ grant.module_order_end }}</td>
+                          <td>
+                            {% if grant.is_active %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Inactive</span>
+                            {% endif %}
+                          </td>
+                          <td>
+                            <form method="post" action="/teach/rbac/module-scope-grant/set-active" class="inline-form">
+                              {% csrf_token %}
+                              <input type="hidden" name="rbac_grant_id" value="{{ grant.id }}" />
+                              {% if grant.is_active %}
+                                <input type="hidden" name="rbac_grant_active" value="0" />
+                                <button type="submit" class="mini">Set inactive</button>
+                              {% else %}
+                                <input type="hidden" name="rbac_grant_active" value="1" />
+                                <button type="submit" class="mini">Set active</button>
+                              {% endif %}
+                            </form>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted">No scoped grants yet for your accessible classes.</p>
+              {% endif %}
+
+              <h3 class="section-title-compact">RBAC audit operations</h3>
+              <form method="get" action="/teach">
+                <input type="hidden" name="rbac_tools" value="1" />
+                <div class="grid-2">
+                  <div>
+                    <label for="rbac-audit-action">Action family</label>
+                    <select id="rbac-audit-action" name="rbac_audit_action">
+                      {% for value, label in rbac_audit_action_choices %}
+                        <option value="{{ value }}" {% if rbac_audit_action == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-audit-class-id">Class (optional)</label>
+                    <select id="rbac-audit-class-id" name="rbac_audit_class_id">
+                      <option value="">All accessible classes</option>
+                      {% for c in rbac_classes %}
+                        <option value="{{ c.id }}" {% if rbac_audit_class_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rbac-audit-limit">Rows</label>
+                    <input id="rbac-audit-limit" name="rbac_audit_limit" type="number" min="1" max="250" value="{{ rbac_audit_limit }}" />
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Refresh audit feed</button>
+                </div>
+              </form>
+              {% if rbac_audit_events %}
+                <div class="table-wrap">
+                  <table>
+                    <caption class="visually-hidden">RBAC audit operations</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">When</th>
+                        <th scope="col">Actor</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">Class</th>
+                        <th scope="col">Target</th>
+                        <th scope="col">Summary</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for event in rbac_audit_events %}
+                        <tr>
+                          <td class="muted">{{ event.created_at|date:"Y-m-d H:i:s" }}</td>
+                          <td class="muted">{% if event.actor_user %}{{ event.actor_user.username }}{% else %}-{% endif %}</td>
+                          <td><code>{{ event.action }}</code></td>
+                          <td class="muted">{% if event.classroom %}{{ event.classroom.name }}{% else %}-{% endif %}</td>
+                          <td class="muted">{{ event.target_type|default:"-" }}{% if event.target_id %}:{{ event.target_id }}{% endif %}</td>
+                          <td class="muted">{{ event.summary|default:"-" }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted">No RBAC audit operations matched the current filter.</p>
+              {% endif %}

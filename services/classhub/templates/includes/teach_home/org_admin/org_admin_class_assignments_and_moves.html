@@ -1,0 +1,160 @@
+              <h3 class="section-title-compact">Class teaching assignments</h3>
+              <div class="muted section-subtitle">
+                Mark priority classes for a teacher. Assignments affect ordering and "Assigned" focus, not org-level access.
+              </div>
+              <form method="post" action="/teach/class-staff-assignment/upsert">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="class-assignment-class">Class</label>
+                    <select id="class-assignment-class" name="class_assignment_class_id" required>
+                      <option value="">Select a class</option>
+                      {% for c in org_classes %}
+                        <option value="{{ c.id }}" {% if class_assignment_class_id == c.id|stringformat:"s" %}selected{% endif %}>
+                          {{ c.name }} ({{ c.join_code }})
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="class-assignment-user">Teacher account</label>
+                    <select id="class-assignment-user" name="class_assignment_user_id" required>
+                      <option value="">Select a teacher account</option>
+                      {% for account in staff_users %}
+                        {% if not account.is_superuser and account.is_active %}
+                          <option value="{{ account.id }}" {% if class_assignment_user_id == account.id|stringformat:"s" %}selected{% endif %}>
+                            {{ account.username }}
+                          </option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="teacher-invite-checkbox-wrap">
+                    <label class="teacher-invite-checkbox-label">
+                      <input type="checkbox" name="class_assignment_active" value="1" {% if class_assignment_active == "1" %}checked{% endif %} />
+                      Assignment active
+                    </label>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Save class assignment</button>
+                </div>
+              </form>
+
+              <h4 class="section-title-compact">Bulk assign teacher classes</h4>
+              <form method="get" action="/teach">
+                <input type="hidden" name="org_admin" value="1" />
+                <div class="grid-2">
+                  <div>
+                    <label for="class-assignment-bulk-user">Teacher</label>
+                    <select id="class-assignment-bulk-user" name="class_assignment_bulk_user_id" required>
+                      <option value="">Select a teacher</option>
+                      {% for account in staff_users %}
+                        {% if not account.is_superuser and account.is_active %}
+                          <option value="{{ account.id }}" {% if class_assignment_bulk_user_id == account.id|stringformat:"s" %}selected{% endif %}>
+                            {{ account.username }}
+                          </option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Load current assignments</button>
+                </div>
+              </form>
+
+              {% if class_assignment_bulk_user_id %}
+                <form method="post" action="/teach/class-staff-assignment/bulk-set" class="class-assignment-bulk-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="class_assignment_bulk_user_id" value="{{ class_assignment_bulk_user_id }}" />
+                  <div class="class-assignment-bulk-grid">
+                    {% for c in org_classes %}
+                      <label class="class-assignment-check">
+                        <input
+                          type="checkbox"
+                          name="class_assignment_bulk_class_ids"
+                          value="{{ c.id }}"
+                          {% if c.id in class_assignment_bulk_selected_class_ids %}checked{% endif %}
+                        />
+                        <span><strong>{{ c.name }}</strong> <span class="muted">({{ c.join_code }})</span></span>
+                      </label>
+                    {% endfor %}
+                  </div>
+                  <div class="submit-wrap">
+                    <button type="submit">Save bulk assignments</button>
+                  </div>
+                </form>
+              {% endif %}
+
+              {% if class_staff_assignments %}
+                <div class="table-wrap org-membership-table-wrap">
+                  <table>
+                    <caption class="visually-hidden">Class staff assignments</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Class</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for assignment in class_staff_assignments %}
+                        <tr>
+                          <th scope="row"><strong>{{ assignment.classroom.name }}</strong></th>
+                          <td>{{ assignment.user.username }}</td>
+                          <td>
+                            {% if assignment.is_active %}
+                              <span class="state-pill state-pill--open">Active</span>
+                            {% else %}
+                              <span class="state-pill state-pill--locked">Inactive</span>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="muted">No class assignments yet.</p>
+              {% endif %}
+
+              <h3 class="section-title-compact">Move class organization</h3>
+              <div class="muted section-subtitle">
+                Reassign a class to a different active organization boundary.
+              </div>
+              <form method="post" action="/teach/class-organization/set">
+                {% csrf_token %}
+                <div class="grid-2">
+                  <div>
+                    <label for="class-move-class">Class</label>
+                    <select id="class-move-class" name="class_move_class_id" required>
+                      <option value="">Select a class</option>
+                      {% for c in org_classes %}
+                        <option value="{{ c.id }}" {% if class_move_class_id == c.id|stringformat:"s" %}selected{% endif %}>
+                          {{ c.name }} ({{ c.join_code }})
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="class-move-org">Target organization</label>
+                    <select id="class-move-org" name="class_move_org_id" required>
+                      <option value="">Select an organization</option>
+                      {% for org in organizations %}
+                        <option
+                          value="{{ org.id }}"
+                          {% if class_move_org_id == org.id|stringformat:"s" %}selected{% endif %}
+                          {% if not org.is_active %}disabled{% endif %}
+                        >
+                          {{ org.name }}{% if not org.is_active %} (inactive){% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="submit-wrap">
+                  <button type="submit">Move class to organization</button>
+                </div>
+              </form>
+
