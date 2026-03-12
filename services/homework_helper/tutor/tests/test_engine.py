@@ -154,6 +154,8 @@ class HeuristicsEngineTests(SimpleTestCase):
         self.assertIn("class code", text)
         self.assertIn("display name", text)
         self.assertIn("teacher", text)
+        self.assertIn("piper", text)
+        self.assertNotIn("full legal name", text)
 
     def test_publish_privacy_detection_and_guidance(self):
         self.assertTrue(heuristics.is_publish_privacy_question("Can I publish this without my full name shown?"))

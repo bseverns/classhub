@@ -162,8 +162,8 @@ def is_class_reentry_privacy_question(message: str) -> bool:
 
 def build_class_reentry_privacy_text() -> str:
     return (
-        "You can rejoin without a full legal name.\n"
-        "Use your class code and your display name (pseudonym is okay in class workflow).\n"
+        "You can rejoin without using your real name.\n"
+        "In this Piper/Scratch class workflow, use your class code and your display name (pseudonym is okay).\n"
         "If your return code is missing, ask your teacher to reset or confirm your class code before you continue."
     )
 
