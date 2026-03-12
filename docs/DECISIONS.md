@@ -3392,3 +3392,21 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces test-file cognitive load while preserving full domain coverage.
 - Makes portal regressions easier to triage by separating class workflow failures from account/admin failures.
+
+## Org access capability service split seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/services/org_access_capabilities.py` as a compatibility facade for org-capability policy imports.
+- Move shared constants/settings/query primitives into:
+  - `services/classhub/hub/services/org_access_capabilities_shared.py`
+- Move role/custom-capability override helpers into:
+  - `services/classhub/hub/services/org_access_capabilities_roles.py`
+- Move scoped module/class range helpers into:
+  - `services/classhub/hub/services/org_access_capabilities_scope.py`
+- Move decision evaluation + convenience wrappers into:
+  - `services/classhub/hub/services/org_access_capabilities_policy.py`
+- Extend hotspot budget contracts in `scripts/check_teacher_admin_hotspot_budgets.py` for all split modules and tighten facade budget.
+
+**Why this remains active:**
+- Reduces cognitive load in the governance-heavy org access policy surface without changing endpoint semantics.
+- Keeps role/capability source loading, scope range checks, and decision orchestration separately bounded so future changes prune locally instead of regrowing one monolith.
