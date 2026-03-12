@@ -9,7 +9,8 @@ from pathlib import Path
 
 HOTSPOT_BUDGETS: dict[Path, int] = {
     Path("services/classhub/hub/tests/test_teacher_admin_portal.py"): 600,
-    Path("services/classhub/hub/tests/test_teacher_admin_portal_class_ops.py"): 2300,
+    Path("services/classhub/hub/tests/test_teacher_admin_portal_class_ops.py"): 1500,
+    Path("services/classhub/hub/tests/test_teacher_admin_portal_class_content_admin_ops.py"): 800,
     Path("services/classhub/hub/tests/test_teacher_admin_portal_teacher_accounts.py"): 500,
     Path("services/classhub/hub/tests/_teacher_admin_portal_base.py"): 120,
     Path("services/classhub/hub/tests/test_teacher_admin_portal_org_access.py"): 1700,

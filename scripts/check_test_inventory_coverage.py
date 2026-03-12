@@ -50,9 +50,20 @@ FILE_CONTRACTS: dict[str, dict] = {
             "test_teach_class_shows_facilitator_support_board",
             "test_teacher_can_moderate_gallery_submission",
             "test_teacher_can_resolve_delete_request",
-            "test_superuser_can_upsert_org_role_capability_from_teach",
+            "test_teacher_can_merge_students",
         ),
         "tokens": ("TeacherPortalClassOpsTests", "/teach/material/", "/teach/module/"),
+    },
+    "services/classhub/hub/tests/test_teacher_admin_portal_class_content_admin_ops.py": {
+        "required_tests": (
+            "test_teacher_can_import_zip_syllabus_source",
+            "test_superuser_can_upsert_org_role_capability_from_teach",
+        ),
+        "tokens": (
+            "TeacherPortalClassContentAdminOpsTests",
+            "/teach/import-syllabus-source",
+            "/teach/org-role-capability/upsert",
+        ),
     },
     "services/classhub/hub/tests/test_teacher_admin_portal_teacher_accounts.py": {
         "required_tests": (
