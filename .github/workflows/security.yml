@@ -5,6 +5,10 @@ on:
   push:
     branches: [main]
 
+permissions:
+  actions: read
+  contents: read
+
 jobs:
   secret-scan:
     runs-on: ubuntu-latest
