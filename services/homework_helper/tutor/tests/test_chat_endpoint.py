@@ -6,6 +6,7 @@ import urllib.error
 from pathlib import Path
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db.utils import ProgrammingError
@@ -37,6 +38,7 @@ class HelperChatAuthTests(TestCase):
             topics=["scratch motion"],
             allowed_topics=["scratch motion", "sprites"],
             reference="piper_scratch",
+            signing_key=str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or ""),
         )
 
     def _post_chat(self, payload: dict, *, include_scope: bool = True):
@@ -253,12 +255,14 @@ class HelperChatAuthTests(TestCase):
             topics=["scratch motion"],
             allowed_topics=["scratch motion", "sprites"],
             reference="piper_scratch",
+            signing_key=str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or ""),
         )
         scope_b = issue_scope_token(
             context="Lesson scope: Session 2",
             topics=["scratch loops"],
             allowed_topics=["scratch loops", "sprites"],
             reference="piper_scratch",
+            signing_key=str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or ""),
         )
 
         self._set_student_session(student_id=101, class_id=5)
@@ -462,6 +466,7 @@ class HelperChatAuthTests(TestCase):
             topics=["fractions"],
             allowed_topics=["fractions"],
             reference="fractions_reference",
+            signing_key=str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or ""),
         )
         resp = self._post_chat(
             {
@@ -504,6 +509,7 @@ class HelperChatAuthTests(TestCase):
             topics=["signed topic"],
             allowed_topics=["signed allowed"],
             reference="signed_reference",
+            signing_key=str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or ""),
         )
         resp = self._post_chat(
             {
