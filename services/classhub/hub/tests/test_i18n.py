@@ -138,9 +138,24 @@ class I18nSmokeTests(TestCase):
         self.assertContains(resp, "Privacidad en resumen")
         self.assertContains(resp, "Sin rastreo. Sin anuncios. Sin intercambio con corredores de datos.")
 
+    def test_student_my_data_page_somali_renders_translated_core_copy(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student/my-data", HTTP_ACCEPT_LANGUAGE="so")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Dulmar Asturnaanta")
+        self.assertContains(resp, "Ma jiro raadraac. Ma jiro xayeysiis. Lama wadaago dilaaliinta xogta.")
+
     def test_student_portfolio_page_spanish_renders_translated_core_copy(self):
         self._set_student_session()
 
         resp = self.client.get("/student/portfolio", HTTP_ACCEPT_LANGUAGE="es")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Filtros")
+
+    def test_student_portfolio_page_somali_renders_translated_core_copy(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student/portfolio", HTTP_ACCEPT_LANGUAGE="so")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Shaandheeyayaal")

@@ -52,6 +52,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
 - [Teacher docs journey layering](#teacher-docs-journey-layering)
 - [Public docs plain-language default](#public-docs-plain-language-default)
+- [Spanish/Somali localization parity](#spanishsomali-localization-parity)
 - [Feature maturity ledger and evaluator quickstart](#feature-maturity-ledger-and-evaluator-quickstart)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
 - [Secret handling: env-only secret sources](#secret-handling-env-only-secret-sources)
@@ -826,6 +827,23 @@ Execution ownership and gates:
 - Mixed audiences (teachers, leadership, partners) need clear operational meaning before implementation detail.
 - Plain language improves trust and reduces onboarding friction in school/community contexts.
 - Labeled advanced sections preserve technical accuracy without overwhelming non-technical readers.
+
+## Spanish/Somali localization parity
+
+**Current decision:**
+- Keep Somali (`so`) and Spanish (`es`) catalogs aligned at the message-id level.
+- Require every Spanish `msgid` to have a non-empty Somali `msgstr` entry.
+- Enforce parity with:
+  - `python3 scripts/check_i18n_spanish_somali_parity.py`
+- Extend i18n smoke tests so Somali is validated on the same student surfaces already covered in Spanish:
+  - `/student/my-data`
+  - `/student/portfolio`
+- If a reviewed Somali translation is not yet ready for a new string, keep a non-empty interim fallback and follow up with language review.
+
+**Why this remains active:**
+- Prevents Somali support from lagging behind Spanish as copy changes ship.
+- Makes localization drift visible early in CI/local checks instead of after release.
+- Keeps family-facing language support more consistent across key student flows.
 
 ## Feature maturity ledger and evaluator quickstart
 

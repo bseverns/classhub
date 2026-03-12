@@ -8,6 +8,7 @@ ClassHub supports multiple UI languages through Django's built-in i18n framework
 |---|---|
 | Extract new strings | `python manage.py makemessages -l <code>` |
 | Compile translations | `python manage.py compilemessages` |
+| Check Spanish/Somali parity | `python3 scripts/check_i18n_spanish_somali_parity.py` |
 | Add a new language | See [Adding a Language](#adding-a-language) below |
 
 ## How it works
@@ -44,6 +45,11 @@ Languages currently shipped:
 
 Coverage outside those paths is still partial and should be treated as in-progress.
 
+Somali parity policy:
+- Somali should include every `msgid` that exists in Spanish.
+- New strings should not land in Spanish without a non-empty Somali entry.
+- Where a reviewed Somali translation is not ready yet, keep a non-empty fallback entry and follow up with language review.
+
 ## Family-visible first tranche
 
 Localization completion is intentionally bounded to a family-visible tranche so progress is enforceable:
@@ -64,6 +70,14 @@ The guard fails if any of the following drift:
 - required non-empty tranche translations in:
   - `locale/es/LC_MESSAGES/django.po`
   - `locale/so/LC_MESSAGES/django.po`
+
+Parity guard:
+
+```bash
+python3 scripts/check_i18n_spanish_somali_parity.py
+```
+
+This guard fails if Somali is missing any Spanish `msgid`, or if a Somali entry is empty.
 
 ## Adding a language
 

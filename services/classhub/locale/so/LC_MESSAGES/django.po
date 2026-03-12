@@ -1,4 +1,4 @@
-# ClassHub Somali translations (family-visible tranche).
+# ClassHub Somali translations.
 # Copyright (C) 2026 createMPLS
 # This file is distributed under the same license as the ClassHub package.
 #
@@ -16,10 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#
-# Join + login core
-#
-
 msgid "Join Class"
 msgstr "Ku biir Fasal"
 
@@ -29,11 +25,74 @@ msgstr "U bood waxa ugu muhiimsan"
 msgid "Join your class"
 msgstr "Ku biir fasalkaaga"
 
+msgid "Enter your class code and pick a display name."
+msgstr "Geli koodhka fasalkaaga oo dooro magac muuqda."
+
+msgid "Enter the class code from your teacher. Pick any display name you like."
+msgstr "Geli koodhka fasalka ee macallinkaaga. Dooro magac muuqda oo aad jeceshahay."
+
+msgid "On shared devices, enter your return code so you do not join as another student."
+msgstr "Qalabka la wadaago, geli koodhkaaga soo laabashada si aadan ugu biirin adigoo ah arday kale."
+
+msgid "Same classroom device? You can usually leave return code blank."
+msgstr "Isla qalabkii fasalka? Badanaa waxaad ka tagi kartaa koodhka soo laabashada oo bannaan."
+
+msgid "On shared devices, use your own return code to avoid signing in as someone else."
+msgstr "Qalabka la wadaago, isticmaal koodhkaaga soo laabashada si aadan ugu gelin qof kale."
+
 msgid "Class code"
 msgstr "Koodhka fasalka"
 
 msgid "Your display name"
 msgstr "Magacaaga muuqda"
+
+msgid "A nickname or made-up name is fine — no need to use your real name."
+msgstr "Magac naanays ah ama magac la sameeyay waa hagaag - looma baahna inaad isticmaasho magacaaga dhabta ah."
+
+msgid "Return code (optional)"
+msgstr "Koodhka soo laabashada (ikhtiyaari)"
+
+msgid "If your class uses icon codes, use the icon keypad below."
+msgstr "Haddii fasalkaagu isticmaalo koodhadh astaamo ah, isticmaal keypad-ka astaamaha ee hoose."
+
+msgid "Show icon keypad"
+msgstr "Muuji keypad-ka astaamaha"
+
+msgid "Clear return code"
+msgstr "Nadiifi koodhka soo laabashada"
+
+msgid "Return code icon keypad"
+msgstr "Keypad-ka astaamaha koodhka soo laabashada"
+
+msgid "Join class"
+msgstr "Ku biir fasalka"
+
+msgid "Privacy at a glance:"
+msgstr "Dulmar Asturnaanta:"
+
+msgid "We store your display name, class submissions, and event timestamps."
+msgstr "Waxaan kaydinnaa magacaaga muuqda, gudbinnada fasalka, iyo waqtiyada dhacdooyinka."
+
+#, python-format
+msgid "Storage location: %(location)s"
+msgstr "Storage location: %(location)s"
+
+msgid "Retention:"
+msgstr "Retention:"
+
+msgid "submissions are kept up to %(counter)s day unless deleted sooner."
+msgid_plural "submissions are kept up to %(counter)s days unless deleted sooner."
+msgstr[0] "submissions are kept up to %(counter)s day unless deleted sooner."
+msgstr[1] "submissions are kept up to %(counter)s days unless deleted sooner."
+
+msgid "submissions stay until a teacher or admin removes them."
+msgstr "submissions stay until a teacher or admin removes them."
+
+msgid "Delete now: after joining, open <a href=\"/student/my-data\">My Data</a> to delete your work or end this device session."
+msgstr "Delete now: after joining, open <a href=\"/student/my-data\">My Data</a> to delete your work or end this device session."
+
+msgid "Teacher? Use <a href=\"/teach\">/teach</a>."
+msgstr "Macallin? Isticmaal <a href=\"/teach\">/teach</a>."
 
 msgid "Teacher Login"
 msgstr "Gelitaanka Macallinka"
@@ -53,21 +112,309 @@ msgstr "Luqad"
 msgid "Switch"
 msgstr "Beddel"
 
-#
-# Student class core
-#
+msgid "That invite link is not valid."
+msgstr "Xiriirka casuumaaddan sax ma aha."
+
+msgid "That invite link has been disabled."
+msgstr "Xiriirka casuumaaddan waa la naafo gareeyay."
+
+msgid "That invite link has expired."
+msgstr "Xiriirka casuumaaddan wuu dhacay."
+
+msgid "This invite is full right now. Ask your teacher for a new invite link."
+msgstr "Casuumaaddan hadda way buuxdaa. Weydii macallinkaaga xiriir casuumaad cusub."
+
+msgid "That invite link is not usable right now."
+msgstr "Xiriirka casuumaaddan hadda lama isticmaali karo."
+
+msgid "That looks like an email address. Please use a nickname or display name instead."
+msgstr "Taasi waxay u egtahay cinwaan iimayl. Fadlan isticmaal naanays ama magac muuqda."
+
+msgid "That looks like a phone number. Please use a nickname or display name instead."
+msgstr "Taasi waxay u egtahay lambar telefoon. Fadlan isticmaal naanays ama magac muuqda."
+
+msgid "Please use a nickname or display name instead of personal information."
+msgstr "Fadlan isticmaal naanays ama magac muuqda halkii aad ka isticmaali lahayd xog shakhsiyeed."
+
+msgid "Heads-up: that looks like an email address. A nickname is safer."
+msgstr "Ogeysiis: taasi waxay u egtahay cinwaan iimayl. Naanays ayaa ka ammaan badan."
+
+msgid "Heads-up: that looks like a phone number. A nickname is safer."
+msgstr "Ogeysiis: taasi waxay u egtahay lambar telefoon. Naanays ayaa ka ammaan badan."
+
+msgid "Consider using a nickname instead of personal information."
+msgstr "Ka fiirso inaad isticmaasho naanays halkii xog shakhsiyeed."
+
+#, python-format
+msgid "You are joining <strong>%(class_name)s</strong> by invite link."
+msgstr "You are joining <strong>%(class_name)s</strong> by invite link."
+
+msgid "Storage location:"
+msgstr "Goobta kaydinta:"
+
+msgid "day(s). Deleted sooner on request."
+msgstr "day(s). Deleted sooner on request."
+
+msgid "Delete now:"
+msgstr "Hadda tirtir:"
+
+msgid "My Data"
+msgstr "Xogtayda"
+
+msgid "delete your work or end session."
+msgstr "tirtir shaqadaada ama dhammee fadhiga."
+
+msgid "Student home"
+msgstr "Bogga ardayga"
+
+msgid "Join page"
+msgstr "Bogga ku biirista"
+
+msgid "Export my portfolio"
+msgstr "Dhoofinta portfolio-gayga"
+
+msgid "Privacy"
+msgstr "Asturnaan"
+
+msgid "Signed in as"
+msgstr "Waxaad gashay sida"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Copy class code"
+msgstr "Nuqul ka samee koodhka fasalka"
+
+msgid "Your return code:"
+msgstr "Koodhkaaga soo laabashada:"
+
+msgid "Show return code"
+msgstr "Muuji koodhka soo laabashada"
+
+msgid "Hide return code"
+msgstr "Qari koodhka soo laabashada"
+
+msgid "Show"
+msgstr "Show"
+
+msgid "Copy return code"
+msgstr "Nuqul ka samee koodhka soo laabashada"
+
+msgid "for rejoin"
+msgstr "for rejoin"
+
+msgid "Log out"
+msgstr "Ka bax"
+
+msgid "This week"
+msgstr "Toddobaadkan"
+
+msgid "This week's highlighted lesson"
+msgstr "Casharka toddobaadkan la iftiimiyay"
+
+msgid "Highlighted lesson"
+msgstr "Cashar la iftiimiyay"
+
+msgid "Start this week's lesson"
+msgstr "Bilow casharka toddobaadkan"
+
+msgid "Locked"
+msgstr "Xiran"
+
+msgid "Open"
+msgstr "Furan"
+
+msgid "No calendar-linked lessons yet. Ask your teacher when your first lesson opens."
+msgstr "Weli ma jiraan casharro jadwal ku xiran. Weydii macallinkaaga goorta casharkaaga ugu horreeya furmayo."
 
 msgid "Course links"
 msgstr "Xiriirrada koorsada"
 
-msgid "Quick check-in"
-msgstr "Is-weydiin degdeg ah"
+msgid "View full course lesson links"
+msgstr "View full course lesson links"
 
-msgid "Return image: look for this picture when you come back to class."
-msgstr "Sawirka soo laabashada: raadi sawirkan marka aad fasalka ku soo noqoto."
+msgid "Course lesson links will appear here after your teacher connects a course."
+msgstr "Course lesson links will appear here after your teacher connects a course."
 
-msgid "Class return image"
-msgstr "Sawirka soo laabashada fasalka"
+msgid "How to tell you are done"
+msgstr "How to tell you are done"
+
+msgid "Open lesson"
+msgstr "Open lesson"
+
+msgid "Upload / view submissions"
+msgstr "Upload / view submissions"
+
+msgid "Upload / manage gallery"
+msgstr "Upload / manage gallery"
+
+msgid "Save checklist"
+msgstr "Save checklist"
+
+msgid "Save reflection"
+msgstr "Save reflection"
+
+msgid "Save rubric"
+msgstr "Save rubric"
+
+msgid "Account"
+msgstr "Account"
+
+msgid "End my session on this device"
+msgstr "Ku dhammee fadhigayga qalabkan"
+
+msgid "Studio handles"
+msgstr "Studio handles"
+
+msgid "highlighted"
+msgstr "highlighted"
+
+msgid "Advanced mode keeps core controls visible for autonomy and accountability."
+msgstr "Advanced mode keeps core controls visible for autonomy and accountability."
+
+msgid "Export portfolio snapshot"
+msgstr "Export portfolio snapshot"
+
+msgid "Rubric links"
+msgstr "Rubric links"
+
+msgid "Gallery share toggles"
+msgstr "Gallery share toggles"
+
+msgid "Done"
+msgstr "Done"
+
+msgid "saved"
+msgstr "saved"
+
+msgid "do now"
+msgstr "do now"
+
+msgid "wait"
+msgstr "wait"
+
+msgid "saved and reviewable"
+msgstr "saved and reviewable"
+
+msgid "active now"
+msgstr "active now"
+
+msgid "date-gated"
+msgstr "date-gated"
+
+msgid "Studio accountability: add design-log notes, a short changelog, and release notes for finished builds."
+msgstr "Studio accountability: add design-log notes, a short changelog, and release notes for finished builds."
+
+msgid "saved and visible"
+msgstr "saved and visible"
+
+msgid "ready now"
+msgstr "ready now"
+
+msgid "opens on date shown"
+msgstr "opens on date shown"
+
+msgid "Preview intro-only page"
+msgstr "Preview intro-only page"
+
+msgid "Full lesson unlocks on <strong>{{ open_date }}</strong>."
+msgstr "Full lesson unlocks on <strong>{{ open_date }}</strong>."
+
+msgid "Accepted: {{ exts }} · Max {{ max_mb }}MB"
+msgstr "Accepted: {{ exts }} Â· Max {{ max_mb }}MB"
+
+msgid "Submissions open on <strong>{{ open_date }}</strong>."
+msgstr "Submissions open on <strong>{{ open_date }}</strong>."
+
+msgid "· {{ upload_count }} uploaded (latest saved)"
+msgstr "Â· {{ upload_count }} uploaded (latest saved)"
+
+msgid "Gallery opens on <strong>{{ open_date }}</strong>."
+msgstr "Gallery opens on <strong>{{ open_date }}</strong>."
+
+msgid "· {{ upload_count }} uploaded"
+msgstr "Â· {{ upload_count }} uploaded"
+
+msgid "Shared gallery"
+msgstr "Shared gallery"
+
+msgid "you"
+msgstr "you"
+
+msgid "Checklist opens on <strong>{{ open_date }}</strong>."
+msgstr "Checklist opens on <strong>{{ open_date }}</strong>."
+
+msgid "Review checklist"
+msgstr "Review checklist"
+
+msgid "Open checklist"
+msgstr "Open checklist"
+
+msgid "Checklist has no items yet."
+msgstr "Checklist has no items yet."
+
+msgid "Reflection opens on <strong>{{ open_date }}</strong>."
+msgstr "Reflection opens on <strong>{{ open_date }}</strong>."
+
+msgid "Design log prompt: note what you changed, why you changed it, and what evidence shows improvement."
+msgstr "Design log prompt: note what you changed, why you changed it, and what evidence shows improvement."
+
+msgid "Review reflection"
+msgstr "Review reflection"
+
+msgid "Open reflection"
+msgstr "Open reflection"
+
+msgid "Your private reflection"
+msgstr "Your private reflection"
+
+msgid "Write a short reflection."
+msgstr "Write a short reflection."
+
+msgid "Rubric opens on <strong>{{ open_date }}</strong>."
+msgstr "Rubric opens on <strong>{{ open_date }}</strong>."
+
+msgid "Review rubric"
+msgstr "Review rubric"
+
+msgid "Open rubric"
+msgstr "Open rubric"
+
+msgid "Rate each criterion from 1 to {{ scale_max }}."
+msgstr "Rate each criterion from 1 to {{ scale_max }}."
+
+msgid "Studio expectation: scores should line up with your changelog and release-note claims."
+msgstr "Studio expectation: scores should line up with your changelog and release-note claims."
+
+msgid "Not scored"
+msgstr "Not scored"
+
+msgid "Optional feedback"
+msgstr "Optional feedback"
+
+msgid "Short note to your teacher (optional)."
+msgstr "Short note to your teacher (optional)."
+
+msgid "Rubric criteria not configured yet."
+msgstr "Rubric criteria not configured yet."
+
+msgid "Empty material — teacher will fill this in."
+msgstr "Qalab madhan - macallinku wuu buuxin doonaa."
+
+msgid "No materials yet."
+msgstr "No materials yet."
+
+msgid "No modules yet. A teacher/admin can add them in /admin."
+msgstr "No modules yet. A teacher/admin can add them in /admin."
+
+msgid "Open My Data for account controls."
+msgstr "Open My Data for account controls."
+
+msgid "Open My Data"
+msgstr "Open My Data"
+
+msgid "Manage account + device data."
+msgstr "Manage account + device data."
 
 msgid "What I made"
 msgstr "Waxaan sameeyay"
@@ -75,12 +422,68 @@ msgstr "Waxaan sameeyay"
 msgid "Session gallery"
 msgstr "Bandhigga fadhiga"
 
+msgid "Quick check-in"
+msgstr "Is-weydiin degdeg ah"
+
+msgid "Share how this session feels right now. These signals help your facilitator support you."
+msgstr "Share how this session feels right now. These signals help your facilitator support you."
+
+msgid "I can do this"
+msgstr "I can do this"
+
+msgid "I'm stuck"
+msgstr "I'm stuck"
+
+msgid "I taught someone"
+msgstr "I taught someone"
+
+msgid "Last check-in:"
+msgstr "Last check-in:"
+
+msgid "Class return image"
+msgstr "Sawirka soo laabashada fasalka"
+
+msgid "Return image: look for this picture when you come back to class."
+msgstr "Sawirka soo laabashada: raadi sawirkan marka aad fasalka ku soo noqoto."
+
+msgid "Enable kiosk mode"
+msgstr "Daar habka kiosk"
+
+msgid "Exit kiosk mode"
+msgstr "Ka bax habka kiosk"
+
+msgid "Kiosk mode keeps navigation inside the student class flow."
+msgstr "Habka kiosk wuxuu ku hayaa socodka hagidda gudaha socodka fasalka ardayga."
+
+msgid "Hide"
+msgstr "Hide"
+
+msgid "Return code hidden."
+msgstr "Return code hidden."
+
+msgid "Return code shown."
+msgstr "Return code shown."
+
+msgid "Could not load return code. Refresh and try again."
+msgstr "Could not load return code. Refresh and try again."
+
+msgid "Copied to clipboard."
+msgstr "Copied to clipboard."
+
+msgid "Copy failed. Please copy manually."
+msgstr "Copy failed. Please copy manually."
+
+msgid "Sentence starter added."
+msgstr "Sentence starter added."
+
+msgid "Sentence starters (optional)"
+msgstr "Sentence starters (optional)"
+
+msgid "Icon code: "
+msgstr "Icon code: "
+
 msgid "Trust notes"
 msgstr "Qoraallada kalsoonida"
-
-#
-# Teacher day-of-class shell
-#
 
 msgid "Classes"
 msgstr "Fasallada"
@@ -97,9 +500,6 @@ msgstr "Fasal"
 msgid "Join code"
 msgstr "Koodhka ku biirista"
 
-msgid "Status"
-msgstr "Xaalad"
-
 msgid "Actions"
 msgstr "Tallaabooyin"
 
@@ -108,12 +508,6 @@ msgstr "La qoondeeyay"
 
 msgid "Copy"
 msgstr "Nuqul"
-
-msgid "Locked"
-msgstr "Xiran"
-
-msgid "Open"
-msgstr "Furan"
 
 msgid "Open class"
 msgstr "Fur fasalka"
@@ -169,7 +563,7 @@ msgstr "Isku laabtan ka dhig ilaa aad tallaabo u baahato."
 
 #, python-format
 msgid "%(class_name)s · %(student_total)s students"
-msgstr "%(class_name)s · %(student_total)s arday"
+msgstr "%(class_name)s Â· %(student_total)s arday"
 
 #, python-format
 msgid "%(pending_count)s still need a first upload."
@@ -193,20 +587,131 @@ msgstr "Soo gelinnadii ugu dambeeyay ee dhammaan fasallada"
 msgid "Recent submissions across classes"
 msgstr "Gudbinadii ugu dambeeyay ee fasallo kala duwan"
 
+msgid "Review submissions"
+msgstr "Eeg gudbinnada"
+
+msgid "Back to class"
+msgstr "Ku noqo fasalka"
+
+msgid "Privacy at a glance"
+msgstr "Dulmar Asturnaanta"
+
+msgid "Stored data: your display name, submissions, and class event timestamps."
+msgstr "Xogta la kaydiyo: magacaaga muuqda, gudbinnada, iyo waqtiyada dhacdooyinka fasalka."
+
+msgid "Download my work"
+msgstr "Download my work"
+
+msgid "Delete all of your submissions now?"
+msgstr "Ma tirtirtaa hadda dhammaan gudbinnadaada?"
+
+msgid "Delete my work now"
+msgstr "Hadda tirtir shaqadayda"
+
+msgid "My submissions"
+msgstr "Gudbinnadayda"
+
 msgid "When"
 msgstr "Goorma"
 
-msgid "Student"
-msgstr "Arday"
+msgid "Module"
+msgstr "Module"
 
 msgid "Material"
 msgstr "Qalab"
 
-msgid "Review submissions"
-msgstr "Eeg gudbinnada"
+msgid "File"
+msgstr "File"
 
 msgid "Download"
 msgstr "Soo dejiso"
 
+msgid "No submissions stored yet."
+msgstr "Weli lama kaydin gudbin."
+
+msgid "Storage location: this server is hosted locally by your school or organization."
+msgstr "Goobta kaydinta: server-kan waxaa deegaanka ku martigelisa dugsigaaga ama ururkaaga."
+
+msgid "No tracking. No ads. No data broker sharing."
+msgstr "Ma jiro raadraac. Ma jiro xayeysiis. Lama wadaago dilaaliinta xogta."
+
+msgid "Stored submissions for %(student_name)s"
+msgstr "Gudbinnada la kaydiyay ee %(student_name)s"
+
+msgid "Filters"
+msgstr "Shaandheeyayaal"
+
+msgid "Available"
+msgstr "Available"
+
+msgid "%(display_name)s Portfolio"
+msgstr "%(display_name)s Portfolio"
+
+msgid "%(display_name)s Portfolio Export"
+msgstr "Dhoofinta Portfolio-ga %(display_name)s"
+
+msgid "Class: %(classroom_name)s"
+msgstr "Fasal: %(classroom_name)s"
+
+msgid "Generated: %(generated_at)s"
+msgstr "La sameeyay: %(generated_at)s"
+
+msgid "Submissions: %(included_count)s included / %(submission_count)s total"
+msgstr "Gudbinnada: %(included_count)s ku jira / %(submission_count)s wadarta"
+
+msgid "Submission export rows for %(display_name)s"
+msgstr "Safafka dhoofinta gudbinta ee %(display_name)s"
+
+msgid "Original file"
+msgstr "Faylka asalka ah"
+
+msgid "Archive path"
+msgstr "Wadada kaydka"
+
+msgid "Status"
+msgstr "Xaalad"
+
+msgid "Note"
+msgstr "Qoraal"
+
+msgid "Included"
+msgstr "Ku jira"
+
+msgid "Missing source file"
+msgstr "Faylka asalka ah maqan"
+
 msgid "No submissions yet."
 msgstr "Wali gudbin ma jiro."
+
+msgid "Privacy Information"
+msgstr "Macluumaadka Asturnaanta"
+
+msgid "How we handle your data on"
+msgstr "Sida aan u maamulno xogtaada"
+
+msgid "1. What data is collected"
+msgstr "1. Xogtee la ururiyaa"
+
+msgid "We design this platform to collect as little about you as possible."
+msgstr "Waxaan u naqshadeynaa madalkan inuu ururiyo xogtaada inta ugu yar ee suurtagalka ah."
+
+msgid "Don't upload sensitive documents"
+msgstr "Don't upload sensitive documents"
+
+msgid "2. How to export or delete your work"
+msgstr "2. Sida loo dhoofiyo ama loo tirtiro shaqadaada"
+
+msgid "You own your artifacts. While in an active session, you can export or delete your files at any time."
+msgstr "Adiga ayaa leh farshaxannadaada. Intaad ku jirto fadhi firfircoon, waad dhoofin kartaa ama tirtiri kartaa faylashaada wakhti kasta."
+
+msgid "3. What gets deleted and when"
+msgstr "3. Maxaa la tirtiraa iyo goorma"
+
+msgid "We don't hold on to your data forever."
+msgstr "Xogtaada weligeen ma hayno."
+
+msgid "Lessons"
+msgstr "Lessons"
+
+msgid "Back to join"
+msgstr "Back to join"
