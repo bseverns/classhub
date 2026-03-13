@@ -42,6 +42,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Teacher account endpoints split seam](#teacher-account-endpoints-split-seam)
 - [Teacher home context split seam](#teacher-home-context-split-seam)
 - [Teacher SSO endpoint split seam](#teacher-sso-endpoint-split-seam)
+- [Teacher landing update helper seam](#teacher-landing-update-helper-seam)
 - [Teacher RBAC endpoint split seam II](#teacher-rbac-endpoint-split-seam-ii)
 - [Teacher RBAC helper split seam](#teacher-rbac-helper-split-seam)
 - [Teacher roster code/reorder helper seam](#teacher-roster-codereorder-helper-seam)
@@ -3381,6 +3382,16 @@ Execution ownership and gates:
 **Why this remains active:**
 - Reduces cognitive load in teacher SSO endpoint code without changing route behavior.
 - Keeps provider/state primitives separate from Google flow orchestration while preserving test seam stability.
+
+## Teacher landing update helper seam (2026-03-12)
+
+**Current decision:**
+- Keep `services/classhub/hub/views/teacher_parts/roster_landing.py::teach_update_class_landing` under the dense function threshold by extracting request parsing, redirect composition, save, and audit helpers within the module.
+- Do not add a new exception in `scripts/view_function_budgets.json` for this endpoint while the logic still fits a small local helper seam.
+
+**Why this remains active:**
+- Preserves the teacher landing-page update behavior and route wiring without growing the view budget ledger.
+- Keeps this endpoint inspectable and treats budget pressure as a refactor signal first.
 
 ## Teacher portal test pruning: split org-access/RBAC suite from main portal tests (2026-03-12)
 

@@ -1,5 +1,7 @@
 """Teacher class landing page configuration endpoints."""
 
+from dataclasses import dataclass
+
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 
@@ -8,6 +10,14 @@ from ...services.content_links import parse_course_lesson_url
 from ...services.content_links import safe_external_url
 from .shared_auth import staff_can_manage_policy, staff_classroom_or_none, staff_member_required
 from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
+
+
+@dataclass(frozen=True)
+class _LandingUpdate:
+    title: str
+    message: str
+    hero_url: str
+    default_module: Module | None
 
 
 def _normalize_class_landing_hero_url(raw: str) -> tuple[str, str]:
@@ -52,18 +62,22 @@ def _normalize_landing_default_module_id(*, classroom, raw: str) -> tuple[Module
     return module, ""
 
 
-@staff_member_required
-@require_POST
-def teach_update_class_landing(request, class_id: int):
-    classroom = staff_classroom_or_none(request.user, class_id)
-    if not classroom:
-        return HttpResponse("Not found", status=404)
-    if not staff_can_manage_policy(request.user, classroom):
-        return HttpResponse("Forbidden", status=403)
+def _landing_redirect(request, *, classroom, notice: str = "", error: str = ""):
+    class_path = _teach_class_path(classroom.id)
+    return _safe_internal_redirect(
+        request,
+        _with_notice(class_path, notice=notice, error=error),
+        fallback=class_path,
+    )
 
+
+def _parse_landing_update(request, *, classroom) -> tuple[_LandingUpdate | None, str]:
     landing_title = (request.POST.get("student_landing_title") or "").strip()[:200]
     landing_message = (request.POST.get("student_landing_message") or "").strip()[:4000]
     landing_hero_url, hero_error = _normalize_class_landing_hero_url(request.POST.get("student_landing_hero_url"))
+    if hero_error:
+        return None, hero_error
+
     raw_default_module_id = request.POST.get("student_landing_default_module_id")
     if raw_default_module_id is None:
         default_module = classroom.student_landing_default_module
@@ -73,23 +87,22 @@ def teach_update_class_landing(request, class_id: int):
             classroom=classroom,
             raw=raw_default_module_id,
         )
-    if hero_error:
-        return _safe_internal_redirect(
-            request,
-            _with_notice(_teach_class_path(classroom.id), error=hero_error),
-            fallback=_teach_class_path(classroom.id),
-        )
     if default_module_error:
-        return _safe_internal_redirect(
-            request,
-            _with_notice(_teach_class_path(classroom.id), error=default_module_error),
-            fallback=_teach_class_path(classroom.id),
-        )
+        return None, default_module_error
 
-    classroom.student_landing_title = landing_title
-    classroom.student_landing_message = landing_message
-    classroom.student_landing_hero_url = landing_hero_url
-    classroom.student_landing_default_module = default_module
+    return _LandingUpdate(
+        title=landing_title,
+        message=landing_message,
+        hero_url=landing_hero_url,
+        default_module=default_module,
+    ), ""
+
+
+def _save_landing_update(*, classroom, update: _LandingUpdate) -> None:
+    classroom.student_landing_title = update.title
+    classroom.student_landing_message = update.message
+    classroom.student_landing_hero_url = update.hero_url
+    classroom.student_landing_default_module = update.default_module
     classroom.save(
         update_fields=[
             "student_landing_title",
@@ -98,6 +111,9 @@ def teach_update_class_landing(request, class_id: int):
             "student_landing_default_module",
         ]
     )
+
+
+def _audit_landing_update(*, request, classroom, update: _LandingUpdate) -> None:
     _audit(
         request,
         action="class.update_student_landing",
@@ -106,17 +122,31 @@ def teach_update_class_landing(request, class_id: int):
         target_id=str(classroom.id),
         summary=f"Updated student landing page for {classroom.name}",
         metadata={
-            "has_title": bool(landing_title),
-            "has_message": bool(landing_message),
-            "has_hero_url": bool(landing_hero_url),
-            "default_module_id": default_module.id if default_module else None,
+            "has_title": bool(update.title),
+            "has_message": bool(update.message),
+            "has_hero_url": bool(update.hero_url),
+            "default_module_id": update.default_module.id if update.default_module else None,
         },
     )
-    return _safe_internal_redirect(
-        request,
-        _with_notice(_teach_class_path(classroom.id), notice="Student landing page updated."),
-        fallback=_teach_class_path(classroom.id),
-    )
+
+
+@staff_member_required
+@require_POST
+def teach_update_class_landing(request, class_id: int):
+    classroom = staff_classroom_or_none(request.user, class_id)
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+    if not staff_can_manage_policy(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
+
+    update, error = _parse_landing_update(request, classroom=classroom)
+    if error:
+        return _landing_redirect(request, classroom=classroom, error=error)
+
+    assert update is not None
+    _save_landing_update(classroom=classroom, update=update)
+    _audit_landing_update(request=request, classroom=classroom, update=update)
+    return _landing_redirect(request, classroom=classroom, notice="Student landing page updated.")
 
 
 __all__ = ["teach_update_class_landing"]
