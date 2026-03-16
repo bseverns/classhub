@@ -116,6 +116,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Outcomes and certificate semantics contract](#outcomes-and-certificate-semantics-contract)
 - [Automated retention maintenance](#automated-retention-maintenance)
 - [Release verdict: 2026-02-21 hardening/polish push](#release-verdict-2026-02-21-hardeningpolish-push)
+- [Test gap triage policy](#test-gap-triage-policy)
+- [Performance triage policy](#performance-triage-policy)
 
 ## Archive Index
 
@@ -138,6 +140,30 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Keeps the release record honest about what is truly green vs what is environment configuration debt.
 - Preserves an auditable boundary between product regressions and operator prerequisites.
+
+## Test gap triage policy
+
+**Current decision:**
+- Treat analyzer-reported "missing tests" findings as triage input, not automatic work.
+- First confirm whether coverage already exists in adjacent integration/service tests.
+- Add new tests only for uncovered behavior branches or for pure helper logic that materially improves regression detection.
+
+**Why this remains active:**
+- Prevents duplicate low-signal tests when the behavior is already covered elsewhere.
+- Keeps test additions focused on real risk: boundary conditions, fallback behavior, and append-only/retention guards.
+
+## Performance triage policy
+
+**Current decision:**
+- Take bounded micro-optimizations when they are low-risk and local:
+  - use set-backed membership for deduping untrusted lists,
+  - cache repeated manifest loads within a single resolution pass,
+  - prefer retry-on-constraint for token allocation over preflight existence checks.
+- Do not rewrite bounded loops that intentionally preserve per-target error handling or cross-database behavior unless profiling shows real pressure.
+
+**Why this remains active:**
+- Keeps the codebase responsive to easy wins without obscuring correctness-focused control flow.
+- Avoids churn from analyzer suggestions that ignore small bounded loops or backend-split write semantics.
 
 ## Auth model: student access
 

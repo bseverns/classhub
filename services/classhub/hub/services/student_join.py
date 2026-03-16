@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from django.conf import settings
 from django.core import signing
 from django.core.signing import BadSignature, SignatureExpired
+from django.db import IntegrityError
 
 from ..models import Class, StudentIdentity, gen_student_return_code
 
@@ -122,13 +123,14 @@ def device_hint_cookie_max_age_seconds() -> int:
 def create_student_identity(classroom: Class, display_name: str) -> StudentIdentity:
     for _ in range(20):
         code = gen_student_return_code().upper()
-        if StudentIdentity.objects.filter(classroom=classroom, return_code=code).exists():
+        try:
+            return StudentIdentity.objects.create(
+                classroom=classroom,
+                display_name=display_name,
+                return_code=code,
+            )
+        except IntegrityError:
             continue
-        return StudentIdentity.objects.create(
-            classroom=classroom,
-            display_name=display_name,
-            return_code=code,
-        )
     raise RuntimeError("could_not_allocate_unique_student_return_code")
 
 

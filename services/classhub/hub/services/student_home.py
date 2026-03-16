@@ -120,14 +120,16 @@ def build_material_response_map(*, student: StudentIdentity, material_ids: list[
         if row.material_id in by_material:
             continue
         checked_indexes: list[int] = []
+        checked_seen: set[int] = set()
         raw_checked = row.checklist_checked if isinstance(row.checklist_checked, list) else []
         for value in raw_checked:
             try:
                 idx = int(value)
             except Exception:
                 continue
-            if idx < 0 or idx in checked_indexes:
+            if idx < 0 or idx in checked_seen:
                 continue
+            checked_seen.add(idx)
             checked_indexes.append(idx)
         by_material[row.material_id] = {
             "checklist_checked": checked_indexes,

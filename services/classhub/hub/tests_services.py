@@ -2,6 +2,7 @@ import zipfile
 import tempfile
 import urllib.error
 import re
+import subprocess
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
@@ -12,7 +13,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.db import connection
+from django.db import IntegrityError, connection
 from django.http import HttpResponse
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
@@ -21,14 +22,15 @@ from django.utils import timezone
 from common.request_safety import fixed_window_allow, token_bucket_allow
 
 from .middleware import StudentSessionMiddleware
-from .models import Class, ClassStaffAssignment, Material, Module, StudentEvent, StudentIdentity, Submission
+from .models import Class, ClassStaffAssignment, Material, Module, StudentEvent, StudentIdentity, StudentMaterialResponse, Submission
 from .services.markdown_content import (
     load_course_manifest,
     load_lesson_markdown,
     render_markdown_to_safe_html,
     split_lesson_markdown_for_audiences,
 )
-from .services.syllabus_ingest import SyllabusIngestError, _safe_lesson_filename, _safe_zip_path
+from .services.syllabus_ingest_contracts import SyllabusIngestError
+from .services.syllabus_ingest_zip_helpers import _safe_lesson_filename, _safe_zip_path
 from .services.content_links import (
     build_asset_url,
     extract_youtube_id,
@@ -53,6 +55,8 @@ from .services.release_state import (
     lesson_release_state,
     parse_release_date,
 )
+from .services.student_home import build_material_response_map
+from .services.student_join import create_student_identity
 from .services.teacher_roster_class import build_dashboard_context
 from .services.teacher_tracker import (
     _build_class_digest_rows,
@@ -376,6 +380,21 @@ class _CorruptCache:
         raise RuntimeError("cache incr down")
 
 
+class _MemoryCache:
+    def __init__(self):
+        self.values = {}
+
+    def get(self, key):
+        return self.values.get(key)
+
+    def set(self, key, value, timeout=None):
+        self.values[key] = value
+
+    def incr(self, key):
+        self.values[key] = int(self.values[key]) + 1
+        return self.values[key]
+
+
 class RequestSafetyRateLimitResilienceTests(SimpleTestCase):
     def test_fixed_window_allow_fails_open_when_cache_backend_errors(self):
         allowed = fixed_window_allow(
@@ -419,6 +438,34 @@ class RequestSafetyRateLimitResilienceTests(SimpleTestCase):
             )
         self.assertTrue(allowed)
         self.assertTrue(any("coerce_int" in line for line in logs.output))
+
+    def test_fixed_window_allow_enforces_burst_limit(self):
+        cache_backend = _MemoryCache()
+
+        self.assertTrue(
+            fixed_window_allow(
+                "rl:test:key",
+                limit=2,
+                window_seconds=60,
+                cache_backend=cache_backend,
+            )
+        )
+        self.assertTrue(
+            fixed_window_allow(
+                "rl:test:key",
+                limit=2,
+                window_seconds=60,
+                cache_backend=cache_backend,
+            )
+        )
+        self.assertFalse(
+            fixed_window_allow(
+                "rl:test:key",
+                limit=2,
+                window_seconds=60,
+                cache_backend=cache_backend,
+            )
+        )
 
     def test_token_bucket_allow_tolerates_corrupt_cache_state(self):
         cache_backend = _CorruptCache({"tokens": "bad", "last": "bad"})
@@ -581,6 +628,88 @@ class UiDensityModulePrefetchTests(TestCase):
         self.assertEqual(mode, "standard")
         self.assertEqual(len(ctx.captured_queries), 0)
 
+    def test_resolve_ui_density_mode_for_modules_caches_manifest_per_course_slug(self):
+        material_a = SimpleNamespace(type="link", url="/course/demo/lesson-1")
+        material_b = SimpleNamespace(type="link", url="/course/demo/lesson-2")
+        material_c = SimpleNamespace(type="link", url="/course/other/lesson-1")
+        modules = [
+            SimpleNamespace(_prefetched_objects_cache={"materials": [material_a, material_b]}),
+            SimpleNamespace(_prefetched_objects_cache={"materials": [material_c]}),
+        ]
+
+        with patch("hub.services.ui_density.load_course_manifest") as load_manifest:
+            load_manifest.side_effect = [
+                {"ui_level": "elementary"},
+                {"ui_level": "secondary"},
+            ]
+            mode = resolve_ui_density_mode_for_modules(modules=modules, program_profile="advanced")
+
+        self.assertEqual(mode, "compact")
+        self.assertEqual(load_manifest.call_count, 2)
+        self.assertEqual(
+            [call.args[0] for call in load_manifest.call_args_list],
+            ["demo", "other"],
+        )
+
+
+class StudentHomeServiceTests(TestCase):
+    def test_build_material_response_map_deduplicates_checklist_indexes_preserving_order(self):
+        classroom = Class.objects.create(name="Checklist Class", join_code="CHK10001")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        material = Material.objects.create(
+            module=module,
+            title="Checklist",
+            type=Material.TYPE_CHECKLIST,
+            body="- one\n- two\n- three",
+            order_index=0,
+        )
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        StudentMaterialResponse.objects.create(
+            material=material,
+            student=student,
+            checklist_checked=["2", 2, "-1", "bad", 0, "0"],
+            reflection_text="notes",
+            rubric_scores=["4", "bad", 3],
+            rubric_feedback="feedback",
+        )
+
+        result = build_material_response_map(student=student, material_ids=[material.id])
+
+        self.assertEqual(
+            result[material.id]["checklist_checked"],
+            [2, 0],
+        )
+        self.assertEqual(result[material.id]["rubric_scores"], [4, 3])
+
+
+class StudentJoinServiceTests(SimpleTestCase):
+    def test_create_student_identity_retries_after_integrity_error(self):
+        classroom = SimpleNamespace(id=1)
+        created = SimpleNamespace(id=7, return_code="CODE2")
+
+        with patch("hub.services.student_join.gen_student_return_code", side_effect=["code1", "code2"]):
+            with patch(
+                "hub.services.student_join.StudentIdentity.objects.create",
+                side_effect=[IntegrityError("collision"), created],
+            ) as create_mock:
+                result = create_student_identity(classroom, "Ada")
+
+        self.assertIs(result, created)
+        self.assertEqual(create_mock.call_count, 2)
+        self.assertEqual(create_mock.call_args_list[0].kwargs["return_code"], "CODE1")
+        self.assertEqual(create_mock.call_args_list[1].kwargs["return_code"], "CODE2")
+
+    def test_create_student_identity_raises_after_exhausting_retries(self):
+        classroom = SimpleNamespace(id=1)
+
+        with patch("hub.services.student_join.gen_student_return_code", return_value="code1"):
+            with patch(
+                "hub.services.student_join.StudentIdentity.objects.create",
+                side_effect=IntegrityError("collision"),
+            ):
+                with self.assertRaisesMessage(RuntimeError, "could_not_allocate_unique_student_return_code"):
+                    create_student_identity(classroom, "Ada")
+
 
 class TeacherRosterClassServiceTests(SimpleTestCase):
     def test_build_dashboard_context_prefetches_modules_once(self):
@@ -683,6 +812,21 @@ class UploadScanServiceTests(SimpleTestCase):
             run_mock.return_value.stderr = ""
             result = scan_uploaded_file(upload)
         self.assertEqual(result.status, "infected")
+
+    @override_settings(
+        CLASSHUB_UPLOAD_SCAN_ENABLED=True,
+        CLASSHUB_UPLOAD_SCAN_COMMAND="scanner-cli --check",
+        CLASSHUB_UPLOAD_SCAN_TIMEOUT_SECONDS=5,
+    )
+    def test_scan_timeout_returns_scanner_timeout(self):
+        upload = SimpleUploadedFile("project.sb3", b"abc123")
+        with patch(
+            "hub.services.upload_scan.subprocess.run",
+            side_effect=subprocess.TimeoutExpired(cmd="scanner-cli --check", timeout=5),
+        ):
+            result = scan_uploaded_file(upload)
+        self.assertEqual(result.status, "error")
+        self.assertEqual(result.message, "scanner_timeout")
 
 
 class DataLifespanServiceTests(TestCase):

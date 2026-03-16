@@ -130,6 +130,7 @@ def resolve_ui_density_mode(
 
 def resolve_ui_density_mode_for_modules(*, modules: list, program_profile: str) -> str:
     level_counts: Counter[str] = Counter()
+    manifest_cache: dict[str, dict] = {}
 
     for module in modules:
         prefetched = getattr(module, "_prefetched_objects_cache", {}).get("materials")
@@ -144,7 +145,9 @@ def resolve_ui_density_mode_for_modules(*, modules: list, program_profile: str) 
             if not parsed:
                 continue
             course_slug, _lesson_slug = parsed
-            manifest = load_course_manifest(course_slug)
+            if course_slug not in manifest_cache:
+                manifest_cache[course_slug] = load_course_manifest(course_slug)
+            manifest = manifest_cache[course_slug]
             level = _extract_level_from_mapping(manifest)
             if level:
                 level_counts[level] += 1
