@@ -13,6 +13,7 @@ COURSES=(
   "piper_scratch_12_session"
   "scratch_intro_games_code_grade9_6_session"
   "swarm_aesthetics"
+  "energy_electronics_circuits_9_session"
 )
 
 if [[ "${COMPOSE_MODE}" == "prod" ]]; then
