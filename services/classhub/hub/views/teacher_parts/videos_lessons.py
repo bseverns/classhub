@@ -9,6 +9,7 @@ from .shared import (
     _next_lesson_video_order,
     _safe_internal_redirect,
     _title_from_video_filename,
+    _title_from_video_source_url,
     build_asset_url,
     iter_course_lesson_options,
     render,
@@ -99,6 +100,12 @@ def teach_videos(request):
             source_url = (request.POST.get("source_url") or "").strip()
             video_file = request.FILES.get("video_file")
             is_active = (request.POST.get("is_active") or "1").strip() == "1"
+
+            if not title:
+                if source_url:
+                    title = _title_from_video_source_url(source_url)[:200]
+                elif video_file:
+                    title = _title_from_video_filename(getattr(video_file, "name", ""))[:200]
 
             if not title:
                 error = "Title is required."

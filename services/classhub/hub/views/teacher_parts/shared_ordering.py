@@ -2,11 +2,13 @@
 
 import re
 from pathlib import Path
+from urllib.parse import urlparse
 
 from django.db import models
 from django.db.utils import OperationalError, ProgrammingError
 
 from ...models import Class, LessonVideo, gen_class_code
+from ...services.content_links import extract_youtube_id
 
 
 def _title_from_video_filename(filename: str) -> str:
@@ -14,6 +16,23 @@ def _title_from_video_filename(filename: str) -> str:
     stem = re.sub(r"[_-]+", " ", stem)
     stem = re.sub(r"\s+", " ", stem).strip()
     return stem[:200] or "Untitled video"
+
+
+def _title_from_video_source_url(url: str) -> str:
+    raw = (url or "").strip()
+    youtube_id = extract_youtube_id(raw)
+    if youtube_id:
+        return f"YouTube video ({youtube_id})"
+
+    parsed = urlparse(raw)
+    filename = Path(parsed.path or "").name
+    if filename:
+        return _title_from_video_filename(filename)
+
+    host = (parsed.netloc or "").split(":", 1)[0].strip().lower()
+    if host:
+        return f"Video from {host}"[:200]
+    return "Untitled video"
 
 
 def _next_lesson_video_order(course_slug: str, lesson_slug: str) -> int:

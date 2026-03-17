@@ -85,6 +85,7 @@ from .shared_ordering import (
     _next_lesson_video_order,
     _normalize_order,
     _title_from_video_filename,
+    _title_from_video_source_url,
 )
 from .shared_routing import (
     _audit,

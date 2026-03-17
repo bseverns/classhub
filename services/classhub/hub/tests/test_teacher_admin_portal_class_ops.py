@@ -825,8 +825,38 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "/static/css/teach_videos.css")
         self.assertContains(resp, "Lesson Videos")
+        self.assertContains(resp, "Optional: auto-filled from the URL or file name")
         self.assertNotContains(resp, "<style>", html=False)
         self.assertNotContains(resp, 'style="margin:0"', html=False)
+        self.assertNotContains(resp, 'name="title" placeholder="e.g., Save privately: Download to your computer" required', html=False)
+
+    def test_teach_videos_can_add_youtube_url_without_manual_title(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            "/teach/videos",
+            {
+                "action": "add",
+                "course_slug": "energy_electronics_circuits_9_session",
+                "lesson_slug": "s01-energy-is-everywhere",
+                "title": "",
+                "minutes": "2",
+                "outcome": "Hear one beginner-friendly oscillator example.",
+                "source_url": "https://www.youtube.com/watch?v=QixV_Hlh2CM",
+                "is_active": "1",
+            },
+        )
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/videos?", resp["Location"])
+        created = LessonVideo.objects.filter(
+            course_slug="energy_electronics_circuits_9_session",
+            lesson_slug="s01-energy-is-everywhere",
+            source_url="https://www.youtube.com/watch?v=QixV_Hlh2CM",
+        ).first()
+        self.assertIsNotNone(created)
+        self.assertEqual(created.title, "YouTube video (QixV_Hlh2CM)")
+        self.assertTrue(created.is_active)
 
     def test_teach_assets_uses_external_css_without_inline_styles(self):
         _force_login_staff_verified(self.client, self.staff)
