@@ -14,14 +14,14 @@ privacy:
   - "Use class code + display name only."
 videos:
   - id: V01
-    title: "Official littleBits keytar build example"
+    title: "Official littleBits keytar build example: see the sound parts"
     minutes: 1
-    outcome: "See one official littleBits music-build example before students invent their own sound setup."
+    outcome: "Notice which part makes the sound, which part changes it, and which part lets you hear it."
     url: "https://www.youtube.com/watch?v=vovTzeztjBs"
   - id: V02
-    title: "Official littleBits keytar finish/fold example"
+    title: "Official littleBits keytar finish example: hear what changes"
     minutes: 1
-    outcome: "See one more official littleBits music-build step for inspiration and structure."
+    outcome: "Listen for how moving or changing a control affects the sound, even if students do not know synth vocabulary yet."
     url: "https://www.youtube.com/watch?v=SvNbEol5Cs0"
 submission:
   type: file
@@ -51,10 +51,28 @@ helper_allowed_topics:
   - "input and output"
   - "energy starts and ends"
   - "littlebits power on"
+  - "what an oscillator does"
+  - "pitch means higher or lower sound"
   - "test one module at a time"
   - "record a short wav file"
 ---
 **Mission:** Find energy in everyday objects, then build one fast littleBits example that makes a sound you can record as a `.wav` file.
+
+## Before the videos
+- You do not need to know synth words yet.
+- For today, an **oscillator** is the part that makes the sound.
+- **Pitch** means whether the sound feels lower or higher.
+- Watch for only three things:
+  - Which part starts the sound
+  - Which part changes the sound
+  - Which part lets you hear the sound
+
+## Video guide
+- Watch Video 1 and point to the sound-making part.
+- Watch Video 2 and listen for one thing that changes.
+- After each video, answer:
+  - "What part made the sound?"
+  - "What changed when the control moved?"
 
 ## Build
 - Look at three classroom objects and decide where energy starts and what it makes happen.
@@ -63,6 +81,7 @@ helper_allowed_topics:
 
 ## Reflection
 - Finish this sentence: "Energy starts at ___ and makes ___ happen."
+- Finish this sentence: "The oscillator makes the sound, and the control changes the ___."
 - Record one short `.wav` clip of the sound your build makes.
 - Name the file using the class naming pattern before upload.
 
@@ -71,11 +90,16 @@ helper_allowed_topics:
 - Check that every station has a working low-voltage power source.
 - Post the upload naming example where students can see it.
 - Test the Chromebook audio workflow once before class so students can export or save a `.wav` file.
+- Use beginner language before technical language:
+  - oscillator = the part that makes the sound
+  - pitch = lower or higher sound
+  - speaker = the part that lets us hear it
 - Official references:
   - [Sphero littleBits troubleshooting](https://help.sphero.com/sphero-support/littlebits-troubleshooting)
   - [Sphero littleBits apps and support hub](https://sphero.com/pages/apps)
   - [littleBits Synth Kit official product page](https://www.littlebits-jp.com/synth-kit)
   - [KORG SQ-1 FAQ with littleBits Synth Kit connection notes](https://www.korg.com/jp/support/faq/436/)
+  - On the official Synth Kit page, the tutorial sections "Pitch Sweep," "Key Player," and "Random Voltage" are the most useful follow-up references for first-time oscillator play.
 
 ## Materials
 - littleBits music modules
@@ -92,6 +116,7 @@ helper_allowed_topics:
 
 ## Checkpoints
 - Student names one input and one output.
+- Student can say that the oscillator is the sound-making part.
 - Student has one working build.
 - Student uploads one `.wav` artifact.
 
