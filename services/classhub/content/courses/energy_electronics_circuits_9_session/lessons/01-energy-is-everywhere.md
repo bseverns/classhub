@@ -12,6 +12,17 @@ needs:
 privacy:
   - "Record the sound of the build, not student voices unless that is intentional and approved."
   - "Use class code + display name only."
+videos:
+  - id: V01
+    title: "Official littleBits keytar build example"
+    minutes: 1
+    outcome: "See one official littleBits music-build example before students invent their own sound setup."
+    url: "https://www.youtube.com/watch?v=vovTzeztjBs"
+  - id: V02
+    title: "Official littleBits keytar finish/fold example"
+    minutes: 1
+    outcome: "See one more official littleBits music-build step for inspiration and structure."
+    url: "https://www.youtube.com/watch?v=SvNbEol5Cs0"
 submission:
   type: file
   accepted:
@@ -63,7 +74,7 @@ helper_allowed_topics:
 - Official references:
   - [Sphero littleBits troubleshooting](https://help.sphero.com/sphero-support/littlebits-troubleshooting)
   - [Sphero littleBits apps and support hub](https://sphero.com/pages/apps)
-  - [KORG archived littleBits x KORG Synth Kit listing](https://www.korg.com/jp/products/archives/)
+  - [littleBits Synth Kit official product page](https://www.littlebits-jp.com/synth-kit)
   - [KORG SQ-1 FAQ with littleBits Synth Kit connection notes](https://www.korg.com/jp/support/faq/436/)
 
 ## Materials
