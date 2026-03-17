@@ -7,22 +7,19 @@ duration_minutes: 60
 makes: "An energy hunt card and one working littleBits test build."
 needs:
   - "littleBits music modules"
-  - "Chart paper or sticky notes"
-  - "Chromebook for project photo"
+  - "Chromebook audio recorder or voice memo tool"
+  - "Headphones or a quiet recording corner"
 privacy:
-  - "Take photos of the build, not faces."
+  - "Record the sound of the build, not student voices unless that is intentional and approved."
   - "Use class code + display name only."
 submission:
   type: file
   accepted:
-    - .jpg
-    - .jpeg
-    - .png
-    - .pdf
-  naming: "EEC_S01_energy_hunt_v1.jpg"
+    - .wav
+  naming: "EEC_S01_littlebits_sound_v1.wav"
 done_looks_like:
   - "Student identifies an input, an output, and one path energy takes through a build."
-  - "Student captures one clear photo of a working littleBits build."
+  - "Student records one short `.wav` file of the littleBits sound their build produces."
 help:
   quick_fixes:
     - "If nothing happens, check that the power module is connected and switched on."
@@ -44,41 +41,48 @@ helper_allowed_topics:
   - "energy starts and ends"
   - "littlebits power on"
   - "test one module at a time"
-  - "take a clear project photo"
+  - "record a short wav file"
 ---
-**Mission:** Find energy in everyday objects, then build one fast littleBits example that lights up or makes sound.
+**Mission:** Find energy in everyday objects, then build one fast littleBits example that makes a sound you can record as a `.wav` file.
 
 ## Build
 - Look at three classroom objects and decide where energy starts and what it makes happen.
-- Build one simple littleBits chain with a power source and one output.
+- Build one simple littleBits chain with a power source and one sound-making output.
 - Add arrows or labels that show the path from input to output.
 
 ## Reflection
 - Finish this sentence: "Energy starts at ___ and makes ___ happen."
-- Take one photo that clearly shows your working build.
+- Record one short `.wav` clip of the sound your build makes.
+- Name the file using the class naming pattern before upload.
 
 ## Teacher prep
 - Build one sample littleBits chain before class.
 - Check that every station has a working low-voltage power source.
 - Post the upload naming example where students can see it.
+- Test the Chromebook audio workflow once before class so students can export or save a `.wav` file.
+- Official references:
+  - [Sphero littleBits troubleshooting](https://help.sphero.com/sphero-support/littlebits-troubleshooting)
+  - [Sphero littleBits apps and support hub](https://sphero.com/pages/apps)
+  - [KORG archived littleBits x KORG Synth Kit listing](https://www.korg.com/jp/products/archives/)
+  - [KORG SQ-1 FAQ with littleBits Synth Kit connection notes](https://www.korg.com/jp/support/faq/436/)
 
 ## Materials
 - littleBits music modules
-- Chart paper or sticky notes
-- Markers
 - Chromebooks
+- Chromebook audio recorder or voice memo tool
+- Headphones or quiet recording corner
 
 ## Agenda
 - 0-10 min: Launch and energy hunt around the room.
 - 10-20 min: Model input, output, and energy path with one littleBits build.
 - 20-40 min: Student build time.
-- 40-50 min: Label and photograph the working build.
+- 40-50 min: Record the working sound as a `.wav` file.
 - 50-60 min: Share one thing that changed when the build turned on.
 
 ## Checkpoints
 - Student names one input and one output.
 - Student has one working build.
-- Student uploads one clear artifact.
+- Student uploads one `.wav` artifact.
 
 ## Common stuck points + fixes
 - "It is not working."

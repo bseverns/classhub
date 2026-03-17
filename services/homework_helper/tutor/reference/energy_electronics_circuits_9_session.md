@@ -29,7 +29,7 @@
 - Capture one clear project artifact each session.
 
 ## Session progression
-1) Energy hunt plus first littleBits build.  
+1) Energy hunt plus first littleBits sound build and `.wav` recording.  
 2) Inputs and outputs with littleBits.  
 3) Closed-loop circuits.  
 4) Switches and pushbuttons.  
@@ -71,7 +71,8 @@
   - Use one clear trigger and test it the same way more than once.
 
 ## Artifact and privacy rules
-- Students should upload project photos, videos, or short captions only.
+- Session 1 deliverable is a `.wav` recording of the littleBits sound build.
+- Students should upload project audio, photos, videos, or short captions only.
 - Avoid faces, names, and personal details in artifacts.
 - Use chosen display names and classroom workflow only.
 

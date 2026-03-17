@@ -1301,6 +1301,7 @@ Execution ownership and gates:
   - create a coherent session sequence that matches the stated progression,
   - keep artifact capture and helper grounding aligned with the overview rather than inventing advanced scope.
 - The initial `energy_electronics_circuits_9_session` coursepack follows this pattern based on `energy_electronics_circuits_overview_import_ready.md`.
+- For the day-one littleBits session in that coursepack, make the primary deliverable a `.wav` audio artifact and add teacher-facing links to current official Sphero/littleBits and KORG support pages.
 
 **Why this remains active:**
 - Lets operators put a new course into the website quickly when they only have parent/student-facing curriculum docs.
