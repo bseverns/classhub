@@ -1,0 +1,70 @@
+slug: energy_electronics_circuits_9_session
+title: "Energy, Electronics, and Circuits"
+ui_level: elementary
+program_profile: elementary
+grade_band: "Grades 3-5"
+age_band: "Ages 8-11"
+sessions: 9
+default_duration_minutes: 60
+needs:
+  - "littleBits music modules"
+  - "LEGO SPIKE Prime hubs, motors, and sensors"
+  - "LEDs"
+  - "resistors"
+  - "switches and pushbuttons"
+  - "batteries or low-voltage power packs"
+  - "breadboards or snap-circuit parts"
+  - "jumper wires"
+  - "Chromebooks for photos, video, and upload"
+  - "craft materials for simple enclosures and decoration"
+privacy:
+  - "Use class code + display name only; no student email required."
+  - "Record projects, not student faces or personal details."
+  - "Use low-voltage classroom-safe power sources only."
+helper_reference: energy_electronics_circuits_9_session
+lessons:
+  - session: 1
+    slug: s01-energy-is-everywhere
+    title: "Energy Is Everywhere"
+    file: lessons/01-energy-is-everywhere.md
+    helper_reference: energy_electronics_circuits_9_session
+  - session: 2
+    slug: s02-inputs-and-outputs-with-littlebits
+    title: "Inputs and Outputs with littleBits"
+    file: lessons/02-inputs-and-outputs-with-littlebits.md
+    helper_reference: energy_electronics_circuits_9_session
+  - session: 3
+    slug: s03-a-circuit-is-a-loop
+    title: "A Circuit Is a Loop"
+    file: lessons/03-a-circuit-is-a-loop.md
+    helper_reference: energy_electronics_circuits_9_session
+  - session: 4
+    slug: s04-switches-and-pushbuttons
+    title: "Switches and Pushbuttons"
+    file: lessons/04-switches-and-pushbuttons.md
+    helper_reference: energy_electronics_circuits_9_session
+  - session: 5
+    slug: s05-leds-and-resistors
+    title: "LEDs and Resistors"
+    file: lessons/05-leds-and-resistors.md
+    helper_reference: energy_electronics_circuits_9_session
+  - session: 6
+    slug: s06-motors-and-motion
+    title: "Motors and Motion"
+    file: lessons/06-motors-and-motion.md
+    helper_reference: energy_electronics_circuits_9_session
+  - session: 7
+    slug: s07-spike-prime-first-build
+    title: "SPIKE Prime First Build"
+    file: lessons/07-spike-prime-first-build.md
+    helper_reference: energy_electronics_circuits_9_session
+  - session: 8
+    slug: s08-sensors-make-it-react
+    title: "Sensors Make It React"
+    file: lessons/08-sensors-make-it-react.md
+    helper_reference: energy_electronics_circuits_9_session
+  - session: 9
+    slug: s09-showcase-build-record-explain
+    title: "Showcase: Build, Record, Explain"
+    file: lessons/09-showcase-build-record-explain.md
+    helper_reference: energy_electronics_circuits_9_session

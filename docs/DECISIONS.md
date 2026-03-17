@@ -78,6 +78,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper conversation memory](#helper-conversation-memory)
 - [Helper conversation compaction + class reset control](#helper-conversation-compaction-and-class-reset-control)
 - [Coursepack validation gate](#coursepack-validation-gate)
+- [Overview-derived coursepack scaffolds](#overview-derived-coursepack-scaffolds)
 - [Coursepack authoring SDK and registry path](#coursepack-authoring-sdk-and-registry-path)
 - [Redirect target validation](#redirect-target-validation)
 - [Lesson file path containment](#lesson-file-path-containment)
@@ -1290,6 +1291,20 @@ Execution ownership and gates:
 **Why this remains active:**
 - Prevents avoidable runtime lesson failures caused by malformed manifests, missing lesson files, or broken front matter.
 - Keeps content-as-code reliable by enforcing basic schema and file-boundary expectations in both operator preflight and CI.
+
+## Overview-derived coursepack scaffolds
+
+**Current decision:**
+- When only an overview/public syllabus exists, ship a repo-backed draft coursepack instead of blocking on full teacher-plan documents.
+- Mark the structure implicitly through lesson content and documentation as overview-derived scaffolding:
+  - preserve source metadata such as title, grade band, age band, duration, materials, and privacy posture,
+  - create a coherent session sequence that matches the stated progression,
+  - keep artifact capture and helper grounding aligned with the overview rather than inventing advanced scope.
+- The initial `energy_electronics_circuits_9_session` coursepack follows this pattern based on `energy_electronics_circuits_overview_import_ready.md`.
+
+**Why this remains active:**
+- Lets operators put a new course into the website quickly when they only have parent/student-facing curriculum docs.
+- Keeps the draft honest about its source fidelity while still producing usable lesson routes, importable modules, and helper context.
 
 ## Coursepack authoring SDK and registry path
 
