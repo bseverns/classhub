@@ -858,6 +858,24 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertEqual(created.title, "YouTube video (QixV_Hlh2CM)")
         self.assertTrue(created.is_active)
 
+    def test_course_lesson_renders_teacher_added_published_youtube_video(self):
+        _force_login_staff_verified(self.client, self.staff)
+        LessonVideo.objects.create(
+            course_slug="energy_electronics_circuits_9_session",
+            lesson_slug="s01-energy-is-everywhere",
+            title="YouTube video (QixV_Hlh2CM)",
+            source_url="https://www.youtube.com/watch?v=QixV_Hlh2CM",
+            is_active=True,
+        )
+
+        resp = self.client.get("/course/energy_electronics_circuits_9_session/s01-energy-is-everywhere")
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Lesson videos")
+        self.assertContains(resp, "YouTube video (QixV_Hlh2CM)")
+        self.assertContains(resp, "https://www.youtube.com/watch?v=QixV_Hlh2CM")
+        self.assertContains(resp, "https://www.youtube-nocookie.com/embed/QixV_Hlh2CM")
+
     def test_teach_assets_uses_external_css_without_inline_styles(self):
         _force_login_staff_verified(self.client, self.staff)
 
