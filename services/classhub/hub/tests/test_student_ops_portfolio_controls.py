@@ -332,6 +332,7 @@ class StudentDataControlsTests(TestCase):
 class OperatorProfileTemplateTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Operator Profile Class", join_code="OPR12345")
+        self.module = Module.objects.create(classroom=self.classroom, title="Session 1", order_index=0)
         self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
 
     def _login_student(self):

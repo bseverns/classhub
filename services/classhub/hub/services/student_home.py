@@ -6,8 +6,14 @@ from datetime import timedelta
 from django.conf import settings
 from django.utils import timezone
 
-from ..models import Class, Material, Module, StudentIdentity, StudentMaterialResponse, Submission
-from .content_links import build_asset_url, parse_course_lesson_url, parse_lesson_asset_download_url, safe_external_url
+from ..models import Class, LessonAsset, Material, Module, StudentIdentity, StudentMaterialResponse, Submission
+from .content_links import (
+    build_asset_url,
+    is_supported_image_filename,
+    parse_course_lesson_url,
+    parse_lesson_asset_download_url,
+    safe_external_url,
+)
 from .markdown_content import load_course_manifest, load_lesson_markdown
 from .peer_feedback import resolve_peer_feedback_starters
 from .retention_policy import class_event_retention_days, class_submission_retention_days
@@ -221,6 +227,47 @@ def build_gallery_entries_map(
             }
         )
     return by_material
+
+
+def build_image_asset_preview_map(*, modules: list[Module]) -> dict[int, dict]:
+    by_material: dict[int, int] = {}
+    asset_ids: list[int] = []
+    for module in modules:
+        for material in module.materials.all():
+            if material.type != Material.TYPE_LINK:
+                continue
+            asset_id = parse_lesson_asset_download_url(material.url)
+            if not asset_id:
+                continue
+            by_material[material.id] = asset_id
+            asset_ids.append(asset_id)
+    if not asset_ids:
+        return {}
+
+    assets = {
+        asset.id: asset
+        for asset in LessonAsset.objects.filter(id__in=asset_ids).only(
+            "id",
+            "title",
+            "description",
+            "original_filename",
+            "file",
+        )
+    }
+    preview_map: dict[int, dict] = {}
+    for material_id, asset_id in by_material.items():
+        asset = assets.get(asset_id)
+        if asset is None:
+            continue
+        filename = asset.original_filename or getattr(asset.file, "name", "")
+        if not is_supported_image_filename(filename):
+            continue
+        preview_map[material_id] = {
+            "src": build_asset_url(f"/lesson-asset/{asset.id}/download"),
+            "title": asset.title,
+            "description": asset.description or "",
+        }
+    return preview_map
 
 
 def build_material_access_map(request, *, classroom: Class, modules: list[Module]) -> tuple[list[int], dict[int, dict]]:
