@@ -121,6 +121,14 @@ Deliverables:
 
 Command checklist (monthly minimum):
 
+- Weekly backup check:
+  - `bash scripts/restore_rehearsal_evidence.sh --compose-mode prod --out-dir artifacts/stability/<date>`
+  - review:
+    - `restore_rehearsal.log`
+    - `restore_rehearsal_metrics.json`
+    - `restore_rehearsal_summary.md`
+    - `backups/checksums.sha256`
+  - treat the run as failed if fresh backup artifacts are missing or `RTO`/`RPO` thresholds are exceeded
 - `bash scripts/retention_maintenance.sh --dry-run`
 - `bash scripts/retention_health_snapshot.sh --compose-mode prod --out artifacts/stability/<date>/retention_health.log`
 - `bash scripts/restore_rehearsal_evidence.sh --compose-mode prod --out-dir artifacts/stability/<date>`
@@ -215,6 +223,7 @@ Deliverables:
 
 Required recurring commands:
 
+- Weekly: `bash scripts/restore_rehearsal_evidence.sh --compose-mode prod --out-dir artifacts/stability/<date>`
 - Monthly: `bash scripts/system_doctor.sh --compose-mode prod --smoke-mode golden`
 - Monthly: `bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact critical`
 - Quarterly: `bash scripts/restore_rehearsal_evidence.sh --compose-mode prod --out-dir artifacts/stability/<date>`
