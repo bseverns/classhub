@@ -62,11 +62,17 @@ FILE_CONTRACTS: dict[str, dict] = {
     "services/classhub/hub/tests/test_teacher_admin_portal_class_ops.py": {
         "required_tests": (
             "test_teach_class_shows_facilitator_support_board",
-            "test_teacher_can_moderate_gallery_submission",
             "test_teacher_can_resolve_delete_request",
             "test_teacher_can_merge_students",
         ),
-        "tokens": ("TeacherPortalClassOpsTests", "/teach/material/", "/teach/module/"),
+        "tokens": ("TeacherPortalClassOpsTests", "/teach/material/"),
+    },
+    "services/classhub/hub/tests/test_teacher_admin_portal_module_ops.py": {
+        "required_tests": (
+            "test_teach_module_can_add_image_material_from_upload",
+            "test_teacher_can_moderate_gallery_submission",
+        ),
+        "tokens": ("TeacherPortalModuleOpsTests", "/teach/material/", "/teach/module/"),
     },
     "services/classhub/hub/tests/test_teacher_admin_portal_class_content_admin_ops.py": {
         "required_tests": (
