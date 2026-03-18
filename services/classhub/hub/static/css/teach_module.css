@@ -30,6 +30,21 @@ summary {
 .material-link-row {
   margin-top: 8px;
 }
+.material-image-card {
+  margin-top: 10px;
+}
+.material-image-preview {
+  display: block;
+  width: min(100%, 520px);
+  max-height: 360px;
+  object-fit: contain;
+  border-radius: 14px;
+  border: 1px solid rgba(22, 59, 80, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+}
+.material-image-caption {
+  margin-top: 8px;
+}
 .material-text-preview {
   margin-top: 10px;
 }

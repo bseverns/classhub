@@ -105,6 +105,18 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertNotContains(resp, "Classroom focus")
         self.assertNotContains(resp, "Recent submissions")
 
+    def test_teach_home_setup_mode_surfaces_class_workspace_seed_fields(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach?portal_mode=setup")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Create a class workspace")
+        self.assertContains(resp, 'name="student_landing_title"', html=False)
+        self.assertContains(resp, 'name="student_landing_message"', html=False)
+        self.assertContains(resp, 'name="first_module_title"', html=False)
+        self.assertContains(resp, 'name="open_after_create"', html=False)
+        self.assertContains(resp, "Create class workspace")
+
     def test_teach_home_admin_mode_shows_operator_snapshot_and_org_controls(self):
         _force_login_staff_verified(self.client, self.staff)
 
@@ -310,6 +322,30 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertNotContains(resp, "<style>", html=False)
         self.assertNotContains(resp, "onclick=\"window.print()\"", html=False)
         self.assertNotContains(resp, "Copied class code.", html=False)
+
+    def test_teach_create_class_can_seed_workspace_and_redirect_into_it(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            "/teach/create-class",
+            {
+                "name": "Workspace Cohort",
+                "student_landing_title": "Week 1 kickoff",
+                "student_landing_message": "Start with the warm-up, then open Session 1.",
+                "first_module_title": "Session 1 - Warm-up + Build",
+                "open_after_create": "1",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        created = Class.objects.filter(name="Workspace Cohort").order_by("-id").first()
+        self.assertIsNotNone(created)
+        self.assertEqual(created.student_landing_title, "Week 1 kickoff")
+        self.assertEqual(created.student_landing_message, "Start with the warm-up, then open Session 1.")
+        self.assertIn(f"/teach/class/{created.id}", resp["Location"])
+        self.assertIn("notice=", resp["Location"])
+        module = Module.objects.filter(classroom=created).order_by("order_index", "id").first()
+        self.assertIsNotNone(module)
+        self.assertEqual(module.title, "Session 1 - Warm-up + Build")
 
     def test_teach_class_can_create_student_invite_link(self):
         classroom = Class.objects.create(name="Paid Cohort", join_code="INV12345")
@@ -606,6 +642,21 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, 'id="section-helper-signals"', html=False)
         self.assertContains(resp, 'id="section-module-editor"', html=False)
 
+    def test_teach_class_shows_unified_workspace_controls(self):
+        classroom = Class.objects.create(name="Period Workspace", join_code="WRK12345")
+        Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Unified Class Workspace")
+        self.assertContains(resp, f'action="/teach/class/{classroom.id}/set-enrollment-mode"', html=False)
+        self.assertContains(resp, f'action="/teach/class/{classroom.id}/set-retention-preset"', html=False)
+        self.assertContains(resp, f'action="/teach/class/{classroom.id}/update-landing-page"', html=False)
+        self.assertContains(resp, f'action="/teach/class/{classroom.id}/add-module"', html=False)
+        self.assertContains(resp, "Build today")
+        self.assertContains(resp, "Student access controls")
+
     def test_teach_student_return_code_requires_staff(self):
         classroom = Class.objects.create(name="Period Roster", join_code="MASK1234")
         student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
@@ -650,6 +701,70 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, "/static/css/teach_module.css")
         self.assertNotContains(resp, "<style>", html=False)
         self.assertNotContains(resp, 'style="margin:0"', html=False)
+
+    def test_teach_module_can_add_image_material_from_upload(self):
+        classroom = Class.objects.create(name="Image Module", join_code="IMG12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        Material.objects.create(
+            module=module,
+            title="Session 1 lesson",
+            type=Material.TYPE_LINK,
+            url="/course/piper_scratch_12_session/01-welcome-private-workflow",
+            order_index=0,
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                resp = self.client.post(
+                    f"/teach/module/{module.id}/add-material",
+                    {
+                        "type": Material.TYPE_LINK,
+                        "title": "Mood board",
+                        "asset_description": "Look at the shapes and colors before building.",
+                        "asset_file": SimpleUploadedFile(
+                            "mood-board.png",
+                            b"\x89PNG\r\n\x1a\n\x00\x00\x00\x00",
+                            content_type="image/png",
+                        ),
+                    },
+                )
+
+                self.assertEqual(resp.status_code, 302)
+                created = Material.objects.filter(module=module, title="Mood board").order_by("-id").first()
+                self.assertIsNotNone(created)
+                self.assertTrue((created.url or "").startswith("/lesson-asset/"))
+                asset = LessonAsset.objects.filter(title="Mood board").order_by("-id").first()
+                self.assertIsNotNone(asset)
+                self.assertEqual(asset.description, "Look at the shapes and colors before building.")
+                self.assertEqual(asset.course_slug, "piper_scratch_12_session")
+                self.assertEqual(asset.lesson_slug, "01-welcome-private-workflow")
+
+    def test_teach_module_renders_inline_preview_for_image_asset_material(self):
+        classroom = Class.objects.create(name="Image Preview Class", join_code="IMGP1234")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        folder = LessonAssetFolder.objects.create(path="lesson-images")
+        asset = LessonAsset.objects.create(
+            folder=folder,
+            title="Storyboard image",
+            description="Notice the colors and layout.",
+            original_filename="storyboard.png",
+            file=SimpleUploadedFile("storyboard.png", b"\x89PNG\r\n\x1a\n\x00\x00\x00\x00", content_type="image/png"),
+        )
+        Material.objects.create(
+            module=module,
+            title="Storyboard image",
+            type=Material.TYPE_LINK,
+            url=f"/lesson-asset/{asset.id}/download",
+            order_index=0,
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/module/{module.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, f'/lesson-asset/{asset.id}/download')
+        self.assertContains(resp, 'class="material-image-preview"', html=False)
+        self.assertContains(resp, "Notice the colors and layout.")
 
     def test_teach_module_can_add_checklist_material(self):
         classroom = Class.objects.create(name="Checklist Class", join_code="CHK12345")

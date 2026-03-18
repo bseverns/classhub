@@ -201,6 +201,18 @@
 .text-material-preview {
   margin-top: 8px;
 }
+.mat-image-wrap {
+  margin-top: 10px;
+}
+.mat-image {
+  display: block;
+  width: min(100%, 560px);
+  max-height: 380px;
+  object-fit: contain;
+  border-radius: 16px;
+  border: 1px solid rgba(16, 37, 58, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+}
 .checklist-form,
 .reflection-form {
   margin-top: 8px;

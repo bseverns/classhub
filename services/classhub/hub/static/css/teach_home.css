@@ -252,6 +252,19 @@
 .create-class-name-wrap {
   max-width: 520px;
 }
+.create-class-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 12px;
+}
+.create-class-message-wrap {
+  margin-top: 12px;
+  max-width: 760px;
+}
+.create-class-message-wrap textarea {
+  min-height: 104px;
+}
 .teacher-invite-checkbox-wrap {
   display: flex;
   align-items: flex-end;

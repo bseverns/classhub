@@ -89,6 +89,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Syllabus export access and backups](#syllabus-export-access-and-backups)
 - [Teacher UI comfort mode](#teacher-ui-comfort-mode)
 - [Teacher portal complexity budget](#teacher-portal-complexity-budget)
+- [Teacher unified class workspace](#teacher-unified-class-workspace)
+- [Teacher inline lesson images](#teacher-inline-lesson-images)
 - [Helper scope signing](#helper-scope-signing)
 - [Helper event ingestion boundary](#helper-event-ingestion-boundary)
 - [Edge block for internal endpoints](#edge-block-for-internal-endpoints)
@@ -1496,6 +1498,36 @@ Execution ownership and gates:
 **Why this remains active:**
 - Keeps the primary staff interface from expanding faster than support/training capacity.
 - Reduces regression risk in dense teacher surfaces where many workflows converge.
+
+## Teacher unified class workspace
+
+**Current decision:**
+- Keep `/teach/class/<id>` as the primary teacher workspace for day-of-class operations.
+- Put the most common teacher actions together at the top of the class page:
+  - student access controls,
+  - student landing-page edits,
+  - session/module creation,
+  - fast links to lesson tracker, support board, and outcomes.
+- Allow `/teach/create-class` to optionally seed the first session/module and redirect directly into the new class workspace.
+- Keep deeper setup panels (`invite links`, `roster`, `full module editor`, `support`, `outcomes`) intact below the workspace instead of creating a second management surface.
+
+**Why this remains active:**
+- Reduces click-chasing across `/teach`, `/teach/class/*`, and `/teach/module/*` for the daily teacher loop.
+- Improves reliability by making the default path one obvious workspace instead of several partially overlapping entry points.
+- Stays within the existing portal-complexity budget by reordering and grouping existing capabilities rather than inventing new workflow primitives.
+
+## Teacher inline lesson images
+
+**Current decision:**
+- Let teachers add photos/images directly from the module editor in one step, without making them detour through `/teach/assets` first.
+- Store those uploads in the existing `LessonAsset` library and attach them to lessons as asset-backed link materials.
+- Render uploaded lesson images inline on both the teacher module page and the student class page.
+- Keep image formats constrained to inline-safe raster formats (`png`, `jpg`, `jpeg`, `gif`, `webp`).
+
+**Why this remains active:**
+- Reduces authoring friction for visual supports in day-to-day teaching.
+- Reuses the existing lesson-asset permission and storage path instead of creating a second media workflow.
+- Makes student-facing lesson surfaces feel less text-heavy and less intimidating for younger or more visual learners.
 
 ## Helper scope signing
 

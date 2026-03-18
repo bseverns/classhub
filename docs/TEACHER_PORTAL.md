@@ -461,6 +461,10 @@ Use `/teach/assets` when a lesson needs reference files (for example GPIO maps o
    - `[GPIO map](/lesson-asset/<asset_id>/download)`
 5. Use `Hide` to remove student access without deleting the file.
 
+Fast path for visual lessons:
+- On `/teach/module/<id>`, use `Add a photo or image` to upload an image and place it in the session immediately.
+- This uses the same lesson-asset library underneath, but removes the upload-copy-paste loop for day-of-class visuals.
+
 ## Troubleshooting
 
 - Invite emails not sending from `/teach`:

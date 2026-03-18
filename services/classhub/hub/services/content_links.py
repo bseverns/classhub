@@ -22,6 +22,7 @@ _YOUTUBE_ID_ALLOWED = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0
 _COURSE_LESSON_PATH_RE = re.compile(
     r"^/course/(?P<course_slug>[-a-zA-Z0-9_]+)/(?P<lesson_slug>[-a-zA-Z0-9_]+)$"
 )
+_LESSON_ASSET_PATH_RE = re.compile(r"^/lesson-asset/(?P<asset_id>\d+)/download/?$")
 _VIDEO_EXTENSIONS = {
     ".m3u8",
     ".mp4",
@@ -30,6 +31,13 @@ _VIDEO_EXTENSIONS = {
     ".webm",
     ".ogg",
     ".ogv",
+}
+_IMAGE_EXTENSIONS = {
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".webp",
 }
 
 
@@ -136,6 +144,29 @@ def parse_course_lesson_url(url: str) -> tuple[str, str] | None:
     if not match:
         return None
     return (match.group("course_slug"), match.group("lesson_slug"))
+
+
+def parse_lesson_asset_download_url(url: str) -> int:
+    if not url:
+        return 0
+    raw = (url or "").strip()
+    if not raw:
+        return 0
+    parsed = urlparse(raw)
+    path = parsed.path if (parsed.scheme or parsed.netloc) else raw
+    path = (path or "").rstrip("/") or "/"
+    match = _LESSON_ASSET_PATH_RE.fullmatch(path)
+    if not match:
+        return 0
+    try:
+        return int(match.group("asset_id") or 0)
+    except Exception:
+        return 0
+
+
+def is_supported_image_filename(name: str) -> bool:
+    suffix = Path((name or "").strip()).suffix.lower()
+    return suffix in _IMAGE_EXTENSIONS
 
 
 def normalize_lesson_videos(front_matter: dict) -> list[dict]:

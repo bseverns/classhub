@@ -1,4 +1,4 @@
-{% load static %}
+{% load static hub_extras %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -71,7 +71,19 @@
                 </div>
 
                 {% if mat.type == 'link' and mat.url %}
-                  <div class="muted material-link-row"><a href="{{ mat.url }}" target="_blank" rel="noopener">{{ mat.url }}</a></div>
+                  {% with image_asset=image_assets_by_material|get_item:mat.id %}
+                  {% if image_asset %}
+                    <div class="material-image-card">
+                      <img src="{{ image_asset.src }}" alt="{{ mat.title }}" class="material-image-preview" loading="lazy" />
+                      {% if image_asset.description %}
+                        <p class="muted material-image-caption">{{ image_asset.description }}</p>
+                      {% endif %}
+                      <div class="muted material-link-row"><a href="{{ image_asset.src }}" target="_blank" rel="noopener">Open full image</a></div>
+                    </div>
+                  {% else %}
+                    <div class="muted material-link-row"><a href="{{ mat.url }}" target="_blank" rel="noopener">{{ mat.url }}</a></div>
+                  {% endif %}
+                  {% endwith %}
                 {% elif mat.type == 'text' and mat.body %}
                   <pre class="material-text-preview">{{ mat.body|truncatechars:800 }}</pre>
                 {% elif mat.type == 'upload' %}
@@ -106,6 +118,22 @@
               <label for="link-url" class="stacked-label">URL</label>
               <input id="link-url" name="url" placeholder="https://…" />
               <button type="submit" class="submit-spaced">Add link</button>
+            </form>
+          </details>
+
+          <details open>
+            <summary>Add a photo or image</summary>
+            <form method="post" action="/teach/module/{{ module.id }}/add-material" class="material-form" enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="hidden" name="type" value="link" />
+              <label for="image-title">Title</label>
+              <input id="image-title" name="title" placeholder="e.g., Inspiration board" />
+              <label for="image-description" class="stacked-label">Caption (optional)</label>
+              <textarea id="image-description" name="asset_description" placeholder="Short note about what students should notice."></textarea>
+              <label for="image-file" class="stacked-label">Image file</label>
+              <input id="image-file" name="asset_file" type="file" accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp" required />
+              <div class="muted material-upload-meta">Uploads to the lesson asset library and places the image into this session in one step.</div>
+              <button type="submit" class="submit-spaced">Add image</button>
             </form>
           </details>
 

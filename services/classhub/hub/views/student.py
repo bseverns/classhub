@@ -19,6 +19,7 @@ from ..forms import SubmissionUploadForm
 from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
 from ..models import (
     Class,
+    LessonAsset,
     Material,
     StudentEvent,
     StudentIdentity,
@@ -54,6 +55,7 @@ from ..services.submission_service import (
 from ..services.submission_quota import invalidate_classroom_submission_quota_cache
 from ..services.telemetry_events import write_student_event
 from ..services.ui_density import resolve_ui_density_mode_for_modules
+from ..services.content_links import build_asset_url, is_supported_image_filename, parse_lesson_asset_download_url
 from .student_micro_checks import latest_micro_check_state
 
 logger = logging.getLogger(__name__)
@@ -176,6 +178,7 @@ def student_home(request):
         language_code=getattr(request, "LANGUAGE_CODE", "en"),
     )
     gallery_entries_by_material = build_gallery_entries_map(classroom=classroom, viewer_student=request.student, material_ids=material_ids)
+    image_assets_by_material = _build_image_asset_preview_map(modules=modules)
     privacy_meta = privacy_meta_context(classroom=classroom)
     helper_widget = _student_home_helper_widget(
         classroom=classroom,
@@ -202,6 +205,7 @@ def student_home(request):
             "material_responses": material_responses,
             "material_feedback_starters": material_feedback_starters,
             "gallery_entries_by_material": gallery_entries_by_material,
+            "image_assets_by_material": image_assets_by_material,
             "material_access": material_access,
             "class_landing": class_landing,
             "helper_widget": helper_widget,
@@ -213,6 +217,47 @@ def student_home(request):
     )
     apply_no_store(response, private=True, pragma=True)
     return response
+
+
+def _build_image_asset_preview_map(*, modules: list) -> dict[int, dict]:
+    by_material: dict[int, int] = {}
+    asset_ids: list[int] = []
+    for module in modules:
+        for material in module.materials.all():
+            if material.type != Material.TYPE_LINK:
+                continue
+            asset_id = parse_lesson_asset_download_url(material.url)
+            if not asset_id:
+                continue
+            by_material[material.id] = asset_id
+            asset_ids.append(asset_id)
+    if not asset_ids:
+        return {}
+
+    assets = {
+        asset.id: asset
+        for asset in LessonAsset.objects.filter(id__in=asset_ids).only(
+            "id",
+            "title",
+            "description",
+            "original_filename",
+            "file",
+        )
+    }
+    preview_map: dict[int, dict] = {}
+    for material_id, asset_id in by_material.items():
+        asset = assets.get(asset_id)
+        if asset is None:
+            continue
+        filename = asset.original_filename or getattr(asset.file, "name", "")
+        if not is_supported_image_filename(filename):
+            continue
+        preview_map[material_id] = {
+            "src": build_asset_url(f"/lesson-asset/{asset.id}/download"),
+            "title": asset.title,
+            "description": asset.description or "",
+        }
+    return preview_map
 
 
 @require_GET

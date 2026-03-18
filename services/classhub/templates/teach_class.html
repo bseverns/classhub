@@ -29,44 +29,19 @@
             </div>
             <div id="copy-status" class="muted copy-status" role="status" aria-live="polite"></div>
           </div>
-          <div class="btnline">
-            <form method="post" action="/teach/class/{{ classroom.id }}/set-enrollment-mode">
-              {% csrf_token %}
-              <label for="enrollment-mode-select-{{ classroom.id }}" class="visually-hidden">Enrollment mode</label>
-              <select id="enrollment-mode-select-{{ classroom.id }}" name="enrollment_mode">
-                <option value="open" {% if classroom.enrollment_mode == 'open' %}selected{% endif %}>Open</option>
-                <option value="invite_only" {% if classroom.enrollment_mode == 'invite_only' %}selected{% endif %}>Invite only</option>
-                <option value="closed" {% if classroom.enrollment_mode == 'closed' %}selected{% endif %}>Closed</option>
-              </select>
-              <button type="submit">Set enrollment</button>
-            </form>
-            <form method="post" action="/teach/class/{{ classroom.id }}/set-retention-preset">
-              {% csrf_token %}
-              <label for="retention-preset-select-{{ classroom.id }}" class="visually-hidden">Retention preset</label>
-              <select id="retention-preset-select-{{ classroom.id }}" name="retention_preset">
-                <option value="erase_after_7_days" {% if classroom.retention_preset == 'erase_after_7_days' %}selected{% endif %}>Erase after 7 days</option>
-                <option value="keep_for_semester" {% if classroom.retention_preset == 'keep_for_semester' %}selected{% endif %}>Keep for semester</option>
-                <option value="keep_until_student_deletes" {% if classroom.retention_preset == 'keep_until_student_deletes' %}selected{% endif %}>Keep until student deletes</option>
-              </select>
-              <button type="submit">Set retention</button>
-            </form>
-            <form method="post" action="/teach/class/{{ classroom.id }}/toggle-lock" data-confirm="{% if classroom.is_locked %}Unlock class access now? Students can rejoin immediately.{% else %}Lock class access now? New student joins will be blocked until you unlock.{% endif %}">
-              {% csrf_token %}
-              <button type="submit">{% if classroom.is_locked %}Unlock class access{% else %}Lock class access{% endif %}</button>
-            </form>
-            <form method="post" action="/teach/class/{{ classroom.id }}/rotate-code" data-confirm="Rotate class join code now? Existing printed cards and copied codes will stop working.">
-              {% csrf_token %}
-              <button type="submit">Rotate class join code</button>
-            </form>
-            <a href="/teach/class/{{ classroom.id }}/export-outcomes-csv">Export outcomes CSV</a>
-            <a href="/teach/class/{{ classroom.id }}/export-summary-csv">Export summary CSV</a>
+          <div class="btnline btnline--compact">
+            <a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">Join card</a>
+            <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a>
+            <a href="/teach/class/{{ classroom.id }}/export-summary-csv">Summary CSV</a>
           </div>
         </div>
+
+        {% include "includes/teach_class/class_workspace_card.html" %}
 
         <div class="card card-secondary class-focus-card">
           <div class="row">
             <h2 class="section-title-tight">Start Here In This Class</h2>
-            <div class="muted">Use day-of-class actions first, then open deeper setup/policy panels only as needed.</div>
+            <div class="muted">The unified workspace above handles the common path. Use these anchors when you need a deeper panel.</div>
           </div>
           <div class="class-focus-grid">
             <div class="class-focus-column">

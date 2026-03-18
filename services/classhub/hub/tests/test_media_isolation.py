@@ -54,3 +54,24 @@ class MediaIsolationTests(TestCase):
         response = self.client_b.get(f"/lesson-asset/{self.asset.id}/download")
         # Forbidden because class B does NOT have a material link for this asset.
         self.assertEqual(response.status_code, 403)
+
+    def test_blank_tag_asset_uses_material_link_membership(self):
+        unscoped_asset = LessonAsset.objects.create(
+            folder=self.folder,
+            course_slug="",
+            lesson_slug="",
+            title="Reference Image",
+            file=SimpleUploadedFile("reference.png", b"\x89PNG\r\n\x1a\n\x00\x00\x00\x00", content_type="image/png"),
+        )
+        Material.objects.create(
+            module=self.module_a,
+            type=Material.TYPE_LINK,
+            title="Reference Image",
+            url=f"/lesson-asset/{unscoped_asset.id}/download",
+        )
+
+        allowed = self.client_a.get(f"/lesson-asset/{unscoped_asset.id}/download")
+        blocked = self.client_b.get(f"/lesson-asset/{unscoped_asset.id}/download")
+
+        self.assertEqual(allowed.status_code, 200)
+        self.assertEqual(blocked.status_code, 403)

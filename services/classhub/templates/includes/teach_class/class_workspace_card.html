@@ -1,0 +1,152 @@
+        <div class="card card-secondary workspace-card">
+          <div class="row workspace-card-header">
+            <div>
+              <h2 class="section-title-tight">Unified Class Workspace</h2>
+              <div class="muted">Set the student-facing plan, control access, and build today&apos;s session without leaving this page.</div>
+            </div>
+            <div class="workspace-status-list">
+              <span class="workspace-status-pill"><strong>{{ modules|length }}</strong> modules</span>
+              <span class="workspace-status-pill"><strong>{{ student_count }}</strong> students</span>
+              <span class="workspace-status-pill"><strong>{{ landing_lesson_choices|length }}</strong> lesson-ready</span>
+              <span class="workspace-status-pill"><strong>{{ facilitator_support.stuck_count }}</strong> help flags</span>
+            </div>
+          </div>
+
+          <div class="workspace-grid">
+            <section class="workspace-panel">
+              <h3 class="section-title-compact">Run class now</h3>
+              <p class="muted workspace-copy">
+                Keep the operational loop in one place: share access, launch the tracker, and watch support or outcome signals.
+              </p>
+              <div class="workspace-action-list">
+                <a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">Print or share join card</a>
+                <a href="/teach/lessons?class_id={{ classroom.id }}">Open lesson tracker + release controls</a>
+                <a href="#section-support-board">Open facilitator support board</a>
+                <a href="#section-outcomes">Open outcomes snapshot</a>
+              </div>
+              <div class="workspace-summary">
+                {% if classroom.student_landing_title %}
+                  <div><strong>Student landing title:</strong> {{ classroom.student_landing_title }}</div>
+                {% elif classroom.student_landing_default_module %}
+                  <div><strong>Highlighted lesson:</strong> {{ classroom.student_landing_default_module.title }}</div>
+                {% else %}
+                  <div><strong>Student landing:</strong> auto-pick by release dates</div>
+                {% endif %}
+                <div><strong>Helper chats:</strong> {{ helper_signals.total_events }} in the last {{ helper_signals.window_hours }} hours</div>
+                <div><strong>Certificate-ready:</strong> {{ outcome_snapshot.eligible_students }}/{{ outcome_snapshot.total_students }} students</div>
+              </div>
+            </section>
+
+            <section class="workspace-panel">
+              <h3 class="section-title-compact">Student access controls</h3>
+              <div class="workspace-form-stack">
+                <form method="post" action="/teach/class/{{ classroom.id }}/set-enrollment-mode" class="workspace-inline-form">
+                  {% csrf_token %}
+                  <label for="workspace-enrollment-mode-{{ classroom.id }}">Join flow</label>
+                  <div class="workspace-inline-controls">
+                    <select id="workspace-enrollment-mode-{{ classroom.id }}" name="enrollment_mode">
+                      <option value="open" {% if classroom.enrollment_mode == 'open' %}selected{% endif %}>Open</option>
+                      <option value="invite_only" {% if classroom.enrollment_mode == 'invite_only' %}selected{% endif %}>Invite only</option>
+                      <option value="closed" {% if classroom.enrollment_mode == 'closed' %}selected{% endif %}>Closed</option>
+                    </select>
+                    <button type="submit">Save</button>
+                  </div>
+                </form>
+
+                <form method="post" action="/teach/class/{{ classroom.id }}/set-retention-preset" class="workspace-inline-form">
+                  {% csrf_token %}
+                  <label for="workspace-retention-preset-{{ classroom.id }}">Retention preset</label>
+                  <div class="workspace-inline-controls">
+                    <select id="workspace-retention-preset-{{ classroom.id }}" name="retention_preset">
+                      <option value="erase_after_7_days" {% if classroom.retention_preset == 'erase_after_7_days' %}selected{% endif %}>Erase after 7 days</option>
+                      <option value="keep_for_semester" {% if classroom.retention_preset == 'keep_for_semester' %}selected{% endif %}>Keep for semester</option>
+                      <option value="keep_until_student_deletes" {% if classroom.retention_preset == 'keep_until_student_deletes' %}selected{% endif %}>Keep until student deletes</option>
+                    </select>
+                    <button type="submit">Save</button>
+                  </div>
+                </form>
+              </div>
+              <div class="workspace-button-row">
+                <form method="post" action="/teach/class/{{ classroom.id }}/toggle-lock" data-confirm="{% if classroom.is_locked %}Unlock class access now? Students can rejoin immediately.{% else %}Lock class access now? New student joins will be blocked until you unlock.{% endif %}">
+                  {% csrf_token %}
+                  <button type="submit">{% if classroom.is_locked %}Unlock class access{% else %}Lock class access{% endif %}</button>
+                </form>
+                <form method="post" action="/teach/class/{{ classroom.id }}/rotate-code" data-confirm="Rotate class join code now? Existing printed cards and copied codes will stop working.">
+                  {% csrf_token %}
+                  <button type="submit">Rotate join code</button>
+                </form>
+              </div>
+              <div class="workspace-action-list">
+                <a href="/teach/class/{{ classroom.id }}/export-outcomes-csv">Export outcomes CSV</a>
+                <a href="/teach/class/{{ classroom.id }}/export-summary-csv">Export summary CSV</a>
+                <a href="#section-invite-links">Open invite link tools</a>
+              </div>
+            </section>
+
+            <section class="workspace-panel">
+              <h3 class="section-title-compact">Student first screen</h3>
+              <form method="post" action="/teach/class/{{ classroom.id }}/update-landing-page" class="workspace-landing-form">
+                {% csrf_token %}
+                <label for="workspace-student-landing-title">Landing title</label>
+                <input
+                  id="workspace-student-landing-title"
+                  name="student_landing_title"
+                  maxlength="200"
+                  value="{{ classroom.student_landing_title }}"
+                  placeholder="e.g., Week 3: Story + Motion"
+                />
+                <label for="workspace-student-landing-message">Landing message</label>
+                <textarea
+                  id="workspace-student-landing-message"
+                  name="student_landing_message"
+                  rows="4"
+                  maxlength="4000"
+                  placeholder="Tell students exactly where to begin when they land."
+                >{{ classroom.student_landing_message }}</textarea>
+                <label for="workspace-student-landing-default-module">Highlighted lesson</label>
+                <select id="workspace-student-landing-default-module" name="student_landing_default_module_id">
+                  <option value="">Auto-pick by release dates</option>
+                  {% for row in landing_lesson_choices %}
+                    <option value="{{ row.module_id }}" {% if classroom.student_landing_default_module_id == row.module_id %}selected{% endif %}>
+                      {{ row.module_title }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <button type="submit">Save student landing</button>
+              </form>
+            </section>
+
+            <section class="workspace-panel">
+              <h3 class="section-title-compact">Build today&apos;s session</h3>
+              <form method="post" action="/teach/class/{{ classroom.id }}/add-module" class="workspace-inline-form">
+                {% csrf_token %}
+                <label for="workspace-module-title">New module title</label>
+                <div class="workspace-inline-controls">
+                  <input id="workspace-module-title" name="title" placeholder="e.g., Session 5 — Scratch Motion + Loops" />
+                  <button type="submit">Add session</button>
+                </div>
+              </form>
+              {% if modules %}
+                <ul class="workspace-module-list">
+                  {% for m in modules|slice:":4" %}
+                    <li>
+                      <strong>{{ m.title }}</strong>
+                      <span class="muted">{{ m.materials.all|length }} materials</span>
+                      <a href="/teach/module/{{ m.id }}">Open</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+                {% if modules|length > 4 %}
+                  <p class="muted mini workspace-copy">More session blocks live in the full module editor below.</p>
+                {% endif %}
+              {% else %}
+                <p class="muted mini workspace-copy">No modules yet. Add your first session block here, then open it to add materials.</p>
+              {% endif %}
+              <div class="workspace-action-list">
+                <a href="#section-module-editor">Open full module editor</a>
+                <a href="#section-lesson-tracker">Review lesson-linked modules</a>
+                <a href="#section-roster">Open roster fixes</a>
+              </div>
+            </section>
+          </div>
+        </div>

@@ -373,6 +373,30 @@ class OperatorProfileTemplateTests(TestCase):
         self.assertContains(resp, "Start here, then open your course links.")
         self.assertContains(resp, "/lesson-asset/42/download")
 
+    def test_student_home_renders_inline_image_material(self):
+        folder = LessonAssetFolder.objects.create(path="lesson-images")
+        asset = LessonAsset.objects.create(
+            folder=folder,
+            title="Storyboard reference",
+            description="Use this image as your inspiration board.",
+            original_filename="storyboard.png",
+            file=SimpleUploadedFile("storyboard.png", b"\x89PNG\r\n\x1a\n\x00\x00\x00\x00", content_type="image/png"),
+        )
+        Material.objects.create(
+            module=self.module,
+            title="Storyboard reference",
+            type=Material.TYPE_LINK,
+            url=f"/lesson-asset/{asset.id}/download",
+            order_index=1,
+        )
+        self._login_student()
+
+        resp = self.client.get("/student")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, f'/lesson-asset/{asset.id}/download')
+        self.assertContains(resp, 'class="mat-image"', html=False)
+        self.assertContains(resp, "Use this image as your inspiration board.")
+
     @override_settings(
         CLASSHUB_PRODUCT_NAME="Northside Learning Hub",
         CLASSHUB_STORAGE_LOCATION_TEXT="this server is hosted by Northside Public Schools.",

@@ -3,6 +3,7 @@ from ._shared import *  # noqa: F401,F403
 class LessonAssetDownloadTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Asset Class", join_code="AST12345")
+        self.module = Module.objects.create(classroom=self.classroom, title="Session 1", order_index=0)
         self.student = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
         self.folder = LessonAssetFolder.objects.create(path="general", display_name="General")
 
@@ -12,6 +13,15 @@ class LessonAssetDownloadTests(TestCase):
         session["class_id"] = self.classroom.id
         session.save()
 
+    def _link_asset(self, asset):
+        return Material.objects.create(
+            module=self.module,
+            title=asset.title,
+            type=Material.TYPE_LINK,
+            url=f"/lesson-asset/{asset.id}/download",
+            order_index=0,
+        )
+
     def test_html_asset_forces_download_attachment(self):
         asset = LessonAsset.objects.create(
             folder=self.folder,
@@ -19,6 +29,7 @@ class LessonAssetDownloadTests(TestCase):
             original_filename="demo.html",
             file=SimpleUploadedFile("demo.html", b"<html><script>alert(1)</script></html>"),
         )
+        self._link_asset(asset)
         self._login_student()
 
         resp = self.client.get(f"/lesson-asset/{asset.id}/download")
@@ -34,6 +45,7 @@ class LessonAssetDownloadTests(TestCase):
             original_filename="diagram.png",
             file=SimpleUploadedFile("diagram.png", b"\x89PNG\r\n\x1a\n\x00\x00\x00\x00"),
         )
+        self._link_asset(asset)
         self._login_student()
 
         resp = self.client.get(f"/lesson-asset/{asset.id}/download")
@@ -49,6 +61,7 @@ class LessonAssetDownloadTests(TestCase):
             original_filename="diagram.svg",
             file=SimpleUploadedFile("diagram.svg", b"<svg xmlns='http://www.w3.org/2000/svg'></svg>"),
         )
+        self._link_asset(asset)
         self._login_student()
 
         resp = self.client.get(f"/lesson-asset/{asset.id}/download")

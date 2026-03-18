@@ -7,7 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from ..models import Class, Material, Module, StudentIdentity, StudentMaterialResponse, Submission
-from .content_links import build_asset_url, parse_course_lesson_url, safe_external_url
+from .content_links import build_asset_url, parse_course_lesson_url, parse_lesson_asset_download_url, safe_external_url
 from .markdown_content import load_course_manifest, load_lesson_markdown
 from .peer_feedback import resolve_peer_feedback_starters
 from .retention_policy import class_event_retention_days, class_submission_retention_days
@@ -280,6 +280,11 @@ def build_material_access_map(request, *, classroom: Class, modules: list[Module
                 if parsed:
                     state = get_release_state(*parsed)
                     access["is_lesson_link"] = True
+                    access["is_locked"] = bool(state.get("is_locked"))
+                    access["available_on"] = state.get("available_on")
+                elif module_lesson and parse_lesson_asset_download_url(mat.url):
+                    state = get_release_state(*module_lesson)
+                    access["is_lesson_activity"] = True
                     access["is_locked"] = bool(state.get("is_locked"))
                     access["available_on"] = state.get("available_on")
             elif mat.type in {

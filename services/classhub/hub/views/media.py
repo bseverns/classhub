@@ -14,7 +14,7 @@ from ..http.headers import (
     safe_attachment_filename,
 )
 from ..models import LessonAsset, LessonVideo
-from ..services.content_links import video_mime_type
+from ..services.content_links import build_asset_url, video_mime_type
 
 _INLINE_ASSET_MIME_TYPES = {
     "image/png",
@@ -43,16 +43,33 @@ def _request_can_view_course_lesson(request, course_slug: str, lesson_slug: str)
     if not student:
         return False
         
-    if not course_slug and not lesson_slug:
-        return True
-
     from django.db.models import Q
     from ..models import Material
+    if not course_slug and not lesson_slug:
+        return False
     expected_path = f"/course/{course_slug}/{lesson_slug}"
     return Material.objects.filter(
         Q(url__endswith=expected_path) | Q(url__endswith=expected_path + "/"),
         module__classroom=student.classroom,
         type=Material.TYPE_LINK,
+    ).exists()
+
+
+def _request_can_view_linked_asset(request, asset_id: int) -> bool:
+    student = getattr(request, "student", None)
+    if not student:
+        return False
+
+    from django.db.models import Q
+    from ..models import Material
+
+    relative_path = f"/lesson-asset/{asset_id}/download"
+    absolute_path = build_asset_url(relative_path)
+    return Material.objects.filter(
+        module__classroom=student.classroom,
+        type=Material.TYPE_LINK,
+    ).filter(
+        Q(url=relative_path) | Q(url=absolute_path)
     ).exists()
 
 
@@ -166,7 +183,12 @@ def lesson_asset_download(request, asset_id: int):
     if not asset.is_active and not is_staff_user:
         return HttpResponse("Not found", status=404)
 
-    if not _request_can_view_course_lesson(request, asset.course_slug, asset.lesson_slug):
+    can_view = False
+    if asset.course_slug or asset.lesson_slug:
+        can_view = _request_can_view_course_lesson(request, asset.course_slug, asset.lesson_slug)
+    else:
+        can_view = _request_can_view_linked_asset(request, asset.id)
+    if not can_view:
         return HttpResponse("Forbidden", status=403)
 
     try:

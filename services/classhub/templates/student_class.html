@@ -265,6 +265,26 @@
         <div class="mat">
           <strong>{{ mat.title }}</strong>
           {% if mat.type == 'link' and mat.url %}
+          {% with image_asset=image_assets_by_material|get_item:mat.id %}
+          {% if image_asset %}
+          {% with access=material_access|get_item:mat.id %}
+          {% if access.is_locked %}
+          <div class="status-row">
+            <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
+          </div>
+          <div class="muted">{% blocktrans with open_date=access.available_on|date:"M j, Y" %}This visual opens on <strong>{{ open_date }}</strong>.{% endblocktrans %}</div>
+          {% else %}
+          <div class="mat-image-wrap">
+            <img src="{{ image_asset.src }}" alt="{{ mat.title }}" class="mat-image" loading="lazy" />
+            {% if image_asset.description %}
+            <p class="muted">{{ image_asset.description }}</p>
+            {% endif %}
+          </div>
+          <div class="mat-link"><a href="{{ image_asset.src }}" target="_blank" rel="noopener">{% trans "Open image" %}</a>
+          </div>
+          {% endif %}
+          {% endwith %}
+          {% else %}
           {% with access=material_access|get_item:mat.id %}
           {% if access.is_lesson_link and access.is_locked %}
           <div class="status-row">
@@ -282,6 +302,8 @@
           {% else %}
           <div class="mat-link"><a href="{{ mat.url }}" target="_blank" rel="noopener">{% trans "Open lesson" %}</a>
           </div>
+          {% endif %}
+          {% endwith %}
           {% endif %}
           {% endwith %}
           {% elif mat.type == 'text' and mat.body %}
