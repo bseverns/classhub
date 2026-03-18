@@ -502,6 +502,15 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
             html=False,
         )
 
+    def test_teach_class_landing_forms_render_csrf_tokens(self):
+        classroom = Class.objects.create(name="Paid Cohort", join_code="LND12349")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, f'action="/teach/class/{classroom.id}/update-landing-page"', html=False)
+        self.assertContains(resp, 'name="csrfmiddlewaretoken"', html=False)
+
     def test_teach_class_export_summary_csv_contains_class_student_and_lesson_rows(self):
         classroom, upload = self._build_lesson_with_submission()
         student = StudentIdentity.objects.filter(classroom=classroom, display_name="Ada").first()

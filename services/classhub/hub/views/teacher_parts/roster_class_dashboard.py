@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
+from django.middleware.csrf import get_token
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -130,6 +131,7 @@ def teach_class_dashboard(request, class_id: int):
     notice = (request.GET.get("notice") or "").strip()
     error = (request.GET.get("error") or "").strip()
     class_assignment_panel = _class_assignment_panel_context(request=request, classroom=classroom)
+    get_token(request)
 
     response = render(
         request,
