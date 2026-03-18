@@ -666,6 +666,42 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, "Build today")
         self.assertContains(resp, "Student access controls")
 
+    def test_teach_class_module_editor_surfaces_quick_add_forms(self):
+        classroom = Class.objects.create(name="Rolling Build Class", join_code="RBL12345")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Add to this session now")
+        self.assertContains(resp, f'action="/teach/module/{module.id}/add-material"', html=False)
+        self.assertContains(resp, f'<input type="hidden" name="return_to" value="/teach/class/{classroom.id}" />', html=False)
+        self.assertContains(resp, "Add note")
+        self.assertContains(resp, "Add link")
+        self.assertContains(resp, "Add image")
+        self.assertContains(resp, "Add dropbox")
+
+    def test_teach_class_can_quick_add_text_material_to_existing_module(self):
+        classroom = Class.objects.create(name="Rolling Build Class", join_code="RBL12346")
+        module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/module/{module.id}/add-material",
+            {
+                "type": Material.TYPE_TEXT,
+                "title": "Mid-class pivot",
+                "body": "Follow the student questions and test two alternatives.",
+                "return_to": f"/teach/class/{classroom.id}",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(f"/teach/class/{classroom.id}", resp["Location"])
+        self.assertIn("notice=", resp["Location"])
+        created = Material.objects.filter(module=module, type=Material.TYPE_TEXT, title="Mid-class pivot").first()
+        self.assertIsNotNone(created)
+        self.assertIn("Follow the student questions", created.body)
+
     def test_teach_student_return_code_requires_staff(self):
         classroom = Class.objects.create(name="Period Roster", join_code="MASK1234")
         student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")

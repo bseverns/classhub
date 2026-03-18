@@ -11,9 +11,11 @@ from .shared import (
     _audit,
     _normalize_order,
     _safe_internal_redirect,
+    _safe_teacher_return_path,
     _teach_class_path,
     _teach_module_path,
     _title_from_video_filename,
+    _with_notice,
     models,
     render,
     require_POST,
@@ -139,6 +141,8 @@ def teach_add_material(request, module_id: int):
         return HttpResponse("Not found", status=404)
     if not staff_can_manage_classroom(request.user, module.classroom):
         return HttpResponse("Forbidden", status=403)
+    default_return = _teach_module_path(module.id)
+    return_to = _safe_teacher_return_path((request.POST.get("return_to") or "").strip(), fallback=default_return)
 
     mtype = (request.POST.get("type") or Material.TYPE_LINK).strip()
     if mtype not in _ALLOWED_MATERIAL_TYPES:
@@ -147,14 +151,18 @@ def teach_add_material(request, module_id: int):
     if mtype == Material.TYPE_LINK and request.FILES.get("asset_file") and not title:
         title = _title_from_video_filename(getattr(request.FILES.get("asset_file"), "name", ""))[:200]
     if not title:
-        return _safe_internal_redirect(request, _teach_module_path(module.id), fallback=_teach_class_path(module.classroom_id))
+        return _safe_internal_redirect(
+            request,
+            _with_notice(return_to, error="Enter a material title."),
+            fallback=default_return,
+        )
     if mtype == Material.TYPE_LINK and request.FILES.get("asset_file"):
         filename = (getattr(request.FILES.get("asset_file"), "name", "") or "").strip()
         if not is_supported_image_filename(filename):
             return _safe_internal_redirect(
                 request,
-                _teach_module_path(module.id) + "?notice=Use+PNG,+JPG,+GIF,+or+WEBP+for+lesson+images.",
-                fallback=_teach_class_path(module.classroom_id),
+                _with_notice(return_to, error="Use PNG, JPG, GIF, or WEBP for lesson images."),
+                fallback=default_return,
             )
 
     max_idx = module.materials.aggregate(models.Max("order_index")).get("order_index__max")
@@ -173,7 +181,11 @@ def teach_add_material(request, module_id: int):
         metadata={"type": mtype, "module_id": module.id, "image_asset_id": asset_id or None},
     )
 
-    return _safe_internal_redirect(request, _teach_module_path(module.id), fallback=_teach_class_path(module.classroom_id))
+    return _safe_internal_redirect(
+        request,
+        _with_notice(return_to, notice=f"Added material: {mat.title}."),
+        fallback=default_return,
+    )
 
 
 @staff_member_required

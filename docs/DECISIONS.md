@@ -3567,3 +3567,18 @@ Execution ownership and gates:
 **Why this remains active:**
 - Separates org-boundary/classroom-access expectations from RBAC policy tooling workflows.
 - Keeps the heaviest teacher governance test surface prunable by domain so future changes do not re-aggregate into one file.
+
+## Teacher rolling class-build flow (2026-03-18)
+
+**Current decision:**
+- Keep the existing module/material models and `POST /teach/module/<id>/add-material` endpoint as the write path for in-progress class edits.
+- Let `teach_add_material` honor a safe teacher-only `return_to` path so class-page quick-add actions can reuse the existing endpoint and redirect back into the class workspace.
+- Surface lightweight per-session quick-add forms directly inside the class-page module editor for the most common mid-class changes:
+  - note/text block
+  - lesson/resource link
+  - image upload
+  - default project dropbox
+
+**Why this remains active:**
+- Supports responsive, in-progress teaching without forcing teachers to leave the class page for every small adjustment.
+- Avoids a backend rewrite by reusing the current material creation flow, audit events, validation, and permissions.
