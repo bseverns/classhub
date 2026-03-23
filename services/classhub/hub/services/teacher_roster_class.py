@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from .teacher_roster_class_dashboard import (
     _build_facilitator_support_snapshot,
-    _build_outcome_rollup,
     _build_outcome_snapshot,
-    _detail_int,
     _material_submission_counts,
     _submission_counts_by_student,
     _support_tag_choices,

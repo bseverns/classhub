@@ -24,6 +24,7 @@ from common.request_safety import fixed_window_allow, token_bucket_allow
 from .middleware import StudentSessionMiddleware
 from .models import Class, ClassStaffAssignment, Material, Module, StudentEvent, StudentIdentity, StudentMaterialResponse, Submission
 from .services.markdown_content import (
+    is_teacher_section_heading,
     load_course_manifest,
     load_lesson_markdown,
     render_markdown_to_safe_html,
@@ -501,12 +502,25 @@ class ReleaseStateServiceTests(SimpleTestCase):
 
 
 class MarkdownContentServiceTests(SimpleTestCase):
+    def test_is_teacher_section_heading_requires_real_teacher_heading(self):
+        self.assertTrue(is_teacher_section_heading(" Teacher notes "))
+        self.assertFalse(is_teacher_section_heading("Teacherly examples"))
+
     def test_split_lesson_markdown_for_audiences(self):
         learner, teacher = split_lesson_markdown_for_audiences(
             "## Intro\nLearner content\n\n## Teacher prep\nTeacher notes"
         )
         self.assertIn("Learner content", learner)
         self.assertIn("Teacher notes", teacher)
+
+    def test_split_lesson_markdown_keeps_teacher_like_learner_heading_visible(self):
+        learner, teacher = split_lesson_markdown_for_audiences(
+            "## Teacherly examples\nLearner-visible guidance\n\n## Teacher notes\nPrivate facilitation notes"
+        )
+        self.assertIn("Teacherly examples", learner)
+        self.assertIn("Learner-visible guidance", learner)
+        self.assertNotIn("Teacherly examples", teacher)
+        self.assertIn("Private facilitation notes", teacher)
 
     def test_render_markdown_to_safe_html_strips_script(self):
         html = render_markdown_to_safe_html("Hi<script>alert(1)</script>")

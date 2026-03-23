@@ -51,10 +51,12 @@ def _next_lesson_video_order(course_slug: str, lesson_slug: str) -> int:
 
 def _normalize_order(qs, field: str = "order_index"):
     """Normalize order_index values to 0..N-1 in current QS order."""
+    changed: list = []
     for i, obj in enumerate(qs):
         if getattr(obj, field) != i:
             setattr(obj, field, i)
-            obj.save(update_fields=[field])
+            changed.append(obj)
+    _bulk_update_changed(changed, field=field)
 
 
 def _next_unique_class_join_code(*, exclude_class_id: int | None = None) -> str:
@@ -79,11 +81,25 @@ def _apply_directional_reorder(items: list, *, target_id: int, direction: str, o
     elif direction == "down" and idx < len(items) - 1:
         items[idx + 1], items[idx] = items[idx], items[idx + 1]
 
+    changed: list = []
     for i, item in enumerate(items):
         if getattr(item, order_field) != i:
             setattr(item, order_field, i)
-            item.save(update_fields=[order_field])
+            changed.append(item)
+    _bulk_update_changed(changed, field=order_field)
     return True
+
+
+def _bulk_update_changed(changed: list, *, field: str) -> None:
+    if not changed:
+        return
+    model = changed[0].__class__
+    manager = getattr(model, "objects", None)
+    if getattr(model, "_meta", None) is not None and manager is not None and all(item.__class__ is model for item in changed):
+        manager.bulk_update(changed, [field])
+        return
+    for item in changed:
+        item.save(update_fields=[field])
 
 
 __all__ = [name for name in globals() if not name.startswith("__")]
