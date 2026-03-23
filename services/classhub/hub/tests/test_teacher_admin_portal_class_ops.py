@@ -769,6 +769,42 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertEqual(created.title, "YouTube video (QixV_Hlh2CM)")
         self.assertTrue(created.is_active)
 
+    def test_teach_videos_reorder_updates_changed_rows(self):
+        _force_login_staff_verified(self.client, self.staff)
+        first = LessonVideo.objects.create(
+            course_slug="energy_electronics_circuits_9_session",
+            lesson_slug="s01-energy-is-everywhere",
+            title="Video 1",
+            source_url="https://example.com/1",
+            order_index=0,
+            is_active=True,
+        )
+        second = LessonVideo.objects.create(
+            course_slug="energy_electronics_circuits_9_session",
+            lesson_slug="s01-energy-is-everywhere",
+            title="Video 2",
+            source_url="https://example.com/2",
+            order_index=1,
+            is_active=True,
+        )
+
+        resp = self.client.post(
+            "/teach/videos",
+            {
+                "action": "move",
+                "course_slug": "energy_electronics_circuits_9_session",
+                "lesson_slug": "s01-energy-is-everywhere",
+                "video_id": second.id,
+                "direction": "up",
+            },
+        )
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach/videos?", resp["Location"])
+        first.refresh_from_db()
+        second.refresh_from_db()
+        self.assertEqual((second.order_index, first.order_index), (0, 1))
+
     def test_course_lesson_renders_teacher_added_published_youtube_video(self):
         _force_login_staff_verified(self.client, self.staff)
         LessonVideo.objects.create(

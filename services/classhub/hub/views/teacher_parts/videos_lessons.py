@@ -14,6 +14,7 @@ from .shared import (
     iter_course_lesson_options,
     render,
     staff_member_required,
+    timezone,
 )
 
 
@@ -238,10 +239,15 @@ def teach_videos(request):
                     rows[idx - 1], rows[idx] = rows[idx], rows[idx - 1]
                 elif direction == "down" and idx < len(rows) - 1:
                     rows[idx + 1], rows[idx] = rows[idx], rows[idx + 1]
+                changed_rows: list[LessonVideo] = []
+                updated_at = timezone.now()
                 for i, row in enumerate(rows):
                     if row.order_index != i:
                         row.order_index = i
-                        row.save(update_fields=["order_index"])
+                        row.updated_at = updated_at
+                        changed_rows.append(row)
+                if changed_rows:
+                    LessonVideo.objects.bulk_update(changed_rows, ["order_index", "updated_at"])
                 _audit(
                     request,
                     action="lesson_video.reorder",

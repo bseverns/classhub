@@ -143,10 +143,16 @@ def dual_write_counters(*, target: str | None = None) -> dict[str, int]:
 
 
 def reset_dual_write_counters() -> None:
+    keys: list[str] = []
     for name in _COUNTER_NAMES:
-        cache.delete(_counter_key(name))
-        cache.delete(_counter_key(name, target="core"))
-        cache.delete(_counter_key(name, target="telemetry"))
+        keys.extend(
+            [
+                _counter_key(name),
+                _counter_key(name, target="core"),
+                _counter_key(name, target="telemetry"),
+            ]
+        )
+    cache.delete_many(keys)
 
 
 __all__ = [

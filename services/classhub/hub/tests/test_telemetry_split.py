@@ -1,6 +1,10 @@
+from unittest.mock import patch
+
 from django.test import TestCase, override_settings
 
 from hub.services.telemetry_split import (
+    _COUNTER_NAMES,
+    _counter_key,
     dual_write_counters,
     record_dual_write_attempt,
     record_dual_write_failure,
@@ -51,3 +55,20 @@ class TelemetrySplitInstrumentationTests(TestCase):
         self.assertTrue(any("status=failure" in line for line in captured.output))
         self.assertTrue(any("write_mode=off" in line for line in captured.output))
         self.assertTrue(any("read_mode=core" in line for line in captured.output))
+
+    def test_reset_counters_uses_delete_many_for_all_counter_keys(self):
+        with patch("hub.services.telemetry_split.cache.delete_many") as delete_many:
+            reset_dual_write_counters()
+
+        expected_keys: list[str] = []
+        for name in _COUNTER_NAMES:
+            expected_keys.extend(
+                [
+                    _counter_key(name),
+                    _counter_key(name, target="core"),
+                    _counter_key(name, target="telemetry"),
+                ]
+            )
+        delete_many.assert_called_once_with(
+            expected_keys
+        )
