@@ -110,6 +110,10 @@ class BackendEngineTests(SimpleTestCase):
         )
         self.assertEqual(text, "Try one block at a time.")
         self.assertEqual(model, "llama-test")
+        request = urlopen_mock.call_args.args[0]
+        self.assertEqual(request.headers.get("Content-type"), "application/json")
+        self.assertEqual(request.headers.get("Accept"), "application/json")
+        self.assertEqual(request.headers.get("User-agent"), "ClassHub-HomeworkHelper/1.0")
 
 
 class HeuristicsEngineTests(SimpleTestCase):

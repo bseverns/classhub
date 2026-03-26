@@ -3582,3 +3582,13 @@ Execution ownership and gates:
 **Why this remains active:**
 - Supports responsive, in-progress teaching without forcing teachers to leave the class page for every small adjustment.
 - Avoids a backend rewrite by reusing the current material creation flow, audit events, validation, and permissions.
+
+## Ollama remote-edge User-Agent header (2026-03-26)
+
+**Current decision:**
+- Send an explicit service `User-Agent` and `Accept: application/json` header on helper Ollama HTTP requests.
+- Apply the same header set to helper chat calls and helper RAG embedding calls.
+
+**Why this remains active:**
+- Some hosted Ollama-compatible edges reject the default `Python-urllib/*` client signature with Cloudflare-style `403` access-denied responses even when the same endpoint accepts `curl`.
+- Keeping the change in the helper HTTP client avoids deployment-specific proxy workarounds while preserving the existing backend interface and env contract.

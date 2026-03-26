@@ -9,6 +9,14 @@ import urllib.request
 from dataclasses import dataclass
 from typing import Callable, Mapping, Protocol
 
+OLLAMA_HTTP_HEADERS = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    # Some hosted Ollama-compatible edges block the default Python urllib
+    # signature; send an explicit service UA for remote deployments.
+    "User-Agent": "ClassHub-HomeworkHelper/1.0",
+}
+
 
 class BackendInterface(Protocol):
     """Minimal backend contract used by chat runtime."""
@@ -113,7 +121,7 @@ def ollama_chat(
         "options": options,
     }
     data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+    req = urllib.request.Request(url, data=data, headers=OLLAMA_HTTP_HEADERS)
     with urllib.request.urlopen(req, timeout=int(timeout_seconds)) as resp:  # nosec B310
         body = resp.read().decode("utf-8")
     parsed = json.loads(body)

@@ -17,6 +17,11 @@ from .reference import SAFE_REF_KEY_RE
 
 RAG_TABLE_NAME = "tutor_curriculum_rag_chunks"
 _IDENTIFIER_PART_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+OLLAMA_HTTP_HEADERS = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "User-Agent": "ClassHub-HomeworkHelper/1.0",
+}
 
 
 def build_reference_inventory(reference_dir: str, reference_map_raw: str) -> dict[str, str]:
@@ -295,7 +300,7 @@ def _post_json(*, url: str, payload: dict, timeout_seconds: int) -> dict:
     req = urllib.request.Request(
         url,
         data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
+        headers=OLLAMA_HTTP_HEADERS,
         method="POST",
     )
     with urllib.request.urlopen(req, timeout=max(int(timeout_seconds or 0), 1)) as resp:
