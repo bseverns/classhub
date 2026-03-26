@@ -1,6 +1,7 @@
 from .engine import heuristics as engine_heuristics
 from .engine import reference as engine_reference
 from .engine import service as engine_service
+from . import response_language
 from .views_chat_helpers import DEFAULT_TEXT_LANGUAGE_KEYWORDS
 
 
@@ -84,6 +85,9 @@ def build_chat_deps(
         is_context_dependent_follow_up=engine_heuristics.is_context_dependent_follow_up,
         allowed_topic_overlap=engine_heuristics.allowed_topic_overlap,
         build_instructions=build_instructions_fn,
+        normalize_response_language=response_language.normalize_response_language,
+        build_text_language_redirect=response_language.build_text_language_redirect,
+        build_allowed_topics_redirect=response_language.build_allowed_topics_redirect,
         backend_circuit_is_open=backend_circuit_is_open_fn,
         call_backend_with_retries=call_backend_with_retries_fn,
         record_backend_failure=record_backend_failure_fn,

@@ -83,6 +83,17 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp["Pragma"], "no-cache")
         self.assertEqual(resp.json().get("text"), "Hint")
         self.assertTrue(resp.json().get("conversation_id"))
+        self.assertEqual(resp.json().get("response_language"), "en")
+
+    def test_chat_localizes_follow_up_suggestions_from_language_code(self):
+        self._set_student_session()
+
+        resp = self._post_chat({"message": "How do I move a sprite?", "language_code": "es-MX"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("response_language"), "es")
+        suggestions = resp.json().get("follow_up_suggestions") or []
+        self.assertTrue(suggestions)
+        self.assertIn("Que", suggestions[0])
 
     def test_program_profile_elementary_defaults_helper_strictness_when_unset(self):
         self._set_student_session()
@@ -161,6 +172,22 @@ class HelperChatAuthTests(TestCase):
         self.assertIn("storymode", text)
         self.assertIn("test again", text)
         self.assertEqual(body.get("attempts"), 0)
+
+    def test_chat_mouse_only_guidance_respects_response_language(self):
+        self._set_student_session()
+        resp = self._post_chat(
+            {
+                "message": "I only have a mouse right now, no keyboard. Can I still do this session?",
+                "language_code": "es",
+            }
+        )
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        self.assertEqual(body.get("response_language"), "es")
+        text = str(body.get("text") or "")
+        self.assertIn("mouse", text.lower())
+        self.assertIn("StoryMode", text)
+        self.assertIn("Si", text)
 
     def test_chat_teamwork_disagreement_returns_collaboration_protocol(self):
         self._set_student_session()
@@ -614,6 +641,16 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(build_kwargs["allowed_topics"], ["signed allowed"])
 
     @patch("tutor.views.build_instructions", return_value="system instructions")
+    def test_chat_normalizes_unsupported_language_to_english(self, build_instructions_mock):
+        self._set_student_session()
+
+        resp = self._post_chat({"message": "Help", "language_code": "fr"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("response_language"), "en")
+        build_kwargs = build_instructions_mock.call_args.kwargs
+        self.assertEqual(build_kwargs["response_language_code"], "en")
+
+    @patch("tutor.views.build_instructions", return_value="system instructions")
     def test_chat_includes_reference_citations_in_prompt_and_response(self, build_instructions_mock):
         self._set_student_session()
 
@@ -745,6 +782,7 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(details.get("actor_type"), "student")
         self.assertEqual(details.get("backend"), "mock")
         self.assertEqual(details.get("intent"), "general")
+        self.assertEqual(details.get("response_language"), "en")
         self.assertGreaterEqual(int(details.get("follow_up_suggestions_count") or 0), 1)
         self.assertFalse(details.get("conversation_compacted"))
 

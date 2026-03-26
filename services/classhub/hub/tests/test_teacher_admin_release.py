@@ -104,6 +104,7 @@ class LessonReleaseTests(TestCase):
         self.assertContains(resp, 'data-helper-context="Piper wiring mentor"')
         self.assertContains(resp, 'data-helper-topics="Breadboard checks | Retest loop"')
         self.assertContains(resp, 'data-helper-reference="piper-hardware"')
+        self.assertContains(resp, 'data-helper-language-code="en"')
 
         body = resp.content.decode("utf-8")
         token_match = re.search(r'data-helper-scope-token="([^"]+)"', body)

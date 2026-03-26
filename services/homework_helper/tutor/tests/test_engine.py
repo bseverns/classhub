@@ -163,6 +163,16 @@ class HeuristicsEngineTests(SimpleTestCase):
         self.assertIn("follow-up", lowered)
         self.assertIn("instead of restarting from scratch", lowered)
 
+    def test_build_instructions_enforces_normalized_response_language(self):
+        instructions = policy.build_instructions(
+            "light",
+            context="Inputs and outputs",
+            topics=["littleBits"],
+            scope_mode="soft",
+            response_language_code="es-MX",
+        )
+        self.assertIn("Always respond in Spanish.", instructions)
+
     def test_build_piper_hardware_triage_text_includes_guided_steps(self):
         text = heuristics.build_piper_hardware_triage_text("StoryMode jump button is not working")
         lowered = text.lower()

@@ -13,9 +13,18 @@ from __future__ import annotations
 
 import argparse
 import re
+import sys
 from pathlib import Path
 
-import yaml
+try:
+    import yaml
+except ModuleNotFoundError as exc:  # pragma: no cover - CLI dependency guard
+    print(
+        "[generate-lesson-references] FAIL: PyYAML is required. "
+        "Run this from the project Python environment or install repo deps first.",
+        file=sys.stderr,
+    )
+    raise SystemExit(1) from exc
 
 
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)")
@@ -33,7 +42,7 @@ WANTED_SECTIONS = {
 }
 
 
-def _parse_front_matter(raw: str) -> tuple[dict, str]:
+def parse_front_matter(raw: str) -> tuple[dict, str]:
     if raw.startswith("---"):
         parts = raw.split("---", 2)
         if len(parts) >= 3:
@@ -43,7 +52,7 @@ def _parse_front_matter(raw: str) -> tuple[dict, str]:
     return {}, raw
 
 
-def _collect_sections(body: str) -> dict[str, list[str]]:
+def collect_sections(body: str) -> dict[str, list[str]]:
     sections: dict[str, list[str]] = {}
     current = None
     for line in body.splitlines():
@@ -65,7 +74,7 @@ def _collect_sections(body: str) -> dict[str, list[str]]:
     return sections
 
 
-def _select_section(sections: dict[str, list[str]], name: str, max_items: int = 6) -> list[str]:
+def select_section(sections: dict[str, list[str]], name: str, max_items: int = 6) -> list[str]:
     items: list[str] = []
     for key, values in sections.items():
         if key == name or key.startswith(name):
@@ -80,7 +89,7 @@ def _select_section(sections: dict[str, list[str]], name: str, max_items: int = 
     return uniq[:max_items]
 
 
-def _render_reference(
+def render_reference(
     lesson_slug: str,
     title: str,
     session: int | None,
@@ -102,7 +111,7 @@ def _render_reference(
         lines.append(f"- Needs: {needs}")
 
     def add_section(label: str, key: str):
-        items = _select_section(sections, key)
+        items = select_section(sections, key)
         if not items:
             return
         lines.append("")
@@ -123,6 +132,24 @@ def _render_reference(
     return "\n".join(lines)
 
 
+def generate_reference_text(*, lesson_meta: dict, course_dir: Path) -> tuple[str, str]:
+    slug = lesson_meta.get("slug")
+    if not slug or not SAFE_KEY_RE.match(slug):
+        raise ValueError(f"Invalid lesson slug: {slug}")
+
+    rel = lesson_meta.get("file")
+    if not rel:
+        raise ValueError(f"Lesson '{slug}' is missing 'file'")
+
+    lesson_path = course_dir / rel
+    raw = lesson_path.read_text(encoding="utf-8")
+    fm, body = parse_front_matter(raw)
+    sections = collect_sections(body)
+    title = lesson_meta.get("title") or fm.get("title") or slug
+    session = lesson_meta.get("session")
+    return slug, render_reference(slug, title, session, fm, sections)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--course", required=True, help="Path to course.yaml")
@@ -138,19 +165,10 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     for lesson in lessons:
-        slug = lesson.get("slug")
-        if not slug or not SAFE_KEY_RE.match(slug):
-            raise ValueError(f"Invalid lesson slug: {slug}")
         rel = lesson.get("file")
         if not rel:
             continue
-        lesson_path = course_dir / rel
-        raw = lesson_path.read_text(encoding="utf-8")
-        fm, body = _parse_front_matter(raw)
-        sections = _collect_sections(body)
-        title = lesson.get("title") or fm.get("title") or slug
-        session = lesson.get("session")
-        ref_text = _render_reference(slug, title, session, fm, sections)
+        slug, ref_text = generate_reference_text(lesson_meta=lesson, course_dir=course_dir)
         (out_dir / f"{slug}.md").write_text(ref_text, encoding="utf-8")
 
     return 0

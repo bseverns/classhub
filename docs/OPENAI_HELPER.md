@@ -121,6 +121,8 @@ Conversation behavior:
 - When history exceeds `HELPER_CONVERSATION_MAX_MESSAGES`, older turns are compacted into a rolling summary to preserve context while keeping prompts short.
 - Each response includes an `intent` tag (`debug`, `concept`, `strategy`, etc.) derived from the latest student message.
 - Each response includes `follow_up_suggestions` (bounded by `HELPER_FOLLOW_UP_SUGGESTIONS_MAX`) so the UI can offer one-tap next questions.
+- Class Hub sends `language_code` from the active UI locale; helper normalizes that to the supported set (`en`, `es`, `so`) and returns the applied `response_language` on every response.
+- Helper output language follows the active UI locale deterministically. Student message wording alone does not change the helper language.
 - Reset by starting a new `conversation_id` (UI `Reset chat` does this), or clear all student helper conversations for a class via teacher dashboard action (`/teach/class/<id>/reset-helper-conversations`).
 - On class reset, helper can export a JSON snapshot before cache deletion (controlled by `HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE` and `HELPER_CLASS_RESET_ARCHIVE_ENABLED`).
 
@@ -320,6 +322,35 @@ python scripts/generate_lesson_references.py \
   --out services/homework_helper/tutor/reference
 ```
 
+### Batch-sync helper references across all courses
+
+For server ops, use the batch sync command instead of running the lesson generator
+course by course:
+
+```bash
+python scripts/sync_helper_references.py --dry-run
+python scripts/sync_helper_references.py
+```
+
+Default behavior:
+- scans all `services/classhub/content/courses/*/course.yaml` manifests,
+- preserves existing hand-written course-level reference files,
+- generates lesson reference files only for lessons whose `helper_reference`
+  differs from the course-level `helper_reference`.
+
+Useful overrides:
+
+```bash
+# regenerate course-level reference files too
+python scripts/sync_helper_references.py --overwrite-course-refs
+
+# emit one lesson reference file per lesson slug, even when a course uses one shared reference
+python scripts/sync_helper_references.py --all-lesson-refs
+
+# limit the run to one course folder
+python scripts/sync_helper_references.py --course-slug piper_scratch_12_session
+```
+
 ## Scope mode
 
 Use `HELPER_SCOPE_MODE` to control how strictly the helper stays within the lesson:
@@ -356,6 +387,7 @@ The helper now retries transient backend failures before returning an error.
 
 `POST /helper/chat` responses now include:
 - `request_id` (also returned as `X-Request-ID` response header)
+- `response_language` (normalized helper output language)
 - `attempts`
 - timing fields (`queue_wait_ms`, `total_ms`) on successful calls
 - `truncated` when response text was clipped by `HELPER_RESPONSE_MAX_CHARS`

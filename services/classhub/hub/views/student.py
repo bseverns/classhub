@@ -120,7 +120,7 @@ def trust_page(request):
     return response
 
 
-def _student_home_helper_widget(*, classroom: Class, ui_density_mode: str, privacy_meta: dict) -> str:
+def _student_home_helper_widget(*, classroom: Class, ui_density_mode: str, privacy_meta: dict, language_code: str) -> str:
     helper_description = "This is a Day-1 wire-up. It will become smarter once it can cite your class materials."
     if ui_density_mode == "compact":
         helper_description = "Need help? Ask for one small next step at a time."
@@ -139,6 +139,7 @@ def _student_home_helper_widget(*, classroom: Class, ui_density_mode: str, priva
             "helper_allowed_topics": "",
             "helper_backend_label": helper_backend_label(),
             "helper_delete_url": "/student/my-data",
+            "helper_language_code": language_code,
             **privacy_meta,
             "helper_scope_token": issue_scope_token(
                 context=helper_context,
@@ -177,6 +178,7 @@ def student_home(request):
         classroom=classroom,
         ui_density_mode=ui_density_mode,
         privacy_meta=privacy_meta,
+        language_code=getattr(request, "LANGUAGE_CODE", "en"),
     )
     micro_check_state = latest_micro_check_state(
         classroom=classroom,

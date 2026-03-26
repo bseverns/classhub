@@ -33,22 +33,25 @@ class ChatDeps:
     is_scratch_context: Callable[[str, list[str], str], bool]
     is_piper_context: Callable[[str, list[str], str, str], bool]
     is_piper_hardware_question: Callable[[str], bool]
-    build_piper_hardware_triage_text: Callable[[str], str]
+    build_piper_hardware_triage_text: Callable[..., str]
     is_mouse_only_access_question: Callable[[str], bool]
-    build_mouse_only_adaptation_text: Callable[[], str]
+    build_mouse_only_adaptation_text: Callable[..., str]
     is_teamwork_decision_question: Callable[[str], bool]
-    build_teamwork_decision_text: Callable[[], str]
+    build_teamwork_decision_text: Callable[..., str]
     is_class_reentry_privacy_question: Callable[[str], bool]
-    build_class_reentry_privacy_text: Callable[[], str]
+    build_class_reentry_privacy_text: Callable[..., str]
     is_publish_privacy_question: Callable[[str], bool]
-    build_publish_privacy_text: Callable[[], str]
+    build_publish_privacy_text: Callable[..., str]
     is_score_condition_debug_question: Callable[[str], bool]
-    build_score_condition_debug_text: Callable[[], str]
+    build_score_condition_debug_text: Callable[..., str]
     is_wellbeing_reset_question: Callable[[str], bool]
-    build_wellbeing_reset_text: Callable[[], str]
+    build_wellbeing_reset_text: Callable[..., str]
     is_context_dependent_follow_up: Callable[[str], bool]
     allowed_topic_overlap: Callable[..., bool]
     build_instructions: Callable[..., str]
+    normalize_response_language: Callable[[str], str]
+    build_text_language_redirect: Callable[[str], str]
+    build_allowed_topics_redirect: Callable[[str, list[str]], str]
     backend_circuit_is_open: Callable[[str], bool]
     call_backend_with_retries: Callable[[str, str, str], tuple[str, str, int]]
     record_backend_failure: Callable[[str], None]
@@ -86,11 +89,13 @@ def handle_chat(
     conversation_enabled = False
     intent = ""
     conversation_compacted = False
+    response_language_code = "en"
 
     def _response(body: dict, *, status: int = 200):
         payload_with_conversation = dict(body or {})
         payload_with_conversation["conversation_id"] = conversation_id
         payload_with_conversation["conversation_enabled"] = conversation_enabled
+        payload_with_conversation["response_language"] = response_language_code
         if intent and "intent" not in payload_with_conversation:
             payload_with_conversation["intent"] = intent
         if "conversation_compacted" not in payload_with_conversation:
@@ -174,6 +179,7 @@ def handle_chat(
     if not message:
         return _response({"error": "missing_message"}, status=400)
 
+    response_language_code = deps.normalize_response_language(str(payload.get("language_code") or ""))
     message = deps.redact(message)[:8000]
     intent = deps.classify_intent(message)
     follow_up_suggestions = deps.build_follow_up_suggestions(
@@ -183,6 +189,7 @@ def handle_chat(
         allowed_topics=allowed_topics,
         history_summary=history_summary,
         max_items=execution_config.follow_up_suggestions_max,
+        response_language_code=response_language_code,
     )
 
     def _persist_turns(assistant_text: str) -> None:
@@ -256,7 +263,7 @@ def handle_chat(
             actor_type=actor_type,
             backend=backend,
         )
-        guidance_text = deps.build_mouse_only_adaptation_text()
+        guidance_text = deps.build_mouse_only_adaptation_text(response_language_code=response_language_code)
         _persist_turns(guidance_text)
         return _response(
             {
@@ -280,7 +287,7 @@ def handle_chat(
             actor_type=actor_type,
             backend=backend,
         )
-        guidance_text = deps.build_teamwork_decision_text()
+        guidance_text = deps.build_teamwork_decision_text(response_language_code=response_language_code)
         _persist_turns(guidance_text)
         return _response(
             {
@@ -304,7 +311,7 @@ def handle_chat(
             actor_type=actor_type,
             backend=backend,
         )
-        guidance_text = deps.build_class_reentry_privacy_text()
+        guidance_text = deps.build_class_reentry_privacy_text(response_language_code=response_language_code)
         _persist_turns(guidance_text)
         return _response(
             {
@@ -328,7 +335,7 @@ def handle_chat(
             actor_type=actor_type,
             backend=backend,
         )
-        guidance_text = deps.build_publish_privacy_text()
+        guidance_text = deps.build_publish_privacy_text(response_language_code=response_language_code)
         _persist_turns(guidance_text)
         return _response(
             {
@@ -352,7 +359,7 @@ def handle_chat(
             actor_type=actor_type,
             backend=backend,
         )
-        guidance_text = deps.build_score_condition_debug_text()
+        guidance_text = deps.build_score_condition_debug_text(response_language_code=response_language_code)
         _persist_turns(guidance_text)
         return _response(
             {
@@ -376,7 +383,7 @@ def handle_chat(
             actor_type=actor_type,
             backend=backend,
         )
-        guidance_text = deps.build_wellbeing_reset_text()
+        guidance_text = deps.build_wellbeing_reset_text(response_language_code=response_language_code)
         _persist_turns(guidance_text)
         return _response(
             {
@@ -435,11 +442,7 @@ def handle_chat(
     lang_keywords = execution_config.text_language_keywords
     if deps.contains_text_language(message, lang_keywords) and deps.is_scratch_context(context_value or "", topics, reference_text):
         deps.log_chat_event("info", "policy_redirect_text_language", request_id=request_id, actor_type=actor_type, backend=backend)
-        redirect_text = (
-            "We're using Scratch blocks in this class, not text programming languages. "
-            "Tell me which Scratch block or part of your project you're stuck on, "
-            "and I'll help you with the Scratch version."
-        )
+        redirect_text = deps.build_text_language_redirect(response_language_code)
         _persist_turns(redirect_text)
         return _response(
             {
@@ -467,7 +470,10 @@ def handle_chat(
             actor_type=actor_type,
             backend=backend,
         )
-        triage_text = deps.build_piper_hardware_triage_text(message)
+        triage_text = deps.build_piper_hardware_triage_text(
+            message,
+            response_language_code=response_language_code,
+        )
         _persist_turns(triage_text)
         return _response(
             {
@@ -502,11 +508,7 @@ def handle_chat(
             reference_text=reference_text,
         ):
             deps.log_chat_event("info", "policy_redirect_allowed_topics", request_id=request_id, actor_type=actor_type, backend=backend)
-            redirect_text = (
-                "Let's keep this focused on today's lesson topics: "
-                + ", ".join(allowed_topics)
-                + ". Which part of that do you need help with?"
-            )
+            redirect_text = deps.build_allowed_topics_redirect(response_language_code, allowed_topics)
             _persist_turns(redirect_text)
             return _response(
                 {
@@ -529,6 +531,7 @@ def handle_chat(
         allowed_topics=allowed_topics,
         reference_text=reference_text,
         reference_citations=reference_citations,
+        response_language_code=response_language_code,
     )
 
     if deps.backend_circuit_is_open(backend):

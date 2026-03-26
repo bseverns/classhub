@@ -13,6 +13,7 @@ from .engine import memory as engine_memory
 from .engine import rag as engine_rag
 from .engine import reference as engine_reference
 from .engine import runtime as engine_runtime
+from . import response_language
 
 
 DEFAULT_TEXT_LANGUAGE_KEYWORDS = engine_heuristics.DEFAULT_TEXT_LANGUAGE_KEYWORDS
@@ -82,56 +83,57 @@ def _is_piper_hardware_question(message: str) -> bool:
     return engine_heuristics.is_piper_hardware_question(message, keywords=keywords)
 
 
-def _build_piper_hardware_triage_text(message: str) -> str:
-    return engine_heuristics.build_piper_hardware_triage_text(message)
+def _build_piper_hardware_triage_text(message: str, *, response_language_code: str = "en") -> str:
+    one_check = engine_heuristics.select_piper_hardware_check(message)
+    return response_language.build_piper_hardware_triage_text(response_language_code, one_check)
 
 
 def _is_mouse_only_access_question(message: str) -> bool:
     return engine_heuristics.is_mouse_only_access_question(message)
 
 
-def _build_mouse_only_adaptation_text() -> str:
-    return engine_heuristics.build_mouse_only_adaptation_text()
+def _build_mouse_only_adaptation_text(*, response_language_code: str = "en") -> str:
+    return response_language.build_mouse_only_adaptation_text(response_language_code)
 
 
 def _is_teamwork_decision_question(message: str) -> bool:
     return engine_heuristics.is_teamwork_decision_question(message)
 
 
-def _build_teamwork_decision_text() -> str:
-    return engine_heuristics.build_teamwork_decision_text()
+def _build_teamwork_decision_text(*, response_language_code: str = "en") -> str:
+    return response_language.build_teamwork_decision_text(response_language_code)
 
 
 def _is_class_reentry_privacy_question(message: str) -> bool:
     return engine_heuristics.is_class_reentry_privacy_question(message)
 
 
-def _build_class_reentry_privacy_text() -> str:
-    return engine_heuristics.build_class_reentry_privacy_text()
+def _build_class_reentry_privacy_text(*, response_language_code: str = "en") -> str:
+    return response_language.build_class_reentry_privacy_text(response_language_code)
 
 
 def _is_publish_privacy_question(message: str) -> bool:
     return engine_heuristics.is_publish_privacy_question(message)
 
 
-def _build_publish_privacy_text() -> str:
-    return engine_heuristics.build_publish_privacy_text()
+def _build_publish_privacy_text(*, response_language_code: str = "en") -> str:
+    return response_language.build_publish_privacy_text(response_language_code)
 
 
 def _is_score_condition_debug_question(message: str) -> bool:
     return engine_heuristics.is_score_condition_debug_question(message)
 
 
-def _build_score_condition_debug_text() -> str:
-    return engine_heuristics.build_score_condition_debug_text()
+def _build_score_condition_debug_text(*, response_language_code: str = "en") -> str:
+    return response_language.build_score_condition_debug_text(response_language_code)
 
 
 def _is_wellbeing_reset_question(message: str) -> bool:
     return engine_heuristics.is_wellbeing_reset_question(message)
 
 
-def _build_wellbeing_reset_text() -> str:
-    return engine_heuristics.build_wellbeing_reset_text()
+def _build_wellbeing_reset_text(*, response_language_code: str = "en") -> str:
+    return response_language.build_wellbeing_reset_text(response_language_code)
 
 
 @lru_cache(maxsize=4)
@@ -254,15 +256,31 @@ def _build_follow_up_suggestions(
     allowed_topics: list[str],
     history_summary: str = "",
     max_items: int = 3,
+    response_language_code: str = "en",
 ) -> list[str]:
-    return engine_heuristics.build_follow_up_suggestions(
-        intent=intent,
-        context=context,
-        topics=topics,
+    topic_hint = engine_heuristics._pick_topic_hint(
         allowed_topics=allowed_topics,
+        topics=topics,
+        context=context,
         history_summary=history_summary,
-        max_items=max_items,
     )
+    rows = response_language.build_follow_up_suggestions(
+        response_language_code=response_language_code,
+        intent=intent,
+        topic_hint=topic_hint,
+    )
+    unique: list[str] = []
+    limit = max(int(max_items), 1)
+    for row in rows:
+        suggestion = engine_heuristics._normalize_suggestion(row)
+        if not suggestion:
+            continue
+        if suggestion in unique:
+            continue
+        unique.append(suggestion)
+        if len(unique) >= limit:
+            break
+    return unique
 
 
 def _build_helper_event_details(*, response, request_id: str, actor_type: str, backend: str) -> dict:
@@ -288,6 +306,10 @@ def _build_helper_event_details(*, response, request_id: str, actor_type: str, b
     intent = str(payload.get("intent") or "").strip().lower()
     if intent and _SAFE_TOKEN_RE.fullmatch(intent):
         details["intent"] = intent
+
+    response_language = str(payload.get("response_language") or "").strip().lower()
+    if response_language and _SAFE_TOKEN_RE.fullmatch(response_language):
+        details["response_language"] = response_language
 
     if "scope_verified" in payload:
         details["scope_verified"] = bool(payload.get("scope_verified"))

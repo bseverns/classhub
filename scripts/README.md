@@ -58,6 +58,7 @@ Operator shortcut:
 | `quote_lesson_frontmatter.py`| Ensures YAML frontmatter compatibility across rendering engines. |
 | `generate_authoring_templates.py`| Scaffolds standard authoring template structure. |
 | `generate_lesson_references.py`| Synchronizes context into the AI helper for curriculum awareness. |
+| `sync_helper_references.py`| Batch-syncs helper reference markdown across course manifests with safe defaults for server ops. |
 | `ingest_syllabus_md.py` | Converts external Markdown assignments into Class Hub format. |
 
 ## Architectural Budgets & Quality Gates

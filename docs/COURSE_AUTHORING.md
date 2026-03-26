@@ -259,6 +259,18 @@ Students can open the dropbox from the lesson page and from `/student`.
 - Per-lesson reference: set `helper_reference` in the lesson entry in `course.yaml`.
 - Per-lesson allowed topics: add `helper_allowed_topics` in lesson front matter.
 
+Batch-sync helper references for all courses:
+
+```bash
+python scripts/sync_helper_references.py --dry-run
+python scripts/sync_helper_references.py
+```
+
+This is the recommended server-side workflow when multiple course folders are
+already present. It preserves existing hand-written course-level references and
+generates only the lesson reference files that are actually routed by each
+manifest by default.
+
 Auto-generate allowed topics:
 
 ```bash

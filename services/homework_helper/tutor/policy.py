@@ -3,6 +3,8 @@ STRICTNESS_STRICT = "strict"
 SCOPE_SOFT = "soft"
 SCOPE_STRICT = "strict"
 
+from .response_language import build_response_language_instruction
+
 
 def _format_scope(context: str, topics: list[str]) -> str:
     parts = []
@@ -21,6 +23,7 @@ def build_instructions(
     allowed_topics: list[str] | None = None,
     reference_text: str = "",
     reference_citations: str = "",
+    response_language_code: str = "en",
 ) -> str:
     """Return the tutor stance string based on strictness + lesson scope."""
     base = (
@@ -30,7 +33,8 @@ def build_instructions(
         "Keep responses concise. "
         "Treat this as an ongoing tutoring conversation, not a one-off answer. "
         "When the student asks a follow-up, build on the prior turns instead of restarting from scratch. "
-        "Ask at most one clarifying question at a time when needed."
+        "Ask at most one clarifying question at a time when needed. "
+        + build_response_language_instruction(response_language_code)
     )
 
     topics = topics or []

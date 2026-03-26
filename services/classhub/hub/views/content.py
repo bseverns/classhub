@@ -302,6 +302,7 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
                 "helper_allowed_topics": " | ".join(helper_allowed_topics),
                 "helper_backend_label": _helper_backend_label(),
                 "helper_delete_url": helper_delete_url,
+                "helper_language_code": getattr(request, "LANGUAGE_CODE", "en"),
                 "student_event_retention_days": _retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180),
                 "helper_scope_token": helper_scope_token,
             },

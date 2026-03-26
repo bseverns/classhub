@@ -75,6 +75,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Glass theme static assets](#glass-theme-static-assets)
 - [Helper widget static assets](#helper-widget-static-assets)
 - [Helper widget error transparency](#helper-widget-error-transparency)
+- [Helper response language contract](#helper-response-language-contract)
 - [Helper conversation memory](#helper-conversation-memory)
 - [Helper conversation compaction + class reset control](#helper-conversation-compaction-and-class-reset-control)
 - [Coursepack validation gate](#coursepack-validation-gate)
@@ -1246,6 +1247,19 @@ Execution ownership and gates:
 - Reduces MTTR during class sessions by making helper failures diagnosable without immediate shell access.
 - Gives staff a stable request id they can match against helper/classhub logs.
 
+## Helper response language contract
+
+**Current decision:**
+- Helper output language now follows the active Class Hub UI locale deterministically.
+- Class Hub passes `language_code` with helper requests; helper normalizes it to the supported set (`en`, `es`, `so`) and returns the applied `response_language`.
+- Helper does not switch languages based only on the student's message text.
+- Apply the same language contract to both model-backed answers and fixed helper policy/redirect text so behavior stays consistent.
+- Apply the same language contract to widget-managed chrome as well (follow-up labels, status text, quick prompts, button/placeholder copy) so the browser UI does not fall back to English while helper replies are localized.
+
+**Why this remains active:**
+- Makes helper language behavior inspectable and testable instead of relying on model inference.
+- Keeps live classroom behavior aligned with the UI locale that the student or teacher explicitly selected.
+
 ## Helper conversation memory
 
 **Current decision:**
@@ -1603,6 +1617,21 @@ Execution ownership and gates:
 - Raises answer quality on long curricula without remote data egress.
 - Preserves anti-cheating/privacy posture by preventing cross-student retrieval surfaces.
 - Keeps classroom reliability: helper responses continue even when vector retrieval is offline.
+
+## Batch helper-reference sync for multi-course deployments
+
+**Current decision:**
+- Add `scripts/sync_helper_references.py` as the canonical batch workflow for helper reference setup across multiple course manifests.
+- Default behavior is safe for live servers:
+  - scan all `services/classhub/content/courses/*/course.yaml` manifests,
+  - preserve existing hand-written course-level reference files unless explicitly overwritten,
+  - generate lesson reference files only for lessons whose `helper_reference` differs from the course-level `helper_reference`.
+- `scripts/generate_lesson_references.py` remains the focused single-course/per-lesson generator beneath this batch wrapper.
+
+**Why this remains active:**
+- Reduces operator toil when several courses are already present on a server and helper/RAG setup must be refreshed before deploy.
+- Preserves inspectable higher-quality course references without forcing operators to choose between full overwrite and fully manual per-course sync.
+- Keeps the repo education-forward by making the batch path deterministic, documented, and based on existing curriculum manifests rather than ad-hoc server-side content copying.
 
 ## Helper YAML config layering
 
