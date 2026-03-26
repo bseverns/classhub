@@ -35,11 +35,11 @@ response:
 
 conversation:
   enabled: true
-  max_messages: 8
-  ttl_seconds: 3600
-  turn_max_chars: 800
-  history_max_chars: 2400
-  summary_max_chars: 900
+  max_messages: 12
+  ttl_seconds: 7200
+  turn_max_chars: 1000
+  history_max_chars: 4000
+  summary_max_chars: 1400
 
 references:
   directory: /app/tutor/reference

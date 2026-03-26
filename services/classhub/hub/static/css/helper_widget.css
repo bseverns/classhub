@@ -210,7 +210,14 @@
     color: var(--muted, #4e6f80);
     font-size: 14px;
     margin-top: 4px;
+    margin-bottom: 6px;
+  }
+  .helper-context-note {
+    margin-top: 0;
     margin-bottom: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #2c6077;
   }
   .helper-title-row {
     display: flex;

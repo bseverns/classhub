@@ -145,6 +145,18 @@ class HeuristicsEngineTests(SimpleTestCase):
             )
         )
 
+    def test_build_instructions_mentions_follow_up_conversation(self):
+        instructions = policy.build_instructions(
+            "light",
+            context="Inputs and outputs",
+            topics=["littleBits"],
+            scope_mode="soft",
+        )
+        lowered = instructions.lower()
+        self.assertIn("ongoing tutoring conversation", lowered)
+        self.assertIn("follow-up", lowered)
+        self.assertIn("instead of restarting from scratch", lowered)
+
     def test_build_piper_hardware_triage_text_includes_guided_steps(self):
         text = heuristics.build_piper_hardware_triage_text("StoryMode jump button is not working")
         lowered = text.lower()
@@ -358,6 +370,21 @@ class ExecutionConfigEngineTests(SimpleTestCase):
         self.assertEqual(cfg.queue_max_wait_seconds, 9.5)
         self.assertEqual(cfg.queue_poll_seconds, 0.3)
         self.assertEqual(cfg.queue_slot_ttl_seconds, 121)
+
+    def test_resolve_execution_config_uses_conversation_friendly_defaults(self):
+        cfg = execution_config.resolve_execution_config(
+            env_int=lambda _name, default: default,
+            env_float=lambda _name, default: default,
+            env_bool=lambda _name, default: default,
+            parse_csv_list=lambda _raw: [],
+            default_text_language_keywords=["scratch"],
+            getenv=lambda _key, default="": default,
+        )
+        self.assertEqual(cfg.conversation_max_messages, 12)
+        self.assertEqual(cfg.conversation_ttl_seconds, 7200)
+        self.assertEqual(cfg.conversation_turn_max_chars, 1000)
+        self.assertEqual(cfg.conversation_history_max_chars, 4000)
+        self.assertEqual(cfg.conversation_summary_max_chars, 1400)
 
     def test_resolve_execution_config_prefers_env_text_keywords(self):
         cfg = execution_config.resolve_execution_config(

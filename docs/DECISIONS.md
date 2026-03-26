@@ -3615,3 +3615,14 @@ Execution ownership and gates:
 **Why this remains active:**
 - Prevents valid concept questions from being blocked just because lesson `helper_allowed_topics` are written as narrow task prompts instead of vocabulary/concept labels.
 - Keeps the off-topic redirect behavior while reducing false positives like lesson-relevant module/component questions.
+
+## Helper becomes more conversational by default (2026-03-26)
+
+**Current decision:**
+- Persist helper conversation state in the browser for the current lesson/session so reloads can resume the same thread.
+- Tune the tutor system prompt to treat follow-ups as part of an ongoing tutoring exchange.
+- Raise helper conversation defaults to keep more short-turn context before compaction.
+
+**Why this remains active:**
+- The backend already supported `conversation_id` + cached memory, but the browser experience still felt like isolated single-turn asks after reload/navigation.
+- Small memory-budget increases plus browser-side restoration improve continuity without changing the helper’s privacy boundaries or turning it into an unrestricted long-term chat log.

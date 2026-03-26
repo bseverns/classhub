@@ -18,6 +18,24 @@
     }
     return "conv-" + Math.random().toString(16).slice(2) + Date.now().toString(16);
   };
+  const sessionStore = (() => {
+    try {
+      const probeKey = "__helper_widget_probe__";
+      window.sessionStorage.setItem(probeKey, "1");
+      window.sessionStorage.removeItem(probeKey);
+      return window.sessionStorage;
+    } catch (_err) {
+      return null;
+    }
+  })();
+  const hashString = (input) => {
+    let hash = 0;
+    const text = String(input || "");
+    for (let i = 0; i < text.length; i += 1) {
+      hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
+    }
+    return hash.toString(16).padStart(8, "0");
+  };
 
   const widgets = document.querySelectorAll(".helper-widget");
   const QUICK_PROMPTS = {
@@ -128,12 +146,14 @@
   };
 
   widgets.forEach((widget, idx) => {
+    const summaryHint = widget.querySelector(".helper-shell-summary-hint");
     const label = widget.querySelector(".helper-label");
     const textarea = widget.querySelector(".helper-input");
     const button = widget.querySelector(".helper-submit");
     const resetButton = widget.querySelector(".helper-reset");
     const output = widget.querySelector(".helper-output");
     const transcript = widget.querySelector(".helper-transcript");
+    const contextNote = widget.querySelector(".helper-context-note");
     const citationWrap = widget.querySelector(".helper-citations");
     const citationList = widget.querySelector(".helper-citations-list");
     const quickWrap = widget.querySelector(".helper-quick-wrap");
@@ -145,15 +165,64 @@
     const helperReference = (widget.dataset.helperReference || "").trim();
     const helperContext = (widget.dataset.helperContext || "").trim();
     const helperTopics = (widget.dataset.helperTopics || "").trim();
+    const storageKey = `helper-widget:${hashString(
+      [window.location.pathname, helperReference, helperContext, helperTopics, scopeToken].join("|")
+    )}`;
+    let transcriptTurns = [];
+    let latestCitations = [];
     let conversationId = newConversationId();
+
+    const loadState = () => {
+      if (!sessionStore) return null;
+      try {
+        const raw = sessionStore.getItem(storageKey);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return null;
+        return parsed;
+      } catch (_err) {
+        return null;
+      }
+    };
+
+    const saveState = () => {
+      if (!sessionStore) return;
+      try {
+        sessionStore.setItem(
+          storageKey,
+          JSON.stringify({
+            conversationId,
+            turns: transcriptTurns,
+            citations: latestCitations,
+            draft: textarea.value || "",
+          })
+        );
+      } catch (_err) {
+        // Best-effort only.
+      }
+    };
+
+    const updateConversationChrome = () => {
+      const hasHistory = transcriptTurns.length > 0;
+      if (summaryHint) {
+        summaryHint.textContent = hasHistory ? "Resume helper" : "Open helper";
+      }
+      if (contextNote) {
+        contextNote.textContent = hasHistory
+          ? "Conversation context is saved for this lesson in this browser session until you reset chat."
+          : "Follow-up questions stay in one lesson thread in this browser session until you reset chat.";
+      }
+    };
 
     const setOutput = (txt) => {
       output.textContent = txt;
     };
 
-    const appendTurn = (role, text, options = {}) => {
+    const renderTurn = (turnData) => {
       if (!transcript) return;
-      const suggestions = Array.isArray(options.suggestions) ? options.suggestions : [];
+      const role = turnData && turnData.role === "student" ? "student" : "assistant";
+      const text = turnData && typeof turnData.text === "string" ? turnData.text : "";
+      const suggestions = Array.isArray(turnData && turnData.suggestions) ? turnData.suggestions : [];
       const turn = document.createElement("div");
       turn.className = `helper-turn helper-turn--${role === "student" ? "student" : "assistant"}`;
       const labelNode = document.createElement("span");
@@ -194,20 +263,45 @@
       transcript.scrollTop = transcript.scrollHeight;
     };
 
+    const appendTurn = (role, text, options = {}) => {
+      const turnData = {
+        role: role === "student" ? "student" : "assistant",
+        text: String(text || ""),
+        suggestions: Array.isArray(options.suggestions)
+          ? options.suggestions.map((row) => String(row || "").trim()).filter(Boolean)
+          : [],
+      };
+      transcriptTurns.push(turnData);
+      renderTurn(turnData);
+      updateConversationChrome();
+      saveState();
+    };
+
     const clearTranscript = () => {
       if (!transcript) return;
       transcript.innerHTML = "";
+      transcriptTurns = [];
+      latestCitations = [];
       renderCitations([]);
       setOutput("Conversation reset.");
       conversationId = newConversationId();
+      textarea.value = "";
+      updateConversationChrome();
+      saveState();
     };
 
     const renderCitations = (rows) => {
       if (!citationWrap || !citationList) return;
       const citations = Array.isArray(rows) ? rows : [];
+      latestCitations = citations.map((row) => ({
+        id: row && row.id ? String(row.id) : "",
+        text: row && row.text ? String(row.text) : "",
+        source: row && row.source ? String(row.source) : "",
+      }));
       citationList.innerHTML = "";
       if (!citations.length) {
         citationWrap.hidden = true;
+        saveState();
         return;
       }
       citations.forEach((row) => {
@@ -223,6 +317,7 @@
         citationList.appendChild(li);
       });
       citationWrap.hidden = false;
+      saveState();
     };
 
     const setControlsBusy = (disabled) => {
@@ -306,8 +401,10 @@
         const responseText = (data && data.text) || "(no output)";
         const followUpSuggestions = (data && data.follow_up_suggestions) || [];
         appendTurn("assistant", responseText, { suggestions: followUpSuggestions });
+        textarea.value = "";
         setOutput("");
         renderCitations((data && data.citations) || []);
+        textarea.focus();
       } catch (_err) {
         const errText = "Helper error: network_failure";
         appendTurn("assistant", errText);
@@ -338,6 +435,33 @@
     } else if (quickWrap) {
       quickWrap.hidden = true;
     }
+
+    const restored = loadState();
+    if (restored && typeof restored.conversationId === "string" && restored.conversationId.trim()) {
+      conversationId = restored.conversationId.trim();
+    }
+    if (restored && typeof restored.draft === "string") {
+      textarea.value = restored.draft;
+    }
+    if (restored && Array.isArray(restored.turns) && transcript) {
+      transcriptTurns = restored.turns
+        .map((row) => ({
+          role: row && row.role === "student" ? "student" : "assistant",
+          text: row && typeof row.text === "string" ? row.text : "",
+          suggestions: Array.isArray(row && row.suggestions)
+            ? row.suggestions.map((item) => String(item || "").trim()).filter(Boolean)
+            : [],
+        }))
+        .filter((row) => row.text);
+      transcriptTurns.forEach((row) => renderTurn(row));
+    }
+    if (restored && Array.isArray(restored.citations)) {
+      renderCitations(restored.citations);
+    }
+    updateConversationChrome();
+    textarea.addEventListener("input", () => {
+      saveState();
+    });
 
     button.addEventListener("click", async () => {
       await sendMessage(textarea.value || "");
