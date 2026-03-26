@@ -82,6 +82,7 @@ By default, the helper uses Ollama. Make sure the model server is running:
 
 ```bash
 cd compose
+docker compose --profile local-ollama up -d ollama
 docker compose exec ollama ollama pull llama3.2:1b
 ```
 

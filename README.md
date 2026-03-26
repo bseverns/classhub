@@ -64,7 +64,7 @@ flowchart LR
 ```bash
 cp compose/.env.example.local compose/.env
 cd compose
-docker compose up -d --build
+docker compose --profile local-ollama up -d --build
 cd ..
 bash scripts/load_demo_coursepack.sh
 ```

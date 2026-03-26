@@ -58,6 +58,7 @@ services:
   ollama:
     image: ${OLLAMA_IMAGE:-ollama/ollama:0.5.7}
     container_name: classhub_ollama
+    profiles: ["local-ollama"]
     restart: unless-stopped
     ports:
       # Host access for local debugging only (not Internet-exposed).
@@ -165,8 +166,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      ollama:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/helper/healthz || exit 1"]
       interval: 15s

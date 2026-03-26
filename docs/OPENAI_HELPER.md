@@ -153,11 +153,12 @@ OLLAMA_TOP_P=0.9
 OLLAMA_NUM_PREDICT=400
 ```
 
-Ollama is included in `compose/docker-compose.yml` and persists models at
-`data/ollama/`. Pull a model with:
+Local Ollama is available as an opt-in Compose profile (`local-ollama`) and
+persists models at `data/ollama/`. Start it and pull a model with:
 
 ```bash
 cd compose
+docker compose --profile local-ollama up -d ollama
 docker compose exec ollama ollama pull llama3.2:1b
 ```
 

@@ -136,6 +136,7 @@ Fix pattern:
 
 ```bash
 cd /srv/lms/app/compose
+docker compose --profile local-ollama up -d ollama
 docker compose exec ollama ollama pull llama3.2:1b
 # Keep helper timeout above queue+retry budget (env-check enforces this).
 # Fast safe defaults for deploy smoke:

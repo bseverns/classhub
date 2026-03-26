@@ -3592,3 +3592,13 @@ Execution ownership and gates:
 **Why this remains active:**
 - Some hosted Ollama-compatible edges reject the default `Python-urllib/*` client signature with Cloudflare-style `403` access-denied responses even when the same endpoint accepts `curl`.
 - Keeping the change in the helper HTTP client avoids deployment-specific proxy workarounds while preserving the existing backend interface and env contract.
+
+## Compose-local Ollama becomes opt-in (2026-03-26)
+
+**Current decision:**
+- Remove the production `helper_web -> ollama` Compose dependency.
+- Keep the bundled `ollama` service available only behind the `local-ollama` Compose profile.
+
+**Why this remains active:**
+- Prevents production deploys from starting an unused local Ollama container when helper inference is pointed at a remote Ollama-compatible endpoint.
+- Preserves the existing local self-hosted Ollama workflow with an explicit profile opt-in instead of removing the service entirely.
