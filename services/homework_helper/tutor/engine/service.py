@@ -46,6 +46,7 @@ class ChatDeps:
     build_score_condition_debug_text: Callable[[], str]
     is_wellbeing_reset_question: Callable[[str], bool]
     build_wellbeing_reset_text: Callable[[], str]
+    is_context_dependent_follow_up: Callable[[str], bool]
     allowed_topic_overlap: Callable[..., bool]
     build_instructions: Callable[..., str]
     backend_circuit_is_open: Callable[[str], bool]
@@ -484,8 +485,17 @@ def handle_chat(
         )
     if allowed_topics:
         filter_mode = policy_bundle.topic_filter_mode
+        topic_filter_input = message
+        if conversation_enabled and (history_turns or history_summary) and deps.is_context_dependent_follow_up(message):
+            recent_student_lines = [
+                str(row.get("content") or "").strip()
+                for row in history_turns
+                if str(row.get("role") or "").strip().lower() == "student" and str(row.get("content") or "").strip()
+            ]
+            recent_student_lines = recent_student_lines[-2:]
+            topic_filter_input = "\n".join([*recent_student_lines, history_summary, message]).strip()
         if filter_mode == "strict" and not deps.allowed_topic_overlap(
-            message,
+            topic_filter_input,
             allowed_topics,
             context=context_value or "",
             topics=topics,

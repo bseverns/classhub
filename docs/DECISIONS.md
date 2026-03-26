@@ -3626,3 +3626,13 @@ Execution ownership and gates:
 **Why this remains active:**
 - The backend already supported `conversation_id` + cached memory, but the browser experience still felt like isolated single-turn asks after reload/navigation.
 - Small memory-budget increases plus browser-side restoration improve continuity without changing the helper’s privacy boundaries or turning it into an unrestricted long-term chat log.
+
+## Helper strict-topic filter honors terse follow-ups in thread context (2026-03-26)
+
+**Current decision:**
+- Keep the strict topic filter enabled.
+- When a student sends a short context-dependent follow-up (for example `There isn't`, `I don't know`, `Yes`) and the helper already has thread history for the lesson, evaluate topic scope against the recent thread context instead of the reply in isolation.
+
+**Why this remains active:**
+- Prevents valid tutoring exchanges from breaking after the first turn just because the latest student reply is too short to overlap with lesson topic metadata on its own.
+- Limits the relaxation to context-dependent follow-ups so the helper still redirects genuine topic switches.

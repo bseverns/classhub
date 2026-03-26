@@ -69,6 +69,25 @@ _LOW_SIGNAL_SCOPE_TOKENS = {
     "understand",
     "using",
 }
+_CONTEXT_DEPENDENT_WORDS = {
+    "also",
+    "doesnt",
+    "don't",
+    "dont",
+    "it",
+    "its",
+    "isnt",
+    "isn't",
+    "no",
+    "not",
+    "that",
+    "there",
+    "they",
+    "this",
+    "those",
+    "what",
+    "yes",
+}
 
 
 def parse_csv_list(raw: str) -> list[str]:
@@ -244,6 +263,34 @@ def tokenize(text: str) -> set[str]:
 
 def _meaningful_scope_tokens(text: str) -> set[str]:
     return {token for token in tokenize(text) if token not in _LOW_SIGNAL_SCOPE_TOKENS}
+
+
+def is_context_dependent_follow_up(message: str) -> bool:
+    lowered = " ".join(str(message or "").strip().lower().split())
+    if not lowered:
+        return False
+    if lowered in {
+        "yes",
+        "no",
+        "maybe",
+        "not sure",
+        "i dont know",
+        "i don't know",
+        "there is",
+        "there isn't",
+        "there isnt",
+        "it is",
+        "it isn't",
+        "it isnt",
+    }:
+        return True
+    raw_words = [part for part in re.split(r"[^a-z0-9']+", lowered) if part]
+    meaningful = _meaningful_scope_tokens(lowered)
+    if len(raw_words) <= 6 and len(meaningful) <= 1:
+        return True
+    if len(raw_words) <= 8 and any(word in _CONTEXT_DEPENDENT_WORDS for word in raw_words) and len(meaningful) <= 2:
+        return True
+    return False
 
 
 def allowed_topic_overlap(

@@ -145,6 +145,11 @@ class HeuristicsEngineTests(SimpleTestCase):
             )
         )
 
+    def test_is_context_dependent_follow_up_detects_short_replies(self):
+        self.assertTrue(heuristics.is_context_dependent_follow_up("There isn't"))
+        self.assertTrue(heuristics.is_context_dependent_follow_up("I don't know"))
+        self.assertFalse(heuristics.is_context_dependent_follow_up("Can we talk about weather today instead?"))
+
     def test_build_instructions_mentions_follow_up_conversation(self):
         instructions = policy.build_instructions(
             "light",

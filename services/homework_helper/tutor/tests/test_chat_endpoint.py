@@ -237,6 +237,49 @@ class HelperChatAuthTests(TestCase):
     @patch.dict(
         "os.environ",
         {
+            "HELPER_TOPIC_FILTER_MODE": "strict",
+        },
+        clear=False,
+    )
+    def test_chat_uses_recent_thread_context_for_terse_follow_up_scope_checks(self, invoke_backend_mock):
+        self._set_student_session()
+        invoke_backend_mock.side_effect = [("First answer", "fake-model"), ("Second answer", "fake-model")]
+        conversation_id = "123e4567-e89b-12d3-a456-4266141740bb"
+        scope = issue_scope_token(
+            context="Starter game movement",
+            topics=["sprite motion", "green flag"],
+            allowed_topics=["define game as goal rules feedback"],
+            reference="piper_scratch",
+            signing_key=str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or ""),
+        )
+
+        first = self._post_chat(
+            {
+                "message": "My sprite does not move when I click the green flag.",
+                "conversation_id": conversation_id,
+                "scope_token": scope,
+            }
+        )
+        self.assertEqual(first.status_code, 200)
+
+        second = self._post_chat(
+            {
+                "message": "There isn't",
+                "conversation_id": conversation_id,
+                "scope_token": scope,
+            }
+        )
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual(second.json().get("text"), "Second answer")
+
+        second_backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
+        self.assertIn("My sprite does not move when I click the green flag.", second_backend_message)
+        self.assertIn("There isn't", second_backend_message)
+
+    @patch("tutor.engine.backends.invoke_backend")
+    @patch.dict(
+        "os.environ",
+        {
             "HELPER_CONVERSATION_TTL_SECONDS": "1",
         },
         clear=False,
