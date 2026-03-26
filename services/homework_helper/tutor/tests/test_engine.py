@@ -15,6 +15,7 @@ from ..engine import heuristics
 from ..engine import rag
 from ..engine import runtime
 from ..engine import runtime_config
+from .. import policy
 
 
 class BackendEngineTests(SimpleTestCase):
