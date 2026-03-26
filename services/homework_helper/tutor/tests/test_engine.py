@@ -126,6 +126,25 @@ class HeuristicsEngineTests(SimpleTestCase):
         self.assertTrue(heuristics.allowed_topic_overlap("sprite motion blocks", ["sprite control", "events"]))
         self.assertFalse(heuristics.allowed_topic_overlap("database joins", ["scratch sprites", "motion blocks"]))
 
+    def test_allowed_topic_overlap_accepts_broader_signed_scope_context(self):
+        self.assertTrue(
+            heuristics.allowed_topic_overlap(
+                "How does the littlebits oscillator make noise?",
+                ["choose an input", "control one output"],
+                context="Inputs and Outputs with littleBits",
+                topics=["Makes: A littleBits build that uses a student-chosen input to control light, sound, or motion."],
+                reference_text="Pick one output that makes light, sound, or motion with littleBits.",
+            )
+        )
+
+    def test_allowed_topic_overlap_keeps_generic_words_from_becoming_scope_match(self):
+        self.assertFalse(
+            heuristics.allowed_topic_overlap(
+                "Can you help me understand this better today?",
+                ["change one thing and retest", "record a short build video"],
+            )
+        )
+
     def test_build_piper_hardware_triage_text_includes_guided_steps(self):
         text = heuristics.build_piper_hardware_triage_text("StoryMode jump button is not working")
         lowered = text.lower()

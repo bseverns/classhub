@@ -44,6 +44,31 @@ DEFAULT_PIPER_HARDWARE_KEYWORDS = [
     "physical controls",
     "controls not working",
 ]
+_LOW_SIGNAL_SCOPE_TOKENS = {
+    "about",
+    "build",
+    "change",
+    "changed",
+    "changes",
+    "control",
+    "explain",
+    "help",
+    "input",
+    "inputs",
+    "lesson",
+    "make",
+    "need",
+    "output",
+    "outputs",
+    "part",
+    "retest",
+    "session",
+    "state",
+    "thing",
+    "today",
+    "understand",
+    "using",
+}
 
 
 def parse_csv_list(raw: str) -> list[str]:
@@ -217,16 +242,37 @@ def tokenize(text: str) -> set[str]:
     return {p for p in parts if len(p) >= 4}
 
 
-def allowed_topic_overlap(message: str, allowed_topics: list[str]) -> bool:
+def _meaningful_scope_tokens(text: str) -> set[str]:
+    return {token for token in tokenize(text) if token not in _LOW_SIGNAL_SCOPE_TOKENS}
+
+
+def allowed_topic_overlap(
+    message: str,
+    allowed_topics: list[str],
+    *,
+    context: str = "",
+    topics: list[str] | None = None,
+    reference_text: str = "",
+) -> bool:
     if not allowed_topics:
         return True
-    msg_tokens = tokenize(message)
+    msg_tokens = _meaningful_scope_tokens(message)
     if not msg_tokens:
         return False
     topic_tokens: set[str] = set()
     for topic in allowed_topics:
-        topic_tokens |= tokenize(topic)
-    return bool(msg_tokens & topic_tokens)
+        topic_tokens |= _meaningful_scope_tokens(topic)
+    if msg_tokens & topic_tokens:
+        return True
+
+    scope_tokens: set[str] = set()
+    if context:
+        scope_tokens |= _meaningful_scope_tokens(context)
+    for topic in topics or []:
+        scope_tokens |= _meaningful_scope_tokens(topic)
+    if reference_text:
+        scope_tokens |= _meaningful_scope_tokens(reference_text)
+    return bool(msg_tokens & scope_tokens)
 
 
 def classify_intent(message: str) -> str:

@@ -46,7 +46,7 @@ class ChatDeps:
     build_score_condition_debug_text: Callable[[], str]
     is_wellbeing_reset_question: Callable[[str], bool]
     build_wellbeing_reset_text: Callable[[], str]
-    allowed_topic_overlap: Callable[[str, list[str]], bool]
+    allowed_topic_overlap: Callable[..., bool]
     build_instructions: Callable[..., str]
     backend_circuit_is_open: Callable[[str], bool]
     call_backend_with_retries: Callable[[str, str, str], tuple[str, str, int]]
@@ -484,7 +484,13 @@ def handle_chat(
         )
     if allowed_topics:
         filter_mode = policy_bundle.topic_filter_mode
-        if filter_mode == "strict" and not deps.allowed_topic_overlap(message, allowed_topics):
+        if filter_mode == "strict" and not deps.allowed_topic_overlap(
+            message,
+            allowed_topics,
+            context=context_value or "",
+            topics=topics,
+            reference_text=reference_text,
+        ):
             deps.log_chat_event("info", "policy_redirect_allowed_topics", request_id=request_id, actor_type=actor_type, backend=backend)
             redirect_text = (
                 "Let's keep this focused on today's lesson topics: "

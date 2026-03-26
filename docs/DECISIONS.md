@@ -3602,3 +3602,16 @@ Execution ownership and gates:
 **Why this remains active:**
 - Prevents production deploys from starting an unused local Ollama container when helper inference is pointed at a remote Ollama-compatible endpoint.
 - Preserves the existing local self-hosted Ollama workflow with an explicit profile opt-in instead of removing the service entirely.
+
+## Helper strict-topic filter uses broader signed lesson scope (2026-03-26)
+
+**Current decision:**
+- Keep the helper topic filter in strict mode for elementary-style deployments.
+- Treat a student message as in-scope when it overlaps either:
+  - explicit `allowed_topics`, or
+  - the broader signed lesson scope (`context`, lesson `topics`, or reference text).
+- Ignore low-signal instructional words when computing overlap.
+
+**Why this remains active:**
+- Prevents valid concept questions from being blocked just because lesson `helper_allowed_topics` are written as narrow task prompts instead of vocabulary/concept labels.
+- Keeps the off-topic redirect behavior while reducing false positives like lesson-relevant module/component questions.
