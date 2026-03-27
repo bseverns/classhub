@@ -27,6 +27,7 @@ ENV_TO_YAML_PATH = {
     "OLLAMA_TIMEOUT_SECONDS": ("backend", "ollama", "timeout_seconds"),
     "OLLAMA_TEMPERATURE": ("backend", "ollama", "temperature"),
     "OLLAMA_TOP_P": ("backend", "ollama", "top_p"),
+    "OLLAMA_NUM_CTX": ("backend", "ollama", "num_ctx"),
     "OLLAMA_NUM_PREDICT": ("backend", "ollama", "num_predict"),
     "OPENAI_MODEL": ("backend", "openai", "model"),
     "OPENAI_MAX_OUTPUT_TOKENS": ("backend", "openai", "max_output_tokens"),

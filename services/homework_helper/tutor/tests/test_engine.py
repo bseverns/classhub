@@ -1,3 +1,4 @@
+import json
 import urllib.error
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -107,6 +108,7 @@ class BackendEngineTests(SimpleTestCase):
             timeout_seconds=30,
             temperature=0.2,
             top_p=0.9,
+            num_ctx=4096,
             num_predict=0,
         )
         self.assertEqual(text, "Try one block at a time.")
@@ -115,6 +117,8 @@ class BackendEngineTests(SimpleTestCase):
         self.assertEqual(request.headers.get("Content-type"), "application/json")
         self.assertEqual(request.headers.get("Accept"), "application/json")
         self.assertEqual(request.headers.get("User-agent"), "ClassHub-HomeworkHelper/1.0")
+        payload = json.loads(request.data.decode("utf-8"))
+        self.assertEqual(payload["options"]["num_ctx"], 4096)
 
 
 class HeuristicsEngineTests(SimpleTestCase):

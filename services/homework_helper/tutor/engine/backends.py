@@ -99,6 +99,7 @@ def ollama_chat(
     timeout_seconds: int,
     temperature: float,
     top_p: float,
+    num_ctx: int,
     num_predict: int,
 ) -> tuple[str, str]:
     """Execute a non-streaming Ollama chat completion and return `(text, model_used)`."""
@@ -109,6 +110,8 @@ def ollama_chat(
         "temperature": temperature,
         "top_p": top_p,
     }
+    if num_ctx > 0:
+        options["num_ctx"] = num_ctx
     if num_predict > 0:
         options["num_predict"] = num_predict
     payload = {

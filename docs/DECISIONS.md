@@ -3665,3 +3665,13 @@ Execution ownership and gates:
 **Why this remains active:**
 - Prevents valid tutoring exchanges from breaking after the first turn just because the latest student reply is too short to overlap with lesson topic metadata on its own.
 - Limits the relaxation to context-dependent follow-ups so the helper still redirects genuine topic switches.
+
+## Helper exposes Ollama context-window cap for remote GPU deploys (2026-03-26)
+
+**Current decision:**
+- Add `OLLAMA_NUM_CTX` as an optional helper setting and pass it through to Ollama `options.num_ctx`.
+- Keep the default at `0` so existing local deployments continue using the model default unless operators opt in.
+
+**Why this remains active:**
+- Some remote GPU Ollama deployments advertise very large default context windows that are unnecessary for short tutoring prompts and can cause `/api/chat` to stall even when local `ollama run` works.
+- Exposing the knob in env/YAML lets operators stabilize inference and smoke checks without patching model files or hard-coding a global context size into the app.

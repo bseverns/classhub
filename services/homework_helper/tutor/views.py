@@ -164,6 +164,7 @@ def _ollama_chat(base_url: str, model: str, instructions: str, message: str) -> 
         timeout_seconds=_env_int("OLLAMA_TIMEOUT_SECONDS", 30),
         temperature=float(helper_getenv("OLLAMA_TEMPERATURE", "0.2")),
         top_p=float(helper_getenv("OLLAMA_TOP_P", "0.9")),
+        num_ctx=_env_int("OLLAMA_NUM_CTX", 0),
         num_predict=_env_int("OLLAMA_NUM_PREDICT", 0),
     )
 

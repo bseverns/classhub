@@ -88,6 +88,7 @@ def ollama_chat(
     timeout_seconds: int,
     temperature: float,
     top_p: float,
+    num_ctx: int,
     num_predict: int,
 ) -> tuple[str, str]:
     return engine_backends.ollama_chat(
@@ -98,6 +99,7 @@ def ollama_chat(
         timeout_seconds=timeout_seconds,
         temperature=temperature,
         top_p=top_p,
+        num_ctx=num_ctx,
         num_predict=num_predict,
     )
 

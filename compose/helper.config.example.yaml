@@ -20,6 +20,7 @@ backend:
     timeout_seconds: 30
     temperature: 0.2
     top_p: 0.9
+    num_ctx: 0
     num_predict: 400
   openai:
     model: gpt-5.2

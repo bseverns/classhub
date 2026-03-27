@@ -152,6 +152,7 @@ OLLAMA_MODEL=llama3.2:1b
 OLLAMA_TIMEOUT_SECONDS=30
 OLLAMA_TEMPERATURE=0.2
 OLLAMA_TOP_P=0.9
+OLLAMA_NUM_CTX=0
 OLLAMA_NUM_PREDICT=400
 ```
 
@@ -169,6 +170,10 @@ Larger models may be too slow or may not fit in memory.
 
 If you run Ollama outside of Compose, set `OLLAMA_BASE_URL` to the host address
 that containers can reach.
+
+For hosted or remote Ollama deployments, set `OLLAMA_NUM_CTX` explicitly when
+the model's default context window is too large for your runtime. A value like
+`4096` is a practical starting point for smoke checks and short classroom hints.
 
 ### OpenAI (optional, explicit opt-in)
 
@@ -375,6 +380,7 @@ The helper uses a small Redis-backed slot queue:
 - `HELPER_RESPONSE_MAX_CHARS`: hard cap on returned assistant text length (default: `2200`, minimum enforced `200`)
 - `OPENAI_MAX_OUTPUT_TOKENS`: optional Responses API output-token cap (set `0` to disable)
 - `OLLAMA_NUM_PREDICT`: optional Ollama generation-token cap (set `0` to use model default)
+- `OLLAMA_NUM_CTX`: optional Ollama context-window cap (set `0` to use model default)
 
 ## Backend resilience + telemetry
 
