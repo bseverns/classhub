@@ -3675,3 +3675,15 @@ Execution ownership and gates:
 **Why this remains active:**
 - Some remote GPU Ollama deployments advertise very large default context windows that are unnecessary for short tutoring prompts and can cause `/api/chat` to stall even when local `ollama run` works.
 - Exposing the knob in env/YAML lets operators stabilize inference and smoke checks without patching model files or hard-coding a global context size into the app.
+
+## Remote Ollama should prefer host-managed Tailscale Serve (2026-03-26)
+
+**Current decision:**
+- Keep Tailscale out of the default Compose stack.
+- For private remote GPU inference, run Tailscale on the hosts and publish Ollama from the GPU node with `tailscale serve`.
+- Point `OLLAMA_BASE_URL` and `HELPER_RAG_EMBED_BASE_URL` at the GPU node's MagicDNS HTTPS URL.
+
+**Why this remains active:**
+- Preserves the current least-privilege Compose posture instead of introducing a privileged VPN sidecar with `/dev/net/tun` or `NET_ADMIN`.
+- Avoids public edge timeouts and proxy incompatibilities when `helper_web` talks to a remote Ollama-compatible backend.
+- Gives operators one stable private URL that is usable in browser-based checks, smoke scripts, and helper env configuration.

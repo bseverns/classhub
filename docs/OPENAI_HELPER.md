@@ -175,6 +175,81 @@ For hosted or remote Ollama deployments, set `OLLAMA_NUM_CTX` explicitly when
 the model's default context window is too large for your runtime. A value like
 `4096` is a practical starting point for smoke checks and short classroom hints.
 
+### Ollama (remote GPU over Tailscale Serve)
+
+Recommended production pattern:
+- keep Tailscale host-managed, not in `docker-compose.yml`
+- run Ollama on the GPU host
+- publish it privately with `tailscale serve`
+- point Class Hub at the GPU host's MagicDNS HTTPS URL
+
+Why this is the preferred remote pattern:
+- keeps the app Compose stack least-privilege
+- avoids public edge proxies between `helper_web` and Ollama
+- gives operators a stable URL that works in both browsers and env config
+
+GPU host bring-up:
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+tailscale up --ssh
+curl http://127.0.0.1:11434/api/tags
+tailscale serve --bg 443 http://127.0.0.1:11434
+tailscale serve status
+```
+
+If the GPU environment does not run `systemd`, start `tailscaled` manually in
+userspace-networking mode before `tailscale up`:
+
+```bash
+sudo mkdir -p /var/lib/tailscale /run/tailscale
+sudo nohup tailscaled \
+  --state=/var/lib/tailscale/tailscaled.state \
+  --socket=/run/tailscale/tailscaled.sock \
+  --tun=userspace-networking \
+  >/tmp/tailscaled.log 2>&1 &
+sudo tailscale --socket=/run/tailscale/tailscaled.sock up --ssh
+sudo tailscale --socket=/run/tailscale/tailscaled.sock serve --bg 443 http://127.0.0.1:11434
+sudo tailscale --socket=/run/tailscale/tailscaled.sock serve status
+```
+
+LMS host env example:
+
+```bash
+HELPER_LLM_BACKEND=ollama
+OLLAMA_BASE_URL=https://gpu-ollama.example-tail.ts.net
+OLLAMA_MODEL=llama3.2:3b
+OLLAMA_TIMEOUT_SECONDS=45
+OLLAMA_NUM_CTX=4096
+OLLAMA_NUM_PREDICT=64
+
+HELPER_RAG_EMBED_BASE_URL=https://gpu-ollama.example-tail.ts.net
+HELPER_RAG_EMBED_MODEL=nomic-embed-text
+```
+
+Verification flow:
+
+```bash
+curl https://gpu-ollama.example-tail.ts.net/api/tags
+curl --max-time 60 https://gpu-ollama.example-tail.ts.net/api/chat \
+  -H 'Content-Type: application/json' \
+  -H 'User-Agent: ClassHub-HomeworkHelper/1.0' \
+  --data '{"model":"llama3.2:3b","messages":[{"role":"system","content":"Be brief."},{"role":"user","content":"Give one short Scratch hint about moving a sprite."}],"stream":false,"options":{"num_ctx":4096,"num_predict":64}}'
+```
+
+Smoke check recommendation for remote GPUs:
+
+```bash
+SMOKE_TIMEOUT_SECONDS=45 \
+SMOKE_HELPER_MESSAGE='Give one short Scratch hint about moving a sprite.' \
+make smoke-full
+```
+
+Tailscale references:
+- Serve CLI: https://tailscale.com/docs/reference/tailscale-cli/serve
+- Userspace networking: https://tailscale.com/kb/1112/userspace-networking
+- MagicDNS / `.ts.net` names: https://tailscale.com/kb/1081/magicdns
+
 ### OpenAI (optional, explicit opt-in)
 
 If you want to re-enable OpenAI later:
