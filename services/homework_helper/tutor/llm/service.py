@@ -25,6 +25,20 @@ _BACKEND_ALIASES = {
 }
 
 
+def _sanitize_base_url(base_url: str) -> str:
+    parsed = urlsplit(str(base_url or "").strip())
+    host = (parsed.hostname or "").strip()
+    if not parsed.scheme or not host:
+        return ""
+    if host in _LOCAL_HOSTS:
+        visible_host = host
+    else:
+        visible_host = "<private-host>"
+    if parsed.port:
+        visible_host = f"{visible_host}:{parsed.port}"
+    return f"{parsed.scheme}://{visible_host}"
+
+
 def resolve_backend_name(*, getenv: Callable[[str, str], str] = helper_getenv) -> str:
     raw = (
         getenv("LLM_BACKEND", "")
@@ -147,6 +161,22 @@ def describe_backend(
         "enabled": config.enabled,
         "model": config.model,
         "base_url": config.base_url,
+        "base_url_display": _sanitize_base_url(config.base_url),
+        "remote_private": backend_requires_acknowledgement(config.provider, getenv=getenv),
+        "healthcheck_enabled": config.healthcheck_enabled,
+    }
+
+
+def describe_backend_public(
+    provider_name: str | None = None,
+    *,
+    getenv: Callable[[str, str], str] = helper_getenv,
+) -> dict[str, object]:
+    config = resolve_backend_runtime_config(provider_name, getenv=getenv)
+    return {
+        "provider": config.provider,
+        "enabled": config.enabled,
+        "model": config.model,
         "remote_private": backend_requires_acknowledgement(config.provider, getenv=getenv),
         "healthcheck_enabled": config.healthcheck_enabled,
     }
@@ -165,23 +195,26 @@ def chat_with_provider(
     provider = build_provider(provider_name, getenv=getenv)
     config = provider.config
     outbound_message = str(message or "")
+    outbound_instructions = str(instructions or "")
     if config.redaction_enabled:
         outbound_message = redact_fn(outbound_message)
+        outbound_instructions = redact_fn(outbound_instructions)
     prompt_log = {
         "event": "llm_provider_request",
         "provider": config.provider,
         "request_id": request_id,
         "model": config.model,
         "message_chars": len(outbound_message),
-        "instructions_chars": len(str(instructions or "")),
+        "instructions_chars": len(outbound_instructions),
         "metadata": metadata or {},
     }
     if config.log_prompt_content:
         prompt_log["message_preview"] = outbound_message[:300]
+        prompt_log["instructions_preview"] = outbound_instructions[:300]
     logger.info(json.dumps(prompt_log, sort_keys=True, default=str))
     response = provider.chat(
         LLMRequest(
-            instructions=str(instructions or ""),
+            instructions=outbound_instructions,
             message=outbound_message,
             request_id=request_id,
             metadata=metadata or {},

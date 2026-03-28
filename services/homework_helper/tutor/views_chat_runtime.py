@@ -5,6 +5,7 @@ from .engine import circuit as engine_circuit
 from .llm.service import (
     backend_requires_acknowledgement as service_backend_requires_acknowledgement,
     describe_backend as service_describe_backend,
+    describe_backend_public as service_describe_backend_public,
     healthcheck_provider as service_healthcheck_provider,
 )
 
@@ -214,6 +215,10 @@ def llm_describe_backend(*, backend: str) -> dict[str, object]:
     return service_describe_backend(backend)
 
 
+def llm_describe_backend_public(*, backend: str) -> dict[str, object]:
+    return service_describe_backend_public(backend)
+
+
 def llm_healthcheck(*, backend: str, probe_chat: bool = False):
     return service_healthcheck_provider(backend, probe_chat=probe_chat)
 
@@ -225,6 +230,7 @@ __all__ = [
     "invoke_backend",
     "llm_backend_requires_acknowledgement",
     "llm_describe_backend",
+    "llm_describe_backend_public",
     "llm_healthcheck",
     "load_scope_from_token",
     "mock_chat",

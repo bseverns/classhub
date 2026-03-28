@@ -59,6 +59,14 @@ class HelperSecurityHeaderTests(TestCase):
         self.assertEqual(resp["Referrer-Policy"], "strict-origin-when-cross-origin")
         self.assertEqual(resp["X-Frame-Options"], "DENY")
 
+    @override_settings(HELPER_LLM_BACKEND="ollama", LLM_BASE_URL="https://private-gpu.tail.ts.net")
+    def test_healthz_does_not_expose_private_backend_url(self):
+        resp = self.client.get("/helper/healthz")
+        self.assertEqual(resp.status_code, 200)
+        payload = resp.json()
+        self.assertEqual(payload["llm"]["provider"], "ollama")
+        self.assertNotIn("base_url", payload["llm"])
+
 
 class HelperCSPModeTests(TestCase):
     _RELAXED_POLICY = "default-src 'self'; script-src 'self' 'unsafe-inline'"
@@ -123,5 +131,4 @@ class HelperSiteModeTests(TestCase):
     def test_maintenance_still_allows_healthz(self):
         resp = self.client.get("/helper/healthz")
         self.assertEqual(resp.status_code, 200)
-
 

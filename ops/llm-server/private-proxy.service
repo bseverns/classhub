@@ -1,0 +1,15 @@
+[Unit]
+Description=ClassHub private LLM auth proxy
+After=network-online.target tailscaled.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+EnvironmentFile=/etc/classhub/llm-server.env
+ExecStart=/opt/classhub-llm/run-private-proxy.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

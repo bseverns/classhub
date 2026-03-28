@@ -73,8 +73,7 @@ from .views_chat_runtime import (
     call_backend_with_retries as runtime_call_backend_with_retries,
     invoke_backend as runtime_invoke_backend,
     llm_backend_requires_acknowledgement as runtime_llm_backend_requires_acknowledgement,
-    llm_describe_backend as runtime_llm_describe_backend,
-    llm_healthcheck as runtime_llm_healthcheck,
+    llm_describe_backend_public as runtime_llm_describe_backend_public,
     load_scope_from_token as runtime_load_scope_from_token,
     mock_chat as runtime_mock_chat,
     ollama_chat as runtime_ollama_chat,
@@ -227,7 +226,7 @@ def _call_backend_with_retries(backend: str, instructions: str, message: str) ->
 @require_GET
 def healthz(request):
     backend = (helper_getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
-    backend_info = runtime_llm_describe_backend(backend=backend)
+    backend_info = runtime_llm_describe_backend_public(backend=backend)
     return JsonResponse({"ok": True, "backend": backend, "llm": backend_info})
 
 

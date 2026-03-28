@@ -142,3 +142,9 @@ Fast classifications:
 The operator runbook and GPU-host artifacts live in:
 
 - [ops/llm-server/README.md](../ops/llm-server/README.md)
+
+## Known limits
+
+- The current production-ready path is private Ollama over Tailscale with a small auth proxy, not a full service-mesh identity story.
+- Helper-side redaction is intentionally minimal and pattern-based; it reduces obvious leakage but does not make arbitrary free-text prompts safe by itself.
+- Public helper health checks no longer expose the private backend URL, but operator probes still need direct shell access on the LMS host.

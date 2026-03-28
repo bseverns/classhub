@@ -250,11 +250,21 @@ fi
 
 LLM_ENABLED="$(env_file_value LLM_ENABLED)"
 LLM_ENABLED="${LLM_ENABLED:-1}"
+LLM_LOG_PROMPT_CONTENT="$(env_file_value LLM_LOG_PROMPT_CONTENT)"
+LLM_LOG_PROMPT_CONTENT="${LLM_LOG_PROMPT_CONTENT:-0}"
+LLM_REDACTION_ENABLED="$(env_file_value LLM_REDACTION_ENABLED)"
+LLM_REDACTION_ENABLED="${LLM_REDACTION_ENABLED:-1}"
 HELPER_LLM_BACKEND="$(env_file_value LLM_BACKEND)"
 if [[ -z "${HELPER_LLM_BACKEND}" ]]; then
   HELPER_LLM_BACKEND="$(env_file_value HELPER_LLM_BACKEND)"
 fi
 HELPER_LLM_BACKEND_LOWER="$(to_lower "${HELPER_LLM_BACKEND}")"
+if [[ "${DJANGO_DEBUG}" == "0" && "${LLM_ENABLED}" == "1" && "${LLM_LOG_PROMPT_CONTENT}" == "1" ]]; then
+  fail "LLM_LOG_PROMPT_CONTENT must remain 0 when DJANGO_DEBUG=0"
+fi
+if [[ "${DJANGO_DEBUG}" == "0" && "${LLM_ENABLED}" == "1" && "${LLM_REDACTION_ENABLED}" != "1" ]]; then
+  fail "LLM_REDACTION_ENABLED must be 1 when DJANGO_DEBUG=0"
+fi
 if [[ "${HELPER_LLM_BACKEND_LOWER}" == "openai" || "${HELPER_LLM_BACKEND_LOWER}" == "openai_responses" ]]; then
   require_strong_secret "OPENAI_API_KEY" 20
 fi
@@ -282,6 +292,21 @@ if [[ "${LLM_ENABLED}" == "1" && "${HELPER_LLM_BACKEND_LOWER}" == "ollama" ]]; t
   HELPER_REMOTE_MODE_ACKNOWLEDGED="${HELPER_REMOTE_MODE_ACKNOWLEDGED:-0}"
   if [[ "${DJANGO_DEBUG}" == "0" && "${LLM_OLLAMA_BASE_URL}" == https://*".ts.net"* && "${HELPER_REMOTE_MODE_ACKNOWLEDGED}" != "1" ]]; then
     fail "HELPER_REMOTE_MODE_ACKNOWLEDGED must be 1 for private remote Ollama over Tailscale in production"
+  fi
+  if [[ "${DJANGO_DEBUG}" == "0" && "${LLM_OLLAMA_BASE_URL}" == http://*".ts.net"* ]]; then
+    fail "Private remote Ollama over Tailscale must use HTTPS (tailscale serve), not http://*.ts.net, in production"
+  fi
+  if [[ "${DJANGO_DEBUG}" == "0" && "${LLM_OLLAMA_BASE_URL}" == https://*".ts.net"* ]]; then
+    LLM_OLLAMA_API_KEY="$(env_file_value LLM_API_KEY)"
+    if [[ -z "${LLM_OLLAMA_API_KEY}" ]]; then
+      LLM_OLLAMA_API_KEY="$(env_file_value OLLAMA_API_KEY)"
+    fi
+    if [[ -z "${LLM_OLLAMA_API_KEY}" ]]; then
+      fail "LLM_API_KEY or OLLAMA_API_KEY is required for private remote Ollama over Tailscale in production"
+    fi
+    if [[ "${#LLM_OLLAMA_API_KEY}" -lt 20 ]] || is_unsafe_secret "${LLM_OLLAMA_API_KEY}"; then
+      fail "LLM_API_KEY or OLLAMA_API_KEY must be a strong shared secret for private remote Ollama over Tailscale in production"
+    fi
   fi
 fi
 

@@ -39,8 +39,11 @@ cat <<'EOF'
 
 Next steps:
 1. Copy ops/llm-server/env.example to /etc/classhub/llm-server.env and fill secrets.
-2. Copy the service files you plan to use into /etc/systemd/system/.
-3. Run `tailscale up --ssh --advertise-tags=tag:llm`.
-4. Start the chosen model service.
-5. Publish the private HTTPS endpoint with `tailscale serve`.
+2. Install Caddy separately if you plan to use the private Ollama auth proxy.
+3. Copy the service files you plan to use into /etc/systemd/system/.
+4. Copy runtime scripts/Caddyfile into /opt/classhub-llm/.
+5. Run `tailscale up --ssh --advertise-tags=tag:llm`.
+6. Start the chosen model service.
+7. Start the optional private proxy if using Ollama.
+8. Publish the private HTTPS endpoint with `tailscale serve`.
 EOF

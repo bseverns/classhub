@@ -34,6 +34,8 @@ flowchart LR
 - `run-vllm.sh`: loopback-only vLLM launcher with native API-key support
 - `vllm.service`: systemd unit for vLLM
 - `Caddyfile.private`: optional bearer-token wrapper for Ollama
+- `run-private-proxy.sh`: safe launcher that refuses to start the wrapper without a token
+- `private-proxy.service`: systemd unit for the private auth proxy
 - `tailscale-acl.example.hujson`: example ACL/tag policy snippet
 
 ## Recommended first pass
@@ -42,9 +44,10 @@ If you are already committed to an Ollama distribution:
 
 1. Install Tailscale and Ollama with `install.sh`.
 2. Run Ollama on `127.0.0.1:11434` only.
-3. Put the included private Caddy wrapper in front of Ollama so the LMS must send `Authorization: Bearer ...`.
-4. Publish the wrapper with `tailscale serve`, not the raw Ollama socket.
-5. Point ClassHub `LLM_BASE_URL` at the `.ts.net` hostname.
+3. Install Caddy on the GPU node and copy `Caddyfile.private` + `run-private-proxy.sh`.
+4. Start the included private Caddy wrapper in front of Ollama so the LMS must send `Authorization: Bearer ...`.
+5. Publish the wrapper with `tailscale serve`, not the raw Ollama socket.
+6. Point ClassHub `LLM_BASE_URL` at the `.ts.net` hostname.
 
 If you later want a cleaner OpenAI-compatible target, move to `run-vllm.sh` + `vllm.service` and switch the LMS to `LLM_BACKEND=openai_compatible`.
 
@@ -56,6 +59,23 @@ Ollama:
 sudo systemctl enable --now classhub-ollama
 ollama pull llama3.2:3b
 curl http://127.0.0.1:11434/api/tags
+```
+
+Private auth proxy for Ollama:
+
+```bash
+sudo cp ops/llm-server/Caddyfile.private /opt/classhub-llm/Caddyfile.private
+sudo cp ops/llm-server/run-private-proxy.sh /opt/classhub-llm/run-private-proxy.sh
+sudo chmod 755 /opt/classhub-llm/run-private-proxy.sh
+sudo cp ops/llm-server/private-proxy.service /etc/systemd/system/classhub-private-proxy.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now classhub-private-proxy
+```
+
+Verify the wrapper before publishing it with Tailscale:
+
+```bash
+curl -H "Authorization: Bearer ${LLM_SHARED_API_KEY}" https://127.0.0.1:8443/api/tags -k
 ```
 
 vLLM:
@@ -124,6 +144,7 @@ From the GPU host:
 tailscale status
 tailscale serve status
 curl http://127.0.0.1:11434/api/tags
+journalctl -u classhub-private-proxy -n 200 --no-pager
 journalctl -u classhub-ollama -n 200 --no-pager
 journalctl -u classhub-vllm -n 200 --no-pager
 ```
@@ -135,3 +156,9 @@ Common failure classes:
 - `upstream_unavailable`: model host up but server not reachable or still warming
 - `timeout`: model too cold/heavy for current timeout budget
 - `malformed_response`: reverse proxy returned HTML/error page instead of JSON
+
+## Known limits
+
+- The Ollama path is still a private native Ollama integration with a thin auth proxy, not end-to-end zero-trust service identity.
+- The helper redacts obvious PII patterns, but lesson context or operator-supplied scope text can still contain sensitive details if you put them there.
+- `tailscale serve` plus the private proxy is the supported secure path; direct `http://*.ts.net` access is intentionally treated as misconfiguration for production.

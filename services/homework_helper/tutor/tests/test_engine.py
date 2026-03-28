@@ -155,6 +155,25 @@ class BackendEngineTests(SimpleTestCase):
         self.assertEqual(details["provider"], "ollama")
         self.assertTrue(details["remote_private"])
         self.assertEqual(details["model"], "llama3.2:3b")
+        self.assertEqual(details["base_url"], "https://gpu-ollama.example-tail.ts.net")
+        self.assertEqual(details["base_url_display"], "https://<private-host>")
+
+    @patch.dict(
+        "os.environ",
+        {
+            "LLM_BACKEND": "ollama",
+            "LLM_MODEL": "llama3.2:3b",
+            "LLM_BASE_URL": "https://gpu-ollama.example-tail.ts.net",
+        },
+        clear=False,
+    )
+    def test_public_llm_description_omits_base_url(self):
+        from ..llm import service as llm_service
+
+        details = llm_service.describe_backend_public("ollama")
+
+        self.assertNotIn("base_url", details)
+        self.assertTrue(details["remote_private"])
 
 
 class HeuristicsEngineTests(SimpleTestCase):

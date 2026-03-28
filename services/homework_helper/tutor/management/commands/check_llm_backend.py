@@ -57,9 +57,12 @@ class Command(BaseCommand):
             "enabled": bool(details.get("enabled")),
             "provider": details.get("provider", backend),
             "model": details.get("model", ""),
-            "base_url": details.get("base_url", ""),
             "remote_private": bool(details.get("remote_private")),
         }
+        base_url = str(details.get("base_url") or "").strip()
+        base_url_display = str(details.get("base_url_display") or "").strip()
+        if base_url_display:
+            payload["base_url"] = base_url_display
 
         if not payload["enabled"]:
             payload["detail"] = "llm_disabled"
@@ -68,7 +71,7 @@ class Command(BaseCommand):
                 raise CommandError("LLM is disabled.")
             return
 
-        host = str(urlsplit(str(payload["base_url"] or "")).hostname or "").strip()
+        host = str(urlsplit(base_url).hostname or "").strip()
         if host:
             try:
                 addresses = sorted({item[4][0] for item in socket.getaddrinfo(host, None)})
