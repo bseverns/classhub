@@ -2,6 +2,11 @@ from .engine.config_source import helper_getenv
 from .engine import auth as engine_auth
 from .engine import backends as engine_backends
 from .engine import circuit as engine_circuit
+from .llm.service import (
+    backend_requires_acknowledgement as service_backend_requires_acknowledgement,
+    describe_backend as service_describe_backend,
+    healthcheck_provider as service_healthcheck_provider,
+)
 
 
 def backend_circuit_is_open(*, cache_backend, backend: str, logger) -> bool:
@@ -121,6 +126,17 @@ def openai_chat(
     )
 
 
+def openai_compatible_chat(
+    *,
+    instructions: str,
+    message: str,
+) -> tuple[str, str]:
+    return engine_backends.openai_compatible_chat(
+        instructions=instructions,
+        message=message,
+    )
+
+
 def mock_chat(*, text: str) -> tuple[str, str]:
     return engine_backends.mock_chat(text=text)
 
@@ -133,6 +149,7 @@ def invoke_backend(
     ollama_chat_fn,
     openai_chat_fn,
     mock_chat_fn,
+    openai_compatible_chat_fn=None,
 ) -> tuple[str, str]:
     registry = {
         "ollama": engine_backends.CallableBackend(
@@ -148,6 +165,12 @@ def invoke_backend(
                 helper_getenv("OPENAI_MODEL", "gpt-5.2"),
                 system_instructions,
                 user_message,
+            )
+        ),
+        "openai_compatible": engine_backends.CallableBackend(
+            chat_fn=lambda system_instructions, user_message: (openai_compatible_chat_fn or openai_chat_fn)(
+                instructions=system_instructions,
+                message=user_message,
             )
         ),
         "mock": engine_backends.CallableBackend(
@@ -183,14 +206,30 @@ def call_backend_with_retries(
     )
 
 
+def llm_backend_requires_acknowledgement(*, backend: str) -> bool:
+    return service_backend_requires_acknowledgement(backend)
+
+
+def llm_describe_backend(*, backend: str) -> dict[str, object]:
+    return service_describe_backend(backend)
+
+
+def llm_healthcheck(*, backend: str, probe_chat: bool = False):
+    return service_healthcheck_provider(backend, probe_chat=probe_chat)
+
+
 __all__ = [
     "actor_key",
     "backend_circuit_is_open",
     "call_backend_with_retries",
     "invoke_backend",
+    "llm_backend_requires_acknowledgement",
+    "llm_describe_backend",
+    "llm_healthcheck",
     "load_scope_from_token",
     "mock_chat",
     "ollama_chat",
+    "openai_compatible_chat",
     "openai_chat",
     "record_backend_failure",
     "reset_backend_failure_state",

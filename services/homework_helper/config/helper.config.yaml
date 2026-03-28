@@ -13,7 +13,11 @@ rate_limits:
   ip_per_minute: 90
 
 backend:
+  enabled: true
   name: ollama
+  allowed_actor_types:
+    - student
+    - staff
   mock_response_text: ""
   ollama:
     base_url: http://ollama:11434

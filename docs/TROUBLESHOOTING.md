@@ -28,6 +28,7 @@ flowchart TD
 ```bash
 cd /srv/lms/app
 bash scripts/system_doctor.sh --smoke-mode basic
+bash scripts/check_llm_backend.sh --probe-chat
 ```
 
 If this fails early, fix the first failing step before changing anything else.
@@ -49,6 +50,7 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 |---|---|---|
 | Site not loading over HTTPS | Caddy logs + `.env` domain/template | Edge routing/TLS |
 | `/helper/chat` failing (502 / `ollama_error` or 503 / `busy`) | `helper_web` logs + Ollama tags | Helper backend/model/queue saturation |
+| Private LLM check failing before smoke | `bash scripts/check_llm_backend.sh --probe-chat` | Tailnet DNS/auth/upstream reachability |
 | `/helper/chat` failing with 403 CSRF page | Browser request headers (`Referer`, `X-CSRFToken`, `Cookie`) + `classhub_web` logs | CSRF/referrer/session |
 | Student join shows "Security check blocked the join request" | `/join` response code + cookie secure flags in `.env` | CSRF cookie transport mismatch |
 | Teacher login smoke fails | smoke credentials + login response path | Auth/config mismatch |
@@ -119,6 +121,7 @@ Common causes:
 - Ollama not ready
 - model not pulled
 - `OLLAMA_BASE_URL` mismatch
+- `LLM_API_KEY` mismatch between LMS and private proxy
 - helper worker timeout too strict for retry budget
 - helper request queue is saturated on CPU-bound inference
 
@@ -129,6 +132,7 @@ cd /srv/lms/app/compose
 docker compose logs --tail=200 helper_web
 docker compose logs --tail=200 ollama
 curl http://localhost:11434/api/tags
+bash scripts/check_llm_backend.sh --probe-chat
 docker compose exec -T helper_web env | grep -E '^(OLLAMA_BASE_URL|OLLAMA_MODEL|OLLAMA_TIMEOUT_SECONDS|HELPER_LLM_BACKEND|HELPER_GUNICORN_TIMEOUT_SECONDS|HELPER_BACKEND_MAX_ATTEMPTS|HELPER_QUEUE_MAX_WAIT_SECONDS|HELPER_BACKOFF_SECONDS)='
 ```
 
@@ -149,6 +153,7 @@ docker compose up -d helper_web
 ```
 
 If using non-compose Ollama, ensure `OLLAMA_BASE_URL` points to a host reachable from containers.
+If you are using a private GPU node, ensure `LLM_BASE_URL`/`OLLAMA_BASE_URL` points at the tailnet-only hostname and that the private proxy/API key still match.
 
 ## Symptom: `/helper/chat` fails with 403 CSRF page
 

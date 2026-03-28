@@ -48,7 +48,7 @@ flowchart TB
 
   subgraph Z3["Optional External Services"]
     YT["YouTube-nocookie embeds"]
-    REM["Remote LLM provider (optional)"]
+    REM["Private LLM node over Tailscale"]
   end
 
   S -->|HTTPS| C
@@ -97,11 +97,12 @@ flowchart LR
 
 - Owns helper chat policy, prompt shaping, and model backends.
 - Uses Postgres + Redis for auth/session/rate-limit integration.
-- Uses Ollama by default; OpenAI is optional by environment config.
+- Uses Ollama by default; private remote Ollama/vLLM are supported through the helper provider layer.
 - Runtime behavior is resolved through explicit contracts:
   - scope/context envelope (`engine/context_envelope.py`)
   - policy bundle (`engine/runtime_config.py`)
   - execution config (`engine/execution_config.py`)
+  - provider abstraction (`tutor/llm/*`)
 
 ## Why two Django services
 

@@ -246,9 +246,9 @@ if [[ -n "${CLASS_CODE}" ]]; then
     fi
 
     helper_retry_reason=""
-    if [[ "${code}" == "502" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"ollama_error"' "${TMP_HELPER}"; then
+    if [[ "${code}" == "502" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"(ollama_error|backend_timeout|backend_malformed_response)"' "${TMP_HELPER}"; then
       helper_retry_reason="ollama_error"
-    elif [[ "${code}" == "503" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"busy"' "${TMP_HELPER}"; then
+    elif [[ "${code}" == "503" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"(busy|backend_unavailable)"' "${TMP_HELPER}"; then
       helper_retry_reason="busy"
     fi
 

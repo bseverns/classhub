@@ -287,6 +287,38 @@ class HelperChatRuntimeModuleTests(TestCase):
             },
         )
 
+    def test_invoke_backend_uses_openai_compatible_registry_entry(self):
+        captured = {}
+
+        def openai_compatible_chat_fn(*, instructions, message):
+            captured["instructions"] = instructions
+            captured["message"] = message
+            return "compat-answer", "compat-model"
+
+        text, model = views_chat_runtime.invoke_backend(
+            backend="openai_compatible",
+            instructions="system",
+            message="student question",
+            ollama_chat_fn=lambda *_args, **_kwargs: ("nope", "nope"),
+            openai_chat_fn=lambda *_args, **_kwargs: ("nope", "nope"),
+            mock_chat_fn=lambda: ("nope", "nope"),
+            openai_compatible_chat_fn=openai_compatible_chat_fn,
+        )
+
+        self.assertEqual(text, "compat-answer")
+        self.assertEqual(model, "compat-model")
+        self.assertEqual(captured, {"instructions": "system", "message": "student question"})
+
+    def test_llm_backend_requires_acknowledgement_delegates_to_service(self):
+        with patch(
+            "tutor.views_chat_runtime.service_backend_requires_acknowledgement",
+            return_value=True,
+        ) as backend_requires_acknowledgement_mock:
+            result = views_chat_runtime.llm_backend_requires_acknowledgement(backend="ollama")
+
+        self.assertTrue(result)
+        backend_requires_acknowledgement_mock.assert_called_once_with("ollama")
+
     def test_invoke_backend_uses_mock_registry_entry(self):
         text, model = views_chat_runtime.invoke_backend(
             backend="mock",

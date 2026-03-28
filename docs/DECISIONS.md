@@ -99,6 +99,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper lesson citations](#helper-lesson-citations)
 - [Helper local curriculum RAG](#helper-local-curriculum-rag)
 - [Helper YAML config layering](#helper-yaml-config-layering)
+- [Helper uses a provider abstraction for private LLM backends (2026-03-28)](#helper-uses-a-provider-abstraction-for-private-llm-backends-2026-03-28)
+- [Private Ollama remains the active remote path; vLLM stays swap-ready (2026-03-28)](#private-ollama-remains-the-active-remote-path-vllm-stays-swap-ready-2026-03-28)
 - [Production transport hardening](#production-transport-hardening)
 - [Content parse caching](#content-parse-caching)
 - [Admin access 2FA](#admin-access-2fa)
@@ -168,6 +170,32 @@ Historical implementation logs and superseded decisions are archived by month in
 **Why this remains active:**
 - Keeps the codebase responsive to easy wins without obscuring correctness-focused control flow.
 - Avoids churn from analyzer suggestions that ignore small bounded loops or backend-split write semantics.
+
+## Helper uses a provider abstraction for private LLM backends (2026-03-28)
+
+**Current decision:**
+- Keep `tutor/views.py` and `tutor/engine/*` as the HTTP and orchestration boundary.
+- Add a provider layer under `tutor/llm/*` for concrete private backend integrations.
+- Route current Ollama calls through that provider layer, while keeping the higher-level helper endpoint contract unchanged.
+- Prefer generic `LLM_*` env names for new deploys, while continuing to honor legacy helper/Ollama env names.
+
+**Why this remains active:**
+- Preserves the existing tested helper flow instead of introducing a parallel, unused abstraction.
+- Makes later swaps to vLLM or another private OpenAI-compatible server a contained provider change rather than a helper endpoint rewrite.
+- Keeps privacy/logging controls and health probing in one auditable place.
+
+## Private Ollama remains the active remote path; vLLM stays swap-ready (2026-03-28)
+
+**Current decision:**
+- Treat private remote Ollama over Tailscale as the active first-pass deployment target.
+- Keep vLLM artifacts documented and ready, but position them as the next swap path rather than the current required runtime.
+- Require remote-backend acknowledgement and a direct helper-container connectivity check before full smoke.
+- Keep the GPU node loopback-bound and tailnet-only; browsers never reach it directly.
+
+**Why this remains active:**
+- Matches the current operator reality: the deployment is already using an Ollama distribution.
+- Preserves a boring, low-change path to a private remote model host now, without foreclosing a later move to a cleaner OpenAI-compatible endpoint.
+- Keeps the GPU host replaceable and least-privilege by default.
 
 ## Auth model: student access
 

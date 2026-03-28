@@ -1,0 +1,27 @@
+{
+  // Adapt host/user/tag names to your own tailnet.
+  "tagOwners": {
+    "tag:classhub": ["autogroup:admin"],
+    "tag:llm": ["autogroup:admin"],
+  },
+
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["tag:classhub"],
+      "dst": ["tag:llm:443"],
+    },
+  ],
+
+  "tests": [
+    {
+      "src": "tag:classhub",
+      "accept": ["tag:llm:443"],
+      "deny": ["tag:llm:22"],
+    },
+    {
+      "src": "autogroup:member",
+      "deny": ["tag:llm:443"],
+    },
+  ],
+}

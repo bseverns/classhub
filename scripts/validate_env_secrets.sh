@@ -248,10 +248,41 @@ if [[ "${APP_GID}" -le 0 ]]; then
   fail "APP_GID must be greater than 0 (non-root runtime identity)"
 fi
 
-HELPER_LLM_BACKEND="$(env_file_value HELPER_LLM_BACKEND)"
+LLM_ENABLED="$(env_file_value LLM_ENABLED)"
+LLM_ENABLED="${LLM_ENABLED:-1}"
+HELPER_LLM_BACKEND="$(env_file_value LLM_BACKEND)"
+if [[ -z "${HELPER_LLM_BACKEND}" ]]; then
+  HELPER_LLM_BACKEND="$(env_file_value HELPER_LLM_BACKEND)"
+fi
 HELPER_LLM_BACKEND_LOWER="$(to_lower "${HELPER_LLM_BACKEND}")"
-if [[ "${HELPER_LLM_BACKEND_LOWER}" == "openai" ]]; then
+if [[ "${HELPER_LLM_BACKEND_LOWER}" == "openai" || "${HELPER_LLM_BACKEND_LOWER}" == "openai_responses" ]]; then
   require_strong_secret "OPENAI_API_KEY" 20
+fi
+if [[ "${LLM_ENABLED}" == "1" && "${HELPER_LLM_BACKEND_LOWER}" == "openai_compatible" ]]; then
+  require_nonempty "LLM_BASE_URL"
+  require_nonempty "LLM_MODEL"
+  require_strong_secret "LLM_API_KEY" 20
+fi
+if [[ "${LLM_ENABLED}" == "1" && "${HELPER_LLM_BACKEND_LOWER}" == "ollama" ]]; then
+  LLM_OLLAMA_BASE_URL="$(env_file_value LLM_BASE_URL)"
+  if [[ -z "${LLM_OLLAMA_BASE_URL}" ]]; then
+    LLM_OLLAMA_BASE_URL="$(env_file_value OLLAMA_BASE_URL)"
+  fi
+  if [[ -z "${LLM_OLLAMA_BASE_URL}" ]]; then
+    fail "LLM_BASE_URL or OLLAMA_BASE_URL is required when HELPER_LLM_BACKEND/LLM_BACKEND=ollama"
+  fi
+  LLM_OLLAMA_MODEL="$(env_file_value LLM_MODEL)"
+  if [[ -z "${LLM_OLLAMA_MODEL}" ]]; then
+    LLM_OLLAMA_MODEL="$(env_file_value OLLAMA_MODEL)"
+  fi
+  if [[ -z "${LLM_OLLAMA_MODEL}" ]]; then
+    fail "LLM_MODEL or OLLAMA_MODEL is required when HELPER_LLM_BACKEND/LLM_BACKEND=ollama"
+  fi
+  HELPER_REMOTE_MODE_ACKNOWLEDGED="$(env_file_value HELPER_REMOTE_MODE_ACKNOWLEDGED)"
+  HELPER_REMOTE_MODE_ACKNOWLEDGED="${HELPER_REMOTE_MODE_ACKNOWLEDGED:-0}"
+  if [[ "${DJANGO_DEBUG}" == "0" && "${LLM_OLLAMA_BASE_URL}" == https://*".ts.net"* && "${HELPER_REMOTE_MODE_ACKNOWLEDGED}" != "1" ]]; then
+    fail "HELPER_REMOTE_MODE_ACKNOWLEDGED must be 1 for private remote Ollama over Tailscale in production"
+  fi
 fi
 
 TELEMETRY_WRITE_MODE="$(normalize_mode "$(env_file_value CLASSHUB_TELEMETRY_WRITE_MODE)")"
@@ -353,7 +384,7 @@ HELPER_BACKEND_MAX_ATTEMPTS="$(int_or_default "$(env_file_value HELPER_BACKEND_M
 if [[ "${HELPER_BACKEND_MAX_ATTEMPTS}" -lt 1 ]]; then
   HELPER_BACKEND_MAX_ATTEMPTS=1
 fi
-OLLAMA_TIMEOUT_SECONDS="$(number_or_default "$(env_file_value OLLAMA_TIMEOUT_SECONDS)" "30")"
+OLLAMA_TIMEOUT_SECONDS="$(number_or_default "$(env_file_value LLM_TIMEOUT_SECONDS)" "$(number_or_default "$(env_file_value OLLAMA_TIMEOUT_SECONDS)" "30")")"
 HELPER_QUEUE_MAX_WAIT_SECONDS="$(number_or_default "$(env_file_value HELPER_QUEUE_MAX_WAIT_SECONDS)" "10")"
 HELPER_BACKOFF_SECONDS="$(number_or_default "$(env_file_value HELPER_BACKOFF_SECONDS)" "0.4")"
 

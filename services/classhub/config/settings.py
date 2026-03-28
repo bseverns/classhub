@@ -456,7 +456,15 @@ CLASSHUB_HELPER_SIGNAL_TOP_STUDENTS = env.int("CLASSHUB_HELPER_SIGNAL_TOP_STUDEN
 # Set to 0 to disable (default).
 CLASSHUB_TEACHER_PANEL_CACHE_TTL_SECONDS = env.int("CLASSHUB_TEACHER_PANEL_CACHE_TTL_SECONDS", default=0)
 CLASSHUB_INTERNAL_EVENTS_TOKEN = env("CLASSHUB_INTERNAL_EVENTS_TOKEN", default="").strip()
-HELPER_LLM_BACKEND = (env("HELPER_LLM_BACKEND", default="ollama").strip() or "ollama").lower()
+HELPER_LLM_BACKEND = (
+    env("LLM_BACKEND", default=env("HELPER_LLM_BACKEND", default="ollama")).strip() or "ollama"
+).lower()
+LLM_BASE_URL = (
+    env(
+        "LLM_BASE_URL",
+        default=env("OLLAMA_BASE_URL", default=""),
+    ).strip()
+)
 HELPER_INTERNAL_RESET_URL = env(
     "HELPER_INTERNAL_RESET_URL",
     default="http://helper_web:8000/helper/internal/reset-class-conversations",

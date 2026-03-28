@@ -6,6 +6,7 @@ ENV_CHECK="${ROOT_DIR}/scripts/validate_env_secrets.sh"
 PORT_GUARD="${ROOT_DIR}/scripts/check_compose_port_exposure.py"
 MIGRATION_GATE="${ROOT_DIR}/scripts/migration_gate.sh"
 CONTENT_PREFLIGHT="${ROOT_DIR}/scripts/content_preflight.sh"
+LLM_BACKEND_CHECK="${ROOT_DIR}/scripts/check_llm_backend.sh"
 SMOKE_CHECK="${ROOT_DIR}/scripts/smoke_check.sh"
 GOLDEN_SMOKE="${ROOT_DIR}/scripts/golden_path_smoke.sh"
 
@@ -33,7 +34,8 @@ Runs a full stack self-check:
 3) migration gate
 4) content preflight
 5) compose health
-6) smoke checks
+6) private LLM backend check
+7) smoke checks
 
 Options:
   --compose-mode <prod|dev>       Compose files (default: prod)
@@ -219,7 +221,13 @@ echo "[doctor] applying runtime migrations"
 run_compose exec -T classhub_web python manage.py migrate --noinput
 run_compose exec -T helper_web python manage.py migrate --noinput
 
-echo "[doctor] 6/6 smoke checks (${SMOKE_MODE})"
+echo "[doctor] 6/7 llm backend check"
+if ! "${LLM_BACKEND_CHECK}" --compose-mode "${COMPOSE_MODE}" --probe-chat; then
+  print_compose_diagnostics
+  exit 1
+fi
+
+echo "[doctor] 7/7 smoke checks (${SMOKE_MODE})"
 if [[ "${SMOKE_MODE}" == "golden" ]]; then
   GOLDEN_ARGS=(
     --compose-mode "${COMPOSE_MODE}"

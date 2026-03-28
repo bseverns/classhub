@@ -8,6 +8,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
+from ..llm import (
+    LLMAuthError,
+    LLMConfigError,
+    LLMMalformedResponseError,
+    LLMTimeoutError,
+    LLMUpstreamUnavailableError,
+)
 from .context_envelope import ScopeResolutionError, resolve_context_envelope
 from .execution_config import resolve_execution_config
 from .runtime_config import resolve_policy_bundle
@@ -53,6 +60,7 @@ class ChatDeps:
     build_text_language_redirect: Callable[[str], str]
     build_allowed_topics_redirect: Callable[[str, list[str]], str]
     backend_circuit_is_open: Callable[[str], bool]
+    llm_backend_requires_acknowledgement: Callable[[str], bool]
     call_backend_with_retries: Callable[[str, str, str], tuple[str, str, int]]
     record_backend_failure: Callable[[str], None]
     reset_backend_failure_state: Callable[[str], None]
@@ -238,10 +246,24 @@ def handle_chat(
         model_message = f"{conversation_prompt}\n\nStudent (latest):\n{message}"
 
     backend = execution_config.backend
+    if not execution_config.llm_enabled:
+        deps.log_chat_event("warning", "llm_disabled", request_id=request_id, backend=backend)
+        return _response({"error": "llm_disabled"}, status=503)
+    if actor_type not in set(execution_config.llm_allowed_actor_types):
+        deps.log_chat_event(
+            "warning",
+            "llm_access_disabled",
+            request_id=request_id,
+            actor_type=actor_type,
+            backend=backend,
+        )
+        return _response({"error": "llm_access_disabled"}, status=403)
     policy_bundle = resolve_policy_bundle()
     strictness = policy_bundle.strictness
     scope_mode = policy_bundle.scope_mode
-    if backend == "openai" and not bool(getattr(settings, "HELPER_REMOTE_MODE_ACKNOWLEDGED", False)):
+    if deps.llm_backend_requires_acknowledgement(backend) and not bool(
+        getattr(settings, "HELPER_REMOTE_MODE_ACKNOWLEDGED", False)
+    ):
         deps.log_chat_event(
             "warning",
             "remote_backend_not_acknowledged",
@@ -583,6 +605,22 @@ def handle_chat(
     model_used = ""
     try:
         text, model_used, attempts_used = deps.call_backend_with_retries(backend, instructions, model_message)
+    except LLMTimeoutError:
+        deps.record_backend_failure(backend)
+        deps.log_chat_event("error", "backend_timeout", request_id=request_id, backend=backend)
+        return _response({"error": "backend_timeout"}, status=504)
+    except LLMUpstreamUnavailableError:
+        deps.record_backend_failure(backend)
+        deps.log_chat_event("error", "backend_unavailable", request_id=request_id, backend=backend)
+        return _response({"error": "backend_unavailable"}, status=503)
+    except (LLMAuthError, LLMConfigError):
+        deps.record_backend_failure(backend)
+        deps.log_chat_event("error", "backend_config_error", request_id=request_id, backend=backend)
+        return _response({"error": "backend_config_error"}, status=503)
+    except LLMMalformedResponseError:
+        deps.record_backend_failure(backend)
+        deps.log_chat_event("error", "backend_malformed_response", request_id=request_id, backend=backend)
+        return _response({"error": "backend_malformed_response"}, status=502)
     except RuntimeError as exc:
         deps.record_backend_failure(backend)
         if str(exc) == "openai_not_installed":
@@ -602,9 +640,7 @@ def handle_chat(
     except (urllib.error.URLError, urllib.error.HTTPError):
         deps.record_backend_failure(backend)
         deps.log_chat_event("error", "backend_transport_error", request_id=request_id, backend=backend)
-        if backend == "ollama":
-            return _response({"error": "ollama_error"}, status=502)
-        return _response({"error": "backend_error"}, status=502)
+        return _response({"error": "backend_unavailable"}, status=503)
     except ValueError:
         deps.record_backend_failure(backend)
         deps.log_chat_event("error", "backend_parse_error", request_id=request_id, backend=backend)

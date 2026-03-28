@@ -72,9 +72,13 @@ from .views_chat_runtime import (
     backend_circuit_is_open as runtime_backend_circuit_is_open,
     call_backend_with_retries as runtime_call_backend_with_retries,
     invoke_backend as runtime_invoke_backend,
+    llm_backend_requires_acknowledgement as runtime_llm_backend_requires_acknowledgement,
+    llm_describe_backend as runtime_llm_describe_backend,
+    llm_healthcheck as runtime_llm_healthcheck,
     load_scope_from_token as runtime_load_scope_from_token,
     mock_chat as runtime_mock_chat,
     ollama_chat as runtime_ollama_chat,
+    openai_compatible_chat as runtime_openai_compatible_chat,
     openai_chat as runtime_openai_chat,
     record_backend_failure as runtime_record_backend_failure,
     reset_backend_failure_state as runtime_reset_backend_failure_state,
@@ -185,6 +189,13 @@ def _mock_chat() -> tuple[str, str]:
     return runtime_mock_chat(text=helper_getenv("HELPER_MOCK_RESPONSE_TEXT", ""))
 
 
+def _openai_compatible_chat(*, instructions: str, message: str) -> tuple[str, str]:
+    return runtime_openai_compatible_chat(
+        instructions=instructions,
+        message=message,
+    )
+
+
 def _invoke_backend(backend: str, instructions: str, message: str) -> tuple[str, str]:
     return runtime_invoke_backend(
         backend=backend,
@@ -193,6 +204,7 @@ def _invoke_backend(backend: str, instructions: str, message: str) -> tuple[str,
         ollama_chat_fn=_ollama_chat,
         openai_chat_fn=_openai_chat,
         mock_chat_fn=_mock_chat,
+        openai_compatible_chat_fn=_openai_compatible_chat,
     )
 
 
@@ -215,7 +227,8 @@ def _call_backend_with_retries(backend: str, instructions: str, message: str) ->
 @require_GET
 def healthz(request):
     backend = (helper_getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
-    return JsonResponse({"ok": True, "backend": backend})
+    backend_info = runtime_llm_describe_backend(backend=backend)
+    return JsonResponse({"ok": True, "backend": backend, "llm": backend_info})
 
 
 @require_POST
@@ -309,6 +322,9 @@ def chat(request):
         build_wellbeing_reset_text_fn=_build_wellbeing_reset_text,
         build_instructions_fn=build_instructions,
         backend_circuit_is_open_fn=_backend_circuit_is_open,
+        llm_backend_requires_acknowledgement_fn=lambda backend: runtime_llm_backend_requires_acknowledgement(
+            backend=backend
+        ),
         call_backend_with_retries_fn=_call_backend_with_retries,
         record_backend_failure_fn=_record_backend_failure,
         reset_backend_failure_state_fn=_reset_backend_failure_state,

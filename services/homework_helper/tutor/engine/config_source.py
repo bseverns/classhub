@@ -20,6 +20,9 @@ except Exception:  # pragma: no cover - dependency is provided in runtime images
 
 
 ENV_TO_YAML_PATH = {
+    "LLM_ENABLED": ("backend", "enabled"),
+    "LLM_ALLOWED_ACTOR_TYPES": ("backend", "allowed_actor_types"),
+    "LLM_BACKEND": ("backend", "name"),
     "HELPER_LLM_BACKEND": ("backend", "name"),
     "HELPER_MOCK_RESPONSE_TEXT": ("backend", "mock_response_text"),
     "OLLAMA_BASE_URL": ("backend", "ollama", "base_url"),
@@ -29,6 +32,7 @@ ENV_TO_YAML_PATH = {
     "OLLAMA_TOP_P": ("backend", "ollama", "top_p"),
     "OLLAMA_NUM_CTX": ("backend", "ollama", "num_ctx"),
     "OLLAMA_NUM_PREDICT": ("backend", "ollama", "num_predict"),
+    "LLM_NUM_CTX": ("backend", "ollama", "num_ctx"),
     "OPENAI_MODEL": ("backend", "openai", "model"),
     "OPENAI_MAX_OUTPUT_TOKENS": ("backend", "openai", "max_output_tokens"),
     "HELPER_STRICTNESS": ("policy", "strictness"),
@@ -73,12 +77,31 @@ ENV_TO_YAML_PATH = {
     "HELPER_CLASS_RESET_ARCHIVE_MAX_MESSAGES": ("reset_archives", "max_messages"),
 }
 
+ENV_ALIASES = {
+    "HELPER_LLM_BACKEND": ("LLM_BACKEND",),
+    "OLLAMA_BASE_URL": ("LLM_BASE_URL",),
+    "OLLAMA_API_KEY": ("LLM_API_KEY",),
+    "OLLAMA_MODEL": ("LLM_MODEL",),
+    "OLLAMA_TIMEOUT_SECONDS": ("LLM_TIMEOUT_SECONDS",),
+    "OLLAMA_TEMPERATURE": ("LLM_TEMPERATURE",),
+    "OLLAMA_TOP_P": ("LLM_TOP_P",),
+    "OLLAMA_NUM_PREDICT": ("LLM_MAX_TOKENS",),
+    "OLLAMA_NUM_CTX": ("LLM_NUM_CTX",),
+    "OPENAI_MODEL": ("LLM_MODEL",),
+    "OPENAI_MAX_OUTPUT_TOKENS": ("LLM_MAX_TOKENS",),
+}
+
 
 def helper_getenv(name: str, default: str = "") -> str:
     """Return config value for a helper setting with env-first precedence."""
     explicit = os.getenv(name)
     if explicit not in (None, ""):
         return explicit
+
+    for alias in ENV_ALIASES.get(name, ()):
+        alias_value = os.getenv(alias)
+        if alias_value not in (None, ""):
+            return alias_value
 
     path = ENV_TO_YAML_PATH.get(name)
     if not path:

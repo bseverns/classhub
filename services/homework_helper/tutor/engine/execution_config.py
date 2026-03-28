@@ -10,7 +10,9 @@ from .config_source import helper_getenv
 
 @dataclass(frozen=True)
 class ExecutionConfig:
+    llm_enabled: bool
     backend: str
+    llm_allowed_actor_types: list[str]
     scope_token_max_age_seconds: int
     conversation_enabled: bool
     conversation_max_messages: int
@@ -48,11 +50,16 @@ def resolve_execution_config(
 ) -> ExecutionConfig:
     backend = (getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
     text_language_keywords = parse_csv_list(getenv("HELPER_TEXT_LANGUAGE_KEYWORDS", ""))
+    llm_allowed_actor_types = parse_csv_list(getenv("LLM_ALLOWED_ACTOR_TYPES", "student,staff"))
+    if not llm_allowed_actor_types:
+        llm_allowed_actor_types = ["student", "staff"]
     if not text_language_keywords:
         text_language_keywords = list(default_text_language_keywords or [])
 
     return ExecutionConfig(
+        llm_enabled=env_bool("LLM_ENABLED", True),
         backend=backend,
+        llm_allowed_actor_types=llm_allowed_actor_types,
         scope_token_max_age_seconds=max(env_int("HELPER_SCOPE_TOKEN_MAX_AGE_SECONDS", 7200), 60),
         conversation_enabled=env_bool("HELPER_CONVERSATION_ENABLED", True),
         conversation_max_messages=max(env_int("HELPER_CONVERSATION_MAX_MESSAGES", 12), 0),

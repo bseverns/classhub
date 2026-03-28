@@ -29,6 +29,7 @@ Use repo root unless a section explicitly says otherwise.
 ```bash
 cd /srv/lms/app
 bash scripts/system_doctor.sh
+bash scripts/check_llm_backend.sh --probe-chat
 
 cd /srv/lms/app/compose
 docker compose ps
@@ -123,10 +124,12 @@ bash scripts/system_doctor.sh --smoke-mode off
 ```bash
 cd /srv/lms/app
 bash scripts/smoke_check.sh --strict
+bash scripts/check_llm_backend.sh --probe-chat
 ```
 
 Notes:
 
+- `scripts/check_llm_backend.sh` runs inside `helper_web`, so it validates the same DNS reachability and private backend path the app actually uses.
 - `/helper/chat` smoke retries transient helper backend failures by default (`502` + `ollama_error`, `503` + `busy`) using `SMOKE_HELPER_CHAT_RETRIES=3`.
 - Default retry delays are `SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS=3` for transport/`ollama_error`, and `SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS=30` for `busy`.
 - Increase those values in `compose/.env` if Ollama cold starts or queue wait regularly exceed your current retry budget.

@@ -1,0 +1,10 @@
+{
+  auto_https off
+}
+
+{$PRIVATE_PROXY_LISTEN:127.0.0.1:8443} {
+  @missing_auth not header Authorization "Bearer {$LLM_SHARED_API_KEY}"
+  respond @missing_auth "unauthorized" 401
+
+  reverse_proxy {$UPSTREAM_OLLAMA:http://127.0.0.1:11434}
+}

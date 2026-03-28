@@ -2,21 +2,22 @@
 
 from __future__ import annotations
 
-import json
 import time
 import urllib.error
-import urllib.request
 from dataclasses import dataclass
 from typing import Callable, Mapping, Protocol
 
-OLLAMA_HTTP_HEADERS = {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-    # Some hosted Ollama-compatible edges block the default Python urllib
-    # signature; send an explicit service UA for remote deployments.
-    "User-Agent": "ClassHub-HomeworkHelper/1.0",
-}
-
+from ..llm import (
+    LLMAuthError,
+    LLMBackendConfig,
+    LLMConfigError,
+    LLMMalformedResponseError,
+    LLMRequest,
+    LLMTimeoutError,
+    LLMUpstreamUnavailableError,
+    chat_with_provider,
+)
+from ..llm.providers import OllamaProvider
 
 class BackendInterface(Protocol):
     """Minimal backend contract used by chat runtime."""
@@ -50,6 +51,10 @@ def invoke_backend(
 
 def is_retryable_backend_error(exc: Exception) -> bool:
     if isinstance(exc, RuntimeError) and str(exc) in {"openai_not_installed", "unknown_backend"}:
+        return False
+    if isinstance(exc, (LLMTimeoutError, LLMUpstreamUnavailableError)):
+        return True
+    if isinstance(exc, (LLMAuthError, LLMConfigError, LLMMalformedResponseError)):
         return False
     if isinstance(exc, (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError)):
         return True
@@ -103,36 +108,38 @@ def ollama_chat(
     num_predict: int,
 ) -> tuple[str, str]:
     """Execute a non-streaming Ollama chat completion and return `(text, model_used)`."""
-    if not base_url.lower().startswith(("http://", "https://")):
-        raise ValueError("Invalid base URL scheme")
-    url = base_url.rstrip("/") + "/api/chat"
-    options: dict[str, float | int] = {
-        "temperature": temperature,
-        "top_p": top_p,
-    }
-    if num_ctx > 0:
-        options["num_ctx"] = num_ctx
-    if num_predict > 0:
-        options["num_predict"] = num_predict
-    payload = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": instructions},
-            {"role": "user", "content": message},
-        ],
-        "stream": False,
-        "options": options,
-    }
-    data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers=OLLAMA_HTTP_HEADERS)
-    with urllib.request.urlopen(req, timeout=int(timeout_seconds)) as resp:  # nosec B310
-        body = resp.read().decode("utf-8")
-    parsed = json.loads(body)
-    text = ""
-    if isinstance(parsed, dict):
-        msg = parsed.get("message") or {}
-        text = msg.get("content") or parsed.get("response") or ""
-    return text, parsed.get("model", model) if isinstance(parsed, dict) else model
+    provider = OllamaProvider(
+        LLMBackendConfig(
+            provider="ollama",
+            enabled=True,
+            base_url=base_url,
+            api_key=None,
+            model=model,
+            timeout_seconds=max(int(timeout_seconds), 1),
+            max_tokens=max(int(num_predict), 0),
+            num_ctx=max(int(num_ctx), 0),
+            temperature=float(temperature),
+            top_p=float(top_p),
+            log_prompt_content=False,
+            redaction_enabled=True,
+            healthcheck_enabled=True,
+        )
+    )
+    response = provider.chat(LLMRequest(instructions=instructions, message=message))
+    return response.text, response.model
+
+
+def openai_compatible_chat(
+    *,
+    instructions: str,
+    message: str,
+) -> tuple[str, str]:
+    response = chat_with_provider(
+        "openai_compatible",
+        instructions=instructions,
+        message=message,
+    )
+    return response.text, response.model
 
 
 def openai_chat(

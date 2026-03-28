@@ -1,6 +1,7 @@
 """Course/markdown rendering endpoint callables."""
 
 import logging
+from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.db.utils import OperationalError, ProgrammingError
@@ -44,8 +45,13 @@ def _helper_scope_signing_key() -> str:
 
 def _helper_backend_label() -> str:
     backend = (getattr(settings, "HELPER_LLM_BACKEND", "ollama") or "ollama").strip().lower()
-    if backend == "openai":
-        return "Remote model (OpenAI)"
+    base_url = str(getattr(settings, "LLM_BASE_URL", "") or "").strip()
+    host = (urlsplit(base_url).hostname or "").strip().lower()
+    is_remote_ollama = backend == "ollama" and host not in {"", "localhost", "127.0.0.1", "ollama", "classhub_ollama"}
+    if backend in {"openai", "openai_responses", "openai_compatible"}:
+        return "Private remote model"
+    if is_remote_ollama:
+        return "Private remote model"
     if backend == "ollama":
         return "Local model (Ollama)"
     if backend == "mock":

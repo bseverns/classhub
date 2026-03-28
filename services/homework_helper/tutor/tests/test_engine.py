@@ -120,6 +120,42 @@ class BackendEngineTests(SimpleTestCase):
         payload = json.loads(request.data.decode("utf-8"))
         self.assertEqual(payload["options"]["num_ctx"], 4096)
 
+    @patch.dict(
+        "os.environ",
+        {
+            "LLM_BACKEND": "ollama",
+            "LLM_MODEL": "llama3.2:3b",
+            "LLM_BASE_URL": "https://gpu-ollama.example-tail.ts.net",
+            "LLM_MAX_TOKENS": "64",
+            "LLM_NUM_CTX": "4096",
+        },
+        clear=False,
+    )
+    def test_helper_getenv_supports_generic_llm_aliases(self):
+        self.assertEqual(config_source.helper_getenv("HELPER_LLM_BACKEND", ""), "ollama")
+        self.assertEqual(config_source.helper_getenv("OLLAMA_MODEL", ""), "llama3.2:3b")
+        self.assertEqual(config_source.helper_getenv("OLLAMA_BASE_URL", ""), "https://gpu-ollama.example-tail.ts.net")
+        self.assertEqual(config_source.helper_getenv("OLLAMA_NUM_PREDICT", ""), "64")
+        self.assertEqual(config_source.helper_getenv("OLLAMA_NUM_CTX", ""), "4096")
+
+    @patch.dict(
+        "os.environ",
+        {
+            "LLM_BACKEND": "ollama",
+            "LLM_MODEL": "llama3.2:3b",
+            "LLM_BASE_URL": "https://gpu-ollama.example-tail.ts.net",
+        },
+        clear=False,
+    )
+    def test_llm_description_marks_remote_ollama_as_private(self):
+        from ..llm import service as llm_service
+
+        details = llm_service.describe_backend("ollama")
+
+        self.assertEqual(details["provider"], "ollama")
+        self.assertTrue(details["remote_private"])
+        self.assertEqual(details["model"], "llama3.2:3b")
+
 
 class HeuristicsEngineTests(SimpleTestCase):
     def test_truncate_response_text_limits_output(self):

@@ -8,6 +8,7 @@ The helper service is a Django app that exposes:
 - `GET /helper/internal/rag-status` (token-protected internal evidence/status contract)
 
 By default, the helper is wired to a local LLM server (Ollama) for self-hosted reliability and predictable costs.
+Private remote Ollama over Tailscale is the current supported scale-out path.
 OpenAI remains an explicit development/future path via the **Responses API** and must be intentionally acknowledged before use.
 
 ```mermaid
@@ -40,6 +41,7 @@ flowchart TD
 | `tutor/engine/runtime_config.py` | profile-aware policy defaults (`strictness`, `scope_mode`, topic filter) |
 | `tutor/engine/execution_config.py` | execution knobs (backend, queue, conversation limits, references, keyword caps) |
 | `tutor/engine/backends.py` | backend registry + retry adapter |
+| `tutor/llm/*` | provider abstraction for private Ollama / future OpenAI-compatible servers |
 | `tutor/engine/heuristics.py` | intent/follow-up/topic/text-language/Piper heuristics |
 | `tutor/engine/memory.py` | conversation cache state and compaction |
 | `tutor/engine/reference.py` | reference-file resolution + citation extraction |
@@ -52,7 +54,20 @@ flowchart TD
 Set the backend in `compose/.env`:
 
 ```bash
-HELPER_LLM_BACKEND=ollama   # or "openai" or "mock" (CI/test only)
+LLM_ENABLED=1
+LLM_BACKEND=ollama          # or "openai_compatible", "openai", or "mock"
+HELPER_LLM_BACKEND=ollama   # legacy alias still supported
+LLM_BASE_URL=http://ollama:11434
+LLM_API_KEY=
+LLM_MODEL=llama3.2:1b
+LLM_TIMEOUT_SECONDS=30
+LLM_MAX_TOKENS=400
+LLM_NUM_CTX=0
+LLM_TEMPERATURE=0.2
+LLM_TOP_P=0.9
+LLM_LOG_PROMPT_CONTENT=0
+LLM_REDACTION_ENABLED=1
+LLM_ALLOWED_ACTOR_TYPES=student,staff
 HELPER_REMOTE_MODE_ACKNOWLEDGED=0
 HELPER_MOCK_RESPONSE_TEXT=
 HELPER_STRICTNESS=light     # or "strict"
@@ -216,12 +231,15 @@ sudo tailscale --socket=/run/tailscale/tailscaled.sock serve status
 LMS host env example:
 
 ```bash
-HELPER_LLM_BACKEND=ollama
-OLLAMA_BASE_URL=https://gpu-ollama.example-tail.ts.net
-OLLAMA_MODEL=llama3.2:3b
-OLLAMA_TIMEOUT_SECONDS=45
-OLLAMA_NUM_CTX=4096
-OLLAMA_NUM_PREDICT=64
+LLM_ENABLED=1
+LLM_BACKEND=ollama
+LLM_BASE_URL=https://gpu-ollama.example-tail.ts.net
+LLM_API_KEY=REPLACE_ME_STRONG
+LLM_MODEL=llama3.2:3b
+LLM_TIMEOUT_SECONDS=45
+LLM_NUM_CTX=4096
+LLM_MAX_TOKENS=64
+HELPER_REMOTE_MODE_ACKNOWLEDGED=1
 
 HELPER_RAG_EMBED_BASE_URL=https://gpu-ollama.example-tail.ts.net
 HELPER_RAG_EMBED_MODEL=nomic-embed-text
@@ -249,6 +267,10 @@ Tailscale references:
 - Serve CLI: https://tailscale.com/docs/reference/tailscale-cli/serve
 - Userspace networking: https://tailscale.com/kb/1112/userspace-networking
 - MagicDNS / `.ts.net` names: https://tailscale.com/kb/1081/magicdns
+
+Private backend ops bundle:
+- [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md)
+- [ops/llm-server/README.md](../ops/llm-server/README.md)
 
 ### OpenAI (optional, explicit opt-in)
 
