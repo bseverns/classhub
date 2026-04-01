@@ -35,6 +35,7 @@ jobs:
             echo "DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1"
             echo "CSRF_TRUSTED_ORIGINS=http://localhost"
             echo "SMOKE_BASE_URL=http://localhost"
+            echo "LLM_BACKEND=mock"
             echo "HELPER_LLM_BACKEND=mock"
             echo "HELPER_TOPIC_FILTER_MODE=strict"
           } >> compose/.env
