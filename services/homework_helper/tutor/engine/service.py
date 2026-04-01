@@ -640,7 +640,7 @@ def handle_chat(
     except (urllib.error.URLError, urllib.error.HTTPError):
         deps.record_backend_failure(backend)
         deps.log_chat_event("error", "backend_transport_error", request_id=request_id, backend=backend)
-        return _response({"error": "backend_unavailable"}, status=503)
+        return _response({"error": "backend_error"}, status=502)
     except ValueError:
         deps.record_backend_failure(backend)
         deps.log_chat_event("error", "backend_parse_error", request_id=request_id, backend=backend)

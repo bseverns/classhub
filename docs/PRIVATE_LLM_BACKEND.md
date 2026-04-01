@@ -141,7 +141,7 @@ Fast classifications:
 
 The operator runbook and GPU-host artifacts live in:
 
-- [ops/llm-server/README.md](../ops/llm-server/README.md)
+- `ops/llm-server/README.md` (in repo root, outside docs site)
 
 ## Known limits
 

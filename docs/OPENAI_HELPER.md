@@ -270,7 +270,7 @@ Tailscale references:
 
 Private backend ops bundle:
 - [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md)
-- [ops/llm-server/README.md](../ops/llm-server/README.md)
+- `ops/llm-server/README.md` (in repo root, outside docs site)
 
 ### OpenAI (optional, explicit opt-in)
 
