@@ -95,6 +95,15 @@ class HelperChatAuthTests(TestCase):
         self.assertTrue(suggestions)
         self.assertIn("Que", suggestions[0])
 
+    def test_chat_accepts_sgaw_karen_language_code(self):
+        self._set_student_session()
+
+        resp = self._post_chat({"message": "How do I move a sprite?", "language_code": "ksw-TH"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("response_language"), "ksw")
+        suggestions = resp.json().get("follow_up_suggestions") or []
+        self.assertTrue(suggestions)
+
     def test_program_profile_elementary_defaults_helper_strictness_when_unset(self):
         self._set_student_session()
         previous_profile = os.environ.get("CLASSHUB_PROGRAM_PROFILE")

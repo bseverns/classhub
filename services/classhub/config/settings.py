@@ -156,6 +156,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
+    "config.middleware.LocalizationContextMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -186,6 +187,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "config.context_processors.operator_profile",
                 "config.context_processors.program_ui",
+                "config.context_processors.localization",
             ]
         },
     }
@@ -251,6 +253,7 @@ LANGUAGES = [
     ("en", "English"),
     ("es", "Español"),
     ("so", "Soomaali"),
+    ("ksw", "Karen (S'gaw)"),
 ]
 LOCALE_PATHS = [BASE_DIR / "locale"]
 

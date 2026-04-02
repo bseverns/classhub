@@ -49,6 +49,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Privacy-forward default: structured staff-only support tags (no default freeform note field).
 - No rankings/leaderboards in student-facing artifact and feedback flows.
 - Multilingual UI is active for supported strings (`en`, `es`, `so`) across join/login, core student flows (`/student`, `/student/my-data`, `/student/portfolio`, `/student/gallery`), and teacher day-of-class shell copy (`/teach?portal_mode=day`), with bounded tranche enforcement via `scripts/check_i18n_family_visible_contract.py`.
+- S'gaw Karen (`ksw`) now has full locale wiring plus translated helper-widget chrome/quick prompts; wider `ksw` UI coverage still falls back to English until reviewed Karen translations land.
 
 ## Active known constraints
 - Scoped RBAC grants are still feature-flagged for controlled rollout.

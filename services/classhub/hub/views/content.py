@@ -9,7 +9,9 @@ from django.http import HttpResponse
 from django.middleware.csrf import get_token
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.utils.translation import gettext as _
 from common.helper_scope import issue_scope_token
+from config.localization import localization_from_request
 
 from ..models import LessonVideo, Material, Module, Submission
 from ..services.content_links import (
@@ -32,6 +34,7 @@ from ..services.helper_topics import (
     build_lesson_topics,
     split_helper_topics_text,
 )
+from ..services.helper_widget import build_helper_prompt_sets_json
 from ..services.release_state import lesson_release_override_map, lesson_release_state
 from ..services.upload_policy import front_matter_submission
 from ..services.ui_density import resolve_ui_density_mode
@@ -49,14 +52,14 @@ def _helper_backend_label() -> str:
     host = (urlsplit(base_url).hostname or "").strip().lower()
     is_remote_ollama = backend == "ollama" and host not in {"", "localhost", "127.0.0.1", "ollama", "classhub_ollama"}
     if backend in {"openai", "openai_responses", "openai_compatible"}:
-        return "Private remote model"
+        return _("Private remote model")
     if is_remote_ollama:
-        return "Private remote model"
+        return _("Private remote model")
     if backend == "ollama":
-        return "Local model (Ollama)"
+        return _("Local model (Ollama)")
     if backend == "mock":
-        return "Mock model (Test mode)"
-    return "Model backend (Unknown)"
+        return _("Mock model (Test mode)")
+    return _("Model backend (Unknown)")
 
 
 def _retention_days(setting_name: str, default: int) -> int:
@@ -180,6 +183,7 @@ def _normalize_stored_lesson_videos(course_slug: str, lesson_slug: str) -> list[
 
 def course_lesson(request, course_slug: str, lesson_slug: str):
     """Render a markdown lesson page from disk."""
+    localization = localization_from_request(request)
     manifest = load_course_manifest(course_slug)
     if not manifest:
         return HttpResponse("Course not found", status=404)
@@ -292,15 +296,15 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
     if not lesson_locked and can_use_helper:
         get_token(request)
         helper_delete_url = "/student/my-data" if getattr(request, "student", None) is not None else "/teach"
-        helper_description = "Need a hint for this lesson? Ask the helper to guide you without handing out answers."
+        helper_description = _("Need a hint for this lesson? Ask the helper to guide you without handing out answers.")
         if ui_density_mode == "compact":
-            helper_description = "Need help? Ask for one small next step at a time."
+            helper_description = _("Need help? Ask for one small next step at a time.")
         elif ui_density_mode == "expanded":
-            helper_description = "Ask for strategy, debugging, or extension ideas without asking for direct answers."
+            helper_description = _("Ask for strategy, debugging, or extension ideas without asking for direct answers.")
         helper_widget = render_to_string(
             "includes/helper_widget.html",
             {
-                "helper_title": "Lesson helper",
+                "helper_title": _("Lesson helper"),
                 "helper_description": helper_description,
                 "helper_context": helper_context,
                 "helper_topics": " | ".join(helper_topics),
@@ -308,10 +312,12 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
                 "helper_allowed_topics": " | ".join(helper_allowed_topics),
                 "helper_backend_label": _helper_backend_label(),
                 "helper_delete_url": helper_delete_url,
-                "helper_language_code": getattr(request, "LANGUAGE_CODE", "en"),
+                "helper_language_code": localization.helper_code,
+                "helper_prompt_sets_json": build_helper_prompt_sets_json(),
                 "student_event_retention_days": _retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180),
                 "helper_scope_token": helper_scope_token,
             },
+            request=request,
         )
 
     return render(

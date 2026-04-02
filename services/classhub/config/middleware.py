@@ -6,6 +6,11 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from common.csp import resolve_csp_headers
 from common.request_safety import build_staff_actor_key, client_ip_from_request, fixed_window_allow
+from config.localization import (
+    build_localization_context,
+    reset_localization_context,
+    set_localization_context,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +49,22 @@ class SecurityHeadersMiddleware:
         if x_frame_options and "X-Frame-Options" not in response:
             response["X-Frame-Options"] = x_frame_options
         return response
+
+
+class LocalizationContextMiddleware:
+    """Expose one request-scoped localization object to Python and templates."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        context = build_localization_context(request)
+        request.localization = context
+        token = set_localization_context(context)
+        try:
+            return self.get_response(request)
+        finally:
+            reset_localization_context(token)
 
 
 class TeacherOTPRequiredMiddleware:

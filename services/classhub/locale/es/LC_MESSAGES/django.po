@@ -763,3 +763,141 @@ msgstr "Lecciones"
 
 msgid "Back to join"
 msgstr "Volver a unirse"
+
+msgid "Open helper"
+msgstr "Abrir ayudante"
+
+msgid "Resume helper"
+msgstr "Continuar ayudante"
+
+msgid "Follow-up questions stay in one lesson thread in this browser session until you reset chat."
+msgstr "Las preguntas de seguimiento se quedan en un solo hilo de esta leccion en esta sesion del navegador hasta que reinicies el chat."
+
+msgid "Conversation context is saved for this lesson in this browser session until you reset chat."
+msgstr "El contexto de la conversacion se guarda para esta leccion en esta sesion del navegador hasta que reinicies el chat."
+
+msgid "You"
+msgstr "Tu"
+
+msgid "Helper"
+msgstr "Ayudante"
+
+msgid "Try next:"
+msgstr "Prueba despues:"
+
+msgid "Conversation reset."
+msgstr "Conversacion reiniciada."
+
+msgid "Type a question before asking."
+msgstr "Escribe una pregunta antes de pedir ayuda."
+
+msgid "Thinking..."
+msgstr "Pensando..."
+
+msgid "(no output)"
+msgstr "(sin respuesta)"
+
+msgid "Helper error: network_failure"
+msgstr "Error del ayudante: network_failure"
+
+msgid "Quick asks (tap to send):"
+msgstr "Preguntas rapidas (toca para enviar):"
+
+msgid "Quick helper prompts"
+msgstr "Preguntas rapidas del ayudante"
+
+msgid "Question for helper"
+msgstr "Pregunta para el ayudante"
+
+msgid "Ask for help..."
+msgstr "Pide ayuda..."
+
+msgid "Ask"
+msgstr "Preguntar"
+
+msgid "Reset chat"
+msgstr "Reiniciar chat"
+
+msgid "Lesson references used"
+msgstr "Referencias de la leccion usadas"
+
+msgid "Helper error"
+msgstr "Error del ayudante"
+
+msgid "Jump not working"
+msgstr "Salto no funciona"
+
+msgid "In StoryMode, left/right work but jump does not work in Cheeseteroid. Help me troubleshoot one step at a time."
+msgstr "En StoryMode, izquierda y derecha funcionan pero saltar no funciona en Cheeseteroid. Ayudame a revisar un paso a la vez."
+
+msgid "No buttons respond"
+msgstr "Ningun boton responde"
+
+msgid "None of my StoryMode breadboard buttons are responding. Give me one check at a time and ask me to retest."
+msgstr "Ninguno de mis botones del breadboard en StoryMode responde. Dame una comprobacion a la vez y pideme volver a probar."
+
+msgid "One direction fails"
+msgstr "Una direccion falla"
+
+msgid "Only one movement direction fails on my Piper controls. What should I compare first in my jumper wiring path?"
+msgstr "Solo falla una direccion de movimiento en mis controles de Piper. Que debo comparar primero en la ruta de cableado de mis jumpers?"
+
+msgid "Mouse-only path"
+msgstr "Ruta solo con mouse"
+
+msgid "I only have a mouse right now, no keyboard. What is the mouse-first path for this lesson?"
+msgstr "Solo tengo un mouse ahora, no teclado. Cual es la ruta pensada para mouse en esta leccion?"
+
+msgid "Upload .sb3 help"
+msgstr "Ayuda con .sb3"
+
+msgid "I finished but cannot find my .sb3 file to upload. Walk me through check -> retest steps."
+msgstr "Ya termine pero no encuentro mi archivo .sb3 para subirlo. Guiame con pasos de revisar y volver a probar."
+
+msgid "Sprite won't move"
+msgstr "El sprite no se mueve"
+
+msgid "My sprite does not move when I click the green flag. Please give me one Scratch block check at a time."
+msgstr "Mi sprite no se mueve cuando hago clic en la bandera verde. Dame una sola comprobacion de bloques de Scratch a la vez."
+
+msgid "Backdrop won't change"
+msgstr "El fondo no cambia"
+
+msgid "My backdrop never changes. What is one specific Scratch block check I should do first?"
+msgstr "Mi fondo nunca cambia. Cual es una comprobacion especifica de Scratch que debo hacer primero?"
+
+msgid "Score not updating"
+msgstr "La puntuacion no cambia"
+
+msgid "My score is not updating correctly. Help me debug in small steps and retest after each change."
+msgstr "Mi puntuacion no se actualiza bien. Ayudame a depurarlo en pasos pequenos y a volver a probar despues de cada cambio."
+
+msgid "Game over missing"
+msgstr "Falta game over"
+
+msgid "My game over condition does not trigger. Give me one event/broadcast check and then ask me to retest."
+msgstr "Mi condicion de game over no se activa. Dame una comprobacion de evento o broadcast y luego pideme volver a probar."
+
+msgid "Save and upload"
+msgstr "Guardar y subir"
+
+msgid "Please walk me through saving my Scratch project as .sb3 and uploading it privately."
+msgstr "Guiame para guardar mi proyecto de Scratch como .sb3 y subirlo de forma privada."
+
+msgid "What is today's goal?"
+msgstr "Cual es la meta de hoy?"
+
+msgid "What is the goal for this lesson, and what should be done first?"
+msgstr "Cual es la meta de esta leccion y que deberia hacer primero?"
+
+msgid "I am stuck"
+msgstr "Estoy atorado"
+
+msgid "I am stuck. Ask me one clarifying question, then give me one small next step."
+msgstr "Estoy atorado. Hazme una pregunta de aclaracion y luego dame un siguiente paso pequeno."
+
+msgid "How to ask better"
+msgstr "Como pedir mejor ayuda"
+
+msgid "Help me write a clear help request: what I expected, what happened, and what I already tried."
+msgstr "Ayudame a escribir una solicitud de ayuda clara: que esperaba, que paso y que ya intente."

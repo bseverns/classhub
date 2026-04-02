@@ -14,6 +14,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
 
 from common.helper_scope import issue_scope_token
+from config.localization import localization_from_request
 
 from ..forms import SubmissionUploadForm
 from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
@@ -27,6 +28,7 @@ from ..models import (
     Submission,
 )
 from ..services.export_service import build_student_portfolio_export_response
+from ..services.helper_widget import build_helper_prompt_sets_json
 from ..services.ip_privacy import minimize_student_event_ip
 from ..services.join_flow_service import clear_device_hint_cookie
 from ..services.org_access import staff_can_view_submissions
@@ -120,18 +122,19 @@ def trust_page(request):
     return response
 
 
-def _student_home_helper_widget(*, classroom: Class, ui_density_mode: str, privacy_meta: dict, language_code: str) -> str:
-    helper_description = "This is a Day-1 wire-up. It will become smarter once it can cite your class materials."
+def _student_home_helper_widget(*, request, classroom: Class, ui_density_mode: str, privacy_meta: dict) -> str:
+    localization = localization_from_request(request)
+    helper_description = _("This is a Day-1 wire-up. It will become smarter once it can cite your class materials.")
     if ui_density_mode == "compact":
-        helper_description = "Need help? Ask for one small next step at a time."
+        helper_description = _("Need help? Ask for one small next step at a time.")
     elif ui_density_mode == "expanded":
-        helper_description = "Use studio mode: ask for strategy, code-reading checks, and release-quality feedback."
+        helper_description = _("Use studio mode: ask for strategy, code-reading checks, and release-quality feedback.")
 
     helper_context = f"Classroom summary: {classroom.name}"
     return render_to_string(
         "includes/helper_widget.html",
         {
-            "helper_title": "Class helper",
+            "helper_title": _("Class helper"),
             "helper_description": helper_description,
             "helper_context": helper_context,
             "helper_topics": "Classroom overview",
@@ -139,7 +142,8 @@ def _student_home_helper_widget(*, classroom: Class, ui_density_mode: str, priva
             "helper_allowed_topics": "",
             "helper_backend_label": helper_backend_label(),
             "helper_delete_url": "/student/my-data",
-            "helper_language_code": language_code,
+            "helper_language_code": localization.helper_code,
+            "helper_prompt_sets_json": build_helper_prompt_sets_json(),
             **privacy_meta,
             "helper_scope_token": issue_scope_token(
                 context=helper_context,
@@ -149,6 +153,7 @@ def _student_home_helper_widget(*, classroom: Class, ui_density_mode: str, priva
                 signing_key=_helper_scope_signing_key(),
             ),
         },
+        request=request,
     )
 
 
@@ -159,6 +164,7 @@ def student_home(request):
     request.student.last_seen_at = timezone.now()
     request.student.save(update_fields=["last_seen_at"])
 
+    localization = localization_from_request(request)
     classroom = request.classroom
     modules = list(classroom.modules.prefetch_related("materials").all())
     ui_density_mode = resolve_ui_density_mode_for_modules(modules=modules, program_profile=getattr(settings, "CLASSHUB_PROGRAM_PROFILE", "secondary"))
@@ -169,16 +175,16 @@ def student_home(request):
     material_responses = build_material_response_map(student=request.student, material_ids=material_ids)
     material_feedback_starters = build_material_feedback_starters_map(
         modules=modules,
-        language_code=getattr(request, "LANGUAGE_CODE", "en"),
+        language_code=localization.code,
     )
     gallery_entries_by_material = build_gallery_entries_map(classroom=classroom, viewer_student=request.student, material_ids=material_ids)
     image_assets_by_material = build_image_asset_preview_map(modules=modules)
     privacy_meta = privacy_meta_context(classroom=classroom)
     helper_widget = _student_home_helper_widget(
+        request=request,
         classroom=classroom,
         ui_density_mode=ui_density_mode,
         privacy_meta=privacy_meta,
-        language_code=getattr(request, "LANGUAGE_CODE", "en"),
     )
     micro_check_state = latest_micro_check_state(
         classroom=classroom,
@@ -324,6 +330,7 @@ def material_upload(request, material_id: int):
     """Student upload page for a Material of type=upload or type=gallery."""
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
         return redirect("/")
+    localization = localization_from_request(request)
 
     material = (
         Material.objects.select_related("module__classroom")
@@ -345,7 +352,7 @@ def material_upload(request, material_id: int):
     form = SubmissionUploadForm()
     notice = (request.GET.get("notice") or "").strip()
     process_note_starters = resolve_peer_feedback_starters(
-        language_code=getattr(request, "LANGUAGE_CODE", "en"),
+        language_code=localization.code,
         course_manifest={},
     )
 

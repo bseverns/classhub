@@ -1,6 +1,7 @@
 """Template context processors for Class Hub."""
 
 from django.conf import settings
+from config.localization import localization_from_request
 
 from hub.services.ui_density import default_ui_density_mode
 
@@ -70,4 +71,14 @@ def program_ui(_request):
         "ui_density_mode": default_ui_density_mode(program_profile),
         "student_kiosk_pwa_enabled": bool(getattr(settings, "CLASSHUB_STUDENT_KIOSK_PWA_ENABLED", False)),
         "student_kiosk_default": bool(getattr(settings, "CLASSHUB_STUDENT_KIOSK_DEFAULT", False)),
+    }
+
+
+def localization(request):
+    context = localization_from_request(request)
+    return {
+        "localization": context,
+        "html_lang": context.html_lang,
+        "helper_language_code": context.helper_code,
+        "is_rtl": context.is_rtl,
     }

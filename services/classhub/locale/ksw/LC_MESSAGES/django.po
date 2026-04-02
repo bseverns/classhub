@@ -1,0 +1,155 @@
+# ClassHub S'gaw Karen starter translations.
+# Copyright (C) 2026 createMPLS
+# This file is distributed under the same license as the ClassHub package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ClassHub 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-02 00:00-0500\n"
+"PO-Revision-Date: 2026-04-02 00:00-0500\n"
+"Last-Translator: ClassHub Contributors\n"
+"Language-Team: S'gaw Karen\n"
+"Language: ksw\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Open helper"
+msgstr "အိးထီၣ် တၢ်မၤစၢၤ"
+
+msgid "Resume helper"
+msgstr "ဆဲးမၤ တၢ်မၤစၢၤ"
+
+msgid "Follow-up questions stay in one lesson thread in this browser session until you reset chat."
+msgstr "သံကွၢ်လၢခံတဖၣ် အိၣ်ဆိးလၢ တၢ်သိၣ်လိအံၤအတၢ်စံးကတိၤကျဲတဘိအပူၤ ဖဲ browser session အံၤ တုၤမ့ၢ်နဒုးက့ၤ chat."
+
+msgid "Conversation context is saved for this lesson in this browser session until you reset chat."
+msgstr "တၢ်စံးကတိၤအတၢ်အိၣ်သး ဘၣ်တၢ်သိမ်းဆည်းအီၤ လၢတၢ်သိၣ်လိအံၤအဂီၢ် ဖဲ browser session အံၤ တုၤမ့ၢ်နဒုးက့ၤ chat."
+
+msgid "You"
+msgstr "နၤ"
+
+msgid "Helper"
+msgstr "တၢ်မၤစၢၤ"
+
+msgid "Try next:"
+msgstr "မၤလၢခံ:"
+
+msgid "Conversation reset."
+msgstr "တၢ်စံးကတိၤ ဘၣ်တၢ်ဒုးက့ၤလံ."
+
+msgid "Type a question before asking."
+msgstr "မဆိမီၣ်တၢ်မၤစၢၤခင်, ကွဲးသံကွၢ်တခွံ."
+
+msgid "Thinking..."
+msgstr "ဆိကမိၣ်..."
+
+msgid "(no output)"
+msgstr "(တၢ်စံးဆၢတအိၣ်ဘၣ်)"
+
+msgid "Helper error: network_failure"
+msgstr "တၢ်မၤစၢၤအတၢ်ကမၣ်: network_failure"
+
+msgid "Quick asks (tap to send):"
+msgstr "သံကွၢ်အဖုၣ်တဖၣ် (ထိးလၢကပျဲ):"
+
+msgid "Quick helper prompts"
+msgstr "တၢ်မၤစၢၤအသံကွၢ်အဖုၣ်တဖၣ်"
+
+msgid "Question for helper"
+msgstr "တၢ်မၤစၢၤအဂီၢ် သံကွၢ်"
+
+msgid "Ask for help..."
+msgstr "ဃ့တၢ်မၤစၢၤ..."
+
+msgid "Ask"
+msgstr "သံကွၢ်"
+
+msgid "Reset chat"
+msgstr "ဒုးက့ၤ chat"
+
+msgid "Lesson references used"
+msgstr "တၢ်သိၣ်လိအတၢ်န့ၢ်လီၤဘၣ်သုံး"
+
+msgid "Helper error"
+msgstr "တၢ်မၤစၢၤအတၢ်ကမၣ်"
+
+msgid "Jump not working"
+msgstr "Jump တမၤဘၣ်"
+
+msgid "In StoryMode, left/right work but jump does not work in Cheeseteroid. Help me troubleshoot one step at a time."
+msgstr "StoryMode အပူၤ left/right မၤတၢ် ဘၣ်ဆၣ် jump တမၤဘၣ်လၢ Cheeseteroid အပူၤ. မၤစၢၤယၤ လၢတဆီဘၣ်တဆီ."
+
+msgid "No buttons respond"
+msgstr "button တဖၣ် တစံးဆၢဘၣ်"
+
+msgid "None of my StoryMode breadboard buttons are responding. Give me one check at a time and ask me to retest."
+msgstr "ယ StoryMode breadboard button တဖၣ် တစံးဆၢနီတဖျၢၣ်ဘၣ်. ဟ့ၣ်ယၤ တၢ်ကွၢ်တဘျီဃီ ဒီးခ့ယၤလၢ ကမၤကဒီးစမ်သပ်."
+
+msgid "One direction fails"
+msgstr "တၢ်လဲၤတကျိၤ ဖျၢၣ်တခါ ကမၣ်"
+
+msgid "Only one movement direction fails on my Piper controls. What should I compare first in my jumper wiring path?"
+msgstr "လၢယ Piper controls အပူၤ တၢ်လဲၤတကျိၤဖျၢၣ်တခါဧိၤ ကမၣ်ဝဲ. လၢယ jumper wiring path အပူၤ ယကြၢးထိၣ်သတြီၤမနုၤခီၣ်ထံးတမံၤလဲၣ်."
+
+msgid "Mouse-only path"
+msgstr "mouse တခီဘိအကျဲ"
+
+msgid "I only have a mouse right now, no keyboard. What is the mouse-first path for this lesson?"
+msgstr "ခဲအံၤ ယအိၣ်ဒၣ်ထဲ mouse တခါ, keyboard တအိၣ်ဘၣ်. တၢ်သိၣ်လိအံၤအဂီၢ် mouse-first path မနုၤလဲၣ်."
+
+msgid "Upload .sb3 help"
+msgstr ".sb3 upload အတၢ်မၤစၢၤ"
+
+msgid "I finished but cannot find my .sb3 file to upload. Walk me through check -> retest steps."
+msgstr "ယမၤဝံၤလံ ဘၣ်ဆၣ် ယတထံၣ်န့ၢ်ဘၣ် ယ .sb3 file လၢက upload အီၤ. ဆှၢယၤခီဖျိ check -> retest အဆၢကတီၢ်တဖၣ်."
+
+msgid "Sprite won't move"
+msgstr "sprite တလဲၤဘၣ်"
+
+msgid "My sprite does not move when I click the green flag. Please give me one Scratch block check at a time."
+msgstr "ဖဲယနိး green flag အခါ ယ sprite တလဲၤဘၣ်. ဟ့ၣ်ယၤ Scratch block တၢ်ကွၢ်တမံၤစုာ်စုာ်."
+
+msgid "Backdrop won't change"
+msgstr "backdrop တလီၤလဲၢ်ဘၣ်"
+
+msgid "My backdrop never changes. What is one specific Scratch block check I should do first?"
+msgstr "ယ backdrop တလီၤလဲၢ်နီတဘျီဘၣ်. Scratch block တၢ်ကွၢ်လီၤတံၢ်လီၤဆဲး မနုၤတမံၤ ယကြၢးမၤခီၣ်ထံးလဲၣ်."
+
+msgid "Score not updating"
+msgstr "score တအိၣ်သီထီၣ်ဘၣ်"
+
+msgid "My score is not updating correctly. Help me debug in small steps and retest after each change."
+msgstr "ယ score တအိၣ်သီထီၣ်ဘၣ်လၢအဘၣ်. မၤစၢၤယၤလၢ debug အဆၢကတီၢ်ဖိတဖၣ် ဒီးမၤကဒီးစမ်သပ်ဝံၤအလီၢ်ခံ တၢ်လဲၤလိာ်တမံၤစုာ်စုာ်."
+
+msgid "Game over missing"
+msgstr "game over တအိၣ်ဘၣ်"
+
+msgid "My game over condition does not trigger. Give me one event/broadcast check and then ask me to retest."
+msgstr "ယ game over condition တပာ်ဖျါထီၣ်အသးဘၣ်. ဟ့ၣ်ယၤ event/broadcast တၢ်ကွၢ်တမံၤ ဒီးခ့ယၤလၢ ကမၤကဒီးစမ်သပ်."
+
+msgid "Save and upload"
+msgstr "သိမ်းဆည်း ဒီး upload"
+
+msgid "Please walk me through saving my Scratch project as .sb3 and uploading it privately."
+msgstr "မၤစၢၤယၤလၢ ကသိမ်းဆည်းယ Scratch project ဒ် .sb3 အသိး ဒီး upload အီၤလၢခူသူၣ်."
+
+msgid "What is today's goal?"
+msgstr "မုၢ်မဆါတနံၤအတၢ်ပာ်ဖျါ မနုၤလဲၣ်."
+
+msgid "What is the goal for this lesson, and what should be done first?"
+msgstr "တၢ်သိၣ်လိအံၤအတၢ်ပာ်ဖျါ မနုၤလဲၣ် ဒီးကဘၣ်မၤခီၣ်ထံး မနုၤလဲၣ်."
+
+msgid "I am stuck"
+msgstr "ယတၢ်ကီ"
+
+msgid "I am stuck. Ask me one clarifying question, then give me one small next step."
+msgstr "ယတၢ်ကီ. သံကွၢ်ယၤတခွံလၢကဒုးသ့ၣ်ညါရှင်း, ဝံၤဒီး ဟ့ၣ်ယၤ ခီတဘိအဆံးတခါ."
+
+msgid "How to ask better"
+msgstr "သံကွၢ်လၢအဂ့ၤဒိၣ်ထီၣ် ဒ်လဲၣ်"
+
+msgid "Help me write a clear help request: what I expected, what happened, and what I already tried."
+msgstr "မၤစၢၤယၤလၢကွဲး တၢ်ဃ့တၢ်မၤစၢၤလၢအသ့ၣ်ညါရှင်း: ယဆိကမိၣ်မနုၤ, တၢ်မၤအသးမနုၤ, ဒီးယလဲၤမၤစမ်းလံမနုၤ."

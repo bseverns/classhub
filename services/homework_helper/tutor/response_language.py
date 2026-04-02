@@ -7,6 +7,7 @@ SUPPORTED_RESPONSE_LANGUAGES = {
     "en": "English",
     "es": "Spanish",
     "so": "Somali",
+    "ksw": "S'gaw Karen",
 }
 
 

@@ -43,8 +43,14 @@ Languages currently shipped:
 - English (default)
 - Spanish (`es`)
 - Somali (`so`)
+- S'gaw Karen (`ksw`)
 
 Coverage outside those paths is still partial and should be treated as in-progress.
+
+Karen-language implementation note:
+- The repo now uses S'gaw Karen (`ksw`) as the concrete "Karen" locale code.
+- `ksw` ships with full locale wiring plus a first translated helper-widget tranche (chrome + quick prompts), so Django language selection, cookies, helper routing, and widget locale payloads work end-to-end.
+- Wider `ksw` UI coverage is still partial; untranslated strings continue to fall back to English until native-speaker-reviewed Karen copy is added.
 
 Somali parity policy:
 - Somali should include every `msgid` that exists in Spanish.

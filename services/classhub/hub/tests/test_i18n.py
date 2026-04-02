@@ -28,6 +28,11 @@ class I18nSmokeTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Ku biir fasalkaaga")
 
+    def test_join_page_with_sgaw_karen_accept_language(self):
+        resp = self.client.get("/", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '<html lang="ksw">')
+
     def test_join_page_spanish_shows_translated_label(self):
         resp = self.client.get("/", HTTP_ACCEPT_LANGUAGE="es")
         self.assertContains(resp, "Código de clase")
@@ -47,6 +52,18 @@ class I18nSmokeTests(TestCase):
         # Now subsequent GET should be in Spanish
         resp2 = self.client.get("/")
         self.assertContains(resp2, "Únete a tu clase")
+
+    def test_set_language_persists_across_requests_for_sgaw_karen(self):
+        resp = self.client.post(
+            "/i18n/setlang/",
+            {"language": "ksw", "next": "/"},
+            follow=True,
+        )
+        self.assertEqual(resp.status_code, 200)
+        resp2 = self.client.get("/")
+        self.assertContains(resp2, '<html lang="ksw">')
+        self.assertEqual(resp2.wsgi_request.localization.code, "ksw")
+        self.assertEqual(resp2.context["localization"].helper_code, "ksw")
 
     def test_teach_login_english_by_default(self):
         resp = self.client.get("/teach/login")
@@ -72,6 +89,10 @@ class I18nSmokeTests(TestCase):
         resp = self.client.get("/teach/login")
         self.assertContains(resp, 'action="/i18n/setlang/"')
 
+    def test_language_chooser_lists_sgaw_karen(self):
+        resp = self.client.get("/")
+        self.assertContains(resp, '<option value="ksw"')
+
     def test_html_lang_attribute_english(self):
         resp = self.client.get("/")
         self.assertContains(resp, '<html lang="en">')
@@ -83,6 +104,71 @@ class I18nSmokeTests(TestCase):
     def test_html_lang_attribute_somali(self):
         resp = self.client.get("/", HTTP_ACCEPT_LANGUAGE="so")
         self.assertContains(resp, '<html lang="so">')
+
+    def test_html_lang_attribute_sgaw_karen(self):
+        resp = self.client.get("/", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertContains(resp, '<html lang="ksw">')
+
+    def test_request_localization_context_uses_active_language(self):
+        resp = self.client.get("/", HTTP_ACCEPT_LANGUAGE="es")
+        self.assertEqual(resp.wsgi_request.localization.code, "es")
+        self.assertEqual(resp.wsgi_request.localization.helper_code, "es")
+        self.assertEqual(resp.context["localization"].code, "es")
+
+    def test_student_helper_widget_uses_request_localization(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'data-helper-language-code="ksw"')
+
+    def test_student_helper_widget_chrome_uses_spanish_template_i18n(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="es")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'data-i18n-summary-open="Abrir ayudante"')
+        self.assertContains(resp, 'data-i18n-reset-button="Reiniciar chat"')
+
+    def test_student_helper_widget_chrome_uses_somali_template_i18n(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="so")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'data-i18n-summary-open="Fur caawiye"')
+        self.assertContains(resp, 'data-i18n-reset-button="Dib u deji chat-ka"')
+
+    def test_student_helper_widget_chrome_uses_sgaw_karen_template_i18n(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'data-i18n-summary-open="အိးထီၣ် တၢ်မၤစၢၤ"')
+        self.assertContains(resp, 'data-i18n-reset-button="ဒုးက့ၤ chat"')
+
+    def test_student_helper_widget_quick_prompts_use_spanish_template_payload(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="es")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '"label": "Salto no funciona"')
+        self.assertContains(resp, '"prompt": "En StoryMode, izquierda y derecha funcionan pero saltar no funciona en Cheeseteroid. Ayudame a revisar un paso a la vez."')
+
+    def test_student_helper_widget_quick_prompts_use_somali_template_payload(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="so")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '"label": "Jump ma shaqeeyo"')
+        self.assertContains(resp, '"prompt": "StoryMode gudaheeda, bidix iyo midig way shaqeeyaan laakiin jump-ku kama shaqeeyo Cheeseteroid. Iga caawi hal talaabo markiiba."')
+
+    def test_student_helper_widget_quick_prompts_use_sgaw_karen_template_payload(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '"label": "Jump တမၤဘၣ်"')
+        self.assertContains(resp, '"prompt": "StoryMode အပူၤ left/right မၤတၢ် ဘၣ်ဆၣ် jump တမၤဘၣ်လၢ Cheeseteroid အပူၤ. မၤစၢၤယၤ လၢတဆီဘၣ်တဆီ."')
 
     def test_i18n_url_allowed_in_join_only_site_mode(self):
         """Language switching should work even in join-only site mode."""

@@ -6,6 +6,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from ..models import Class, LessonAsset, Material, Module, StudentIdentity, StudentMaterialResponse, Submission
 from .content_links import (
@@ -59,14 +60,14 @@ def helper_backend_label() -> str:
     host = (urlsplit(base_url).hostname or "").strip().lower()
     is_remote_ollama = backend == "ollama" and host not in {"", "localhost", "127.0.0.1", "ollama", "classhub_ollama"}
     if backend in {"openai", "openai_responses", "openai_compatible"}:
-        return "Private remote model"
+        return _("Private remote model")
     if is_remote_ollama:
-        return "Private remote model"
+        return _("Private remote model")
     if backend == "ollama":
-        return "Local model (Ollama)"
+        return _("Local model (Ollama)")
     if backend == "mock":
-        return "Mock model (Test mode)"
-    return "Model backend (Unknown)"
+        return _("Mock model (Test mode)")
+    return _("Model backend (Unknown)")
 
 
 def _sorted_module_materials(module: Module) -> list[Material]:

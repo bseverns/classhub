@@ -40,256 +40,18 @@
     const value = String(raw || "").trim().toLowerCase().replace("_", "-");
     if (!value) return "en";
     const primary = value.split("-", 1)[0];
-    if (primary === "es" || primary === "so") return primary;
+    if (primary === "es" || primary === "so" || primary === "ksw") return primary;
     return "en";
   };
-  const WIDGET_COPY = {
-    en: {
-      summaryOpen: "Open helper",
-      summaryResume: "Resume helper",
-      contextFresh: "Follow-up questions stay in one lesson thread in this browser session until you reset chat.",
-      contextResume: "Conversation context is saved for this lesson in this browser session until you reset chat.",
-      turnStudent: "You",
-      turnAssistant: "Helper",
-      followupsLabel: "Try next:",
-      resetStatus: "Conversation reset.",
-      emptyMessage: "Type a question before asking.",
-      thinking: "Thinking...",
-      noOutput: "(no output)",
-      networkFailure: "Helper error: network_failure",
-      quickTitle: "Quick asks (tap to send):",
-      quickAriaLabel: "Quick helper prompts",
-      inputLabel: "Question for helper",
-      inputPlaceholder: "Ask for help...",
-      askButton: "Ask",
-      resetButton: "Reset chat",
-      citationsTitle: "Lesson references used",
-      errorPrefix: "Helper error",
-      promptSets: {
-        piper: [
-          {
-            label: "Jump not working",
-            prompt: "In StoryMode, left/right work but jump does not work in Cheeseteroid. Help me troubleshoot one step at a time.",
-          },
-          {
-            label: "No buttons respond",
-            prompt: "None of my StoryMode breadboard buttons are responding. Give me one check at a time and ask me to retest.",
-          },
-          {
-            label: "One direction fails",
-            prompt: "Only one movement direction fails on my Piper controls. What should I compare first in my jumper wiring path?",
-          },
-          {
-            label: "Mouse-only path",
-            prompt: "I only have a mouse right now, no keyboard. What is the mouse-first path for this lesson?",
-          },
-          {
-            label: "Upload .sb3 help",
-            prompt: "I finished but cannot find my .sb3 file to upload. Walk me through check -> retest steps.",
-          },
-        ],
-        scratch: [
-          {
-            label: "Sprite won't move",
-            prompt: "My sprite does not move when I click the green flag. Please give me one Scratch block check at a time.",
-          },
-          {
-            label: "Backdrop won't change",
-            prompt: "My backdrop never changes. What is one specific Scratch block check I should do first?",
-          },
-          {
-            label: "Score not updating",
-            prompt: "My score is not updating correctly. Help me debug in small steps and retest after each change.",
-          },
-          {
-            label: "Game over missing",
-            prompt: "My game over condition does not trigger. Give me one event/broadcast check and then ask me to retest.",
-          },
-          {
-            label: "Save and upload",
-            prompt: "Please walk me through saving my Scratch project as .sb3 and uploading it privately.",
-          },
-        ],
-        general: [
-          {
-            label: "What is today's goal?",
-            prompt: "What is the goal for this lesson, and what should be done first?",
-          },
-          {
-            label: "I am stuck",
-            prompt: "I am stuck. Ask me one clarifying question, then give me one small next step.",
-          },
-          {
-            label: "How to ask better",
-            prompt: "Help me write a clear help request: what I expected, what happened, and what I already tried.",
-          },
-        ],
-      },
-    },
-    es: {
-      summaryOpen: "Abrir ayudante",
-      summaryResume: "Continuar ayudante",
-      contextFresh: "Las preguntas de seguimiento se quedan en un solo hilo de esta leccion en esta sesion del navegador hasta que reinicies el chat.",
-      contextResume: "El contexto de la conversacion se guarda para esta leccion en esta sesion del navegador hasta que reinicies el chat.",
-      turnStudent: "Tu",
-      turnAssistant: "Ayudante",
-      followupsLabel: "Prueba despues:",
-      resetStatus: "Conversacion reiniciada.",
-      emptyMessage: "Escribe una pregunta antes de pedir ayuda.",
-      thinking: "Pensando...",
-      noOutput: "(sin respuesta)",
-      networkFailure: "Error del ayudante: network_failure",
-      quickTitle: "Preguntas rapidas (toca para enviar):",
-      quickAriaLabel: "Preguntas rapidas del ayudante",
-      inputLabel: "Pregunta para el ayudante",
-      inputPlaceholder: "Pide ayuda...",
-      askButton: "Preguntar",
-      resetButton: "Reiniciar chat",
-      citationsTitle: "Referencias de la leccion usadas",
-      errorPrefix: "Error del ayudante",
-      promptSets: {
-        piper: [
-          {
-            label: "Salto no funciona",
-            prompt: "En StoryMode, izquierda y derecha funcionan pero saltar no funciona en Cheeseteroid. Ayudame a revisar un paso a la vez.",
-          },
-          {
-            label: "Ningun boton responde",
-            prompt: "Ninguno de mis botones del breadboard en StoryMode responde. Dame una comprobacion a la vez y pideme volver a probar.",
-          },
-          {
-            label: "Una direccion falla",
-            prompt: "Solo falla una direccion de movimiento en mis controles de Piper. Que debo comparar primero en la ruta de cableado de mis jumpers?",
-          },
-          {
-            label: "Ruta solo con mouse",
-            prompt: "Solo tengo un mouse ahora, no teclado. Cual es la ruta pensada para mouse en esta leccion?",
-          },
-          {
-            label: "Ayuda con .sb3",
-            prompt: "Ya termine pero no encuentro mi archivo .sb3 para subirlo. Guiame con pasos de revisar y volver a probar.",
-          },
-        ],
-        scratch: [
-          {
-            label: "El sprite no se mueve",
-            prompt: "Mi sprite no se mueve cuando hago clic en la bandera verde. Dame una sola comprobacion de bloques de Scratch a la vez.",
-          },
-          {
-            label: "El fondo no cambia",
-            prompt: "Mi fondo nunca cambia. Cual es una comprobacion especifica de Scratch que debo hacer primero?",
-          },
-          {
-            label: "La puntuacion no cambia",
-            prompt: "Mi puntuacion no se actualiza bien. Ayudame a depurarlo en pasos pequenos y a volver a probar despues de cada cambio.",
-          },
-          {
-            label: "Falta game over",
-            prompt: "Mi condicion de game over no se activa. Dame una comprobacion de evento o broadcast y luego pideme volver a probar.",
-          },
-          {
-            label: "Guardar y subir",
-            prompt: "Guiame para guardar mi proyecto de Scratch como .sb3 y subirlo de forma privada.",
-          },
-        ],
-        general: [
-          {
-            label: "Cual es la meta de hoy?",
-            prompt: "Cual es la meta de esta leccion y que deberia hacer primero?",
-          },
-          {
-            label: "Estoy atorado",
-            prompt: "Estoy atorado. Hazme una pregunta de aclaracion y luego dame un siguiente paso pequeno.",
-          },
-          {
-            label: "Como pedir mejor ayuda",
-            prompt: "Ayudame a escribir una solicitud de ayuda clara: que esperaba, que paso y que ya intente.",
-          },
-        ],
-      },
-    },
-    so: {
-      summaryOpen: "Fur caawiye",
-      summaryResume: "Sii wad caawiye",
-      contextFresh: "Su'aalaha daba socda waxay ku sii jiraan hal xadhig oo casharkan ah inta lagu jiro session-kan browser-ka ilaa aad dib u dejiso chat-ka.",
-      contextResume: "Xogta wada hadalka waxaa loogu kaydiyaa casharkan session-kan browser-ka ilaa aad dib u dejiso chat-ka.",
-      turnStudent: "Adiga",
-      turnAssistant: "Caawiye",
-      followupsLabel: "Ku xigso tan:",
-      resetStatus: "Wada hadalka dib ayaa loo dejiyay.",
-      emptyMessage: "Qor su'aal ka hor intaadan caawimo codsan.",
-      thinking: "Wuu fikirayaa...",
-      noOutput: "(jawaab ma jirto)",
-      networkFailure: "Khalad caawiye: network_failure",
-      quickTitle: "Su'aalo degdeg ah (taabo si aad u dirto):",
-      quickAriaLabel: "Su'aalaha degdega ah ee caawiyaha",
-      inputLabel: "Su'aal u dir caawiyaha",
-      inputPlaceholder: "Caawimo codso...",
-      askButton: "Weydii",
-      resetButton: "Dib u deji chat-ka",
-      citationsTitle: "Tixraacyada casharka ee la isticmaalay",
-      errorPrefix: "Khalad caawiye",
-      promptSets: {
-        piper: [
-          {
-            label: "Jump ma shaqeeyo",
-            prompt: "StoryMode gudaheeda, bidix iyo midig way shaqeeyaan laakiin jump-ku kama shaqeeyo Cheeseteroid. Iga caawi hal talaabo markiiba.",
-          },
-          {
-            label: "Badhamo ma jawaabaan",
-            prompt: "Midkoodna badhamadayda StoryMode breadboard-ka ma jawaabaan. I sii hal hubin markiiba oo iga codso inaan mar kale tijaabiyo.",
-          },
-          {
-            label: "Hal jiho ayaa fashilanta",
-            prompt: "Kaliya hal jiho dhaqdhaqaaq ayaa ka fashilanta kontarooladayda Piper. Maxaan marka hore isbarbar dhigaa jidka fiilooyinka jumper-ka?",
-          },
-          {
-            label: "Waddo mouse keliya",
-            prompt: "Hadda waxaan haystaa mouse keliya, keyboard ma hayo. Waa maxay waddada mouse-ku hormarinayo ee casharkan?",
-          },
-          {
-            label: "Caawimo .sb3",
-            prompt: "Waan dhammeeyay laakiin ma heli karo faylkayga .sb3 si aan u geliyo. Igu hag tallaabooyin hubi kadibna mar kale tijaabi.",
-          },
-        ],
-        scratch: [
-          {
-            label: "Sprite-ku ma socdo",
-            prompt: "Sprite-kaygu ma socdo marka aan gujiyo green flag-ka. I sii hal hubin oo Scratch block ah markiiba.",
-          },
-          {
-            label: "Backdrop ma beddelmo",
-            prompt: "Backdrop-kaygu waligiis ma beddelmo. Waa maxay hal hubin oo Scratch ah oo gaar ah oo aan marka hore sameeyo?",
-          },
-          {
-            label: "Score-ku ma cusboona",
-            prompt: "Score-kaygu si sax ah uma cusboona. Iga caawi inaan khalad-saaro anigoo qaadaya tallaabooyin yaryar oo aan mar kasta dib u tijaabiyo.",
-          },
-          {
-            label: "Game over ma muuqdo",
-            prompt: "Shuruuddayda game over ma shaqeyso. I sii hal hubin oo event ama broadcast ah ka dibna iga codso inaan mar kale tijaabiyo.",
-          },
-          {
-            label: "Kaydi oo geli",
-            prompt: "Ii sharax sida aan mashruucayga Scratch ugu kaydiyo .sb3 oo aan si gaar ah ugu geliyo.",
-          },
-        ],
-        general: [
-          {
-            label: "Waa maxay yoolka maanta?",
-            prompt: "Waa maxay yoolka casharkan, maxaase ugu horeyn la sameeyaa?",
-          },
-          {
-            label: "Waan ku xannibanahay",
-            prompt: "Waan ku xannibanahay. I weydii hal su'aal oo caddayn ah ka dibna i sii hal tallaabo oo yar.",
-          },
-          {
-            label: "Sideen si fiican u codsadaa caawimo",
-            prompt: "Iga caawi inaan qoro codsi caawimo oo cad: waxa aan filayay, waxa dhacay, iyo waxa aan hore u tijaabiyay.",
-          },
-        ],
-      },
-    },
+  const parsePromptSets = (widget) => {
+    const payload = widget.querySelector(".helper-prompt-sets-json");
+    if (!payload) return {};
+    try {
+      const parsed = JSON.parse(payload.textContent || "{}");
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (_err) {
+      return {};
+    }
   };
 
   const widgets = document.querySelectorAll(".helper-widget");
@@ -363,7 +125,39 @@
     const helperContext = (widget.dataset.helperContext || "").trim();
     const helperTopics = (widget.dataset.helperTopics || "").trim();
     const helperLanguageCode = normalizeLanguageCode((widget.dataset.helperLanguageCode || "en").trim() || "en");
-    const activeCopy = WIDGET_COPY[helperLanguageCode] || WIDGET_COPY.en;
+    const readI18n = (key, fallback) => {
+      const value = String(widget.getAttribute(`data-i18n-${key}`) || "").trim();
+      return value || fallback;
+    };
+    const chromeCopy = {
+      summaryOpen: readI18n("summary-open", "Open helper"),
+      summaryResume: readI18n("summary-resume", "Resume helper"),
+      contextFresh: readI18n(
+        "context-fresh",
+        "Follow-up questions stay in one lesson thread in this browser session until you reset chat.",
+      ),
+      contextResume: readI18n(
+        "context-resume",
+        "Conversation context is saved for this lesson in this browser session until you reset chat.",
+      ),
+      turnStudent: readI18n("turn-student", "You"),
+      turnAssistant: readI18n("turn-assistant", "Helper"),
+      followupsLabel: readI18n("followups-label", "Try next:"),
+      resetStatus: readI18n("reset-status", "Conversation reset."),
+      emptyMessage: readI18n("empty-message", "Type a question before asking."),
+      thinking: readI18n("thinking", "Thinking..."),
+      noOutput: readI18n("no-output", "(no output)"),
+      networkFailure: readI18n("network-failure", "Helper error: network_failure"),
+      quickTitle: readI18n("quick-title", "Quick asks (tap to send):"),
+      quickAriaLabel: readI18n("quick-aria-label", "Quick helper prompts"),
+      inputLabel: readI18n("input-label", "Question for helper"),
+      inputPlaceholder: readI18n("input-placeholder", "Ask for help..."),
+      askButton: readI18n("ask-button", "Ask"),
+      resetButton: readI18n("reset-button", "Reset chat"),
+      citationsTitle: readI18n("citations-title", "Lesson references used"),
+      errorPrefix: readI18n("error-prefix", "Helper error"),
+    };
+    const promptSets = parsePromptSets(widget);
     const storageKey = `helper-widget:${hashString(
       [window.location.pathname, helperReference, helperContext, helperTopics, helperLanguageCode, scopeToken].join("|")
     )}`;
@@ -404,12 +198,12 @@
     const updateConversationChrome = () => {
       const hasHistory = transcriptTurns.length > 0;
       if (summaryHint) {
-        summaryHint.textContent = hasHistory ? activeCopy.summaryResume : activeCopy.summaryOpen;
+        summaryHint.textContent = hasHistory ? chromeCopy.summaryResume : chromeCopy.summaryOpen;
       }
       if (contextNote) {
         contextNote.textContent = hasHistory
-          ? activeCopy.contextResume
-          : activeCopy.contextFresh;
+          ? chromeCopy.contextResume
+          : chromeCopy.contextFresh;
       }
     };
 
@@ -426,7 +220,7 @@
       turn.className = `helper-turn helper-turn--${role === "student" ? "student" : "assistant"}`;
       const labelNode = document.createElement("span");
       labelNode.className = "helper-turn-label";
-      labelNode.textContent = role === "student" ? activeCopy.turnStudent : activeCopy.turnAssistant;
+      labelNode.textContent = role === "student" ? chromeCopy.turnStudent : chromeCopy.turnAssistant;
       const contentNode = document.createElement("div");
       contentNode.textContent = text;
       turn.appendChild(labelNode);
@@ -436,7 +230,7 @@
         followupsWrap.className = "helper-followups";
         const followupsLabel = document.createElement("div");
         followupsLabel.className = "helper-followups-label";
-        followupsLabel.textContent = activeCopy.followupsLabel;
+        followupsLabel.textContent = chromeCopy.followupsLabel;
         followupsWrap.appendChild(followupsLabel);
         suggestions.forEach((row) => {
           const suggestion = String(row || "").trim();
@@ -482,7 +276,7 @@
       transcriptTurns = [];
       latestCitations = [];
       renderCitations([]);
-      setOutput(activeCopy.resetStatus);
+      setOutput(chromeCopy.resetStatus);
       conversationId = newConversationId();
       textarea.value = "";
       updateConversationChrome();
@@ -542,14 +336,14 @@
     const sendMessage = async (rawMessage) => {
       const message = (rawMessage || "").trim();
       if (!message) {
-        setOutput(activeCopy.emptyMessage);
+        setOutput(chromeCopy.emptyMessage);
         renderCitations([]);
         return;
       }
       textarea.value = message;
       appendTurn("student", message);
       setControlsBusy(true);
-      setOutput(activeCopy.thinking);
+      setOutput(chromeCopy.thinking);
 
       try {
         const payload = {
@@ -591,7 +385,7 @@
             status: res.status,
             data,
             headerRequestId: requestIdHeader,
-            copy: activeCopy,
+            copy: chromeCopy,
           });
           appendTurn("assistant", errorText);
           setOutput(errorText);
@@ -599,7 +393,7 @@
           return;
         }
 
-        const responseText = (data && data.text) || activeCopy.noOutput;
+        const responseText = (data && data.text) || chromeCopy.noOutput;
         const followUpSuggestions = (data && data.follow_up_suggestions) || [];
         appendTurn("assistant", responseText, { suggestions: followUpSuggestions });
         textarea.value = "";
@@ -607,7 +401,7 @@
         renderCitations((data && data.citations) || []);
         textarea.focus();
       } catch (_err) {
-        const errText = activeCopy.networkFailure;
+        const errText = chromeCopy.networkFailure;
         appendTurn("assistant", errText);
         setOutput(errText);
         renderCitations([]);
@@ -617,27 +411,27 @@
     };
 
     const promptGroup = detectPromptGroup(helperReference, helperContext, helperTopics);
-    const promptSet = activeCopy.promptSets[promptGroup] || activeCopy.promptSets.general;
+    const promptSet = promptSets[promptGroup] || promptSets.general;
     if (label) {
-      label.textContent = activeCopy.inputLabel;
+      label.textContent = chromeCopy.inputLabel;
     }
     if (textarea) {
-      textarea.placeholder = activeCopy.inputPlaceholder;
+      textarea.placeholder = chromeCopy.inputPlaceholder;
     }
     if (button) {
-      button.textContent = activeCopy.askButton;
+      button.textContent = chromeCopy.askButton;
     }
     if (resetButton) {
-      resetButton.textContent = activeCopy.resetButton;
+      resetButton.textContent = chromeCopy.resetButton;
     }
     if (quickTitle) {
-      quickTitle.textContent = activeCopy.quickTitle;
+      quickTitle.textContent = chromeCopy.quickTitle;
     }
     if (quickActions) {
-      quickActions.setAttribute("aria-label", activeCopy.quickAriaLabel);
+      quickActions.setAttribute("aria-label", chromeCopy.quickAriaLabel);
     }
     if (citationsTitle) {
-      citationsTitle.textContent = activeCopy.citationsTitle;
+      citationsTitle.textContent = chromeCopy.citationsTitle;
     }
     if (quickActions && promptSet.length) {
       promptSet.forEach((item) => {

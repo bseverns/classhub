@@ -1279,7 +1279,7 @@ Execution ownership and gates:
 
 **Current decision:**
 - Helper output language now follows the active Class Hub UI locale deterministically.
-- Class Hub passes `language_code` with helper requests; helper normalizes it to the supported set (`en`, `es`, `so`) and returns the applied `response_language`.
+- Class Hub passes `language_code` with helper requests; helper normalizes it to the supported set (`en`, `es`, `so`, `ksw`) and returns the applied `response_language`.
 - Helper does not switch languages based only on the student's message text.
 - Apply the same language contract to both model-backed answers and fixed helper policy/redirect text so behavior stays consistent.
 - Apply the same language contract to widget-managed chrome as well (follow-up labels, status text, quick prompts, button/placeholder copy) so the browser UI does not fall back to English while helper replies are localized.
@@ -1287,6 +1287,33 @@ Execution ownership and gates:
 **Why this remains active:**
 - Makes helper language behavior inspectable and testable instead of relying on model inference.
 - Keeps live classroom behavior aligned with the UI locale that the student or teacher explicitly selected.
+
+## Karen locale code selection (2026-04-02)
+
+**Current decision:**
+- Treat "Karen" support in this repo as S'gaw Karen and use ISO 639-3 code `ksw`.
+- Register `ksw` in Django's `LANGUAGES` list and helper response-language normalization so locale cookies, `Accept-Language`, and `/helper/chat` all agree on the same code.
+- Ship `ksw` first as a starter locale scaffold with English fallback for untranslated copy rather than guessing large amounts of unreviewed Karen UI text.
+- Add a provisional first translated `ksw` tranche for helper-widget chrome and quick prompts so the helper UI path is closer to Spanish/Somali parity while broader catalog review remains pending.
+
+**Why this remains active:**
+- "Karen" is a language family, so the implementation needs one concrete locale code to be technically stable.
+- `ksw` is the standard code used for S'gaw Karen, which keeps future translation review and tooling interoperable.
+- A starter scaffold is honest about current translation coverage while still unlocking locale selection, tests, and helper language routing now.
+- A bounded translated tranche improves the student helper experience without pretending the wider Karen catalog is already fully reviewed.
+
+## Request-scoped localization context for Class Hub (2026-04-02)
+
+**Current decision:**
+- Add a single request-scoped localization object in Class Hub middleware after Django `LocaleMiddleware`.
+- Expose that object as `request.localization`, a template context value, and a `contextvars`-backed accessor for Python helpers.
+- Treat `request.localization` as the canonical locale source inside Class Hub; only pass an explicit language code when crossing the `/helper/chat` service boundary.
+
+**Why this remains active:**
+- Removes repeated `getattr(request, "LANGUAGE_CODE", "en")` plumbing from view/helper code.
+- Gives templates, Python helpers, and helper-widget rendering one stable locale contract.
+- Preserves safe request scoping instead of introducing process-global locale state.
+- Helper widget chrome and quick-prompt payloads now come from server-side translated template/data seams instead of maintaining parallel browser-only translation tables.
 
 ## Helper conversation memory
 

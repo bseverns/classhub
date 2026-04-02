@@ -715,3 +715,141 @@ msgstr "Lessons"
 
 msgid "Back to join"
 msgstr "Back to join"
+
+msgid "Open helper"
+msgstr "Fur caawiye"
+
+msgid "Resume helper"
+msgstr "Sii wad caawiye"
+
+msgid "Follow-up questions stay in one lesson thread in this browser session until you reset chat."
+msgstr "Su'aalaha daba socda waxay ku sii jiraan hal xadhig oo casharkan ah inta lagu jiro session-kan browser-ka ilaa aad dib u dejiso chat-ka."
+
+msgid "Conversation context is saved for this lesson in this browser session until you reset chat."
+msgstr "Xogta wada hadalka waxaa loogu kaydiyaa casharkan session-kan browser-ka ilaa aad dib u dejiso chat-ka."
+
+msgid "You"
+msgstr "Adiga"
+
+msgid "Helper"
+msgstr "Caawiye"
+
+msgid "Try next:"
+msgstr "Ku xigso tan:"
+
+msgid "Conversation reset."
+msgstr "Wada hadalka dib ayaa loo dejiyay."
+
+msgid "Type a question before asking."
+msgstr "Qor su'aal ka hor intaadan caawimo codsan."
+
+msgid "Thinking..."
+msgstr "Wuu fikirayaa..."
+
+msgid "(no output)"
+msgstr "(jawaab ma jirto)"
+
+msgid "Helper error: network_failure"
+msgstr "Khalad caawiye: network_failure"
+
+msgid "Quick asks (tap to send):"
+msgstr "Su'aalo degdeg ah (taabo si aad u dirto):"
+
+msgid "Quick helper prompts"
+msgstr "Su'aalaha degdega ah ee caawiyaha"
+
+msgid "Question for helper"
+msgstr "Su'aal u dir caawiyaha"
+
+msgid "Ask for help..."
+msgstr "Caawimo codso..."
+
+msgid "Ask"
+msgstr "Weydii"
+
+msgid "Reset chat"
+msgstr "Dib u deji chat-ka"
+
+msgid "Lesson references used"
+msgstr "Tixraacyada casharka ee la isticmaalay"
+
+msgid "Helper error"
+msgstr "Khalad caawiye"
+
+msgid "Jump not working"
+msgstr "Jump ma shaqeeyo"
+
+msgid "In StoryMode, left/right work but jump does not work in Cheeseteroid. Help me troubleshoot one step at a time."
+msgstr "StoryMode gudaheeda, bidix iyo midig way shaqeeyaan laakiin jump-ku kama shaqeeyo Cheeseteroid. Iga caawi hal talaabo markiiba."
+
+msgid "No buttons respond"
+msgstr "Badhamo ma jawaabaan"
+
+msgid "None of my StoryMode breadboard buttons are responding. Give me one check at a time and ask me to retest."
+msgstr "Midkoodna badhamadayda StoryMode breadboard-ka ma jawaabaan. I sii hal hubin markiiba oo iga codso inaan mar kale tijaabiyo."
+
+msgid "One direction fails"
+msgstr "Hal jiho ayaa fashilanta"
+
+msgid "Only one movement direction fails on my Piper controls. What should I compare first in my jumper wiring path?"
+msgstr "Kaliya hal jiho dhaqdhaqaaq ayaa ka fashilanta kontarooladayda Piper. Maxaan marka hore isbarbar dhigaa jidka fiilooyinka jumper-ka?"
+
+msgid "Mouse-only path"
+msgstr "Waddo mouse keliya"
+
+msgid "I only have a mouse right now, no keyboard. What is the mouse-first path for this lesson?"
+msgstr "Hadda waxaan haystaa mouse keliya, keyboard ma hayo. Waa maxay waddada mouse-ku hormarinayo ee casharkan?"
+
+msgid "Upload .sb3 help"
+msgstr "Caawimo .sb3"
+
+msgid "I finished but cannot find my .sb3 file to upload. Walk me through check -> retest steps."
+msgstr "Waan dhammeeyay laakiin ma heli karo faylkayga .sb3 si aan u geliyo. Igu hag tallaabooyin hubi kadibna mar kale tijaabi."
+
+msgid "Sprite won't move"
+msgstr "Sprite-ku ma socdo"
+
+msgid "My sprite does not move when I click the green flag. Please give me one Scratch block check at a time."
+msgstr "Sprite-kaygu ma socdo marka aan gujiyo green flag-ka. I sii hal hubin oo Scratch block ah markiiba."
+
+msgid "Backdrop won't change"
+msgstr "Backdrop ma beddelmo"
+
+msgid "My backdrop never changes. What is one specific Scratch block check I should do first?"
+msgstr "Backdrop-kaygu waligiis ma beddelmo. Waa maxay hal hubin oo Scratch ah oo gaar ah oo aan marka hore sameeyo?"
+
+msgid "Score not updating"
+msgstr "Score-ku ma cusboona"
+
+msgid "My score is not updating correctly. Help me debug in small steps and retest after each change."
+msgstr "Score-kaygu si sax ah uma cusboona. Iga caawi inaan khalad-saaro anigoo qaadaya tallaabooyin yaryar oo aan mar kasta dib u tijaabiyo."
+
+msgid "Game over missing"
+msgstr "Game over ma muuqdo"
+
+msgid "My game over condition does not trigger. Give me one event/broadcast check and then ask me to retest."
+msgstr "Shuruuddayda game over ma shaqeyso. I sii hal hubin oo event ama broadcast ah ka dibna iga codso inaan mar kale tijaabiyo."
+
+msgid "Save and upload"
+msgstr "Kaydi oo geli"
+
+msgid "Please walk me through saving my Scratch project as .sb3 and uploading it privately."
+msgstr "Ii sharax sida aan mashruucayga Scratch ugu kaydiyo .sb3 oo aan si gaar ah ugu geliyo."
+
+msgid "What is today's goal?"
+msgstr "Waa maxay yoolka maanta?"
+
+msgid "What is the goal for this lesson, and what should be done first?"
+msgstr "Waa maxay yoolka casharkan, maxaase ugu horeyn la sameeyaa?"
+
+msgid "I am stuck"
+msgstr "Waan ku xannibanahay"
+
+msgid "I am stuck. Ask me one clarifying question, then give me one small next step."
+msgstr "Waan ku xannibanahay. I weydii hal su'aal oo caddayn ah ka dibna i sii hal tallaabo oo yar."
+
+msgid "How to ask better"
+msgstr "Sideen si fiican u codsadaa caawimo"
+
+msgid "Help me write a clear help request: what I expected, what happened, and what I already tried."
+msgstr "Iga caawi inaan qoro codsi caawimo oo cad: waxa aan filayay, waxa dhacay, iyo waxa aan hore u tijaabiyay."
