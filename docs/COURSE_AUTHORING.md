@@ -259,6 +259,40 @@ Students can open the dropbox from the lesson page and from `/student`.
 - Per-lesson reference: set `helper_reference` in the lesson entry in `course.yaml`.
 - Per-lesson allowed topics: add `helper_allowed_topics` in lesson front matter.
 
+### STEM-tech-first reference authoring
+
+The current helper retrieves within one scoped reference file at a time, so the order and wording inside that file matter. For STEM courses, write the reference so technology-specific grounding appears before general workflow or policy copy.
+
+Recommended section order for course-level references:
+
+1. `Course summary`
+2. `STEM technologies in scope`
+3. `Technology tags`
+4. `Technology-first troubleshooting`
+5. audience / environment / routines / privacy sections after that
+
+Recommended section order for lesson-level references:
+
+1. `Lesson summary`
+2. `STEM technologies in scope`
+3. `Lesson tasks`
+4. `Technology-first troubleshooting`
+5. submission / workflow / extension sections after that
+
+Authoring rules:
+
+- Name the actual student-facing tools first: `Scratch`, `Piper Computer Kit`, `breadboard`, `GPIO`, `sensors`, `.sb3`, etc.
+- Include short technology tags that are likely to appear in student questions.
+- Write troubleshooting as `symptom -> check -> retest`.
+- Prefer one concrete block, wire path, or device check before broad study advice.
+- Put privacy, submission, and classroom routine reminders later in the file unless they are the direct topic of the lesson.
+
+Why this helps:
+
+- The current lexical citation builder favors overlap with the student message and lesson context.
+- The helper now adds a bounded STEM-tech rerank for tool-specific questions, so explicit technology sections and troubleshooting language give both the lexical fallback and local RAG path something reliable to prioritize.
+- The reranker does not widen scope: it still stays inside the one signed reference file already chosen for that request.
+
 Batch-sync helper references for all courses:
 
 ```bash

@@ -44,6 +44,36 @@ DEFAULT_PIPER_HARDWARE_KEYWORDS = [
     "physical controls",
     "controls not working",
 ]
+DEFAULT_STEM_TECHNOLOGY_KEYWORDS = [
+    "scratch",
+    "sprite",
+    "sprites",
+    "block",
+    "blocks",
+    "backdrop",
+    "backdrops",
+    "costume",
+    "costumes",
+    "broadcast",
+    "variable",
+    "variables",
+    "loop",
+    "loops",
+    "animation",
+    "game map",
+    "score",
+    "piper",
+    "pipercode",
+    "storymode",
+    "breadboard",
+    "jumper",
+    "wire",
+    "wiring",
+    "gpio",
+    "sensor",
+    "button",
+    "buttons",
+]
 _LOW_SIGNAL_SCOPE_TOKENS = {
     "about",
     "build",
@@ -135,6 +165,37 @@ def is_piper_context(
 
 def is_piper_hardware_question(message: str, *, keywords: list[str]) -> bool:
     return contains_any_phrase(message, keywords)
+
+
+def is_stem_technology_question(
+    message: str,
+    *,
+    context_value: str = "",
+    topics: list[str] | None = None,
+    reference_text: str = "",
+    keywords: list[str] | None = None,
+) -> bool:
+    lowered = (message or "").lower()
+    keyword_list = keywords or DEFAULT_STEM_TECHNOLOGY_KEYWORDS
+    if contains_any_phrase(lowered, keyword_list):
+        return True
+    if is_piper_hardware_question(message, keywords=DEFAULT_PIPER_HARDWARE_KEYWORDS):
+        return True
+    if not is_scratch_context(context_value, topics or [], reference_text):
+        return False
+    scratch_signals = (
+        "animation",
+        "backdrop",
+        "broadcast",
+        "costume",
+        "game",
+        "loop",
+        "motion",
+        "score",
+        "sprite",
+        "variable",
+    )
+    return any(signal in lowered for signal in scratch_signals)
 
 
 def select_piper_hardware_check(message: str) -> str:

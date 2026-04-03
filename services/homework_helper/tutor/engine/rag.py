@@ -13,6 +13,7 @@ from typing import Callable
 
 from psycopg import sql
 
+from . import reference as engine_reference
 from .reference import SAFE_REF_KEY_RE
 
 RAG_TABLE_NAME = "tutor_curriculum_rag_chunks"
@@ -204,6 +205,7 @@ def retrieve_curriculum_citations(
     embedding_dimensions: int,
     embed_text_fn: Callable[[str], list[float]],
     table_name: str = RAG_TABLE_NAME,
+    prefer_stem_technology: bool = False,
 ) -> list[dict]:
     """Fetch nearest curriculum chunks from local pgvector index."""
     if connection.vendor != "postgresql":
@@ -221,6 +223,7 @@ def retrieve_curriculum_citations(
         return []
     vector = _vector_literal(query_vec)
     limit = max(int(max_items or 0), 1)
+    query_limit = limit if not prefer_stem_technology else max(limit * 3, limit)
     max_distance = max(float(max_cosine_distance or 0.0), 0.0)
     with connection.cursor() as cursor:
         cursor.execute(
@@ -236,11 +239,11 @@ def retrieve_curriculum_citations(
                 LIMIT %s
                 """
             ).format(table=table_ident),
-            [vector, ref, vector, limit],
+            [vector, ref, vector, query_limit],
         )
         rows = list(cursor.fetchall() or [])
-    citations: list[dict] = []
-    for idx, row in enumerate(rows, start=1):
+    ranked_rows: list[tuple[float, float, int, str, str]] = []
+    for idx, row in enumerate(rows):
         chunk_text = str(row[0] or "").strip()
         source_label = str(row[1] or ref).strip() or ref
         distance = float(row[2] if row[2] is not None else 9.9)
@@ -248,6 +251,15 @@ def retrieve_curriculum_citations(
             continue
         if distance > max_distance:
             continue
+        tech_priority = engine_reference.stem_technology_chunk_priority(chunk_text) if prefer_stem_technology else 0
+        tech_bonus = min(tech_priority / 4000.0, 0.08)
+        adjusted_distance = distance - tech_bonus
+        ranked_rows.append((adjusted_distance, distance, idx, chunk_text, source_label))
+    ranked_rows.sort(key=lambda row: (row[0], row[1], row[2]))
+    citations: list[dict] = []
+    for idx, row in enumerate(ranked_rows[:limit], start=1):
+        chunk_text = row[3]
+        source_label = row[4]
         citations.append(
             {
                 "id": f"L{idx}",

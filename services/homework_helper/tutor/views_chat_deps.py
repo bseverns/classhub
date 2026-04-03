@@ -68,6 +68,7 @@ def build_chat_deps(
         parse_csv_list=engine_heuristics.parse_csv_list,
         contains_text_language=engine_heuristics.contains_text_language,
         is_scratch_context=engine_heuristics.is_scratch_context,
+        is_stem_technology_question=engine_heuristics.is_stem_technology_question,
         is_piper_context=is_piper_context_fn,
         is_piper_hardware_question=is_piper_hardware_question_fn,
         build_piper_hardware_triage_text=build_piper_hardware_triage_text_fn,

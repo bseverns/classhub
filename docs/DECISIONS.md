@@ -1673,6 +1673,23 @@ Execution ownership and gates:
 - Preserves anti-cheating/privacy posture by preventing cross-student retrieval surfaces.
 - Keeps classroom reliability: helper responses continue even when vector retrieval is offline.
 
+## STEM-tech-first helper reference authoring
+
+**Current decision:**
+- Course-level and lesson-level helper reference files should front-load STEM technology grounding before broader workflow or policy text.
+- Preferred early sections are:
+  - `STEM technologies in scope`
+  - `Technology tags`
+  - `Technology-first troubleshooting`
+- Troubleshooting copy should favor `symptom -> check -> retest` phrasing and concrete tool vocabulary (`Scratch`, `breadboard`, `GPIO`, `sprite`, `variable`, etc.).
+- Scaffold and reference-generation scripts should emit this structure by default so new content follows the same retrieval-friendly pattern.
+- Helper retrieval should apply a bounded STEM-tech rerank when the student question is tool-specific, but it must stay inside the single signed curriculum reference already selected for that request.
+
+**Why this remains active:**
+- Improves the current helper immediately because lexical citations and single-reference retrieval depend on explicit overlap with student questions.
+- Lets both lexical fallback and local pgvector retrieval prefer technology chunks when results are otherwise close, without turning the helper into a broad search engine.
+- Keeps the curriculum-only boundary intact while making tool-specific classroom help easier to retrieve than generic process language.
+
 ## Batch helper-reference sync for multi-course deployments
 
 **Current decision:**

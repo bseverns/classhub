@@ -42,6 +42,26 @@ WANTED_SECTIONS = {
 }
 
 
+def normalize_reference_items(raw_items) -> list[str]:
+    items: list[str] = []
+    for raw in list(raw_items or []):
+        if isinstance(raw, dict):
+            for key, value in raw.items():
+                left = str(key or "").strip()
+                right = str(value or "").strip()
+                if left and right:
+                    items.append(f"{left}: {right}")
+                elif left:
+                    items.append(left)
+                elif right:
+                    items.append(right)
+            continue
+        text = str(raw or "").strip()
+        if text:
+            items.append(text)
+    return items
+
+
 def parse_front_matter(raw: str) -> tuple[dict, str]:
     if raw.startswith("---"):
         parts = raw.split("---", 2)
@@ -107,8 +127,19 @@ def render_reference(
     needs = fm.get("needs")
     if makes:
         lines.append(f"- Makes: {makes}")
+
     if needs:
-        lines.append(f"- Needs: {needs}")
+        lines.append("")
+        lines.append("## STEM technologies in scope")
+        for item in needs:
+            text = str(item or "").strip()
+            if text:
+                lines.append(f"- {text}")
+
+    quick_fixes: list[str] = []
+    help_meta = fm.get("help") or {}
+    if isinstance(help_meta, dict):
+        quick_fixes = normalize_reference_items(help_meta.get("quick_fixes"))
 
     def add_section(label: str, key: str):
         items = select_section(sections, key)
@@ -120,9 +151,22 @@ def render_reference(
             lines.append(f"- {item}")
 
     add_section("Watch", "watch")
-    add_section("Do", "do")
-    add_section("Submit", "submit")
-    add_section("Help", "help")
+    add_section("Lesson tasks", "do")
+    add_section("Submission and workflow", "submit")
+
+    tech_troubleshooting = list(quick_fixes)
+    tech_troubleshooting.extend(select_section(sections, "common stuck issues"))
+    if tech_troubleshooting:
+        seen = set()
+        lines.append("")
+        lines.append("## Technology-first troubleshooting")
+        for item in tech_troubleshooting:
+            if not item or item in seen:
+                continue
+            seen.add(item)
+            lines.append(f"- {item}")
+
+    add_section("Support and guidance", "help")
     add_section("Extend", "extend")
     add_section("Teacher notes", "teacher panel")
     lines.append("")

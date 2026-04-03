@@ -1,5 +1,35 @@
 # Reference: piper_scratch
 
+## Course summary
+- Course focus: Scratch game design with Piper StoryMode controls and private-first submission workflow.
+
+## STEM technologies in scope
+- Piper Computer Kit
+- Raspberry Pi based Piper setup
+- Scratch (web or app)
+- Breadboard
+- Jumper wires
+- GPIO inputs
+- Tactile buttons and contacts
+- `.sb3` project files
+
+## Technology tags
+- piper
+- scratch
+- breadboard
+- jumper wire
+- gpio
+- button input
+- storymode
+- cheeseteroid
+- mars mission
+
+## Technology-first troubleshooting
+- For Piper build tasks, start with the concrete chain: input -> wire path -> shared ground -> in-game action.
+- For Scratch project tasks, start with the concrete chain: start block -> motion/look/control block -> visible behavior on stage.
+- Give one check at a time, then ask the student to retest that same control or script.
+- Use broader workflow advice only after the technology issue is narrowed down.
+
 ## Audience + environment
 - Age range: 5th to 7th grade.
 - Devices: standard Piper kits with Raspberry Pi 3 B+, monitor/speaker in the case, external mouse.
@@ -33,13 +63,6 @@
 - save, download, upload, `.sb3`
 - GPIO pin, shared ground (GND), breadboard row, jumper wire, input, button/contact
 
-## Piper hardware grounding
-- Piper build tasks are usually "input -> wire path -> in-game action."
-- In this class, hardware questions are in scope when tied to StoryMode missions and controller setup.
-- Typical mission flow:
-  - Mars: movement inputs (Left / Forward / Right).
-  - Cheeseteroid: add jump while keeping movement working.
-
 ## Hardware quick-diagnosis order
 1) Confirm power + app state
 - Kit is booted, StoryMode mission is open, and the expected test screen is active.
@@ -54,6 +77,12 @@
 - Remove extra changes, then re-add one wire/input at a time and retest.
 6) Safe reset
 - If wiring seems inconsistent, shut down, reseat suspect jumpers, reboot, and retest.
+
+## Piper hardware grounding
+- In this class, hardware questions are in scope when tied to StoryMode missions and controller setup.
+- Typical mission flow:
+  - Mars: movement inputs (Left / Forward / Right).
+  - Cheeseteroid: add jump while keeping movement working.
 
 ## Coaching pattern for hardware questions
 - Ask these first:

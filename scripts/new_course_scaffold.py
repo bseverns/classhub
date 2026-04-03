@@ -110,6 +110,28 @@ lessons:
 def _reference_file(slug: str, title: str, age_band: str) -> str:
     return f"""# Reference: {slug}
 
+## Course summary
+- Title: {title}
+- Course slug: {slug}
+- Age range: {age_band}
+
+## STEM technologies in scope
+- Primary tools/apps: <name the actual student-facing technology first>
+- Hardware/platform: <device, kit, sensor, controller, or board>
+- File/artifact types: <.sb3, image, video, CAD file, etc.>
+
+## Technology tags
+- <scratch>
+- <piper>
+- <breadboard>
+- <gpio>
+
+## Technology-first troubleshooting
+- Identify the exact tool, hardware part, or block category before giving general workflow advice.
+- Prefer one check -> retest loop at a time.
+- Compare one failing control/path against one known-good control/path when possible.
+- Only move to broader workflow or policy reminders after the technology issue is localized.
+
 ## Audience + environment
 - Age range: {age_band}
 - Devices: <describe the hardware>
@@ -126,6 +148,9 @@ def _reference_file(slug: str, title: str, age_band: str) -> str:
 
 ## Vocabulary to use
 - <key terms>
+
+## Common stuck issues (symptom -> check -> retest)
+- Symptom: <what fails>. Check: <one concrete technology check>. Retest: <what to try again right away>.
 
 ## Common misconceptions to correct
 - <misconception> -> <correction>

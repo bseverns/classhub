@@ -1,5 +1,37 @@
 # Reference: grade9_scratch_games
 
+## Course summary
+- Course focus: introductory game logic and code literacy through Scratch.
+
+## STEM technologies in scope
+- Scratch web editor
+- Sprites
+- Stage and backdrops
+- Event blocks
+- Condition blocks
+- Variables for score, lives, and timer
+- Keyboard or click input handling
+- Chromebook or laptop workflow
+
+## Technology tags
+- scratch
+- sprites
+- stage
+- backdrop
+- events
+- conditions
+- variables
+- score
+- lives
+- timer
+- game logic
+
+## Technology-first troubleshooting
+- Start with the exact Scratch block family involved: Events, Motion, Control, Sensing, or Variables.
+- Ask what the student expected the sprite, backdrop, or variable to do, then inspect the single block path tied to that behavior.
+- Prefer one block check -> retest loop at a time.
+- Use classroom workflow reminders only after the project-behavior issue is narrowed down.
+
 ## Audience + environment
 - Grade band: grade 9 (ages 14-15).
 - Program profile and UI level: secondary.
@@ -29,6 +61,12 @@
 4) Variables for score/lives/timer.  
 5) Feedback and readability polish.  
 6) Release + explain learning.
+
+## Scratch debugging order
+1) Find the event block that starts the behavior.
+2) Find the loop, condition, or variable block that changes behavior.
+3) Check whether the correct sprite or backdrop owns that script.
+4) Change one block, then retest the same scenario.
 
 ## Classroom routines
 - Entry: open starter project and rename remix.

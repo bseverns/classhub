@@ -38,6 +38,7 @@ class ChatDeps:
     parse_csv_list: Callable[[str], list[str]]
     contains_text_language: Callable[[str, list[str]], bool]
     is_scratch_context: Callable[[str, list[str], str], bool]
+    is_stem_technology_question: Callable[..., bool]
     is_piper_context: Callable[[str, list[str], str, str], bool]
     is_piper_hardware_question: Callable[[str], bool]
     build_piper_hardware_triage_text: Callable[..., str]
@@ -428,6 +429,12 @@ def handle_chat(
     reference_text = deps.load_reference_text(reference_file)
     reference_chunks = deps.load_reference_chunks(reference_file)
     reference_source = reference_key or (Path(reference_file).stem if reference_file else "")
+    prefer_stem_technology = deps.is_stem_technology_question(
+        message,
+        context_value=context_value or "",
+        topics=topics,
+        reference_text=reference_text,
+    )
     citations: list[dict] = []
     if execution_config.rag_enabled:
         try:
@@ -440,6 +447,7 @@ def handle_chat(
                 embedding_model=execution_config.rag_embedding_model,
                 embedding_timeout_seconds=execution_config.rag_embedding_timeout_seconds,
                 embedding_dimensions=execution_config.rag_embedding_dimensions,
+                prefer_stem_technology=prefer_stem_technology,
             )
         except Exception as exc:
             deps.log_chat_event(
@@ -459,6 +467,7 @@ def handle_chat(
             reference_chunks=reference_chunks,
             source_label=reference_source,
             max_items=execution_config.reference_max_citations,
+            prefer_stem_technology=prefer_stem_technology,
         )
     reference_citations = deps.format_reference_citations_for_prompt(citations)
     lang_keywords = execution_config.text_language_keywords

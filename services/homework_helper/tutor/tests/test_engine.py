@@ -14,6 +14,7 @@ from ..engine import context_envelope
 from ..engine import execution_config
 from ..engine import heuristics
 from ..engine import rag
+from ..engine import reference
 from ..engine import runtime
 from ..engine import runtime_config
 from .. import policy
@@ -296,6 +297,60 @@ class HeuristicsEngineTests(SimpleTestCase):
         self.assertIn("not dumb", text)
         self.assertIn("small next step", text)
 
+    def test_is_stem_technology_question_detects_tool_specific_prompt(self):
+        self.assertTrue(
+            heuristics.is_stem_technology_question(
+                "Which Scratch block should I use to make this sprite loop?",
+                context_value="Scratch game design",
+                topics=["sprites", "loops"],
+                reference_text="Technology-first troubleshooting for Scratch projects.",
+            )
+        )
+        self.assertFalse(
+            heuristics.is_stem_technology_question(
+                "How should I reflect on what I learned today?",
+                context_value="Class reflection",
+                topics=["reflection"],
+                reference_text="Use evidence from your project.",
+            )
+        )
+
+
+class ReferenceEngineTests(SimpleTestCase):
+    def test_build_reference_citations_prefers_stem_tech_chunk_for_tool_question(self):
+        citations = reference.build_reference_citations(
+            message="My Scratch sprite is not moving in a loop.",
+            context="Scratch game design",
+            topics=["sprites", "loops"],
+            reference_chunks=(
+                "Lesson summary Title Game design goals and class workflow.",
+                "Technology-first troubleshooting Scratch sprite loop motion blocks and variables to check first.",
+                "Submission and workflow Turn in one screenshot after class.",
+            ),
+            source_label="s05-scratch-motion-loops",
+            max_items=2,
+            prefer_stem_technology=True,
+        )
+        self.assertEqual(len(citations), 2)
+        self.assertIn("Technology-first troubleshooting", citations[0]["text"])
+
+    def test_build_reference_citations_prefers_stem_tech_fallback_when_no_overlap(self):
+        citations = reference.build_reference_citations(
+            message="I need help with the setup.",
+            context="",
+            topics=[],
+            reference_chunks=(
+                "Lesson summary Title Game design goals and class workflow.",
+                "STEM technologies in scope Piper computer kit Scratch web app breadboard and button inputs.",
+                "Submission and workflow Turn in one screenshot after class.",
+            ),
+            source_label="piper_scratch",
+            max_items=1,
+            prefer_stem_technology=True,
+        )
+        self.assertEqual(len(citations), 1)
+        self.assertIn("STEM technologies in scope", citations[0]["text"])
+
 
 class RuntimeConfigEngineTests(SimpleTestCase):
     def test_resolve_program_profile_defaults_to_secondary(self):
@@ -517,6 +572,43 @@ class RAGEngineTests(SimpleTestCase):
             embed_text_fn=lambda _text: [0.1, 0.2],
         )
         self.assertEqual(citations, [])
+
+    def test_retrieve_curriculum_citations_reranks_toward_stem_tech_when_distances_are_close(self):
+        class FakeCursor:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def execute(self, _query, _params):
+                return None
+
+            def fetchall(self):
+                return [
+                    ("Submission workflow upload one screenshot before the bell.", "piper_scratch", 0.100),
+                    (
+                        "Technology-first troubleshooting Scratch sprite loop blocks and button wiring to check first.",
+                        "piper_scratch",
+                        0.112,
+                    ),
+                ]
+
+        connection = SimpleNamespace(vendor="postgresql", cursor=lambda: FakeCursor())
+        with patch("tutor.engine.rag._table_exists", return_value=True):
+            citations = rag.retrieve_curriculum_citations(
+                connection=connection,
+                logger=MagicMock(),
+                query_text="Which Scratch block should I use when my sprite loop is broken?",
+                reference_key="piper_scratch",
+                max_items=2,
+                max_cosine_distance=0.4,
+                embedding_dimensions=2,
+                embed_text_fn=lambda _text: [0.1, 0.2],
+                prefer_stem_technology=True,
+            )
+        self.assertEqual(len(citations), 2)
+        self.assertIn("Technology-first troubleshooting", citations[0]["text"])
 
     def test_relation_identifier_parts_support_schema_qualified_table_name(self):
         parts = rag._relation_identifier_parts("public.tutor_curriculum_rag_chunks")

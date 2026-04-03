@@ -156,6 +156,7 @@ def _retrieve_curriculum_citations(
     embedding_model: str,
     embedding_timeout_seconds: int,
     embedding_dimensions: int,
+    prefer_stem_technology: bool = False,
 ) -> list[dict]:
     return engine_rag.retrieve_curriculum_citations(
         connection=connection,
@@ -171,6 +172,7 @@ def _retrieve_curriculum_citations(
             text=text,
             timeout_seconds=embedding_timeout_seconds,
         ),
+        prefer_stem_technology=prefer_stem_technology,
     )
 
 

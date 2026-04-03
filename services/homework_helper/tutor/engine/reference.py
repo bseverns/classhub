@@ -8,6 +8,33 @@ from functools import lru_cache
 from pathlib import Path
 
 SAFE_REF_KEY_RE = re.compile(r"^[a-z0-9_-]+$")
+_STEM_TECH_SECTION_MARKERS = (
+    "stem technologies in scope",
+    "technology tags",
+    "technology-first troubleshooting",
+    "scratch-only reminder",
+)
+_STEM_TECH_KEYWORDS = (
+    "scratch",
+    "sprite",
+    "backdrop",
+    "costume",
+    "broadcast",
+    "variable",
+    "loop",
+    "animation",
+    "game",
+    "piper",
+    "pipercode",
+    "storymode",
+    "breadboard",
+    "jumper",
+    "wire",
+    "wiring",
+    "gpio",
+    "button",
+    "sensor",
+)
 
 
 def resolve_reference_file(reference_key: str | None, reference_dir: str, reference_map_raw: str) -> str:
@@ -45,6 +72,19 @@ def clean_reference_line(line: str) -> str:
     value = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", value)
     value = value.replace("`", "")
     return re.sub(r"\s+", " ", value).strip()
+
+
+def stem_technology_chunk_priority(chunk: str) -> int:
+    lowered = (chunk or "").lower()
+    if not lowered:
+        return 0
+    score = 0
+    for marker in _STEM_TECH_SECTION_MARKERS:
+        if marker in lowered:
+            score += 90
+    keyword_hits = sum(1 for keyword in _STEM_TECH_KEYWORDS if keyword in lowered)
+    score += min(keyword_hits, 6) * 12
+    return score
 
 
 @lru_cache(maxsize=4)
@@ -105,6 +145,7 @@ def build_reference_citations(
     reference_chunks: tuple[str, ...],
     source_label: str,
     max_items: int = 3,
+    prefer_stem_technology: bool = False,
 ) -> list[dict]:
     if not reference_chunks:
         return []
@@ -113,13 +154,23 @@ def build_reference_citations(
     for idx, chunk in enumerate(reference_chunks):
         chunk_tokens = _tokenize(chunk)
         overlap = len(query_tokens & chunk_tokens) if query_tokens else 0
-        if overlap <= 0:
+        tech_priority = stem_technology_chunk_priority(chunk) if prefer_stem_technology else 0
+        if overlap <= 0 and tech_priority <= 0:
             continue
-        score = overlap * 100 - min(idx, 40)
+        score = overlap * 100 - min(idx, 40) + tech_priority
         ranked.append((score, idx, chunk))
 
     if not ranked:
-        selected = list(reference_chunks[:max_items])
+        selected = [
+            row[1]
+            for row in sorted(
+                (
+                    (stem_technology_chunk_priority(chunk) if prefer_stem_technology else 0, chunk_idx, chunk)
+                    for chunk_idx, chunk in enumerate(reference_chunks)
+                ),
+                key=lambda row: (-row[0], row[1]),
+            )[:max_items]
+        ]
     else:
         ranked.sort(key=lambda row: (-row[0], row[1]))
         selected = [row[2] for row in ranked[:max_items]]
@@ -166,4 +217,3 @@ def load_reference_text(path_str: str, *, logger) -> str:
     # Keep it compact for the system prompt.
     lines = [line.strip() for line in text.splitlines() if line.strip() and not line.strip().startswith("#")]
     return " ".join(lines)
-

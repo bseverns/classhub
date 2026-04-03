@@ -155,7 +155,7 @@ def _render_course_reference(*, manifest: dict, course_slug: str) -> str:
 
     if needs:
         lines.append("")
-        lines.append("## Materials and environment")
+        lines.append("## STEM technologies in scope")
         for item in needs:
             text = str(item or "").strip()
             if text:
@@ -181,6 +181,12 @@ def _render_course_reference(*, manifest: dict, course_slug: str) -> str:
                 lines.append(f"- {lesson_title}")
             else:
                 lines.append(f"- Session {session}: {lesson_title}")
+
+    lines.append("")
+    lines.append("## Technology-first guidance")
+    lines.append("- Identify the exact STEM tool, hardware path, or block family before giving broad study advice.")
+    lines.append("- Prefer one check -> retest coaching loops for device, wiring, or project-behavior questions.")
+    lines.append("- Use course technology vocabulary first, then connect that back to lesson routines and submission flow.")
 
     lines.append("")
     lines.append("## Helper response posture")
