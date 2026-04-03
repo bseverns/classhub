@@ -29,23 +29,28 @@ flowchart TD
 In the current remote-GPU deployment, the browser only talks to the public LMS edge. The model host stays private and tailnet-only.
 
 ```mermaid
-flowchart LR
+%%{init: {"flowchart": {"nodeSpacing": 18, "rankSpacing": 20, "defaultRenderer": "elk"}}}%%
+flowchart TB
   S[Student browser] -->|HTTPS| E[Public LMS edge<br/>Caddy]
   E -->|/, /student, lesson page| CH[Class Hub Django]
   CH -->|embedded helper widget<br/>same site session| HH[Homework Helper Django]
-  HH -->|HTTPS over Tailscale| TS[Tailnet-only endpoint]
-  TS --> AP[Private auth proxy]
-  AP --> GPU[Remote GPU host<br/>model server on 127.0.0.1]
-  GPU --> AP
-  AP --> HH
-  HH --> CH
-  CH --> S
+
+  subgraph PRIVATE["Private model path"]
+    direction TB
+    TS[Tailnet-only endpoint]
+    AP[Private auth proxy]
+    GPU[Remote GPU host<br/>model server on 127.0.0.1]
+    TS --> AP --> GPU
+  end
+
+  HH -->|HTTPS over Tailscale| TS
 ```
 
 Key points:
 
 - Browsers never connect to the GPU host directly.
 - The helper request still appears inside the LMS page, but the model hop happens server-to-server from Homework Helper.
+- Responses return along the same path; the reverse hop is omitted from the diagram to keep it readable in-flow.
 - Class Hub remains the policy and session boundary for the learner-visible experience.
 - If the remote model host is down, Class Hub pages still load; only helper responses degrade.
 
