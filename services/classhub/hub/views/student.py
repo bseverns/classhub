@@ -173,24 +173,12 @@ def student_home(request):
     submissions_by_material = build_submissions_by_material(student=request.student, material_ids=material_ids)
     material_checklist_items = build_material_checklist_items_map(modules=modules); material_rubric_specs = build_material_rubric_specs_map(modules=modules)
     material_responses = build_material_response_map(student=request.student, material_ids=material_ids)
-    material_feedback_starters = build_material_feedback_starters_map(
-        modules=modules,
-        language_code=localization.code,
-    )
+    material_feedback_starters = build_material_feedback_starters_map(modules=modules, language_code=localization.code)
     gallery_entries_by_material = build_gallery_entries_map(classroom=classroom, viewer_student=request.student, material_ids=material_ids)
     image_assets_by_material = build_image_asset_preview_map(modules=modules)
     privacy_meta = privacy_meta_context(classroom=classroom)
-    helper_widget = _student_home_helper_widget(
-        request=request,
-        classroom=classroom,
-        ui_density_mode=ui_density_mode,
-        privacy_meta=privacy_meta,
-    )
-    micro_check_state = latest_micro_check_state(
-        classroom=classroom,
-        student=request.student,
-        modules=modules,
-    )
+    helper_widget = _student_home_helper_widget(request=request, classroom=classroom, ui_density_mode=ui_density_mode, privacy_meta=privacy_meta)
+    micro_check_state = latest_micro_check_state(classroom=classroom, student=request.student, modules=modules)
     checkin_notice = (request.GET.get("checkin_notice") or "").strip()
     get_token(request)
     response = render(
@@ -327,11 +315,7 @@ def material_upload(request, material_id: int):
         return redirect("/")
     localization = localization_from_request(request)
 
-    material = (
-        Material.objects.select_related("module__classroom")
-        .filter(id=material_id)
-        .first()
-    )
+    material = Material.objects.select_related("module__classroom").filter(id=material_id).first()
     if not material or material.module.classroom_id != request.classroom.id:
         return HttpResponse("Not found", status=404)
     if material.type not in {Material.TYPE_UPLOAD, Material.TYPE_GALLERY}:
@@ -346,17 +330,11 @@ def material_upload(request, material_id: int):
     response_status = 200
     form = SubmissionUploadForm()
     notice = (request.GET.get("notice") or "").strip()
-    process_note_starters = resolve_peer_feedback_starters(
-        language_code=localization.code,
-        course_manifest={},
-    )
+    process_note_starters = resolve_peer_feedback_starters(language_code=localization.code, course_manifest={})
 
     if release_state.get("is_locked"):
         available_on = release_state.get("available_on")
-        if available_on:
-            error = f"Submissions for this lesson open on {available_on.isoformat()}."
-        else:
-            error = "Submissions for this lesson are not open yet."
+        error = f"Submissions for this lesson open on {available_on.isoformat()}." if available_on else "Submissions for this lesson are not open yet."
         if request.method == "POST":
             response_status = 403
     elif request.method == "POST":
@@ -380,11 +358,7 @@ def material_upload(request, material_id: int):
             error = upload_result.error
             response_status = upload_result.response_status
         else:
-            first_error = ""
-            for values in form.errors.values():
-                if values:
-                    first_error = str(values[0]).strip()
-                    break
+            first_error = next((str(values[0]).strip() for values in form.errors.values() if values), "")
             error = first_error or "Please check your upload form and try again."
             response_status = 400
     submissions = Submission.objects.filter(material=material, student=request.student).all()
