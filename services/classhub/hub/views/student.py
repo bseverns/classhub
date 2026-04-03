@@ -231,12 +231,7 @@ def student_return_code(request):
 
 
 def student_portfolio_export(request):
-    """Download this student's submissions as an offline portfolio ZIP.
-
-    Archive contents:
-    - index.html summary page
-    - files/<module>/<material>/<timestamp>_<submission_id>_<original_filename>
-    """
+    """Download this student's submissions as an offline portfolio ZIP."""
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
         return redirect("/")
     filename_mode = str(getattr(settings, "CLASSHUB_PORTFOLIO_FILENAME_MODE", "generic") or "generic").strip().lower()
@@ -420,12 +415,7 @@ def material_upload(request, material_id: int):
 
 
 def submission_download(request, submission_id: int):
-    """Download a submission.
-
-    - Staff users can download any submission.
-    - Students can download their own submissions.
-    - Classmates can download gallery submissions only when sharing is explicitly enabled.
-    """
+    """Download a submission for staff, the owner, or an allowed gallery peer."""
     s = (
         Submission.objects.select_related("student", "material__module__classroom")
         .filter(id=submission_id)
