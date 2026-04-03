@@ -19,6 +19,27 @@ flowchart TD
   P --> M[Model server on 127.0.0.1]
 ```
 
+## End-to-end request path
+
+The student-facing flow is:
+
+1. A student opens a lesson or class page in Class Hub.
+2. The helper widget submits to `/helper/chat` on the same public LMS site.
+3. Homework Helper applies policy, redaction, scope checks, and rate limits.
+4. Homework Helper reaches the remote model host over Tailscale, not over the public internet.
+5. The GPU-side auth proxy forwards only authorized requests to the loopback-bound model server.
+6. The model response returns to Homework Helper, then back into the student LMS view.
+
+This is the practical topology to keep in mind:
+
+- browser -> public LMS
+- LMS helper service -> Tailscale
+- Tailscale -> private GPU host
+- private GPU host -> Tailscale -> LMS helper
+- LMS renders the response back into the student page
+
+See also [ARCHITECTURE.md](ARCHITECTURE.md) for the broader Class Hub / Homework Helper split.
+
 ## Why this boundary exists
 
 - Student and teacher browsers never reach the GPU node directly.
@@ -55,6 +76,8 @@ LLM_REDACTION_ENABLED=1
 LLM_ALLOWED_ACTOR_TYPES=student,staff
 HELPER_REMOTE_MODE_ACKNOWLEDGED=1
 ```
+
+If you are still using `OLLAMA_BASE_URL`, it remains supported as a compatibility fallback, but new deployments should prefer `LLM_BASE_URL`.
 
 ## Health and smoke path
 

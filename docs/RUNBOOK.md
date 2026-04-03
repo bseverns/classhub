@@ -134,6 +134,26 @@ Notes:
 - Default retry delays are `SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS=3` for transport/`ollama_error`, and `SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS=30` for `busy`.
 - Increase those values in `compose/.env` if Ollama cold starts or queue wait regularly exceed your current retry budget.
 
+### Remote GPU over Tailscale
+
+Current recommended path:
+
+- browsers talk only to the public LMS edge
+- Caddy routes `/helper/*` to `helper_web`
+- `helper_web` is the only service that talks to the remote model host
+- that model hop goes over Tailscale to a tailnet-only endpoint
+- the GPU host keeps the model server loopback-bound behind its local auth proxy
+
+Operational meaning:
+
+- if the GPU node is unavailable, the LMS should still load and core classroom flows should stay up
+- `bash scripts/check_llm_backend.sh --probe-chat` is the fastest way to validate the helper-to-GPU path from the same runtime context the app uses
+- use `LLM_BASE_URL` and the rest of the `LLM_*` env vars as the primary configuration surface; legacy `OLLAMA_*` names remain compatibility fallbacks
+
+Reference:
+
+- [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md)
+
 Golden-path smoke (auto fixture bootstrap):
 
 ```bash

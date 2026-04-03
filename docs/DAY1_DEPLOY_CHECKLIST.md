@@ -49,11 +49,14 @@ flowchart TD
   - `CADDY_HELPER_MAX_BODY` (helper API; default `1MB`)
   - `CLASSHUB_UPLOAD_MAX_MB` (default `200`)
 - Configure LLM backend (default is Ollama; ensure it is running)
-  - If using a remote GPU, prefer a private Ollama URL over Tailscale Serve instead of a public edge proxy:
+  - If using a remote GPU, keep the browser on the public LMS site and let Homework Helper reach the model host privately over Tailscale:
     - GPU host: `tailscale serve --bg 443 http://127.0.0.1:11434`
-    - LMS env: `OLLAMA_BASE_URL=https://<gpu-node>.<tailnet>.ts.net`
-    - For remote GPU smoke stability, set `OLLAMA_NUM_CTX=4096` as a starting point
+    - LMS env: `LLM_BASE_URL=https://<gpu-node>.<tailnet>.ts.net`
+    - set `LLM_BACKEND=ollama`
+    - set `LLM_API_KEY=<shared proxy bearer token>`
+    - For remote GPU smoke stability, set `LLM_NUM_CTX=4096` as a starting point
     - If the GPU host has no `systemd`, run `tailscaled` manually with `--tun=userspace-networking`
+  - Legacy note: `OLLAMA_BASE_URL` still works as a fallback, but `LLM_*` names are the preferred contract for new deploys.
 - Configure smoke-check credentials in `compose/.env` (for strict mode):
   - `SMOKE_BASE_URL`
   - `SMOKE_CLASS_CODE`
@@ -73,6 +76,8 @@ flowchart TD
     - `SMOKE_TIMEOUT_SECONDS=45 SMOKE_HELPER_MESSAGE='Give one short Scratch hint about moving a sprite.' make smoke-full`
 - Run one-command end-to-end diagnostic:
   - `bash scripts/system_doctor.sh`
+  - Remote GPU operator reference:
+    - [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md)
 - Manual production compose fallback (if needed):
   - `docker compose -f docker-compose.yml up -d --build`
 - Create first superuser
