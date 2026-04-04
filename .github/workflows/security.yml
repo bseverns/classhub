@@ -9,6 +9,9 @@ permissions:
   actions: read
   contents: read
 
+env:
+  TRIVY_VERSION: v0.67.0
+
 jobs:
   secret-scan:
     runs-on: ubuntu-latest
@@ -70,6 +73,16 @@ jobs:
             image_tag: homework-helper-web:ci
     steps:
       - uses: actions/checkout@v4
+      - name: Install Trivy CLI
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          curl -sfL --retry 3 --retry-all-errors \
+            "https://github.com/aquasecurity/trivy/releases/download/${TRIVY_VERSION}/trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz" \
+            -o /tmp/trivy.tar.gz
+          tar -xzf /tmp/trivy.tar.gz -C /tmp trivy
+          install /tmp/trivy "$HOME/.local/bin/trivy"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          trivy --version
       - name: Build ${{ matrix.service }} image for scan
         run: |
           docker build \
@@ -81,7 +94,8 @@ jobs:
       - name: Trivy image scan (${{ matrix.service }})
         uses: aquasecurity/trivy-action@v0.33.1
         with:
-          version: v0.67.0
+          version: ${{ env.TRIVY_VERSION }}
+          skip-setup-trivy: true
           image-ref: ${{ matrix.image_tag }}
           format: table
           exit-code: "1"
