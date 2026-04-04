@@ -13,7 +13,7 @@ If any answer is "no", tighten scope before review.
 ## 2) Product constraint check (hard gates)
 
 - Student access is still class code + display name in MVP.
-- Teacher/admin auth still resolves to Django auth sessions (with optional Google SSO as an entry path).
+- Teacher/admin auth still resolves to Django auth sessions; Google teacher SSO is shipped behind deployment flags, while Microsoft/custom OIDC remain scaffolded.
 - Homework Helper still routes under `/helper/*`.
 - Hosted LLM integrations are aligned with Responses API direction.
 

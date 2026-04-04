@@ -1,0 +1,71 @@
+{
+  "updated": "2026-04-04",
+  "features": {
+    "teacher_sso_google": {
+      "capability": "Teacher SSO (Google)",
+      "status": "Live (flagged)",
+      "toggle": "`CLASSHUB_TEACHER_SSO_ENABLED=1` + `CLASSHUB_TEACHER_SSO_PROVIDERS=google`",
+      "note": "Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded."
+    },
+    "teacher_sso_other_providers": {
+      "capability": "Teacher SSO (Microsoft/custom OIDC)",
+      "status": "Scaffold (inactive)",
+      "toggle": "Config parses for `microsoft` / `oidc_custom`, but start/callback routes still return explicit \"not active yet\" notices.",
+      "note": "Microsoft and custom OIDC providers are scaffolded only and should not be treated as live auth paths."
+    },
+    "classroom_kiosk_pwa": {
+      "capability": "Classroom kiosk PWA shell",
+      "status": "Live (flagged)",
+      "toggle": "`CLASSHUB_STUDENT_KIOSK_PWA_ENABLED=1`",
+      "note": "Student kiosk shell remains shipped behind an explicit feature flag."
+    },
+    "rbac_scoped_grants": {
+      "capability": "RBAC scoped grants",
+      "status": "Live (flagged)",
+      "toggle": "`CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=1`",
+      "note": "Scoped RBAC grants remain shipped but intentionally rollout-gated."
+    },
+    "telemetry_db_split": {
+      "capability": "Telemetry DB split",
+      "status": "RFC / staged plan",
+      "toggle": "`CLASSHUB_TELEMETRY_DATABASE_URL` + `CLASSHUB_TELEMETRY_WRITE_MODE` + `CLASSHUB_TELEMETRY_READ_MODE`",
+      "note": "Telemetry split scaffolding and evidence tooling are shipped, but final write-mode cutover remains intentionally deferred."
+    }
+  },
+  "runtime": {
+    "csp": {
+      "deployment_default_mode": "report-only",
+      "code_fallback_mode": "relaxed",
+      "note": "Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset."
+    },
+    "org_boundary": {
+      "production_default": "1",
+      "note": "`REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1` is the production-safe baseline; local/day-1 presets may keep `0` for setup."
+    },
+    "image_pins": {
+      "policy": "exact-tag-or-digest",
+      "note": "Compose runtime images must use exact version tags or digests; full digest pinning is intentionally deferred."
+    },
+    "container_scan": {
+      "note": "Security CI scans the built Class Hub and Homework Helper images for OS and library vulnerabilities."
+    }
+  },
+  "contracts": {
+    "current_state_required_notes": [
+      "Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded.",
+      "Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset."
+    ],
+    "security_required_notes": [
+      "Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded.",
+      "Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset."
+    ],
+    "canonical_truths_required_snippets": [
+      "[DOCS_TRUTH_MECHANISM.md](DOCS_TRUTH_MECHANISM.md)",
+      "`docs/_registry/runtime_contracts.json`"
+    ],
+    "stale_phrases": [
+      "Teacher SSO scaffolding (T0): config only, no live auth-path change until OIDC flow is implemented.",
+      "Teacher/admin auth still resolves to Django auth sessions (with optional Google SSO as an entry path)."
+    ]
+  }
+}

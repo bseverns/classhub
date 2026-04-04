@@ -24,7 +24,7 @@ flowchart LR
   C --> H2[Route armor<br/>/admin + /teach]
   C --> A[Class Hub]
   C --> B[Homework Helper]
-  A --> D[Django auth session + OTP<br/>optional Google SSO]
+  A --> D[Django auth session + OTP<br/>flagged Google teacher SSO]
   B --> E[Scope token + rate limits]
   A --> F[(Postgres/Redis)]
   B --> F
@@ -35,10 +35,11 @@ flowchart LR
 | Area | Current posture |
 |---|---|
 | Student identity | Pseudonymous (`class code + display name`) |
-| Teacher/admin auth | Django auth session; optional Google SSO; OTP required by default for `/admin` and `/teach` |
+| Teacher/admin auth | Django auth session; Google teacher SSO is shipped behind deployment flags; Microsoft/custom OIDC providers remain scaffolded; OTP required by default for `/admin` and `/teach` |
 | Transport | Caddy at edge; HTTPS expected in production |
 | Service exposure | Postgres/Redis internal-only; Ollama/MinIO localhost-bound on host |
-| Browser hardening | Enforced CSP + report-only CSP + Permissions-Policy + Referrer-Policy + frame protections |
+| Browser hardening | Mode-driven CSP rollout + Permissions-Policy + Referrer-Policy + frame protections |
+| Supply chain | Exact-tag Compose image pins + dependency/container scanning in CI; full digest pinning deferred |
 | Helper scope protection | Student helper calls require signed `scope_token` |
 | Upload access | Not public `/media`; downloads are permission-checked views |
 | Auditing | Staff mutations logged as immutable `AuditEvent` rows |
@@ -74,7 +75,7 @@ flowchart LR
 ## Authentication and authorization boundaries
 
 - Students do not have passwords in MVP.
-- Teacher SSO can be enabled per deployment (currently Google flow live; other providers scaffolded).
+- Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded.
 - Teachers should be `is_staff=True`, `is_superuser=False` for daily use.
 - `/teach/*` requires OTP-verified staff session when `DJANGO_TEACHER_2FA_REQUIRED=1`.
 - Superusers should be limited to operational tasks.
@@ -239,11 +240,13 @@ Primary knobs:
 
 Mode behavior:
 
-- `relaxed` (default): enforced relaxed baseline + strict report-only baseline
+- `relaxed` (Django code fallback when unset): enforced relaxed baseline + strict report-only baseline
 - `report-only`: strict report-only baseline only (no enforced CSP header)
 - `strict`: strict enforced baseline only
 
 `DJANGO_CSP_POLICY` and `DJANGO_CSP_REPORT_ONLY_POLICY` remain explicit overrides when you need custom policies.
+
+Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
 
 Rollout strategy:
 

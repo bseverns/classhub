@@ -13,6 +13,7 @@ fi
 
 echo "[ops-readiness] runtime policy lock (${PROFILE}) env=${ENV_FILE}"
 python3 scripts/check_runtime_policy_lock.py --profile "${PROFILE}" --env-file "${ENV_FILE}"
+python3 scripts/check_csp_runtime_contract.py --env-file "${ENV_FILE}"
 
 echo "[ops-readiness] teach-class decomposition contracts"
 python3 scripts/check_teach_class_template_contract.py
@@ -31,5 +32,8 @@ python3 scripts/check_i18n_family_visible_contract.py
 
 echo "[ops-readiness] press backlog governance"
 python3 scripts/check_press_capture_backlog_contract.py
+
+echo "[ops-readiness] operator posture snapshot"
+python3 scripts/security_posture_snapshot.py --env-file "${ENV_FILE}"
 
 echo "[ops-readiness] PASS"

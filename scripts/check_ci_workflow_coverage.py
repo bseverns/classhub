@@ -49,6 +49,7 @@ REQUIRED_TOKENS: dict[str, tuple[str, ...]] = {
     "lint.yml": (
         "ruff:",
         "ruff check services scripts --select E9,F63,F7,F82",
+        "python scripts/check_csp_runtime_contract.py --env-file compose/.env.example",
         "python scripts/check_frontend_static_refs.py",
         "python scripts/check_rbac_endpoint_guards.py",
         "python scripts/check_teacher_endpoint_capability_map.py",
@@ -58,15 +59,18 @@ REQUIRED_TOKENS: dict[str, tuple[str, ...]] = {
         "python scripts/check_view_size_budgets.py",
         "python scripts/check_teacher_admin_hotspot_budgets.py",
         "python scripts/check_no_service_imports_from_views.py",
+        "python scripts/check_docs_truth.py",
     ),
     "security.yml": (
         "secret-scan:",
         "dependency-audit:",
         "sast-bandit:",
+        "container-scan:",
         "gitleaks/gitleaks-action@v2",
         "pip-audit -r services/classhub/requirements.txt",
         "pip-audit -r services/homework_helper/requirements.txt",
         "scripts/run_bandit.sh all bandit-report.json",
+        "aquasecurity/trivy-action@0.28.0",
     ),
     "codeql.yml": (
         "name: codeql",

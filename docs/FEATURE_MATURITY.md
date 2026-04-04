@@ -14,6 +14,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 ## Maturity labels
 - `Live (default)`: expected to run in standard deployments without extra rollout gating.
 - `Live (flagged)`: shipped but intentionally gated behind a feature flag for controlled rollout.
+- `Scaffold (inactive)`: config/code seam exists, but operators should not treat it as a live feature.
 - `RFC`: design direction only; not a committed runtime feature.
 
 ## Configuration matrix (high-signal toggles)
@@ -21,6 +22,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | Setting | Default | Scope | Why it matters |
 |---|---|---|---|
 | `CLASSHUB_PROGRAM_PROFILE` | `secondary` | ClassHub + Helper behavior defaults | Baseline pacing + helper policy defaults. |
+| `DJANGO_CSP_MODE` | `report-only` in shipped env examples (`relaxed` only as code fallback when unset) | Browser hardening rollout | Keeps strict CSP visible in telemetry while full enforcement completes staged acceptance checks. |
 | `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED` | `0` | Student shell constraints | Enables kiosk route allowlist + focused student navigation shell. |
 | `CLASSHUB_STUDENT_KIOSK_DEFAULT` | `0` | Student shell default mode | Forces kiosk mode on by default unless toggled off per device. |
 | `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` | `1` in production presets (`0` in local/dev preset) | ClassHub access control | Controls whether staff without active org membership can access classes. |
@@ -36,6 +38,8 @@ An operator can explain each enabled non-default flag in one sentence and show o
 |---|---|---|---|
 | Student join via class code + display name | Live (default) | No feature flag | `GET /` and join flow succeeds in smoke checks. |
 | Teacher portal class workflows (`/teach`, `/teach/class/<id>`, `/teach/lessons`) | Live (default) | Staff auth + 2FA policy | Teacher portal tests: `hub.tests.TeacherPortalTests`. |
+| Teacher SSO (Google) | Live (flagged) | `CLASSHUB_TEACHER_SSO_ENABLED=1` + `CLASSHUB_TEACHER_SSO_PROVIDERS=google` | `hub.tests.test_teacher_admin_auth` plus Google callback/config tests pass and `/teach/login` renders the Google option. |
+| Teacher SSO (Microsoft/custom OIDC) | Scaffold (inactive) | Config parses for `microsoft` / `oidc_custom`, but start/callback routes still return explicit "not active yet" notices. | Treat as non-live until real callback exchange is implemented and docs move it out of scaffold status. |
 | Classroom kiosk PWA shell | Live (flagged) | `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED=1` | Kiosk route guard tests + `bash scripts/kiosk_resilience_check.sh --class-code <CODE>`. |
 | Facilitator CLI (`hubctl`) teacher API controls | Live (default) | Session auth + OTP contract reused from `/teach/login` | `python -m unittest discover -s tools/hubctl/tests` |
 | Organization boundaries (membership + role templates) | Live (default) | `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` controls fallback behavior | Cross-org class visibility tests in `test_teacher_admin_portal.py`. |
@@ -45,7 +49,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | Helper policy strictness/scope/topic filtering | Live (default, profile-driven) | Env override > helper YAML > profile default | `/helper/chat` policy response behavior matches expected strictness. |
 | Helper YAML config layering | Live (default, optional) | `HELPER_CONFIG_FILE` path (optional) | Helper engine config-source tests in `tutor.tests.test_engine`. |
 | Async/self-paced sequencing workflows | RFC | See `ASYNC_SELF_PACED_RFC.md` | No runtime SLA yet; treat as roadmap only. |
-| Telemetry DB split | RFC / staged plan | See `TELEMETRY_DB_SPLIT_PLAN.md` | Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is shipped and Slice 7 release-cycle evidence capture is complete (`artifacts/stability/2026-03-10/telemetry/` parity + strict smoke + rollback drill). Final write-mode cutover gates remain intentionally deferred. |
+| Telemetry DB split | RFC / staged plan | `CLASSHUB_TELEMETRY_DATABASE_URL` + `CLASSHUB_TELEMETRY_WRITE_MODE` + `CLASSHUB_TELEMETRY_READ_MODE`; see `TELEMETRY_DB_SPLIT_PLAN.md` | Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is shipped and Slice 7 release-cycle evidence capture is complete (`artifacts/stability/2026-03-10/telemetry/` parity + strict smoke + rollback drill). Final write-mode cutover gates remain intentionally deferred. |
 
 ## Recommended rollout sequence (RBAC + helper)
 1. Keep `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=0` and `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0`.

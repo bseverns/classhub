@@ -22,7 +22,8 @@ This is the single source of truth for edge-vs-app security ownership.
   - Mode selector: `DJANGO_CSP_MODE` (`relaxed`, `report-only`, `strict`)
   - Enforced override: `DJANGO_CSP_POLICY`
   - Report-only override: `DJANGO_CSP_REPORT_ONLY_POLICY`
-  - Default mode is `relaxed` (enforced relaxed + strict report-only)
+  - Django code fallback is `relaxed` (enforced relaxed + strict report-only) when `DJANGO_CSP_MODE` is unset
+  - Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
   - Transitional strict-script canary is allowed via `DJANGO_CSP_MODE=strict` + explicit `DJANGO_CSP_POLICY` that keeps `script-src 'self'` while temporarily allowing `style-src 'unsafe-inline'`
 - Framing policy:
   - Primary: CSP `frame-ancestors 'self'`

@@ -58,3 +58,32 @@ jobs:
         with:
           name: bandit-report
           path: bandit-report.json
+
+  container-scan:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - service: classhub
+            image_tag: classhub-web:ci
+          - service: homework_helper
+            image_tag: homework-helper-web:ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ${{ matrix.service }} image for scan
+        run: |
+          docker build \
+            --build-arg APP_UID=10001 \
+            --build-arg APP_GID=10001 \
+            --tag "${{ matrix.image_tag }}" \
+            --file "services/${{ matrix.service }}/Dockerfile" \
+            services
+      - name: Trivy image scan (${{ matrix.service }})
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ matrix.image_tag }}
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+          vuln-type: os,library

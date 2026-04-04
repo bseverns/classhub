@@ -165,8 +165,13 @@ else:
     }
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
+# Cookie transport security must follow deploy transport mode, not DEBUG alone.
+# Local/day-1 deploys intentionally run HTTP with DEBUG=0, so keep these flags
+# operator-configurable via env vars for parity with Class Hub.
+SESSION_COOKIE_SECURE = env.bool("DJANGO_SESSION_COOKIE_SECURE", default=not DEBUG)
+CSRF_COOKIE_SECURE = env.bool("DJANGO_CSRF_COOKIE_SECURE", default=not DEBUG)
+SESSION_COOKIE_DOMAIN = env("DJANGO_SESSION_COOKIE_DOMAIN", default="").strip() or None
+CSRF_COOKIE_DOMAIN = env("DJANGO_CSRF_COOKIE_DOMAIN", default="").strip() or None
 SECURITY_REFERRER_POLICY = (
     env("DJANGO_SECURE_REFERRER_POLICY", default="strict-origin-when-cross-origin").strip()
     or "strict-origin-when-cross-origin"

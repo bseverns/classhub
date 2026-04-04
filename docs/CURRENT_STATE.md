@@ -1,4 +1,4 @@
-# Current State (March 11, 2026)
+# Current State (April 4, 2026)
 
 ## Summary
 This page is the live snapshot of what ClassHub currently ships on `main`.
@@ -10,6 +10,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Student upload flow includes offline queue/retry behavior for intermittent networks.
 - Student kiosk shell mode is available behind `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED` (manifest + route allowlist + focused nav constraints).
 - Teacher portal includes roster, submissions, moderation, outcomes, and certificate workflows.
+- Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded.
 - Operator data-lifespan dashboard is live at `/teach/data-lifespan` with retention trend rows and CSV/JSON snapshot export (`/teach/data-lifespan/export`).
 - Homework Helper runs as a separate Django service behind `/helper/*`.
 - Homework Helper supports optional bounded local curriculum RAG (pgvector) with curriculum-only retrieval scope.
@@ -28,17 +29,19 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Superuser organization lifecycle controls are live in `/teach` (rename, guarded archive/restore, class-to-organization move).
 - Superuser operator config snapshot is live in `/teach` (active profile/flag summary + doc pointers).
 - Facilitator CLI (`hubctl`) is live from repo tooling for teacher API class controls (`tools/hubctl/`).
-- Security and ops guardrails are live in CI (smoke, migration gate, endpoint guard checks, view-size/function budgets, workflow lint).
+- Security and ops guardrails are live in CI (smoke, migration gate, endpoint guard checks, view-size/function budgets, docs-truth checks, and container/dependency scanning).
 - Q2-Q3 ecosystem milestones are complete; implementation status now lives here and in feature-specific docs (the temporary milestones plan doc is retired).
 - Telemetry split Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is live (validated telemetry mode envs, optional telemetry DB registration in settings, telemetry router + dedicated `hub_telemetry` schema app, centralized dual-write service seam for event/outcome emit paths, read abstraction for support/rollup/lifespan event queries, baseline split-write instrumentation counters/log fields, an idempotent `backfill_telemetry_events` command with dry-run/batch resume controls, and a strict `check_telemetry_parity` command for cutover gates). Slice 7 release-cycle evidence capture is complete at `artifacts/stability/2026-03-10/telemetry/` (parity + strict smoke + rollback drill).
 - Superuser runtime policy lock checks are live in `/teach?advanced=1&portal_mode=admin` and in stability guardrails via `scripts/check_runtime_policy_lock.py`.
 - Teacher top-task choreography and `Start Here Today` contract wiring are live in `/teach` and guarded by `scripts/check_teacher_top_tasks_contract.py`.
+- Registry-backed docs truth checks are live via `docs/_registry/runtime_contracts.json` and `scripts/check_docs_truth.py`.
 
 ## Deployment and reliability posture
 - Day-1 local mode: `compose/Caddyfile.local` over HTTP.
 - Domain mode: `compose/Caddyfile.domain` (or `Caddyfile.domain.assets`) with Caddy-managed TLS.
 - Cookie transport in local HTTP mode: `DJANGO_SESSION_COOKIE_SECURE=0`, `DJANGO_CSRF_COOKIE_SECURE=0`.
 - Cookie transport in domain/TLS mode: both values set to `1`.
+- Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
 - System validation command: `bash scripts/validate_env_secrets.sh`.
 - System validation command: `bash scripts/system_doctor.sh --smoke-mode golden`.
 

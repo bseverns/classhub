@@ -6,7 +6,7 @@ These tools are designed to be run from the repository root: `bash scripts/scrip
 
 Operator shortcut:
 - `make smoke-full` runs golden stack smoke (`system_doctor --smoke-mode golden`) and accessibility smoke in one command.
-- `make ops-readiness` runs baseline runtime-lock + teach-class contracts + docs/inventory/backlog guards in one command (`OPS_READINESS_PROFILE=baseline|release`, `OPS_READINESS_ENV_FILE=compose/.env`).
+- `make ops-readiness` runs runtime-lock + CSP rollout contract + teach-class contracts + docs/inventory/backlog guards in one command (`OPS_READINESS_PROFILE=baseline|release`, `OPS_READINESS_ENV_FILE=compose/.env`).
 
 ## Core Operations & Deployment
 | Script | Intent |
@@ -40,7 +40,8 @@ Operator shortcut:
 | `telemetry_stabilization_evidence.sh` | Captures telemetry split Slice 7 evidence (parity + smoke + optional rollback drill) into timestamped artifacts. |
 | `stability_release_evidence.sh` | Captures Day 0-30 stability evidence pack artifacts (guardrails, smoke, a11y, restore, kiosk, release lint + scorecard + evidence index), with optional skip flags for non-docker environments. |
 | `stability_phase1_closeout.sh` | Runs one full closeout cycle for stability Phase 1 + telemetry Slice 7, enforces the runtime lock `release` profile, validates required artifacts, and writes cycle summary output. |
-| `ops_readiness_check.sh` | Fast operator readiness gate (runtime lock profile + teach-class contracts + policy-mode guard + docs/inventory/backlog truth checks). |
+| `ops_readiness_check.sh` | Fast operator readiness gate (runtime lock profile + CSP rollout contract + teach-class contracts + policy-mode guard + docs/inventory/backlog truth checks + posture snapshot). |
+| `security_posture_snapshot.py` | Renders a compact operator-facing snapshot of active security posture, transitional items, and critical flags from an env file. |
 | `test_teacher_admin.sh`| CI gate validating teacher and admin interface functionality. |
 | `run_bandit.sh` | Python security linter enforcing safe coding practices. |
 | `lint_release_artifact.py` | Validates zip release packages before GH Release publishing. |
@@ -74,7 +75,8 @@ Operator shortcut:
 | `check_no_new_wildcard_view_imports.py`| Blocks `from .views import *` antipatterns. |
 | `check_no_service_imports_from_views.py`| Enforces architecture dependency layout (views cannot import from each other). |
 | `check_no_dynamic_service_all_exports.py`| Limits module `__all__` exports. |
-| `check_no_latest_tags.py` | Enforces explicit version pinning in Dockerfiles and Compose files. |
+| `check_csp_runtime_contract.py` | Enforces staged CSP rollout rules in env files (no inline-script overrides, style canary only with strict script lock). |
+| `check_no_latest_tags.py` | Enforces explicit Compose image pinning policy: no `:latest`, no floating runtime tags, exact version tags or digests only. |
 | `check_rbac_endpoint_guards.py` | Enforces capability-specific RBAC guard helpers on critical endpoints. |
 | `check_teacher_endpoint_capability_map.py` | Enforces explicit capability contracts for all teacher/API-teacher routes. |
 | `check_teacher_top_tasks_contract.py` | Enforces `/teach` top-task choreography wiring against `docs/TEACHER_TOP_TASKS.md` contracts. |
@@ -86,7 +88,7 @@ Operator shortcut:
 | `check_i18n_family_visible_contract.py` | Enforces bounded localization contracts for family-visible routes (`/student` + `/teach?portal_mode=day`) across docs, tests, templates, and required Spanish/Somali msgids. |
 | `check_press_capture_backlog_contract.py` | Enforces press/screenshot backlog governance contracts (bounded backlog size, ownership/target metadata, and docs linkage markers). |
 | `check_runtime_policy_lock.py` | Validates runtime lock posture with explicit profiles: `baseline` (safe/default env contract) and `release` (strict closeout lock values). |
-| `check_docs_truth.py` | Verifies high-signal docs claims (risk-register metrics + screenshot tracker truth) stay in sync with repo state. |
+| `check_docs_truth.py` | Verifies high-signal docs claims (registry-backed status notes + risk-register metrics + screenshot tracker truth) stay in sync with repo state. |
 
 ## LLM / AI Helper Tooling
 | Script | Intent |

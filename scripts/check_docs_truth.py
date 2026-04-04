@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -11,8 +12,19 @@ from pathlib import Path
 RISK_REGISTER_PATH = Path("docs/MAINTENANCE_RISK_REGISTER.md")
 PUBLIC_OVERVIEW_PATH = Path("docs/PUBLIC_OVERVIEW.md")
 CURRENT_STATE_PATH = Path("docs/CURRENT_STATE.md")
+FEATURE_MATURITY_PATH = Path("docs/FEATURE_MATURITY.md")
+CANONICAL_TRUTHS_PATH = Path("docs/CANONICAL_TRUTHS.md")
+SECURITY_PATH = Path("docs/SECURITY.md")
+MERGE_READINESS_PATH = Path("docs/MERGE_READINESS.md")
+SECURITY_BASELINE_PATH = Path("docs/SECURITY_BASELINE.md")
+RUNTIME_REGISTRY_PATH = Path("docs/_registry/runtime_contracts.json")
 SHOTLIST_PATH = Path("press/screenshots/SHOTLIST.md")
 PLACEHOLDERS_PATH = Path("press/screenshots/PLACEHOLDERS.md")
+ENV_EXAMPLE_PATHS = (
+    Path("compose/.env.example"),
+    Path("compose/.env.example.local"),
+    Path("compose/.env.example.domain"),
+)
 
 RISK_LINE_COUNT_PATHS = (
     Path("services/classhub/templates/teach_home.html"),
@@ -50,6 +62,16 @@ def _read(path: Path) -> str:
         return path.read_text(encoding="utf-8")
     except Exception as exc:
         raise RuntimeError(f"unable to read {path}: {exc}") from exc
+
+
+def _load_runtime_registry() -> dict:
+    try:
+        raw = json.loads(RUNTIME_REGISTRY_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise RuntimeError(f"unable to read {RUNTIME_REGISTRY_PATH}: {exc}") from exc
+    if not isinstance(raw, dict):
+        raise RuntimeError(f"{RUNTIME_REGISTRY_PATH}: expected a top-level mapping")
+    return raw
 
 
 def _line_count(path: Path) -> int:
@@ -132,6 +154,88 @@ def _validate_placeholder_backlog(failures: list[str]) -> None:
             )
 
 
+def _require_snippets(text: str, *, path: Path, snippets: list[str], failures: list[str]) -> None:
+    for snippet in snippets:
+        if snippet not in text:
+            failures.append(f"{path}: missing required snippet {snippet!r}")
+
+
+def _validate_runtime_registry_contracts(failures: list[str]) -> None:
+    registry = _load_runtime_registry()
+    contracts = registry.get("contracts") or {}
+    features = registry.get("features") or {}
+
+    current_state_text = _read(CURRENT_STATE_PATH)
+    feature_maturity_text = _read(FEATURE_MATURITY_PATH)
+    canonical_truths_text = _read(CANONICAL_TRUTHS_PATH)
+    security_text = _read(SECURITY_PATH)
+    merge_readiness_text = _read(MERGE_READINESS_PATH)
+    security_baseline_text = _read(SECURITY_BASELINE_PATH)
+
+    _require_snippets(
+        current_state_text,
+        path=CURRENT_STATE_PATH,
+        snippets=list(contracts.get("current_state_required_notes") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        security_text,
+        path=SECURITY_PATH,
+        snippets=list(contracts.get("security_required_notes") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        canonical_truths_text,
+        path=CANONICAL_TRUTHS_PATH,
+        snippets=list(contracts.get("canonical_truths_required_snippets") or []),
+        failures=failures,
+    )
+
+    for feature in features.values():
+        if not isinstance(feature, dict):
+            continue
+        capability = str(feature.get("capability") or "").strip()
+        status = str(feature.get("status") or "").strip()
+        toggle = str(feature.get("toggle") or "").strip()
+        if not capability or not status:
+            continue
+        row_pattern = re.compile(
+            rf"^\|\s*{re.escape(capability)}\s*\|\s*{re.escape(status)}\s*\|\s*(.+?)\s*\|",
+            flags=re.MULTILINE,
+        )
+        match = row_pattern.search(feature_maturity_text)
+        if match is None:
+            failures.append(
+                f"{FEATURE_MATURITY_PATH}: missing feature maturity row for {capability!r} with status {status!r}"
+            )
+            continue
+        if toggle and toggle not in match.group(1):
+            failures.append(
+                f"{FEATURE_MATURITY_PATH}: row for {capability!r} is missing toggle contract {toggle!r}"
+            )
+
+    stale_phrases = [str(item).strip() for item in (contracts.get("stale_phrases") or []) if str(item).strip()]
+    stale_targets = (
+        CURRENT_STATE_PATH,
+        FEATURE_MATURITY_PATH,
+        CANONICAL_TRUTHS_PATH,
+        SECURITY_PATH,
+        MERGE_READINESS_PATH,
+        SECURITY_BASELINE_PATH,
+        *ENV_EXAMPLE_PATHS,
+    )
+    for path in stale_targets:
+        text = _read(path)
+        for phrase in stale_phrases:
+            if phrase in text:
+                failures.append(f"{path}: contains stale contract phrase {phrase!r}")
+
+    csp_note = str(((registry.get("runtime") or {}).get("csp") or {}).get("note") or "").strip()
+    if csp_note:
+        if csp_note not in security_baseline_text:
+            failures.append(f"{SECURITY_BASELINE_PATH}: missing CSP deployment-default note from runtime registry")
+
+
 def main() -> int:
     failures: list[str] = []
     try:
@@ -139,6 +243,7 @@ def main() -> int:
         _validate_shotlist_capture_targets(failures)
         _validate_no_stale_refresh_markers(failures)
         _validate_placeholder_backlog(failures)
+        _validate_runtime_registry_contracts(failures)
     except RuntimeError as exc:
         print(f"[docs-truth-guard] FAIL: {exc}", file=sys.stderr)
         return 1
@@ -147,10 +252,13 @@ def main() -> int:
         print("[docs-truth-guard] FAIL: docs truth drift detected:", file=sys.stderr)
         for row in failures:
             print(f"  - {row}", file=sys.stderr)
-        print("[docs-truth-guard] update docs and screenshot trackers with current ground truth", file=sys.stderr)
+        print(
+            "[docs-truth-guard] update registry-backed docs, env examples, and screenshot trackers with current ground truth",
+            file=sys.stderr,
+        )
         return 1
 
-    print("[docs-truth-guard] OK (maintenance metrics + screenshot docs truth checks passed)")
+    print("[docs-truth-guard] OK (maintenance metrics + registry-backed docs truth checks passed)")
     return 0
 
 

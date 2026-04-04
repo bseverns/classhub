@@ -17,6 +17,7 @@ For any policy question, you should be able to name one canonical doc in under 3
 | Policy area | Canonical doc | Supporting docs |
 |---|---|---|
 | What is shipped on `main` right now | [CURRENT_STATE.md](CURRENT_STATE.md) | [FEATURE_MATURITY.md](FEATURE_MATURITY.md), [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md) |
+| High-signal runtime/default-status registry | [DOCS_TRUTH_MECHANISM.md](DOCS_TRUTH_MECHANISM.md) | `docs/_registry/runtime_contracts.json`, [CURRENT_STATE.md](CURRENT_STATE.md), [FEATURE_MATURITY.md](FEATURE_MATURITY.md), [SECURITY.md](SECURITY.md) |
 | Why a product/architecture decision exists | [DECISIONS.md](DECISIONS.md) | `docs/decisions/archive/` |
 | Feature maturity and rollout posture | [FEATURE_MATURITY.md](FEATURE_MATURITY.md) | [CURRENT_STATE.md](CURRENT_STATE.md), [DECISIONS.md](DECISIONS.md) |
 | Runtime lock profile expectations (baseline vs release) | [RUNTIME_LOCK_PROFILES.md](RUNTIME_LOCK_PROFILES.md) | [RUNBOOK.md](RUNBOOK.md), `scripts/check_runtime_policy_lock.py` |
@@ -31,4 +32,3 @@ For any policy question, you should be able to name one canonical doc in under 3
 | Recovery and restore procedure | [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md) | [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md), [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md) |
 | Stability/release evidence expectations | [30_DAY_STABILITY_PLAN.md](30_DAY_STABILITY_PLAN.md) | [RELEASING.md](RELEASING.md), `artifacts/stability/<date>/EVIDENCE_INDEX.md` |
 | Localization coverage and expansion contract | [LOCALIZATION.md](LOCALIZATION.md) | [CURRENT_STATE.md](CURRENT_STATE.md), `scripts/check_i18n_family_visible_contract.py` |
-

@@ -38,6 +38,8 @@ mkdocs build --strict
 
 - Docs deploy workflow: `.github/workflows/docs.yml`
 - Triggered when docs files, `mkdocs.yml`, or `requirements-docs.txt` change.
+- Registry-backed docs drift guard: `python3 scripts/check_docs_truth.py`
+- Registry note: [DOCS_TRUTH_MECHANISM.md](DOCS_TRUTH_MECHANISM.md)
 
 ## Mermaid bundle maintenance
 

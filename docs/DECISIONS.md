@@ -51,6 +51,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Cookie secure flags follow transport mode](#cookie-secure-flags-follow-transport-mode)
 - [Authoring template lesson slug convention](#authoring-template-lesson-slug-convention)
 - [Documentation as first-class product surface](#documentation-as-first-class-product-surface)
+- [Registry-backed docs truth spine (2026-04-04)](#registry-backed-docs-truth-spine-2026-04-04)
 - [Teacher docs journey layering](#teacher-docs-journey-layering)
 - [Public docs plain-language default](#public-docs-plain-language-default)
 - [Spanish/Somali localization parity](#spanishsomali-localization-parity)
@@ -70,7 +71,9 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Non-root Django runtime containers](#non-root-django-runtime-containers)
 - [Compose least-privilege flags](#compose-least-privilege-flags)
 - [Pinned infrastructure images + latest-tag CI guard](#pinned-infrastructure-images-latest-tag-ci-guard)
+- [Container image scanning + immutable-ready pin policy (2026-04-04)](#container-image-scanning-immutable-ready-pin-policy-2026-04-04)
 - [CSP rollout modes](#csp-rollout-modes)
+- [CSP acceptance-check guardrail (2026-04-04)](#csp-acceptance-check-guardrail-2026-04-04)
 - [CSP strict flip hold (2026-02-24 to 2026-03-02)](#csp-strict-flip-hold-2026-02-24-to-2026-03-02)
 - [Glass theme static assets](#glass-theme-static-assets)
 - [Helper widget static assets](#helper-widget-static-assets)
@@ -3759,3 +3762,52 @@ Execution ownership and gates:
 - Preserves the current least-privilege Compose posture instead of introducing a privileged VPN sidecar with `/dev/net/tun` or `NET_ADMIN`.
 - Avoids public edge timeouts and proxy incompatibilities when `helper_web` talks to a remote Ollama-compatible backend.
 - Gives operators one stable private URL that is usable in browser-based checks, smoke scripts, and helper env configuration.
+
+## Container image scanning + immutable-ready pin policy (2026-04-04)
+
+**Current decision:**
+- Keep Compose runtime images pinned by exact version tag today, with digest pinning deferred to a later operator-ready pass.
+- Extend `scripts/check_no_latest_tags.py` from a `:latest` ban into a stricter Compose image pin policy:
+  - runtime image refs must be explicit,
+  - `:latest` is banned,
+  - floating runtime tags are banned,
+  - exact version tags or digests are required.
+- Add Trivy image scanning for the built Class Hub and Homework Helper images in `.github/workflows/security.yml`.
+- Record the deferred digest path and operator expectations in [IMAGE_PINNING_POLICY.md](IMAGE_PINNING_POLICY.md).
+
+**Why this remains active:**
+- Raises supply-chain visibility immediately without forcing a risky all-digest migration in one pass.
+- Keeps the runtime image policy machine-checkable in lint/CI so pin drift does not quietly return.
+- Makes the deferred work explicit instead of leaving mutability as an undocumented accident.
+
+## CSP acceptance-check guardrail (2026-04-04)
+
+**Current decision:**
+- Keep the repo-shipped env presets at `DJANGO_CSP_MODE=report-only` until the staged acceptance checks stay clean.
+- Add `scripts/check_csp_runtime_contract.py` and wire it into lint and ops-readiness.
+- Treat strict CSP canary mode as acceptable only when:
+  - `script-src` is explicitly present,
+  - inline script execution is not allowed,
+  - any temporary inline allowance is limited to `style-src`.
+- Keep report-only overrides strict so telemetry reflects the intended end state rather than a relaxed parallel policy.
+
+**Why this remains active:**
+- Creates an explicit guardrail between “we are still transitioning” and “we accidentally shipped a weak strict override.”
+- Keeps the rollout path boring for operators: report-only by default, canary only with a provable script lock.
+- Prevents CSP posture from regressing through ad hoc env overrides.
+
+## Registry-backed docs truth spine (2026-04-04)
+
+**Current decision:**
+- Add a small runtime/docs registry at `docs/_registry/runtime_contracts.json` for selected shipped statuses and policy-sensitive defaults.
+- Extend `scripts/check_docs_truth.py` to validate:
+  - registry-backed status notes in canonical docs,
+  - feature-maturity rows for selected high-signal capabilities,
+  - stale contradictory phrases in docs and env examples.
+- Keep the human-facing explanation in [DOCS_TRUTH_MECHANISM.md](DOCS_TRUTH_MECHANISM.md).
+- Reuse `scripts/security_posture_snapshot.py` in `scripts/ops_readiness_check.sh` for a concise operator-facing readout.
+
+**Why this remains active:**
+- Reduces docs drift without introducing a full docs build pipeline.
+- Gives maintainers one bounded place to update when shipped status or repo defaults change.
+- Makes existing contradictions, especially around teacher SSO and CSP rollout posture, fail fast in CI instead of lingering across docs.

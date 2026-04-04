@@ -44,6 +44,11 @@ jobs:
         run: python scripts/check_compose_port_exposure.py
       - name: Guard against :latest image tags
         run: python scripts/check_no_latest_tags.py
+      - name: Guard CSP rollout contract in shipped env presets
+        run: |
+          python scripts/check_csp_runtime_contract.py --env-file compose/.env.example
+          python scripts/check_csp_runtime_contract.py --env-file compose/.env.example.local
+          python scripts/check_csp_runtime_contract.py --env-file compose/.env.example.domain
       - name: Guard classhub frontend static references
         run: python scripts/check_frontend_static_refs.py
       - name: Guard templates against inline JS surfaces
@@ -78,3 +83,5 @@ jobs:
         run: python scripts/check_ci_workflow_coverage.py
       - name: Guard subsystem test inventory coverage
         run: python scripts/check_test_inventory_coverage.py
+      - name: Guard registry-backed docs truth
+        run: python scripts/check_docs_truth.py

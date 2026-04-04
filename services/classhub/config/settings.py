@@ -3,7 +3,7 @@
 This is intentionally minimal: a Day-1 scaffold.
 
 Key idea:
-- Teachers/admins use Django auth sessions (password and optional Google SSO entry paths).
+- Teachers/admins use Django auth sessions (password by default, flagged Google SSO path optional).
 - Students do NOT have accounts. They join a class with a code and get a session cookie.
 
 Reading order for non-developers:
