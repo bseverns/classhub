@@ -72,7 +72,7 @@ REQUIRED_TOKENS: dict[str, tuple[str, ...]] = {
         "pip-audit -r services/homework_helper/requirements.txt",
         "scripts/run_bandit.sh all bandit-report.json",
         "Install Trivy CLI",
-        "trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz",
+        "raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh",
         "aquasecurity/trivy-action@v0.33.1",
         "skip-setup-trivy: true",
     ),

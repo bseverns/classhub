@@ -77,10 +77,8 @@ jobs:
         run: |
           mkdir -p "$HOME/.local/bin"
           curl -sfL --retry 3 --retry-all-errors \
-            "https://github.com/aquasecurity/trivy/releases/download/${TRIVY_VERSION}/trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz" \
-            -o /tmp/trivy.tar.gz
-          tar -xzf /tmp/trivy.tar.gz -C /tmp trivy
-          install /tmp/trivy "$HOME/.local/bin/trivy"
+            https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sh -s -- -b "$HOME/.local/bin" "${TRIVY_VERSION}"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           trivy --version
       - name: Build ${{ matrix.service }} image for scan
