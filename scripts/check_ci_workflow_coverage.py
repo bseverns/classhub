@@ -70,7 +70,7 @@ REQUIRED_TOKENS: dict[str, tuple[str, ...]] = {
         "pip-audit -r services/classhub/requirements.txt",
         "pip-audit -r services/homework_helper/requirements.txt",
         "scripts/run_bandit.sh all bandit-report.json",
-        "aquasecurity/trivy-action@0.28.0",
+        "aquasecurity/trivy-action@v0.33.1",
     ),
     "codeql.yml": (
         "name: codeql",
