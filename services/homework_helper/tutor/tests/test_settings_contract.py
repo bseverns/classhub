@@ -1,5 +1,6 @@
 import importlib
 import os
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -11,7 +12,13 @@ class HelperSettingsContractTests(unittest.TestCase):
         baseline_env = dict(os.environ)
         try:
             with patch.dict(os.environ, overrides, clear=True):
-                return importlib.reload(helper_settings)
+                reloaded = importlib.reload(helper_settings)
+                return SimpleNamespace(
+                    SESSION_COOKIE_SECURE=reloaded.SESSION_COOKIE_SECURE,
+                    CSRF_COOKIE_SECURE=reloaded.CSRF_COOKIE_SECURE,
+                    SESSION_COOKIE_DOMAIN=reloaded.SESSION_COOKIE_DOMAIN,
+                    CSRF_COOKIE_DOMAIN=reloaded.CSRF_COOKIE_DOMAIN,
+                )
         finally:
             with patch.dict(os.environ, baseline_env, clear=True):
                 importlib.reload(helper_settings)
