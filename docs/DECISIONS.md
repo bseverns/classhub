@@ -1296,14 +1296,20 @@ Execution ownership and gates:
 **Current decision:**
 - Treat "Karen" support in this repo as S'gaw Karen and use ISO 639-3 code `ksw`.
 - Register `ksw` in Django's `LANGUAGES` list and helper response-language normalization so locale cookies, `Accept-Language`, and `/helper/chat` all agree on the same code.
-- Ship `ksw` first as a starter locale scaffold with English fallback for untranslated copy rather than guessing large amounts of unreviewed Karen UI text.
-- Add a provisional first translated `ksw` tranche for helper-widget chrome and quick prompts so the helper UI path is closer to Spanish/Somali parity while broader catalog review remains pending.
+- Ship `ksw` across the same repo-shipped family-visible tranche as `es` and `so`:
+  - join page `/`
+  - teacher login `/teach/login`
+  - trust/privacy page `/trust`
+  - student routes `/student`, `/student/my-data`, `/student/portfolio`, `/student/gallery`
+  - teacher day-mode shell `/teach?portal_mode=day`
+- Treat the current Karen catalog as AI-assisted provisional copy pending native-speaker review rather than as final reviewed phrasing.
+- Keep helper-widget chrome and quick prompts aligned with the same `ksw` locale instead of as a separate special-case tranche.
 
 **Why this remains active:**
 - "Karen" is a language family, so the implementation needs one concrete locale code to be technically stable.
 - `ksw` is the standard code used for S'gaw Karen, which keeps future translation review and tooling interoperable.
-- A starter scaffold is honest about current translation coverage while still unlocking locale selection, tests, and helper language routing now.
-- A bounded translated tranche improves the student helper experience without pretending the wider Karen catalog is already fully reviewed.
+- AI-assisted provisional copy is preferable to shipping an English-dominant UI on family/student surfaces where Karen is explicitly offered in the language chooser.
+- Explicit review labeling preserves honesty about translation quality while still making Karen visible and test-backed across the routes families actually use.
 
 ## Request-scoped localization context for Class Hub (2026-04-02)
 
@@ -3186,15 +3192,17 @@ Execution ownership and gates:
   - student class route: `/student`
   - teacher day-of-class route: `/teach?portal_mode=day`
 - Translate top teacher day-of-class copy in `services/classhub/templates/includes/teach_home/day_sections.html` using `{% trans %}` and `{% blocktrans %}` for headings, digest labels, closeout labels, and primary actions.
-- Add/refresh matching Spanish + Somali strings in:
+- Add/refresh matching Spanish + Somali + S'gaw Karen strings in:
   - `services/classhub/locale/es/LC_MESSAGES/django.po`
   - `services/classhub/locale/so/LC_MESSAGES/django.po`
+  - `services/classhub/locale/ksw/LC_MESSAGES/django.po`
 - Add dedicated route regression coverage in `hub.tests.test_i18n`:
   - `test_teach_home_day_mode_spanish_renders_translated_core_copy`
   - `test_teach_home_day_mode_somali_renders_translated_core_copy`
+  - `test_teach_home_day_mode_sgaw_karen_renders_translated_core_copy`
 - Add enforceable contract guard:
   - `scripts/check_i18n_family_visible_contract.py`
-  - validates doc tranche markers, required tests, required template translation markers, and non-empty Spanish + Somali translations for tranche msgids.
+  - validates doc tranche markers, required tests, required template translation markers, and non-empty Spanish + Somali + S'gaw Karen translations for tranche msgids.
 - Wire this guard into:
   - CI lint workflow (`.github/workflows/lint.yml`)
   - release-evidence guardrails (`scripts/stability_release_evidence.sh`)

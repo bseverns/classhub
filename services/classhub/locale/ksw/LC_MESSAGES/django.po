@@ -1,4 +1,6 @@
-# ClassHub S'gaw Karen starter translations.
+# ClassHub S'gaw Karen translations.
+# Note: many entries below were AI-assisted on 2026-04-06 and remain
+# provisional pending native-speaker review.
 # Copyright (C) 2026 createMPLS
 # This file is distributed under the same license as the ClassHub package.
 #
@@ -153,3 +155,701 @@ msgstr "သံကွၢ်လၢအဂ့ၤဒိၣ်ထီၣ် ဒ်လ�
 
 msgid "Help me write a clear help request: what I expected, what happened, and what I already tried."
 msgstr "မၤစၢၤယၤလၢကွဲး တၢ်ဃ့တၢ်မၤစၢၤလၢအသ့ၣ်ညါရှင်း: ယဆိကမိၣ်မနုၤ, တၢ်မၤအသးမနုၤ, ဒီးယလဲၤမၤစမ်းလံမနုၤ."
+
+#
+# Provisional expanded site tranche (AI-assisted)
+#
+
+msgid "Join Class"
+msgstr "နုာ်လီၤတီၤ"
+
+msgid "Skip to main content"
+msgstr "ဃ့ၢ်ကပၤဆူ တၢ်ဂ့ၢ်မိၢ်ပှၢ်"
+
+msgid "Join your class"
+msgstr "နုာ်လီၤလၢ နတီၤ"
+
+msgid "Enter your class code and pick a display name."
+msgstr "ကွဲးထီၣ် နတီၤအကီၢ် ဒီးဃုထၢ နမံၤလၢကဒုးနဲၣ်."
+
+msgid "Enter the class code from your teacher. Pick any display name you like."
+msgstr "ကွဲးထီၣ် တီၤအကီၢ်လၢ နဆရာ/မ အအိၣ်. ဃုထၢမံၤလၢ နသးခုတမံၤမံၤ."
+
+msgid "On shared devices, enter your return code so you do not join as another student."
+msgstr "ဖဲ device လၢ ပှၤသုံးသကိးအီၤအခါ, ကွဲးထီၣ် နက့ၤနုာ်အကီၢ် ဒ်သိးနတနုာ်လီၤဒ် ပှၤမၤလိအဂၤအသိးတဂ့ၤ."
+
+msgid "Same classroom device? You can usually leave return code blank."
+msgstr "မ့ၢ် classroom device တခါဃီဧါ. နပာ်က့ၤ return code လၢအလီၢ်ဟးဂီၤတသ့ၣ်တဘျီန့ၣ်သ့."
+
+msgid "On shared devices, use your own return code to avoid signing in as someone else."
+msgstr "ဖဲ device လၢ ပှၤသုံးသကိးအီၤအခါ, သုံးနက့ၤနုာ်အကီၢ်ဒၣ်နဲ ဒ်သိး နတနုာ်လီၤဒ် ပှၤဂၤအသိးတဂ့ၤ."
+
+msgid "Class code"
+msgstr "တီၤအကီၢ်"
+
+msgid "Your display name"
+msgstr "နမံၤလၢကဒုးနဲၣ်"
+
+msgid "A nickname or made-up name is fine — no need to use your real name."
+msgstr "မံၤဖိ မ့တမ့ၢ် မံၤလၢနဒုးဘၣ်အသးတမံၤန့ၣ် သ့ဝဲ. တလီၤဘၣ်လၢ ကဘၣ်သုံး နမံၤအမှန်တက့ၢ်ဘၣ်."
+
+msgid "Return code (optional)"
+msgstr "က့ၤနုာ်အကီၢ် (သဘျ့)"
+
+msgid "If your class uses icon codes, use the icon keypad below."
+msgstr "မ့ၢ်နတီၤ သုံး icon code တဖၣ်န့ၣ်, သုံး icon keypad လၢအဖီလာ်."
+
+msgid "Show icon keypad"
+msgstr "ဒုးနဲၣ် icon keypad"
+
+msgid "Clear return code"
+msgstr "မၤစှၤကွံာ် က့ၤနုာ်အကီၢ်"
+
+msgid "Return code icon keypad"
+msgstr "က့ၤနုာ်အကီၢ် icon keypad"
+
+msgid "Join class"
+msgstr "နုာ်လီၤတီၤ"
+
+msgid "Privacy at a glance:"
+msgstr "တၢ်ခူသူၣ် တၢ်ကွၢ်ဖျါတဘျီ:"
+
+msgid "We store your display name, class submissions, and event timestamps."
+msgstr "ပသိမ်းဆည်း နမံၤလၢကဒုးနဲၣ်, class submission တဖၣ်, ဒီး event timestamp တဖၣ်."
+
+msgid "Storage location: %(location)s"
+msgstr "တၢ်သိမ်းဆည်းအလီၢ်: %(location)s"
+
+msgid "Retention:"
+msgstr "တၢ်သိမ်းအဆၢကတီၢ်:"
+
+msgid "submissions are kept up to %(counter)s day unless deleted sooner."
+msgid_plural "submissions are kept up to %(counter)s days unless deleted sooner."
+msgstr[0] "submission တဖၣ် ဘၣ်တၢ်သိမ်းဆည်းအီၤ တုၤ %(counter)s သီ, ဖဲတဘၣ်ဖျီၣ်ကွံာ်အီၤအဆိတဒံးဘၣ်."
+
+msgid "submissions stay until a teacher or admin removes them."
+msgstr "submission တဖၣ် အိၣ်ဆိးတုၤ ဆရာ/မ မ့တမ့ၢ် admin ဖျီၣ်ကွံာ်အီၤ."
+
+msgid "Delete now: after joining, open <a href=\"/student/my-data\">My Data</a> to delete your work or end this device session."
+msgstr "ဖျီၣ်ကွံာ်ခဲအံၤ: ဖဲနနုာ်လီၤဝံၤအလီၢ်ခံ, အိးထီၣ် <a href=\"/student/my-data\">ယ Data</a> ဒ်သိးကဖျီၣ်ကွံာ် နတၢ်မၤ မ့တမ့ၢ် မၤဝံၤ device session အံၤ."
+
+msgid "Teacher? Use <a href=\"/teach\">/teach</a>."
+msgstr "မ့ၢ်ဆရာ/မဧါ. သုံး <a href=\"/teach\">/teach</a>."
+
+msgid "Teacher Login"
+msgstr "ဆရာ/မ အတၢ်နုာ်လီၤ"
+
+msgid "Home"
+msgstr "အခီၣ်ထံး"
+
+msgid "Sign in to your account"
+msgstr "နုာ်လီၤဆူ န account"
+
+msgid "Log in"
+msgstr "နုာ်လီၤ"
+
+msgid "Language"
+msgstr "ကျိာ်"
+
+msgid "Switch"
+msgstr "လဲၤလိာ်"
+
+msgid "That invite link is not valid."
+msgstr "invite link အံၤ တဘၣ်ဝဲဘၣ်."
+
+msgid "That invite link has been disabled."
+msgstr "invite link အံၤ ဘၣ်တၢ်ပတုာ်အီၤလံ."
+
+msgid "That invite link has expired."
+msgstr "invite link အံၤ အဆၢကတီၢ်လဲၤပူၤလံ."
+
+msgid "This invite is full right now. Ask your teacher for a new invite link."
+msgstr "invite အံၤ ပှဲၤလံခဲအံၤ. ဃ့နဆရာ/မ လၢ invite link အသီတခါ."
+
+msgid "That invite link is not usable right now."
+msgstr "invite link အံၤ သုံးတသ့ဒံးဘၣ် ခဲအံၤ."
+
+msgid "That looks like an email address. Please use a nickname or display name instead."
+msgstr "အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် email address အသိး. သုံးမံၤဖိ မ့တမ့ၢ် မံၤလၢကဒုးနဲၣ်အီၤတက့ၢ်."
+
+msgid "That looks like a phone number. Please use a nickname or display name instead."
+msgstr "အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် phone number အသိး. သုံးမံၤဖိ မ့တမ့ၢ် မံၤလၢကဒုးနဲၣ်အီၤတက့ၢ်."
+
+msgid "Please use a nickname or display name instead of personal information."
+msgstr "သုံးမံၤဖိ မ့တမ့ၢ် မံၤလၢကဒုးနဲၣ်အီၤ, အလီၢ်တခါလၢ personal information တက့ၢ်."
+
+msgid "Heads-up: that looks like an email address. A nickname is safer."
+msgstr "သ့ၣ်ညါတက့ၢ်: အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် email address အသိး. မံၤဖိတမံၤ ပူၤဖျဲးဒိၣ်ထီၣ်."
+
+msgid "Heads-up: that looks like a phone number. A nickname is safer."
+msgstr "သ့ၣ်ညါတက့ၢ်: အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် phone number အသိး. မံၤဖိတမံၤ ပူၤဖျဲးဒိၣ်ထီၣ်."
+
+msgid "Consider using a nickname instead of personal information."
+msgstr "ဆိကမိၣ်သုံး မံၤဖိတမံၤ အလီၢ်တခါလၢ personal information တက့ၢ်."
+
+msgid "You are joining <strong>%(class_name)s</strong> by invite link."
+msgstr "နကနုာ်လီၤဆူ <strong>%(class_name)s</strong> ခီဖျိ invite link."
+
+msgid "Storage location:"
+msgstr "တၢ်သိမ်းဆည်းအလီၢ်:"
+
+msgid "day(s). Deleted sooner on request."
+msgstr "သီ. မ့ၢ်ဃ့န့ၣ် ဖျီၣ်ကွံာ်အဆိသ့."
+
+msgid "Delete now:"
+msgstr "ဖျီၣ်ကွံာ်ခဲအံၤ:"
+
+msgid "My Data"
+msgstr "ယ Data"
+
+msgid "delete your work or end session."
+msgstr "ဖျီၣ်ကွံာ် နတၢ်မၤ မ့တမ့ၢ် မၤဝံၤ session."
+
+msgid "Student home"
+msgstr "ပှၤမၤလိ အခီၣ်ထံး"
+
+msgid "Join page"
+msgstr "နုာ်လီၤအလံာ်ကဘျံး"
+
+msgid "Export my portfolio"
+msgstr "ထုးထီၣ်ယ portfolio"
+
+msgid "Privacy"
+msgstr "တၢ်ခူသူၣ်"
+
+msgid "Signed in as"
+msgstr "နုာ်လီၤဒ်"
+
+msgid "Code"
+msgstr "ကီၢ်"
+
+msgid "Copy class code"
+msgstr "ကူးယူ တီၤအကီၢ်"
+
+msgid "Your return code:"
+msgstr "နက့ၤနုာ်အကီၢ်:"
+
+msgid "Show return code"
+msgstr "ဒုးနဲၣ် က့ၤနုာ်အကီၢ်"
+
+msgid "Hide return code"
+msgstr "ခူသူၣ် က့ၤနုာ်အကီၢ်"
+
+msgid "Show"
+msgstr "ဒုးနဲၣ်"
+
+msgid "Copy return code"
+msgstr "ကူးယူ က့ၤနုာ်အကီၢ်"
+
+msgid "for rejoin"
+msgstr "လၢကနုာ်လီၤက့ၤ"
+
+msgid "Log out"
+msgstr "ထးလီၤ"
+
+msgid "This week"
+msgstr "တနွံအံၤ"
+
+msgid "This week's highlighted lesson"
+msgstr "တနွံအံၤ အတၢ်သိၣ်လိလၢ ဘၣ်တၢ်ဒုးဖျါထီၣ်"
+
+msgid "Highlighted lesson"
+msgstr "တၢ်သိၣ်လိလၢ ဘၣ်တၢ်ဒုးဖျါထီၣ်"
+
+msgid "Start this week's lesson"
+msgstr "စးထီၣ် တနွံအံၤအတၢ်သိၣ်လိ"
+
+msgid "Locked"
+msgstr "ဘၣ်ကး"
+
+msgid "Open"
+msgstr "အိးထီၣ်"
+
+msgid "No calendar-linked lessons yet. Ask your teacher when your first lesson opens."
+msgstr "calendar-linked lesson တဖၣ် တအိၣ်ဒံးဘၣ်. ဃ့နဆရာ/မ လၢ နတၢ်သိၣ်လိခီၣ်ထံး ကအိးထီၣ်ဖဲလဲၣ်."
+
+msgid "Course links"
+msgstr "Course link တဖၣ်"
+
+msgid "View full course lesson links"
+msgstr "ကွၢ် course lesson link အကုာ်အစၢၤ"
+
+msgid "Course lesson links will appear here after your teacher connects a course."
+msgstr "ဖဲနဆရာ/မ ဆဲးကျိး course တခါဝံၤအလီၢ်ခံ, course lesson link တဖၣ် ကပာ်ဖျါထီၣ်ဖဲအံၤ."
+
+msgid "How to tell you are done"
+msgstr "သ့ၣ်ညါဒ်လဲၣ်လၢ နမၤဝံၤလံ"
+
+msgid "Open lesson"
+msgstr "အိးထီၣ် lesson"
+
+msgid "Upload / view submissions"
+msgstr "Upload / ကွၢ် submissions"
+
+msgid "Upload / manage gallery"
+msgstr "Upload / ခၢၣ်စး gallery"
+
+msgid "Save checklist"
+msgstr "သိမ်းဆည်း checklist"
+
+msgid "Save reflection"
+msgstr "သိမ်းဆည်း reflection"
+
+msgid "Save rubric"
+msgstr "သိမ်းဆည်း rubric"
+
+msgid "Account"
+msgstr "Account"
+
+msgid "End my session on this device"
+msgstr "မၤဝံၤ ယ session လၢ device အံၤ"
+
+msgid "Studio handles"
+msgstr "Studio handle တဖၣ်"
+
+msgid "highlighted"
+msgstr "ဘၣ်တၢ်ဒုးဖျါထီၣ်"
+
+msgid "Advanced mode keeps core controls visible for autonomy and accountability."
+msgstr "Advanced mode ဒုးအိၣ်ထီၣ် core control တဖၣ် လၢကထံၣ်ဘၣ်အီၤ ဒ်သိးတၢ်မၤန့ၢ်သဒၣ်ဒၣ် ဒီး တၢ်ယူၢ်ယီၣ်တၢ်ကတာ် အဂီၢ်."
+
+msgid "Export portfolio snapshot"
+msgstr "ထုးထီၣ် portfolio snapshot"
+
+msgid "Rubric links"
+msgstr "Rubric link တဖၣ်"
+
+msgid "Gallery share toggles"
+msgstr "Gallery share toggle တဖၣ်"
+
+msgid "Done"
+msgstr "ဝံၤလံ"
+
+msgid "saved"
+msgstr "ဘၣ်သိမ်းဆည်းလံ"
+
+msgid "do now"
+msgstr "မၤခဲအံၤ"
+
+msgid "wait"
+msgstr "ခီၣ်ဆၢ"
+
+msgid "saved and reviewable"
+msgstr "ဘၣ်သိမ်းဆည်းလံ ဒီးကွၢ်ကဒါက့ၤသ့"
+
+msgid "active now"
+msgstr "မၤတၢ်ခဲအံၤ"
+
+msgid "date-gated"
+msgstr "ဘၣ်တၢ်ပာ်ကးလၢ မုၢ်နံၤ"
+
+msgid "Studio accountability: add design-log notes, a short changelog, and release notes for finished builds."
+msgstr "Studio accountability: ထံၣ်နုာ် design-log note တဖၣ်, changelog အဖုၣ်တခါ, ဒီး release note တဖၣ် လၢ build လၢဝံၤလံအဂီၢ်."
+
+msgid "saved and visible"
+msgstr "ဘၣ်သိမ်းဆည်းလံ ဒီးထံၣ်ဘၣ်သ့"
+
+msgid "ready now"
+msgstr "အသင့်ခဲအံၤ"
+
+msgid "opens on date shown"
+msgstr "အိးထီၣ်ဖဲ မုၢ်နံၤလၢဘၣ်တၢ်ဒုးနဲၣ်"
+
+msgid "Preview intro-only page"
+msgstr "ကွၢ်တခီ intro-only page"
+
+msgid "Full lesson unlocks on <strong>{{ open_date }}</strong>."
+msgstr "lesson အကုာ်အစၢၤ ကအိးလီၤဖဲ <strong>{{ open_date }}</strong>."
+
+msgid "Accepted: {{ exts }} · Max {{ max_mb }}MB"
+msgstr "ပာ်တၢ်မၤအါ: {{ exts }} · အဒိၣ်ကတၢၢ် {{ max_mb }}MB"
+
+msgid "Submissions open on <strong>{{ open_date }}</strong>."
+msgstr "submission တဖၣ် ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
+
+msgid "· {{ upload_count }} uploaded (latest saved)"
+msgstr "· {{ upload_count }} ဘၣ် upload လံ (လၢခံကတၢၢ် ဘၣ်သိမ်းဆည်းလံ)"
+
+msgid "Gallery opens on <strong>{{ open_date }}</strong>."
+msgstr "gallery ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
+
+msgid "· {{ upload_count }} uploaded"
+msgstr "· {{ upload_count }} ဘၣ် upload လံ"
+
+msgid "Shared gallery"
+msgstr "gallery လၢဘၣ်တၢ်သန့ၤ"
+
+msgid "you"
+msgstr "နၤ"
+
+msgid "Checklist opens on <strong>{{ open_date }}</strong>."
+msgstr "checklist ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
+
+msgid "Review checklist"
+msgstr "ကွၢ်ကဒါ checklist"
+
+msgid "Open checklist"
+msgstr "အိးထီၣ် checklist"
+
+msgid "Checklist has no items yet."
+msgstr "checklist အဂ့ၢ်တဖၣ် တအိၣ်ဒံးဘၣ်."
+
+msgid "Reflection opens on <strong>{{ open_date }}</strong>."
+msgstr "reflection ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
+
+msgid "Design log prompt: note what you changed, why you changed it, and what evidence shows improvement."
+msgstr "Design log prompt: ကွဲးမှတ်မနုၤလၢနလဲၤလိာ်, ဘာလၢနလဲၤလိာ်အီၤ, ဒီး တၢ်အုၣ်ကီၤလၢအဒုးနဲၣ်တၢ်ဂ့ၤထီၣ်."
+
+msgid "Review reflection"
+msgstr "ကွၢ်ကဒါ reflection"
+
+msgid "Open reflection"
+msgstr "အိးထီၣ် reflection"
+
+msgid "Your private reflection"
+msgstr "န reflection လၢခူသူၣ်"
+
+msgid "Write a short reflection."
+msgstr "ကွဲး reflection အဖုၣ်တခါ."
+
+msgid "Rubric opens on <strong>{{ open_date }}</strong>."
+msgstr "rubric ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
+
+msgid "Review rubric"
+msgstr "ကွၢ်ကဒါ rubric"
+
+msgid "Open rubric"
+msgstr "အိးထီၣ် rubric"
+
+msgid "Rate each criterion from 1 to {{ scale_max }}."
+msgstr "ဟ့ၣ်အမှတ် criterion တဘျီစုာ်စုာ် လၢ 1 တုၤ {{ scale_max }}."
+
+msgid "Studio expectation: scores should line up with your changelog and release-note claims."
+msgstr "Studio expectation: score တဖၣ် ကြၢးဆီလီၤပာ်ဖှိၣ်ဒီး န changelog ဒီး release-note အတၢ်စံး."
+
+msgid "Not scored"
+msgstr "တဟ့ၣ်အမှတ်ဒံးဘၣ်"
+
+msgid "Optional feedback"
+msgstr "feedback လၢသဘျ့"
+
+msgid "Short note to your teacher (optional)."
+msgstr "note အဖုၣ်တခါဆူ နဆရာ/မ (သဘျ့)."
+
+msgid "Rubric criteria not configured yet."
+msgstr "rubric criteria တဖၣ် တဘၣ်တၢ်ကတီၤဒံးဘၣ်."
+
+msgid "Empty material — teacher will fill this in."
+msgstr "material အလီၢ်ဟးဂီၤ — ဆရာ/မ ကမၤပှဲၤအီၤ."
+
+msgid "No materials yet."
+msgstr "material တဖၣ် တအိၣ်ဒံးဘၣ်."
+
+msgid "No modules yet. A teacher/admin can add them in /admin."
+msgstr "module တဖၣ် တအိၣ်ဒံးဘၣ်. ဆရာ/မ မ့တမ့ၢ် admin တယောက် ကထံၣ်နုာ်အီၤဖဲ /admin သ့."
+
+msgid "Open My Data for account controls."
+msgstr "အိးထီၣ် ယ Data လၢ account control အဂီၢ်."
+
+msgid "Open My Data"
+msgstr "အိးထီၣ် ယ Data"
+
+msgid "Manage account + device data."
+msgstr "ခၢၣ်စး account + device data."
+
+msgid "What I made"
+msgstr "တၢ်လၢယမၤ"
+
+msgid "Session gallery"
+msgstr "session gallery"
+
+msgid "Quick check-in"
+msgstr "check-in အချ့"
+
+msgid "Share how this session feels right now. These signals help your facilitator support you."
+msgstr "ပာ်ဖျါဒ်လဲၣ်လၢ session အံၤ ခံစားခဲအံၤ. signal တဖၣ်အံၤ မၤစၢၤ န facilitator လၢကထံၣ်စၢၤနၤ."
+
+msgid "I can do this"
+msgstr "ယမၤအီၤသ့"
+
+msgid "I'm stuck"
+msgstr "ယတၢ်ကီ"
+
+msgid "I taught someone"
+msgstr "ယသိၣ်လိ ပှၤတဂၤ"
+
+msgid "Last check-in:"
+msgstr "check-in လၢခံကတၢၢ်:"
+
+msgid "Class return image"
+msgstr "တီၤအတၢ်က့ၤဟဲ image"
+
+msgid "Return image: look for this picture when you come back to class."
+msgstr "က့ၤဟဲ image: ဖဲနဟဲက့ၤဆူတီၤအခါ, ဃုကွၢ်ပနီၣ်အံၤ."
+
+msgid "Enable kiosk mode"
+msgstr "ဒုးမၤတၢ် kiosk mode"
+
+msgid "Exit kiosk mode"
+msgstr "ဟးထီၣ် kiosk mode"
+
+msgid "Kiosk mode keeps navigation inside the student class flow."
+msgstr "kiosk mode ဒုးအိၣ် navigation လၢ student class flow အပူၤ."
+
+msgid "Hide"
+msgstr "ခူသူၣ်"
+
+msgid "Return code hidden."
+msgstr "က့ၤနုာ်အကီၢ် ဘၣ်တၢ်ခူသူၣ်အီၤလံ."
+
+msgid "Return code shown."
+msgstr "က့ၤနုာ်အကီၢ် ဘၣ်တၢ်ဒုးနဲၣ်အီၤလံ."
+
+msgid "Could not load return code. Refresh and try again."
+msgstr "က့ၤနုာ်အကီၢ် မၤလိာ်တတီၤဘၣ်. refresh မၤကဒီး ဒီးစမ်းကွၢ်ကဒီး."
+
+msgid "Copied to clipboard."
+msgstr "ကူးယူဆူ clipboard လံ."
+
+msgid "Copy failed. Please copy manually."
+msgstr "ကူးယူတအောင်မြင်ဘၣ်. ကူးယူလၢစုတက့ၢ်."
+
+msgid "Sentence starter added."
+msgstr "sentence starter ဘၣ်တၢ်ထံၣ်နုာ်လံ."
+
+msgid "Sentence starters (optional)"
+msgstr "sentence starter တဖၣ် (သဘျ့)"
+
+msgid "Icon code: "
+msgstr "icon code: "
+
+msgid "Trust notes"
+msgstr "trust note တဖၣ်"
+
+msgid "Classes"
+msgstr "တီၤတဖၣ်"
+
+msgid "Start here: open class, share join code, then review submissions. Assigned classes appear first."
+msgstr "စးထီၣ်ဖဲအံၤ: အိးထီၣ်တီၤ, သန့ၤ join code, ဝံၤဒီး ကွၢ်ကဒါ submission တဖၣ်. တီၤလၢဘၣ်တၢ်ဟ့ၣ်လီၤအီၤ ကပာ်ဖျါထီၣ်ခီၣ်ထံး."
+
+msgid "Classes available in the teacher portal"
+msgstr "တီၤတဖၣ်လၢသုံးသ့ဖဲ teacher portal"
+
+msgid "Class"
+msgstr "တီၤ"
+
+msgid "Join code"
+msgstr "နုာ်လီၤအကီၢ်"
+
+msgid "Actions"
+msgstr "တၢ်မၤတဖၣ်"
+
+msgid "Assigned"
+msgstr "ဘၣ်တၢ်ဟ့ၣ်လီၤအီၤ"
+
+msgid "Copy"
+msgstr "ကူးယူ"
+
+msgid "Open class"
+msgstr "အိးထီၣ်တီၤ"
+
+msgid "Lesson tracker"
+msgstr "lesson tracker"
+
+msgid "Print join card"
+msgstr "ထုတ္ join card"
+
+msgid "Assign teacher"
+msgstr "ဟ့ၣ်လီၤ ဆရာ/မ"
+
+msgid "Set organization"
+msgstr "ပာ်လီၤ organization"
+
+msgid "No classes yet."
+msgstr "တီၤတဖၣ် တအိၣ်ဒံးဘၣ်."
+
+msgid "What Changed Since Yesterday"
+msgstr "လၢမဟါတနံၤလၢခံ တၢ်လဲၤလိာ်မနုၤတဖၣ်"
+
+msgid "Window started %(window_start)s"
+msgstr "window စးထီၣ် %(window_start)s"
+
+msgid "Daily class activity digest"
+msgstr "တနံၤတနံၤ class activity digest"
+
+msgid "New students"
+msgstr "ပှၤမၤလိအသီတဖၣ်"
+
+msgid "Uploads"
+msgstr "upload တဖၣ်"
+
+msgid "Helper chats"
+msgstr "helper chat တဖၣ်"
+
+msgid "Need first upload"
+msgstr "လိၣ်ဘၣ် upload ခီၣ်ထံး"
+
+msgid "Last upload"
+msgstr "upload လၢခံကတၢၢ်"
+
+msgid "No uploads yet"
+msgstr "upload တဖၣ် တအိၣ်ဒံးဘၣ်"
+
+msgid "End-of-Class Closeout"
+msgstr "တီၤဝံၤ closeout"
+
+msgid "Keep this collapsed until you need actions."
+msgstr "ပာ်အီၤလၢအဘၣ်ခီၣ်ဆၢတုၤ နလိၣ်ဘၣ် action တဖၣ်."
+
+msgid "%(class_name)s · %(student_total)s students"
+msgstr "%(class_name)s · ပှၤမၤလိ %(student_total)s ယောက်"
+
+msgid "%(pending_count)s still need a first upload."
+msgstr "%(pending_count)s ယောက် လိၣ်ဘၣ်ဒံး upload ခီၣ်ထံးတခါ."
+
+msgid "Class already locked"
+msgstr "တီၤ ဘၣ်ကးလံ"
+
+msgid "Lock class"
+msgstr "ကးတီၤ"
+
+msgid "Export today's submissions"
+msgstr "ထုးထီၣ် မုၢ်မဆါတနံၤအ submission တဖၣ်"
+
+msgid "Recent submissions"
+msgstr "submission အသီတဖၣ်"
+
+msgid "Latest uploads across all classes"
+msgstr "upload လၢခံကတၢၢ် လၢတီၤခဲလၢာ်အပူၤ"
+
+msgid "Recent submissions across classes"
+msgstr "submission အသီတဖၣ် လၢတီၤတဖၣ်အကျါ"
+
+msgid "Review submissions"
+msgstr "ကွၢ်ကဒါ submission တဖၣ်"
+
+msgid "Back to class"
+msgstr "က့ၤကဒါဆူတီၤ"
+
+msgid "Privacy at a glance"
+msgstr "တၢ်ခူသူၣ် တၢ်ကွၢ်ဖျါတဘျီ"
+
+msgid "Stored data: your display name, submissions, and class event timestamps."
+msgstr "data လၢဘၣ်တၢ်သိမ်းဆည်း: နမံၤလၢကဒုးနဲၣ်, submission တဖၣ်, ဒီး class event timestamp တဖၣ်."
+
+msgid "Download my work"
+msgstr "ဒုးလီၤကလ့ၣ် ယတၢ်မၤ"
+
+msgid "Delete all of your submissions now?"
+msgstr "ဖျီၣ်ကွံာ် န submission ခဲလၢာ်ခဲအံၤဧါ."
+
+msgid "Delete my work now"
+msgstr "ဖျီၣ်ကွံာ် ယတၢ်မၤခဲအံၤ"
+
+msgid "My submissions"
+msgstr "ယ submission တဖၣ်"
+
+msgid "When"
+msgstr "ဖဲလဲၣ်"
+
+msgid "Module"
+msgstr "module"
+
+msgid "Material"
+msgstr "material"
+
+msgid "File"
+msgstr "file"
+
+msgid "Download"
+msgstr "ဒုးလီၤကလ့ၣ်"
+
+msgid "No submissions stored yet."
+msgstr "submission တဖၣ် တဘၣ်သိမ်းဆည်းဒံးဘၣ်."
+
+msgid "Storage location: this server is hosted locally by your school or organization."
+msgstr "တၢ်သိမ်းဆည်းအလီၢ်: server အံၤ ဘၣ်တၢ်host အီၤ လၢနကျောင်း မ့တမ့ၢ် organization အပူၤ."
+
+msgid "No tracking. No ads. No data broker sharing."
+msgstr "tracking တအိၣ်ဘၣ်. ads တအိၣ်ဘၣ်. data broker sharing တအိၣ်ဘၣ်."
+
+msgid "Stored submissions for %(student_name)s"
+msgstr "submission လၢဘၣ်တၢ်သိမ်းဆည်းအီၤ လၢ %(student_name)s အဂီၢ်"
+
+msgid "Filters"
+msgstr "filter တဖၣ်"
+
+msgid "Available"
+msgstr "သုံးသ့"
+
+msgid "%(display_name)s Portfolio"
+msgstr "%(display_name)s အ portfolio"
+
+msgid "%(display_name)s Portfolio Export"
+msgstr "%(display_name)s အ portfolio export"
+
+msgid "Class: %(classroom_name)s"
+msgstr "တီၤ: %(classroom_name)s"
+
+msgid "Generated: %(generated_at)s"
+msgstr "ဘၣ်တၢ်ထုးထီၣ်: %(generated_at)s"
+
+msgid "Submissions: %(included_count)s included / %(submission_count)s total"
+msgstr "submission တဖၣ်: %(included_count)s ဘၣ်တၢ်ပာ်ဃုာ် / %(submission_count)s ခဲလၢာ်"
+
+msgid "Submission export rows for %(display_name)s"
+msgstr "submission export row တဖၣ် လၢ %(display_name)s အဂီၢ်"
+
+msgid "Original file"
+msgstr "file မူဒါခီၣ်ထံး"
+
+msgid "Archive path"
+msgstr "archive path"
+
+msgid "Status"
+msgstr "အပတီၢ်"
+
+msgid "Note"
+msgstr "note"
+
+msgid "Included"
+msgstr "ဘၣ်တၢ်ပာ်ဃုာ်"
+
+msgid "Missing source file"
+msgstr "source file လီၤမၢ်"
+
+msgid "No submissions yet."
+msgstr "submission တဖၣ် တအိၣ်ဒံးဘၣ်."
+
+msgid "Privacy Information"
+msgstr "တၢ်ခူသူၣ် အတၢ်ဂ့ၢ်"
+
+msgid "How we handle your data on"
+msgstr "ပခၢၣ်စး န data ဒ်လဲၣ် ဖဲ"
+
+msgid "1. What data is collected"
+msgstr "1. data လၢဘၣ်တၢ်ပာ်ဖှိၣ်"
+
+msgid "We design this platform to collect as little about you as possible."
+msgstr "ပမၤကတီၤ platform အံၤ ဒ်သိးကပာ်ဖှိၣ် တၢ်အဂ့ၢ်လၢနၤ အဆံးကတၢၢ်သ့."
+
+msgid "Don't upload sensitive documents"
+msgstr "တ upload sensitive document တဂ့ၤ"
+
+msgid "2. How to export or delete your work"
+msgstr "2. ထုးထီၣ် မ့တမ့ၢ် ဖျီၣ်ကွံာ် နတၢ်မၤ ဒ်လဲၣ်"
+
+msgid "You own your artifacts. While in an active session, you can export or delete your files at any time."
+msgstr "နပၢန artifact တဖၣ်. ဖဲနအိၣ်လၢ active session အပူၤန့ၣ်, နထုးထီၣ် မ့တမ့ၢ် ဖျီၣ်ကွံာ် န file တဖၣ်သ့ ဖဲအဆၢကတီၢ်ခဲလၢာ်."
+
+msgid "3. What gets deleted and when"
+msgstr "3. ဘာတဖၣ်ကဘၣ်ဖျီၣ်ကွံာ် ဒီးဖဲလဲၣ်"
+
+msgid "We don't hold on to your data forever."
+msgstr "ပတသိမ်းဆည်း န data တုၤလၢထူထူယိာ်ယိာ်ဘၣ်."
+
+msgid "Lessons"
+msgstr "lesson တဖၣ်"
+
+msgid "Back to join"
+msgstr "က့ၤကဒါဆူ နုာ်လီၤ"

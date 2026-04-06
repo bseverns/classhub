@@ -37,6 +37,10 @@ class I18nSmokeTests(TestCase):
         resp = self.client.get("/", HTTP_ACCEPT_LANGUAGE="es")
         self.assertContains(resp, "Código de clase")
 
+    def test_join_page_sgaw_karen_shows_translated_label(self):
+        resp = self.client.get("/", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertContains(resp, "တီၤအကီၢ်")
+
     def test_join_page_spanish_shows_translated_help_text(self):
         resp = self.client.get("/", HTTP_ACCEPT_LANGUAGE="es")
         self.assertContains(resp, "no necesitas usar tu nombre real")
@@ -79,6 +83,11 @@ class I18nSmokeTests(TestCase):
         resp = self.client.get("/teach/login", HTTP_ACCEPT_LANGUAGE="so")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Gelitaanka Macallinka")
+
+    def test_teach_login_with_sgaw_karen_accept_language(self):
+        resp = self.client.get("/teach/login", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "ဆရာ/မ အတၢ်နုာ်လီၤ")
 
     def test_language_chooser_visible_on_join_page(self):
         resp = self.client.get("/")
@@ -194,6 +203,13 @@ class I18nSmokeTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Xiriirrada koorsada")
 
+    def test_student_class_page_sgaw_karen_renders_translated_core_copy(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Course link တဖၣ်")
+
     def test_teach_home_day_mode_spanish_renders_translated_core_copy(self):
         teacher = get_user_model().objects.create_user(
             username="teacher_i18n_day_mode",
@@ -216,6 +232,17 @@ class I18nSmokeTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Maxaa Isbeddelay Ilaa Shalay")
 
+    def test_teach_home_day_mode_sgaw_karen_renders_translated_core_copy(self):
+        teacher = get_user_model().objects.create_user(
+            username="teacher_i18n_day_mode_ksw",
+            password="testpass123",
+        )
+        _force_login_staff_verified(self.client, teacher)
+
+        resp = self.client.get("/teach?portal_mode=day", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "လၢမဟါတနံၤလၢခံ တၢ်လဲၤလိာ်မနုၤတဖၣ်")
+
     def test_student_my_data_page_spanish_renders_translated_core_copy(self):
         self._set_student_session()
 
@@ -232,6 +259,14 @@ class I18nSmokeTests(TestCase):
         self.assertContains(resp, "Dulmar Asturnaanta")
         self.assertContains(resp, "Ma jiro raadraac. Ma jiro xayeysiis. Lama wadaago dilaaliinta xogta.")
 
+    def test_student_my_data_page_sgaw_karen_renders_translated_core_copy(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student/my-data", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "တၢ်ခူသူၣ် တၢ်ကွၢ်ဖျါတဘျီ")
+        self.assertContains(resp, "tracking တအိၣ်ဘၣ်. ads တအိၣ်ဘၣ်. data broker sharing တအိၣ်ဘၣ်.")
+
     def test_student_portfolio_page_spanish_renders_translated_core_copy(self):
         self._set_student_session()
 
@@ -245,3 +280,15 @@ class I18nSmokeTests(TestCase):
         resp = self.client.get("/student/portfolio", HTTP_ACCEPT_LANGUAGE="so")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Shaandheeyayaal")
+
+    def test_student_portfolio_page_sgaw_karen_renders_translated_core_copy(self):
+        self._set_student_session()
+
+        resp = self.client.get("/student/portfolio", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "filter တဖၣ်")
+
+    def test_privacy_page_sgaw_karen_renders_translated_core_copy(self):
+        resp = self.client.get("/trust", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "တၢ်ခူသူၣ် အတၢ်ဂ့ၢ်")

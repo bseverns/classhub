@@ -49,8 +49,9 @@ Coverage outside those paths is still partial and should be treated as in-progre
 
 Karen-language implementation note:
 - The repo now uses S'gaw Karen (`ksw`) as the concrete "Karen" locale code.
-- `ksw` ships with full locale wiring plus a first translated helper-widget tranche (chrome + quick prompts), so Django language selection, cookies, helper routing, and widget locale payloads work end-to-end.
-- Wider `ksw` UI coverage is still partial; untranslated strings continue to fall back to English until native-speaker-reviewed Karen copy is added.
+- `ksw` now ships across the same repo-shipped student/teacher-visible tranche as `es` and `so`: join, teacher login, student class, student My Data, student portfolio, student gallery/course overview, trust/privacy page, and teacher day-mode shell copy.
+- Current `ksw` strings were expanded with AI-assisted provisional copy on 2026-04-06 so Karen-speaking families do not see an English-dominant UI by default on those routes.
+- Native-speaker review is still required before treating the Karen catalog as linguistically final.
 
 Somali parity policy:
 - Somali should include every `msgid` that exists in Spanish.
@@ -77,6 +78,7 @@ The guard fails if any of the following drift:
 - required non-empty tranche translations in:
   - `locale/es/LC_MESSAGES/django.po`
   - `locale/so/LC_MESSAGES/django.po`
+  - `locale/ksw/LC_MESSAGES/django.po`
 
 Parity guard:
 

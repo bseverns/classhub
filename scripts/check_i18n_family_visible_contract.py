@@ -14,6 +14,7 @@ TEACH_DAY_TEMPLATE = Path("services/classhub/templates/includes/teach_home/day_s
 LOCALE_FILES: tuple[Path, ...] = (
     Path("services/classhub/locale/es/LC_MESSAGES/django.po"),
     Path("services/classhub/locale/so/LC_MESSAGES/django.po"),
+    Path("services/classhub/locale/ksw/LC_MESSAGES/django.po"),
 )
 
 REQUIRED_DOC_SNIPPETS: tuple[str, ...] = (
@@ -28,6 +29,8 @@ REQUIRED_TEST_SNIPPETS: tuple[str, ...] = (
     "def test_teach_home_day_mode_spanish_renders_translated_core_copy",
     "def test_student_class_page_somali_renders_translated_core_copy",
     "def test_teach_home_day_mode_somali_renders_translated_core_copy",
+    "def test_student_class_page_sgaw_karen_renders_translated_core_copy",
+    "def test_teach_home_day_mode_sgaw_karen_renders_translated_core_copy",
 )
 
 REQUIRED_STUDENT_TEMPLATE_SNIPPETS: tuple[str, ...] = (
@@ -155,7 +158,7 @@ def main() -> int:
         for row in failures:
             print(f"  - {row}", file=sys.stderr)
         print(
-            "[i18n-family-visible-guard] keep route scope, tests, and translations aligned for /student + /teach day mode",
+            "[i18n-family-visible-guard] keep route scope, tests, and translations aligned for /student + /teach day mode across es/so/ksw",
             file=sys.stderr,
         )
         return 1
