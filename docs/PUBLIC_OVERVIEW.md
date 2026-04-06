@@ -1,7 +1,7 @@
 # Public Overview
 
 ## Summary
-Class Hub is a self-hosted classroom platform with a separate Homework Helper service. It is designed for calm classroom operations, easy student access, and clear control over infrastructure and data.
+Class Hub is a self-hosted classroom platform with a separate Homework Helper service. It is designed for calm classroom operations, easy student access, and clear control over infrastructure and data. The current release prioritizes operational clarity over polish: teams can see what is live, what is optional, and what remains intentionally deferred.
 
 ## What to do now
 1. Decide if this fits your context (quick bullets below).
