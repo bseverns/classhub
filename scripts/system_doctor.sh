@@ -7,8 +7,11 @@ PORT_GUARD="${ROOT_DIR}/scripts/check_compose_port_exposure.py"
 MIGRATION_GATE="${ROOT_DIR}/scripts/migration_gate.sh"
 CONTENT_PREFLIGHT="${ROOT_DIR}/scripts/content_preflight.sh"
 LLM_BACKEND_CHECK="${ROOT_DIR}/scripts/check_llm_backend.sh"
+ENSURE_LOCAL_OLLAMA_MODEL="${ROOT_DIR}/scripts/ensure_local_ollama_model.sh"
+COMPOSE_ENV_LIB="${ROOT_DIR}/scripts/lib/compose_env.sh"
 SMOKE_CHECK="${ROOT_DIR}/scripts/smoke_check.sh"
 GOLDEN_SMOKE="${ROOT_DIR}/scripts/golden_path_smoke.sh"
+ENV_FILE="${ROOT_DIR}/compose/.env"
 
 COMPOSE_MODE="${COMPOSE_MODE:-prod}" # prod or dev
 BRING_UP=1
@@ -19,6 +22,8 @@ COURSE_SLUG="${COURSE_SLUG:-piper_scratch_12_session}"
 STRICT_CONTENT=0
 
 SMOKE_MODE="${SMOKE_MODE:-golden}" # golden|strict|basic|off
+LLM_CHECK_MODE="${LLM_CHECK_MODE:-auto}" # auto|required|advisory|off
+HELPER_SMOKE_MODE="${HELPER_SMOKE_MODE:-auto}" # auto|required|advisory|off
 SMOKE_BASE_URL="${SMOKE_BASE_URL:-}"
 SMOKE_TIMEOUT_SECONDS="${SMOKE_TIMEOUT_SECONDS:-20}"
 SMOKE_INSECURE_TLS="${SMOKE_INSECURE_TLS:-0}"
@@ -49,6 +54,10 @@ Options:
                                   strict: run scripts/smoke_check.sh --strict
                                   basic: run scripts/smoke_check.sh
                                   off: skip smoke step
+  --llm-check-mode <auto|required|advisory|off>
+                                  auto: require local CPU/backend health, warn only for remote/private backends
+  --helper-smoke-mode <auto|required|advisory|off>
+                                  auto: require helper chat for local CPU/backend, warn only for remote/private backends
   --base-url <url>                Override smoke base URL
   --timeout-seconds <seconds>     Curl timeout passed to smoke checks (default: 20)
   --insecure-tls                  Use curl -k for HTTPS smoke checks
@@ -87,6 +96,14 @@ while [[ $# -gt 0 ]]; do
       SMOKE_MODE="$2"
       shift 2
       ;;
+    --llm-check-mode)
+      LLM_CHECK_MODE="$2"
+      shift 2
+      ;;
+    --helper-smoke-mode)
+      HELPER_SMOKE_MODE="$2"
+      shift 2
+      ;;
     --base-url)
       SMOKE_BASE_URL="$2"
       shift 2
@@ -120,10 +137,13 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ ! -f "${ROOT_DIR}/compose/.env" ]]; then
+if [[ ! -f "${ENV_FILE}" ]]; then
   echo "[doctor] missing compose/.env (copy from compose/.env.example first)" >&2
   exit 1
 fi
+
+# shellcheck disable=SC1090
+source "${COMPOSE_ENV_LIB}"
 
 if [[ "${COMPOSE_MODE}" == "prod" ]]; then
   COMPOSE_ARGS=(-f "${ROOT_DIR}/compose/docker-compose.yml")
@@ -134,11 +154,33 @@ else
   exit 1
 fi
 
+if llm_uses_local_ollama_compose "${ENV_FILE}"; then
+  COMPOSE_ARGS+=(--profile local-ollama)
+fi
+
 case "${SMOKE_MODE}" in
   golden|strict|basic|off)
     ;;
   *)
     echo "[doctor] invalid --smoke-mode '${SMOKE_MODE}' (expected golden|strict|basic|off)" >&2
+    exit 1
+    ;;
+esac
+
+case "${LLM_CHECK_MODE}" in
+  auto|required|advisory|off)
+    ;;
+  *)
+    echo "[doctor] invalid --llm-check-mode '${LLM_CHECK_MODE}' (expected auto|required|advisory|off)" >&2
+    exit 1
+    ;;
+esac
+
+case "${HELPER_SMOKE_MODE}" in
+  auto|required|advisory|off)
+    ;;
+  *)
+    echo "[doctor] invalid --helper-smoke-mode '${HELPER_SMOKE_MODE}' (expected auto|required|advisory|off)" >&2
     exit 1
     ;;
 esac
@@ -216,24 +258,43 @@ wait_for_container_state classhub_redis healthy
 wait_for_container_state classhub_web healthy
 wait_for_container_state helper_web healthy
 wait_for_container_state classhub_caddy running
+if llm_uses_local_ollama_compose "${ENV_FILE}"; then
+  wait_for_container_state classhub_ollama running
+  bash "${ENSURE_LOCAL_OLLAMA_MODEL}" --compose-mode "${COMPOSE_MODE}"
+fi
 
 echo "[doctor] applying runtime migrations"
 run_compose exec -T classhub_web python manage.py migrate --noinput
 run_compose exec -T helper_web python manage.py migrate --noinput
 
 echo "[doctor] 6/7 llm backend check"
-if ! "${LLM_BACKEND_CHECK}" --compose-mode "${COMPOSE_MODE}" --probe-chat; then
+EFFECTIVE_LLM_CHECK_MODE="${LLM_CHECK_MODE}"
+if [[ "${EFFECTIVE_LLM_CHECK_MODE}" == "auto" ]]; then
+  EFFECTIVE_LLM_CHECK_MODE="$(llm_check_mode_auto "${ENV_FILE}")"
+fi
+if [[ "${EFFECTIVE_LLM_CHECK_MODE}" == "off" ]]; then
+  echo "[doctor] llm backend check skipped (mode=off)"
+elif "${LLM_BACKEND_CHECK}" --compose-mode "${COMPOSE_MODE}" --probe-chat; then
+  :
+elif [[ "${EFFECTIVE_LLM_CHECK_MODE}" == "advisory" ]]; then
+  echo "[doctor][warn] llm backend check failed in advisory mode; continuing with core stack validation" >&2
+else
   print_compose_diagnostics
   exit 1
 fi
 
 echo "[doctor] 7/7 smoke checks (${SMOKE_MODE})"
+EFFECTIVE_HELPER_SMOKE_MODE="${HELPER_SMOKE_MODE}"
+if [[ "${EFFECTIVE_HELPER_SMOKE_MODE}" == "auto" ]]; then
+  EFFECTIVE_HELPER_SMOKE_MODE="$(helper_smoke_mode_auto "${ENV_FILE}")"
+fi
 if [[ "${SMOKE_MODE}" == "golden" ]]; then
   GOLDEN_ARGS=(
     --compose-mode "${COMPOSE_MODE}"
     --skip-up
     --course-slug "${COURSE_SLUG}"
     --timeout-seconds "${SMOKE_TIMEOUT_SECONDS}"
+    --helper-smoke-mode "${EFFECTIVE_HELPER_SMOKE_MODE}"
   )
   if [[ "${SMOKE_INSECURE_TLS}" == "1" ]]; then
     GOLDEN_ARGS+=(--insecure-tls)
@@ -252,6 +313,7 @@ elif [[ "${SMOKE_MODE}" == "strict" ]]; then
   SMOKE_ENV=(
     "SMOKE_TIMEOUT_SECONDS=${SMOKE_TIMEOUT_SECONDS}"
     "SMOKE_INSECURE_TLS=${SMOKE_INSECURE_TLS}"
+    "SMOKE_HELPER_MODE=${EFFECTIVE_HELPER_SMOKE_MODE}"
   )
   if [[ -n "${SMOKE_BASE_URL}" ]]; then
     SMOKE_ENV+=("SMOKE_BASE_URL=${SMOKE_BASE_URL}")
@@ -267,6 +329,7 @@ elif [[ "${SMOKE_MODE}" == "basic" ]]; then
   SMOKE_ENV=(
     "SMOKE_TIMEOUT_SECONDS=${SMOKE_TIMEOUT_SECONDS}"
     "SMOKE_INSECURE_TLS=${SMOKE_INSECURE_TLS}"
+    "SMOKE_HELPER_MODE=${EFFECTIVE_HELPER_SMOKE_MODE}"
   )
   if [[ -n "${SMOKE_BASE_URL}" ]]; then
     SMOKE_ENV+=("SMOKE_BASE_URL=${SMOKE_BASE_URL}")

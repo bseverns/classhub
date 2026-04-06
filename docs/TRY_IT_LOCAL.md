@@ -49,16 +49,16 @@ Expected: both commands print versions without errors.
 cd /srv/lms/app  # or your repo root
 cp compose/.env.example.local compose/.env
 sed -i.bak 's/^CADDYFILE_TEMPLATE=.*/CADDYFILE_TEMPLATE=Caddyfile.local/' compose/.env
-sed -i.bak 's/^HELPER_LLM_BACKEND=.*/HELPER_LLM_BACKEND=mock/' compose/.env
 ```
 
-Verification signal: `compose/.env` contains `CADDYFILE_TEMPLATE=Caddyfile.local` and `HELPER_LLM_BACKEND=mock`.
+Verification signal: `compose/.env` contains `CADDYFILE_TEMPLATE=Caddyfile.local`, `LLM_BACKEND=ollama`, and `COMPOSE_LOCAL_OLLAMA_AUTO=1`.
 
 ## 2) Start containers
 
 ```bash
 cd compose
-docker compose up -d --build
+docker compose --profile local-ollama up -d --build
+docker compose exec ollama ollama pull llama3.2:1b
 ```
 
 Verification signal:
@@ -107,14 +107,11 @@ Verification signal:
 - `/teach` shows a class with 2 demo sessions.
 
 ## Helper defaults for safe demo
-- This guide sets `HELPER_LLM_BACKEND=mock` so the helper works without OpenAI keys.
-- You can optionally set a demo response text in `compose/.env`:
+- This guide uses the bundled CPU-local Ollama backend by default, so no OpenAI key is required.
+- The quickstart wrapper auto-starts the `local-ollama` Compose profile and pulls the configured model before doctor/smoke.
+- If you need deterministic helper replies for CI-style testing, you can still switch to `HELPER_LLM_BACKEND=mock` in `compose/.env`.
 
-```dotenv
-HELPER_MOCK_RESPONSE_TEXT=Let's work one step at a time. What did you try first?
-```
-
-Verification signal: helper responses return quickly and no external LLM credentials are required.
+Verification signal: helper responses return locally and no external LLM credentials are required.
 
 ## Reset / wipe demo state
 

@@ -62,17 +62,16 @@ flowchart LR
 ## Quickstart (local)
 
 ```bash
-cp compose/.env.example.local compose/.env
-cd compose
-docker compose --profile local-ollama up -d --build
-cd ..
-bash scripts/load_demo_coursepack.sh
+bash scripts/quickstart_stack.sh --yes --mode local --with-admin \
+  --admin-username admin --admin-email admin@example.org --admin-password 'CHANGE_ME'
 ```
 
 Then open:
 
 - Student join: `http://localhost/`
 - Teacher login: `http://localhost/teach/login` (or `http://localhost/admin/login/` for admin console access)
+
+The quickstart and deploy scripts now default to the bundled CPU-local Ollama path for helper smoke/deploy checks. If you later move the helper to a private Tailscale/Thundercompute backend, that remote validation is treated as advisory by default instead of blocking the rest of the stack.
 
 ## Production posture (important)
 

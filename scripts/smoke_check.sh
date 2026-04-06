@@ -5,9 +5,23 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="${ROOT_DIR}/compose/.env"
 
 STRICT=0
-if [[ "${1:-}" == "--strict" ]]; then
-  STRICT=1
-fi
+HELPER_SMOKE_MODE=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --strict)
+      STRICT=1
+      shift
+      ;;
+    --helper-smoke-mode)
+      HELPER_SMOKE_MODE="$2"
+      shift 2
+      ;;
+    *)
+      echo "[smoke] unknown argument: $1" >&2
+      exit 1
+      ;;
+  esac
+done
 
 derive_base_url() {
   local caddyfile_template
@@ -69,6 +83,10 @@ HELPER_CHAT_RETRY_DELAY_SECONDS="${SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS:-$(env_
 HELPER_CHAT_RETRY_DELAY_SECONDS="${HELPER_CHAT_RETRY_DELAY_SECONDS:-3}"
 HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS="${SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS:-$(env_file_value SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS)}"
 HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS="${HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS:-30}"
+if [[ -z "${HELPER_SMOKE_MODE}" ]]; then
+  HELPER_SMOKE_MODE="${SMOKE_HELPER_MODE:-$(env_file_value SMOKE_HELPER_MODE)}"
+fi
+HELPER_SMOKE_MODE="${HELPER_SMOKE_MODE:-required}"
 
 INSECURE_TLS="${SMOKE_INSECURE_TLS:-$(env_file_value SMOKE_INSECURE_TLS)}"
 INSECURE_TLS="${INSECURE_TLS:-0}"
@@ -93,6 +111,10 @@ fail() {
   exit 1
 }
 
+helper_warn() {
+  echo "[smoke][warn] $*" >&2
+}
+
 print_response_excerpt() {
   local label="$1"
   local headers_file="$2"
@@ -109,6 +131,15 @@ print_response_excerpt() {
   else
     echo "[smoke] (empty body)" >&2
   fi
+}
+
+handle_helper_failure() {
+  local message="$1"
+  if [[ "${HELPER_SMOKE_MODE}" == "advisory" ]]; then
+    helper_warn "${message}"
+    return 0
+  fi
+  fail "${message}"
 }
 
 require_field_if_strict() {
@@ -132,6 +163,14 @@ http_code() {
 }
 
 echo "[smoke] base url: ${BASE_URL}"
+
+case "${HELPER_SMOKE_MODE}" in
+  required|advisory|off)
+    ;;
+  *)
+    fail "invalid helper smoke mode '${HELPER_SMOKE_MODE}' (expected required|advisory|off)"
+    ;;
+esac
 
 code="$(http_code "${BASE_URL}/healthz")"
 [[ "${code}" == "200" ]] || fail "/healthz returned ${code}"
@@ -222,55 +261,66 @@ if [[ -n "${CLASS_CODE}" ]]; then
     HELPER_PAYLOAD="$(printf '{"message":"%s","context":"smoke","topics":"scratch"}' "${HELPER_MESSAGE}")"
   fi
 
-  code=""
-  helper_attempt=1
-  while (( helper_attempt <= HELPER_CHAT_RETRIES )); do
-    if ! code="$(curl "${CURL_FLAGS[@]}" -o "${TMP_HELPER}" -w "%{http_code}" \
-      -c "${COOKIE_JAR}" -b "${COOKIE_JAR}" \
-      -H "Content-Type: application/json" \
-      -H "X-CSRFToken: ${CSRF_TOKEN}" \
-      -H "Referer: ${BASE_URL}/" \
-      --data "${HELPER_PAYLOAD}" \
-      "${BASE_URL}/helper/chat")"; then
-      if (( helper_attempt < HELPER_CHAT_RETRIES )); then
-        echo "[smoke] /helper/chat transport error on attempt ${helper_attempt}/${HELPER_CHAT_RETRIES}; retrying in ${HELPER_CHAT_RETRY_DELAY_SECONDS}s"
-        sleep "${HELPER_CHAT_RETRY_DELAY_SECONDS}"
+  if [[ "${HELPER_SMOKE_MODE}" == "off" ]]; then
+    echo "[smoke] /helper/chat skipped (helper smoke mode=off)"
+  else
+    code=""
+    helper_attempt=1
+    helper_failed=0
+    while (( helper_attempt <= HELPER_CHAT_RETRIES )); do
+      if ! code="$(curl "${CURL_FLAGS[@]}" -o "${TMP_HELPER}" -w "%{http_code}" \
+        -c "${COOKIE_JAR}" -b "${COOKIE_JAR}" \
+        -H "Content-Type: application/json" \
+        -H "X-CSRFToken: ${CSRF_TOKEN}" \
+        -H "Referer: ${BASE_URL}/" \
+        --data "${HELPER_PAYLOAD}" \
+        "${BASE_URL}/helper/chat")"; then
+        if (( helper_attempt < HELPER_CHAT_RETRIES )); then
+          echo "[smoke] /helper/chat transport error on attempt ${helper_attempt}/${HELPER_CHAT_RETRIES}; retrying in ${HELPER_CHAT_RETRY_DELAY_SECONDS}s"
+          sleep "${HELPER_CHAT_RETRY_DELAY_SECONDS}"
+          ((helper_attempt += 1))
+          continue
+        fi
+        helper_failed=1
+        handle_helper_failure "/helper/chat transport error after ${HELPER_CHAT_RETRIES} attempts" || true
+        break
+      fi
+
+      if [[ "${code}" == "200" ]]; then
+        break
+      fi
+
+      helper_retry_reason=""
+      if [[ "${code}" == "502" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"(ollama_error|backend_timeout|backend_malformed_response)"' "${TMP_HELPER}"; then
+        helper_retry_reason="ollama_error"
+      elif [[ "${code}" == "503" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"(busy|backend_unavailable)"' "${TMP_HELPER}"; then
+        helper_retry_reason="busy"
+      fi
+
+      if [[ -n "${helper_retry_reason}" ]] && (( helper_attempt < HELPER_CHAT_RETRIES )); then
+        helper_retry_delay="${HELPER_CHAT_RETRY_DELAY_SECONDS}"
+        if [[ "${helper_retry_reason}" == "busy" ]]; then
+          helper_retry_delay="${HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS}"
+        fi
+        echo "[smoke] /helper/chat returned transient ${helper_retry_reason} on attempt ${helper_attempt}/${HELPER_CHAT_RETRIES}; retrying in ${helper_retry_delay}s"
+        sleep "${helper_retry_delay}"
         ((helper_attempt += 1))
         continue
       fi
-      fail "/helper/chat transport error after ${HELPER_CHAT_RETRIES} attempts"
-    fi
 
-    if [[ "${code}" == "200" ]]; then
+      helper_failed=1
+      handle_helper_failure "/helper/chat returned ${code}: $(cat "${TMP_HELPER}")" || true
       break
+    done
+
+    if [[ "${helper_failed}" == "0" ]]; then
+      [[ "${code}" == "200" ]] || fail "/helper/chat returned ${code}: $(cat "${TMP_HELPER}")"
+      grep -Eq '\"text\"[[:space:]]*:' "${TMP_HELPER}" || fail "/helper/chat response missing text field: $(cat "${TMP_HELPER}")"
+      grep -Eq '"intent"[[:space:]]*:[[:space:]]*"[a-z0-9_-]+"' "${TMP_HELPER}" || fail "/helper/chat response missing intent field: $(cat "${TMP_HELPER}")"
+      grep -Eq '"follow_up_suggestions"[[:space:]]*:[[:space:]]*\[[[:space:]]*"' "${TMP_HELPER}" || fail "/helper/chat response missing non-empty follow_up_suggestions: $(cat "${TMP_HELPER}")"
+      echo "[smoke] /helper/chat OK"
     fi
-
-    helper_retry_reason=""
-    if [[ "${code}" == "502" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"(ollama_error|backend_timeout|backend_malformed_response)"' "${TMP_HELPER}"; then
-      helper_retry_reason="ollama_error"
-    elif [[ "${code}" == "503" ]] && grep -Eq '"error"[[:space:]]*:[[:space:]]*"(busy|backend_unavailable)"' "${TMP_HELPER}"; then
-      helper_retry_reason="busy"
-    fi
-
-    if [[ -n "${helper_retry_reason}" ]] && (( helper_attempt < HELPER_CHAT_RETRIES )); then
-      helper_retry_delay="${HELPER_CHAT_RETRY_DELAY_SECONDS}"
-      if [[ "${helper_retry_reason}" == "busy" ]]; then
-        helper_retry_delay="${HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS}"
-      fi
-      echo "[smoke] /helper/chat returned transient ${helper_retry_reason} on attempt ${helper_attempt}/${HELPER_CHAT_RETRIES}; retrying in ${helper_retry_delay}s"
-      sleep "${helper_retry_delay}"
-      ((helper_attempt += 1))
-      continue
-    fi
-
-    fail "/helper/chat returned ${code}: $(cat "${TMP_HELPER}")"
-  done
-
-  [[ "${code}" == "200" ]] || fail "/helper/chat returned ${code}: $(cat "${TMP_HELPER}")"
-  grep -Eq '\"text\"[[:space:]]*:' "${TMP_HELPER}" || fail "/helper/chat response missing text field: $(cat "${TMP_HELPER}")"
-  grep -Eq '"intent"[[:space:]]*:[[:space:]]*"[a-z0-9_-]+"' "${TMP_HELPER}" || fail "/helper/chat response missing intent field: $(cat "${TMP_HELPER}")"
-  grep -Eq '"follow_up_suggestions"[[:space:]]*:[[:space:]]*\[[[:space:]]*"' "${TMP_HELPER}" || fail "/helper/chat response missing non-empty follow_up_suggestions: $(cat "${TMP_HELPER}")"
-  echo "[smoke] /helper/chat OK"
+  fi
 
   # ---- Student API smoke (bearer token) ----
   API_TOKEN="$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('api_token',''))" "${TMP_JOIN}" 2>/dev/null || true)"

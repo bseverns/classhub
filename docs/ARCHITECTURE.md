@@ -147,6 +147,8 @@ For the remote private-model continuation of that flow, see [PRIVATE_LLM_BACKEND
 - Production images bake service code and curriculum content from repo.
 - Gunicorn serves Django in containers.
 - Local dev uses compose override + bind mounts for fast iteration.
+- Day-1 deploy/test defaults to a bundled CPU-local Ollama service when the helper backend points at `http://ollama:11434`.
+- Private Tailscale/Thundercompute inference remains optional; remote helper validation is advisory by default so the core LMS stack can still deploy and smoke-test independently.
 
 See:
 

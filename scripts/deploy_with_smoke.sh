@@ -7,6 +7,8 @@ MIGRATION_GATE="${ROOT_DIR}/scripts/migration_gate.sh"
 SMOKE_CHECK="${ROOT_DIR}/scripts/smoke_check.sh"
 GOLDEN_SMOKE="${ROOT_DIR}/scripts/golden_path_smoke.sh"
 ENV_CHECK="${ROOT_DIR}/scripts/validate_env_secrets.sh"
+ENSURE_LOCAL_OLLAMA_MODEL="${ROOT_DIR}/scripts/ensure_local_ollama_model.sh"
+COMPOSE_ENV_LIB="${ROOT_DIR}/scripts/lib/compose_env.sh"
 LAST_GOOD_FILE="${ROOT_DIR}/.deploy/last_good_ref"
 SMOKE_LOG_FILE="$(mktemp)"
 trap 'rm -f "${SMOKE_LOG_FILE}"' EXIT
@@ -36,7 +38,15 @@ if [[ ! -x "${ENV_CHECK}" ]]; then
 fi
 
 run_compose() {
-  docker compose -f "${COMPOSE_FILE}" "$@"
+  local compose_args=(-f "${COMPOSE_FILE}")
+  if [[ -f "${COMPOSE_ENV_LIB}" ]]; then
+    # shellcheck disable=SC1090
+    source "${COMPOSE_ENV_LIB}"
+    if llm_uses_local_ollama_compose "${ROOT_DIR}/compose/.env"; then
+      compose_args+=(--profile local-ollama)
+    fi
+  fi
+  docker compose "${compose_args[@]}" "$@"
 }
 
 env_file_value() {
@@ -69,6 +79,9 @@ echo "[deploy] running migration gate"
 
 echo "[deploy] launching production compose (docker-compose.yml only)"
 run_compose up -d --build
+
+echo "[deploy] ensuring local ollama model is ready when compose-local ollama is enabled"
+bash "${ENSURE_LOCAL_OLLAMA_MODEL}" --compose-mode prod
 
 echo "[deploy] applying runtime migrations"
 run_compose exec -T classhub_web python manage.py migrate --noinput
@@ -127,14 +140,22 @@ fi
 echo "[deploy] caddy reload OK"
 
 SMOKE_MODE="${DEPLOY_SMOKE_MODE:-strict}"
+HELPER_SMOKE_MODE="${DEPLOY_HELPER_SMOKE_MODE:-auto}"
+if [[ -f "${COMPOSE_ENV_LIB}" ]]; then
+  # shellcheck disable=SC1090
+  source "${COMPOSE_ENV_LIB}"
+  if [[ "${HELPER_SMOKE_MODE}" == "auto" ]]; then
+    HELPER_SMOKE_MODE="$(helper_smoke_mode_auto "${ROOT_DIR}/compose/.env")"
+  fi
+fi
 if [[ "${SMOKE_MODE}" == "golden" ]]; then
   set +e
-  "${GOLDEN_SMOKE}" --compose-mode prod --skip-up
+  "${GOLDEN_SMOKE}" --compose-mode prod --skip-up --helper-smoke-mode "${HELPER_SMOKE_MODE}"
   smoke_status=$?
   set -e
 elif [[ "${SMOKE_MODE}" == "strict" ]]; then
   set +e
-  "${SMOKE_CHECK}" --strict 2>&1 | tee "${SMOKE_LOG_FILE}"
+  SMOKE_HELPER_MODE="${HELPER_SMOKE_MODE}" "${SMOKE_CHECK}" --strict 2>&1 | tee "${SMOKE_LOG_FILE}"
   smoke_status=$?
   set -e
   if [[ ${smoke_status} -ne 0 ]] && grep -Eq '\[smoke\] FAIL: /join returned (404: \{"error":[[:space:]]*"invalid_code"\}|invalid_code for SMOKE_CLASS_CODE=)' "${SMOKE_LOG_FILE}"; then
@@ -146,7 +167,7 @@ elif [[ "${SMOKE_MODE}" == "strict" ]]; then
   fi
 else
   set +e
-  "${SMOKE_CHECK}"
+  SMOKE_HELPER_MODE="${HELPER_SMOKE_MODE}" "${SMOKE_CHECK}"
   smoke_status=$?
   set -e
 fi

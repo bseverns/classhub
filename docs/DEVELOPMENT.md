@@ -86,6 +86,8 @@ docker compose --profile local-ollama up -d ollama
 docker compose exec ollama ollama pull llama3.2:1b
 ```
 
+The guided scripts (`quickstart_stack.sh`, `system_doctor.sh`, `deploy_with_smoke.sh`, and `golden_path_smoke.sh`) auto-enable the `local-ollama` profile and auto-pull the configured model when `LLM_BASE_URL` points at the bundled Compose service.
+
 If you run Ollama outside of Compose, set `OLLAMA_BASE_URL` in `compose/.env`
 so the container can reach it.
 

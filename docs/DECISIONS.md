@@ -3780,6 +3780,18 @@ Execution ownership and gates:
 - Keeps the runtime image policy machine-checkable in lint/CI so pin drift does not quietly return.
 - Makes the deferred work explicit instead of leaving mutability as an undocumented accident.
 
+## Local CPU Ollama becomes the default deploy/test helper path (2026-04-06)
+
+**Current decision:**
+- Default local and day-1 domain deploy flows to the bundled CPU-local Ollama service when `LLM_BASE_URL` points at the Compose-local endpoint.
+- Auto-enable the `local-ollama` Compose profile in the guided deploy/smoke scripts and auto-pull the configured model before helper checks.
+- Treat remote/private helper validation as advisory by default in doctor/deploy smoke paths, so Tailscale/Thundercompute readiness reports pass/fail without blocking the rest of the LMS stack.
+
+**Why this remains active:**
+- Keeps the default deployment path self-contained and testable on ordinary CPU hosts.
+- Avoids the previous failure mode where local deploys selected Ollama in env but forgot the Compose profile or model pull.
+- Preserves the private remote-GPU path without making Thundercompute/Tailscale readiness a prerequisite for shipping or validating the core site.
+
 ## CSP acceptance-check guardrail (2026-04-04)
 
 **Current decision:**

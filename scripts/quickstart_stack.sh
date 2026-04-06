@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPOSE_DIR="${ROOT_DIR}/compose"
 ENV_FILE="${COMPOSE_DIR}/.env"
 COMPOSE_FILE="${COMPOSE_DIR}/docker-compose.yml"
+COMPOSE_ENV_LIB="${ROOT_DIR}/scripts/lib/compose_env.sh"
 
 MODE=""
 HELPER_BACKEND=""
@@ -26,7 +27,7 @@ Usage: bash scripts/quickstart_stack.sh [options]
 
 Options:
   --mode <local|domain>         Stack mode (default: local)
-  --helper-backend <name>       Helper backend (default local=mock, domain=ollama)
+  --helper-backend <name>       Helper backend (default: ollama)
   --with-admin                  Create/update Django superuser
   --without-admin               Skip superuser setup
   --admin-username <value>      Superuser username (with --with-admin)
@@ -196,11 +197,7 @@ choose_defaults() {
   esac
 
   if [[ -z "${HELPER_BACKEND}" ]]; then
-    if [[ "${MODE}" == "local" ]]; then
-      HELPER_BACKEND="mock"
-    else
-      HELPER_BACKEND="ollama"
-    fi
+    HELPER_BACKEND="ollama"
   fi
 
   WITH_ADMIN="${WITH_ADMIN:-$(prompt_yes_no "Create/update admin account?" "yes")}"
@@ -247,7 +244,13 @@ prepare_env_file() {
   fi
 
   env_set "HELPER_LLM_BACKEND" "${HELPER_BACKEND}" "${ENV_FILE}"
+  env_set "LLM_BACKEND" "${HELPER_BACKEND}" "${ENV_FILE}"
   env_set "HELPER_CONFIG_FILE" "/app/config/helper.config.yaml" "${ENV_FILE}"
+  env_set "COMPOSE_LOCAL_OLLAMA_AUTO" "1" "${ENV_FILE}"
+  if [[ "${HELPER_BACKEND}" == "ollama" ]]; then
+    env_set "LLM_BASE_URL" "http://ollama:11434" "${ENV_FILE}"
+    env_set "OLLAMA_BASE_URL" "http://ollama:11434" "${ENV_FILE}"
+  fi
   if [[ "${HELPER_BACKEND}" == "mock" ]]; then
     if is_placeholder_value "$(env_get "HELPER_MOCK_RESPONSE_TEXT" "${ENV_FILE}")"; then
       env_set "HELPER_MOCK_RESPONSE_TEXT" "Let's work one step at a time. What did you try first?" "${ENV_FILE}"
@@ -276,7 +279,15 @@ seed_required_secrets() {
 }
 
 run_compose() {
-  docker compose -f "${COMPOSE_FILE}" "$@"
+  local compose_args=(-f "${COMPOSE_FILE}")
+  if [[ -f "${COMPOSE_ENV_LIB}" ]]; then
+    # shellcheck disable=SC1090
+    source "${COMPOSE_ENV_LIB}"
+    if llm_uses_local_ollama_compose "${ENV_FILE}"; then
+      compose_args+=(--profile local-ollama)
+    fi
+  fi
+  docker compose "${compose_args[@]}" "$@"
 }
 
 create_or_update_admin() {
@@ -313,6 +324,9 @@ main() {
 
   log "starting stack (docker compose up -d --build)"
   run_compose up -d --build
+
+  log "ensuring local ollama model is ready"
+  bash "${ROOT_DIR}/scripts/ensure_local_ollama_model.sh"
 
   log "running Django migrations"
   run_compose exec -T classhub_web python manage.py migrate --noinput

@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SMOKE_SCRIPT="${ROOT_DIR}/scripts/smoke_check.sh"
 ENV_FILE="${ROOT_DIR}/compose/.env"
+ENSURE_LOCAL_OLLAMA_MODEL="${ROOT_DIR}/scripts/ensure_local_ollama_model.sh"
+COMPOSE_ENV_LIB="${ROOT_DIR}/scripts/lib/compose_env.sh"
 
 COURSE_SLUG="${COURSE_SLUG:-piper_scratch_12_session}"
 CLASS_NAME="${CLASS_NAME:-Smoke Validation Class}"
@@ -20,6 +22,7 @@ UP_TIMEOUT_SECONDS=180
 SMOKE_BASE_URL="${SMOKE_BASE_URL:-}"
 SMOKE_TIMEOUT_SECONDS="${SMOKE_TIMEOUT_SECONDS:-20}"
 SMOKE_INSECURE_TLS="${SMOKE_INSECURE_TLS:-0}"
+HELPER_SMOKE_MODE="${HELPER_SMOKE_MODE:-auto}"
 
 fail() {
   echo "[golden-smoke] FAIL: $*" >&2
@@ -87,6 +90,7 @@ Options:
   --base-url <url>                Override smoke base URL
   --timeout-seconds <seconds>     Curl timeout for smoke_check.sh (default: 20)
   --insecure-tls                  Use curl -k for HTTPS checks
+  --helper-smoke-mode <required|advisory|off|auto>
   --compose-mode <prod|dev>       Compose files (default: prod)
   --skip-up                       Do not run docker compose up -d
   --build                         Build images when bringing up stack
@@ -133,6 +137,10 @@ while [[ $# -gt 0 ]]; do
       SMOKE_INSECURE_TLS=1
       shift
       ;;
+    --helper-smoke-mode)
+      HELPER_SMOKE_MODE="$2"
+      shift 2
+      ;;
     --compose-mode)
       COMPOSE_MODE="$2"
       shift 2
@@ -166,6 +174,9 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
+# shellcheck disable=SC1090
+source "${COMPOSE_ENV_LIB}"
+
 if [[ "${COMPOSE_MODE}" == "prod" ]]; then
   COMPOSE_ARGS=(-f "${ROOT_DIR}/compose/docker-compose.yml")
 elif [[ "${COMPOSE_MODE}" == "dev" ]]; then
@@ -174,6 +185,19 @@ else
   echo "[golden-smoke] invalid --compose-mode '${COMPOSE_MODE}' (expected prod|dev)" >&2
   exit 1
 fi
+
+if llm_uses_local_ollama_compose "${ENV_FILE}"; then
+  COMPOSE_ARGS+=(--profile local-ollama)
+fi
+
+case "${HELPER_SMOKE_MODE}" in
+  auto|required|advisory|off)
+    ;;
+  *)
+    echo "[golden-smoke] invalid --helper-smoke-mode '${HELPER_SMOKE_MODE}' (expected auto|required|advisory|off)" >&2
+    exit 1
+    ;;
+esac
 
 run_compose() {
   docker compose "${COMPOSE_ARGS[@]}" "$@"
@@ -223,6 +247,10 @@ if [[ "${BRING_UP}" == "1" ]]; then
   wait_for_container_state classhub_web healthy
   wait_for_container_state helper_web healthy
   wait_for_container_state classhub_caddy running
+  if llm_uses_local_ollama_compose "${ENV_FILE}"; then
+    wait_for_container_state classhub_ollama running
+    bash "${ENSURE_LOCAL_OLLAMA_MODEL}" --compose-mode "${COMPOSE_MODE}"
+  fi
 fi
 
 echo "[golden-smoke] applying migrations"
@@ -334,6 +362,10 @@ if [[ -z "${TEACHER_SESSION_KEY}" ]]; then
 fi
 
 echo "[golden-smoke] running strict smoke checks"
+EFFECTIVE_HELPER_SMOKE_MODE="${HELPER_SMOKE_MODE}"
+if [[ "${EFFECTIVE_HELPER_SMOKE_MODE}" == "auto" ]]; then
+  EFFECTIVE_HELPER_SMOKE_MODE="$(helper_smoke_mode_auto "${ENV_FILE}")"
+fi
 SMOKE_ENV=(
   "SMOKE_CLASS_CODE=${CLASS_CODE}"
   "SMOKE_TEACHER_USERNAME=${TEACHER_USERNAME}"
@@ -342,6 +374,7 @@ SMOKE_ENV=(
   "SMOKE_TIMEOUT_SECONDS=${SMOKE_TIMEOUT_SECONDS}"
   "SMOKE_INSECURE_TLS=${SMOKE_INSECURE_TLS}"
   "SMOKE_HELPER_MESSAGE=${HELPER_MESSAGE}"
+  "SMOKE_HELPER_MODE=${EFFECTIVE_HELPER_SMOKE_MODE}"
 )
 if [[ -n "${SMOKE_BASE_URL}" ]]; then
   SMOKE_ENV+=("SMOKE_BASE_URL=${SMOKE_BASE_URL}")

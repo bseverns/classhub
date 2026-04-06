@@ -10,6 +10,11 @@ Current production recommendation:
 - use a loopback-bound model server on the GPU node
 - let Homework Helper be the only component that talks to the model
 
+Current deploy/test default:
+
+- use the bundled CPU-local Ollama service for day-1 compose deploys and smoke checks
+- treat remote Tailscale/Thundercompute validation as optional pass/fail evidence, not as a blocker for the rest of the stack
+
 ```mermaid
 flowchart TD
   B[Browsers] --> C[Public ClassHub edge]
@@ -96,6 +101,7 @@ bash scripts/system_doctor.sh
 ```
 
 `system_doctor` now runs a helper-container LLM connectivity check before end-to-end smoke.
+When the backend is remote/private, that backend check and helper smoke path run in advisory mode by default; local CPU-backed helper validation remains required.
 
 ## Logging defaults
 
