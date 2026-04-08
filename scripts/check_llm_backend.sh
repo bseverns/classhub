@@ -22,6 +22,11 @@ EOF
 
 env_file_value() {
   local key="$1"
+  local explicit="${!key-}"
+  if [[ -n "${explicit}" ]]; then
+    echo "${explicit}"
+    return 0
+  fi
   if [[ ! -f "${ENV_FILE}" ]]; then
     echo ""
     return 0
@@ -66,7 +71,7 @@ LLM_ENABLED="${LLM_ENABLED:-$(env_file_value LLM_ENABLED)}"
 LLM_ENABLED="${LLM_ENABLED:-1}"
 BACKEND="${LLM_BACKEND:-$(env_file_value LLM_BACKEND)}"
 if [[ -z "${BACKEND}" ]]; then
-  BACKEND="$(env_file_value HELPER_LLM_BACKEND)"
+  BACKEND="${HELPER_LLM_BACKEND:-$(env_file_value HELPER_LLM_BACKEND)}"
 fi
 BACKEND="${BACKEND:-ollama}"
 

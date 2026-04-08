@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-04",
+  "updated": "2026-04-08",
   "features": {
     "teacher_sso_google": {
       "capability": "Teacher SSO (Google)",
@@ -30,6 +30,12 @@
       "status": "RFC / staged plan",
       "toggle": "`CLASSHUB_TELEMETRY_DATABASE_URL` + `CLASSHUB_TELEMETRY_WRITE_MODE` + `CLASSHUB_TELEMETRY_READ_MODE`",
       "note": "Telemetry split scaffolding and evidence tooling are shipped, but final write-mode cutover remains intentionally deferred."
+    },
+    "remote_helper_compute_control": {
+      "capability": "Staff-only remote helper compute control",
+      "status": "Live (flagged)",
+      "toggle": "`CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1` + `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1`",
+      "note": "Bounded paid remote helper compute stays off by default and is only used when the class-scoped remote state is `ready`."
     }
   },
   "runtime": {
@@ -48,24 +54,69 @@
     },
     "container_scan": {
       "note": "Security CI scans the built Class Hub and Homework Helper images for OS and library vulnerabilities."
+    },
+    "private_llm_topology": {
+      "note": "Serious remote-LLM production posture is documented as: public LMS, private model host, helper-only server-to-server tailnet traffic, and a Headscale-recommended control plane for createMPLS-style deployments."
+    },
+    "remote_helper_compute_control": {
+      "note": "Helper now ships a staff-only bounded remote compute control for class sessions; provider control URLs stay server-side, the remote backend is used only when state is `ready`, and helper requests fall back to local/default mode when remote compute is off, not ready, or unavailable."
     }
   },
   "contracts": {
     "current_state_required_notes": [
       "Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded.",
-      "Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset."
+      "Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.",
+      "Serious remote-LLM production posture is documented as: public LMS, private model host, helper-only server-to-server tailnet traffic, and a Headscale-recommended control plane for createMPLS-style deployments.",
+      "Helper now ships a staff-only bounded remote compute control for class sessions; provider control URLs stay server-side, the remote backend is used only when state is `ready`, and helper requests fall back to local/default mode when remote compute is off, not ready, or unavailable."
     ],
     "security_required_notes": [
       "Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded.",
       "Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset."
     ],
+    "readme_required_snippets": [
+      "[`docs/PRIVATE_LLM_BACKEND.md`](docs/PRIVATE_LLM_BACKEND.md)",
+      "[`docs/HEADSCALE_CONTROL_PLANE.md`](docs/HEADSCALE_CONTROL_PLANE.md)",
+      "[`docs/REMOTE_HELPER_COMPUTE_CONTROL.md`](docs/REMOTE_HELPER_COMPUTE_CONTROL.md)"
+    ],
+    "private_llm_required_snippets": [
+      "Homework Helper is the only component that talks to the model host.",
+      "the tailnet exists only for LLM traffic and related operator/admin troubleshooting",
+      "Headscale is a control-plane concern; ClassHub runtime remains control-plane-agnostic"
+    ],
+    "headscale_required_snippets": [
+      "Headscale coordinates the private path; it does not proxy model traffic, serve the model, or serve the public LMS",
+      "The tailnet is only for LLM traffic and related operator troubleshooting."
+    ],
+    "remote_helper_compute_required_snippets": [
+      "remote helper compute stays off by default",
+      "provider credentials and orchestration APIs stay server-side",
+      "student browsers never see or control this path",
+      "helper requests fall back to local/default compute",
+      "Only `ready` allows remote helper routing."
+    ],
     "canonical_truths_required_snippets": [
       "[DOCS_TRUTH_MECHANISM.md](DOCS_TRUTH_MECHANISM.md)",
-      "`docs/_registry/runtime_contracts.json`"
+      "`docs/_registry/runtime_contracts.json`",
+      "[PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md)",
+      "[HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md)",
+      "[REMOTE_HELPER_COMPUTE_CONTROL.md](REMOTE_HELPER_COMPUTE_CONTROL.md)"
     ],
     "stale_phrases": [
       "Teacher SSO scaffolding (T0): config only, no live auth-path change until OIDC flow is implemented.",
-      "Teacher/admin auth still resolves to Django auth sessions (with optional Google SSO as an entry path)."
+      "Teacher/admin auth still resolves to Django auth sessions (with optional Google SSO as an entry path).",
+      "remote GPU / Tailscale helper path",
+      "Private remote Ollama over Tailscale is the current supported scale-out path.",
+      "Remote GPU over Tailscale",
+      "Production/private Tailscale path:",
+      "Tailscale/Thundercompute"
+    ],
+    "forbidden_snippets": [
+      "public browser traffic over the tailnet",
+      "general site routing over the tailnet",
+      "general-purpose overlay for the rest of the site",
+      "students can activate remote helper compute",
+      "browser talks directly to Thunder",
+      "browser talks directly to the remote provider"
     ]
   }
 }

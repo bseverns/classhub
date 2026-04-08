@@ -45,11 +45,12 @@ Detailed architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 ```mermaid
 flowchart LR
   You["Browser or operator terminal"]
-  Edge["Caddy edge"]
+  Edge["Public LMS edge<br/>lms.creatempls.org"]
   Hub["Class Hub app"]
   Helper["Homework Helper app (/helper/*)"]
   Data["Postgres + Redis + uploads"]
-  Model["Ollama local or OpenAI optional"]
+  Model["Private model host<br/>tailnet-only"]
+  Control["Headscale VPS<br/>control plane only"]
 
   You --> Edge
   Edge --> Hub
@@ -57,6 +58,8 @@ flowchart LR
   Hub --> Data
   Helper --> Data
   Helper --> Model
+  Control -. coordinates LMS/GPU tailnet nodes .- Helper
+  Control -. control plane only .- Model
 ```
 
 ## Quickstart (local)
@@ -71,13 +74,15 @@ Then open:
 - Student join: `http://localhost/`
 - Teacher login: `http://localhost/teach/login` (or `http://localhost/admin/login/` for admin console access)
 
-The quickstart and deploy scripts now default to the bundled CPU-local Ollama path for helper smoke/deploy checks. If you later move the helper to a private Tailscale/Thundercompute backend, that remote validation is treated as advisory by default instead of blocking the rest of the stack.
+The quickstart and deploy scripts now default to the bundled CPU-local Ollama path for helper smoke/deploy checks. If you later move the helper to a private remote model host, the serious production path is a public LMS plus a private tailnet-only model endpoint that only Homework Helper can reach. For createMPLS-style deployments, the recommended control plane for that private path is a self-hosted Headscale server on a tiny Ubuntu VPS. Remote validation remains advisory by default instead of blocking the rest of the stack.
 
 ## Production posture (important)
 
 - Domain/TLS deployments should start from `compose/.env.example.domain`.
 - Production default is strict org boundary: `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`.
 - Local/dev and migration scenarios may temporarily use `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0`.
+- Serious private-LLM production path: keep `lms.creatempls.org` public, keep the model host private, and route only Homework Helper server-to-server traffic over the tailnet.
+- For createMPLS-style deployments, Headscale on a tiny Ubuntu VPS is the recommended tailnet control plane; the ClassHub runtime itself stays control-plane-agnostic and uses `LLM_BASE_URL` + `LLM_API_KEY`.
 
 ## Next docs
 
@@ -85,6 +90,9 @@ The quickstart and deploy scripts now default to the bundled CPU-local Ollama pa
 - Security baseline: [`docs/SECURITY.md`](docs/SECURITY.md)
 - Day-1 deployment checklist: [`docs/DAY1_DEPLOY_CHECKLIST.md`](docs/DAY1_DEPLOY_CHECKLIST.md)
 - Runbook and operations: [`docs/RUNBOOK.md`](docs/RUNBOOK.md)
+- Private LLM topology: [`docs/PRIVATE_LLM_BACKEND.md`](docs/PRIVATE_LLM_BACKEND.md)
+- Headscale operator guide: [`docs/HEADSCALE_CONTROL_PLANE.md`](docs/HEADSCALE_CONTROL_PLANE.md)
+- Remote compute lease control: [`docs/REMOTE_HELPER_COMPUTE_CONTROL.md`](docs/REMOTE_HELPER_COMPUTE_CONTROL.md)
 - Feature flags and maturity: [`docs/FEATURE_MATURITY.md`](docs/FEATURE_MATURITY.md)
 
 ## Repository links

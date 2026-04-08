@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from ...http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
 from ...models import StudentIdentity, Submission
 from ...services.filenames import safe_filename
+from ...services.helper_control import set_remote_compute_state
 from ...services.submission_quota import invalidate_classroom_submission_quota_cache
 from ...services.teacher_roster_class import export_submissions_today_archive
 from .shared_auth import (
@@ -168,6 +169,85 @@ def _helper_reset_success_notice(*, result) -> str:
     return f"{notice}."
 
 
+def teach_set_remote_helper_compute_impl(*, request, class_id: int):
+    classroom = staff_classroom_or_none(request.user, class_id)
+    if not classroom:
+        return HttpResponse("Not found", status=404)
+    if not staff_can_manage_policy(request.user, classroom):
+        return HttpResponse("Forbidden", status=403)
+
+    action = (request.POST.get("action") or "").strip().lower()
+    try:
+        duration_minutes = int(request.POST.get("duration_minutes") or 0)
+    except Exception:
+        duration_minutes = 0
+    result = set_remote_compute_state(
+        class_id=classroom.id,
+        action=action,
+        requested_by=str(getattr(request.user, "username", "") or "").strip(),
+        endpoint_url=str(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_CONTROL_URL", "") or "").strip(),
+        internal_token=str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip(),
+        timeout_seconds=float(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_TIMEOUT_SECONDS", 2.0) or 2.0),
+        duration_minutes=duration_minutes,
+    )
+    if not result.ok:
+        _audit(
+            request,
+            action="class.remote_helper_compute_failed",
+            classroom=classroom,
+            target_type="Class",
+            target_id=str(classroom.id),
+            summary=f"Failed remote helper compute {action or 'update'} for {classroom.name}",
+            metadata={
+                "action_requested": action,
+                "error_code": result.error_code,
+                "status_code": result.status_code,
+                "remaining_minutes": result.remaining_minutes,
+            },
+        )
+        return _safe_internal_redirect(
+            request,
+            _with_notice(
+                _teach_class_path(classroom.id),
+                error=f"Could not update remote helper compute ({result.error_code}).",
+            ),
+            fallback=_teach_class_path(classroom.id),
+        )
+
+    _audit(
+        request,
+        action=f"class.remote_helper_compute_{result.action}",
+        classroom=classroom,
+        target_type="Class",
+        target_id=str(classroom.id),
+        summary=f"Remote helper compute {result.action} for {classroom.name}",
+        metadata={
+            "active": result.active,
+            "active_for_class": result.active_for_class,
+            "use_remote_backend": result.use_remote_backend,
+            "state": result.state,
+            "expires_at": result.expires_at,
+            "remaining_minutes": result.remaining_minutes,
+            "provider_request_id": result.provider_request_id,
+            "status_detail": result.status_detail,
+            "detail": result.detail,
+            "status_code": result.status_code,
+        },
+    )
+    if result.action == "activate":
+        if result.state == "ready":
+            notice = f"Remote helper compute is ready for about {result.remaining_minutes} minute(s)."
+        else:
+            notice = f"Remote helper compute requested. Current state: {result.state or 'requested'}."
+    else:
+        notice = "Remote helper compute is stopping or off. Local/default helper mode remains the baseline."
+    return _safe_internal_redirect(
+        request,
+        _with_notice(_teach_class_path(classroom.id), notice=notice),
+        fallback=_teach_class_path(classroom.id),
+    )
+
+
 @staff_member_required
 @require_POST
 def teach_toggle_lock(request, class_id: int):
@@ -288,6 +368,7 @@ def teach_rotate_code(request, class_id: int):
 __all__ = [
     "teach_export_class_submissions_today",
     "teach_lock_class",
+    "teach_set_remote_helper_compute_impl",
     "teach_reset_helper_conversations_impl",
     "teach_reset_roster",
     "teach_rotate_code",

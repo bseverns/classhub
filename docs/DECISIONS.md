@@ -104,6 +104,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper YAML config layering](#helper-yaml-config-layering)
 - [Helper uses a provider abstraction for private LLM backends (2026-03-28)](#helper-uses-a-provider-abstraction-for-private-llm-backends-2026-03-28)
 - [Private Ollama remains the active remote path; vLLM stays swap-ready (2026-03-28)](#private-ollama-remains-the-active-remote-path-vllm-stays-swap-ready-2026-03-28)
+- [Bounded remote helper compute lease control (2026-04-08)](#bounded-remote-helper-compute-lease-control-2026-04-08)
 - [Production transport hardening](#production-transport-hardening)
 - [Content parse caching](#content-parse-caching)
 - [Admin access 2FA](#admin-access-2fa)
@@ -190,15 +191,33 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Private Ollama remains the active remote path; vLLM stays swap-ready (2026-03-28)
 
 **Current decision:**
-- Treat private remote Ollama over Tailscale as the active first-pass deployment target.
+- Treat private remote Ollama over a host-to-host tailnet as the active first-pass deployment target.
 - Keep vLLM artifacts documented and ready, but position them as the next swap path rather than the current required runtime.
 - Require remote-backend acknowledgement and a direct helper-container connectivity check before full smoke.
 - Keep the GPU node loopback-bound and tailnet-only; browsers never reach it directly.
+- For createMPLS-style production deployments, recommend Headscale on a tiny Ubuntu VPS as the control plane behind that private path while keeping the app runtime control-plane-agnostic.
 
 **Why this remains active:**
 - Matches the current operator reality: the deployment is already using an Ollama distribution.
 - Preserves a boring, low-change path to a private remote model host now, without foreclosing a later move to a cleaner OpenAI-compatible endpoint.
 - Keeps the GPU host replaceable and least-privilege by default.
+
+## Bounded remote helper compute lease control (2026-04-08)
+
+**Current decision:**
+- Keep remote helper compute off by default.
+- Add a staff-only, class-scoped activation lease so teachers/admins can enable expensive remote compute for a bounded live-session window.
+- Gate the capability with `CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1` plus explicit paid-usage acknowledgement via `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1`.
+- Use an explicit remote-compute state model (`off`, `requested`, `starting`, `ready`, `degraded`, `stopping`, `error`) and only route helper traffic remotely when the class state is `ready`.
+- Keep provider credentials and orchestration APIs server-side behind helper internal control endpoints.
+- Keep provider integration behind a small replaceable server-side adapter seam (`thunder_webhook` / generic webhook), not inside view/template logic.
+- Keep student/browser traffic on the public LMS path; the remote compute control is never a student-facing affordance.
+- If the remote path errors during an active lease, fall back to local/default helper compute for the request.
+
+**Why this remains active:**
+- Makes expensive remote GPU capacity cost-aware without turning it into an always-on dependency.
+- Preserves the public LMS boundary while still giving staff a practical session-time control.
+- Keeps orchestration-specific details behind a small auditable seam instead of spreading provider logic through the app.
 
 ## Auth model: student access
 
@@ -3793,12 +3812,12 @@ Execution ownership and gates:
 **Current decision:**
 - Default local and day-1 domain deploy flows to the bundled CPU-local Ollama service when `LLM_BASE_URL` points at the Compose-local endpoint.
 - Auto-enable the `local-ollama` Compose profile in the guided deploy/smoke scripts and auto-pull the configured model before helper checks.
-- Treat remote/private helper validation as advisory by default in doctor/deploy smoke paths, so Tailscale/Thundercompute readiness reports pass/fail without blocking the rest of the LMS stack.
+- Treat remote/private helper validation as advisory by default in doctor/deploy smoke paths, so private tailnet and remote-provider readiness reports pass/fail without blocking the rest of the LMS stack.
 
 **Why this remains active:**
 - Keeps the default deployment path self-contained and testable on ordinary CPU hosts.
 - Avoids the previous failure mode where local deploys selected Ollama in env but forgot the Compose profile or model pull.
-- Preserves the private remote-GPU path without making Thundercompute/Tailscale readiness a prerequisite for shipping or validating the core site.
+- Preserves the private remote-GPU path without making tailnet or remote-provider readiness a prerequisite for shipping or validating the core site.
 
 ## CSP acceptance-check guardrail (2026-04-04)
 

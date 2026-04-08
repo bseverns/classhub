@@ -3,6 +3,11 @@
 compose_env_value() {
   local key="$1"
   local env_file="$2"
+  local explicit="${!key-}"
+  if [[ -n "${explicit}" ]]; then
+    echo "${explicit}"
+    return 0
+  fi
   if [[ ! -f "${env_file}" ]]; then
     echo ""
     return 0

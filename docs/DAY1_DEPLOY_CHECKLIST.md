@@ -49,14 +49,20 @@ flowchart TD
   - `CADDY_HELPER_MAX_BODY` (helper API; default `1MB`)
   - `CLASSHUB_UPLOAD_MAX_MB` (default `200`)
 - Configure LLM backend (default is Ollama; ensure it is running)
-  - If using a remote GPU, keep the browser on the public LMS site and let Homework Helper reach the model host privately over Tailscale:
-    - GPU host: `tailscale serve --bg 443 http://127.0.0.1:11434`
-    - LMS env: `LLM_BASE_URL=https://<gpu-node>.<tailnet>.ts.net`
+  - If using a remote GPU, keep the browser on the public LMS site and let Homework Helper reach the model host privately over a tailnet:
+    - public LMS example: `DOMAIN=lms.creatempls.org`
+    - private model endpoint example: `LLM_BASE_URL=https://llm-gpu.tail.creatempls.org`
+    - recommended control plane for createMPLS-style production: Headscale on a tiny Ubuntu VPS such as `hs.creatempls.org`
     - set `LLM_BACKEND=ollama`
     - set `LLM_API_KEY=<shared proxy bearer token>`
+    - set `HELPER_REMOTE_MODE_ACKNOWLEDGED=1`
     - For remote GPU smoke stability, set `LLM_NUM_CTX=4096` as a starting point
-    - If the GPU host has no `systemd`, run `tailscaled` manually with `--tun=userspace-networking`
+    - Keep the tailnet limited to helper-to-model traffic and related operator/admin troubleshooting only
   - Legacy note: `OLLAMA_BASE_URL` still works as a fallback, but `LLM_*` names are the preferred contract for new deploys.
+  - Optional staff-only remote compute lease control:
+    - keep `CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=0` and `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=0` unless you are intentionally turning on the bounded class-session control
+    - if enabled, configure `REMOTE_LLM_*` plus `HELPER_REMOTE_COMPUTE_ACTIVATE_URL` / `HELPER_REMOTE_COMPUTE_DEACTIVATE_URL` and, ideally, `HELPER_REMOTE_COMPUTE_HEALTHCHECK_URL`
+    - the teacher/admin control stays on `/teach/class/<id>`; students never activate remote compute directly
 - Configure smoke-check credentials in `compose/.env` (for strict mode):
   - `SMOKE_BASE_URL`
   - `SMOKE_CLASS_CODE`
@@ -78,6 +84,7 @@ flowchart TD
   - `bash scripts/system_doctor.sh`
   - Remote GPU operator reference:
     - [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md)
+    - [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md)
 - Manual production compose fallback (if needed):
   - `docker compose -f docker-compose.yml up -d --build`
 - Create first superuser

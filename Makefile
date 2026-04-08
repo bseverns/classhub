@@ -17,6 +17,7 @@ TELEMETRY_WINDOW_DAYS ?= 7
 STABILITY_SKIP_KIOSK ?= 0
 OPS_READINESS_PROFILE ?= baseline
 OPS_READINESS_ENV_FILE ?= compose/.env
+SMOKE_FULL_LOCAL_OLLAMA_MODEL ?= llama3.2:1b
 
 INSECURE_TLS_FLAG :=
 ifeq ($(SMOKE_INSECURE_TLS),1)
@@ -59,6 +60,7 @@ help:
 	@echo "  SMOKE_INSECURE_TLS=0|1"
 	@echo "  SMOKE_INSTALL_BROWSERS=0|1"
 	@echo "  SMOKE_FAIL_IMPACT=minor|moderate|serious|critical"
+	@echo "  SMOKE_FULL_LOCAL_OLLAMA_MODEL=llama3.2:1b"
 	@echo "  STABILITY_RELEASE_DATE=YYYY-MM-DD"
 	@echo "  STABILITY_SKIP_DOCKER_CHECKS=0|1"
 	@echo "  STABILITY_SKIP_KIOSK=0|1"
@@ -84,6 +86,11 @@ smoke-a11y:
 	  $(INSTALL_BROWSERS_FLAG) \
 	  $(BASE_URL_FLAG)
 
+smoke-full: export HELPER_LLM_BACKEND=ollama
+smoke-full: export OLLAMA_BASE_URL=http://ollama:11434
+smoke-full: export OLLAMA_MODEL=$(SMOKE_FULL_LOCAL_OLLAMA_MODEL)
+smoke-full: export HELPER_REMOTE_MODE_ACKNOWLEDGED=0
+smoke-full: export COMPOSE_LOCAL_OLLAMA_AUTO=1
 smoke-full: smoke-golden smoke-a11y
 	@echo "[smoke-full] PASS"
 

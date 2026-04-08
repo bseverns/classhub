@@ -10,6 +10,68 @@
                 <div class="signal-kpi"><strong>{{ helper_signals.compacted_events }}</strong> compacted conversations</div>
                 <div class="signal-kpi">Avg follow-up suggestions <strong>{{ helper_signals.avg_follow_up_suggestions }}</strong></div>
               </div>
+              {% if can_manage_helper_remote_compute %}
+                <div class="signal-panel">
+                  <strong>Remote helper compute</strong>
+                  <p class="muted mini">For live partner-site or on-site class windows only. This path is cost-aware, off by default, and never exposed to student browsers.</p>
+                  {% if helper_remote_compute.ok %}
+                    <p class="muted mini">
+                      State: <strong>{{ helper_remote_compute.state }}</strong>.
+                      {% if helper_remote_compute.state == "ready" and helper_remote_compute.active_for_class %}
+                        Remote helper compute is ready for this class and helper traffic may use it.
+                      {% elif helper_remote_compute.state == "starting" or helper_remote_compute.state == "requested" %}
+                        Remote helper compute is not ready yet. Helper stays on local/default mode until readiness checks pass.
+                      {% elif helper_remote_compute.state == "degraded" %}
+                        Remote helper compute is degraded. Helper is staying on local/default mode.
+                      {% elif helper_remote_compute.state == "stopping" %}
+                        Remote helper compute is shutting down. Helper is returning to local/default mode.
+                      {% elif helper_remote_compute.active and not helper_remote_compute.active_for_class %}
+                        Remote helper compute is currently leased by another class.
+                      {% else %}
+                        Local/default helper compute remains the baseline path.
+                      {% endif %}
+                    </p>
+                    <ul class="signal-list">
+                      <li>Feature enabled: <strong>{% if helper_remote_compute.feature_enabled %}Yes{% else %}No{% endif %}</strong></li>
+                      <li>Paid remote usage acknowledged: <strong>{% if helper_remote_compute.paid_usage_acknowledged %}Yes{% else %}No{% endif %}</strong></li>
+                      <li>Remote backend configured: <strong>{% if helper_remote_compute.backend_configured %}Yes{% else %}No{% endif %}</strong></li>
+                      <li>Control path configured: <strong>{% if helper_remote_compute.control_url_configured %}Yes{% else %}No{% endif %}</strong></li>
+                      <li>Healthcheck configured: <strong>{% if helper_remote_compute.healthcheck_url_configured %}Yes{% else %}No{% endif %}</strong></li>
+                      <li>Helper will use remote backend: <strong>{% if helper_remote_compute.use_remote_backend %}Yes{% else %}No{% endif %}</strong></li>
+                      <li>Provider label: <strong>{{ helper_remote_compute.provider_label|default:"operator_webhook" }}</strong></li>
+                      {% if helper_remote_compute.requested_by %}<li>Requested by: <strong>{{ helper_remote_compute.requested_by }}</strong></li>{% endif %}
+                      {% if helper_remote_compute.expires_at %}<li>Lease ends: <strong>{{ helper_remote_compute.expires_at }}</strong></li>{% endif %}
+                      {% if helper_remote_compute.remaining_minutes %}<li>Remaining window: <strong>{{ helper_remote_compute.remaining_minutes }} minute(s)</strong></li>{% endif %}
+                      {% if helper_remote_compute.auto_stop_on_idle %}<li>Idle auto-stop: <strong>{{ helper_remote_compute.idle_timeout_seconds }} second(s)</strong></li>{% endif %}
+                      {% if helper_remote_compute.status_detail %}<li>Status detail: <strong>{{ helper_remote_compute.status_detail }}</strong></li>{% endif %}
+                      {% if helper_remote_compute.last_error_code %}<li>Last error: <strong>{{ helper_remote_compute.last_error_code }}</strong></li>{% endif %}
+                    </ul>
+                  {% else %}
+                    <p class="muted mini">
+                      Remote helper compute status unavailable{% if helper_remote_compute.error_code %} ({{ helper_remote_compute.error_code }}){% endif %}.
+                    </p>
+                  {% endif %}
+                  <p class="muted mini">Staff-only, server-side, and bounded. Browser traffic still goes to the public LMS, and Homework Helper only uses the remote backend when the state is <strong>ready</strong>.</p>
+                  <div class="btnline btnline--compact">
+                    <form method="post" action="/teach/class/{{ classroom.id }}/remote-helper-compute" class="helper-grid">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="activate" />
+                      <label class="mini" for="remote-compute-duration-{{ classroom.id }}">Activation window</label>
+                      <select id="remote-compute-duration-{{ classroom.id }}" name="duration_minutes">
+                        {% for minutes in helper_remote_compute_duration_choices %}
+                          <option value="{{ minutes }}"{% if minutes == 90 %} selected{% endif %}>{{ minutes }} min</option>
+                        {% endfor %}
+                      </select>
+                      <button type="submit">Request remote helper compute</button>
+                    </form>
+                    <form method="post" action="/teach/class/{{ classroom.id }}/remote-helper-compute">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="deactivate" />
+                      <button type="submit">Stop remote helper compute</button>
+                    </form>
+                  </div>
+                </div>
+              {% endif %}
               {% if helper_signals.total_events %}
                 <div class="signal-grid">
                   <div class="signal-panel">
@@ -38,4 +100,3 @@
             </div>
           </details>
         </div>
-

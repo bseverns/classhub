@@ -51,6 +51,27 @@ trim_spaces() {
   printf '%s' "${raw}"
 }
 
+url_host() {
+  local url="$1"
+  local without_scheme
+  without_scheme="${url#*://}"
+  without_scheme="${without_scheme%%/*}"
+  without_scheme="${without_scheme%%\?*}"
+  without_scheme="${without_scheme%%#*}"
+  printf '%s' "${without_scheme%%:*}"
+}
+
+is_local_llm_url() {
+  local host
+  host="$(to_lower "$(url_host "$1")")"
+  case "${host}" in
+    ""|localhost|127.0.0.1|ollama|classhub_ollama)
+      return 0
+      ;;
+  esac
+  return 1
+}
+
 contains_icase() {
   local haystack="$1"
   local needle="$2"
@@ -289,24 +310,50 @@ if [[ "${LLM_ENABLED}" == "1" && "${HELPER_LLM_BACKEND_LOWER}" == "ollama" ]]; t
     fail "LLM_MODEL or OLLAMA_MODEL is required when HELPER_LLM_BACKEND/LLM_BACKEND=ollama"
   fi
   HELPER_REMOTE_MODE_ACKNOWLEDGED="$(env_file_value HELPER_REMOTE_MODE_ACKNOWLEDGED)"
+  if [[ -z "${HELPER_REMOTE_MODE_ACKNOWLEDGED}" ]]; then
+    HELPER_REMOTE_MODE_ACKNOWLEDGED="$(env_file_value CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED)"
+  fi
   HELPER_REMOTE_MODE_ACKNOWLEDGED="${HELPER_REMOTE_MODE_ACKNOWLEDGED:-0}"
-  if [[ "${DJANGO_DEBUG}" == "0" && "${LLM_OLLAMA_BASE_URL}" == https://*".ts.net"* && "${HELPER_REMOTE_MODE_ACKNOWLEDGED}" != "1" ]]; then
-    fail "HELPER_REMOTE_MODE_ACKNOWLEDGED must be 1 for private remote Ollama over Tailscale in production"
-  fi
-  if [[ "${DJANGO_DEBUG}" == "0" && "${LLM_OLLAMA_BASE_URL}" == http://*".ts.net"* ]]; then
-    fail "Private remote Ollama over Tailscale must use HTTPS (tailscale serve), not http://*.ts.net, in production"
-  fi
-  if [[ "${DJANGO_DEBUG}" == "0" && "${LLM_OLLAMA_BASE_URL}" == https://*".ts.net"* ]]; then
+  if [[ "${DJANGO_DEBUG}" == "0" ]] && ! is_local_llm_url "${LLM_OLLAMA_BASE_URL}"; then
+    if [[ "${HELPER_REMOTE_MODE_ACKNOWLEDGED}" != "1" ]]; then
+      fail "HELPER_REMOTE_MODE_ACKNOWLEDGED must be 1 for a private remote Ollama path in production"
+    fi
+    if [[ "${LLM_OLLAMA_BASE_URL}" != https://* ]]; then
+      fail "Private remote Ollama must use HTTPS for production helper traffic"
+    fi
     LLM_OLLAMA_API_KEY="$(env_file_value LLM_API_KEY)"
     if [[ -z "${LLM_OLLAMA_API_KEY}" ]]; then
       LLM_OLLAMA_API_KEY="$(env_file_value OLLAMA_API_KEY)"
     fi
     if [[ -z "${LLM_OLLAMA_API_KEY}" ]]; then
-      fail "LLM_API_KEY or OLLAMA_API_KEY is required for private remote Ollama over Tailscale in production"
+      fail "LLM_API_KEY or OLLAMA_API_KEY is required for a private remote Ollama path in production"
     fi
     if [[ "${#LLM_OLLAMA_API_KEY}" -lt 20 ]] || is_unsafe_secret "${LLM_OLLAMA_API_KEY}"; then
-      fail "LLM_API_KEY or OLLAMA_API_KEY must be a strong shared secret for private remote Ollama over Tailscale in production"
+      fail "LLM_API_KEY or OLLAMA_API_KEY must be a strong shared secret for a private remote Ollama path in production"
     fi
+  fi
+fi
+
+HELPER_REMOTE_COMPUTE_ENABLED="$(env_file_value HELPER_REMOTE_COMPUTE_ENABLED)"
+if [[ -z "${HELPER_REMOTE_COMPUTE_ENABLED}" ]]; then
+  HELPER_REMOTE_COMPUTE_ENABLED="$(env_file_value CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED)"
+fi
+HELPER_REMOTE_COMPUTE_ENABLED="${HELPER_REMOTE_COMPUTE_ENABLED:-0}"
+if [[ "$(to_lower "${HELPER_REMOTE_COMPUTE_ENABLED}")" == "1" || "$(to_lower "${HELPER_REMOTE_COMPUTE_ENABLED}")" == "true" ]]; then
+  require_nonempty "REMOTE_LLM_BASE_URL"
+  require_nonempty "REMOTE_LLM_API_KEY"
+  require_nonempty "REMOTE_LLM_MODEL"
+  require_nonempty "HELPER_REMOTE_COMPUTE_PROVIDER_ADAPTER"
+  require_nonempty "HELPER_REMOTE_COMPUTE_ACTIVATE_URL"
+  require_nonempty "HELPER_REMOTE_COMPUTE_DEACTIVATE_URL"
+  require_nonempty "HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL"
+  require_nonempty "HELPER_INTERNAL_REMOTE_COMPUTE_CONTROL_URL"
+  require_strong_secret "HELPER_REMOTE_COMPUTE_CONTROL_API_KEY" 20
+  if [[ "${DJANGO_DEBUG}" == "0" && "$(env_file_value REMOTE_LLM_BASE_URL)" != https://* ]]; then
+    fail "REMOTE_LLM_BASE_URL must use HTTPS when HELPER_REMOTE_COMPUTE_ENABLED=1 in production"
+  fi
+  if [[ "${DJANGO_DEBUG}" == "0" && "${HELPER_REMOTE_MODE_ACKNOWLEDGED}" != "1" ]]; then
+    fail "HELPER_REMOTE_MODE_ACKNOWLEDGED must be 1 when HELPER_REMOTE_COMPUTE_ENABLED=1 in production"
   fi
 fi
 

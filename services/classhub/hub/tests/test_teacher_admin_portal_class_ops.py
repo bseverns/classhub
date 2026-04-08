@@ -1383,3 +1383,96 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertIsNotNone(event)
         self.assertEqual(event.classroom_id, classroom.id)
         self.assertEqual(event.metadata.get("error_code"), "helper_unreachable")
+
+    @patch("hub.views.teacher_parts.roster_class_controls.set_remote_compute_state")
+    def test_teacher_can_activate_remote_helper_compute(self, set_remote_compute_mock):
+        classroom = Class.objects.create(name="Partner Session", join_code="GPU12345")
+        set_remote_compute_mock.return_value = HelperRemoteComputeActionResult(
+            ok=True,
+            action="activate",
+            active=True,
+            active_for_class=True,
+            class_id=classroom.id,
+            requested_by=self.staff.username,
+            expires_at="2099-04-08T13:30:00+00:00",
+            remaining_minutes=90,
+            provider_request_id="req-remote-1",
+            detail="warming",
+            status_code=200,
+        )
+
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/remote-helper-compute",
+            {"action": "activate", "duration_minutes": "90"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("notice=", resp["Location"])
+
+        event = AuditEvent.objects.filter(action="class.remote_helper_compute_activate").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.classroom_id, classroom.id)
+        self.assertEqual(event.metadata.get("remaining_minutes"), 90)
+
+    @patch("hub.views.teacher_parts.roster_class_controls.set_remote_compute_state")
+    def test_teacher_remote_helper_compute_failure_redirects_with_error(self, set_remote_compute_mock):
+        classroom = Class.objects.create(name="Partner Session Fail", join_code="GPU54321")
+        set_remote_compute_mock.return_value = HelperRemoteComputeActionResult(
+            ok=False,
+            action="activate",
+            error_code="remote_compute_control_not_configured",
+            status_code=503,
+        )
+
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/remote-helper-compute",
+            {"action": "activate", "duration_minutes": "90"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("error=", resp["Location"])
+
+    @patch("hub.views.teacher_parts.roster_class_dashboard.fetch_remote_compute_status")
+    def test_teach_class_dashboard_shows_remote_helper_compute_panel_for_policy_managers(self, status_mock):
+        classroom = Class.objects.create(name="Partner Session Status", join_code="GPU00001")
+        status_mock.return_value = HelperRemoteComputeStatusResult(
+            ok=True,
+            feature_enabled=True,
+            paid_usage_acknowledged=True,
+            backend_configured=True,
+            active=True,
+            active_for_class=True,
+            use_remote_backend=False,
+            state="starting",
+            class_id=classroom.id,
+            requested_by=self.staff.username,
+            remaining_minutes=60,
+            provider_label="thunder-orchestration",
+            control_url_configured=True,
+            healthcheck_url_configured=True,
+            status_detail="Booting remote helper node.",
+        )
+
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Remote helper compute")
+        self.assertContains(resp, "Request remote helper compute")
+        self.assertContains(resp, "State: <strong>starting</strong>.", html=False)
+        self.assertContains(resp, "Helper will use remote backend: <strong>No</strong>", html=False)
+
+    @patch("hub.views.teacher_parts.roster_class_dashboard.staff_can_manage_policy", return_value=False)
+    @patch("hub.views.teacher_parts.roster_class_dashboard.fetch_remote_compute_status")
+    def test_teach_class_dashboard_hides_remote_helper_compute_panel_without_policy_capability(
+        self,
+        status_mock,
+        _manage_policy_mock,
+    ):
+        classroom = Class.objects.create(name="Partner Session Hidden", join_code="GPU00002")
+        status_mock.return_value = HelperRemoteComputeStatusResult(ok=True, state="ready", use_remote_backend=True)
+
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, "Remote helper compute")
+        status_mock.assert_not_called()

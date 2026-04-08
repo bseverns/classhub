@@ -1,64 +1,128 @@
 # Private LLM Backend
 
-This document describes the first-pass private model architecture for ClassHub.
+This is the canonical topology doc for the serious private-LLM production path.
 
-Current production recommendation:
+For the createMPLS deployment at `lms.creatempls.org`, the expected mental model is:
 
-- keep ClassHub public
-- keep the model host private
-- use Tailscale host-to-host only
-- use a loopback-bound model server on the GPU node
-- let Homework Helper be the only component that talks to the model
+- `lms.creatempls.org` remains public
+- the model host remains private
+- browsers never talk to the model host directly
+- Homework Helper is the only component that talks to the model host
+- private LLM traffic is host-to-host only
+- the tailnet exists only for LLM traffic and related operator/admin troubleshooting
+- for this deployment class, the recommended control plane is a self-hosted Headscale server on a tiny Ubuntu VPS
+- Headscale is a control-plane concern; ClassHub runtime remains control-plane-agnostic
 
 Current deploy/test default:
 
 - use the bundled CPU-local Ollama service for day-1 compose deploys and smoke checks
-- treat remote Tailscale/Thundercompute validation as optional pass/fail evidence, not as a blocker for the rest of the stack
+- treat remote private-backend validation as optional pass/fail evidence, not as a blocker for the rest of the stack
 
 ```mermaid
 flowchart TD
-  B[Browsers] --> C[Public ClassHub edge]
+  B[Browsers] -->|HTTPS| C[Public LMS edge<br/>lms.creatempls.org]
   C --> H[Homework Helper Django]
-  H -->|HTTPS over Tailscale| T[Tailnet-only endpoint]
+  H -->|HTTPS over tailnet| T[Tailnet-only endpoint]
   T --> P[Private auth proxy]
   P --> M[Model server on 127.0.0.1]
+  HS[Headscale VPS<br/>hs.creatempls.org<br/>control plane only]
+
+  HS -. coordinates LMS and GPU nodes .- H
+  HS -. does not proxy request traffic .- M
 ```
 
 ## End-to-end request path
 
 The student-facing flow is:
 
-1. A student opens a lesson or class page in Class Hub.
+1. A student opens a lesson or class page on the public LMS.
 2. The helper widget submits to `/helper/chat` on the same public LMS site.
 3. Homework Helper applies policy, redaction, scope checks, and rate limits.
-4. Homework Helper reaches the remote model host over Tailscale, not over the public internet.
+4. Homework Helper reaches the remote model host over the private tailnet, not over the public internet.
 5. The GPU-side auth proxy forwards only authorized requests to the loopback-bound model server.
 6. The model response returns to Homework Helper, then back into the student LMS view.
 
-This is the practical topology to keep in mind:
+Keep this topology in mind:
 
 - browser -> public LMS
-- LMS helper service -> Tailscale
-- Tailscale -> private GPU host
-- private GPU host -> Tailscale -> LMS helper
-- LMS renders the response back into the student page
+- public LMS -> Homework Helper
+- Homework Helper -> private tailnet
+- private tailnet -> private GPU host
+- GPU host -> private tailnet -> Homework Helper
+- Homework Helper -> public LMS response
 
 See also [ARCHITECTURE.md](ARCHITECTURE.md) for the broader Class Hub / Homework Helper split.
+
+## Traffic boundary
+
+Public browser traffic:
+
+- goes to `lms.creatempls.org`
+- stays on the public LMS path
+- must never use the tailnet
+
+Private tailnet traffic:
+
+- goes only between the LMS host and the private model host
+- exists only for LLM traffic and related operator/admin troubleshooting
+- must not become general site routing or a general-purpose overlay network
 
 ## Why this boundary exists
 
 - Student and teacher browsers never reach the GPU node directly.
+- Homework Helper is the only component that talks to the model host.
 - The helper can redact obvious identifiers before upstream calls.
 - The LMS keeps the policy boundary, request logs, and classroom context.
 - The GPU node is treated as replaceable compute, not the source of truth.
+- The Headscale VPS stays small and stable because it only coordinates the private path.
+
+## Control plane recommendation
+
+For createMPLS-style production deployments, recommend:
+
+- a self-hosted Headscale server on a tiny Ubuntu VPS
+- a separate public hostname such as `hs.creatempls.org`
+- only the LMS host and GPU host joined by default
+
+Important:
+
+- Headscale coordinates the private path
+- Headscale does not carry request traffic
+- Headscale is not the model server
+- Headscale is not the public LMS edge
+
+The ClassHub runtime stays agnostic here. It only depends on:
+
+- `LLM_BASE_URL`
+- `LLM_API_KEY`
+- `LLM_BACKEND`
+- helper-side probing from the LMS host
+
+## Bounded remote compute activation
+
+For expensive remote GPU/provider capacity, the repo now supports a bounded staff-only activation lease:
+
+- remote helper compute stays off by default
+- a teacher/admin can activate it for a live class window from `/teach/class/<id>`
+- the intended use is a partner-site or on-site class/session window, not a permanent global mode
+- the control call stays server-side from ClassHub to Homework Helper to your orchestration URL
+- provider credentials and orchestration APIs stay server-side
+- student browsers never get a remote-compute control affordance
+- the helper only routes to the remote backend when the lease state is `ready`
+- `requested`, `starting`, `degraded`, `stopping`, and `error` all stay on local/default helper compute
+- if the remote path fails during an active lease, helper requests fall back to local/default compute
+
+Reference:
+
+- [REMOTE_HELPER_COMPUTE_CONTROL.md](REMOTE_HELPER_COMPUTE_CONTROL.md)
 
 ## Current backend modes
 
 - `LLM_BACKEND=ollama`
   - current active path for private Ollama distributions
-  - can use `tailscale serve` plus a local Caddy bearer-token wrapper
+  - can use a tailnet-only HTTPS endpoint plus a local Caddy bearer-token wrapper
 - `LLM_BACKEND=openai_compatible`
-  - future path for vLLM or another OpenAI-compatible private server
+  - swap-ready path for vLLM or another OpenAI-compatible private server
 - `LLM_BACKEND=mock`
   - deterministic local/test path only
 
@@ -66,10 +130,14 @@ Legacy `HELPER_LLM_BACKEND` remains supported, but `LLM_*` env names are now the
 
 ## LMS env block
 
+Example separation between public LMS and private model endpoint:
+
 ```bash
+DOMAIN=lms.creatempls.org
+
 LLM_ENABLED=1
 LLM_BACKEND=ollama
-LLM_BASE_URL=https://llm-gpu.example-tail.ts.net
+LLM_BASE_URL=https://llm-gpu.tail.creatempls.org
 LLM_API_KEY=REPLACE_ME_STRONG
 LLM_MODEL=llama3.2:3b
 LLM_TIMEOUT_SECONDS=30
@@ -79,14 +147,17 @@ LLM_TEMPERATURE=0.2
 LLM_LOG_PROMPT_CONTENT=0
 LLM_REDACTION_ENABLED=1
 LLM_ALLOWED_ACTOR_TYPES=student,staff
-HELPER_REMOTE_MODE_ACKNOWLEDGED=1
+
+# Only for deployments that intentionally enable bounded paid remote compute
+CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1
+CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1
 ```
 
 If you are still using `OLLAMA_BASE_URL`, it remains supported as a compatibility fallback, but new deployments should prefer `LLM_BASE_URL`.
 
 ## Health and smoke path
 
-Direct backend probe:
+Direct backend probe from the LMS host:
 
 ```bash
 cd /srv/lms/app
@@ -100,7 +171,7 @@ cd /srv/lms/app
 bash scripts/system_doctor.sh
 ```
 
-`system_doctor` now runs a helper-container LLM connectivity check before end-to-end smoke.
+`system_doctor` runs a helper-container LLM connectivity check before end-to-end smoke.
 When the backend is remote/private, that backend check and helper smoke path run in advisory mode by default; local CPU-backed helper validation remains required.
 
 ## Logging defaults
@@ -149,7 +220,7 @@ Replace:
 
 1. build a fresh GPU node
 2. restore `/etc/classhub/llm-server.env`
-3. re-enable Tailscale + model service + proxy
+3. re-enable tailnet client + model service + proxy
 4. rerun `bash scripts/check_llm_backend.sh --probe-chat`
 5. keep LMS config unchanged if hostname/key remain the same
 
@@ -158,7 +229,7 @@ Replace:
 Fast classifications:
 
 - `dns_resolution_failed`
-  - Tailscale / MagicDNS / Serve hostname mismatch
+  - tailnet DNS or private endpoint hostname mismatch
 - `auth_error`
   - LMS `LLM_API_KEY` and proxy key diverged
 - `upstream_unavailable`
@@ -170,10 +241,12 @@ Fast classifications:
 
 The operator runbook and GPU-host artifacts live in:
 
-- `ops/llm-server/README.md` (in repo root, outside docs site)
+- [RUNBOOK.md](RUNBOOK.md)
+- [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md)
+- `ops/llm-server/README.md`
 
 ## Known limits
 
-- The current production-ready path is private Ollama over Tailscale with a small auth proxy, not a full service-mesh identity story.
+- The current production-ready path is a private model endpoint behind a tailnet-only HTTPS hop with a small auth proxy, not a full service-mesh identity story.
 - Helper-side redaction is intentionally minimal and pattern-based; it reduces obvious leakage but does not make arbitrary free-text prompts safe by itself.
 - Public helper health checks no longer expose the private backend URL, but operator probes still need direct shell access on the LMS host.

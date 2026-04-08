@@ -132,6 +132,7 @@ Add these bullets to the release summary when shipped:
 - Helper is a separate service routed behind `/helper/*`.
 - Requests are constrained (`1MB`) and rate limited.
 - Helper scope tokens constrain context; events record access metadata, not prompt content.
+- When a remote/private model backend is used, public LMS browser traffic stays on the public domain and only Homework Helper server-to-server traffic uses the private tailnet path.
 
 ### Reproducibility
 - Core infra images are pinned in compose where possible (`Caddy`, `Postgres`, `Redis`).

@@ -8,7 +8,8 @@ The helper service is a Django app that exposes:
 - `GET /helper/internal/rag-status` (token-protected internal evidence/status contract)
 
 By default, the helper is wired to a local LLM server (Ollama) for self-hosted reliability and predictable costs.
-Private remote Ollama over Tailscale is the current supported scale-out path.
+Private remote Ollama over a host-to-host tailnet is the current supported scale-out path.
+For createMPLS-style deployments, the recommended control plane behind that path is Headscale on a tiny Ubuntu VPS.
 OpenAI remains an explicit development/future path via the **Responses API** and must be intentionally acknowledged before use.
 
 ```mermaid
@@ -191,13 +192,14 @@ For hosted or remote Ollama deployments, set `OLLAMA_NUM_CTX` explicitly when
 the model's default context window is too large for your runtime. A value like
 `4096` is a practical starting point for smoke checks and short classroom hints.
 
-### Ollama (remote GPU over Tailscale Serve)
+### Ollama (remote GPU over private tailnet)
 
 Recommended production pattern:
-- keep Tailscale host-managed, not in `docker-compose.yml`
+- keep the tailnet client host-managed, not in `docker-compose.yml`
 - run Ollama on the GPU host
-- publish it privately with `tailscale serve`
-- point Class Hub at the GPU host's MagicDNS HTTPS URL
+- publish it privately as a tailnet-only HTTPS endpoint
+- point Class Hub at the GPU host's private HTTPS hostname
+- for createMPLS-style deployments, recommend Headscale as the control plane behind that private path
 
 Why this is the preferred remote pattern:
 - keeps the app Compose stack least-privilege
@@ -234,7 +236,7 @@ LMS host env example:
 ```bash
 LLM_ENABLED=1
 LLM_BACKEND=ollama
-LLM_BASE_URL=https://gpu-ollama.example-tail.ts.net
+LLM_BASE_URL=https://llm-gpu.tail.creatempls.org
 LLM_API_KEY=REPLACE_ME_STRONG
 LLM_MODEL=llama3.2:3b
 LLM_TIMEOUT_SECONDS=45
@@ -242,15 +244,15 @@ LLM_NUM_CTX=4096
 LLM_MAX_TOKENS=64
 HELPER_REMOTE_MODE_ACKNOWLEDGED=1
 
-HELPER_RAG_EMBED_BASE_URL=https://gpu-ollama.example-tail.ts.net
+HELPER_RAG_EMBED_BASE_URL=https://llm-gpu.tail.creatempls.org
 HELPER_RAG_EMBED_MODEL=nomic-embed-text
 ```
 
 Verification flow:
 
 ```bash
-curl https://gpu-ollama.example-tail.ts.net/api/tags
-curl --max-time 60 https://gpu-ollama.example-tail.ts.net/api/chat \
+curl https://llm-gpu.tail.creatempls.org/api/tags
+curl --max-time 60 https://llm-gpu.tail.creatempls.org/api/chat \
   -H 'Content-Type: application/json' \
   -H 'User-Agent: ClassHub-HomeworkHelper/1.0' \
   --data '{"model":"llama3.2:3b","messages":[{"role":"system","content":"Be brief."},{"role":"user","content":"Give one short Scratch hint about moving a sprite."}],"stream":false,"options":{"num_ctx":4096,"num_predict":64}}'

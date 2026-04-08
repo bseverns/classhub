@@ -19,14 +19,18 @@ flowchart TD
   H --> R[(Redis db1)]
 
   W --> F[(Local upload volume<br/>/uploads)]
-  H --> L[LLM backend<br/>mock, local, or remote]
+  H --> L[LLM backend<br/>mock, local, or private remote]
+  HS[Headscale VPS<br/>control plane only]
+
+  HS -. coordinates tailnet membership when remote/private LLM is enabled .- H
+  HS -. control plane only .- L
 
   M[(MinIO)] -. reserved / optional .- W
 ```
 
 ## End-to-end learner/helper path
 
-In the current remote-GPU deployment, the browser only talks to the public LMS edge. The model host stays private and tailnet-only.
+In the current remote-GPU deployment, the browser only talks to the public LMS edge. The model host stays private and tailnet-only. Homework Helper is the only component that talks to that private endpoint.
 
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 18, "rankSpacing": 20, "defaultRenderer": "elk"}}}%%
@@ -43,15 +47,22 @@ flowchart TB
     TS --> AP --> GPU
   end
 
-  HH -->|HTTPS over Tailscale| TS
+  HS[Headscale VPS<br/>control plane only]
+
+  HH -->|HTTPS over tailnet| TS
+  HS -. coordinates LMS/GPU nodes .- HH
+  HS -. does not carry request traffic .- GPU
 ```
 
 Key points:
 
 - Browsers never connect to the GPU host directly.
+- Homework Helper is the only component that talks to the model host.
 - The helper request still appears inside the LMS page, but the model hop happens server-to-server from Homework Helper.
 - Responses return along the same path; the reverse hop is omitted from the diagram to keep it readable in-flow.
 - Class Hub remains the policy and session boundary for the learner-visible experience.
+- The tailnet exists only for LLM traffic and related operator troubleshooting, not for normal browser traffic and not for general site routing.
+- For createMPLS-style production deployments, the recommended control plane for that private path is a self-hosted Headscale server on a tiny Ubuntu VPS.
 - If the remote model host is down, Class Hub pages still load; only helper responses degrade.
 
 ## Trust boundaries (Map A)
@@ -78,7 +89,8 @@ flowchart TB
 
   subgraph Z3["Optional External Services"]
     YT["YouTube-nocookie embeds"]
-    REM["Private LLM node over Tailscale"]
+    REM["Private LLM node<br/>tailnet-only data plane"]
+    HS["Headscale VPS<br/>control plane only"]
   end
 
   S -->|HTTPS| C
@@ -96,7 +108,8 @@ flowchart TB
   HH -->|metadata event POST| CH
 
   CH -.-> YT
-  HH -. optional .-> REM
+  HH -. optional helper-only model traffic .-> REM
+  HH -. optional control-plane enrollment only .-> HS
 ```
 
 ## What routes where
@@ -130,6 +143,8 @@ For the remote private-model continuation of that flow, see [PRIVATE_LLM_BACKEND
 - Owns helper chat policy, prompt shaping, and model backends.
 - Uses Postgres + Redis for auth/session/rate-limit integration.
 - Uses Ollama by default; private remote Ollama/vLLM are supported through the helper provider layer.
+- Private remote deployment stays control-plane-agnostic at runtime: the app uses `LLM_BASE_URL` and `LLM_API_KEY`, while operators may use Tailscale or Headscale to coordinate the private host-to-host path.
+- Owns the bounded remote-compute lease control for expensive private helper backends; the teacher/admin surface can request activation, but provider credentials and orchestration APIs remain server-side.
 - Runtime behavior is resolved through explicit contracts:
   - scope/context envelope (`engine/context_envelope.py`)
   - policy bundle (`engine/runtime_config.py`)
@@ -148,7 +163,26 @@ For the remote private-model continuation of that flow, see [PRIVATE_LLM_BACKEND
 - Gunicorn serves Django in containers.
 - Local dev uses compose override + bind mounts for fast iteration.
 - Day-1 deploy/test defaults to a bundled CPU-local Ollama service when the helper backend points at `http://ollama:11434`.
-- Private Tailscale/Thundercompute inference remains optional; remote helper validation is advisory by default so the core LMS stack can still deploy and smoke-test independently.
+- Private remote inference remains optional; remote helper validation is advisory by default so the core LMS stack can still deploy and smoke-test independently.
+- For createMPLS-style production use, the recommended serious path is a public LMS plus a private tailnet-only model endpoint coordinated by Headscale on a tiny Ubuntu VPS.
+
+## Staff activation path for remote compute
+
+```mermaid
+flowchart LR
+  Staff["Teacher/Admin"]
+  LMS["ClassHub /teach/class/<id>"]
+  Helper["Homework Helper internal control"]
+  Ops["Server-side orchestration URL"]
+  Remote["Remote helper compute"]
+
+  Staff --> LMS
+  LMS --> Helper
+  Helper --> Ops
+  Ops --> Remote
+```
+
+This path is staff-only and server-side after the initial teacher/admin action. It is not a student/browser feature.
 
 See:
 

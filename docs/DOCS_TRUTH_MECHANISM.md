@@ -7,6 +7,9 @@ This page explains the narrow machine-checkable docs spine used to keep high-sig
 1. Update `docs/_registry/runtime_contracts.json` when a shipped status or repo default posture changes.
 2. Update the canonical docs that mirror those claims:
    - [CURRENT_STATE.md](CURRENT_STATE.md)
+   - [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md)
+   - [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md)
+   - [REMOTE_HELPER_COMPUTE_CONTROL.md](REMOTE_HELPER_COMPUTE_CONTROL.md)
    - [FEATURE_MATURITY.md](FEATURE_MATURITY.md)
    - [SECURITY.md](SECURITY.md)
    - [CANONICAL_TRUTHS.md](CANONICAL_TRUTHS.md)
@@ -21,6 +24,7 @@ The registry is intentionally small. It tracks only:
 - selected feature statuses that are easy to misstate,
 - a few policy-sensitive runtime defaults,
 - short operator-facing notes that previously drifted across multiple docs.
+- the high-signal private LLM topology and remote helper compute control claims that new operators need to understand quickly.
 
 It is not a full docs build system and it is not meant to replace narrative docs.
 

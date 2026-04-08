@@ -5,7 +5,7 @@ This directory contains operational tools, CI guardrails, and quality gates for 
 These tools are designed to be run from the repository root: `bash scripts/script_name.sh`.
 
 Operator shortcut:
-- `make smoke-full` runs golden stack smoke (`system_doctor --smoke-mode golden`) and accessibility smoke in one command.
+- `make smoke-full` runs golden stack smoke plus accessibility smoke against the local Ollama baseline, even if `compose/.env` is pointed at a remote/private helper backend.
 - `make ops-readiness` runs runtime-lock + CSP rollout contract + teach-class contracts + docs/inventory/backlog guards in one command (`OPS_READINESS_PROFILE=baseline|release`, `OPS_READINESS_ENV_FILE=compose/.env`).
 
 ## Core Operations & Deployment
@@ -16,7 +16,7 @@ Operator shortcut:
 | `quickstart_stack.sh` | Guided one-command stack bootstrap (env prep, compose up, migrations, optional admin + demo + doctor). |
 | `bootstrap_day1.sh` | Day-1 server provisioning tool (installs Docker, configures users, structure). |
 | `migration_gate.sh` | CI/CD gate ensuring uncommitted or failed Django migrations block deployment. |
-| `validate_env_secrets.sh`| Validates `.env` secrets for production readiness (catches unescaped characters). |
+| `validate_env_secrets.sh`| Validates `.env` secrets and operator contracts for production readiness, including private remote LLM posture plus flagged remote-helper-compute gates (`CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED` / acknowledgement / bridge URLs). |
 | `repo_hygiene_check.sh` | Ensures local artifacts (sqlite, venvs) aren't accidentally tracked before push. |
 
 ## Backups & Data Management
@@ -88,7 +88,7 @@ Operator shortcut:
 | `check_i18n_family_visible_contract.py` | Enforces bounded localization contracts for family-visible routes (`/student` + `/teach?portal_mode=day`) across docs, tests, templates, and required Spanish/Somali msgids. |
 | `check_press_capture_backlog_contract.py` | Enforces press/screenshot backlog governance contracts (bounded backlog size, ownership/target metadata, and docs linkage markers). |
 | `check_runtime_policy_lock.py` | Validates runtime lock posture with explicit profiles: `baseline` (safe/default env contract) and `release` (strict closeout lock values). |
-| `check_docs_truth.py` | Verifies high-signal docs claims (registry-backed status notes + risk-register metrics + screenshot tracker truth) stay in sync with repo state. |
+| `check_docs_truth.py` | Verifies high-signal docs claims (registry-backed status notes, private LLM + remote-compute topology/control docs, stale wording bans, runbook/troubleshooting operator wording, risk-register metrics, and screenshot tracker truth) stay in sync with repo state. |
 
 ## LLM / AI Helper Tooling
 | Script | Intent |

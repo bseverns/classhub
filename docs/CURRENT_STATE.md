@@ -1,4 +1,4 @@
-# Current State (April 4, 2026)
+# Current State (April 8, 2026)
 
 ## Summary
 This page is the live snapshot of what ClassHub currently ships on `main`.
@@ -15,6 +15,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Homework Helper runs as a separate Django service behind `/helper/*`.
 - Homework Helper supports optional bounded local curriculum RAG (pgvector) with curriculum-only retrieval scope.
 - Helper exposes an internal RAG posture contract at `/helper/internal/rag-status` (token-protected) for ClassHub operator evidence panels.
+- Helper now ships a staff-only bounded remote compute control for class sessions; provider control URLs stay server-side, the remote backend is used only when state is `ready`, and helper requests fall back to local/default mode when remote compute is off, not ready, or unavailable.
 - Helper classroom-quality eval tooling is live (`scripts/run_helper_classroom_eval.sh` + classroom prompt pack in `services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl`).
 - Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts).
 - Teacher syllabus zip import now maps session-prefixed support images into lesson assets.
@@ -44,6 +45,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
 - System validation command: `bash scripts/validate_env_secrets.sh`.
 - System validation command: `bash scripts/system_doctor.sh --smoke-mode golden`.
+- Serious remote-LLM production posture is documented as: public LMS, private model host, helper-only server-to-server tailnet traffic, and a Headscale-recommended control plane for createMPLS-style deployments.
 
 ## Current product posture
 - Privacy-forward default: minimal student identity model.

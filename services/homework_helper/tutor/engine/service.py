@@ -262,9 +262,11 @@ def handle_chat(
     policy_bundle = resolve_policy_bundle()
     strictness = policy_bundle.strictness
     scope_mode = policy_bundle.scope_mode
-    if deps.llm_backend_requires_acknowledgement(backend) and not bool(
-        getattr(settings, "HELPER_REMOTE_MODE_ACKNOWLEDGED", False)
-    ):
+    remote_mode_acknowledged = bool(getattr(settings, "HELPER_REMOTE_MODE_ACKNOWLEDGED", False)) or deps.env_bool(
+        "HELPER_REMOTE_MODE_ACKNOWLEDGED",
+        False,
+    )
+    if deps.llm_backend_requires_acknowledgement(backend) and not remote_mode_acknowledged:
         deps.log_chat_event(
             "warning",
             "remote_backend_not_acknowledged",

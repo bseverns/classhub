@@ -27,6 +27,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 - A self-hosted learning hub for classes, modules, and lesson materials.
 - A simple student join flow (`class code + pseudonym display name`) without student password accounts in the current release.
 - A teacher/admin workflow with staff sign-in and safety controls for public websites.
+- A deployment path that keeps the public LMS public while allowing Homework Helper to reach a separate private model host over a server-to-server tailnet path.
 
 ## Who it is for
 - Small schools and programs that want self-hosted control.

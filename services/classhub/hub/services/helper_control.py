@@ -33,6 +33,57 @@ class HelperRagStatusResult:
     status_code: int = 0
 
 
+@dataclass(frozen=True)
+class HelperRemoteComputeStatusResult:
+    ok: bool
+    feature_enabled: bool = False
+    paid_usage_acknowledged: bool = False
+    backend_configured: bool = False
+    active: bool = False
+    active_for_class: bool = False
+    use_remote_backend: bool = False
+    state: str = "off"
+    class_id: int = 0
+    requested_by: str = ""
+    requested_at: str = ""
+    expires_at: str = ""
+    remaining_minutes: int = 0
+    provider_label: str = ""
+    provider_request_id: str = ""
+    provider_adapter: str = ""
+    control_url_configured: bool = False
+    healthcheck_url_configured: bool = False
+    auto_stop_on_idle: bool = False
+    idle_timeout_seconds: int = 0
+    last_error_code: str = ""
+    status_detail: str = ""
+    last_transition_at: str = ""
+    last_healthcheck_at: str = ""
+    last_routed_at: str = ""
+    error_code: str = ""
+    status_code: int = 0
+
+
+@dataclass(frozen=True)
+class HelperRemoteComputeActionResult:
+    ok: bool
+    action: str = ""
+    active: bool = False
+    active_for_class: bool = False
+    use_remote_backend: bool = False
+    state: str = "off"
+    class_id: int = 0
+    requested_by: str = ""
+    requested_at: str = ""
+    expires_at: str = ""
+    remaining_minutes: int = 0
+    provider_request_id: str = ""
+    status_detail: str = ""
+    detail: str = ""
+    error_code: str = ""
+    status_code: int = 0
+
+
 def reset_class_conversations(
     *,
     class_id: int,
@@ -168,6 +219,185 @@ def fetch_rag_status(
         reference_sources=_safe_reference_rows(payload.get("reference_sources")),
         configured_reference_keys=_safe_reference_keys(payload.get("configured_reference_keys")),
         student_data_excluded_from_index=bool(payload.get("student_data_excluded_from_index", True)),
+        status_code=status,
+    )
+
+
+def fetch_remote_compute_status(
+    *,
+    class_id: int,
+    endpoint_url: str,
+    internal_token: str,
+    timeout_seconds: float,
+) -> HelperRemoteComputeStatusResult:
+    if class_id <= 0:
+        return HelperRemoteComputeStatusResult(ok=False, error_code="invalid_class_id")
+    if not endpoint_url:
+        return HelperRemoteComputeStatusResult(ok=False, error_code="helper_endpoint_not_configured")
+    if not internal_token:
+        return HelperRemoteComputeStatusResult(ok=False, error_code="helper_token_not_configured")
+    if not endpoint_url.lower().startswith(("http://", "https://")):
+        return HelperRemoteComputeStatusResult(ok=False, error_code="invalid_endpoint_url_scheme")
+
+    delimiter = "&" if "?" in endpoint_url else "?"
+    request = urllib.request.Request(
+        f"{endpoint_url}{delimiter}class_id={int(class_id)}",
+        method="GET",
+        headers={"Authorization": f"Bearer {internal_token}"},
+    )
+    timeout = max(float(timeout_seconds), 0.2)
+
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:  # nosec B310
+            status = int(getattr(response, "status", 200) or 200)
+            body = response.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as exc:
+        status = int(getattr(exc, "code", 0) or 0)
+        try:
+            body = exc.read().decode("utf-8", errors="replace")
+        except Exception:
+            body = ""
+        return HelperRemoteComputeStatusResult(
+            ok=False,
+            error_code=_extract_error_code(body) or "helper_http_error",
+            status_code=status,
+        )
+    except urllib.error.URLError:
+        return HelperRemoteComputeStatusResult(ok=False, error_code="helper_unreachable")
+    except Exception:
+        return HelperRemoteComputeStatusResult(ok=False, error_code="helper_request_failed")
+
+    payload = _safe_json_dict(body)
+    if status < 200 or status >= 300 or not payload.get("ok"):
+        return HelperRemoteComputeStatusResult(
+            ok=False,
+            error_code=str(payload.get("error") or "helper_status_failed"),
+            status_code=status,
+        )
+    return HelperRemoteComputeStatusResult(
+        ok=True,
+        feature_enabled=bool(payload.get("feature_enabled")),
+        paid_usage_acknowledged=bool(payload.get("paid_usage_acknowledged")),
+        backend_configured=bool(payload.get("backend_configured")),
+        active=bool(payload.get("active")),
+        active_for_class=bool(payload.get("active_for_class")),
+        use_remote_backend=bool(payload.get("use_remote_backend")),
+        state=str(payload.get("state") or "off").strip()[:32],
+        class_id=_safe_non_negative_int(payload.get("class_id")),
+        requested_by=str(payload.get("requested_by") or "").strip()[:150],
+        requested_at=str(payload.get("requested_at") or "").strip()[:64],
+        expires_at=str(payload.get("expires_at") or "").strip()[:64],
+        remaining_minutes=_safe_non_negative_int(payload.get("remaining_minutes")),
+        provider_label=str(payload.get("provider_label") or "").strip()[:80],
+        provider_request_id=str(payload.get("provider_request_id") or "").strip()[:120],
+        provider_adapter=str(payload.get("provider_adapter") or "").strip()[:80],
+        control_url_configured=bool(payload.get("control_url_configured")),
+        healthcheck_url_configured=bool(payload.get("healthcheck_url_configured")),
+        auto_stop_on_idle=bool(payload.get("auto_stop_on_idle")),
+        idle_timeout_seconds=_safe_non_negative_int(payload.get("idle_timeout_seconds")),
+        last_error_code=str(payload.get("last_error_code") or "").strip()[:80],
+        status_detail=str(payload.get("status_detail") or "").strip()[:160],
+        last_transition_at=str(payload.get("last_transition_at") or "").strip()[:64],
+        last_healthcheck_at=str(payload.get("last_healthcheck_at") or "").strip()[:64],
+        last_routed_at=str(payload.get("last_routed_at") or "").strip()[:64],
+        status_code=status,
+    )
+
+
+def set_remote_compute_state(
+    *,
+    class_id: int,
+    action: str,
+    requested_by: str,
+    endpoint_url: str,
+    internal_token: str,
+    timeout_seconds: float,
+    duration_minutes: int = 0,
+) -> HelperRemoteComputeActionResult:
+    if class_id <= 0:
+        return HelperRemoteComputeActionResult(ok=False, error_code="invalid_class_id")
+    if action not in {"activate", "deactivate"}:
+        return HelperRemoteComputeActionResult(ok=False, error_code="invalid_action")
+    if not requested_by:
+        return HelperRemoteComputeActionResult(ok=False, error_code="missing_requested_by")
+    if not endpoint_url:
+        return HelperRemoteComputeActionResult(ok=False, error_code="helper_endpoint_not_configured")
+    if not internal_token:
+        return HelperRemoteComputeActionResult(ok=False, error_code="helper_token_not_configured")
+    if not endpoint_url.lower().startswith(("http://", "https://")):
+        return HelperRemoteComputeActionResult(ok=False, error_code="invalid_endpoint_url_scheme")
+
+    payload = {
+        "action": action,
+        "class_id": int(class_id),
+        "requested_by": str(requested_by).strip()[:150],
+    }
+    if action == "activate":
+        payload["duration_minutes"] = max(int(duration_minutes or 0), 0)
+
+    request = urllib.request.Request(
+        endpoint_url,
+        data=json.dumps(payload).encode("utf-8"),
+        method="POST",
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {internal_token}",
+        },
+    )
+    timeout = max(float(timeout_seconds), 0.2)
+
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:  # nosec B310
+            status = int(getattr(response, "status", 200) or 200)
+            body = response.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as exc:
+        status = int(getattr(exc, "code", 0) or 0)
+        try:
+            body = exc.read().decode("utf-8", errors="replace")
+        except Exception:
+            body = ""
+        return HelperRemoteComputeActionResult(
+            ok=False,
+            action=action,
+            error_code=_extract_error_code(body) or "helper_http_error",
+            status_code=status,
+        )
+    except urllib.error.URLError:
+        return HelperRemoteComputeActionResult(ok=False, action=action, error_code="helper_unreachable")
+    except Exception:
+        return HelperRemoteComputeActionResult(ok=False, action=action, error_code="helper_request_failed")
+
+    parsed = _safe_json_dict(body)
+    lease = parsed.get("lease") if isinstance(parsed.get("lease"), dict) else {}
+    if status < 200 or status >= 300 or not parsed.get("ok"):
+        return HelperRemoteComputeActionResult(
+            ok=False,
+            action=action,
+            active=bool(lease.get("active")),
+            active_for_class=bool(lease.get("active_for_class")),
+            use_remote_backend=bool(lease.get("use_remote_backend")),
+            state=str(lease.get("state") or "off").strip()[:32],
+            class_id=_safe_non_negative_int(lease.get("class_id")),
+            expires_at=str(lease.get("expires_at") or "").strip()[:64],
+            remaining_minutes=_safe_non_negative_int(lease.get("remaining_minutes")),
+            error_code=str(parsed.get("error") or "remote_compute_control_failed"),
+            status_code=status,
+        )
+    return HelperRemoteComputeActionResult(
+        ok=True,
+        action=str(parsed.get("action") or action),
+        active=bool(lease.get("active")),
+        active_for_class=bool(lease.get("active_for_class")),
+        use_remote_backend=bool(lease.get("use_remote_backend")),
+        state=str(lease.get("state") or "off").strip()[:32],
+        class_id=_safe_non_negative_int(lease.get("class_id")),
+        requested_by=str(lease.get("requested_by") or "").strip()[:150],
+        requested_at=str(lease.get("requested_at") or "").strip()[:64],
+        expires_at=str(lease.get("expires_at") or "").strip()[:64],
+        remaining_minutes=_safe_non_negative_int(lease.get("remaining_minutes")),
+        provider_request_id=str(parsed.get("provider_request_id") or "").strip()[:120],
+        status_detail=str(parsed.get("detail") or "").strip()[:160],
+        detail=str(parsed.get("detail") or "").strip()[:160],
         status_code=status,
     )
 

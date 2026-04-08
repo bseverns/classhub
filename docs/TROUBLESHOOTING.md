@@ -154,6 +154,28 @@ docker compose up -d helper_web
 
 If using non-compose Ollama, ensure `OLLAMA_BASE_URL` points to a host reachable from containers.
 If you are using a private GPU node, ensure `LLM_BASE_URL`/`OLLAMA_BASE_URL` points at the tailnet-only hostname and that the private proxy/API key still match.
+If this deployment uses Headscale, confirm the Headscale VPS is healthy as a control plane, but do not treat it as a request-path proxy for the model traffic.
+
+Recommended separation check:
+
+- public LMS stays at `https://lms.creatempls.org`
+- private model endpoint stays at a tailnet-only hostname such as `https://llm-gpu.tail.creatempls.org`
+- only Homework Helper talks to that private endpoint
+
+If bounded remote helper compute control is enabled, also check:
+
+- the class lease on `/teach/class/<id>` is active for the intended class
+- the remote-helper state is actually `ready`; `requested` or `starting` still stay on local/default helper compute
+- the helper internal remote-compute status/control URLs are configured
+- `CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1` and `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1` are both set for the intended deployment
+- the helper healthcheck URL is configured if your orchestration bridge needs a separate readiness signal
+- provider control calls remain server-side; no browser should talk to the remote provider directly
+
+Useful class-day signals:
+
+- `/teach/class/<id>` shows whether helper will use the remote backend right now
+- `remote_compute_fallback_local` in helper logs means the remote path degraded and the request retried locally
+- a `degraded` or `error` state should not send students directly to the provider; it should keep them on the LMS-side helper path
 
 ## Symptom: `/helper/chat` fails with 403 CSRF page
 

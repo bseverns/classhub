@@ -10,6 +10,7 @@ from pathlib import Path
 
 
 RISK_REGISTER_PATH = Path("docs/MAINTENANCE_RISK_REGISTER.md")
+README_PATH = Path("README.md")
 PUBLIC_OVERVIEW_PATH = Path("docs/PUBLIC_OVERVIEW.md")
 CURRENT_STATE_PATH = Path("docs/CURRENT_STATE.md")
 FEATURE_MATURITY_PATH = Path("docs/FEATURE_MATURITY.md")
@@ -17,6 +18,12 @@ CANONICAL_TRUTHS_PATH = Path("docs/CANONICAL_TRUTHS.md")
 SECURITY_PATH = Path("docs/SECURITY.md")
 MERGE_READINESS_PATH = Path("docs/MERGE_READINESS.md")
 SECURITY_BASELINE_PATH = Path("docs/SECURITY_BASELINE.md")
+PRIVATE_LLM_PATH = Path("docs/PRIVATE_LLM_BACKEND.md")
+HEADSCALE_PATH = Path("docs/HEADSCALE_CONTROL_PLANE.md")
+REMOTE_HELPER_COMPUTE_PATH = Path("docs/REMOTE_HELPER_COMPUTE_CONTROL.md")
+RUNBOOK_PATH = Path("docs/RUNBOOK.md")
+TROUBLESHOOTING_PATH = Path("docs/TROUBLESHOOTING.md")
+REMOTE_HELPER_OPS_PATH = Path("ops/remote-helper-compute/README.md")
 RUNTIME_REGISTRY_PATH = Path("docs/_registry/runtime_contracts.json")
 SHOTLIST_PATH = Path("press/screenshots/SHOTLIST.md")
 PLACEHOLDERS_PATH = Path("press/screenshots/PLACEHOLDERS.md")
@@ -168,7 +175,11 @@ def _validate_runtime_registry_contracts(failures: list[str]) -> None:
     current_state_text = _read(CURRENT_STATE_PATH)
     feature_maturity_text = _read(FEATURE_MATURITY_PATH)
     canonical_truths_text = _read(CANONICAL_TRUTHS_PATH)
+    readme_text = _read(README_PATH)
     security_text = _read(SECURITY_PATH)
+    private_llm_text = _read(PRIVATE_LLM_PATH)
+    headscale_text = _read(HEADSCALE_PATH)
+    remote_helper_compute_text = _read(REMOTE_HELPER_COMPUTE_PATH)
     merge_readiness_text = _read(MERGE_READINESS_PATH)
     security_baseline_text = _read(SECURITY_BASELINE_PATH)
 
@@ -185,9 +196,33 @@ def _validate_runtime_registry_contracts(failures: list[str]) -> None:
         failures=failures,
     )
     _require_snippets(
+        readme_text,
+        path=README_PATH,
+        snippets=list(contracts.get("readme_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
         canonical_truths_text,
         path=CANONICAL_TRUTHS_PATH,
         snippets=list(contracts.get("canonical_truths_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        private_llm_text,
+        path=PRIVATE_LLM_PATH,
+        snippets=list(contracts.get("private_llm_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        headscale_text,
+        path=HEADSCALE_PATH,
+        snippets=list(contracts.get("headscale_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        remote_helper_compute_text,
+        path=REMOTE_HELPER_COMPUTE_PATH,
+        snippets=list(contracts.get("remote_helper_compute_required_snippets") or []),
         failures=failures,
     )
 
@@ -216,10 +251,17 @@ def _validate_runtime_registry_contracts(failures: list[str]) -> None:
 
     stale_phrases = [str(item).strip() for item in (contracts.get("stale_phrases") or []) if str(item).strip()]
     stale_targets = (
+        README_PATH,
         CURRENT_STATE_PATH,
         FEATURE_MATURITY_PATH,
         CANONICAL_TRUTHS_PATH,
         SECURITY_PATH,
+        PRIVATE_LLM_PATH,
+        HEADSCALE_PATH,
+        REMOTE_HELPER_COMPUTE_PATH,
+        RUNBOOK_PATH,
+        TROUBLESHOOTING_PATH,
+        REMOTE_HELPER_OPS_PATH,
         MERGE_READINESS_PATH,
         SECURITY_BASELINE_PATH,
         *ENV_EXAMPLE_PATHS,
@@ -229,6 +271,26 @@ def _validate_runtime_registry_contracts(failures: list[str]) -> None:
         for phrase in stale_phrases:
             if phrase in text:
                 failures.append(f"{path}: contains stale contract phrase {phrase!r}")
+
+    forbidden_snippets = [
+        str(item).strip() for item in (contracts.get("forbidden_snippets") or []) if str(item).strip()
+    ]
+    forbidden_targets = (
+        README_PATH,
+        PRIVATE_LLM_PATH,
+        HEADSCALE_PATH,
+        REMOTE_HELPER_COMPUTE_PATH,
+        RUNBOOK_PATH,
+        TROUBLESHOOTING_PATH,
+        REMOTE_HELPER_OPS_PATH,
+        CANONICAL_TRUTHS_PATH,
+        *ENV_EXAMPLE_PATHS,
+    )
+    for path in forbidden_targets:
+        text = _read(path)
+        for snippet in forbidden_snippets:
+            if snippet in text:
+                failures.append(f"{path}: contains forbidden topology phrase {snippet!r}")
 
     csp_note = str(((registry.get("runtime") or {}).get("csp") or {}).get("note") or "").strip()
     if csp_note:

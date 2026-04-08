@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import json
 import os
+from contextlib import contextmanager
+from contextvars import ContextVar
 from functools import lru_cache
 from pathlib import Path
 
@@ -89,19 +91,34 @@ ENV_ALIASES = {
     "OLLAMA_NUM_CTX": ("LLM_NUM_CTX",),
     "OPENAI_MODEL": ("LLM_MODEL",),
     "OPENAI_MAX_OUTPUT_TOKENS": ("LLM_MAX_TOKENS",),
+    "HELPER_REMOTE_COMPUTE_ENABLED": ("CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED",),
+    "HELPER_REMOTE_MODE_ACKNOWLEDGED": ("CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED",),
+    "HELPER_REMOTE_COMPUTE_IDLE_TIMEOUT_SECONDS": ("CLASSHUB_REMOTE_HELPER_COMPUTE_IDLE_TIMEOUT_SECONDS",),
 }
 
+_CONFIG_OVERRIDES: ContextVar[dict[str, str]] = ContextVar("helper_config_overrides", default={})
 
-def helper_getenv(name: str, default: str = "") -> str:
-    """Return config value for a helper setting with env-first precedence."""
+
+def helper_explicit_env(name: str) -> str:
     explicit = os.getenv(name)
     if explicit not in (None, ""):
         return explicit
-
     for alias in ENV_ALIASES.get(name, ()):
         alias_value = os.getenv(alias)
         if alias_value not in (None, ""):
             return alias_value
+    return ""
+
+
+def helper_getenv(name: str, default: str = "") -> str:
+    """Return config value for a helper setting with env-first precedence."""
+    override_value = _CONFIG_OVERRIDES.get({}).get(name)
+    if override_value not in (None, ""):
+        return str(override_value)
+
+    explicit = helper_explicit_env(name)
+    if explicit not in (None, ""):
+        return explicit
 
     path = ENV_TO_YAML_PATH.get(name)
     if not path:
@@ -166,8 +183,19 @@ def clear_helper_config_cache() -> None:
     _load_yaml_config.cache_clear()
 
 
+@contextmanager
+def helper_config_overrides(overrides: dict[str, str] | None):
+    token = _CONFIG_OVERRIDES.set(dict(overrides or {}))
+    try:
+        yield
+    finally:
+        _CONFIG_OVERRIDES.reset(token)
+
+
 __all__ = [
     "ENV_TO_YAML_PATH",
     "clear_helper_config_cache",
+    "helper_config_overrides",
+    "helper_explicit_env",
     "helper_getenv",
 ]

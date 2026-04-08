@@ -6,6 +6,7 @@ from ...services.helper_control import reset_class_conversations as _reset_helpe
 from .roster_class_controls import (
     teach_export_class_submissions_today as _teach_export_class_submissions_today_impl,
     teach_lock_class as _teach_lock_class_impl,
+    teach_set_remote_helper_compute_impl,
     teach_reset_helper_conversations_impl,
     teach_reset_roster as _teach_reset_roster_impl,
     teach_rotate_code as _teach_rotate_code_impl,
@@ -49,6 +50,13 @@ def teach_reset_helper_conversations(request, class_id: int):
     )
 
 
+@staff_member_required
+@require_POST
+def teach_set_remote_helper_compute(request, class_id: int):
+    # Guard contract token: staff_can_manage_policy(
+    return teach_set_remote_helper_compute_impl(request=request, class_id=class_id)
+
+
 def teach_toggle_lock(request, class_id: int):
     # Guard contract token: staff_can_manage_policy(
     return _teach_toggle_lock_impl(request, class_id=class_id)
@@ -75,6 +83,7 @@ __all__ = [
     "teach_class_join_card",
     "teach_reset_roster",
     "teach_reset_helper_conversations",
+    "teach_set_remote_helper_compute",
     "teach_toggle_lock",
     "teach_lock_class",
     "teach_export_class_submissions_today",

@@ -134,25 +134,45 @@ Notes:
 - Default retry delays are `SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS=3` for transport/`ollama_error`, and `SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS=30` for `busy`.
 - Increase those values in `compose/.env` if Ollama cold starts or queue wait regularly exceed your current retry budget.
 
-### Remote GPU over Tailscale
+### Remote GPU over private tailnet
 
 Current recommended path:
 
 - browsers talk only to the public LMS edge
 - Caddy routes `/helper/*` to `helper_web`
 - `helper_web` is the only service that talks to the remote model host
-- that model hop goes over Tailscale to a tailnet-only endpoint
+- that model hop goes over a private tailnet to a tailnet-only endpoint
 - the GPU host keeps the model server loopback-bound behind its local auth proxy
+- for createMPLS-style production deployments, the recommended tailnet control plane is a self-hosted Headscale server on a tiny Ubuntu VPS
+- the Headscale server is control plane only; it does not proxy request traffic
 
 Operational meaning:
 
 - if the GPU node is unavailable, the LMS should still load and core classroom flows should stay up
 - `bash scripts/check_llm_backend.sh --probe-chat` is the fastest way to validate the helper-to-GPU path from the same runtime context the app uses
 - use `LLM_BASE_URL` and the rest of the `LLM_*` env vars as the primary configuration surface; legacy `OLLAMA_*` names remain compatibility fallbacks
+- public browser traffic to `lms.creatempls.org` must never use the tailnet
+- the tailnet is reserved for helper-to-model traffic and related operator/admin troubleshooting
 
 Reference:
 
 - [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md)
+- [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md)
+- [REMOTE_HELPER_COMPUTE_CONTROL.md](REMOTE_HELPER_COMPUTE_CONTROL.md)
+
+### Staff-only remote helper compute lease
+
+If you enable bounded remote helper compute control:
+
+- keep it off by default
+- activate it only for live partner/class windows
+- let staff use `/teach/class/<id>` to activate/deactivate it
+- use `CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1` and `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1` as the deployment gate
+- keep provider control URLs and credentials server-side only
+- expect state transitions such as `requested`, `starting`, `ready`, `degraded`, `stopping`, and `error`
+- expect helper traffic to use the remote backend only when the class state is `ready`
+- expect helper requests to fall back to local/default mode if the remote path is not ready or later errors
+- keep the lease short and stop it after class; optional idle auto-stop is acceptable but does not replace operator awareness
 
 Golden-path smoke (auto fixture bootstrap):
 

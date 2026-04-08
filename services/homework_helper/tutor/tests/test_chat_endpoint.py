@@ -15,6 +15,7 @@ from common.helper_scope import issue_scope_token
 
 from .. import views
 from ..engine.config_source import clear_helper_config_cache
+from ..llm import LLMUpstreamUnavailableError
 
 
 class HelperChatAuthTests(TestCase):
@@ -84,6 +85,45 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp.json().get("text"), "Hint")
         self.assertTrue(resp.json().get("conversation_id"))
         self.assertEqual(resp.json().get("response_language"), "en")
+
+    @patch("tutor.views._call_backend_with_retries")
+    def test_chat_falls_back_to_local_when_remote_compute_errors(self, call_backend_mock):
+        self._set_student_session(class_id=22)
+        cache.set(
+            "helper:remote_compute:lease",
+            {
+                "state": "ready",
+                "class_id": 22,
+                "requested_by": "teacher1",
+                "requested_at": "2026-04-08T12:00:00+00:00",
+                "expires_at": "2099-04-08T13:30:00+00:00",
+                "last_error_code": "",
+            },
+            timeout=3600,
+        )
+        with patch.dict(
+            "os.environ",
+            {
+                "HELPER_LLM_BACKEND": "ollama",
+                "LLM_BASE_URL": "http://ollama:11434",
+                "LLM_MODEL": "llama3.2:1b",
+                "CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED": "1",
+                "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED": "1",
+                "REMOTE_LLM_BASE_URL": "https://llm-gpu.tail.creatempls.org",
+                "REMOTE_LLM_API_KEY": "remote-api-key-1234567890",
+                "REMOTE_LLM_MODEL": "llama3.2:3b",
+            },
+            clear=False,
+        ):
+            call_backend_mock.side_effect = [
+                LLMUpstreamUnavailableError("remote_unavailable"),
+                ("Local fallback answer", "llama3.2:1b", 1),
+            ]
+            resp = self._post_chat({"message": "How do I move a sprite?"})
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json().get("text"), "Local fallback answer")
+        self.assertEqual(call_backend_mock.call_count, 2)
 
     def test_chat_localizes_follow_up_suggestions_from_language_code(self):
         self._set_student_session()

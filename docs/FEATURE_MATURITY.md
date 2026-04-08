@@ -29,6 +29,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED` | `0` | RBAC evaluator behavior | Enables module-range scoped grant enforcement. |
 | `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED` | `0` | RBAC mutation workflow | Routes RBAC writes into approval queue instead of immediate apply. |
 | `CLASSHUB_TELEMETRY_DATABASE_URL` + `CLASSHUB_TELEMETRY_WRITE_MODE` + `CLASSHUB_TELEMETRY_READ_MODE` | URL unset / `off` / `core` | Telemetry split rollout controls | Reserved for staged telemetry DB split rollout; non-default modes require explicit parity/rollback validation. |
+| `CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED` + `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED` | `0` / `0` | Staff-only paid remote helper compute | Keeps expensive remote helper compute off by default and requires explicit operator acknowledgement before staff can request it for live class windows. |
 | `HELPER_CONFIG_FILE` | unset | Helper config layering | Enables YAML-backed helper runtime config. |
 | `HELPER_STRICTNESS` / `HELPER_SCOPE_MODE` / `HELPER_TOPIC_FILTER_MODE` | profile-driven when unset | Helper policy stance | Explicit env overrides profile defaults. |
 
@@ -48,6 +49,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | RBAC policy import/export | Live (default) | Superuser RBAC tools scope (`/teach` advanced policy mode) | `/teach/rbac/policy/export` + import validation checks. |
 | Helper policy strictness/scope/topic filtering | Live (default, profile-driven) | Env override > helper YAML > profile default | `/helper/chat` policy response behavior matches expected strictness. |
 | Helper YAML config layering | Live (default, optional) | `HELPER_CONFIG_FILE` path (optional) | Helper engine config-source tests in `tutor.tests.test_engine`. |
+| Staff-only remote helper compute control | Live (flagged) | `CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1` + `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1` | `/teach/class/<id>` shows the bounded control to policy-capable staff, helper internal remote-compute tests pass, and helper routes remote only when state is `ready`. |
 | Async/self-paced sequencing workflows | RFC | See `ASYNC_SELF_PACED_RFC.md` | No runtime SLA yet; treat as roadmap only. |
 | Telemetry DB split | RFC / staged plan | `CLASSHUB_TELEMETRY_DATABASE_URL` + `CLASSHUB_TELEMETRY_WRITE_MODE` + `CLASSHUB_TELEMETRY_READ_MODE`; see `TELEMETRY_DB_SPLIT_PLAN.md` | Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is shipped and Slice 7 release-cycle evidence capture is complete (`artifacts/stability/2026-03-10/telemetry/` parity + strict smoke + rollback drill). Final write-mode cutover gates remain intentionally deferred. |
 

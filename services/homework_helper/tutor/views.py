@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import urllib.error
 from functools import lru_cache
 
 from django.conf import settings
@@ -19,9 +20,21 @@ from django.db import connection, transaction
 from .classhub_events import emit_helper_chat_access_event
 from .engine import auth as engine_auth  # re-exported patch surface in tests
 from .engine import service as engine_service
-from .engine.config_source import helper_getenv
+from .engine.config_source import helper_config_overrides, helper_getenv
+from .llm import (
+    LLMAuthError,
+    LLMConfigError,
+    LLMMalformedResponseError,
+    LLMTimeoutError,
+    LLMUpstreamUnavailableError,
+)
 from .policy import build_instructions
 from .queueing import acquire_slot, release_slot
+from .remote_compute_control import (
+    active_remote_compute_overrides_for_class,
+    mark_remote_compute_degraded,
+    mark_remote_compute_routed,
+)
 from .views_chat_deps import DEFAULT_TEXT_LANGUAGE_KEYWORDS, build_chat_deps
 from .views_chat_helpers import (
     _build_class_reentry_privacy_text,
@@ -85,6 +98,7 @@ from .views_chat_runtime import (
     table_exists as runtime_table_exists,
 )
 from .views_internal_rag_status import internal_rag_status
+from .views_remote_compute import internal_remote_compute_control, internal_remote_compute_status
 from .views_reset import reset_class_conversations
 
 logger = logging.getLogger(__name__)
@@ -248,6 +262,39 @@ def chat(request):
         return _json_response({"error": "unauthorized"}, status=401, request_id=request_id)
 
     classroom_id, student_id = load_session_ids(request)
+    remote_overrides = active_remote_compute_overrides_for_class(class_id=classroom_id)
+    local_backend = (helper_getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
+
+    def _call_backend_with_optional_remote_fallback(backend_name: str, instructions: str, model_message: str):
+        if not remote_overrides:
+            return _call_backend_with_retries(backend_name, instructions, model_message)
+        with helper_config_overrides(remote_overrides):
+            try:
+                result = _call_backend_with_retries(backend_name, instructions, model_message)
+                mark_remote_compute_routed(class_id=classroom_id)
+                return result
+            except (
+                LLMAuthError,
+                LLMConfigError,
+                LLMMalformedResponseError,
+                LLMTimeoutError,
+                LLMUpstreamUnavailableError,
+                RuntimeError,
+                urllib.error.URLError,
+                urllib.error.HTTPError,
+                ValueError,
+            ) as exc:
+                _log_chat_event(
+                    "warning",
+                    "remote_compute_fallback_local",
+                    request_id=request_id,
+                    actor_type=actor_type,
+                    backend=backend_name,
+                    class_id=classroom_id,
+                    error_type=exc.__class__.__name__,
+                )
+                mark_remote_compute_degraded(class_id=classroom_id, error_code=exc.__class__.__name__)
+        return _call_backend_with_retries(local_backend, instructions, model_message)
 
     def _emit_helper_event(response) -> None:
         emit_helper_chat_access_event(
@@ -324,7 +371,7 @@ def chat(request):
         llm_backend_requires_acknowledgement_fn=lambda backend: runtime_llm_backend_requires_acknowledgement(
             backend=backend
         ),
-        call_backend_with_retries_fn=_call_backend_with_retries,
+        call_backend_with_retries_fn=_call_backend_with_optional_remote_fallback,
         record_backend_failure_fn=_record_backend_failure,
         reset_backend_failure_state_fn=_reset_backend_failure_state,
         acquire_slot_fn=acquire_slot,
@@ -340,19 +387,20 @@ def chat(request):
         classify_intent_fn=_classify_intent,
         build_follow_up_suggestions_fn=_build_follow_up_suggestions,
     )
-    response = engine_service.handle_chat(
-        request=request,
-        payload=payload,
-        request_id=request_id,
-        actor_key=actor,
-        actor_type=actor_type,
-        client_ip=client_ip,
-        settings=settings,
-        started_at=started_at,
-        default_text_language_keywords=DEFAULT_TEXT_LANGUAGE_KEYWORDS,
-        signature_expired_exc=SignatureExpired,
-        bad_signature_exc=BadSignature,
-        deps=deps,
-    )
+    with helper_config_overrides(remote_overrides):
+        response = engine_service.handle_chat(
+            request=request,
+            payload=payload,
+            request_id=request_id,
+            actor_key=actor,
+            actor_type=actor_type,
+            client_ip=client_ip,
+            settings=settings,
+            started_at=started_at,
+            default_text_language_keywords=DEFAULT_TEXT_LANGUAGE_KEYWORDS,
+            signature_expired_exc=SignatureExpired,
+            bad_signature_exc=BadSignature,
+            deps=deps,
+        )
     _emit_helper_event(response)
     return response

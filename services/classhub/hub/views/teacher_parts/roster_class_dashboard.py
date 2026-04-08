@@ -2,6 +2,7 @@
 
 from urllib.parse import urlencode
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.middleware.csrf import get_token
@@ -11,9 +12,11 @@ from django.views.decorators.http import require_POST
 
 from ...http.headers import apply_no_store
 from ...models import Class, ClassInviteLink, ClassStaffAssignment
+from ...services.helper_control import HelperRemoteComputeStatusResult, fetch_remote_compute_status
 from ...services.teacher_roster_class import build_dashboard_context
 from .shared_auth import (
     staff_can_create_classes,
+    staff_can_manage_policy,
     staff_classroom_or_none,
     staff_default_organization,
     staff_member_required,
@@ -49,6 +52,22 @@ def _clean_class_seed_value(raw: str | None, *, limit: int) -> str:
 def _should_open_class_workspace(request) -> bool:
     raw = (request.POST.get("open_after_create") or "").strip().lower()
     return raw in {"1", "true", "yes", "on"}
+
+
+def _remote_compute_status_context(*, can_manage_remote_compute: bool, classroom) -> dict:
+    if can_manage_remote_compute:
+        result = fetch_remote_compute_status(
+            class_id=classroom.id,
+            endpoint_url=str(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL", "") or "").strip(),
+            internal_token=str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip(),
+            timeout_seconds=float(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_TIMEOUT_SECONDS", 2.0) or 2.0),
+        )
+    else:
+        result = HelperRemoteComputeStatusResult(ok=False, error_code="not_visible")
+    return {
+        "helper_remote_compute": result,
+        "helper_remote_compute_duration_choices": [30, 60, 90, 120],
+    }
 
 
 @staff_member_required
@@ -131,6 +150,7 @@ def teach_class_dashboard(request, class_id: int):
     notice = (request.GET.get("notice") or "").strip()
     error = (request.GET.get("error") or "").strip()
     class_assignment_panel = _class_assignment_panel_context(request=request, classroom=classroom)
+    can_manage_remote_compute = bool(staff_can_manage_policy(request.user, classroom))
     get_token(request)
 
     response = render(
@@ -142,6 +162,11 @@ def teach_class_dashboard(request, class_id: int):
             "invite_links": invite_links,
             "notice": notice,
             "error": error,
+            "can_manage_helper_remote_compute": can_manage_remote_compute,
+            **_remote_compute_status_context(
+                can_manage_remote_compute=can_manage_remote_compute,
+                classroom=classroom,
+            ),
             **class_assignment_panel,
         },
     )
