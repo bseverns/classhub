@@ -60,11 +60,19 @@ services:
     container_name: classhub_ollama
     profiles: ["local-ollama"]
     restart: unless-stopped
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
     ports:
       # Host access for local debugging only (not Internet-exposed).
       - "127.0.0.1:11434:11434"
     volumes:
       - ../data/ollama:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
 
   minio:
     image: ${MINIO_IMAGE:-minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1}

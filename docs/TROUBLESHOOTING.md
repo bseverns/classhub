@@ -121,6 +121,7 @@ Common causes:
 - Ollama not ready
 - model not pulled
 - `OLLAMA_BASE_URL` mismatch
+- bundled Ollama only listening on localhost instead of `0.0.0.0:11434` inside its container
 - mixed canonical/legacy helper env keys (`LLM_*` vs `HELPER_LLM_BACKEND` / `OLLAMA_*`)
 - `LLM_API_KEY` mismatch between LMS and private proxy
 - helper worker timeout too strict for retry budget
@@ -134,6 +135,7 @@ docker compose logs --tail=200 helper_web
 docker compose logs --tail=200 ollama
 curl http://localhost:11434/api/tags
 bash scripts/check_llm_backend.sh --probe-chat
+docker compose exec -T ollama sh -lc 'echo "${OLLAMA_HOST:-}" && ollama list'
 docker compose exec -T helper_web env | grep -E '^(LLM_BACKEND|HELPER_LLM_BACKEND|LLM_BASE_URL|OLLAMA_BASE_URL|LLM_MODEL|OLLAMA_MODEL|LLM_TIMEOUT_SECONDS|OLLAMA_TIMEOUT_SECONDS|HELPER_GUNICORN_TIMEOUT_SECONDS|HELPER_BACKEND_MAX_ATTEMPTS|HELPER_QUEUE_MAX_WAIT_SECONDS|HELPER_BACKOFF_SECONDS)='
 bash scripts/validate_env_secrets.sh
 ```
@@ -153,6 +155,14 @@ docker compose exec ollama ollama pull llama3.2:1b
 # SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS=30
 docker compose up -d helper_web
 ```
+
+Bundled local Ollama should expose the server to other Compose services with:
+
+```dotenv
+OLLAMA_HOST=0.0.0.0:11434
+```
+
+The shipped Compose file now sets that automatically and the doctor waits for Ollama to become healthy before probe chat.
 
 If both canonical and legacy helper keys are present, keep them aligned:
 

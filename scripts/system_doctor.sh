@@ -259,7 +259,7 @@ wait_for_container_state classhub_web healthy
 wait_for_container_state helper_web healthy
 wait_for_container_state classhub_caddy running
 if llm_uses_local_ollama_compose "${ENV_FILE}"; then
-  wait_for_container_state classhub_ollama running
+  wait_for_container_state classhub_ollama healthy
   bash "${ENSURE_LOCAL_OLLAMA_MODEL}" --compose-mode "${COMPOSE_MODE}"
 fi
 
