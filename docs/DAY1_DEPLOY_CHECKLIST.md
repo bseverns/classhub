@@ -59,6 +59,10 @@ flowchart TD
     - For remote GPU smoke stability, set `LLM_NUM_CTX=4096` as a starting point
     - Keep the tailnet limited to helper-to-model traffic and related operator/admin troubleshooting only
   - Legacy note: `OLLAMA_BASE_URL` still works as a fallback, but `LLM_*` names are the preferred contract for new deploys.
+  - If you keep both canonical and legacy helper keys in `compose/.env`, keep them identical:
+    - `LLM_BACKEND=ollama` and `HELPER_LLM_BACKEND=ollama`
+    - `LLM_BASE_URL=...` and `OLLAMA_BASE_URL=...`
+    - `LLM_MODEL=...` and `OLLAMA_MODEL=...`
   - Optional staff-only remote compute lease control:
     - keep `CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=0` and `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=0` unless you are intentionally turning on the bounded class-session control
     - if enabled, configure `REMOTE_LLM_*` plus `HELPER_REMOTE_COMPUTE_ACTIVATE_URL` / `HELPER_REMOTE_COMPUTE_DEACTIVATE_URL` and, ideally, `HELPER_REMOTE_COMPUTE_HEALTHCHECK_URL`

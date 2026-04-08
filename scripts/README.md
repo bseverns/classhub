@@ -5,7 +5,7 @@ This directory contains operational tools, CI guardrails, and quality gates for 
 These tools are designed to be run from the repository root: `bash scripts/script_name.sh`.
 
 Operator shortcut:
-- `make smoke-full` runs golden stack smoke plus accessibility smoke against the local Ollama baseline, even if `compose/.env` is pointed at a remote/private helper backend.
+- `make smoke-full` runs golden stack smoke plus accessibility smoke against the local Ollama baseline, even if `compose/.env` is pointed at a remote/private helper backend. It now overrides both the canonical `LLM_*` keys and the legacy `HELPER_LLM_BACKEND` / `OLLAMA_*` keys so doctor/smoke logic cannot drift on mixed env files.
 - `make ops-readiness` runs runtime-lock + CSP rollout contract + teach-class contracts + docs/inventory/backlog guards in one command (`OPS_READINESS_PROFILE=baseline|release`, `OPS_READINESS_ENV_FILE=compose/.env`).
 
 ## Core Operations & Deployment
@@ -16,7 +16,7 @@ Operator shortcut:
 | `quickstart_stack.sh` | Guided one-command stack bootstrap (env prep, compose up, migrations, optional admin + demo + doctor). |
 | `bootstrap_day1.sh` | Day-1 server provisioning tool (installs Docker, configures users, structure). |
 | `migration_gate.sh` | CI/CD gate ensuring uncommitted or failed Django migrations block deployment. |
-| `validate_env_secrets.sh`| Validates `.env` secrets and operator contracts for production readiness, including private remote LLM posture plus flagged remote-helper-compute gates (`CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED` / acknowledgement / bridge URLs). |
+| `validate_env_secrets.sh`| Validates `.env` secrets and operator contracts for production readiness, including private remote LLM posture, canonical-vs-legacy LLM alias consistency (`LLM_*` vs `HELPER_LLM_BACKEND` / `OLLAMA_*`), plus flagged remote-helper-compute gates (`CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED` / acknowledgement / bridge URLs). |
 | `repo_hygiene_check.sh` | Ensures local artifacts (sqlite, venvs) aren't accidentally tracked before push. |
 
 ## Backups & Data Management

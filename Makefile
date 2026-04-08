@@ -86,8 +86,11 @@ smoke-a11y:
 	  $(INSTALL_BROWSERS_FLAG) \
 	  $(BASE_URL_FLAG)
 
+smoke-full: export LLM_BACKEND=ollama
 smoke-full: export HELPER_LLM_BACKEND=ollama
+smoke-full: export LLM_BASE_URL=http://ollama:11434
 smoke-full: export OLLAMA_BASE_URL=http://ollama:11434
+smoke-full: export LLM_MODEL=$(SMOKE_FULL_LOCAL_OLLAMA_MODEL)
 smoke-full: export OLLAMA_MODEL=$(SMOKE_FULL_LOCAL_OLLAMA_MODEL)
 smoke-full: export HELPER_REMOTE_MODE_ACKNOWLEDGED=0
 smoke-full: export COMPOSE_LOCAL_OLLAMA_AUTO=1

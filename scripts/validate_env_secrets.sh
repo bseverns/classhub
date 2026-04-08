@@ -32,6 +32,17 @@ fail() {
   exit 1
 }
 
+require_matching_values_if_both_set() {
+  local left_key="$1"
+  local right_key="$2"
+  local left_value right_value
+  left_value="$(env_file_value "${left_key}")"
+  right_value="$(env_file_value "${right_key}")"
+  if [[ -n "${left_value}" && -n "${right_value}" && "${left_value}" != "${right_value}" ]]; then
+    fail "${left_key} and ${right_key} must match when both are set"
+  fi
+}
+
 to_lower() {
   printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
 }
@@ -280,6 +291,10 @@ if [[ -z "${HELPER_LLM_BACKEND}" ]]; then
   HELPER_LLM_BACKEND="$(env_file_value HELPER_LLM_BACKEND)"
 fi
 HELPER_LLM_BACKEND_LOWER="$(to_lower "${HELPER_LLM_BACKEND}")"
+require_matching_values_if_both_set "LLM_BACKEND" "HELPER_LLM_BACKEND"
+require_matching_values_if_both_set "LLM_BASE_URL" "OLLAMA_BASE_URL"
+require_matching_values_if_both_set "LLM_MODEL" "OLLAMA_MODEL"
+require_matching_values_if_both_set "LLM_TIMEOUT_SECONDS" "OLLAMA_TIMEOUT_SECONDS"
 if [[ "${DJANGO_DEBUG}" == "0" && "${LLM_ENABLED}" == "1" && "${LLM_LOG_PROMPT_CONTENT}" == "1" ]]; then
   fail "LLM_LOG_PROMPT_CONTENT must remain 0 when DJANGO_DEBUG=0"
 fi
