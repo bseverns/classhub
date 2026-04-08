@@ -7,6 +7,7 @@
     "services/classhub/hub/views/teacher_parts/content_rbac_view_endpoints.py": 700,
     "services/classhub/hub/views/teacher_parts/roster.py": 920,
     "services/classhub/hub/views/teacher_parts/roster_class.py": 420,
+    "services/classhub/hub/views/teacher_parts/roster_class_controls.py": 400,
     "services/classhub/hub/views/api_teacher.py": 450,
     "services/homework_helper/tutor/views.py": 700
   }
