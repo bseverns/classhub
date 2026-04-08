@@ -1384,7 +1384,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertEqual(event.classroom_id, classroom.id)
         self.assertEqual(event.metadata.get("error_code"), "helper_unreachable")
 
-    @patch("hub.views.teacher_parts.roster_class_controls.set_remote_compute_state")
+    @patch("hub.views.teacher_parts.roster_class_remote_compute.set_remote_compute_state")
     def test_teacher_can_activate_remote_helper_compute(self, set_remote_compute_mock):
         classroom = Class.objects.create(name="Partner Session", join_code="GPU12345")
         set_remote_compute_mock.return_value = HelperRemoteComputeActionResult(
@@ -1414,7 +1414,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertEqual(event.classroom_id, classroom.id)
         self.assertEqual(event.metadata.get("remaining_minutes"), 90)
 
-    @patch("hub.views.teacher_parts.roster_class_controls.set_remote_compute_state")
+    @patch("hub.views.teacher_parts.roster_class_remote_compute.set_remote_compute_state")
     def test_teacher_remote_helper_compute_failure_redirects_with_error(self, set_remote_compute_mock):
         classroom = Class.objects.create(name="Partner Session Fail", join_code="GPU54321")
         set_remote_compute_mock.return_value = HelperRemoteComputeActionResult(
