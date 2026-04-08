@@ -205,4 +205,4 @@ Use the Headscale VPS to confirm control-plane health, not to test public site r
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [RUNBOOK.md](RUNBOOK.md)
 - [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
-- [ops/llm-server/README.md](../ops/llm-server/README.md)
+- repo ops bundle: `ops/llm-server/README.md`

@@ -257,4 +257,4 @@ Public browser traffic must never touch the remote provider directly.
 - [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md)
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [RUNBOOK.md](RUNBOOK.md)
-- [ops/llm-server/README.md](../ops/llm-server/README.md)
+- repo ops bundles: `ops/llm-server/README.md`, `ops/remote-helper-compute/README.md`
