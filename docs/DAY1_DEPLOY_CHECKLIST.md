@@ -54,6 +54,7 @@ flowchart TD
     - public LMS example: `DOMAIN=lms.creatempls.org`
     - private model endpoint example: `LLM_BASE_URL=https://llm-gpu.tail.creatempls.org`
     - recommended control plane for createMPLS-style production: Headscale on a tiny Ubuntu VPS such as `hs.creatempls.org`
+    - canonical repo bundle for that VPS now lives in `ops/headscale/` (`install.sh`, Compose stack, backup, restore, systemd timer)
     - recommended open-model example on the private GPU host: a Gemma-family model
     - set `LLM_BACKEND=ollama`
     - set `LLM_API_KEY=<shared proxy bearer token>`

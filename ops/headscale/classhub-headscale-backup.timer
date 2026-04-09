@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily ClassHub Headscale backup
+
+[Timer]
+OnCalendar=*-*-* 03:17:00
+Persistent=true
+RandomizedDelaySec=900
+Unit=classhub-headscale-backup.service
+
+[Install]
+WantedBy=timers.target

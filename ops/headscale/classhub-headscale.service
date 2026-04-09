@@ -1,0 +1,36 @@
+[Unit]
+Description=ClassHub Headscale control plane
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Override User=/Group= if your host identity differs from the default.
+User=headscale
+Group=docker
+WorkingDirectory=/srv/headscale
+EnvironmentFile=-/srv/headscale/.env
+ExecStartPre=/usr/bin/env bash -lc 'test -f /srv/headscale/.env || { echo "Missing /srv/headscale/.env"; exit 1; }'
+ExecStartPre=/usr/bin/env bash -lc 'test -f /srv/headscale/config/config.yaml || { echo "Missing /srv/headscale/config/config.yaml"; exit 1; }'
+ExecStartPre=/usr/bin/env bash -lc 'test -f /srv/headscale/config/policy.hujson || { echo "Missing /srv/headscale/config/policy.hujson"; exit 1; }'
+ExecStart=/usr/bin/docker compose up -d --remove-orphans
+ExecStop=/usr/bin/docker compose down
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/srv/headscale /run/docker.sock /var/run/docker.sock
+
+[Install]
+WantedBy=multi-user.target

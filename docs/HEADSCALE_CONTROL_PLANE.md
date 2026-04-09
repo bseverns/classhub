@@ -63,7 +63,41 @@ Assume:
 - Ubuntu or another Linux distribution on the LMS host
 - Ubuntu or another Linux distribution on the GPU/model host
 
-This repo documents the topology and operator expectations. It does not currently automate Headscale installation for you.
+This repo now ships a narrow Headscale ops bundle in `ops/headscale/`:
+
+- Ubuntu-first bootstrap via `ops/headscale/install.sh`
+- canonical Compose stack via `ops/headscale/docker-compose.yml`
+- backup via `ops/headscale/backup.sh`
+- restore via `ops/headscale/restore.sh`
+- systemd wrappers via `ops/headscale/classhub-headscale.service` and `ops/headscale/classhub-headscale-backup.timer`
+
+The ClassHub app still does not depend on Headscale internals at runtime.
+
+## Canonical repo bundle
+
+Use the repo bundle to make the control plane reproducible instead of memory-driven.
+
+Recommended runtime root on the Headscale VPS:
+
+- `/srv/headscale`
+
+Recommended repo checkout on the Headscale VPS:
+
+- `/srv/headscale/app`
+
+Recommended bootstrap sequence:
+
+```bash
+cd /srv/headscale/app
+sudo bash ops/headscale/install.sh
+sudo cp /srv/headscale/.env.example /srv/headscale/.env
+sudo cp /srv/headscale/config/config.yaml.example /srv/headscale/config/config.yaml
+sudo cp /srv/headscale/config/policy.hujson.example /srv/headscale/config/policy.hujson
+sudo systemctl enable --now classhub-headscale
+sudo systemctl enable --now classhub-headscale-backup.timer
+```
+
+This keeps the Headscale VPS deployment path aligned with the rest of the repo's operator bundle style.
 
 ## What joins the tailnet
 
@@ -164,6 +198,18 @@ Back up the control plane like a small but important coordination service:
 
 Keep backups off the VPS.
 
+Canonical repo-side backup command:
+
+```bash
+sudo /usr/local/bin/classhub-headscale-backup --headscale-root /srv/headscale
+```
+
+Recommended recurring automation:
+
+```bash
+sudo systemctl enable --now classhub-headscale-backup.timer
+```
+
 ## Replacement and recovery expectations
 
 Treat the Headscale VPS as important but replaceable:
@@ -172,6 +218,15 @@ Treat the Headscale VPS as important but replaceable:
 2. keep the same hostname if possible (`hs.creatempls.org`)
 3. confirm the LMS host and GPU host rejoin cleanly
 4. rerun helper probing from the LMS host
+
+Canonical repo-side restore command:
+
+```bash
+sudo /usr/local/bin/classhub-headscale-restore \
+  --headscale-root /srv/headscale \
+  --backup /srv/headscale/backups/headscale_<STAMP>.tgz \
+  --start-stack
+```
 
 The public LMS and model service remain separate concerns. Replacing the control plane should not require changing application code.
 
@@ -194,7 +249,10 @@ curl -fsS http://127.0.0.1:11434/api/tags
 From the Headscale VPS:
 
 ```bash
-systemctl status headscale
+systemctl status classhub-headscale --no-pager
+systemctl status classhub-headscale-backup.timer --no-pager
+cd /srv/headscale && docker compose ps
+curl -fsS http://127.0.0.1:9090/metrics >/dev/null
 ```
 
 Use the Headscale VPS to confirm control-plane health, not to test public site routing.
@@ -205,4 +263,5 @@ Use the Headscale VPS to confirm control-plane health, not to test public site r
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [RUNBOOK.md](RUNBOOK.md)
 - [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
+- repo ops bundle: `ops/headscale/README.md`
 - repo ops bundle: `ops/llm-server/README.md`

@@ -60,8 +60,19 @@ An operator can explain each enabled non-default flag in one sentence and show o
 4. Validate simulation + scoped grant behavior for real teacher/admin accounts.
 5. Enable `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1` only when two-person approval flow is staffed.
 
+## Remote helper hardening sequence
+
+For the remote helper compute path, the next hardening work should stay narrow and infrastructure-focused:
+
+1. lease governance (`TTL`, auto-stop, clear expiry display, one stop path)
+2. honest readiness semantics (`ready` only after real warm/probe success)
+3. small durable operator metrics (activations, time-to-ready, fallbacks, degraded transitions)
+4. provisioning codification for Headscale/bridge bootstrap and restore
+5. bridge idempotency and lease audit trail depth
+
 ## Related docs
 - [CURRENT_STATE.md](CURRENT_STATE.md)
+- [INFRASTRUCTURE_HARDENING_ROADMAP.md](INFRASTRUCTURE_HARDENING_ROADMAP.md)
 - [RBAC_GUIDE.md](RBAC_GUIDE.md)
 - [PROGRAM_PROFILES.md](PROGRAM_PROFILES.md)
 - [OPENAI_HELPER.md](OPENAI_HELPER.md)

@@ -93,6 +93,7 @@ The quickstart and deploy scripts now default to a bundled CPU-local helper smok
 - Private LLM topology: [`docs/PRIVATE_LLM_BACKEND.md`](docs/PRIVATE_LLM_BACKEND.md)
 - Headscale operator guide: [`docs/HEADSCALE_CONTROL_PLANE.md`](docs/HEADSCALE_CONTROL_PLANE.md)
 - Remote compute lease control: [`docs/REMOTE_HELPER_COMPUTE_CONTROL.md`](docs/REMOTE_HELPER_COMPUTE_CONTROL.md)
+- Infrastructure hardening roadmap: [`docs/INFRASTRUCTURE_HARDENING_ROADMAP.md`](docs/INFRASTRUCTURE_HARDENING_ROADMAP.md)
 - Feature flags and maturity: [`docs/FEATURE_MATURITY.md`](docs/FEATURE_MATURITY.md)
 
 ## Repository links

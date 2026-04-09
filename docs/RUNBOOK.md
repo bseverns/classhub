@@ -160,6 +160,46 @@ Reference:
 - [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md)
 - [REMOTE_HELPER_COMPUTE_CONTROL.md](REMOTE_HELPER_COMPUTE_CONTROL.md)
 
+### Headscale control-plane bundle
+
+If this deployment uses Headscale for the helper/model tailnet, use the repo bundle in `ops/headscale/` instead of a one-off VPS setup.
+
+Recommended bootstrap on the Headscale VPS:
+
+```bash
+cd /srv/headscale/app
+sudo bash ops/headscale/install.sh
+sudo cp /srv/headscale/.env.example /srv/headscale/.env
+sudo cp /srv/headscale/config/config.yaml.example /srv/headscale/config/config.yaml
+sudo cp /srv/headscale/config/policy.hujson.example /srv/headscale/config/policy.hujson
+sudo systemctl enable --now classhub-headscale
+sudo systemctl enable --now classhub-headscale-backup.timer
+```
+
+Canonical backup command:
+
+```bash
+sudo /usr/local/bin/classhub-headscale-backup --headscale-root /srv/headscale
+```
+
+Canonical restore command on a replacement VPS:
+
+```bash
+sudo /usr/local/bin/classhub-headscale-restore \
+  --headscale-root /srv/headscale \
+  --backup /srv/headscale/backups/headscale_<STAMP>.tgz \
+  --start-stack
+```
+
+Operational intent:
+
+- keep the Headscale VPS small and replaceable
+- back it up like coordination state, not like the LMS itself
+- recover it with one archive + one restore command + one LMS-side helper probe
+
+The Headscale bundle is not part of the public LMS Compose stack.
+It is a separate control-plane bundle for the separate VPS.
+
 ### Staff-only remote helper compute lease
 
 If you enable bounded remote helper compute control:

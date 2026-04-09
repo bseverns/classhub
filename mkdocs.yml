@@ -65,6 +65,7 @@ nav:
 
   - Operations:
       - Feature Maturity: FEATURE_MATURITY.md
+      - Infrastructure Hardening Roadmap: INFRASTRUCTURE_HARDENING_ROADMAP.md
       - Canonical Truths: CANONICAL_TRUTHS.md
       - Day 1 Checklist: DAY1_DEPLOY_CHECKLIST.md
       - Minimum Viable Operator: MINIMUM_VIABLE_OPERATOR.md

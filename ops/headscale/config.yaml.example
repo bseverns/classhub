@@ -1,0 +1,31 @@
+# Minimal Headscale config for the createMPLS control-plane VPS.
+# Validate after editing:
+#   cd /srv/headscale
+#   docker compose exec headscale headscale configtest
+
+server_url: https://hs.creatempls.org
+listen_addr: 0.0.0.0:8080
+metrics_listen_addr: 0.0.0.0:9090
+
+noise:
+  private_key_path: /var/lib/headscale/noise_private.key
+
+prefixes:
+  v4: 100.64.0.0/10
+  allocation: sequential
+
+database:
+  type: sqlite
+  sqlite:
+    path: /var/lib/headscale/db.sqlite
+
+policy:
+  path: /etc/headscale/policy.hujson
+
+dns:
+  magic_dns: true
+  base_domain: tail.creatempls.org
+
+log:
+  format: text
+  level: info

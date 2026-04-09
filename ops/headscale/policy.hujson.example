@@ -1,0 +1,36 @@
+{
+  // Narrow default tag ownership for the createMPLS private helper path.
+  "groups": {
+    "group:ops": [
+      "ops@creatempls.org"
+    ]
+  },
+
+  "tagOwners": {
+    "tag:lms": ["group:ops"],
+    "tag:gpu": ["group:ops"],
+    "tag:ops": ["group:ops"]
+  },
+
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["tag:lms"],
+      "dst": ["tag:gpu:*"]
+    },
+    {
+      "action": "accept",
+      "src": ["tag:gpu"],
+      "dst": ["tag:lms:*"]
+    },
+    {
+      "action": "accept",
+      "src": ["tag:ops"],
+      "dst": ["tag:lms:*", "tag:gpu:*"]
+    }
+  ],
+
+  "autoApprovers": {
+    "routes": {}
+  }
+}

@@ -1,0 +1,29 @@
+[Unit]
+Description=ClassHub Headscale backup
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+# Override User=/Group= if your host identity differs from the default.
+User=headscale
+Group=headscale
+WorkingDirectory=/srv/headscale
+ExecStart=/usr/local/bin/classhub-headscale-backup --headscale-root /srv/headscale
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/srv/headscale
+
+[Install]
+WantedBy=multi-user.target
