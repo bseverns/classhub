@@ -7,8 +7,8 @@ The helper service is a Django app that exposes:
 - `POST /helper/internal/reset-class-conversations` (token-protected internal control plane)
 - `GET /helper/internal/rag-status` (token-protected internal evidence/status contract)
 
-By default, the helper is wired to a local LLM server (Ollama) for self-hosted reliability and predictable costs.
-Private remote Ollama over a host-to-host tailnet is the current supported scale-out path.
+By default, the helper is wired to a small local LLM path (via Ollama) for self-hosted smoke validation and predictable day-1 ops.
+For the serious private scale-out path, prefer a Gemma-family model on a private GPU host and let Homework Helper reach it over the host-to-host tailnet through Ollama or another compatible private backend.
 For createMPLS-style deployments, the recommended control plane behind that path is Headscale on a tiny Ubuntu VPS.
 OpenAI remains an explicit development/future path via the **Responses API** and must be intentionally acknowledged before use.
 
@@ -188,22 +188,24 @@ Larger models may be too slow or may not fit in memory.
 If you run Ollama outside of Compose, set `OLLAMA_BASE_URL` to the host address
 that containers can reach.
 
-For hosted or remote Ollama deployments, set `OLLAMA_NUM_CTX` explicitly when
-the model's default context window is too large for your runtime. A value like
-`4096` is a practical starting point for smoke checks and short classroom hints.
+For hosted or remote model deployments, set `OLLAMA_NUM_CTX`/`LLM_NUM_CTX`
+explicitly when the model's default context window is too large for your
+runtime. A value like `4096` is a practical starting point for smoke checks and
+short classroom hints.
 
-### Ollama (remote GPU over private tailnet)
+### Private remote model host (Gemma-family example over private tailnet)
 
 Recommended production pattern:
 - keep the tailnet client host-managed, not in `docker-compose.yml`
-- run Ollama on the GPU host
+- run the model server on the GPU host
 - publish it privately as a tailnet-only HTTPS endpoint
 - point Class Hub at the GPU host's private HTTPS hostname
 - for createMPLS-style deployments, recommend Headscale as the control plane behind that private path
+- for open-model deployments, a Gemma-family model is the recommended example for the private GPU host
 
 Why this is the preferred remote pattern:
 - keeps the app Compose stack least-privilege
-- avoids public edge proxies between `helper_web` and Ollama
+- avoids public edge proxies between `helper_web` and the private model backend
 - gives operators a stable URL that works in both browsers and env config
 
 GPU host bring-up:

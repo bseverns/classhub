@@ -49,10 +49,12 @@ flowchart TD
   - `CADDY_HELPER_MAX_BODY` (helper API; default `1MB`)
   - `CLASSHUB_UPLOAD_MAX_MB` (default `200`)
 - Configure LLM backend (default is Ollama; ensure it is running)
+  - Treat the local LMS-hosted model path as a bounded smoke/day-1 validation lane, not as the serious long-term inference node.
   - If using a remote GPU, keep the browser on the public LMS site and let Homework Helper reach the model host privately over a tailnet:
     - public LMS example: `DOMAIN=lms.creatempls.org`
     - private model endpoint example: `LLM_BASE_URL=https://llm-gpu.tail.creatempls.org`
     - recommended control plane for createMPLS-style production: Headscale on a tiny Ubuntu VPS such as `hs.creatempls.org`
+    - recommended open-model example on the private GPU host: a Gemma-family model
     - set `LLM_BACKEND=ollama`
     - set `LLM_API_KEY=<shared proxy bearer token>`
     - set `HELPER_REMOTE_MODE_ACKNOWLEDGED=1`

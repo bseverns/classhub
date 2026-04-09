@@ -5,7 +5,7 @@ This directory contains operational tools, CI guardrails, and quality gates for 
 These tools are designed to be run from the repository root: `bash scripts/script_name.sh`.
 
 Operator shortcut:
-- `make smoke-full` runs golden stack smoke plus accessibility smoke against the local Ollama baseline, even if `compose/.env` is pointed at a remote/private helper backend. It now overrides both the canonical `LLM_*` keys and the legacy `HELPER_LLM_BACKEND` / `OLLAMA_*` keys so doctor/smoke logic cannot drift on mixed env files.
+- `make smoke-full` runs golden stack smoke plus accessibility smoke against a deliberately small local helper baseline, even if `compose/.env` is pointed at a remote/private helper backend. It overrides both the canonical `LLM_*` keys and the legacy `HELPER_LLM_BACKEND` / `OLLAMA_*` keys so doctor/smoke logic cannot drift on mixed env files, and it keeps the local smoke lane bounded instead of pretending the LMS box is the serious long-term inference host.
 - `make ops-readiness` runs runtime-lock + CSP rollout contract + teach-class contracts + docs/inventory/backlog guards in one command (`OPS_READINESS_PROFILE=baseline|release`, `OPS_READINESS_ENV_FILE=compose/.env`).
 
 ## Core Operations & Deployment

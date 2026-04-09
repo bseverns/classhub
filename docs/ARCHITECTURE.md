@@ -142,7 +142,7 @@ For the remote private-model continuation of that flow, see [PRIVATE_LLM_BACKEND
 
 - Owns helper chat policy, prompt shaping, and model backends.
 - Uses Postgres + Redis for auth/session/rate-limit integration.
-- Uses Ollama by default; private remote Ollama/vLLM are supported through the helper provider layer.
+- Uses a small local Ollama path by default for bounded smoke/day-1 validation; serious remote Gemma-family or other private backends are supported through the helper provider layer.
 - Private remote deployment stays control-plane-agnostic at runtime: the app uses `LLM_BASE_URL` and `LLM_API_KEY`, while operators may use Tailscale or Headscale to coordinate the private host-to-host path.
 - Owns the bounded remote-compute lease control for expensive private helper backends; the teacher/admin surface can request activation, but provider credentials and orchestration APIs remain server-side.
 - Runtime behavior is resolved through explicit contracts:
@@ -162,9 +162,9 @@ For the remote private-model continuation of that flow, see [PRIVATE_LLM_BACKEND
 - Production images bake service code and curriculum content from repo.
 - Gunicorn serves Django in containers.
 - Local dev uses compose override + bind mounts for fast iteration.
-- Day-1 deploy/test defaults to a bundled CPU-local Ollama service when the helper backend points at `http://ollama:11434`.
+- Day-1 deploy/test defaults to a bundled CPU-local Ollama service with a small local smoke profile when the helper backend points at `http://ollama:11434`.
 - Private remote inference remains optional; remote helper validation is advisory by default so the core LMS stack can still deploy and smoke-test independently.
-- For createMPLS-style production use, the recommended serious path is a public LMS plus a private tailnet-only model endpoint coordinated by Headscale on a tiny Ubuntu VPS.
+- For createMPLS-style production use, the recommended serious path is a public LMS plus a private tailnet-only model endpoint coordinated by Headscale on a tiny Ubuntu VPS, with a Gemma-family model as the recommended open-model example on the private GPU host.
 
 ## Staff activation path for remote compute
 

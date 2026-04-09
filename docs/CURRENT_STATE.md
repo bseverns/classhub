@@ -45,7 +45,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
 - System validation command: `bash scripts/validate_env_secrets.sh`.
 - System validation command: `bash scripts/system_doctor.sh --smoke-mode golden`.
-- Serious remote-LLM production posture is documented as: public LMS, private model host, helper-only server-to-server tailnet traffic, and a Headscale-recommended control plane for createMPLS-style deployments.
+- Serious remote-LLM production posture is documented as: public LMS, private model host, helper-only server-to-server tailnet traffic, a Headscale-recommended control plane for createMPLS-style deployments, and a Gemma-family model as the recommended open-model example on the remote private host.
 
 ## Current product posture
 - Privacy-forward default: minimal student identity model.

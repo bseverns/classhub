@@ -74,7 +74,7 @@ Then open:
 - Student join: `http://localhost/`
 - Teacher login: `http://localhost/teach/login` (or `http://localhost/admin/login/` for admin console access)
 
-The quickstart and deploy scripts now default to the bundled CPU-local Ollama path for helper smoke/deploy checks. If you later move the helper to a private remote model host, the serious production path is a public LMS plus a private tailnet-only model endpoint that only Homework Helper can reach. For createMPLS-style deployments, the recommended control plane for that private path is a self-hosted Headscale server on a tiny Ubuntu VPS. Remote validation remains advisory by default instead of blocking the rest of the stack.
+The quickstart and deploy scripts now default to a bundled CPU-local helper smoke path via Ollama. That local path is intentionally small and bounded so operators can validate the LMS stack on modest hardware without turning the LMS host into the serious production inference node. If you later move the helper to a private remote model host, the serious production path is a public LMS plus a private tailnet-only model endpoint that only Homework Helper can reach. For createMPLS-style deployments, the recommended control plane for that private path is a self-hosted Headscale server on a tiny Ubuntu VPS. A Gemma-family model on the remote private host is now the recommended open-model example, while the ClassHub runtime remains provider-neutral (`LLM_BACKEND`, `LLM_BASE_URL`, `LLM_API_KEY`).
 
 ## Production posture (important)
 

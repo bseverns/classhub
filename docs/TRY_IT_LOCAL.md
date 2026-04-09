@@ -109,6 +109,7 @@ Verification signal:
 ## Helper defaults for safe demo
 - This guide uses the bundled CPU-local Ollama backend by default, so no OpenAI key is required.
 - The quickstart wrapper auto-starts the `local-ollama` Compose profile and pulls the configured model before doctor/smoke.
+- `make smoke-full` uses a deliberately small local helper profile (reduced context and short replies) so LMS hosts can validate `/helper/chat` without pretending the LMS box is the serious long-term inference node.
 - If you need deterministic helper replies for CI-style testing, you can still switch to `HELPER_LLM_BACKEND=mock` in `compose/.env`.
 
 Verification signal: helper responses return locally and no external LLM credentials are required.

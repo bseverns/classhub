@@ -15,8 +15,10 @@ For the createMPLS deployment at `lms.creatempls.org`, the expected mental model
 
 Current deploy/test default:
 
-- use the bundled CPU-local Ollama service for day-1 compose deploys and smoke checks
+- use the bundled CPU-local Ollama service only for day-1 compose deploys and bounded smoke checks
+- keep that local smoke path intentionally small so modest LMS nodes can still validate `/helper/chat`
 - treat remote private-backend validation as optional pass/fail evidence, not as a blocker for the rest of the stack
+- for the serious private backend, prefer a Gemma-family model on the private GPU host, served through Ollama or another compatible private backend
 
 ```mermaid
 flowchart TD
@@ -119,10 +121,10 @@ Reference:
 ## Current backend modes
 
 - `LLM_BACKEND=ollama`
-  - current active path for private Ollama distributions
-  - can use a tailnet-only HTTPS endpoint plus a local Caddy bearer-token wrapper
+  - practical path for local smoke and for remote private hosts that expose an Ollama-compatible API
+  - common serious deployment example: a Gemma-family model on the private GPU host behind a tailnet-only HTTPS endpoint
 - `LLM_BACKEND=openai_compatible`
-  - swap-ready path for vLLM or another OpenAI-compatible private server
+  - swap-ready path for vLLM, TGI, or another OpenAI-compatible private server
 - `LLM_BACKEND=mock`
   - deterministic local/test path only
 
@@ -139,7 +141,7 @@ LLM_ENABLED=1
 LLM_BACKEND=ollama
 LLM_BASE_URL=https://llm-gpu.tail.creatempls.org
 LLM_API_KEY=REPLACE_ME_STRONG
-LLM_MODEL=llama3.2:3b
+LLM_MODEL=gemma3:4b
 LLM_TIMEOUT_SECONDS=30
 LLM_MAX_TOKENS=256
 LLM_NUM_CTX=4096
@@ -172,7 +174,8 @@ bash scripts/system_doctor.sh
 ```
 
 `system_doctor` runs a helper-container LLM connectivity check before end-to-end smoke.
-When the backend is remote/private, that backend check and helper smoke path run in advisory mode by default; local CPU-backed helper validation remains required.
+When the backend is remote/private, that backend check and helper smoke path run in advisory mode by default; small local helper validation remains required.
+`make smoke-full` now reinforces that local lane with a reduced context window, short reply budget, and single backend attempt so the LMS host can validate the helper path without impersonating the serious remote inference node.
 
 ## Logging defaults
 

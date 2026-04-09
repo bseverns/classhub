@@ -126,6 +126,7 @@ Common causes:
 - `LLM_API_KEY` mismatch between LMS and private proxy
 - helper worker timeout too strict for retry budget
 - helper request queue is saturated on CPU-bound inference
+- the local smoke model/context is too large for the LMS host RAM budget
 
 Checks:
 
@@ -163,6 +164,18 @@ OLLAMA_HOST=0.0.0.0:11434
 ```
 
 The shipped Compose file now sets that automatically and the doctor waits for Ollama to become healthy before probe chat.
+
+If the local smoke lane still fails on a small VPS, reduce the local smoke profile before treating it as a private-backend design problem. `make smoke-full` now uses a bounded local profile, but very small hosts may still need:
+
+```bash
+SMOKE_FULL_LOCAL_OLLAMA_MODEL=llama3.2:1b \
+SMOKE_FULL_LOCAL_LLM_NUM_CTX=1024 \
+SMOKE_FULL_LOCAL_LLM_MAX_TOKENS=96 \
+SMOKE_FULL_LOCAL_HELPER_BACKEND_MAX_ATTEMPTS=1 \
+make smoke-full
+```
+
+If the serious deployment target is a private GPU host, prefer solving that path there with a Gemma-family model instead of trying to turn the LMS VPS into the long-term inference node.
 
 If both canonical and legacy helper keys are present, keep them aligned:
 
