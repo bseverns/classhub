@@ -2546,6 +2546,9 @@ Execution ownership and gates:
   - `data_lifespan.snapshot_export`.
 - Add helper-side internal status endpoint:
   - `GET /helper/internal/rag-status` (bearer token, same `HELPER_INTERNAL_API_TOKEN` contract as other helper internal control endpoints).
+- Keep helper internal control/status auditing log-based inside Homework Helper:
+  - emit structured `tutor.internal_audit` events for token failures, successful status reads, and remote-control/reset actions,
+  - do not write cross-service helper-internal access into ClassHub `AuditEvent` rows.
 - Keep helper RAG status response explicitly curriculum-only by contract:
   - includes per-reference chunk counts + last index timestamps,
   - includes explicit `student_data_excluded_from_index: true`.

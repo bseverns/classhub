@@ -26,14 +26,16 @@ class HelperInternalResetTests(TestCase):
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     def test_internal_reset_rejects_invalid_token(self):
-        resp = self.client.post(
-            "/helper/internal/reset-class-conversations",
-            data=json.dumps({"class_id": 5}),
-            content_type="application/json",
-            HTTP_AUTHORIZATION="Bearer wrong-token",
-        )
+        with self.assertLogs("tutor.internal_audit", level="WARNING") as captured:
+            resp = self.client.post(
+                "/helper/internal/reset-class-conversations",
+                data=json.dumps({"class_id": 5}),
+                content_type="application/json",
+                HTTP_AUTHORIZATION="Bearer wrong-token",
+            )
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(resp.json().get("error"), "unauthorized")
+        self.assertIn("internal_reset_unauthorized", captured.records[0].getMessage())
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     def test_internal_reset_clears_class_conversation_keys(self):
@@ -52,18 +54,21 @@ class HelperInternalResetTests(TestCase):
         )
         self.assertIsNotNone(cache.get(key))
 
-        resp = self.client.post(
-            "/helper/internal/reset-class-conversations",
-            data=json.dumps({"class_id": 55}),
-            content_type="application/json",
-            HTTP_AUTHORIZATION="Bearer token-123",
-        )
+        with self.assertLogs("tutor.internal_audit", level="INFO") as captured:
+            resp = self.client.post(
+                "/helper/internal/reset-class-conversations",
+                data=json.dumps({"class_id": 55}),
+                content_type="application/json",
+                HTTP_AUTHORIZATION="Bearer token-123",
+            )
         self.assertEqual(resp.status_code, 200)
         body = resp.json()
         self.assertTrue(body.get("ok"))
         self.assertEqual(body.get("class_id"), 55)
         self.assertGreaterEqual(int(body.get("deleted_conversations") or 0), 1)
         self.assertIsNone(cache.get(key))
+        self.assertIn("internal_reset_completed", captured.records[0].getMessage())
+        self.assertIn('"class_id": 55', captured.records[0].getMessage())
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     @patch.dict(

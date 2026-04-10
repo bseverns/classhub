@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from .engine import runtime as engine_runtime
+from .internal_audit import log_internal_audit_event
 from .remote_compute_control import (
     activate_remote_compute,
     current_remote_compute_lease,
@@ -37,13 +38,25 @@ def _internal_api_token() -> str:
     return str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip()
 
 
-def _authorized(request):
+def _authorized(request, *, request_id: str, event_prefix: str):
     configured_token = _internal_api_token()
     if not configured_token:
-        return False, _json_response({"error": "internal_token_not_configured"}, request_id=_request_id(request), status=503)
+        log_internal_audit_event(
+            "error",
+            f"{event_prefix}_token_not_configured",
+            request=request,
+            request_id=request_id,
+        )
+        return False, _json_response({"error": "internal_token_not_configured"}, request_id=request_id, status=503)
     provided_token = _extract_bearer_token(request)
     if not provided_token or not hmac.compare_digest(configured_token, provided_token):
-        return False, _json_response({"error": "unauthorized"}, request_id=_request_id(request), status=401)
+        log_internal_audit_event(
+            "warning",
+            f"{event_prefix}_unauthorized",
+            request=request,
+            request_id=request_id,
+        )
+        return False, _json_response({"error": "unauthorized"}, request_id=request_id, status=401)
     return True, None
 
 
@@ -51,7 +64,7 @@ def _authorized(request):
 @require_GET
 def internal_remote_compute_status(request):
     request_id = _request_id(request)
-    ok, response = _authorized(request)
+    ok, response = _authorized(request, request_id=request_id, event_prefix="internal_remote_compute_status")
     if not ok:
         return response
     try:
@@ -59,6 +72,17 @@ def internal_remote_compute_status(request):
     except Exception:
         class_id = 0
     lease = current_remote_compute_lease(class_id=class_id, refresh=True)
+    log_internal_audit_event(
+        "info",
+        "internal_remote_compute_status_read",
+        request=request,
+        request_id=request_id,
+        class_id=lease.class_id,
+        state=lease.state,
+        active=lease.active,
+        active_for_class=lease.active_for_class,
+        use_remote_backend=lease.use_remote_backend,
+    )
     return _json_response(
         {
             "ok": True,
@@ -95,14 +119,26 @@ def internal_remote_compute_status(request):
 @require_POST
 def internal_remote_compute_control(request):
     request_id = _request_id(request)
-    ok, response = _authorized(request)
+    ok, response = _authorized(request, request_id=request_id, event_prefix="internal_remote_compute_control")
     if not ok:
         return response
     try:
         payload = json.loads(request.body.decode("utf-8"))
     except Exception:
+        log_internal_audit_event(
+            "warning",
+            "internal_remote_compute_control_bad_json",
+            request=request,
+            request_id=request_id,
+        )
         return _json_response({"error": "bad_json"}, request_id=request_id, status=400)
     if not isinstance(payload, dict):
+        log_internal_audit_event(
+            "warning",
+            "internal_remote_compute_control_bad_json",
+            request=request,
+            request_id=request_id,
+        )
         return _json_response({"error": "bad_json"}, request_id=request_id, status=400)
 
     action = str(payload.get("action") or "").strip().lower()
@@ -112,8 +148,23 @@ def internal_remote_compute_control(request):
         class_id = 0
     requested_by = str(payload.get("requested_by") or "").strip()
     if class_id <= 0:
+        log_internal_audit_event(
+            "warning",
+            "internal_remote_compute_control_invalid_class_id",
+            request=request,
+            request_id=request_id,
+            action=action,
+        )
         return _json_response({"error": "invalid_class_id"}, request_id=request_id, status=400)
     if not requested_by:
+        log_internal_audit_event(
+            "warning",
+            "internal_remote_compute_control_missing_requested_by",
+            request=request,
+            request_id=request_id,
+            action=action,
+            class_id=class_id,
+        )
         return _json_response({"error": "missing_requested_by"}, request_id=request_id, status=400)
 
     if action == "activate":
@@ -125,9 +176,30 @@ def internal_remote_compute_control(request):
     elif action == "deactivate":
         result = deactivate_remote_compute(class_id=class_id, requested_by=requested_by)
     else:
+        log_internal_audit_event(
+            "warning",
+            "internal_remote_compute_control_invalid_action",
+            request=request,
+            request_id=request_id,
+            action=action,
+            class_id=class_id,
+            requested_by=requested_by,
+        )
         return _json_response({"error": "invalid_action"}, request_id=request_id, status=400)
 
     if not result.ok:
+        log_internal_audit_event(
+            "warning",
+            "internal_remote_compute_control_failed",
+            request=request,
+            request_id=request_id,
+            action=action,
+            class_id=class_id,
+            requested_by=requested_by,
+            error_code=result.error_code,
+            state=result.lease.state,
+            provider_request_id=result.provider_request_id,
+        )
         return _json_response(
             {
                 "error": result.error_code or "remote_compute_control_failed",
@@ -144,6 +216,19 @@ def internal_remote_compute_control(request):
             request_id=request_id,
             status=503,
         )
+    log_internal_audit_event(
+        "info",
+        "internal_remote_compute_control_completed",
+        request=request,
+        request_id=request_id,
+        action=result.action,
+        class_id=result.lease.class_id,
+        requested_by=requested_by,
+        state=result.lease.state,
+        active=result.lease.active,
+        use_remote_backend=result.lease.use_remote_backend,
+        provider_request_id=result.provider_request_id,
+    )
     return _json_response(
         {
             "ok": True,

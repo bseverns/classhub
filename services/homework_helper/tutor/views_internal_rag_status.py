@@ -11,6 +11,7 @@ from django.views.decorators.http import require_GET
 from .engine import rag as engine_rag
 from .engine.config_source import helper_getenv
 from .engine import runtime as engine_runtime
+from .internal_audit import log_internal_audit_event
 
 
 def _request_id(request) -> str:
@@ -102,9 +103,21 @@ def internal_rag_status(request):
     request_id = _request_id(request)
     configured_token = _internal_api_token()
     if not configured_token:
+        log_internal_audit_event(
+            "error",
+            "internal_rag_status_token_not_configured",
+            request=request,
+            request_id=request_id,
+        )
         return _json_response({"error": "internal_token_not_configured"}, status=503, request_id=request_id)
     provided_token = _extract_bearer_token(request)
     if not provided_token or not hmac.compare_digest(configured_token, provided_token):
+        log_internal_audit_event(
+            "warning",
+            "internal_rag_status_unauthorized",
+            request=request,
+            request_id=request_id,
+        )
         return _json_response({"error": "unauthorized"}, status=401, request_id=request_id)
 
     reference_rows, total_chunks, last_index_built_at = _fetch_reference_rows()
@@ -122,6 +135,16 @@ def internal_rag_status(request):
         "reference_sources": reference_rows,
         "student_data_excluded_from_index": True,
     }
+    log_internal_audit_event(
+        "info",
+        "internal_rag_status_read",
+        request=request,
+        request_id=request_id,
+        rag_enabled=payload["rag_enabled"],
+        index_ready=payload["index_ready"],
+        indexed_chunk_count=payload["indexed_chunk_count"],
+        reference_source_count=payload["reference_source_count"],
+    )
     return _json_response(payload, request_id=request_id)
 
 

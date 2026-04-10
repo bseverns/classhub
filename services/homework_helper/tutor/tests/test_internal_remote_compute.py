@@ -20,14 +20,16 @@ class HelperInternalRemoteComputeTests(TestCase):
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     def test_remote_compute_control_rejects_invalid_token(self):
-        resp = self.client.post(
-            "/helper/internal/remote-compute-control",
-            data=json.dumps({"action": "activate", "class_id": 5, "requested_by": "teacher1"}),
-            content_type="application/json",
-            HTTP_AUTHORIZATION="Bearer wrong-token",
-        )
+        with self.assertLogs("tutor.internal_audit", level="WARNING") as captured:
+            resp = self.client.post(
+                "/helper/internal/remote-compute-control",
+                data=json.dumps({"action": "activate", "class_id": 5, "requested_by": "teacher1"}),
+                content_type="application/json",
+                HTTP_AUTHORIZATION="Bearer wrong-token",
+            )
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(resp.json().get("error"), "unauthorized")
+        self.assertIn("internal_remote_compute_control_unauthorized", captured.records[0].getMessage())
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     @patch.dict(
@@ -63,19 +65,20 @@ class HelperInternalRemoteComputeTests(TestCase):
         deactivate_response.read.return_value = b'{"ok": true, "state": "off", "detail": "stopped"}'
         urlopen_mock.side_effect = [activate_response, health_response, deactivate_response]
 
-        activate_resp = self.client.post(
-            "/helper/internal/remote-compute-control",
-            data=json.dumps(
-                {
-                    "action": "activate",
-                    "class_id": 7,
-                    "requested_by": "teacher1",
-                    "duration_minutes": 60,
-                }
-            ),
-            content_type="application/json",
-            HTTP_AUTHORIZATION="Bearer token-123",
-        )
+        with self.assertLogs("tutor.internal_audit", level="INFO") as captured:
+            activate_resp = self.client.post(
+                "/helper/internal/remote-compute-control",
+                data=json.dumps(
+                    {
+                        "action": "activate",
+                        "class_id": 7,
+                        "requested_by": "teacher1",
+                        "duration_minutes": 60,
+                    }
+                ),
+                content_type="application/json",
+                HTTP_AUTHORIZATION="Bearer token-123",
+            )
         self.assertEqual(activate_resp.status_code, 200)
         activate_body = activate_resp.json()
         self.assertTrue(activate_body.get("ok"))
@@ -84,11 +87,14 @@ class HelperInternalRemoteComputeTests(TestCase):
         self.assertTrue(activate_body.get("lease", {}).get("active_for_class"))
         self.assertEqual(activate_body.get("lease", {}).get("state"), "ready")
         self.assertTrue(activate_body.get("lease", {}).get("use_remote_backend"))
+        self.assertIn("internal_remote_compute_control_completed", captured.records[0].getMessage())
+        self.assertIn('"class_id": 7', captured.records[0].getMessage())
 
-        status_resp = self.client.get(
-            "/helper/internal/remote-compute-status?class_id=7",
-            HTTP_AUTHORIZATION="Bearer token-123",
-        )
+        with self.assertLogs("tutor.internal_audit", level="INFO") as status_logs:
+            status_resp = self.client.get(
+                "/helper/internal/remote-compute-status?class_id=7",
+                HTTP_AUTHORIZATION="Bearer token-123",
+            )
         self.assertEqual(status_resp.status_code, 200)
         status_body = status_resp.json()
         self.assertTrue(status_body.get("active"))
@@ -96,6 +102,8 @@ class HelperInternalRemoteComputeTests(TestCase):
         self.assertEqual(status_body.get("state"), "ready")
         self.assertTrue(status_body.get("paid_usage_acknowledged"))
         self.assertEqual(status_body.get("provider_adapter"), "thunder_webhook")
+        self.assertIn("internal_remote_compute_status_read", status_logs.records[0].getMessage())
+        self.assertIn('"class_id": 7', status_logs.records[0].getMessage())
 
         deactivate_resp = self.client.post(
             "/helper/internal/remote-compute-control",

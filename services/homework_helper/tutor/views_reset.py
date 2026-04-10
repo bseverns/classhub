@@ -16,6 +16,7 @@ from django.views.decorators.http import require_POST
 from .engine.config_source import helper_getenv
 from .engine import memory as engine_memory
 from .engine import runtime as engine_runtime
+from .internal_audit import log_internal_audit_event
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,16 @@ def _log_chat_event(level: str, event: str, *, request_id: str, **fields):
         event,
         request_id_value=request_id,
         logger=logger,
+        **fields,
+    )
+
+
+def _log_internal_event(level: str, event: str, *, request, request_id: str, **fields):
+    log_internal_audit_event(
+        level,
+        event,
+        request=request,
+        request_id=request_id,
         **fields,
     )
 
@@ -106,19 +117,23 @@ def reset_class_conversations(request):
     configured_token = _internal_api_token()
     if not configured_token:
         _log_chat_event("error", "internal_token_not_configured", request_id=request_id)
+        _log_internal_event("error", "internal_reset_token_not_configured", request=request, request_id=request_id)
         return _json_response({"error": "internal_token_not_configured"}, status=503, request_id=request_id)
 
     provided_token = _extract_bearer_token(request)
     if not provided_token or not hmac.compare_digest(configured_token, provided_token):
         _log_chat_event("warning", "internal_unauthorized", request_id=request_id)
+        _log_internal_event("warning", "internal_reset_unauthorized", request=request, request_id=request_id)
         return _json_response({"error": "unauthorized"}, status=401, request_id=request_id)
 
     try:
         payload = json.loads(request.body.decode("utf-8"))
     except Exception:
         _log_chat_event("warning", "internal_bad_json", request_id=request_id)
+        _log_internal_event("warning", "internal_reset_bad_json", request=request, request_id=request_id)
         return _json_response({"error": "bad_json"}, status=400, request_id=request_id)
     if not isinstance(payload, dict):
+        _log_internal_event("warning", "internal_reset_bad_json", request=request, request_id=request_id)
         return _json_response({"error": "bad_json"}, status=400, request_id=request_id)
 
     try:
@@ -126,6 +141,7 @@ def reset_class_conversations(request):
     except Exception:
         class_id = 0
     if class_id <= 0:
+        _log_internal_event("warning", "internal_reset_invalid_class_id", request=request, request_id=request_id)
         return _json_response({"error": "invalid_class_id"}, status=400, request_id=request_id)
 
     max_keys = max(_env_int("HELPER_CLASS_RESET_MAX_KEYS", 4000), 1)
@@ -155,6 +171,13 @@ def reset_class_conversations(request):
                     request_id=request_id,
                     class_id=class_id,
                 )
+                _log_internal_event(
+                    "warning",
+                    "internal_reset_archive_failed",
+                    request=request,
+                    request_id=request_id,
+                    class_id=class_id,
+                )
 
     deleted = engine_memory.clear_class_conversations(
         cache_backend=cache,
@@ -169,6 +192,16 @@ def reset_class_conversations(request):
         deleted_conversations=deleted,
         archived_conversations=archived_conversations,
         archive_path=archive_path,
+    )
+    _log_internal_event(
+        "info",
+        "internal_reset_completed",
+        request=request,
+        request_id=request_id,
+        class_id=class_id,
+        deleted_conversations=deleted,
+        archived_conversations=archived_conversations,
+        archive_written=bool(archive_path),
     )
     response_payload = {
         "ok": True,
