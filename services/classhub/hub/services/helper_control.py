@@ -60,6 +60,17 @@ class HelperRemoteComputeStatusResult:
     last_transition_at: str = ""
     last_healthcheck_at: str = ""
     last_routed_at: str = ""
+    activation_count: int = 0
+    ready_transition_count: int = 0
+    avg_ready_seconds: int = 0
+    remote_route_count: int = 0
+    fallback_local_count: int = 0
+    degraded_transition_count: int = 0
+    provider_unreachable_count: int = 0
+    unused_activation_count: int = 0
+    last_activation_at: str = ""
+    last_ready_at: str = ""
+    last_fallback_at: str = ""
     error_code: str = ""
     status_code: int = 0
 
@@ -300,6 +311,17 @@ def fetch_remote_compute_status(
         last_transition_at=str(payload.get("last_transition_at") or "").strip()[:64],
         last_healthcheck_at=str(payload.get("last_healthcheck_at") or "").strip()[:64],
         last_routed_at=str(payload.get("last_routed_at") or "").strip()[:64],
+        activation_count=_safe_non_negative_int(payload.get("activation_count")),
+        ready_transition_count=_safe_non_negative_int(payload.get("ready_transition_count")),
+        avg_ready_seconds=_safe_non_negative_int(payload.get("avg_ready_seconds")),
+        remote_route_count=_safe_non_negative_int(payload.get("remote_route_count")),
+        fallback_local_count=_safe_non_negative_int(payload.get("fallback_local_count")),
+        degraded_transition_count=_safe_non_negative_int(payload.get("degraded_transition_count")),
+        provider_unreachable_count=_safe_non_negative_int(payload.get("provider_unreachable_count")),
+        unused_activation_count=_safe_non_negative_int(payload.get("unused_activation_count")),
+        last_activation_at=str(payload.get("last_activation_at") or "").strip()[:64],
+        last_ready_at=str(payload.get("last_ready_at") or "").strip()[:64],
+        last_fallback_at=str(payload.get("last_fallback_at") or "").strip()[:64],
         status_code=status,
     )
 

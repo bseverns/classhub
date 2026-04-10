@@ -32,7 +32,7 @@ from .policy import build_instructions
 from .queueing import acquire_slot, release_slot
 from .remote_compute_control import (
     active_remote_compute_overrides_for_class,
-    mark_remote_compute_degraded,
+    mark_remote_compute_fallback_local,
     mark_remote_compute_routed,
 )
 from .views_chat_deps import DEFAULT_TEXT_LANGUAGE_KEYWORDS, build_chat_deps
@@ -303,7 +303,7 @@ def _call_backend_with_optional_remote_fallback(
                 class_id=classroom_id,
                 error_type=exc.__class__.__name__,
             )
-            mark_remote_compute_degraded(class_id=classroom_id, error_code=exc.__class__.__name__)
+            mark_remote_compute_fallback_local(class_id=classroom_id, error_code=exc.__class__.__name__)
     return _call_backend_with_retries(local_backend, instructions, model_message)
 
 

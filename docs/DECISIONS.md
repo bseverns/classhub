@@ -213,6 +213,14 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keep provider integration behind a small replaceable server-side adapter seam (`thunder_webhook` / generic webhook), not inside view/template logic.
 - Keep student/browser traffic on the public LMS path; the remote compute control is never a student-facing affordance.
 - If the remote path errors during an active lease, fall back to local/default helper compute for the request.
+- Keep lightweight cache-backed operator accounting for the remote path:
+  - activations,
+  - average time to ready,
+  - remote-routed chats,
+  - fallbacks to local/default,
+  - degraded transitions,
+  - provider-unreachable events,
+  - activations that never actually routed remotely.
 
 **Why this remains active:**
 - Makes expensive remote GPU capacity cost-aware without turning it into an always-on dependency.

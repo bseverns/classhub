@@ -39,7 +39,17 @@
                       <li>Healthcheck configured: <strong>{% if helper_remote_compute.healthcheck_url_configured %}Yes{% else %}No{% endif %}</strong></li>
                       <li>Helper will use remote backend: <strong>{% if helper_remote_compute.use_remote_backend %}Yes{% else %}No{% endif %}</strong></li>
                       <li>Provider label: <strong>{{ helper_remote_compute.provider_label|default:"operator_webhook" }}</strong></li>
+                      <li>Recorded activations: <strong>{{ helper_remote_compute.activation_count }}</strong></li>
+                      <li>Average time to ready: <strong>{{ helper_remote_compute.avg_ready_seconds }} second(s)</strong></li>
+                      <li>Remote-routed helper chats: <strong>{{ helper_remote_compute.remote_route_count }}</strong></li>
+                      <li>Remote fallbacks to local/default: <strong>{{ helper_remote_compute.fallback_local_count }}</strong></li>
+                      <li>Degraded transitions: <strong>{{ helper_remote_compute.degraded_transition_count }}</strong></li>
+                      <li>Provider unreachable events: <strong>{{ helper_remote_compute.provider_unreachable_count }}</strong></li>
+                      <li>Activations never used remotely: <strong>{{ helper_remote_compute.unused_activation_count }}</strong></li>
                       {% if helper_remote_compute.requested_by %}<li>Requested by: <strong>{{ helper_remote_compute.requested_by }}</strong></li>{% endif %}
+                      {% if helper_remote_compute.last_activation_at %}<li>Last activation: <strong>{{ helper_remote_compute.last_activation_at }}</strong></li>{% endif %}
+                      {% if helper_remote_compute.last_ready_at %}<li>Last ready: <strong>{{ helper_remote_compute.last_ready_at }}</strong></li>{% endif %}
+                      {% if helper_remote_compute.last_fallback_at %}<li>Last fallback: <strong>{{ helper_remote_compute.last_fallback_at }}</strong></li>{% endif %}
                       {% if helper_remote_compute.expires_at %}<li>Lease ends: <strong>{{ helper_remote_compute.expires_at }}</strong></li>{% endif %}
                       {% if helper_remote_compute.remaining_minutes %}<li>Remaining window: <strong>{{ helper_remote_compute.remaining_minutes }} minute(s)</strong></li>{% endif %}
                       {% if helper_remote_compute.auto_stop_on_idle %}<li>Idle auto-stop: <strong>{{ helper_remote_compute.idle_timeout_seconds }} second(s)</strong></li>{% endif %}

@@ -16,6 +16,7 @@ from common.helper_scope import issue_scope_token
 from .. import views
 from ..engine.config_source import clear_helper_config_cache
 from ..llm import LLMUpstreamUnavailableError
+from ..remote_compute_control import current_remote_compute_lease
 
 
 class HelperChatAuthTests(TestCase):
@@ -124,6 +125,11 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get("text"), "Local fallback answer")
         self.assertEqual(call_backend_mock.call_count, 2)
+        lease = current_remote_compute_lease(class_id=22)
+        self.assertEqual(lease.state, "degraded")
+        self.assertEqual(lease.fallback_local_count, 1)
+        self.assertEqual(lease.degraded_transition_count, 1)
+        self.assertTrue(lease.last_fallback_at)
 
     def test_chat_localizes_follow_up_suggestions_from_language_code(self):
         self._set_student_session()

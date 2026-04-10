@@ -1451,6 +1451,13 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
             control_url_configured=True,
             healthcheck_url_configured=True,
             status_detail="Booting remote helper node.",
+            activation_count=3,
+            avg_ready_seconds=18,
+            remote_route_count=4,
+            fallback_local_count=1,
+            degraded_transition_count=2,
+            provider_unreachable_count=1,
+            unused_activation_count=1,
         )
 
         _force_login_staff_verified(self.client, self.staff)
@@ -1460,6 +1467,10 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, "Request remote helper compute")
         self.assertContains(resp, "State: <strong>starting</strong>.", html=False)
         self.assertContains(resp, "Helper will use remote backend: <strong>No</strong>", html=False)
+        self.assertContains(resp, "Recorded activations: <strong>3</strong>", html=False)
+        self.assertContains(resp, "Average time to ready: <strong>18 second(s)</strong>", html=False)
+        self.assertContains(resp, "Remote-routed helper chats: <strong>4</strong>", html=False)
+        self.assertContains(resp, "Remote fallbacks to local/default: <strong>1</strong>", html=False)
 
     @patch("hub.views.teacher_parts.roster_class_dashboard.staff_can_manage_policy", return_value=False)
     @patch("hub.views.teacher_parts.roster_class_dashboard.fetch_remote_compute_status")

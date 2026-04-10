@@ -102,6 +102,10 @@ class HelperInternalRemoteComputeTests(TestCase):
         self.assertEqual(status_body.get("state"), "ready")
         self.assertTrue(status_body.get("paid_usage_acknowledged"))
         self.assertEqual(status_body.get("provider_adapter"), "thunder_webhook")
+        self.assertEqual(status_body.get("activation_count"), 1)
+        self.assertEqual(status_body.get("ready_transition_count"), 1)
+        self.assertEqual(status_body.get("remote_route_count"), 0)
+        self.assertEqual(status_body.get("fallback_local_count"), 0)
         self.assertIn("internal_remote_compute_status_read", status_logs.records[0].getMessage())
         self.assertIn('"class_id": 7', status_logs.records[0].getMessage())
 
