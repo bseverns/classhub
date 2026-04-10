@@ -30,7 +30,7 @@ Use repo root unless a section explicitly says otherwise.
 ```bash
 cd /srv/lms/app
 bash scripts/system_doctor.sh
-bash scripts/operator_preflight.py
+python3 scripts/operator_preflight.py --env-file compose/.env
 bash scripts/check_llm_backend.sh --probe-chat
 
 cd /srv/lms/app/compose
@@ -39,6 +39,9 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 ```
 
 If `system_doctor` passes, the platform is usually in good shape.
+
+Secret and token inventory / rotation reference:
+- [SECRET_ROTATION.md](SECRET_ROTATION.md)
 
 One-command full-stack smoke (golden + a11y):
 
@@ -56,6 +59,21 @@ SMOKE_INSTALL_BROWSERS=0 make smoke-full
 ```
 
 ## Standard operations
+
+### Secret rotation
+
+Use the canonical secret inventory and rotation steps here:
+
+- [SECRET_ROTATION.md](SECRET_ROTATION.md)
+
+Minimum post-rotation verification:
+
+```bash
+cd /srv/lms/app
+bash scripts/validate_env_secrets.sh
+python3 scripts/operator_preflight.py --env-file compose/.env
+bash scripts/system_doctor.sh --smoke-mode golden
+```
 
 ### Start / stop stack
 

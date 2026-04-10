@@ -85,6 +85,16 @@ OpenAI (optional):
 - `OPENAI_API_KEY`
 - `OPENAI_MODEL`
 
+Cross-service / private-backend tokens:
+- `CLASSHUB_INTERNAL_EVENTS_TOKEN`
+- `HELPER_INTERNAL_API_TOKEN`
+- `LLM_API_KEY` / `OLLAMA_API_KEY`
+- `REMOTE_LLM_API_KEY` (if bounded remote helper compute is enabled)
+- `HELPER_REMOTE_COMPUTE_CONTROL_API_KEY` (if bounded remote helper compute is enabled)
+
+Rotation reference:
+- [SECRET_ROTATION.md](SECRET_ROTATION.md)
+
 ## 4) Pick the right Caddyfile
 
 - No domain yet: use `compose/Caddyfile.local` and HTTP.

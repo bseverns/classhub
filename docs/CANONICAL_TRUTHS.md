@@ -22,6 +22,7 @@ For any policy question, you should be able to name one canonical doc in under 3
 | Feature maturity and rollout posture | [FEATURE_MATURITY.md](FEATURE_MATURITY.md) | [CURRENT_STATE.md](CURRENT_STATE.md), [DECISIONS.md](DECISIONS.md) |
 | Runtime lock profile expectations (baseline vs release) | [RUNTIME_LOCK_PROFILES.md](RUNTIME_LOCK_PROFILES.md) | [RUNBOOK.md](RUNBOOK.md), `scripts/check_runtime_policy_lock.py` |
 | Security deployment posture and reporting path | [SECURITY.md](SECURITY.md) | [SECURITY_BASELINE.md](SECURITY_BASELINE.md), [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) |
+| Secret inventory and rotation procedure | [SECRET_ROTATION.md](SECRET_ROTATION.md) | [SECURITY.md](SECURITY.md), [RUNBOOK.md](RUNBOOK.md), [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md) |
 | Plain-language risk and data posture for families | [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) | [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md), [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md) |
 | Field-level retention and deletion semantics | [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md) | [RUNBOOK.md](RUNBOOK.md), [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) |
 | Organization boundary semantics | [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md) | [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md), [RBAC_GUIDE.md](RBAC_GUIDE.md) |

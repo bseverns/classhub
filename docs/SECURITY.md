@@ -17,6 +17,9 @@ If you only do three things before production:
 2. require TLS and 2FA for admin + teacher users
 3. run `bash scripts/validate_env_secrets.sh`
 
+Rotation and token inventory reference:
+- [SECRET_ROTATION.md](SECRET_ROTATION.md)
+
 ```mermaid
 flowchart LR
   U[Users] --> C[Caddy edge]
@@ -71,6 +74,11 @@ flowchart LR
    - `CADDY_HELPER_MAX_BODY`
 13. Set a strong cross-service event token:
    - `CLASSHUB_INTERNAL_EVENTS_TOKEN`
+14. Keep a written rotation path for:
+   - `HELPER_INTERNAL_API_TOKEN`
+   - `CLASSHUB_INTERNAL_EVENTS_TOKEN`
+   - `LLM_API_KEY` / `OLLAMA_API_KEY`
+   - See [SECRET_ROTATION.md](SECRET_ROTATION.md)
 
 ## Authentication and authorization boundaries
 

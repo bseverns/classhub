@@ -86,6 +86,7 @@ nav:
   - Security & Privacy:
       - Security Baseline: SECURITY_BASELINE.md
       - Security: SECURITY.md
+      - Secret Rotation: SECRET_ROTATION.md
       - Image Pinning Policy: IMAGE_PINNING_POLICY.md
       - Organization Boundaries: ORG_BOUNDARY_EXPLAINER.md
       - Org Boundary Policy Audit: ORG_BOUNDARY_POLICY_AUDIT.md

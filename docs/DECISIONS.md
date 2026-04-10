@@ -970,6 +970,7 @@ Execution ownership and gates:
 - Secrets are injected via environment (`compose/.env` or deployment environment), never committed to git.
 - `DJANGO_SECRET_KEY` is required in both services.
 - Class Hub device-hint cookies are signed with a dedicated `DEVICE_HINT_SIGNING_KEY` (separate from `DJANGO_SECRET_KEY` in production).
+- Cross-service bearer tokens and backend API keys are inventoried in [SECRET_ROTATION.md](SECRET_ROTATION.md) with explicit rotation and break-glass revoke steps.
 - Mode-specific env examples (`.env.example.local`, `.env.example.domain`) stay non-sensitive and document required knobs.
 
 **Why this remains active:**
@@ -977,6 +978,7 @@ Execution ownership and gates:
 - Reduces blast radius if one signing key leaks (device-hint cookie signatures stay independently rotatable).
 - Supports basic secret hygiene for self-hosted operations.
 - Keeps rotation/update workflow operationally simple.
+- Makes bearer-token rotation an operator task with a documented verification path instead of an implicit memory exercise.
 
 ## Operator profile white-labeling
 
