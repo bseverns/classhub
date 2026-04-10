@@ -213,7 +213,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keep provider integration behind a small replaceable server-side adapter seam (`thunder_webhook` / generic webhook), not inside view/template logic.
 - Keep student/browser traffic on the public LMS path; the remote compute control is never a student-facing affordance.
 - If the remote path errors during an active lease, fall back to local/default helper compute for the request.
-- Keep lightweight cache-backed operator accounting for the remote path:
+- Persist the active remote lease and per-class accounting in helper-owned Django tables, with cache used only as a hot-read mirror.
+- Keep lightweight operator accounting for the remote path:
   - activations,
   - average time to ready,
   - remote-routed chats,
@@ -226,6 +227,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Makes expensive remote GPU capacity cost-aware without turning it into an always-on dependency.
 - Preserves the public LMS boundary while still giving staff a practical session-time control.
 - Keeps orchestration-specific details behind a small auditable seam instead of spreading provider logic through the app.
+- Survives helper worker restarts and cold-cache boots without forgetting whether a lease is still active or whether recent remote usage was worth the cost.
 
 ## Auth model: student access
 

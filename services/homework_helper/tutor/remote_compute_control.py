@@ -6,17 +6,13 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
-from django.core.cache import cache
-
 from .engine.config_source import helper_explicit_env, helper_getenv
 from .remote_compute_provider import build_remote_compute_provider
+from .remote_compute_store import delete_state, load_metrics, load_state, persist_metrics, persist_state
 
-_LEASE_CACHE_KEY = "helper:remote_compute:lease"
-_METRICS_CACHE_KEY_PREFIX = "helper:remote_compute:metrics:"
 _DEFAULT_DURATION_MINUTES = 90
 _MAX_DURATION_MINUTES = 240
 _STATUS_REFRESH_MIN_SECONDS = 10
-_METRICS_TIMEOUT_SECONDS = 45 * 24 * 60 * 60
 _ALLOWED_STATES = {"off", "requested", "starting", "ready", "degraded", "stopping", "error"}
 
 
@@ -289,7 +285,7 @@ def deactivate_remote_compute(*, class_id: int, requested_by: str) -> RemoteComp
     state = _normalize_state(provider_result.state, default="off")
     if state == "off":
         _finalize_unused_activation_from_payload(_load_cached_state())
-        cache.delete(_LEASE_CACHE_KEY)
+        _delete_state()
     else:
         payload = _load_cached_state()
         payload.update(
@@ -342,14 +338,15 @@ def mark_remote_compute_routed(*, class_id: int) -> None:
 
 
 def _load_cached_state() -> dict:
-    cached = cache.get(_LEASE_CACHE_KEY) or {}
-    if isinstance(cached, dict):
-        return dict(cached)
-    return {}
+    return load_state()
 
 
 def _persist_state(payload: dict, *, timeout_seconds: int) -> None:
-    cache.set(_LEASE_CACHE_KEY, payload, timeout=max(timeout_seconds, 60))
+    persist_state(payload, timeout_seconds=timeout_seconds)
+
+
+def _delete_state() -> None:
+    delete_state()
 
 
 def _expire_elapsed_lease(payload: dict) -> dict:
@@ -361,7 +358,7 @@ def _expire_elapsed_lease(payload: dict) -> dict:
     if expires_at > _utc_now():
         return payload
     _finalize_unused_activation_from_payload(payload)
-    cache.delete(_LEASE_CACHE_KEY)
+    _delete_state()
     return {}
 
 
@@ -384,7 +381,7 @@ def _auto_stop_if_idle(payload: dict) -> dict:
     )
     if result.ok:
         _finalize_unused_activation_from_payload(payload)
-        cache.delete(_LEASE_CACHE_KEY)
+        _delete_state()
         return {}
     _record_provider_unreachable_if_needed(class_id=_safe_int(payload.get("class_id")), error_code=result.error_code)
     payload["state"] = "error"
@@ -436,7 +433,7 @@ def _refresh_state_from_provider(payload: dict) -> dict:
     next_state = _normalize_state(result.state, default="ready")
     if next_state == "off":
         _finalize_unused_activation_from_payload(payload)
-        cache.delete(_LEASE_CACHE_KEY)
+        _delete_state()
         return {}
     if state in {"requested", "starting"} and next_state == "ready":
         _record_ready_transition(
@@ -567,23 +564,12 @@ def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def _metrics_cache_key(class_id: int) -> str:
-    return f"{_METRICS_CACHE_KEY_PREFIX}{int(class_id)}"
-
-
 def _load_metrics(class_id: int) -> dict:
-    if int(class_id or 0) <= 0:
-        return {}
-    cached = cache.get(_metrics_cache_key(int(class_id))) or {}
-    if isinstance(cached, dict):
-        return dict(cached)
-    return {}
+    return load_metrics(class_id)
 
 
 def _persist_metrics(class_id: int, payload: dict) -> None:
-    if int(class_id or 0) <= 0:
-        return
-    cache.set(_metrics_cache_key(int(class_id)), payload, timeout=_METRICS_TIMEOUT_SECONDS)
+    persist_metrics(class_id, payload)
 
 
 def _record_activation(*, class_id: int, requested_at: str) -> None:

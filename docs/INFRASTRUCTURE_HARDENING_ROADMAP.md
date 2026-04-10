@@ -127,6 +127,11 @@ Once leases and readiness are honest, the next question is whether the feature i
 - expose a small operator evidence view or export for active/recent remote sessions
 - add one low-noise summary in `/teach` or operator evidence surfaces
 
+Current status:
+
+- helper remote lease state and per-class accounting are now durable in helper-owned Django tables, with cache retained only as a mirror for hot reads
+- the remaining work in this priority is export/snapshot polish rather than basic durability
+
 ### Done looks like
 
 - operators can answer whether remote compute is helping, failing, or wasting money without reading raw logs

@@ -1,8 +1,9 @@
 from unittest.mock import MagicMock, patch
 
 from django.core.cache import cache
-from django.test import SimpleTestCase
+from django.test import TestCase
 
+from ..models import RemoteComputeClassMetric, RemoteComputeLeaseRecord
 from ..remote_compute_control import (
     activate_remote_compute,
     active_remote_compute_overrides_for_class,
@@ -13,9 +14,11 @@ from ..remote_compute_control import (
 )
 
 
-class RemoteComputeControlTests(SimpleTestCase):
+class RemoteComputeControlTests(TestCase):
     def setUp(self):
         cache.clear()
+        RemoteComputeLeaseRecord.objects.all().delete()
+        RemoteComputeClassMetric.objects.all().delete()
 
     @patch.dict(
         "os.environ",
@@ -58,6 +61,38 @@ class RemoteComputeControlTests(SimpleTestCase):
         self.assertGreaterEqual(refreshed.avg_ready_seconds, 0)
         self.assertTrue(refreshed.last_activation_at)
         self.assertTrue(refreshed.last_ready_at)
+
+    @patch.dict(
+        "os.environ",
+        {
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED": "1",
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED": "1",
+            "REMOTE_LLM_BASE_URL": "https://llm-gpu.tail.creatempls.org",
+            "REMOTE_LLM_API_KEY": "remote-api-key-1234567890",
+            "REMOTE_LLM_MODEL": "llama3.2:3b",
+            "HELPER_REMOTE_COMPUTE_ACTIVATE_URL": "https://ops.example.org/activate",
+        },
+        clear=False,
+    )
+    @patch("tutor.remote_compute_provider.urllib.request.urlopen")
+    def test_active_lease_and_metrics_survive_cache_clear(self, urlopen_mock):
+        activate_response = MagicMock()
+        activate_response.__enter__.return_value = activate_response
+        activate_response.status = 200
+        activate_response.read.return_value = b'{"ok": true, "state": "ready", "request_id": "req-2", "detail": "warm"}'
+        urlopen_mock.return_value = activate_response
+
+        result = activate_remote_compute(class_id=7, requested_by="teacher1", duration_minutes=60)
+        self.assertTrue(result.ok)
+        self.assertEqual(RemoteComputeLeaseRecord.objects.count(), 1)
+        self.assertEqual(RemoteComputeClassMetric.objects.filter(class_id=7).count(), 1)
+
+        cache.clear()
+
+        lease = current_remote_compute_lease(class_id=7)
+        self.assertEqual(lease.state, "ready")
+        self.assertTrue(lease.use_remote_backend)
+        self.assertEqual(lease.activation_count, 1)
 
     @patch.dict(
         "os.environ",
