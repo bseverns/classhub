@@ -10,10 +10,15 @@ This page explains the narrow machine-checkable docs spine used to keep high-sig
    - [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md)
    - [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md)
    - [REMOTE_HELPER_COMPUTE_CONTROL.md](REMOTE_HELPER_COMPUTE_CONTROL.md)
+   - [EVIDENCE_REMOTE_COMPUTE.md](EVIDENCE_REMOTE_COMPUTE.md)
    - [FEATURE_MATURITY.md](FEATURE_MATURITY.md)
    - [SECURITY.md](SECURITY.md)
    - [CANONICAL_TRUTHS.md](CANONICAL_TRUTHS.md)
-3. Run `python3 scripts/check_docs_truth.py`.
+3. Update the press-facing evidence layer when a conference/evaluator claim changes:
+   - `press/conference_packet.md`
+   - `press/stack_claims_and_evidence.md`
+   - `press/stage_safe_claims.md`
+4. Run `python3 scripts/check_docs_truth.py`.
 
 ## Verification signal
 `python3 scripts/check_docs_truth.py` exits with code `0`.
@@ -25,6 +30,7 @@ The registry is intentionally small. It tracks only:
 - a few policy-sensitive runtime defaults,
 - short operator-facing notes that previously drifted across multiple docs.
 - the high-signal private LLM topology and remote helper compute control claims that new operators need to understand quickly.
+- the measured remote-compute evidence claims that support evaluator or conference-facing materials.
 
 It is not a full docs build system and it is not meant to replace narrative docs.
 

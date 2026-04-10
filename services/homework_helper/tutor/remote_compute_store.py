@@ -48,11 +48,16 @@ def persist_state(payload: dict, *, timeout_seconds: int) -> None:
                 "requested_by": str(normalized.get("requested_by") or "").strip()[:150],
                 "requested_at": _parse_iso_datetime(str(normalized.get("requested_at") or "").strip()),
                 "expires_at": _parse_iso_datetime(str(normalized.get("expires_at") or "").strip()),
+                "requested_duration_minutes": _safe_int(normalized.get("requested_duration_minutes")),
                 "provider_request_id": str(normalized.get("provider_request_id") or "").strip()[:120],
+                "lease_session_id": _safe_int(normalized.get("lease_session_id")),
                 "status_detail": str(normalized.get("status_detail") or "").strip()[:160],
                 "last_error_code": str(normalized.get("last_error_code") or "").strip()[:80],
+                "last_readiness_reason_code": str(normalized.get("last_readiness_reason_code") or "").strip()[:80],
                 "last_transition_at": _parse_iso_datetime(str(normalized.get("last_transition_at") or "").strip()),
                 "last_healthcheck_at": _parse_iso_datetime(str(normalized.get("last_healthcheck_at") or "").strip()),
+                "last_ready_probe_at": _parse_iso_datetime(str(normalized.get("last_ready_probe_at") or "").strip()),
+                "last_ready_probe_ok_at": _parse_iso_datetime(str(normalized.get("last_ready_probe_ok_at") or "").strip()),
                 "last_routed_at": _parse_iso_datetime(str(normalized.get("last_routed_at") or "").strip()),
             },
         )
@@ -133,11 +138,16 @@ def _state_payload_from_record(record: RemoteComputeLeaseRecord | None) -> dict:
         "requested_by": str(record.requested_by or "").strip()[:150],
         "requested_at": _iso_or_empty(record.requested_at),
         "expires_at": _iso_or_empty(record.expires_at),
+        "requested_duration_minutes": int(record.requested_duration_minutes or 0),
         "provider_request_id": str(record.provider_request_id or "").strip()[:120],
+        "lease_session_id": int(record.lease_session_id or 0),
         "status_detail": str(record.status_detail or "").strip()[:160],
         "last_error_code": str(record.last_error_code or "").strip()[:80],
+        "last_readiness_reason_code": str(record.last_readiness_reason_code or "").strip()[:80],
         "last_transition_at": _iso_or_empty(record.last_transition_at),
         "last_healthcheck_at": _iso_or_empty(record.last_healthcheck_at),
+        "last_ready_probe_at": _iso_or_empty(record.last_ready_probe_at),
+        "last_ready_probe_ok_at": _iso_or_empty(record.last_ready_probe_ok_at),
         "last_routed_at": _iso_or_empty(record.last_routed_at),
     }
 
@@ -167,11 +177,16 @@ def _normalized_state_payload(payload: dict) -> dict:
         "requested_by": str(payload.get("requested_by") or "").strip()[:150],
         "requested_at": str(payload.get("requested_at") or "").strip()[:64],
         "expires_at": str(payload.get("expires_at") or "").strip()[:64],
+        "requested_duration_minutes": _safe_int(payload.get("requested_duration_minutes")),
         "provider_request_id": str(payload.get("provider_request_id") or "").strip()[:120],
+        "lease_session_id": _safe_int(payload.get("lease_session_id")),
         "status_detail": str(payload.get("status_detail") or "").strip()[:160],
         "last_error_code": str(payload.get("last_error_code") or "").strip()[:80],
+        "last_readiness_reason_code": str(payload.get("last_readiness_reason_code") or "").strip()[:80],
         "last_transition_at": str(payload.get("last_transition_at") or "").strip()[:64],
         "last_healthcheck_at": str(payload.get("last_healthcheck_at") or "").strip()[:64],
+        "last_ready_probe_at": str(payload.get("last_ready_probe_at") or "").strip()[:64],
+        "last_ready_probe_ok_at": str(payload.get("last_ready_probe_ok_at") or "").strip()[:64],
         "last_routed_at": str(payload.get("last_routed_at") or "").strip()[:64],
     }
 
@@ -227,4 +242,3 @@ def _log_storage_warning(*, op: str, exc: Exception) -> None:
         op,
         exc.__class__.__name__,
     )
-

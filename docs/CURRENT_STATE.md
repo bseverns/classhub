@@ -1,4 +1,4 @@
-# Current State (April 8, 2026)
+# Current State (April 10, 2026)
 
 ## Summary
 This page is the live snapshot of what ClassHub currently ships on `main`.
@@ -16,6 +16,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Homework Helper supports optional bounded local curriculum RAG (pgvector) with curriculum-only retrieval scope.
 - Helper exposes an internal RAG posture contract at `/helper/internal/rag-status` (token-protected) for ClassHub operator evidence panels.
 - Helper now ships a staff-only bounded remote compute control for class sessions; provider control URLs stay server-side, the remote backend is used only when state is `ready`, and helper requests fall back to local/default mode when remote compute is off, not ready, or unavailable.
+- Remote helper compute now produces durable class-scoped lease evidence: requested duration, time spent in `starting`/`ready`/`degraded`, remote route and fallback counts, leased minutes, auto-stop/manual-stop counts, recent events, and an optional approximate cost estimate when operator pricing assumptions are configured.
 - Repo now ships a narrow Headscale control-plane ops bundle for createMPLS-style deployments: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`.
 - Helper classroom-quality eval tooling is live (`scripts/run_helper_classroom_eval.sh` + classroom prompt pack in `services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl`).
 - Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts).
@@ -79,4 +80,5 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Feature maturity and rollout flags: [FEATURE_MATURITY.md](FEATURE_MATURITY.md)
 - Infrastructure hardening roadmap: [INFRASTRUCTURE_HARDENING_ROADMAP.md](INFRASTRUCTURE_HARDENING_ROADMAP.md)
 - Ops execution: [RUNBOOK.md](RUNBOOK.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- Remote-compute evidence: [EVIDENCE_REMOTE_COMPUTE.md](EVIDENCE_REMOTE_COMPUTE.md)
 - RBAC implementation and policy ops: [RBAC_GUIDE.md](RBAC_GUIDE.md), [RBAC_CAPABILITIES_RFC.md](RBAC_CAPABILITIES_RFC.md)

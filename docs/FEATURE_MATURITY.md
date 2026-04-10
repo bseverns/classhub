@@ -49,7 +49,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | RBAC policy import/export | Live (default) | Superuser RBAC tools scope (`/teach` advanced policy mode) | `/teach/rbac/policy/export` + import validation checks. |
 | Helper policy strictness/scope/topic filtering | Live (default, profile-driven) | Env override > helper YAML > profile default | `/helper/chat` policy response behavior matches expected strictness. |
 | Helper YAML config layering | Live (default, optional) | `HELPER_CONFIG_FILE` path (optional) | Helper engine config-source tests in `tutor.tests.test_engine`. |
-| Staff-only remote helper compute control | Live (flagged) | `CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1` + `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1` | `/teach/class/<id>` shows the bounded control to policy-capable staff, helper internal remote-compute tests pass, and helper routes remote only when state is `ready`. |
+| Staff-only remote helper compute control | Live (flagged) | `CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1` + `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1` | `/teach/class/<id>` shows the bounded control to policy-capable staff, helper internal remote-compute tests pass, `ready` requires a warm probe, and class-scoped JSON/CSV evidence export shows lease/routing/fallback totals. |
 | Async/self-paced sequencing workflows | RFC | See `ASYNC_SELF_PACED_RFC.md` | No runtime SLA yet; treat as roadmap only. |
 | Telemetry DB split | RFC / staged plan | `CLASSHUB_TELEMETRY_DATABASE_URL` + `CLASSHUB_TELEMETRY_WRITE_MODE` + `CLASSHUB_TELEMETRY_READ_MODE`; see `TELEMETRY_DB_SPLIT_PLAN.md` | Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is shipped and Slice 7 release-cycle evidence capture is complete (`artifacts/stability/2026-03-10/telemetry/` parity + strict smoke + rollback drill). Final write-mode cutover gates remain intentionally deferred. |
 
@@ -62,16 +62,16 @@ An operator can explain each enabled non-default flag in one sentence and show o
 
 ## Remote helper hardening sequence
 
-For the remote helper compute path, the next hardening work should stay narrow and infrastructure-focused:
+For the remote helper compute path, the current posture is:
 
-1. lease governance (`TTL`, auto-stop, clear expiry display, one stop path)
-2. honest readiness semantics (`ready` only after real warm/probe success)
-3. small durable operator metrics (activations, time-to-ready, fallbacks, degraded transitions)
-4. provisioning codification for Headscale/bridge bootstrap and restore
-5. bridge idempotency and lease audit trail depth
+1. lease governance is live in bounded form (`TTL`, idle-stop, explicit stop path, expiry display, unused-activation accounting)
+2. honest readiness semantics are live (`ready` only after helper-side warm/probe success)
+3. small durable operator metrics are live (activations, time-to-ready, fallbacks, degraded transitions, leased minutes, optional approximate cost)
+4. the next hardening priorities remain provisioning codification depth, bridge idempotency, and broader trend/alerting signals
 
 ## Related docs
 - [CURRENT_STATE.md](CURRENT_STATE.md)
+- [EVIDENCE_REMOTE_COMPUTE.md](EVIDENCE_REMOTE_COMPUTE.md)
 - [INFRASTRUCTURE_HARDENING_ROADMAP.md](INFRASTRUCTURE_HARDENING_ROADMAP.md)
 - [RBAC_GUIDE.md](RBAC_GUIDE.md)
 - [PROGRAM_PROFILES.md](PROGRAM_PROFILES.md)

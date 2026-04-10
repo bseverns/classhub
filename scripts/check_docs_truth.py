@@ -21,10 +21,20 @@ SECURITY_BASELINE_PATH = Path("docs/SECURITY_BASELINE.md")
 PRIVATE_LLM_PATH = Path("docs/PRIVATE_LLM_BACKEND.md")
 HEADSCALE_PATH = Path("docs/HEADSCALE_CONTROL_PLANE.md")
 REMOTE_HELPER_COMPUTE_PATH = Path("docs/REMOTE_HELPER_COMPUTE_CONTROL.md")
+EVIDENCE_REMOTE_COMPUTE_PATH = Path("docs/EVIDENCE_REMOTE_COMPUTE.md")
 RUNBOOK_PATH = Path("docs/RUNBOOK.md")
 TROUBLESHOOTING_PATH = Path("docs/TROUBLESHOOTING.md")
 REMOTE_HELPER_OPS_PATH = Path("ops/remote-helper-compute/README.md")
 RUNTIME_REGISTRY_PATH = Path("docs/_registry/runtime_contracts.json")
+PRESS_ARCHITECTURE_PATH = Path("press/architecture.md")
+PRESS_ONE_PAGER_PATH = Path("press/one_pager.md")
+PRESS_EVALUATOR_QUICK_PACK_PATH = Path("press/evaluator_quick_pack.md")
+PRESS_CONFERENCE_PACKET_PATH = Path("press/conference_packet.md")
+PRESS_STACK_CLAIMS_PATH = Path("press/stack_claims_and_evidence.md")
+PRESS_STAGE_SAFE_CLAIMS_PATH = Path("press/stage_safe_claims.md")
+PRESS_FAILURE_MATRIX_PATH = Path("press/failure_degradation_matrix.md")
+PRESS_ARCHITECTURE_DIAGRAM_SOURCE_PATH = Path("press/diagrams/classhub_boundary_architecture.mmd")
+PRESS_REMOTE_STATE_DIAGRAM_SOURCE_PATH = Path("press/diagrams/remote_helper_compute_state.mmd")
 SHOTLIST_PATH = Path("press/screenshots/SHOTLIST.md")
 PLACEHOLDERS_PATH = Path("press/screenshots/PLACEHOLDERS.md")
 ENV_EXAMPLE_PATHS = (
@@ -180,6 +190,14 @@ def _validate_runtime_registry_contracts(failures: list[str]) -> None:
     private_llm_text = _read(PRIVATE_LLM_PATH)
     headscale_text = _read(HEADSCALE_PATH)
     remote_helper_compute_text = _read(REMOTE_HELPER_COMPUTE_PATH)
+    evidence_remote_compute_text = _read(EVIDENCE_REMOTE_COMPUTE_PATH)
+    press_architecture_text = _read(PRESS_ARCHITECTURE_PATH)
+    press_one_pager_text = _read(PRESS_ONE_PAGER_PATH)
+    press_evaluator_quick_pack_text = _read(PRESS_EVALUATOR_QUICK_PACK_PATH)
+    press_conference_packet_text = _read(PRESS_CONFERENCE_PACKET_PATH)
+    press_stack_claims_text = _read(PRESS_STACK_CLAIMS_PATH)
+    press_stage_safe_claims_text = _read(PRESS_STAGE_SAFE_CLAIMS_PATH)
+    press_failure_matrix_text = _read(PRESS_FAILURE_MATRIX_PATH)
     merge_readiness_text = _read(MERGE_READINESS_PATH)
     security_baseline_text = _read(SECURITY_BASELINE_PATH)
 
@@ -225,6 +243,60 @@ def _validate_runtime_registry_contracts(failures: list[str]) -> None:
         snippets=list(contracts.get("remote_helper_compute_required_snippets") or []),
         failures=failures,
     )
+    _require_snippets(
+        evidence_remote_compute_text,
+        path=EVIDENCE_REMOTE_COMPUTE_PATH,
+        snippets=list(contracts.get("evidence_remote_compute_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        press_conference_packet_text,
+        path=PRESS_CONFERENCE_PACKET_PATH,
+        snippets=list(contracts.get("press_conference_packet_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        press_stack_claims_text,
+        path=PRESS_STACK_CLAIMS_PATH,
+        snippets=list(contracts.get("press_stack_claims_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        press_stage_safe_claims_text,
+        path=PRESS_STAGE_SAFE_CLAIMS_PATH,
+        snippets=list(contracts.get("press_stage_safe_claims_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        press_failure_matrix_text,
+        path=PRESS_FAILURE_MATRIX_PATH,
+        snippets=list(contracts.get("press_failure_matrix_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        press_architecture_text,
+        path=PRESS_ARCHITECTURE_PATH,
+        snippets=list(contracts.get("press_architecture_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        press_one_pager_text,
+        path=PRESS_ONE_PAGER_PATH,
+        snippets=list(contracts.get("press_one_pager_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        press_evaluator_quick_pack_text,
+        path=PRESS_EVALUATOR_QUICK_PACK_PATH,
+        snippets=list(contracts.get("press_evaluator_quick_pack_required_snippets") or []),
+        failures=failures,
+    )
+    _require_snippets(
+        _read(SHOTLIST_PATH),
+        path=SHOTLIST_PATH,
+        snippets=list(contracts.get("press_shotlist_required_snippets") or []),
+        failures=failures,
+    )
 
     for feature in features.values():
         if not isinstance(feature, dict):
@@ -259,11 +331,19 @@ def _validate_runtime_registry_contracts(failures: list[str]) -> None:
         PRIVATE_LLM_PATH,
         HEADSCALE_PATH,
         REMOTE_HELPER_COMPUTE_PATH,
+        EVIDENCE_REMOTE_COMPUTE_PATH,
         RUNBOOK_PATH,
         TROUBLESHOOTING_PATH,
         REMOTE_HELPER_OPS_PATH,
         MERGE_READINESS_PATH,
         SECURITY_BASELINE_PATH,
+        PRESS_ARCHITECTURE_PATH,
+        PRESS_ONE_PAGER_PATH,
+        PRESS_EVALUATOR_QUICK_PACK_PATH,
+        PRESS_CONFERENCE_PACKET_PATH,
+        PRESS_STACK_CLAIMS_PATH,
+        PRESS_STAGE_SAFE_CLAIMS_PATH,
+        PRESS_FAILURE_MATRIX_PATH,
         *ENV_EXAMPLE_PATHS,
     )
     for path in stale_targets:
@@ -280,10 +360,18 @@ def _validate_runtime_registry_contracts(failures: list[str]) -> None:
         PRIVATE_LLM_PATH,
         HEADSCALE_PATH,
         REMOTE_HELPER_COMPUTE_PATH,
+        EVIDENCE_REMOTE_COMPUTE_PATH,
         RUNBOOK_PATH,
         TROUBLESHOOTING_PATH,
         REMOTE_HELPER_OPS_PATH,
         CANONICAL_TRUTHS_PATH,
+        PRESS_ARCHITECTURE_PATH,
+        PRESS_ONE_PAGER_PATH,
+        PRESS_EVALUATOR_QUICK_PACK_PATH,
+        PRESS_CONFERENCE_PACKET_PATH,
+        PRESS_STACK_CLAIMS_PATH,
+        PRESS_STAGE_SAFE_CLAIMS_PATH,
+        PRESS_FAILURE_MATRIX_PATH,
         *ENV_EXAMPLE_PATHS,
     )
     for path in forbidden_targets:
@@ -296,6 +384,15 @@ def _validate_runtime_registry_contracts(failures: list[str]) -> None:
     if csp_note:
         if csp_note not in security_baseline_text:
             failures.append(f"{SECURITY_BASELINE_PATH}: missing CSP deployment-default note from runtime registry")
+
+    for path, required in (
+        (PRESS_ARCHITECTURE_DIAGRAM_SOURCE_PATH, ["Homework Helper", "Headscale", "server-to-server only"]),
+        (PRESS_REMOTE_STATE_DIAGRAM_SOURCE_PATH, ["stateDiagram-v2", "ready", "degraded"]),
+    ):
+        text = _read(path)
+        for snippet in required:
+            if snippet not in text:
+                failures.append(f"{path}: missing required diagram-source snippet {snippet!r}")
 
 
 def main() -> int:

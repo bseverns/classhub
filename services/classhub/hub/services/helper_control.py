@@ -50,6 +50,7 @@ class HelperRemoteComputeStatusResult:
     requested_by: str = ""
     requested_at: str = ""
     expires_at: str = ""
+    requested_duration_minutes: int = 0
     remaining_minutes: int = 0
     provider_label: str = ""
     provider_request_id: str = ""
@@ -59,9 +60,12 @@ class HelperRemoteComputeStatusResult:
     auto_stop_on_idle: bool = False
     idle_timeout_seconds: int = 0
     last_error_code: str = ""
+    last_readiness_reason_code: str = ""
     status_detail: str = ""
     last_transition_at: str = ""
     last_healthcheck_at: str = ""
+    last_ready_probe_at: str = ""
+    last_ready_probe_ok_at: str = ""
     last_routed_at: str = ""
     activation_count: int = 0
     ready_transition_count: int = 0
@@ -74,6 +78,27 @@ class HelperRemoteComputeStatusResult:
     last_activation_at: str = ""
     last_ready_at: str = ""
     last_fallback_at: str = ""
+    requested_duration_minutes_total: int = 0
+    starting_seconds_total: int = 0
+    ready_seconds_total: int = 0
+    degraded_seconds_total: int = 0
+    manual_stop_count_total: int = 0
+    auto_stop_count_total: int = 0
+    leased_minutes_total: int = 0
+    approximate_cost_usd_total: str = ""
+    request_id: str = ""
+    error_code: str = ""
+    status_code: int = 0
+
+
+@dataclass(frozen=True)
+class HelperRemoteComputeEvidenceResult:
+    ok: bool
+    class_id: int = 0
+    active_lease: dict | None = None
+    summary: dict | None = None
+    recent_sessions: list[dict] | None = None
+    recent_events: list[dict] | None = None
     request_id: str = ""
     error_code: str = ""
     status_code: int = 0
@@ -326,6 +351,7 @@ def fetch_remote_compute_status(
         requested_by=str(payload.get("requested_by") or "").strip()[:150],
         requested_at=str(payload.get("requested_at") or "").strip()[:64],
         expires_at=str(payload.get("expires_at") or "").strip()[:64],
+        requested_duration_minutes=_safe_non_negative_int(payload.get("requested_duration_minutes")),
         remaining_minutes=_safe_non_negative_int(payload.get("remaining_minutes")),
         provider_label=str(payload.get("provider_label") or "").strip()[:80],
         provider_request_id=str(payload.get("provider_request_id") or "").strip()[:120],
@@ -335,9 +361,12 @@ def fetch_remote_compute_status(
         auto_stop_on_idle=bool(payload.get("auto_stop_on_idle")),
         idle_timeout_seconds=_safe_non_negative_int(payload.get("idle_timeout_seconds")),
         last_error_code=str(payload.get("last_error_code") or "").strip()[:80],
+        last_readiness_reason_code=str(payload.get("last_readiness_reason_code") or "").strip()[:80],
         status_detail=str(payload.get("status_detail") or "").strip()[:160],
         last_transition_at=str(payload.get("last_transition_at") or "").strip()[:64],
         last_healthcheck_at=str(payload.get("last_healthcheck_at") or "").strip()[:64],
+        last_ready_probe_at=str(payload.get("last_ready_probe_at") or "").strip()[:64],
+        last_ready_probe_ok_at=str(payload.get("last_ready_probe_ok_at") or "").strip()[:64],
         last_routed_at=str(payload.get("last_routed_at") or "").strip()[:64],
         activation_count=_safe_non_negative_int(payload.get("activation_count")),
         ready_transition_count=_safe_non_negative_int(payload.get("ready_transition_count")),
@@ -350,6 +379,85 @@ def fetch_remote_compute_status(
         last_activation_at=str(payload.get("last_activation_at") or "").strip()[:64],
         last_ready_at=str(payload.get("last_ready_at") or "").strip()[:64],
         last_fallback_at=str(payload.get("last_fallback_at") or "").strip()[:64],
+        requested_duration_minutes_total=_safe_non_negative_int(payload.get("requested_duration_minutes_total")),
+        starting_seconds_total=_safe_non_negative_int(payload.get("starting_seconds_total")),
+        ready_seconds_total=_safe_non_negative_int(payload.get("ready_seconds_total")),
+        degraded_seconds_total=_safe_non_negative_int(payload.get("degraded_seconds_total")),
+        manual_stop_count_total=_safe_non_negative_int(payload.get("manual_stop_count_total")),
+        auto_stop_count_total=_safe_non_negative_int(payload.get("auto_stop_count_total")),
+        leased_minutes_total=_safe_non_negative_int(payload.get("leased_minutes_total")),
+        approximate_cost_usd_total=str(payload.get("approximate_cost_usd_total") or "").strip()[:32],
+        request_id=response_request_id,
+        status_code=status,
+    )
+
+
+def fetch_remote_compute_evidence(
+    *,
+    class_id: int,
+    endpoint_url: str,
+    internal_token: str,
+    timeout_seconds: float,
+) -> HelperRemoteComputeEvidenceResult:
+    request_id = _request_id_value("")
+    if class_id <= 0:
+        return HelperRemoteComputeEvidenceResult(ok=False, request_id=request_id, error_code="invalid_class_id")
+    if not endpoint_url:
+        return HelperRemoteComputeEvidenceResult(ok=False, request_id=request_id, error_code="helper_endpoint_not_configured")
+    if not internal_token:
+        return HelperRemoteComputeEvidenceResult(ok=False, request_id=request_id, error_code="helper_token_not_configured")
+    if not endpoint_url.lower().startswith(("http://", "https://")):
+        return HelperRemoteComputeEvidenceResult(ok=False, request_id=request_id, error_code="invalid_endpoint_url_scheme")
+
+    delimiter = "&" if "?" in endpoint_url else "?"
+    request = urllib.request.Request(
+        f"{endpoint_url}{delimiter}class_id={int(class_id)}",
+        method="GET",
+        headers={"Authorization": f"Bearer {internal_token}", "X-Request-ID": request_id},
+    )
+    timeout = max(float(timeout_seconds), 0.2)
+
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:  # nosec B310
+            status = int(getattr(response, "status", 200) or 200)
+            body = response.read().decode("utf-8", errors="replace")
+            response_request_id = _response_request_id(response=response, body=body, fallback=request_id)
+    except urllib.error.HTTPError as exc:
+        status = int(getattr(exc, "code", 0) or 0)
+        try:
+            body = exc.read().decode("utf-8", errors="replace")
+        except Exception:
+            body = ""
+        return HelperRemoteComputeEvidenceResult(
+            ok=False,
+            request_id=_response_request_id(response=exc, body=body, fallback=request_id),
+            error_code=_extract_error_code(body) or "helper_http_error",
+            status_code=status,
+        )
+    except urllib.error.URLError:
+        return HelperRemoteComputeEvidenceResult(ok=False, request_id=request_id, error_code="helper_unreachable")
+    except Exception:
+        return HelperRemoteComputeEvidenceResult(ok=False, request_id=request_id, error_code="helper_request_failed")
+
+    payload = _safe_json_dict(body)
+    if status < 200 or status >= 300 or not payload.get("ok"):
+        return HelperRemoteComputeEvidenceResult(
+            ok=False,
+            request_id=response_request_id,
+            error_code=str(payload.get("error") or "helper_status_failed"),
+            status_code=status,
+        )
+    active_lease = payload.get("active_lease") if isinstance(payload.get("active_lease"), dict) else {}
+    summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else {}
+    recent_sessions = payload.get("recent_sessions") if isinstance(payload.get("recent_sessions"), list) else []
+    recent_events = payload.get("recent_events") if isinstance(payload.get("recent_events"), list) else []
+    return HelperRemoteComputeEvidenceResult(
+        ok=True,
+        class_id=_safe_non_negative_int(payload.get("class_id")),
+        active_lease=active_lease,
+        summary=summary,
+        recent_sessions=[item for item in recent_sessions if isinstance(item, dict)],
+        recent_events=[item for item in recent_events if isinstance(item, dict)],
         request_id=response_request_id,
         status_code=status,
     )

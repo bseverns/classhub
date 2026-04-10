@@ -1,9 +1,16 @@
+from datetime import timedelta
 from unittest.mock import MagicMock, patch
 
 from django.core.cache import cache
 from django.test import TestCase
+from django.utils import timezone
 
-from ..models import RemoteComputeClassMetric, RemoteComputeLeaseRecord
+from ..models import (
+    RemoteComputeClassMetric,
+    RemoteComputeLeaseEvent,
+    RemoteComputeLeaseRecord,
+    RemoteComputeLeaseSession,
+)
 from ..remote_compute_control import (
     activate_remote_compute,
     active_remote_compute_overrides_for_class,
@@ -17,6 +24,8 @@ from ..remote_compute_control import (
 class RemoteComputeControlTests(TestCase):
     def setUp(self):
         cache.clear()
+        RemoteComputeLeaseEvent.objects.all().delete()
+        RemoteComputeLeaseSession.objects.all().delete()
         RemoteComputeLeaseRecord.objects.all().delete()
         RemoteComputeClassMetric.objects.all().delete()
 
@@ -60,7 +69,10 @@ class RemoteComputeControlTests(TestCase):
         refreshed = current_remote_compute_lease(class_id=7, refresh=True)
         self.assertEqual(refreshed.state, "ready")
         self.assertTrue(refreshed.use_remote_backend)
-        self.assertEqual(refreshed.status_detail, "warm")
+        self.assertEqual(
+            refreshed.status_detail,
+            "Remote helper warm probe succeeded in 0.2 second(s).",
+        )
         self.assertEqual(refreshed.activation_count, 1)
         self.assertEqual(refreshed.ready_transition_count, 1)
         self.assertGreaterEqual(refreshed.avg_ready_seconds, 0)
@@ -299,3 +311,73 @@ class RemoteComputeControlTests(TestCase):
         self.assertEqual(lease.state, "starting")
         self.assertFalse(lease.use_remote_backend)
         self.assertEqual(lease.last_error_code, "remote_compute_probe_slow")
+
+    @patch.dict(
+        "os.environ",
+        {
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED": "1",
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED": "1",
+            "REMOTE_LLM_BASE_URL": "https://llm-gpu.tail.creatempls.org",
+            "REMOTE_LLM_API_KEY": "remote-api-key-1234567890",
+            "REMOTE_LLM_MODEL": "llama3.2:3b",
+            "HELPER_REMOTE_COMPUTE_DEACTIVATE_URL": "https://ops.example.org/deactivate",
+        },
+        clear=False,
+    )
+    @patch("tutor.remote_compute_control.build_remote_compute_provider")
+    def test_expired_lease_auto_stops_and_records_auto_stop_evidence(self, provider_factory_mock):
+        now = timezone.now()
+        session = RemoteComputeLeaseSession.objects.create(
+            class_id=22,
+            requested_by="teacher1",
+            requested_at=now - timedelta(minutes=91),
+            requested_duration_minutes=90,
+            expires_at=now - timedelta(minutes=1),
+            provider_label="thunder-orchestration",
+            provider_adapter="thunder_webhook",
+            provider_request_id="req-expired-1",
+            active=True,
+            current_state="ready",
+            last_transition_at=now - timedelta(minutes=89),
+            status_detail="Warm probe passed.",
+        )
+        RemoteComputeLeaseRecord.objects.update_or_create(
+            slot="active",
+            defaults={
+                "state": "ready",
+                "class_id": 22,
+                "requested_by": "teacher1",
+                "requested_at": now - timedelta(minutes=91),
+                "expires_at": now - timedelta(minutes=1),
+                "requested_duration_minutes": 90,
+                "provider_request_id": "req-expired-1",
+                "lease_session_id": session.id,
+                "status_detail": "Warm probe passed.",
+                "last_transition_at": now - timedelta(minutes=89),
+            },
+        )
+        provider_factory_mock.return_value.deactivate.return_value = MagicMock(
+            ok=True,
+            state="off",
+            detail="stopped",
+            error_code="",
+            status_code=200,
+            provider_request_id="req-expired-1",
+        )
+
+        lease = current_remote_compute_lease(class_id=22)
+
+        self.assertEqual(lease.state, "off")
+        self.assertFalse(lease.active)
+        session.refresh_from_db()
+        self.assertFalse(session.active)
+        self.assertEqual(session.current_state, "off")
+        self.assertEqual(session.auto_stop_count, 1)
+        self.assertIsNotNone(session.ended_at)
+        self.assertTrue(
+            RemoteComputeLeaseEvent.objects.filter(
+                lease_session=session,
+                event_type="lease_expired_auto_stop",
+                reason_code="lease_expired",
+            ).exists()
+        )

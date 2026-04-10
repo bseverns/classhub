@@ -1,0 +1,19 @@
+flowchart TB
+  Browser["Student / Teacher browser"]
+  Edge["Public LMS edge<br/>lms.creatempls.org"]
+  Hub["ClassHub Django"]
+  Helper["Homework Helper Django"]
+  Data["Postgres + Redis + uploads"]
+  Tail["Tailnet-only remote endpoint"]
+  Model["Private model host"]
+  Headscale["Headscale VPS<br/>control plane only"]
+
+  Browser -->|HTTPS| Edge
+  Edge --> Hub
+  Edge --> Helper
+  Hub --> Data
+  Helper --> Data
+  Helper -->|server-to-server only| Tail
+  Tail --> Model
+  Headscale -. coordinates LMS / model nodes .- Helper
+  Headscale -. does not carry request traffic .- Model

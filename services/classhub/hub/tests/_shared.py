@@ -52,6 +52,7 @@ from ..models import (
 from ..services.helper_control import (
     HelperRagStatusResult,
     HelperRemoteComputeActionResult,
+    HelperRemoteComputeEvidenceResult,
     HelperRemoteComputeStatusResult,
     HelperResetResult,
 )

@@ -117,6 +117,7 @@ For expensive remote GPU/provider capacity, the repo now supports a bounded staf
 Reference:
 
 - [REMOTE_HELPER_COMPUTE_CONTROL.md](REMOTE_HELPER_COMPUTE_CONTROL.md)
+- [EVIDENCE_REMOTE_COMPUTE.md](EVIDENCE_REMOTE_COMPUTE.md)
 
 ## Current backend modes
 
@@ -176,6 +177,15 @@ bash scripts/system_doctor.sh
 `system_doctor` runs a helper-container LLM connectivity check before end-to-end smoke.
 When the backend is remote/private, that backend check and helper smoke path run in advisory mode by default; small local helper validation remains required.
 `make smoke-full` now reinforces that local lane with a reduced context window, short reply budget, and single backend attempt so the LMS host can validate the helper path without impersonating the serious remote inference node.
+
+If you enable bounded remote helper compute leases, the helper now also records class-scoped evidence about:
+
+- requested lease duration
+- time spent in `starting`, `ready`, and `degraded`
+- remote-routed requests
+- local fallback after remote failure
+- leased minutes
+- optional approximate cost estimate
 
 ## Logging defaults
 
@@ -246,6 +256,7 @@ The operator runbook and GPU-host artifacts live in:
 
 - [RUNBOOK.md](RUNBOOK.md)
 - [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md)
+- [EVIDENCE_REMOTE_COMPUTE.md](EVIDENCE_REMOTE_COMPUTE.md)
 - `ops/llm-server/README.md`
 
 ## Known limits

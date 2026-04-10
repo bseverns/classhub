@@ -188,6 +188,7 @@ See:
 
 - [DEVELOPMENT.md](DEVELOPMENT.md) for local workflow
 - [RUNBOOK.md](RUNBOOK.md) for operations
+- [EVIDENCE_REMOTE_COMPUTE.md](EVIDENCE_REMOTE_COMPUTE.md) for the measured lease/fallback evidence layer
 - `compose/docker-compose.yml` for source-of-truth wiring
 
 ## ClassHub module graph (Map C)

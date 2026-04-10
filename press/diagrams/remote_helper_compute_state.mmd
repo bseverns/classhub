@@ -1,0 +1,18 @@
+stateDiagram-v2
+  [*] --> off
+  off --> requested: staff activate
+  requested --> starting: provider accepted
+  starting --> ready: warm probe passed
+  starting --> starting: still warming
+  starting --> degraded: remote path fails after prior readiness
+  ready --> degraded: timeout/auth/upstream/malformed response
+  ready --> stopping: staff stop
+  ready --> off: auto-stop on expiry or idle
+  degraded --> starting: provider recovers but warm probe still pending
+  degraded --> ready: refresh + warm probe passed
+  degraded --> off: staff stop or auto-stop
+  stopping --> off: stop confirmed
+  stopping --> error: stop failed
+  requested --> error: activation failed
+  starting --> error: bridge/health failure
+  error --> off: explicit recovery or successful reconciliation

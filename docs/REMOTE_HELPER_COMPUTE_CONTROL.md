@@ -29,6 +29,7 @@ The control is:
 - time-bounded
 - capability-gated
 - server-side only after the teacher/admin click
+- exportable as class-scoped JSON or CSV evidence
 
 Students never see provider names, credentials, instance ids, or raw orchestration controls.
 
@@ -102,6 +103,43 @@ Current shipped behavior is:
 - optional idle auto-stop can return remote compute to `off`
 - helper startup runs `python manage.py reconcile_remote_compute_state` by default (`RUN_REMOTE_COMPUTE_RECONCILE_ON_START=1`) so durable lease state is normalized after restarts
 - `/teach/class/<id>/export-helper-remote-snapshot?format=json|csv` exports the current class-scoped helper snapshot and records `class.remote_helper_snapshot_export`
+- `/helper/internal/remote-compute-evidence` exposes the same bounded evidence to staff/operator callers behind the internal token + CIDR guard
+
+## What is measured now
+
+The lease is now a measurable object, not just a transient state label.
+
+Per class and per lease session, the repo now tracks:
+
+- lease activations
+- requested duration
+- actual time spent in `starting`
+- actual time spent in `ready`
+- actual time spent in `degraded`
+- manual stop count
+- auto-stop count
+- remote-routed request count
+- local fallback count after remote attempt
+- approximate leased minutes consumed
+- optional approximate cost estimate when `HELPER_REMOTE_COMPUTE_ESTIMATED_USD_PER_HOUR` is configured
+- recent lease sessions and reason-coded events
+
+This accounting is staff/operator facing only. It intentionally excludes prompt bodies and raw provider credentials.
+
+## Honest readiness contract
+
+The helper now treats `ready` as a helper-side trust boundary, not a provider slogan.
+
+`ready` means:
+
+- provider accepted activation or refresh
+- remote backend is reachable from the helper
+- auth is valid for the configured backend path
+- a real warm probe succeeds against the actual backend path
+- the response shape is usable enough for the helper to trust
+- the probe completed within `HELPER_REMOTE_COMPUTE_READY_MAX_SECONDS`
+
+If those conditions do not hold, the lease stays in `requested`, `starting`, or `degraded`.
 
 ## Flags and env contract
 
@@ -137,10 +175,12 @@ HELPER_REMOTE_COMPUTE_CONTROL_API_KEY=REPLACE_ME_STRONG
 HELPER_REMOTE_COMPUTE_CONTROL_TIMEOUT_SECONDS=8
 CLASSHUB_REMOTE_HELPER_COMPUTE_IDLE_TIMEOUT_SECONDS=1800
 HELPER_REMOTE_COMPUTE_READY_MAX_SECONDS=12
+HELPER_REMOTE_COMPUTE_ESTIMATED_USD_PER_HOUR=
 RUN_REMOTE_COMPUTE_RECONCILE_ON_START=1
 
 # Internal LMS -> helper control path
 HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL=http://helper_web:8000/helper/internal/remote-compute-status
+HELPER_INTERNAL_REMOTE_COMPUTE_EVIDENCE_URL=http://helper_web:8000/helper/internal/remote-compute-evidence
 HELPER_INTERNAL_REMOTE_COMPUTE_CONTROL_URL=http://helper_web:8000/helper/internal/remote-compute-control
 HELPER_INTERNAL_REMOTE_COMPUTE_TIMEOUT_SECONDS=2
 
@@ -248,7 +288,19 @@ High-signal evidence:
 
 - `/teach/class/<id>` shows the remote-compute state and whether helper will use the remote backend
 - helper logs `remote_compute_fallback_local` when it has to retry locally
-- helper internal status shows the last transition, healthcheck, and routed timestamps
+- helper internal status shows the last transition, healthcheck, warm-probe, and routed timestamps
+- helper internal evidence and teacher export snapshots show route counts, fallback counts, leased minutes, stop counts, and recent events
+
+Representative reason-code families include:
+
+- `auth_error`
+- `timeout`
+- `warmup_failed`
+- `malformed_response`
+- `upstream_unavailable`
+- `provider_off_reconciled`
+- `idle_timeout`
+- `lease_expired`
 
 ## What remains private and server-to-server
 
@@ -257,6 +309,10 @@ High-signal evidence:
 - provider request ids beyond staff/operator displays
 - the remote model host itself
 - health/warm checks between the helper and the orchestration bridge
+
+## Related evidence
+
+- [EVIDENCE_REMOTE_COMPUTE.md](EVIDENCE_REMOTE_COMPUTE.md)
 
 Public browser traffic must never touch the remote provider directly.
 

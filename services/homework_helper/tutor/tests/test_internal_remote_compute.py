@@ -118,8 +118,22 @@ class HelperInternalRemoteComputeTests(TestCase):
         self.assertEqual(status_body.get("ready_transition_count"), 1)
         self.assertEqual(status_body.get("remote_route_count"), 0)
         self.assertEqual(status_body.get("fallback_local_count"), 0)
+        self.assertEqual(status_body.get("requested_duration_minutes_total"), 60)
+        self.assertEqual(status_body.get("leased_minutes_total"), 0)
         self.assertIn("internal_remote_compute_status_read", status_logs.records[0].getMessage())
         self.assertIn('"class_id": 7', status_logs.records[0].getMessage())
+
+        evidence_resp = self.client.get(
+            "/helper/internal/remote-compute-evidence?class_id=7",
+            HTTP_AUTHORIZATION="Bearer token-123",
+        )
+        self.assertEqual(evidence_resp.status_code, 200)
+        evidence_body = evidence_resp.json()
+        self.assertTrue(evidence_body.get("ok"))
+        self.assertEqual(evidence_body.get("summary", {}).get("activation_count"), 1)
+        self.assertEqual(evidence_body.get("summary", {}).get("requested_duration_minutes_total"), 60)
+        self.assertEqual(len(evidence_body.get("recent_sessions") or []), 1)
+        self.assertTrue(any(row.get("event_type") == "activation_requested" for row in (evidence_body.get("recent_events") or [])))
 
         deactivate_resp = self.client.post(
             "/helper/internal/remote-compute-control",

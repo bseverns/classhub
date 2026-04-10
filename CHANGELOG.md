@@ -7,6 +7,8 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 ## [Unreleased]
 
 ### Added
+- Durable remote-helper lease evidence: per-lease sessions/events, ready/degraded time accounting, remote route and fallback counts, leased-minute / optional cost estimates, staff JSON/CSV export, and helper internal evidence/status endpoints for conference-grade operator review.
+- Conference/evaluator evidence layer: `docs/EVIDENCE_REMOTE_COMPUTE.md`, `press/conference_packet.md`, `press/stack_claims_and_evidence.md`, `press/stage_safe_claims.md`, and editable remote-compute / boundary diagram sources under `press/diagrams/`.
 - Pseudonym-first student join flow: display name prefilled with a generated pseudonym (e.g., "Curious Otter 17"), help text encouraging nicknames over real names, and configurable name-safety validation (`CLASSHUB_NAME_SAFETY_MODE`: off/warn/strict) that flags email/phone-like display names.
 - i18n scaffolding: Django internationalization enabled end-to-end with Spanish translations for join/login pages, language chooser widget (no inline JS), and `docs/LOCALIZATION.md` contributor guide.
 - `/privacy` page and student-facing privacy controls (export/delete/end session).
@@ -56,6 +58,7 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - Workflow-lint action resolution failure (`rhysd/actionlint`) in CI.
 
 ### Changed
+- Remote helper compute posture is now more defensible: `ready` requires a real helper-side warm probe, degraded/fallback behavior produces durable evidence, and expiry/idle-stop reconciliation records explicit lease outcomes instead of silently forgetting state.
 - `psycopg[binary]` re-pinned to `==3.2.1` for deployment reproducibility.
 - Default CSP report-only policies are now stricter (no `'unsafe-inline'`) in both services.
 - Gallery behavior standardized to a two-step state model: student publish intent plus teacher moderation approval.

@@ -72,6 +72,7 @@ nav:
       - Headscale Control Plane: HEADSCALE_CONTROL_PLANE.md
       - Private LLM Backend: PRIVATE_LLM_BACKEND.md
       - Remote Helper Compute Control: REMOTE_HELPER_COMPUTE_CONTROL.md
+      - Remote Compute Evidence: EVIDENCE_REMOTE_COMPUTE.md
       - Runbook: RUNBOOK.md
       - Curriculum Ops: CURRICULUM_OPS.md
       - Troubleshooting: TROUBLESHOOTING.md

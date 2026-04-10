@@ -12,6 +12,7 @@ from django.views.decorators.http import require_GET, require_POST
 from .engine import runtime as engine_runtime
 from .internal_access import authorize_internal_request
 from .internal_audit import log_internal_audit_event
+from .remote_compute_evidence import build_class_evidence
 from .remote_compute_control import (
     activate_remote_compute,
     current_remote_compute_lease,
@@ -80,6 +81,7 @@ def internal_remote_compute_status(request):
     except Exception:
         class_id = 0
     lease = current_remote_compute_lease(class_id=class_id, refresh=True)
+    evidence = build_class_evidence(class_id=class_id or lease.class_id)
     log_internal_audit_event(
         "info",
         "internal_remote_compute_status_read",
@@ -105,6 +107,7 @@ def internal_remote_compute_status(request):
             "requested_by": lease.requested_by,
             "requested_at": lease.requested_at,
             "expires_at": lease.expires_at,
+            "requested_duration_minutes": lease.requested_duration_minutes,
             "remaining_minutes": lease.remaining_minutes,
             "provider_label": lease.provider_label,
             "provider_request_id": lease.provider_request_id,
@@ -114,9 +117,12 @@ def internal_remote_compute_status(request):
             "auto_stop_on_idle": lease.auto_stop_on_idle,
             "idle_timeout_seconds": lease.idle_timeout_seconds,
             "last_error_code": lease.last_error_code,
+            "last_readiness_reason_code": lease.last_readiness_reason_code,
             "status_detail": lease.status_detail,
             "last_transition_at": lease.last_transition_at,
             "last_healthcheck_at": lease.last_healthcheck_at,
+            "last_ready_probe_at": lease.last_ready_probe_at,
+            "last_ready_probe_ok_at": lease.last_ready_probe_ok_at,
             "last_routed_at": lease.last_routed_at,
             "activation_count": lease.activation_count,
             "ready_transition_count": lease.ready_transition_count,
@@ -129,6 +135,85 @@ def internal_remote_compute_status(request):
             "last_activation_at": lease.last_activation_at,
             "last_ready_at": lease.last_ready_at,
             "last_fallback_at": lease.last_fallback_at,
+            "requested_duration_minutes_total": evidence.requested_duration_minutes_total,
+            "starting_seconds_total": evidence.starting_seconds_total,
+            "ready_seconds_total": evidence.ready_seconds_total,
+            "degraded_seconds_total": evidence.degraded_seconds_total,
+            "manual_stop_count_total": evidence.manual_stop_count,
+            "auto_stop_count_total": evidence.auto_stop_count,
+            "leased_minutes_total": evidence.leased_minutes_total,
+            "approximate_cost_usd_total": evidence.approximate_cost_usd_total,
+        },
+        request_id=request_id,
+    )
+
+
+@csrf_exempt
+@require_GET
+def internal_remote_compute_evidence(request):
+    request_id = _request_id(request)
+    ok, response = _authorized(request, request_id=request_id, event_prefix="internal_remote_compute_evidence")
+    if not ok:
+        return response
+    try:
+        class_id = int(request.GET.get("class_id") or 0)
+    except Exception:
+        class_id = 0
+    if class_id <= 0:
+        return _json_response({"error": "invalid_class_id"}, request_id=request_id, status=400)
+    lease = current_remote_compute_lease(class_id=class_id, refresh=True)
+    evidence = build_class_evidence(class_id=class_id)
+    log_internal_audit_event(
+        "info",
+        "internal_remote_compute_evidence_read",
+        request=request,
+        request_id=request_id,
+        class_id=class_id,
+        activation_count=evidence.activation_count,
+        active=lease.active,
+        state=lease.state,
+    )
+    return _json_response(
+        {
+            "ok": True,
+            "class_id": class_id,
+            "active_lease": {
+                "active": lease.active,
+                "active_for_class": lease.active_for_class,
+                "use_remote_backend": lease.use_remote_backend,
+                "state": lease.state,
+                "requested_by": lease.requested_by,
+                "requested_at": lease.requested_at,
+                "expires_at": lease.expires_at,
+                "requested_duration_minutes": lease.requested_duration_minutes,
+                "remaining_minutes": lease.remaining_minutes,
+                "provider_label": lease.provider_label,
+                "provider_request_id": lease.provider_request_id,
+                "provider_adapter": lease.provider_adapter,
+                "status_detail": lease.status_detail,
+                "last_error_code": lease.last_error_code,
+                "last_readiness_reason_code": lease.last_readiness_reason_code,
+                "last_transition_at": lease.last_transition_at,
+                "last_healthcheck_at": lease.last_healthcheck_at,
+                "last_ready_probe_at": lease.last_ready_probe_at,
+                "last_ready_probe_ok_at": lease.last_ready_probe_ok_at,
+                "last_routed_at": lease.last_routed_at,
+            },
+            "summary": {
+                "activation_count": evidence.activation_count,
+                "requested_duration_minutes_total": evidence.requested_duration_minutes_total,
+                "starting_seconds_total": evidence.starting_seconds_total,
+                "ready_seconds_total": evidence.ready_seconds_total,
+                "degraded_seconds_total": evidence.degraded_seconds_total,
+                "manual_stop_count_total": evidence.manual_stop_count,
+                "auto_stop_count_total": evidence.auto_stop_count,
+                "remote_route_count": evidence.remote_route_count,
+                "fallback_local_count": evidence.fallback_local_count,
+                "leased_minutes_total": evidence.leased_minutes_total,
+                "approximate_cost_usd_total": evidence.approximate_cost_usd_total,
+            },
+            "recent_sessions": evidence.recent_sessions,
+            "recent_events": evidence.recent_events,
         },
         request_id=request_id,
     )
@@ -270,4 +355,4 @@ def internal_remote_compute_control(request):
     )
 
 
-__all__ = ["internal_remote_compute_control", "internal_remote_compute_status"]
+__all__ = ["internal_remote_compute_control", "internal_remote_compute_evidence", "internal_remote_compute_status"]

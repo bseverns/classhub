@@ -1,7 +1,7 @@
 # Screenshot Shot List
 
 ## Summary
-Use this list to capture consistent, privacy-safe screenshots for public sharing.
+Use this list to capture consistent, privacy-safe screenshots for public sharing and future technical talks.
 
 ## What to do now
 1. Capture each target file below.
@@ -10,6 +10,22 @@ Use this list to capture consistent, privacy-safe screenshots for public sharing
 
 ## Verification signal
 When complete, `press/screenshots/` contains all filenames in this list and each image can be mapped to one product workflow.
+
+## Conference demo spine
+
+Recommended talk/demo order using the existing captures:
+
+1. `01-student-join.png`: public classroom entry stays simple.
+2. `03-teacher-dashboard.png`: teacher workflow is operational, not AI-first.
+3. `11-invite-only-enrollment.png`: class-level controls include bounded staff-only remote helper compute.
+4. `08-health-checks-terminal.png`: boring infra checks exist.
+5. `20-data-lifespan-evidence.png` and `21-data-lifespan-export-terminal.png`: evidence/export posture is real, not rhetorical.
+
+If you need a spoken architecture moment, pair this shotlist with:
+
+- `press/architecture.md`
+- `press/conference_packet.md`
+- `press/failure_degradation_matrix.md`
 
 ## Capture targets
 1. `01-student-join.png`
@@ -69,6 +85,8 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 11. `11-invite-only-enrollment.png`
 - Screen: class dashboard (`/teach/class/<id>`)
 - Include: enrollment mode controls + invite-link management
+- Include: remote helper compute panel if the bounded staff-only control is enabled for the environment
+- Include: visible state / expiry copy and JSON/CSV export affordance if present
 - Include: support-board lane (or section) showing unresolved help signals
 - Redact: live invite tokens/class codes
 
@@ -122,6 +140,7 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 - Screen: data lifespan dashboard (`/teach/data-lifespan`)
 - Include: retention trend table + export JSON/CSV controls + RAG posture panel
 - Include: explicit curriculum-only boundary copy (`Student uploads and student PII are excluded...`)
+- Include: if available in the same talk/demo environment, one operator-facing evidence panel or doc excerpt that reinforces “measured, exportable, bounded”
 - Redact: any sensitive class/user labels shown in prune summaries
 
 21. `21-data-lifespan-export-terminal.png`
@@ -142,6 +161,7 @@ When complete, `press/screenshots/` contains all filenames in this list and each
 ## Priority order
 - Capture with approval workflow OFF (`CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0`) first, then optional refresh with workflow ON.
 - Optional supplemental file for ON mode: `19-rbac-tools-tab-approval-on.png`.
+- When remote helper compute is part of the talk, prefer showing the class dashboard in a state where the remote panel is visible but not leaking provider internals.
 - Pending in current backlog:
   - `20-data-lifespan-evidence.png`
   - `21-data-lifespan-export-terminal.png`

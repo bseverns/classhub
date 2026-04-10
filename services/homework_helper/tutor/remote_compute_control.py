@@ -17,6 +17,14 @@ from .llm import (
     healthcheck_provider,
     resolve_backend_name,
 )
+from .remote_compute_evidence import (
+    build_class_evidence,
+    create_or_update_active_session,
+    record_local_fallback as record_evidence_local_fallback,
+    record_ready_probe,
+    record_remote_route as record_evidence_remote_route,
+    sync_session_from_payload,
+)
 from .remote_compute_provider import build_remote_compute_provider
 from .remote_compute_store import delete_state, load_metrics, load_state, persist_metrics, persist_state
 
@@ -39,6 +47,7 @@ class RemoteComputeLease:
     requested_by: str = ""
     requested_at: str = ""
     expires_at: str = ""
+    requested_duration_minutes: int = 0
     remaining_minutes: int = 0
     provider_label: str = ""
     provider_request_id: str = ""
@@ -48,9 +57,12 @@ class RemoteComputeLease:
     auto_stop_on_idle: bool = False
     idle_timeout_seconds: int = 0
     last_error_code: str = ""
+    last_readiness_reason_code: str = ""
     status_detail: str = ""
     last_transition_at: str = ""
     last_healthcheck_at: str = ""
+    last_ready_probe_at: str = ""
+    last_ready_probe_ok_at: str = ""
     last_routed_at: str = ""
     activation_count: int = 0
     ready_transition_count: int = 0
@@ -246,13 +258,19 @@ def activate_remote_compute(*, class_id: int, requested_by: str, duration_minute
     state = _normalize_state(provider_result.state, default="ready")
     last_error_code = ""
     status_detail = str(provider_result.detail or "").strip()[:160]
+    last_readiness_reason_code = ""
+    last_ready_probe_at = ""
+    last_ready_probe_ok_at = ""
     if state == "ready":
         probe_ok, probe_error_code, probe_detail = _remote_backend_ready_probe()
+        last_ready_probe_at = _utc_now().isoformat()
         if probe_ok:
+            last_ready_probe_ok_at = last_ready_probe_at
             status_detail = probe_detail
         else:
             state = "starting"
             last_error_code = probe_error_code
+            last_readiness_reason_code = probe_error_code
             status_detail = probe_detail
     payload = {
         "state": state,
@@ -260,14 +278,30 @@ def activate_remote_compute(*, class_id: int, requested_by: str, duration_minute
         "requested_by": str(requested_by or "").strip()[:150],
         "requested_at": now.isoformat(),
         "expires_at": expires_at.isoformat(),
+        "requested_duration_minutes": duration,
         "provider_request_id": provider_result.provider_request_id,
         "status_detail": status_detail,
         "last_error_code": last_error_code,
+        "last_readiness_reason_code": last_readiness_reason_code,
         "last_transition_at": now.isoformat(),
         "last_healthcheck_at": "",
+        "last_ready_probe_at": last_ready_probe_at,
+        "last_ready_probe_ok_at": last_ready_probe_ok_at,
         "last_routed_at": "",
     }
+    payload["lease_session_id"] = create_or_update_active_session(
+        payload=payload,
+        provider_label=remote_compute_provider_label(),
+        provider_adapter=remote_compute_provider_adapter(),
+    )
     _persist_state(payload, timeout_seconds=max(duration * 60, 60))
+    if last_ready_probe_at:
+        record_ready_probe(
+            payload=payload,
+            ok=bool(last_ready_probe_ok_at),
+            reason_code=last_readiness_reason_code,
+            detail=status_detail,
+        )
     _record_activation(class_id=class_id, requested_at=payload["requested_at"])
     if state == "ready":
         _record_ready_transition(class_id=class_id, requested_at=payload["requested_at"])
@@ -314,7 +348,19 @@ def deactivate_remote_compute(*, class_id: int, requested_by: str) -> RemoteComp
 
     state = _normalize_state(provider_result.state, default="off")
     if state == "off":
-        _finalize_unused_activation_from_payload(_load_cached_state())
+        payload = _load_cached_state()
+        if payload:
+            payload["state"] = "off"
+            payload["status_detail"] = str(provider_result.detail or "").strip()[:160]
+            payload["last_transition_at"] = _utc_now().isoformat()
+            sync_session_from_payload(
+                payload=payload,
+                reason_code="manual_stop",
+                event_type="lease_stopped",
+                detail=payload["status_detail"],
+                stop_mode="manual",
+            )
+        _finalize_unused_activation_from_payload(payload)
         _delete_state()
     else:
         payload = _load_cached_state()
@@ -327,6 +373,12 @@ def deactivate_remote_compute(*, class_id: int, requested_by: str) -> RemoteComp
             }
         )
         _persist_state(payload, timeout_seconds=max(_state_timeout_seconds(payload), 300))
+        sync_session_from_payload(
+            payload=payload,
+            reason_code="manual_stop_pending",
+            event_type="lease_stopping",
+            detail=str(provider_result.detail or "").strip()[:160],
+        )
     return RemoteComputeActionResult(
         ok=True,
         action="deactivate",
@@ -347,11 +399,24 @@ def mark_remote_compute_degraded(*, class_id: int, error_code: str) -> None:
     payload["status_detail"] = "Remote helper compute fell back to local/default mode."
     payload["last_transition_at"] = _utc_now().isoformat()
     _persist_state(payload, timeout_seconds=_state_timeout_seconds(payload))
+    sync_session_from_payload(
+        payload=payload,
+        reason_code=str(error_code or "").strip()[:80],
+        event_type="lease_degraded",
+        detail=payload["status_detail"],
+    )
     if prior_state != "degraded":
         _record_degraded_transition(class_id=class_id, error_code=error_code)
 
 
 def mark_remote_compute_fallback_local(*, class_id: int, error_code: str) -> None:
+    payload = _load_cached_state()
+    if payload and _safe_int(payload.get("class_id")) == int(class_id):
+        record_evidence_local_fallback(
+            payload=payload,
+            reason_code=str(error_code or "").strip()[:80],
+            detail="Remote helper compute fell back to local/default mode.",
+        )
     _record_fallback_local(class_id=class_id)
     mark_remote_compute_degraded(class_id=class_id, error_code=error_code)
 
@@ -364,6 +429,7 @@ def mark_remote_compute_routed(*, class_id: int) -> None:
         return
     payload["last_routed_at"] = _utc_now().isoformat()
     _persist_state(payload, timeout_seconds=_state_timeout_seconds(payload))
+    record_evidence_remote_route(payload=payload)
     _record_remote_route(class_id=class_id)
 
 
@@ -387,9 +453,38 @@ def _expire_elapsed_lease(payload: dict) -> dict:
         return payload
     if expires_at > _utc_now():
         return payload
-    _finalize_unused_activation_from_payload(payload)
-    _delete_state()
-    return {}
+    provider = build_remote_compute_provider()
+    result = provider.deactivate(
+        class_id=_safe_int(payload.get("class_id")),
+        requested_by="auto_expire_stop",
+    )
+    if result.ok:
+        payload["state"] = "off"
+        payload["status_detail"] = "Lease expired; remote helper compute returned to off."
+        payload["last_transition_at"] = _utc_now().isoformat()
+        sync_session_from_payload(
+            payload=payload,
+            reason_code="lease_expired",
+            event_type="lease_expired_auto_stop",
+            detail=payload["status_detail"],
+            stop_mode="auto",
+        )
+        _finalize_unused_activation_from_payload(payload)
+        _delete_state()
+        return {}
+    _record_provider_unreachable_if_needed(class_id=_safe_int(payload.get("class_id")), error_code=result.error_code)
+    payload["state"] = "error"
+    payload["last_error_code"] = result.error_code or "remote_compute_expiry_stop_failed"
+    payload["status_detail"] = "Lease expired, but remote helper compute did not confirm shutdown."
+    payload["last_transition_at"] = _utc_now().isoformat()
+    _persist_state(payload, timeout_seconds=300)
+    sync_session_from_payload(
+        payload=payload,
+        reason_code=str(payload["last_error_code"]),
+        event_type="lease_expiry_stop_failed",
+        detail=payload["status_detail"],
+    )
+    return payload
 
 
 def _auto_stop_if_idle(payload: dict) -> dict:
@@ -410,6 +505,16 @@ def _auto_stop_if_idle(payload: dict) -> dict:
         requested_by="auto_idle_stop",
     )
     if result.ok:
+        payload["state"] = "off"
+        payload["status_detail"] = "Idle auto-stop returned remote helper compute to off."
+        payload["last_transition_at"] = _utc_now().isoformat()
+        sync_session_from_payload(
+            payload=payload,
+            reason_code="idle_timeout",
+            event_type="lease_idle_auto_stop",
+            detail=payload["status_detail"],
+            stop_mode="auto",
+        )
         _finalize_unused_activation_from_payload(payload)
         _delete_state()
         return {}
@@ -419,6 +524,12 @@ def _auto_stop_if_idle(payload: dict) -> dict:
     payload["status_detail"] = "Idle auto-stop could not return remote helper compute to off."
     payload["last_transition_at"] = _utc_now().isoformat()
     _persist_state(payload, timeout_seconds=_state_timeout_seconds(payload))
+    sync_session_from_payload(
+        payload=payload,
+        reason_code=str(payload["last_error_code"]),
+        event_type="lease_idle_stop_failed",
+        detail=payload["status_detail"],
+    )
     return payload
 
 
@@ -444,6 +555,7 @@ def _refresh_state_from_provider(payload: dict) -> dict:
         provider_request_id=str(payload.get("provider_request_id") or "").strip()[:120],
     )
     payload["last_healthcheck_at"] = _utc_now().isoformat()
+    probe_detail = ""
     if not result.ok:
         _record_provider_unreachable_if_needed(class_id=_safe_int(payload.get("class_id")), error_code=result.error_code)
         if state in {"requested", "starting"}:
@@ -459,15 +571,38 @@ def _refresh_state_from_provider(payload: dict) -> dict:
                     error_code=result.error_code or "remote_compute_healthcheck_failed",
                 )
         _persist_state(payload, timeout_seconds=_state_timeout_seconds(payload))
+        sync_session_from_payload(
+            payload=payload,
+            reason_code=str(result.error_code or "remote_compute_healthcheck_failed"),
+            event_type="provider_healthcheck_failed",
+            detail=str(payload.get("status_detail") or "").strip()[:160],
+        )
         return payload
     next_state = _normalize_state(result.state, default="ready")
     if next_state == "off":
+        payload["state"] = "off"
+        payload["status_detail"] = "Provider reported remote helper compute as off."
+        payload["last_transition_at"] = _utc_now().isoformat()
+        sync_session_from_payload(
+            payload=payload,
+            reason_code="provider_off_reconciled",
+            event_type="provider_reconciled_off",
+            detail=payload["status_detail"],
+        )
         _finalize_unused_activation_from_payload(payload)
         _delete_state()
         return {}
     if next_state == "ready":
         probe_ok, probe_error_code, probe_detail = _remote_backend_ready_probe()
+        payload["last_ready_probe_at"] = _utc_now().isoformat()
+        payload["last_readiness_reason_code"] = str(probe_error_code or "").strip()[:80]
         if not probe_ok:
+            record_ready_probe(
+                payload=payload,
+                ok=False,
+                reason_code=probe_error_code,
+                detail=probe_detail,
+            )
             if state in {"requested", "starting"}:
                 payload["state"] = "starting"
             else:
@@ -481,7 +616,21 @@ def _refresh_state_from_provider(payload: dict) -> dict:
             payload["status_detail"] = probe_detail
             payload["last_transition_at"] = _utc_now().isoformat()
             _persist_state(payload, timeout_seconds=_state_timeout_seconds(payload))
+            sync_session_from_payload(
+                payload=payload,
+                reason_code=probe_error_code,
+                event_type="ready_probe_blocked",
+                detail=probe_detail,
+            )
             return payload
+        payload["last_ready_probe_ok_at"] = payload["last_ready_probe_at"]
+        payload["last_readiness_reason_code"] = ""
+        record_ready_probe(
+            payload=payload,
+            ok=True,
+            reason_code="",
+            detail=probe_detail,
+        )
     if state in {"requested", "starting"} and next_state == "ready":
         _record_ready_transition(
             class_id=_safe_int(payload.get("class_id")),
@@ -496,6 +645,12 @@ def _refresh_state_from_provider(payload: dict) -> dict:
     payload["last_error_code"] = ""
     payload["last_transition_at"] = _utc_now().isoformat()
     _persist_state(payload, timeout_seconds=_state_timeout_seconds(payload))
+    sync_session_from_payload(
+        payload=payload,
+        reason_code="",
+        event_type="provider_state_refresh",
+        detail=str(payload.get("status_detail") or "").strip()[:160],
+    )
     return payload
 
 
@@ -531,6 +686,7 @@ def _lease_from_payload(payload: dict, *, class_id: int) -> RemoteComputeLease:
         requested_by=str(payload.get("requested_by") or "").strip()[:150],
         requested_at=str(payload.get("requested_at") or "").strip()[:64],
         expires_at=expires_at_raw,
+        requested_duration_minutes=_safe_int(payload.get("requested_duration_minutes")),
         remaining_minutes=remaining_minutes,
         provider_label=remote_compute_provider_label(),
         provider_request_id=str(payload.get("provider_request_id") or "").strip()[:120],
@@ -542,9 +698,12 @@ def _lease_from_payload(payload: dict, *, class_id: int) -> RemoteComputeLease:
         auto_stop_on_idle=remote_compute_idle_timeout_seconds() > 0,
         idle_timeout_seconds=remote_compute_idle_timeout_seconds(),
         last_error_code=str(payload.get("last_error_code") or "").strip()[:80],
+        last_readiness_reason_code=str(payload.get("last_readiness_reason_code") or "").strip()[:80],
         status_detail=str(payload.get("status_detail") or "").strip()[:160],
         last_transition_at=str(payload.get("last_transition_at") or "").strip()[:64],
         last_healthcheck_at=str(payload.get("last_healthcheck_at") or "").strip()[:64],
+        last_ready_probe_at=str(payload.get("last_ready_probe_at") or "").strip()[:64],
+        last_ready_probe_ok_at=str(payload.get("last_ready_probe_ok_at") or "").strip()[:64],
         last_routed_at=str(payload.get("last_routed_at") or "").strip()[:64],
         activation_count=_safe_int(metrics.get("activation_count")),
         ready_transition_count=ready_transition_count,

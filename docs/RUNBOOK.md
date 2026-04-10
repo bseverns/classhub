@@ -250,6 +250,30 @@ If you enable bounded remote helper compute control:
 - expect helper traffic to use the remote backend only when the class state is `ready`
 - expect helper requests to fall back to local/default mode if the remote path is not ready or later errors
 - keep the lease short and stop it after class; optional idle auto-stop is acceptable but does not replace operator awareness
+- use `HELPER_REMOTE_COMPUTE_ESTIMATED_USD_PER_HOUR` only as an approximate operator hint, not as exact billing truth
+
+Useful inspection surfaces:
+
+- the configured internal helper URLs:
+  - `HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL`
+  - `HELPER_INTERNAL_REMOTE_COMPUTE_EVIDENCE_URL`
+- the teacher/admin export path below
+- helper logs plus `system_doctor` when reconciling drift between lease state and actual backend behavior
+
+Teacher/admin export path:
+
+- `/teach/class/<id>/export-helper-remote-snapshot?format=json`
+- `/teach/class/<id>/export-helper-remote-snapshot?format=csv`
+
+What the export/evidence layer now makes visible:
+
+- requested duration vs leased minutes
+- actual time spent in `starting`, `ready`, and `degraded`
+- remote-routed request count
+- local fallback count after remote attempt
+- manual stop count
+- auto-stop count
+- recent lease sessions and reason-coded events
 
 Golden-path smoke (auto fixture bootstrap):
 

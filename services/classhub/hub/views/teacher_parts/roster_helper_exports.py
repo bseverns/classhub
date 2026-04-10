@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import csv
+import json
 from io import StringIO
 
 from django.conf import settings
 from django.http import JsonResponse
 
 from ...services.filenames import safe_filename
-from ...services.helper_control import fetch_remote_compute_status
+from ...services.helper_control import fetch_remote_compute_evidence
 from .shared import (
     HttpResponse,
     _audit,
@@ -31,50 +32,51 @@ def _remote_helper_snapshot_filename(*, classroom, extension: str) -> str:
 
 
 def _remote_helper_snapshot_payload(*, classroom) -> dict:
-    result = fetch_remote_compute_status(
+    result = fetch_remote_compute_evidence(
         class_id=classroom.id,
-        endpoint_url=str(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL", "") or "").strip(),
+        endpoint_url=str(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_EVIDENCE_URL", "") or "").strip(),
         internal_token=str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip(),
         timeout_seconds=float(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_TIMEOUT_SECONDS", 2.0) or 2.0),
     )
+    active_lease = result.active_lease or {}
+    summary = result.summary or {}
     return {
         "ok": bool(result.ok),
         "class_id": int(classroom.id),
         "class_name": str(classroom.name or ""),
-        "state": str(result.state or "off"),
-        "feature_enabled": bool(result.feature_enabled),
-        "paid_usage_acknowledged": bool(result.paid_usage_acknowledged),
-        "backend_configured": bool(result.backend_configured),
-        "active": bool(result.active),
-        "active_for_class": bool(result.active_for_class),
-        "use_remote_backend": bool(result.use_remote_backend),
-        "requested_by": str(result.requested_by or ""),
-        "requested_at": str(result.requested_at or ""),
-        "expires_at": str(result.expires_at or ""),
-        "remaining_minutes": int(result.remaining_minutes or 0),
-        "provider_label": str(result.provider_label or ""),
-        "provider_request_id": str(result.provider_request_id or ""),
-        "provider_adapter": str(result.provider_adapter or ""),
-        "control_url_configured": bool(result.control_url_configured),
-        "healthcheck_url_configured": bool(result.healthcheck_url_configured),
-        "auto_stop_on_idle": bool(result.auto_stop_on_idle),
-        "idle_timeout_seconds": int(result.idle_timeout_seconds or 0),
-        "status_detail": str(result.status_detail or ""),
-        "last_error_code": str(result.last_error_code or ""),
-        "last_transition_at": str(result.last_transition_at or ""),
-        "last_healthcheck_at": str(result.last_healthcheck_at or ""),
-        "last_routed_at": str(result.last_routed_at or ""),
-        "activation_count": int(result.activation_count or 0),
-        "ready_transition_count": int(result.ready_transition_count or 0),
-        "avg_ready_seconds": int(result.avg_ready_seconds or 0),
-        "remote_route_count": int(result.remote_route_count or 0),
-        "fallback_local_count": int(result.fallback_local_count or 0),
-        "degraded_transition_count": int(result.degraded_transition_count or 0),
-        "provider_unreachable_count": int(result.provider_unreachable_count or 0),
-        "unused_activation_count": int(result.unused_activation_count or 0),
-        "last_activation_at": str(result.last_activation_at or ""),
-        "last_ready_at": str(result.last_ready_at or ""),
-        "last_fallback_at": str(result.last_fallback_at or ""),
+        "state": str(active_lease.get("state") or "off"),
+        "active": bool(active_lease.get("active")),
+        "active_for_class": bool(active_lease.get("active_for_class")),
+        "use_remote_backend": bool(active_lease.get("use_remote_backend")),
+        "requested_by": str(active_lease.get("requested_by") or ""),
+        "requested_at": str(active_lease.get("requested_at") or ""),
+        "expires_at": str(active_lease.get("expires_at") or ""),
+        "requested_duration_minutes": int(active_lease.get("requested_duration_minutes") or 0),
+        "remaining_minutes": int(active_lease.get("remaining_minutes") or 0),
+        "provider_label": str(active_lease.get("provider_label") or ""),
+        "provider_request_id": str(active_lease.get("provider_request_id") or ""),
+        "provider_adapter": str(active_lease.get("provider_adapter") or ""),
+        "status_detail": str(active_lease.get("status_detail") or ""),
+        "last_error_code": str(active_lease.get("last_error_code") or ""),
+        "last_readiness_reason_code": str(active_lease.get("last_readiness_reason_code") or ""),
+        "last_transition_at": str(active_lease.get("last_transition_at") or ""),
+        "last_healthcheck_at": str(active_lease.get("last_healthcheck_at") or ""),
+        "last_ready_probe_at": str(active_lease.get("last_ready_probe_at") or ""),
+        "last_ready_probe_ok_at": str(active_lease.get("last_ready_probe_ok_at") or ""),
+        "last_routed_at": str(active_lease.get("last_routed_at") or ""),
+        "activation_count": int(summary.get("activation_count") or 0),
+        "requested_duration_minutes_total": int(summary.get("requested_duration_minutes_total") or 0),
+        "starting_seconds_total": int(summary.get("starting_seconds_total") or 0),
+        "ready_seconds_total": int(summary.get("ready_seconds_total") or 0),
+        "degraded_seconds_total": int(summary.get("degraded_seconds_total") or 0),
+        "manual_stop_count_total": int(summary.get("manual_stop_count_total") or 0),
+        "auto_stop_count_total": int(summary.get("auto_stop_count_total") or 0),
+        "remote_route_count": int(summary.get("remote_route_count") or 0),
+        "fallback_local_count": int(summary.get("fallback_local_count") or 0),
+        "leased_minutes_total": int(summary.get("leased_minutes_total") or 0),
+        "approximate_cost_usd_total": str(summary.get("approximate_cost_usd_total") or ""),
+        "recent_sessions": list(result.recent_sessions or []),
+        "recent_events": list(result.recent_events or []),
         "request_id": str(result.request_id or ""),
         "error_code": str(result.error_code or ""),
         "status_code": int(result.status_code or 0),
@@ -87,6 +89,9 @@ def _remote_helper_snapshot_csv(payload: dict) -> str:
     writer = csv.writer(out)
     writer.writerow(["field", "value"])
     for key, value in payload.items():
+        if key in {"recent_sessions", "recent_events"}:
+            writer.writerow([key, json.dumps(value, separators=(",", ":"), sort_keys=True)])
+            continue
         writer.writerow([key, value])
     return out.getvalue()
 

@@ -13,6 +13,7 @@ It should:
 - accept server-to-server activate requests
 - accept server-to-server stop requests
 - report whether the remote path is actually ready
+- tolerate duplicate activate/stop requests without creating ambiguous lease state
 - keep provider credentials and raw orchestration APIs off the LMS/browser path
 
 It must not:
@@ -72,7 +73,23 @@ Only `ready` lets Homework Helper route class traffic to the remote backend.
 - keep the bridge small and auditable
 - keep it private and server-to-server only
 - return honest readiness; do not claim `ready` before the remote model path is actually warm
+- treat `ready` as: backend reachable, auth valid, real warm probe passes, response shape usable
+- record enough outcome metadata to correlate who asked, which class lease was affected, and when the backend actually turned off
 - stop the expensive backend after class or let the bounded lease/idle stop return it to `off`
+
+## Evidence-friendly behavior
+
+The app now records class-scoped lease evidence on the helper side.
+
+The bridge should make that evidence more trustworthy, not less.
+
+Recommended bridge behavior:
+
+- return stable request identifiers
+- keep activate/health/stop idempotent
+- distinguish `starting` from truly `ready`
+- return bounded reason codes for failure classes
+- confirm shutdown explicitly so the helper can record lease expiry/idle-stop honestly
 
 ## Related docs
 

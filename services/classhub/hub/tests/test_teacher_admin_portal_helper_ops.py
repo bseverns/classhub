@@ -167,45 +167,45 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertNotContains(resp, "Remote helper compute")
         status_mock.assert_not_called()
 
-    @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_status")
+    @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_evidence")
     def test_teacher_can_export_remote_helper_snapshot_json(self, status_mock):
         classroom = Class.objects.create(name="Partner Session Export", join_code="GPU10001")
-        status_mock.return_value = HelperRemoteComputeStatusResult(
+        status_mock.return_value = HelperRemoteComputeEvidenceResult(
             ok=True,
-            feature_enabled=True,
-            paid_usage_acknowledged=True,
-            backend_configured=True,
-            active=True,
-            active_for_class=True,
-            use_remote_backend=True,
-            state="ready",
             class_id=classroom.id,
-            requested_by=self.staff.username,
-            requested_at="2099-04-08T12:00:00+00:00",
-            expires_at="2099-04-08T13:30:00+00:00",
-            remaining_minutes=90,
-            provider_label="thunder-orchestration",
-            provider_request_id="provider-req-1",
-            provider_adapter="thunder_webhook",
-            control_url_configured=True,
-            healthcheck_url_configured=True,
-            auto_stop_on_idle=True,
-            idle_timeout_seconds=600,
-            status_detail="Warm probe passed.",
-            last_transition_at="2099-04-08T12:05:00+00:00",
-            last_healthcheck_at="2099-04-08T12:05:30+00:00",
-            last_routed_at="2099-04-08T12:07:00+00:00",
-            activation_count=3,
-            ready_transition_count=2,
-            avg_ready_seconds=18,
-            remote_route_count=4,
-            fallback_local_count=1,
-            degraded_transition_count=2,
-            provider_unreachable_count=1,
-            unused_activation_count=1,
-            last_activation_at="2099-04-08T12:00:00+00:00",
-            last_ready_at="2099-04-08T12:05:00+00:00",
-            last_fallback_at="2099-04-08T12:06:00+00:00",
+            active_lease={
+                "active": True,
+                "active_for_class": True,
+                "use_remote_backend": True,
+                "state": "ready",
+                "requested_by": self.staff.username,
+                "requested_at": "2099-04-08T12:00:00+00:00",
+                "expires_at": "2099-04-08T13:30:00+00:00",
+                "requested_duration_minutes": 90,
+                "remaining_minutes": 90,
+                "provider_label": "thunder-orchestration",
+                "provider_request_id": "provider-req-1",
+                "provider_adapter": "thunder_webhook",
+                "status_detail": "Warm probe passed.",
+                "last_transition_at": "2099-04-08T12:05:00+00:00",
+                "last_healthcheck_at": "2099-04-08T12:05:30+00:00",
+                "last_routed_at": "2099-04-08T12:07:00+00:00",
+            },
+            summary={
+                "activation_count": 3,
+                "requested_duration_minutes_total": 270,
+                "starting_seconds_total": 45,
+                "ready_seconds_total": 900,
+                "degraded_seconds_total": 30,
+                "manual_stop_count_total": 1,
+                "auto_stop_count_total": 1,
+                "remote_route_count": 4,
+                "fallback_local_count": 1,
+                "leased_minutes_total": 105,
+                "approximate_cost_usd_total": "12.50",
+            },
+            recent_sessions=[{"lease_session_id": 11, "current_state": "ready"}],
+            recent_events=[{"event_type": "ready_probe_passed"}],
             request_id="helper-status-req-1",
             status_code=200,
         )
@@ -220,6 +220,9 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertEqual(payload["state"], "ready")
         self.assertEqual(payload["request_id"], "helper-status-req-1")
         self.assertEqual(payload["remote_route_count"], 4)
+        self.assertEqual(payload["requested_duration_minutes_total"], 270)
+        self.assertEqual(payload["approximate_cost_usd_total"], "12.50")
+        self.assertEqual(len(payload["recent_sessions"]), 1)
 
         event = AuditEvent.objects.filter(action="class.remote_helper_snapshot_export").order_by("-id").first()
         self.assertIsNotNone(event)
@@ -229,15 +232,17 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertEqual(event.metadata.get("state"), "ready")
         self.assertTrue(event.metadata.get("ok"))
 
-    @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_status")
+    @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_evidence")
     def test_teacher_can_export_remote_helper_snapshot_csv(self, status_mock):
         classroom = Class.objects.create(name="Partner Session Export CSV", join_code="GPU10002")
-        status_mock.return_value = HelperRemoteComputeStatusResult(
+        status_mock.return_value = HelperRemoteComputeEvidenceResult(
             ok=False,
-            state="degraded",
             class_id=classroom.id,
-            status_detail="Healthcheck timeout.",
-            last_error_code="provider_unreachable",
+            active_lease={
+                "state": "degraded",
+                "status_detail": "Healthcheck timeout.",
+                "last_error_code": "provider_unreachable",
+            },
             request_id="helper-status-csv-1",
             error_code="provider_unreachable",
             status_code=503,
@@ -253,6 +258,7 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertIn("field,value", body)
         self.assertIn("request_id,helper-status-csv-1", body)
         self.assertIn("error_code,provider_unreachable", body)
+        self.assertIn("state,degraded", body)
 
         event = AuditEvent.objects.filter(action="class.remote_helper_snapshot_export").order_by("-id").first()
         self.assertIsNotNone(event)

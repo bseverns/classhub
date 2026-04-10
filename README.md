@@ -6,6 +6,8 @@
 
 Class Hub is classroom-first, self-hosted learning infrastructure built for reliable operations, inspectable behavior, and privacy-forward defaults.
 
+The repo’s current infrastructure claim is narrow on purpose: ClassHub treats AI as leased infrastructure rather than ambient platform logic, so the public classroom experience can stay calm while private compute remains bounded, accountable, and replaceable.
+
 ## Front-door map
 
 Use these four docs as the canonical entrypoints, each with one job:
@@ -35,6 +37,7 @@ Use these four docs as the canonical entrypoints, each with one job:
 
 - `Class Hub` (Django): student join/session flows, class views, `/teach`, `/admin`.
 - `Homework Helper` (Django): separate tutor service under `/helper/*`.
+- Homework Helper is the only runtime component that crosses the private compute boundary.
 - `Caddy`: reverse proxy and TLS termination.
 - `Postgres`: primary data store.
 - `Redis`: cache/rate-limit/queue state.
@@ -93,6 +96,7 @@ The quickstart and deploy scripts now default to a bundled CPU-local helper smok
 - Private LLM topology: [`docs/PRIVATE_LLM_BACKEND.md`](docs/PRIVATE_LLM_BACKEND.md)
 - Headscale operator guide: [`docs/HEADSCALE_CONTROL_PLANE.md`](docs/HEADSCALE_CONTROL_PLANE.md)
 - Remote compute lease control: [`docs/REMOTE_HELPER_COMPUTE_CONTROL.md`](docs/REMOTE_HELPER_COMPUTE_CONTROL.md)
+- Remote compute evidence: [`docs/EVIDENCE_REMOTE_COMPUTE.md`](docs/EVIDENCE_REMOTE_COMPUTE.md)
 - Infrastructure hardening roadmap: [`docs/INFRASTRUCTURE_HARDENING_ROADMAP.md`](docs/INFRASTRUCTURE_HARDENING_ROADMAP.md)
 - Feature flags and maturity: [`docs/FEATURE_MATURITY.md`](docs/FEATURE_MATURITY.md)
 
