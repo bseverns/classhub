@@ -8,10 +8,11 @@ flowchart TD
   A[Provision server] --> B[Copy compose/.env]
   B --> C[Set secrets + domain vars]
   C --> D[validate_env_secrets]
-  D --> E[migration_gate]
-  E --> F[deploy_with_smoke]
-  F --> G[system_doctor]
-  G --> H[Verify /teach + /healthz]
+  D --> E[operator_preflight]
+  E --> F[migration_gate]
+  F --> G[deploy_with_smoke]
+  G --> H[system_doctor]
+  H --> I[Verify /teach + /healthz]
 ```
 
 ## Essentials
@@ -81,6 +82,8 @@ flowchart TD
   - `bash scripts/content_preflight.sh piper_scratch_12_session`
 - Validate deploy secrets and routing env:
   - `bash scripts/validate_env_secrets.sh`
+- Run operator preflight (catches routing/host/internal-URL mismatches before deploy):
+  - `python3 scripts/operator_preflight.py --env-file compose/.env`
 - Run migration gate:
   - `bash scripts/migration_gate.sh`
 - Run deterministic production deploy + smoke:

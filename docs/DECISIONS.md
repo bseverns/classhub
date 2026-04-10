@@ -1050,6 +1050,7 @@ Execution ownership and gates:
 - Deploy script explicitly reloads Caddy config from `/etc/caddy/Caddyfile` before smoke checks.
 - Domain-template Caddy CEL expressions must use unquoted `{env.*}` placeholders inside `expression` matchers.
 - `scripts/system_doctor.sh` is the canonical one-command stack diagnostic.
+- `scripts/operator_preflight.py` is the canonical deploy-time config coherence gate for routing mode, public origins, internal helper URLs, and feature-gated helper/remote-compute env blocks.
 - Golden-path smoke can auto-provision fixtures via `scripts/golden_path_smoke.sh`.
 - Class Hub static assets are collected during image build; runtime migrations stay disabled in production (`RUN_MIGRATIONS_ON_START=0`) while deploy scripts run explicit migrations.
 - Edge health remains `/healthz`; `/upstream-healthz` is now operator-controlled via `CADDY_EXPOSE_UPSTREAM_HEALTHZ` (`1` expose, `0` edge `404`).
@@ -1072,6 +1073,7 @@ Execution ownership and gates:
 
 **Why this remains active:**
 - Prevents avoidable outages from config drift.
+- Fails fast on deploy-time config mismatches that previously surfaced only after containers were already up.
 - Prevents Caddy crash-loop on startup caused by invalid CEL expression rendering.
 - Prevents stale edge routing behavior when Caddy container remains running across deploys.
 - Catches regressions before users encounter them.

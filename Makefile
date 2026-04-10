@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
-.PHONY: help smoke-golden smoke-a11y smoke-full stability-evidence stability-cycle-closeout ops-readiness
+.PHONY: help smoke-golden smoke-a11y smoke-full stability-evidence stability-cycle-closeout ops-readiness operator-preflight
 
 SMOKE_COMPOSE_MODE ?= prod
 SMOKE_BASE_URL ?=
@@ -55,6 +55,7 @@ help:
 	@echo "  make stability-evidence"
 	@echo "  make stability-cycle-closeout"
 	@echo "  make ops-readiness"
+	@echo "  make operator-preflight"
 	@echo ""
 	@echo "Optional overrides:"
 	@echo "  SMOKE_COMPOSE_MODE=prod|dev"
@@ -135,3 +136,6 @@ stability-cycle-closeout:
 
 ops-readiness:
 	bash scripts/ops_readiness_check.sh "$(OPS_READINESS_PROFILE)" "$(OPS_READINESS_ENV_FILE)"
+
+operator-preflight:
+	python3 scripts/operator_preflight.py --env-file "$(OPS_READINESS_ENV_FILE)"

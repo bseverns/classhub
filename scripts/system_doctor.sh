@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_CHECK="${ROOT_DIR}/scripts/validate_env_secrets.sh"
+OPERATOR_PREFLIGHT="${ROOT_DIR}/scripts/operator_preflight.py"
 PORT_GUARD="${ROOT_DIR}/scripts/check_compose_port_exposure.py"
 MIGRATION_GATE="${ROOT_DIR}/scripts/migration_gate.sh"
 CONTENT_PREFLIGHT="${ROOT_DIR}/scripts/content_preflight.sh"
@@ -35,12 +36,13 @@ Usage: bash scripts/system_doctor.sh [options]
 
 Runs a full stack self-check:
 1) env guardrails
-2) port exposure guard
-3) migration gate
-4) content preflight
-5) compose health
-6) private LLM backend check
-7) smoke checks
+2) operator preflight
+3) port exposure guard
+4) migration gate
+5) content preflight
+6) compose health
+7) private LLM backend check
+8) smoke checks
 
 Options:
   --compose-mode <prod|dev>       Compose files (default: prod)
@@ -220,23 +222,26 @@ wait_for_container_state() {
   return 1
 }
 
-echo "[doctor] 1/6 env guardrails"
+echo "[doctor] 1/8 env guardrails"
 "${ENV_CHECK}"
 
-echo "[doctor] 2/6 port exposure guard"
+echo "[doctor] 2/8 operator preflight"
+python3 "${OPERATOR_PREFLIGHT}" --env-file "${ENV_FILE}"
+
+echo "[doctor] 3/8 port exposure guard"
 python3 "${PORT_GUARD}"
 
-echo "[doctor] 3/6 migration gate"
+echo "[doctor] 4/8 migration gate"
 "${MIGRATION_GATE}" --compose-mode "${COMPOSE_MODE}"
 
-echo "[doctor] 4/6 content preflight (${COURSE_SLUG})"
+echo "[doctor] 5/8 content preflight (${COURSE_SLUG})"
 if [[ "${STRICT_CONTENT}" == "1" ]]; then
   bash "${CONTENT_PREFLIGHT}" "${COURSE_SLUG}" --strict-global
 else
   bash "${CONTENT_PREFLIGHT}" "${COURSE_SLUG}"
 fi
 
-echo "[doctor] 5/6 compose health"
+echo "[doctor] 6/8 compose health"
 if [[ "${BRING_UP}" == "1" ]]; then
   if [[ "${BUILD_STACK}" == "1" ]]; then
     if ! run_compose up -d --build; then
@@ -267,7 +272,7 @@ echo "[doctor] applying runtime migrations"
 run_compose exec -T classhub_web python manage.py migrate --noinput
 run_compose exec -T helper_web python manage.py migrate --noinput
 
-echo "[doctor] 6/7 llm backend check"
+echo "[doctor] 7/8 llm backend check"
 EFFECTIVE_LLM_CHECK_MODE="${LLM_CHECK_MODE}"
 if [[ "${EFFECTIVE_LLM_CHECK_MODE}" == "auto" ]]; then
   EFFECTIVE_LLM_CHECK_MODE="$(llm_check_mode_auto "${ENV_FILE}")"
@@ -283,7 +288,7 @@ else
   exit 1
 fi
 
-echo "[doctor] 7/7 smoke checks (${SMOKE_MODE})"
+echo "[doctor] 8/8 smoke checks (${SMOKE_MODE})"
 EFFECTIVE_HELPER_SMOKE_MODE="${HELPER_SMOKE_MODE}"
 if [[ "${EFFECTIVE_HELPER_SMOKE_MODE}" == "auto" ]]; then
   EFFECTIVE_HELPER_SMOKE_MODE="$(helper_smoke_mode_auto "${ENV_FILE}")"

@@ -7,6 +7,7 @@ MIGRATION_GATE="${ROOT_DIR}/scripts/migration_gate.sh"
 SMOKE_CHECK="${ROOT_DIR}/scripts/smoke_check.sh"
 GOLDEN_SMOKE="${ROOT_DIR}/scripts/golden_path_smoke.sh"
 ENV_CHECK="${ROOT_DIR}/scripts/validate_env_secrets.sh"
+OPERATOR_PREFLIGHT="${ROOT_DIR}/scripts/operator_preflight.py"
 ENSURE_LOCAL_OLLAMA_MODEL="${ROOT_DIR}/scripts/ensure_local_ollama_model.sh"
 COMPOSE_ENV_LIB="${ROOT_DIR}/scripts/lib/compose_env.sh"
 LAST_GOOD_FILE="${ROOT_DIR}/.deploy/last_good_ref"
@@ -73,6 +74,9 @@ rollback_if_configured() {
 
 echo "[deploy] validating compose/.env secrets and routing settings"
 "${ENV_CHECK}"
+
+echo "[deploy] running operator preflight"
+python3 "${OPERATOR_PREFLIGHT}" --env-file "${ROOT_DIR}/compose/.env"
 
 echo "[deploy] running migration gate"
 "${MIGRATION_GATE}"

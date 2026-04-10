@@ -63,9 +63,10 @@ Access boundary statement:
 
 Standard release path:
 1. Build release artifact (`scripts/make_release_zip.sh` when applicable).
-2. Deploy with migration gate + smoke (`scripts/deploy_with_smoke.sh`).
-3. Verify strict checks (`/healthz`, `/helper/healthz`, join/helper/teacher paths).
-4. Record release notes + decisions in docs (`docs/DECISIONS.md`, release docs).
+2. Run deploy-time config coherence gate (`python3 scripts/operator_preflight.py --env-file compose/.env`).
+3. Deploy with migration gate + smoke (`scripts/deploy_with_smoke.sh`).
+4. Verify strict checks (`/healthz`, `/helper/healthz`, join/helper/teacher paths).
+5. Record release notes + decisions in docs (`docs/DECISIONS.md`, release docs).
 
 Any production-impacting config change must include:
 - rollback path,
@@ -82,4 +83,3 @@ If the tool is retired:
 5. Disable public routing and stop scheduled maintenance timers.
 6. Shut down services and preserve encrypted backups for policy-defined hold period.
 7. Document final state, custody, and deletion dates.
-

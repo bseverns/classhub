@@ -16,6 +16,7 @@ Operator shortcut:
 | `quickstart_stack.sh` | Guided one-command stack bootstrap (env prep, compose up, migrations, optional admin + demo + doctor). |
 | `bootstrap_day1.sh` | Day-1 server provisioning tool (installs Docker, configures users, structure). |
 | `migration_gate.sh` | CI/CD gate ensuring uncommitted or failed Django migrations block deployment. |
+| `operator_preflight.py` | Validates deploy-time env coherence: routing mode, public host/origin settings, internal helper URLs, and feature-gated helper remote-compute blocks. |
 | `validate_env_secrets.sh`| Validates `.env` secrets and operator contracts for production readiness, including private remote LLM posture, canonical-vs-legacy LLM alias consistency (`LLM_*` vs `HELPER_LLM_BACKEND` / `OLLAMA_*`), plus flagged remote-helper-compute gates (`CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED` / acknowledgement / bridge URLs). |
 | `repo_hygiene_check.sh` | Ensures local artifacts (sqlite, venvs) aren't accidentally tracked before push. |
 

@@ -9,12 +9,13 @@ If docs seem to overlap, resolve policy-source questions with [CANONICAL_TRUTHS.
 ```mermaid
 flowchart TD
   A[Deploy/Operate] --> B[validate_env_secrets]
-  B --> C[migration_gate]
-  C --> D[deploy_with_smoke]
-  D --> E{Smoke pass?}
-  E -->|Yes| F[Record good state]
-  E -->|No| G[Rollback hook / triage]
-  G --> H[system_doctor + logs]
+  B --> C[operator_preflight]
+  C --> D[migration_gate]
+  D --> E[deploy_with_smoke]
+  E --> F{Smoke pass?}
+  F -->|Yes| G[Record good state]
+  F -->|No| H[Rollback hook / triage]
+  H --> I[system_doctor + logs]
 ```
 
 ## Working directories
@@ -29,6 +30,7 @@ Use repo root unless a section explicitly says otherwise.
 ```bash
 cd /srv/lms/app
 bash scripts/system_doctor.sh
+bash scripts/operator_preflight.py
 bash scripts/check_llm_backend.sh --probe-chat
 
 cd /srv/lms/app/compose
@@ -86,6 +88,7 @@ bash scripts/deploy_with_smoke.sh
 What this deploy command enforces:
 
 - environment and secret validation
+- deploy-time operator preflight for routing/env coherence
 - migration gate for both Django services
 - runtime `manage.py migrate --noinput` for both Django services
 - compose launch via `compose/docker-compose.yml` only
@@ -105,6 +108,22 @@ ROLLBACK_CMD='echo "replace with your rollback command"' bash scripts/deploy_wit
 cd /srv/lms/app
 bash scripts/system_doctor.sh
 ```
+
+### Operator preflight
+
+Run this before a domain/TLS deploy any time `compose/.env` changed:
+
+```bash
+cd /srv/lms/app
+python3 scripts/operator_preflight.py --env-file compose/.env
+```
+
+What it checks:
+
+- Caddy routing mode vs public host settings
+- `DJANGO_ALLOWED_HOSTS` / `CSRF_TRUSTED_ORIGINS` coherence
+- required internal helper URL contracts
+- feature-gated helper/remote-compute env completeness
 
 Useful variants:
 

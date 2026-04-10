@@ -135,6 +135,7 @@ flowchart TD
 
 - Local demo path: [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md)
 - Guided one-command bootstrap: `bash scripts/quickstart_stack.sh --yes --mode local --with-admin --admin-username admin --admin-email admin@example.org --admin-password 'CHANGE_ME'`
+- Deploy-time config gate: `python3 scripts/operator_preflight.py --env-file compose/.env`
 - Full health check: `bash scripts/system_doctor.sh`
 - Facilitator CLI quick check: `PYTHONPATH=tools/hubctl python -m hubctl classes list`
 - Guardrailed deploy: `bash scripts/deploy_with_smoke.sh`
