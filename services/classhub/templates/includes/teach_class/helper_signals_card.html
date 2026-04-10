@@ -62,6 +62,12 @@
                     </p>
                   {% endif %}
                   <p class="muted mini">Staff-only, server-side, and bounded. Browser traffic still goes to the public LMS, and Homework Helper only uses the remote backend when the state is <strong>ready</strong>.</p>
+                  <p class="muted mini">
+                    Export remote helper snapshot:
+                    <a href="/teach/class/{{ classroom.id }}/export-helper-remote-snapshot?format=json">JSON</a>
+                    ·
+                    <a href="/teach/class/{{ classroom.id }}/export-helper-remote-snapshot?format=csv">CSV</a>
+                  </p>
                   <div class="btnline btnline--compact">
                     <form method="post" action="/teach/class/{{ classroom.id }}/remote-helper-compute" class="helper-grid">
                       {% csrf_token %}

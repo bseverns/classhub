@@ -44,6 +44,7 @@ from .roster_class_assignments import (
     teach_bulk_set_class_staff_assignments,
     teach_upsert_class_staff_assignment,
 )
+from .roster_helper_exports import teach_export_class_remote_helper_snapshot
 from .roster_materials import (
     teach_add_material,
     teach_add_module,
@@ -97,6 +98,7 @@ __all__ = [
     "teach_lock_class",
     "teach_export_class_summary_csv",
     "teach_export_class_submissions_today",
+    "teach_export_class_remote_helper_snapshot",
     "teach_rotate_code",
     "teach_add_module",
     "teach_move_module",

@@ -166,6 +166,12 @@ def current_remote_compute_lease(*, class_id: int = 0, refresh: bool = False) ->
     return _lease_from_payload(payload, class_id=class_id)
 
 
+def reconcile_remote_compute_state(*, refresh: bool = True) -> RemoteComputeLease:
+    payload = _load_cached_state()
+    active_class_id = _safe_int(payload.get("class_id"))
+    return current_remote_compute_lease(class_id=active_class_id, refresh=refresh)
+
+
 def active_remote_compute_overrides_for_class(*, class_id: int) -> dict[str, str]:
     lease = current_remote_compute_lease(class_id=class_id, refresh=True)
     if not (
@@ -725,5 +731,6 @@ __all__ = [
     "mark_remote_compute_fallback_local",
     "mark_remote_compute_degraded",
     "mark_remote_compute_routed",
+    "reconcile_remote_compute_state",
     "remote_compute_duration_minutes",
 ]

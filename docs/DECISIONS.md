@@ -218,6 +218,8 @@ Historical implementation logs and superseded decisions are archived by month in
 - Keep student/browser traffic on the public LMS path; the remote compute control is never a student-facing affordance.
 - If the remote path errors during an active lease, fall back to local/default helper compute for the request.
 - Persist the active remote lease and per-class accounting in helper-owned Django tables, with cache used only as a hot-read mirror.
+- Reconcile durable remote lease state on helper start via a management command before gunicorn boots, so cold-cache restarts do not wait for a teacher page refresh to normalize expired or degraded leases.
+- Expose a teacher-facing JSON/CSV remote-helper snapshot export from `/teach/class/<id>` so staff can preserve the current lease/accounting state outside the live dashboard card.
 - Keep lightweight operator accounting for the remote path:
   - activations,
   - average time to ready,

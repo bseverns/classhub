@@ -30,4 +30,4 @@ RUN chown -R app:app /app
 
 USER app
 
-CMD ["bash", "-lc", "if [ \"${RUN_MIGRATIONS_ON_START:-1}\" = \"1\" ]; then python manage.py migrate --noinput; fi; exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers ${HELPER_GUNICORN_WORKERS:-2} --timeout ${HELPER_GUNICORN_TIMEOUT_SECONDS:-180}"]
+CMD ["bash", "-lc", "if [ \"${RUN_MIGRATIONS_ON_START:-1}\" = \"1\" ]; then python manage.py migrate --noinput; fi; if [ \"${RUN_REMOTE_COMPUTE_RECONCILE_ON_START:-1}\" = \"1\" ]; then python manage.py reconcile_remote_compute_state --quiet || true; fi; exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers ${HELPER_GUNICORN_WORKERS:-2} --timeout ${HELPER_GUNICORN_TIMEOUT_SECONDS:-180}"]

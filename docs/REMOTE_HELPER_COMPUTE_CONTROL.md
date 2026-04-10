@@ -20,6 +20,7 @@ When enabled in deployment config, `/teach/class/<id>` exposes a bounded staff-o
 
 - request remote helper compute for this class
 - see the current remote-compute state
+- export the current remote-helper state/accounting snapshot as JSON or CSV
 - stop the remote path and return to local/default helper compute
 
 The control is:
@@ -99,6 +100,8 @@ Current shipped behavior is:
 - if a remote execution fails during a `ready` lease, the helper logs `remote_compute_fallback_local`, marks the lease degraded, and retries locally for that request
 - the lease expires automatically after its bounded window
 - optional idle auto-stop can return remote compute to `off`
+- helper startup runs `python manage.py reconcile_remote_compute_state` by default (`RUN_REMOTE_COMPUTE_RECONCILE_ON_START=1`) so durable lease state is normalized after restarts
+- `/teach/class/<id>/export-helper-remote-snapshot?format=json|csv` exports the current class-scoped helper snapshot and records `class.remote_helper_snapshot_export`
 
 ## Flags and env contract
 
@@ -134,6 +137,7 @@ HELPER_REMOTE_COMPUTE_CONTROL_API_KEY=REPLACE_ME_STRONG
 HELPER_REMOTE_COMPUTE_CONTROL_TIMEOUT_SECONDS=8
 CLASSHUB_REMOTE_HELPER_COMPUTE_IDLE_TIMEOUT_SECONDS=1800
 HELPER_REMOTE_COMPUTE_READY_MAX_SECONDS=12
+RUN_REMOTE_COMPUTE_RECONCILE_ON_START=1
 
 # Internal LMS -> helper control path
 HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL=http://helper_web:8000/helper/internal/remote-compute-status
