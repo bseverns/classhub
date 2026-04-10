@@ -59,7 +59,8 @@ class HelperInternalRemoteComputeTests(TestCase):
         clear=False,
     )
     @patch("tutor.remote_compute_provider.urllib.request.urlopen")
-    def test_remote_compute_control_activates_and_deactivates_lease(self, urlopen_mock):
+    @patch("tutor.remote_compute_control._remote_backend_ready_probe", return_value=(True, "", "Remote helper warm probe succeeded in 0.2 second(s)."))
+    def test_remote_compute_control_activates_and_deactivates_lease(self, _ready_probe_mock, urlopen_mock):
         activate_response = MagicMock()
         activate_response.__enter__.return_value = activate_response
         activate_response.status = 200

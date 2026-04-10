@@ -3,10 +3,20 @@
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
-from .engine.config_source import helper_explicit_env, helper_getenv
+from .engine.config_source import helper_config_overrides, helper_explicit_env, helper_getenv
+from .llm import (
+    LLMAuthError,
+    LLMConfigError,
+    LLMMalformedResponseError,
+    LLMTimeoutError,
+    LLMUpstreamUnavailableError,
+    healthcheck_provider,
+    resolve_backend_name,
+)
 from .remote_compute_provider import build_remote_compute_provider
 from .remote_compute_store import delete_state, load_metrics, load_state, persist_metrics, persist_state
 
@@ -114,6 +124,10 @@ def remote_compute_duration_minutes(raw_value) -> int:
 
 def remote_compute_idle_timeout_seconds() -> int:
     return max(_safe_int(helper_explicit_env("HELPER_REMOTE_COMPUTE_IDLE_TIMEOUT_SECONDS") or "0"), 0)
+
+
+def remote_compute_ready_probe_max_seconds() -> int:
+    return max(_safe_int(helper_explicit_env("HELPER_REMOTE_COMPUTE_READY_MAX_SECONDS") or "12"), 1)
 
 
 def remote_compute_llm_overrides() -> dict[str, str]:
@@ -224,6 +238,16 @@ def activate_remote_compute(*, class_id: int, requested_by: str, duration_minute
     now = _utc_now()
     expires_at = now + timedelta(minutes=duration)
     state = _normalize_state(provider_result.state, default="ready")
+    last_error_code = ""
+    status_detail = str(provider_result.detail or "").strip()[:160]
+    if state == "ready":
+        probe_ok, probe_error_code, probe_detail = _remote_backend_ready_probe()
+        if probe_ok:
+            status_detail = probe_detail
+        else:
+            state = "starting"
+            last_error_code = probe_error_code
+            status_detail = probe_detail
     payload = {
         "state": state,
         "class_id": int(class_id),
@@ -231,8 +255,8 @@ def activate_remote_compute(*, class_id: int, requested_by: str, duration_minute
         "requested_at": now.isoformat(),
         "expires_at": expires_at.isoformat(),
         "provider_request_id": provider_result.provider_request_id,
-        "status_detail": provider_result.detail,
-        "last_error_code": "",
+        "status_detail": status_detail,
+        "last_error_code": last_error_code,
         "last_transition_at": now.isoformat(),
         "last_healthcheck_at": "",
         "last_routed_at": "",
@@ -435,6 +459,23 @@ def _refresh_state_from_provider(payload: dict) -> dict:
         _finalize_unused_activation_from_payload(payload)
         _delete_state()
         return {}
+    if next_state == "ready":
+        probe_ok, probe_error_code, probe_detail = _remote_backend_ready_probe()
+        if not probe_ok:
+            if state in {"requested", "starting"}:
+                payload["state"] = "starting"
+            else:
+                payload["state"] = "degraded"
+                if state != "degraded":
+                    _record_degraded_transition(
+                        class_id=_safe_int(payload.get("class_id")),
+                        error_code=probe_error_code,
+                    )
+            payload["last_error_code"] = probe_error_code
+            payload["status_detail"] = probe_detail
+            payload["last_transition_at"] = _utc_now().isoformat()
+            _persist_state(payload, timeout_seconds=_state_timeout_seconds(payload))
+            return payload
     if state in {"requested", "starting"} and next_state == "ready":
         _record_ready_transition(
             class_id=_safe_int(payload.get("class_id")),
@@ -442,7 +483,10 @@ def _refresh_state_from_provider(payload: dict) -> dict:
         )
     payload["state"] = next_state
     payload["provider_request_id"] = result.provider_request_id or str(payload.get("provider_request_id") or "")
-    payload["status_detail"] = result.detail or str(payload.get("status_detail") or "")
+    if next_state == "ready":
+        payload["status_detail"] = probe_detail
+    else:
+        payload["status_detail"] = result.detail or str(payload.get("status_detail") or "")
     payload["last_error_code"] = ""
     payload["last_transition_at"] = _utc_now().isoformat()
     _persist_state(payload, timeout_seconds=_state_timeout_seconds(payload))
@@ -562,6 +606,42 @@ def _safe_int(value) -> int:
 
 def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def _remote_backend_ready_probe() -> tuple[bool, str, str]:
+    overrides = remote_compute_llm_overrides()
+    if not overrides:
+        return False, "remote_compute_probe_not_configured", "Remote helper warm probe could not resolve backend overrides."
+    backend = resolve_backend_name(getenv=helper_getenv)
+    started = time.monotonic()
+    try:
+        with helper_config_overrides(overrides):
+            status = healthcheck_provider(
+                backend,
+                probe_chat=True,
+                request_id="remote-compute-ready-probe",
+            )
+    except (
+        LLMAuthError,
+        LLMConfigError,
+        LLMMalformedResponseError,
+        LLMTimeoutError,
+        LLMUpstreamUnavailableError,
+        RuntimeError,
+        ValueError,
+    ) as exc:
+        return False, exc.__class__.__name__, "Remote helper warm probe failed before ready verification."
+    elapsed = max(time.monotonic() - started, 0.0)
+    budget_seconds = float(remote_compute_ready_probe_max_seconds())
+    if not status.ok:
+        return False, str(status.detail or "remote_compute_probe_failed")[:80], "Remote helper warm probe is not yet healthy."
+    if elapsed > budget_seconds:
+        return (
+            False,
+            "remote_compute_probe_slow",
+            f"Remote helper warm probe exceeded {int(budget_seconds)} second(s).",
+        )
+    return True, "", f"Remote helper warm probe succeeded in {elapsed:.1f} second(s)."
 
 
 def _load_metrics(class_id: int) -> dict:

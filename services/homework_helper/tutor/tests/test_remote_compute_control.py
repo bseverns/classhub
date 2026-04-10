@@ -35,7 +35,12 @@ class RemoteComputeControlTests(TestCase):
         clear=False,
     )
     @patch("tutor.remote_compute_provider.urllib.request.urlopen")
-    def test_activate_starts_then_healthcheck_promotes_remote_compute_to_ready(self, urlopen_mock):
+    @patch("tutor.remote_compute_control._remote_backend_ready_probe", return_value=(True, "", "Remote helper warm probe succeeded in 0.2 second(s)."))
+    def test_activate_starts_then_healthcheck_promotes_remote_compute_to_ready(
+        self,
+        _ready_probe_mock,
+        urlopen_mock,
+    ):
         activate_response = MagicMock()
         activate_response.__enter__.return_value = activate_response
         activate_response.status = 200
@@ -75,7 +80,8 @@ class RemoteComputeControlTests(TestCase):
         clear=False,
     )
     @patch("tutor.remote_compute_provider.urllib.request.urlopen")
-    def test_active_lease_and_metrics_survive_cache_clear(self, urlopen_mock):
+    @patch("tutor.remote_compute_control._remote_backend_ready_probe", return_value=(True, "", "Remote helper warm probe succeeded in 0.2 second(s)."))
+    def test_active_lease_and_metrics_survive_cache_clear(self, _ready_probe_mock, urlopen_mock):
         activate_response = MagicMock()
         activate_response.__enter__.return_value = activate_response
         activate_response.status = 200
@@ -93,6 +99,37 @@ class RemoteComputeControlTests(TestCase):
         self.assertEqual(lease.state, "ready")
         self.assertTrue(lease.use_remote_backend)
         self.assertEqual(lease.activation_count, 1)
+
+    @patch.dict(
+        "os.environ",
+        {
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED": "1",
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED": "1",
+            "REMOTE_LLM_BASE_URL": "https://llm-gpu.tail.creatempls.org",
+            "REMOTE_LLM_API_KEY": "remote-api-key-1234567890",
+            "REMOTE_LLM_MODEL": "llama3.2:3b",
+            "HELPER_REMOTE_COMPUTE_ACTIVATE_URL": "https://ops.example.org/activate",
+        },
+        clear=False,
+    )
+    @patch("tutor.remote_compute_provider.urllib.request.urlopen")
+    @patch(
+        "tutor.remote_compute_control._remote_backend_ready_probe",
+        return_value=(False, "LLMTimeoutError", "Remote helper warm probe failed before ready verification."),
+    )
+    def test_activate_keeps_state_starting_when_warm_probe_fails(self, _ready_probe_mock, urlopen_mock):
+        activate_response = MagicMock()
+        activate_response.__enter__.return_value = activate_response
+        activate_response.status = 200
+        activate_response.read.return_value = b'{"ok": true, "state": "ready", "request_id": "req-3", "detail": "warm"}'
+        urlopen_mock.return_value = activate_response
+
+        result = activate_remote_compute(class_id=7, requested_by="teacher1", duration_minutes=60)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.lease.state, "starting")
+        self.assertFalse(result.lease.use_remote_backend)
+        self.assertEqual(result.lease.last_error_code, "LLMTimeoutError")
 
     @patch.dict(
         "os.environ",
@@ -218,3 +255,47 @@ class RemoteComputeControlTests(TestCase):
         lease = current_remote_compute_lease(class_id=22)
         self.assertEqual(lease.state, "off")
         self.assertEqual(lease.unused_activation_count, 1)
+
+    @patch.dict(
+        "os.environ",
+        {
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED": "1",
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED": "1",
+            "REMOTE_LLM_BASE_URL": "https://llm-gpu.tail.creatempls.org",
+            "REMOTE_LLM_API_KEY": "remote-api-key-1234567890",
+            "REMOTE_LLM_MODEL": "llama3.2:3b",
+            "HELPER_REMOTE_COMPUTE_HEALTHCHECK_URL": "https://ops.example.org/health",
+        },
+        clear=False,
+    )
+    @patch(
+        "tutor.remote_compute_control._remote_backend_ready_probe",
+        return_value=(False, "remote_compute_probe_slow", "Remote helper warm probe exceeded 12 second(s)."),
+    )
+    @patch("tutor.remote_compute_provider.urllib.request.urlopen")
+    def test_refresh_keeps_requested_lease_out_of_ready_when_warm_probe_is_slow(
+        self,
+        urlopen_mock,
+        _ready_probe_mock,
+    ):
+        health_response = MagicMock()
+        health_response.__enter__.return_value = health_response
+        health_response.status = 200
+        health_response.read.return_value = b'{"ok": true, "state": "ready", "detail": "warm"}'
+        urlopen_mock.return_value = health_response
+        RemoteComputeLeaseRecord.objects.update_or_create(
+            slot="active",
+            defaults={
+                "state": "starting",
+                "class_id": 22,
+                "requested_by": "teacher1",
+                "requested_at": "2026-04-08T12:00:00+00:00",
+                "expires_at": "2099-04-08T13:30:00+00:00",
+            },
+        )
+
+        lease = current_remote_compute_lease(class_id=22, refresh=True)
+
+        self.assertEqual(lease.state, "starting")
+        self.assertFalse(lease.use_remote_backend)
+        self.assertEqual(lease.last_error_code, "remote_compute_probe_slow")

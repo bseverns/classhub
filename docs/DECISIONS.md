@@ -209,6 +209,10 @@ Historical implementation logs and superseded decisions are archived by month in
 - Add a staff-only, class-scoped activation lease so teachers/admins can enable expensive remote compute for a bounded live-session window.
 - Gate the capability with `CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1` plus explicit paid-usage acknowledgement via `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1`.
 - Use an explicit remote-compute state model (`off`, `requested`, `starting`, `ready`, `degraded`, `stopping`, `error`) and only route helper traffic remotely when the class state is `ready`.
+- Treat `ready` as a helper-verified state, not just a provider-declared state:
+  - helper must confirm the remote backend is reachable with the configured auth/model path,
+  - helper must complete a warm chat probe,
+  - helper only promotes to `ready` when that probe stays within `HELPER_REMOTE_COMPUTE_READY_MAX_SECONDS`.
 - Keep provider credentials and orchestration APIs server-side behind helper internal control endpoints.
 - Keep provider integration behind a small replaceable server-side adapter seam (`thunder_webhook` / generic webhook), not inside view/template logic.
 - Keep student/browser traffic on the public LMS path; the remote compute control is never a student-facing affordance.

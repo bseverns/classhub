@@ -91,6 +91,10 @@ Current shipped behavior is:
 - local/default helper compute remains the baseline path
 - remote helper compute is feature-flagged and opt-in
 - the helper only uses the remote backend when the class lease state is `ready`
+- `ready` now means helper-side verification passed:
+  - provider status says the backend is available,
+  - helper can reach the remote LLM endpoint with the configured auth/model path,
+  - a warm chat probe succeeds within `HELPER_REMOTE_COMPUTE_READY_MAX_SECONDS`
 - if the state is `requested`, `starting`, `degraded`, `stopping`, or `error`, helper stays on local/default compute
 - if a remote execution fails during a `ready` lease, the helper logs `remote_compute_fallback_local`, marks the lease degraded, and retries locally for that request
 - the lease expires automatically after its bounded window
@@ -129,6 +133,7 @@ HELPER_REMOTE_COMPUTE_HEALTHCHECK_URL=https://ops.creatempls.org/helper-remote/h
 HELPER_REMOTE_COMPUTE_CONTROL_API_KEY=REPLACE_ME_STRONG
 HELPER_REMOTE_COMPUTE_CONTROL_TIMEOUT_SECONDS=8
 CLASSHUB_REMOTE_HELPER_COMPUTE_IDLE_TIMEOUT_SECONDS=1800
+HELPER_REMOTE_COMPUTE_READY_MAX_SECONDS=12
 
 # Internal LMS -> helper control path
 HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL=http://helper_web:8000/helper/internal/remote-compute-status
