@@ -197,7 +197,13 @@ def active_remote_compute_overrides_for_class(*, class_id: int) -> dict[str, str
     return remote_compute_llm_overrides()
 
 
-def activate_remote_compute(*, class_id: int, requested_by: str, duration_minutes: int) -> RemoteComputeActionResult:
+def activate_remote_compute(
+    *,
+    class_id: int,
+    requested_by: str,
+    duration_minutes: int,
+    control_request_id: str = "",
+) -> RemoteComputeActionResult:
     duration = remote_compute_duration_minutes(duration_minutes)
     lease = current_remote_compute_lease(class_id=class_id)
     if not lease.feature_enabled:
@@ -225,12 +231,30 @@ def activate_remote_compute(*, class_id: int, requested_by: str, duration_minute
             lease=lease,
             error_code="remote_compute_busy_for_another_class",
         )
+    if lease.active and lease.class_id == int(class_id):
+        payload = _load_cached_state()
+        if payload and _safe_int(payload.get("class_id")) == int(class_id):
+            sync_session_from_payload(
+                payload=payload,
+                reason_code="already_active_same_class",
+                event_type="activation_duplicate_ignored",
+                detail=f"Duplicate activate request reused the existing {lease.state} lease.",
+            )
+        return RemoteComputeActionResult(
+            ok=True,
+            action="activate",
+            lease=lease,
+            provider_request_id=str(lease.provider_request_id or "")[:120],
+            detail=f"Remote helper compute already has an active {lease.state} lease for this class.",
+            status_code=200,
+        )
 
     provider = build_remote_compute_provider()
     provider_result = provider.activate(
         class_id=class_id,
         requested_by=requested_by,
         duration_minutes=duration,
+        control_request_id=_control_request_id(control_request_id),
     )
     if not provider_result.ok:
         _record_provider_unreachable_if_needed(class_id=class_id, error_code=provider_result.error_code)
@@ -315,8 +339,15 @@ def activate_remote_compute(*, class_id: int, requested_by: str, duration_minute
     )
 
 
-def deactivate_remote_compute(*, class_id: int, requested_by: str) -> RemoteComputeActionResult:
+def deactivate_remote_compute(
+    *,
+    class_id: int,
+    requested_by: str,
+    control_request_id: str = "",
+    stop_reason: str = "",
+) -> RemoteComputeActionResult:
     lease = current_remote_compute_lease(class_id=class_id)
+    stop_reason = _normalize_stop_reason(stop_reason)
     if not lease.feature_enabled:
         return RemoteComputeActionResult(ok=False, action="deactivate", lease=lease, error_code="remote_compute_disabled")
     if not remote_compute_control_url_configured("deactivate"):
@@ -326,9 +357,29 @@ def deactivate_remote_compute(*, class_id: int, requested_by: str) -> RemoteComp
             lease=lease,
             error_code="remote_compute_control_not_configured",
         )
+    if lease.active and lease.class_id and lease.class_id != int(class_id):
+        return RemoteComputeActionResult(
+            ok=False,
+            action="deactivate",
+            lease=lease,
+            error_code="remote_compute_busy_for_another_class",
+        )
+    if not lease.active or lease.state == "off":
+        return RemoteComputeActionResult(
+            ok=True,
+            action="deactivate",
+            lease=lease,
+            detail="Remote helper compute is already off for this class.",
+            status_code=200,
+        )
 
     provider = build_remote_compute_provider()
-    provider_result = provider.deactivate(class_id=class_id, requested_by=requested_by)
+    provider_result = provider.deactivate(
+        class_id=class_id,
+        requested_by=requested_by,
+        control_request_id=_control_request_id(control_request_id),
+        stop_reason=stop_reason,
+    )
     if not provider_result.ok:
         _record_provider_unreachable_if_needed(class_id=class_id, error_code=provider_result.error_code)
         payload = _load_cached_state()
@@ -355,10 +406,10 @@ def deactivate_remote_compute(*, class_id: int, requested_by: str) -> RemoteComp
             payload["last_transition_at"] = _utc_now().isoformat()
             sync_session_from_payload(
                 payload=payload,
-                reason_code="manual_stop",
-                event_type="lease_stopped",
+                reason_code=stop_reason,
+                event_type=_stop_event_type(stop_reason),
                 detail=payload["status_detail"],
-                stop_mode="manual",
+                stop_mode=_stop_mode_for_reason(stop_reason),
             )
         _finalize_unused_activation_from_payload(payload)
         _delete_state()
@@ -375,7 +426,7 @@ def deactivate_remote_compute(*, class_id: int, requested_by: str) -> RemoteComp
         _persist_state(payload, timeout_seconds=max(_state_timeout_seconds(payload), 300))
         sync_session_from_payload(
             payload=payload,
-            reason_code="manual_stop_pending",
+            reason_code=stop_reason,
             event_type="lease_stopping",
             detail=str(provider_result.detail or "").strip()[:160],
         )
@@ -457,6 +508,8 @@ def _expire_elapsed_lease(payload: dict) -> dict:
     result = provider.deactivate(
         class_id=_safe_int(payload.get("class_id")),
         requested_by="auto_expire_stop",
+        control_request_id=_automatic_control_request_id(payload=payload, reason="lease_expired"),
+        stop_reason="lease_expired",
     )
     if result.ok:
         payload["state"] = "off"
@@ -503,6 +556,8 @@ def _auto_stop_if_idle(payload: dict) -> dict:
     result = provider.deactivate(
         class_id=_safe_int(payload.get("class_id")),
         requested_by="auto_idle_stop",
+        control_request_id=_automatic_control_request_id(payload=payload, reason="idle_timeout"),
+        stop_reason="idle_timeout",
     )
     if result.ok:
         payload["state"] = "off"
@@ -553,6 +608,7 @@ def _refresh_state_from_provider(payload: dict) -> dict:
     result = provider.healthcheck(
         class_id=_safe_int(payload.get("class_id")),
         provider_request_id=str(payload.get("provider_request_id") or "").strip()[:120],
+        control_request_id=_automatic_control_request_id(payload=payload, reason="healthcheck"),
     )
     payload["last_healthcheck_at"] = _utc_now().isoformat()
     probe_detail = ""
@@ -771,6 +827,42 @@ def _safe_int(value) -> int:
 
 def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def _control_request_id(value: str) -> str:
+    return str(value or "").strip()[:80]
+
+
+def _automatic_control_request_id(*, payload: dict, reason: str) -> str:
+    session_id = _safe_int(payload.get("lease_session_id"))
+    class_id = _safe_int(payload.get("class_id"))
+    token = f"auto-{str(reason or '').strip()[:24]}-{class_id}-{session_id}"
+    return token[:80]
+
+
+def _normalize_stop_reason(value: str) -> str:
+    token = str(value or "").strip().lower()
+    if token in {"manual_stop", "class_end", "lease_expired", "idle_timeout"}:
+        return token
+    return "manual_stop"
+
+
+def _stop_event_type(stop_reason: str) -> str:
+    token = _normalize_stop_reason(stop_reason)
+    if token == "class_end":
+        return "lease_class_end_stop"
+    if token == "lease_expired":
+        return "lease_expired_auto_stop"
+    if token == "idle_timeout":
+        return "lease_idle_auto_stop"
+    return "lease_stopped"
+
+
+def _stop_mode_for_reason(stop_reason: str) -> str:
+    token = _normalize_stop_reason(stop_reason)
+    if token in {"lease_expired", "idle_timeout"}:
+        return "auto"
+    return "manual"
 
 
 def _remote_backend_ready_probe() -> tuple[bool, str, str]:

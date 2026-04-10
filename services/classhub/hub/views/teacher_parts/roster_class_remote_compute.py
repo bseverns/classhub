@@ -26,6 +26,7 @@ def teach_set_remote_helper_compute_impl(*, request, class_id: int):
         internal_token=str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip(),
         timeout_seconds=float(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_TIMEOUT_SECONDS", 2.0) or 2.0),
         duration_minutes=_duration_minutes_from_request(request),
+        stop_reason=_stop_reason_from_request(request=request, action=action),
     )
     if not result.ok:
         return _remote_compute_failed_redirect(
@@ -51,6 +52,7 @@ def teach_set_remote_helper_compute_impl(*, request, class_id: int):
             "remaining_minutes": result.remaining_minutes,
             "provider_request_id": result.provider_request_id,
             "helper_request_id": result.request_id,
+            "stop_reason": _stop_reason_from_request(request=request, action=action),
             "status_detail": result.status_detail,
             "detail": result.detail,
             "status_code": result.status_code,
@@ -70,6 +72,12 @@ def _duration_minutes_from_request(request) -> int:
         return 0
 
 
+def _stop_reason_from_request(*, request, action: str) -> str:
+    if action != "deactivate":
+        return ""
+    return str(request.POST.get("stop_reason") or "manual_stop").strip()[:80]
+
+
 def _remote_compute_failed_redirect(*, request, classroom, action: str, result):
     _audit(
         request,
@@ -82,6 +90,7 @@ def _remote_compute_failed_redirect(*, request, classroom, action: str, result):
             "action_requested": action,
             "error_code": result.error_code,
             "helper_request_id": result.request_id,
+            "stop_reason": _stop_reason_from_request(request=request, action=action),
             "status_code": result.status_code,
             "remaining_minutes": result.remaining_minutes,
         },
@@ -98,7 +107,9 @@ def _remote_compute_failed_redirect(*, request, classroom, action: str, result):
 
 def _remote_compute_success_notice(*, result) -> str:
     if result.action != "activate":
-        return "Remote helper compute is stopping or off. Local/default helper mode remains the baseline."
+        if result.state == "off":
+            return "Remote helper compute is off. Local/default helper mode remains the baseline."
+        return "Remote helper compute is stopping. Local/default helper mode remains the baseline."
     if result.state == "ready":
         return f"Remote helper compute is ready for about {result.remaining_minutes} minute(s)."
     return f"Remote helper compute requested. Current state: {result.state or 'requested'}."

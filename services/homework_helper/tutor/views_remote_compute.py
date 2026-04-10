@@ -276,9 +276,15 @@ def internal_remote_compute_control(request):
             class_id=class_id,
             requested_by=requested_by,
             duration_minutes=remote_compute_duration_minutes(payload.get("duration_minutes")),
+            control_request_id=request_id,
         )
     elif action == "deactivate":
-        result = deactivate_remote_compute(class_id=class_id, requested_by=requested_by)
+        result = deactivate_remote_compute(
+            class_id=class_id,
+            requested_by=requested_by,
+            control_request_id=request_id,
+            stop_reason=str(payload.get("stop_reason") or "").strip()[:80],
+        )
     else:
         log_internal_audit_event(
             "warning",

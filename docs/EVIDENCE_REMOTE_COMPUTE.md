@@ -43,6 +43,7 @@ Per class and per lease session, the repo now measures:
 - optional approximate cost estimate via `HELPER_REMOTE_COMPUTE_ESTIMATED_USD_PER_HOUR`
 - readiness probe timestamps and last readiness-block reason
 - recent transition/fallback events with compact reason codes
+- duplicate same-class activate/deactivate requests that were intentionally absorbed as bounded no-op control actions
 
 The evidence intentionally excludes student prompt bodies and raw provider credentials.
 
@@ -64,6 +65,7 @@ Teacher/admin export surface:
 
 - `/teach/class/<id>/export-helper-remote-snapshot?format=json`
 - `/teach/class/<id>/export-helper-remote-snapshot?format=csv`
+- `/teach/class/<id>` remote-compute panel with recent lease sessions, recent events, and a simple cost-risk state
 
 ## What `ready` means now
 
@@ -132,6 +134,7 @@ An operator can now produce a class-scoped snapshot that shows:
 - optional approximate cost estimate
 - recent lease sessions
 - recent transition/fallback events
+- whether the current lease looks bounded, unused, degraded, or close to expiry from a staff cost-risk perspective
 
 That is enough to support a technical talk or evaluator review without exposing provider internals.
 

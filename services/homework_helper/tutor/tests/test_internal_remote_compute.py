@@ -137,9 +137,25 @@ class HelperInternalRemoteComputeTests(TestCase):
 
         deactivate_resp = self.client.post(
             "/helper/internal/remote-compute-control",
-            data=json.dumps({"action": "deactivate", "class_id": 7, "requested_by": "teacher1"}),
+            data=json.dumps(
+                {
+                    "action": "deactivate",
+                    "class_id": 7,
+                    "requested_by": "teacher1",
+                    "stop_reason": "class_end",
+                }
+            ),
             content_type="application/json",
             HTTP_AUTHORIZATION="Bearer token-123",
         )
         self.assertEqual(deactivate_resp.status_code, 200)
         self.assertFalse(deactivate_resp.json().get("lease", {}).get("active"))
+        evidence_resp = self.client.get(
+            "/helper/internal/remote-compute-evidence?class_id=7",
+            HTTP_AUTHORIZATION="Bearer token-123",
+        )
+        self.assertEqual(evidence_resp.status_code, 200)
+        recent_events = evidence_resp.json().get("recent_events") or []
+        self.assertTrue(
+            any(row.get("event_type") == "lease_class_end_stop" and row.get("reason_code") == "class_end" for row in recent_events)
+        )

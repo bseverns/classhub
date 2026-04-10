@@ -108,8 +108,37 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertEqual(event.metadata.get("action_requested"), "activate")
         self.assertEqual(event.metadata.get("helper_request_id"), "helper-remote-fail-1")
 
+    @patch("hub.views.teacher_parts.roster_class_remote_compute.set_remote_compute_state")
+    def test_teacher_remote_helper_compute_stop_uses_manual_stop_reason(self, set_remote_compute_mock):
+        classroom = Class.objects.create(name="Partner Session Stop", join_code="GPU54322")
+        set_remote_compute_mock.return_value = HelperRemoteComputeActionResult(
+            ok=True,
+            action="deactivate",
+            active=False,
+            active_for_class=False,
+            class_id=classroom.id,
+            request_id="helper-remote-stop-1",
+            detail="stopped",
+            status_code=200,
+        )
+
+        _force_login_staff_verified(self.client, self.staff)
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/remote-helper-compute",
+            {"action": "deactivate", "stop_reason": "manual_stop"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        set_remote_compute_mock.assert_called_once()
+        self.assertEqual(set_remote_compute_mock.call_args.kwargs["stop_reason"], "manual_stop")
+
+        event = AuditEvent.objects.filter(action="class.remote_helper_compute_deactivate").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.classroom_id, classroom.id)
+        self.assertEqual(event.metadata.get("stop_reason"), "manual_stop")
+
+    @patch("hub.views.teacher_parts.roster_class_dashboard.fetch_remote_compute_evidence")
     @patch("hub.views.teacher_parts.roster_class_dashboard.fetch_remote_compute_status")
-    def test_teach_class_dashboard_shows_remote_helper_compute_panel_for_policy_managers(self, status_mock):
+    def test_teach_class_dashboard_shows_remote_helper_compute_panel_for_policy_managers(self, status_mock, evidence_mock):
         classroom = Class.objects.create(name="Partner Session Status", join_code="GPU00001")
         status_mock.return_value = HelperRemoteComputeStatusResult(
             ok=True,
@@ -135,6 +164,23 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
             provider_unreachable_count=1,
             unused_activation_count=1,
         )
+        evidence_mock.return_value = HelperRemoteComputeEvidenceResult(
+            ok=True,
+            class_id=classroom.id,
+            recent_sessions=[
+                {
+                    "lease_session_id": 9,
+                    "current_state": "ready",
+                    "leased_minutes": 42,
+                    "remote_route_count": 4,
+                    "fallback_local_count": 1,
+                }
+            ],
+            recent_events=[
+                {"event_type": "activation_duplicate_ignored", "reason_code": "already_active_same_class", "to_state": "ready"},
+                {"event_type": "local_fallback", "reason_code": "upstream_unavailable", "to_state": "degraded"},
+            ],
+        )
 
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.get(f"/teach/class/{classroom.id}")
@@ -147,6 +193,12 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, "Average time to ready: <strong>18 second(s)</strong>", html=False)
         self.assertContains(resp, "Remote-routed helper chats: <strong>4</strong>", html=False)
         self.assertContains(resp, "Remote fallbacks to local/default: <strong>1</strong>", html=False)
+        self.assertContains(resp, "Cost risk state: <strong>Bounded active lease</strong>", html=False)
+        self.assertContains(resp, "Recent remote-compute sessions")
+        self.assertContains(resp, "leased 42 min")
+        self.assertContains(resp, "Recent remote-compute events")
+        self.assertContains(resp, "activation_duplicate_ignored")
+        self.assertContains(resp, "already_active_same_class")
         self.assertContains(resp, "Export remote helper snapshot:")
         self.assertContains(resp, f"/teach/class/{classroom.id}/export-helper-remote-snapshot?format=json")
         self.assertContains(resp, f"/teach/class/{classroom.id}/export-helper-remote-snapshot?format=csv")

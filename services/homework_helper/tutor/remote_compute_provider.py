@@ -29,28 +29,65 @@ class GenericWebhookRemoteComputeProvider:
     def __init__(self, *, provider_name: str = "generic_webhook"):
         self.provider_name = provider_name
 
-    def activate(self, *, class_id: int, requested_by: str, duration_minutes: int) -> RemoteComputeProviderResult:
+    def activate(
+        self,
+        *,
+        class_id: int,
+        requested_by: str,
+        duration_minutes: int,
+        control_request_id: str = "",
+    ) -> RemoteComputeProviderResult:
         return self._request(
             "activate",
             payload={
                 "class_id": int(class_id),
                 "requested_by": str(requested_by or "").strip()[:150],
                 "duration_minutes": int(duration_minutes),
+                "control_request_id": _control_request_id(control_request_id),
+                "idempotency_key": _idempotency_key(
+                    action="activate",
+                    class_id=class_id,
+                    control_request_id=control_request_id,
+                ),
             },
             default_state="ready",
+            control_request_id=control_request_id,
+            class_id=class_id,
         )
 
-    def deactivate(self, *, class_id: int, requested_by: str) -> RemoteComputeProviderResult:
+    def deactivate(
+        self,
+        *,
+        class_id: int,
+        requested_by: str,
+        control_request_id: str = "",
+        stop_reason: str = "",
+    ) -> RemoteComputeProviderResult:
         return self._request(
             "deactivate",
             payload={
                 "class_id": int(class_id),
                 "requested_by": str(requested_by or "").strip()[:150],
+                "control_request_id": _control_request_id(control_request_id),
+                "idempotency_key": _idempotency_key(
+                    action="deactivate",
+                    class_id=class_id,
+                    control_request_id=control_request_id,
+                ),
+                "stop_reason": str(stop_reason or "").strip()[:80],
             },
             default_state="off",
+            control_request_id=control_request_id,
+            class_id=class_id,
         )
 
-    def healthcheck(self, *, class_id: int, provider_request_id: str = "") -> RemoteComputeProviderResult:
+    def healthcheck(
+        self,
+        *,
+        class_id: int,
+        provider_request_id: str = "",
+        control_request_id: str = "",
+    ) -> RemoteComputeProviderResult:
         url = (helper_explicit_env("HELPER_REMOTE_COMPUTE_HEALTHCHECK_URL") or "").strip()
         if not url:
             return RemoteComputeProviderResult(ok=False, error_code="remote_compute_healthcheck_not_configured")
@@ -59,18 +96,49 @@ class GenericWebhookRemoteComputeProvider:
             {
                 "class_id": int(class_id),
                 "provider_request_id": str(provider_request_id or "").strip()[:120],
+                "control_request_id": _control_request_id(control_request_id),
             }
         )
-        return self._request_url("GET", f"{url}{delimiter}{query}", payload=None, default_state="ready")
+        return self._request_url(
+            "GET",
+            f"{url}{delimiter}{query}",
+            payload=None,
+            default_state="ready",
+            control_request_id=control_request_id,
+            idempotency_key=_idempotency_key(
+                action="healthcheck",
+                class_id=class_id,
+                control_request_id=control_request_id,
+            ),
+        )
 
     def supports_healthcheck(self) -> bool:
         return bool((helper_explicit_env("HELPER_REMOTE_COMPUTE_HEALTHCHECK_URL") or "").strip())
 
-    def _request(self, action: str, *, payload: dict, default_state: str) -> RemoteComputeProviderResult:
+    def _request(
+        self,
+        action: str,
+        *,
+        payload: dict,
+        default_state: str,
+        control_request_id: str = "",
+        class_id: int = 0,
+    ) -> RemoteComputeProviderResult:
         url = (helper_explicit_env(f"HELPER_REMOTE_COMPUTE_{action.upper()}_URL") or "").strip()
         if not url:
             return RemoteComputeProviderResult(ok=False, error_code="remote_compute_control_not_configured")
-        return self._request_url("POST", url, payload=payload, default_state=default_state)
+        return self._request_url(
+            "POST",
+            url,
+            payload=payload,
+            default_state=default_state,
+            control_request_id=control_request_id,
+            idempotency_key=_idempotency_key(
+                action=action,
+                class_id=class_id,
+                control_request_id=control_request_id,
+            ),
+        )
 
     def _request_url(
         self,
@@ -79,6 +147,8 @@ class GenericWebhookRemoteComputeProvider:
         *,
         payload: dict | None,
         default_state: str,
+        control_request_id: str = "",
+        idempotency_key: str = "",
     ) -> RemoteComputeProviderResult:
         token = (helper_explicit_env("HELPER_REMOTE_COMPUTE_CONTROL_API_KEY") or "").strip()
         timeout_seconds = max(_safe_int(helper_explicit_env("HELPER_REMOTE_COMPUTE_CONTROL_TIMEOUT_SECONDS") or "8"), 1)
@@ -86,6 +156,11 @@ class GenericWebhookRemoteComputeProvider:
             "Accept": "application/json",
             "User-Agent": f"ClassHub-RemoteCompute/{self.provider_name}",
         }
+        control_request_id = _control_request_id(control_request_id)
+        if control_request_id:
+            headers["X-Control-Request-ID"] = control_request_id
+        if idempotency_key:
+            headers["X-Idempotency-Key"] = str(idempotency_key or "").strip()[:160]
         body_bytes = None
         if method.upper() == "POST":
             headers["Content-Type"] = "application/json"
@@ -181,6 +256,17 @@ def _safe_int(value) -> int:
         return int(value or 0)
     except Exception:
         return 0
+
+
+def _control_request_id(value: str) -> str:
+    return str(value or "").strip()[:80]
+
+
+def _idempotency_key(*, action: str, class_id: int, control_request_id: str) -> str:
+    request_id = _control_request_id(control_request_id)
+    if not request_id:
+        return ""
+    return f"remote-compute:{str(action or '').strip()[:32]}:{int(class_id or 0)}:{request_id}"[:160]
 
 
 __all__ = [

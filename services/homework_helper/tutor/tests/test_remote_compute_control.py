@@ -1,3 +1,4 @@
+import json
 from datetime import timedelta
 from unittest.mock import MagicMock, patch
 
@@ -151,6 +152,80 @@ class RemoteComputeControlTests(TestCase):
             "REMOTE_LLM_BASE_URL": "https://llm-gpu.tail.creatempls.org",
             "REMOTE_LLM_API_KEY": "remote-api-key-1234567890",
             "REMOTE_LLM_MODEL": "llama3.2:3b",
+            "HELPER_REMOTE_COMPUTE_ACTIVATE_URL": "https://ops.example.org/activate",
+        },
+        clear=False,
+    )
+    @patch("tutor.remote_compute_provider.urllib.request.urlopen")
+    @patch("tutor.remote_compute_control._remote_backend_ready_probe", return_value=(True, "", "Remote helper warm probe succeeded in 0.2 second(s)."))
+    def test_activate_passes_control_request_id_and_idempotency_key_to_provider(self, _ready_probe_mock, urlopen_mock):
+        activate_response = MagicMock()
+        activate_response.__enter__.return_value = activate_response
+        activate_response.status = 200
+        activate_response.read.return_value = b'{"ok": true, "state": "ready", "request_id": "req-control-1", "detail": "warm"}'
+        urlopen_mock.return_value = activate_response
+
+        result = activate_remote_compute(
+            class_id=7,
+            requested_by="teacher1",
+            duration_minutes=60,
+            control_request_id="control-req-1",
+        )
+
+        self.assertTrue(result.ok)
+        req = urlopen_mock.call_args.args[0]
+        self.assertEqual(req.headers.get("X-control-request-id"), "control-req-1")
+        self.assertEqual(req.headers.get("X-idempotency-key"), "remote-compute:activate:7:control-req-1")
+        payload = json.loads(req.data.decode("utf-8"))
+        self.assertEqual(payload["control_request_id"], "control-req-1")
+        self.assertEqual(payload["idempotency_key"], "remote-compute:activate:7:control-req-1")
+
+    @patch.dict(
+        "os.environ",
+        {
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED": "1",
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED": "1",
+            "REMOTE_LLM_BASE_URL": "https://llm-gpu.tail.creatempls.org",
+            "REMOTE_LLM_API_KEY": "remote-api-key-1234567890",
+            "REMOTE_LLM_MODEL": "llama3.2:3b",
+            "HELPER_REMOTE_COMPUTE_ACTIVATE_URL": "https://ops.example.org/activate",
+        },
+        clear=False,
+    )
+    @patch("tutor.remote_compute_provider.urllib.request.urlopen")
+    @patch("tutor.remote_compute_control._remote_backend_ready_probe", return_value=(True, "", "Remote helper warm probe succeeded in 0.2 second(s)."))
+    def test_duplicate_activate_for_same_class_reuses_existing_lease(self, _ready_probe_mock, urlopen_mock):
+        activate_response = MagicMock()
+        activate_response.__enter__.return_value = activate_response
+        activate_response.status = 200
+        activate_response.read.return_value = b'{"ok": true, "state": "ready", "request_id": "req-dup-1", "detail": "warm"}'
+        urlopen_mock.return_value = activate_response
+
+        first = activate_remote_compute(class_id=7, requested_by="teacher1", duration_minutes=60)
+        second = activate_remote_compute(class_id=7, requested_by="teacher1", duration_minutes=60)
+
+        self.assertTrue(first.ok)
+        self.assertTrue(second.ok)
+        self.assertEqual(second.lease.state, "ready")
+        self.assertEqual(urlopen_mock.call_count, 1)
+        session = RemoteComputeLeaseSession.objects.order_by("-id").first()
+        self.assertIsNotNone(session)
+        self.assertTrue(
+            RemoteComputeLeaseEvent.objects.filter(
+                lease_session=session,
+                event_type="activation_duplicate_ignored",
+                reason_code="already_active_same_class",
+            ).exists()
+        )
+
+    @patch.dict(
+        "os.environ",
+        {
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED": "1",
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED": "1",
+            "REMOTE_LLM_BASE_URL": "https://llm-gpu.tail.creatempls.org",
+            "REMOTE_LLM_API_KEY": "remote-api-key-1234567890",
+            "REMOTE_LLM_MODEL": "llama3.2:3b",
         },
         clear=False,
     )
@@ -267,6 +342,32 @@ class RemoteComputeControlTests(TestCase):
         lease = current_remote_compute_lease(class_id=22)
         self.assertEqual(lease.state, "off")
         self.assertEqual(lease.unused_activation_count, 1)
+
+    @patch.dict(
+        "os.environ",
+        {
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED": "1",
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED": "1",
+            "REMOTE_LLM_BASE_URL": "https://llm-gpu.tail.creatempls.org",
+            "REMOTE_LLM_API_KEY": "remote-api-key-1234567890",
+            "REMOTE_LLM_MODEL": "llama3.2:3b",
+            "HELPER_REMOTE_COMPUTE_DEACTIVATE_URL": "https://ops.example.org/deactivate",
+        },
+        clear=False,
+    )
+    @patch("tutor.remote_compute_control.build_remote_compute_provider")
+    def test_deactivate_is_noop_when_lease_is_already_off(self, provider_factory_mock):
+        result = deactivate_remote_compute(
+            class_id=22,
+            requested_by="teacher1",
+            control_request_id="control-stop-1",
+            stop_reason="manual_stop",
+        )
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.lease.state, "off")
+        self.assertEqual(result.detail, "Remote helper compute is already off for this class.")
+        provider_factory_mock.assert_not_called()
 
     @patch.dict(
         "os.environ",

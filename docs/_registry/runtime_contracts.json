@@ -35,7 +35,7 @@
       "capability": "Staff-only remote helper compute control",
       "status": "Live (flagged)",
       "toggle": "`CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1` + `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1`",
-      "note": "Bounded paid remote helper compute stays off by default and is only used when the class-scoped remote state is `ready`."
+      "note": "Bounded paid remote helper compute stays off by default, is only used when the class-scoped remote state is `ready`, and now treats duplicate same-class activate/deactivate requests as bounded idempotent control actions."
     }
   },
   "runtime": {
@@ -62,10 +62,10 @@
       "note": "Repo now ships a narrow Headscale control-plane ops bundle for createMPLS-style deployments: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`."
     },
     "remote_helper_compute_control": {
-      "note": "Helper now ships a staff-only bounded remote compute control for class sessions; provider control URLs stay server-side, the remote backend is used only when state is `ready`, and helper requests fall back to local/default mode when remote compute is off, not ready, or unavailable."
+      "note": "Helper now ships a staff-only bounded remote compute control for class sessions; provider control URLs stay server-side, the remote backend is used only when state is `ready`, helper requests fall back to local/default mode when remote compute is off, not ready, or unavailable, and the bridge receives explicit control-request/idempotency metadata."
     },
     "remote_helper_compute_evidence": {
-      "note": "Remote helper compute now produces durable class-scoped lease evidence: requested duration, time spent in `starting`/`ready`/`degraded`, remote route and fallback counts, leased minutes, auto-stop/manual-stop counts, recent events, and an optional approximate cost estimate when operator pricing assumptions are configured."
+      "note": "Remote helper compute now produces durable class-scoped lease evidence: requested duration, time spent in `starting`/`ready`/`degraded`, remote route and fallback counts, leased minutes, auto-stop/manual-stop counts, recent events, duplicate-control no-op events, and an optional approximate cost estimate when operator pricing assumptions are configured."
     }
   },
   "contracts": {
@@ -75,7 +75,9 @@
       "Serious remote-LLM production posture is documented as: public LMS, private model host, helper-only server-to-server tailnet traffic, a Headscale-recommended control plane for createMPLS-style deployments, and a Gemma-family model as the recommended open-model example on the remote private host.",
       "Repo now ships a narrow Headscale control-plane ops bundle for createMPLS-style deployments: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`.",
       "Helper now ships a staff-only bounded remote compute control for class sessions; provider control URLs stay server-side, the remote backend is used only when state is `ready`, and helper requests fall back to local/default mode when remote compute is off, not ready, or unavailable.",
-      "Remote helper compute now produces durable class-scoped lease evidence: requested duration, time spent in `starting`/`ready`/`degraded`, remote route and fallback counts, leased minutes, auto-stop/manual-stop counts, recent events, and an optional approximate cost estimate when operator pricing assumptions are configured."
+      "Remote helper compute now produces durable class-scoped lease evidence: requested duration, time spent in `starting`/`ready`/`degraded`, remote route and fallback counts, leased minutes, auto-stop/manual-stop counts, recent events, and an optional approximate cost estimate when operator pricing assumptions are configured.",
+      "Remote helper control now emits explicit bridge correlation/idempotency metadata and treats duplicate same-class activate/deactivate requests as calm bounded no-op control actions.",
+      "`/teach/class/<id>` now surfaces a tighter remote-compute evidence slice for staff: recent lease sessions, recent events, and a simple cost-risk state alongside the existing control/export path."
     ],
     "security_required_notes": [
       "Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded.",
@@ -102,12 +104,14 @@
       "provider credentials and orchestration APIs stay server-side",
       "student browsers never see or control this path",
       "helper requests fall back to local/default compute",
-      "Only `ready` allows remote helper routing."
+      "Only `ready` allows remote helper routing.",
+      "duplicate same-class activate/deactivate requests are treated as bounded idempotent control actions"
     ],
     "evidence_remote_compute_required_snippets": [
       "What is measured now",
       "time spent in `starting`",
       "optional approximate cost estimate via `HELPER_REMOTE_COMPUTE_ESTIMATED_USD_PER_HOUR`",
+      "duplicate same-class activate/deactivate requests that were intentionally absorbed as bounded no-op control actions",
       "What this makes more defensible",
       "What remains thin"
     ],

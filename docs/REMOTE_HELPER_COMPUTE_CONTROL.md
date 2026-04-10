@@ -30,6 +30,7 @@ The control is:
 - capability-gated
 - server-side only after the teacher/admin click
 - exportable as class-scoped JSON or CSV evidence
+- visible to staff with a compact recent-sessions / recent-events / cost-risk view on `/teach/class/<id>`
 
 Students never see provider names, credentials, instance ids, or raw orchestration controls.
 
@@ -101,6 +102,8 @@ Current shipped behavior is:
 - if a remote execution fails during a `ready` lease, the helper logs `remote_compute_fallback_local`, marks the lease degraded, and retries locally for that request
 - the lease expires automatically after its bounded window
 - optional idle auto-stop can return remote compute to `off`
+- duplicate same-class activate/deactivate requests are treated as bounded idempotent control actions, not a reason to churn the bridge
+- bridge requests now carry explicit control-request correlation and idempotency metadata from the helper boundary
 - helper startup runs `python manage.py reconcile_remote_compute_state` by default (`RUN_REMOTE_COMPUTE_RECONCILE_ON_START=1`) so durable lease state is normalized after restarts
 - `/teach/class/<id>/export-helper-remote-snapshot?format=json|csv` exports the current class-scoped helper snapshot and records `class.remote_helper_snapshot_export`
 - `/helper/internal/remote-compute-evidence` exposes the same bounded evidence to staff/operator callers behind the internal token + CIDR guard
@@ -217,6 +220,7 @@ Expected bridge responsibilities:
 - activate/build/connect remote helper compute
 - report health/warm readiness
 - disconnect/stop the expensive backend
+- tolerate duplicate activate/stop requests idempotently when the same control request or idempotency key is replayed
 - keep provider secrets and raw orchestration APIs off the browser-facing path
 
 ## Minimal bridge contract
@@ -243,6 +247,13 @@ Stop response:
 
 The bridge may also return `requested`, `degraded`, `stopping`, or `error`.
 If the bridge does not report `ready`, the helper does not use the remote backend.
+
+Expected request metadata from the helper boundary:
+
+- `X-Control-Request-ID`
+- `X-Idempotency-Key`
+- JSON payload fields mirroring that correlation data (`control_request_id`, `idempotency_key`)
+- `stop_reason` on deactivation requests
 
 ## Staff workflow
 

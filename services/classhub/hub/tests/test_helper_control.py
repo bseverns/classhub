@@ -1,3 +1,4 @@
+import json
 from io import BytesIO
 from types import SimpleNamespace
 import urllib.error
@@ -67,3 +68,25 @@ class HelperControlServiceTests(SimpleTestCase):
 
         self.assertFalse(result.ok)
         self.assertEqual(result.request_id, "helper-remote-err")
+
+    @patch("hub.services.helper_control.urllib.request.urlopen")
+    def test_set_remote_compute_state_sends_stop_reason_for_deactivate(self, urlopen_mock):
+        response = SimpleNamespace(status=200, headers={"X-Request-ID": "helper-remote-stop-1"})
+        response.read = lambda: b'{"ok": true, "action": "deactivate", "detail": "stopped", "lease": {"state": "off"}}'
+        urlopen_mock.return_value.__enter__.return_value = response
+
+        result = set_remote_compute_state(
+            class_id=7,
+            action="deactivate",
+            requested_by="teacher1",
+            endpoint_url="http://helper_web:8000/helper/internal/remote-compute-control",
+            internal_token="token-123",
+            timeout_seconds=2.0,
+            stop_reason="manual_stop",
+        )
+
+        self.assertTrue(result.ok)
+        req = urlopen_mock.call_args.args[0]
+        self.assertTrue(req.data)
+        payload = json.loads(req.data.decode("utf-8"))
+        self.assertEqual(payload["stop_reason"], "manual_stop")

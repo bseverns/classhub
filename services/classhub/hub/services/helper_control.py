@@ -472,6 +472,7 @@ def set_remote_compute_state(
     internal_token: str,
     timeout_seconds: float,
     duration_minutes: int = 0,
+    stop_reason: str = "",
 ) -> HelperRemoteComputeActionResult:
     request_id = _request_id_value("")
     if class_id <= 0:
@@ -494,6 +495,8 @@ def set_remote_compute_state(
     }
     if action == "activate":
         payload["duration_minutes"] = max(int(duration_minutes or 0), 0)
+    elif stop_reason:
+        payload["stop_reason"] = str(stop_reason or "").strip()[:80]
 
     request = urllib.request.Request(
         endpoint_url,
