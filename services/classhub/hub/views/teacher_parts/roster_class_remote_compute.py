@@ -50,6 +50,7 @@ def teach_set_remote_helper_compute_impl(*, request, class_id: int):
             "expires_at": result.expires_at,
             "remaining_minutes": result.remaining_minutes,
             "provider_request_id": result.provider_request_id,
+            "helper_request_id": result.request_id,
             "status_detail": result.status_detail,
             "detail": result.detail,
             "status_code": result.status_code,
@@ -80,6 +81,7 @@ def _remote_compute_failed_redirect(*, request, classroom, action: str, result):
         metadata={
             "action_requested": action,
             "error_code": result.error_code,
+            "helper_request_id": result.request_id,
             "status_code": result.status_code,
             "remaining_minutes": result.remaining_minutes,
         },

@@ -38,6 +38,19 @@ class HelperInternalResetTests(TestCase):
         self.assertIn("internal_reset_unauthorized", captured.records[0].getMessage())
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
+    @patch.dict("os.environ", {"HELPER_INTERNAL_ALLOWED_CIDRS": "10.0.0.0/8"}, clear=False)
+    def test_internal_reset_rejects_non_internal_ip(self):
+        resp = self.client.post(
+            "/helper/internal/reset-class-conversations",
+            data=json.dumps({"class_id": 5}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION="Bearer token-123",
+            REMOTE_ADDR="198.51.100.8",
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.json().get("error"), "forbidden")
+
+    @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     def test_internal_reset_clears_class_conversation_keys(self):
         key = engine_memory.conversation_cache_key(
             actor_key="student:55:9001",

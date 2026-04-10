@@ -16,6 +16,7 @@ from django.views.decorators.http import require_POST
 from .engine.config_source import helper_getenv
 from .engine import memory as engine_memory
 from .engine import runtime as engine_runtime
+from .internal_access import authorize_internal_request
 from .internal_audit import log_internal_audit_event
 
 logger = logging.getLogger(__name__)
@@ -125,6 +126,13 @@ def reset_class_conversations(request):
         _log_chat_event("warning", "internal_unauthorized", request_id=request_id)
         _log_internal_event("warning", "internal_reset_unauthorized", request=request, request_id=request_id)
         return _json_response({"error": "unauthorized"}, status=401, request_id=request_id)
+    allowed, _client_ip = authorize_internal_request(
+        request=request,
+        request_id=request_id,
+        event_prefix="internal_reset",
+    )
+    if not allowed:
+        return _json_response({"error": "forbidden"}, status=403, request_id=request_id)
 
     try:
         payload = json.loads(request.body.decode("utf-8"))

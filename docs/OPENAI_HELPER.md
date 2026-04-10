@@ -102,6 +102,9 @@ HELPER_CIRCUIT_BREAKER_TTL_SECONDS=30
 HELPER_TOPIC_FILTER_MODE=strict
 HELPER_TEXT_LANGUAGE_KEYWORDS=pascal,python,java,javascript,typescript,c++,c#,csharp,ruby,php,go,golang,rust,swift,kotlin
 HELPER_INTERNAL_API_TOKEN=...
+HELPER_INTERNAL_ALLOWED_CIDRS=127.0.0.0/8,::1/128,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fc00::/7
+HELPER_INTERNAL_TRUST_PROXY_HEADERS=0
+HELPER_INTERNAL_XFF_INDEX=0
 HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
 HELPER_INTERNAL_RESET_TIMEOUT_SECONDS=2
 HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
@@ -153,6 +156,8 @@ Archive access + audit:
 
 Internal RAG status contract:
 - `/helper/internal/rag-status` requires the same bearer token as reset operations (`HELPER_INTERNAL_API_TOKEN`).
+- Helper internal control/status endpoints also require the caller IP to fall inside `HELPER_INTERNAL_ALLOWED_CIDRS`.
+- If helper is behind a trusted reverse proxy, set `HELPER_INTERNAL_TRUST_PROXY_HEADERS=1` and, if needed, adjust `HELPER_INTERNAL_XFF_INDEX`.
 - Response includes:
   - `rag_enabled`, `index_ready`,
   - `indexed_chunk_count`, `reference_source_count`,

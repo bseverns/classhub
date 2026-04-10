@@ -115,6 +115,7 @@ def teach_reset_helper_conversations_impl(
             "deleted_conversations": result.deleted_conversations,
             "archived_conversations": result.archived_conversations,
             "archive_path": result.archive_path,
+            "helper_request_id": result.request_id,
             "export_before_reset": export_before_reset,
             "status_code": result.status_code,
         },
@@ -145,6 +146,7 @@ def _helper_reset_failed_redirect(*, request, classroom, result):
         summary=f"Failed helper conversation reset for {classroom.name}",
         metadata={
             "error_code": result.error_code,
+            "helper_request_id": result.request_id,
             "status_code": result.status_code,
         },
     )

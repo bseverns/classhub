@@ -32,6 +32,17 @@ class HelperInternalRemoteComputeTests(TestCase):
         self.assertIn("internal_remote_compute_control_unauthorized", captured.records[0].getMessage())
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
+    @patch.dict("os.environ", {"HELPER_INTERNAL_ALLOWED_CIDRS": "10.0.0.0/8"}, clear=False)
+    def test_remote_compute_status_rejects_non_internal_ip(self):
+        resp = self.client.get(
+            "/helper/internal/remote-compute-status?class_id=7",
+            HTTP_AUTHORIZATION="Bearer token-123",
+            REMOTE_ADDR="198.51.100.8",
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.json().get("error"), "forbidden")
+
+    @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     @patch.dict(
         "os.environ",
         {

@@ -6,6 +6,7 @@ import json
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
+from uuid import uuid4
 
 
 @dataclass(frozen=True)
@@ -14,6 +15,7 @@ class HelperResetResult:
     deleted_conversations: int = 0
     archived_conversations: int = 0
     archive_path: str = ""
+    request_id: str = ""
     error_code: str = ""
     status_code: int = 0
 
@@ -29,6 +31,7 @@ class HelperRagStatusResult:
     reference_sources: list[dict] | None = None
     configured_reference_keys: list[str] | None = None
     student_data_excluded_from_index: bool = True
+    request_id: str = ""
     error_code: str = ""
     status_code: int = 0
 
@@ -71,6 +74,7 @@ class HelperRemoteComputeStatusResult:
     last_activation_at: str = ""
     last_ready_at: str = ""
     last_fallback_at: str = ""
+    request_id: str = ""
     error_code: str = ""
     status_code: int = 0
 
@@ -91,6 +95,7 @@ class HelperRemoteComputeActionResult:
     provider_request_id: str = ""
     status_detail: str = ""
     detail: str = ""
+    request_id: str = ""
     error_code: str = ""
     status_code: int = 0
 
@@ -103,14 +108,15 @@ def reset_class_conversations(
     timeout_seconds: float,
     export_before_reset: bool = True,
 ) -> HelperResetResult:
+    request_id = _request_id_value("")
     if class_id <= 0:
-        return HelperResetResult(ok=False, error_code="invalid_class_id")
+        return HelperResetResult(ok=False, request_id=request_id, error_code="invalid_class_id")
     if not endpoint_url:
-        return HelperResetResult(ok=False, error_code="helper_endpoint_not_configured")
+        return HelperResetResult(ok=False, request_id=request_id, error_code="helper_endpoint_not_configured")
     if not internal_token:
-        return HelperResetResult(ok=False, error_code="helper_token_not_configured")
+        return HelperResetResult(ok=False, request_id=request_id, error_code="helper_token_not_configured")
     if not endpoint_url.lower().startswith(("http://", "https://")):
-        return HelperResetResult(ok=False, error_code="invalid_endpoint_url_scheme")
+        return HelperResetResult(ok=False, request_id=request_id, error_code="invalid_endpoint_url_scheme")
 
     payload = json.dumps(
         {"class_id": int(class_id), "export_before_reset": bool(export_before_reset)}
@@ -122,6 +128,7 @@ def reset_class_conversations(
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {internal_token}",
+            "X-Request-ID": request_id,
         },
     )
     timeout = max(float(timeout_seconds), 0.2)
@@ -130,6 +137,7 @@ def reset_class_conversations(
         with urllib.request.urlopen(request, timeout=timeout) as response:  # nosec B310
             status = int(getattr(response, "status", 200) or 200)
             body = response.read().decode("utf-8", errors="replace")
+            response_request_id = _response_request_id(response=response, body=body, fallback=request_id)
     except urllib.error.HTTPError as exc:
         status = int(getattr(exc, "code", 0) or 0)
         try:
@@ -137,20 +145,26 @@ def reset_class_conversations(
         except Exception:
             body = ""
         error_code = _extract_error_code(body) or "helper_http_error"
-        return HelperResetResult(ok=False, error_code=error_code, status_code=status)
+        return HelperResetResult(
+            ok=False,
+            request_id=_response_request_id(response=exc, body=body, fallback=request_id),
+            error_code=error_code,
+            status_code=status,
+        )
     except urllib.error.URLError:
-        return HelperResetResult(ok=False, error_code="helper_unreachable")
+        return HelperResetResult(ok=False, request_id=request_id, error_code="helper_unreachable")
     except Exception:
-        return HelperResetResult(ok=False, error_code="helper_request_failed")
+        return HelperResetResult(ok=False, request_id=request_id, error_code="helper_request_failed")
 
     if status < 200 or status >= 300:
         error_code = _extract_error_code(body) or "helper_http_error"
-        return HelperResetResult(ok=False, error_code=error_code, status_code=status)
+        return HelperResetResult(ok=False, request_id=response_request_id, error_code=error_code, status_code=status)
 
     parsed = _safe_json_dict(body)
     if not parsed.get("ok"):
         return HelperResetResult(
             ok=False,
+            request_id=response_request_id,
             error_code=str(parsed.get("error") or "helper_reset_failed"),
             status_code=status,
         )
@@ -168,6 +182,7 @@ def reset_class_conversations(
         deleted_conversations=max(deleted, 0),
         archived_conversations=max(archived, 0),
         archive_path=archive_path[:512],
+        request_id=response_request_id,
         status_code=status,
     )
 
@@ -178,17 +193,18 @@ def fetch_rag_status(
     internal_token: str,
     timeout_seconds: float,
 ) -> HelperRagStatusResult:
+    request_id = _request_id_value("")
     if not endpoint_url:
-        return HelperRagStatusResult(ok=False, error_code="helper_endpoint_not_configured")
+        return HelperRagStatusResult(ok=False, request_id=request_id, error_code="helper_endpoint_not_configured")
     if not internal_token:
-        return HelperRagStatusResult(ok=False, error_code="helper_token_not_configured")
+        return HelperRagStatusResult(ok=False, request_id=request_id, error_code="helper_token_not_configured")
     if not endpoint_url.lower().startswith(("http://", "https://")):
-        return HelperRagStatusResult(ok=False, error_code="invalid_endpoint_url_scheme")
+        return HelperRagStatusResult(ok=False, request_id=request_id, error_code="invalid_endpoint_url_scheme")
 
     request = urllib.request.Request(
         endpoint_url,
         method="GET",
-        headers={"Authorization": f"Bearer {internal_token}"},
+        headers={"Authorization": f"Bearer {internal_token}", "X-Request-ID": request_id},
     )
     timeout = max(float(timeout_seconds), 0.2)
 
@@ -196,6 +212,7 @@ def fetch_rag_status(
         with urllib.request.urlopen(request, timeout=timeout) as response:  # nosec B310
             status = int(getattr(response, "status", 200) or 200)
             body = response.read().decode("utf-8", errors="replace")
+            response_request_id = _response_request_id(response=response, body=body, fallback=request_id)
     except urllib.error.HTTPError as exc:
         status = int(getattr(exc, "code", 0) or 0)
         try:
@@ -203,20 +220,26 @@ def fetch_rag_status(
         except Exception:
             body = ""
         error_code = _extract_error_code(body) or "helper_http_error"
-        return HelperRagStatusResult(ok=False, error_code=error_code, status_code=status)
+        return HelperRagStatusResult(
+            ok=False,
+            request_id=_response_request_id(response=exc, body=body, fallback=request_id),
+            error_code=error_code,
+            status_code=status,
+        )
     except urllib.error.URLError:
-        return HelperRagStatusResult(ok=False, error_code="helper_unreachable")
+        return HelperRagStatusResult(ok=False, request_id=request_id, error_code="helper_unreachable")
     except Exception:
-        return HelperRagStatusResult(ok=False, error_code="helper_request_failed")
+        return HelperRagStatusResult(ok=False, request_id=request_id, error_code="helper_request_failed")
 
     if status < 200 or status >= 300:
         error_code = _extract_error_code(body) or "helper_http_error"
-        return HelperRagStatusResult(ok=False, error_code=error_code, status_code=status)
+        return HelperRagStatusResult(ok=False, request_id=response_request_id, error_code=error_code, status_code=status)
 
     payload = _safe_json_dict(body)
     if not payload.get("ok"):
         return HelperRagStatusResult(
             ok=False,
+            request_id=response_request_id,
             error_code=str(payload.get("error") or "helper_status_failed"),
             status_code=status,
         )
@@ -230,6 +253,7 @@ def fetch_rag_status(
         reference_sources=_safe_reference_rows(payload.get("reference_sources")),
         configured_reference_keys=_safe_reference_keys(payload.get("configured_reference_keys")),
         student_data_excluded_from_index=bool(payload.get("student_data_excluded_from_index", True)),
+        request_id=response_request_id,
         status_code=status,
     )
 
@@ -241,20 +265,21 @@ def fetch_remote_compute_status(
     internal_token: str,
     timeout_seconds: float,
 ) -> HelperRemoteComputeStatusResult:
+    request_id = _request_id_value("")
     if class_id <= 0:
-        return HelperRemoteComputeStatusResult(ok=False, error_code="invalid_class_id")
+        return HelperRemoteComputeStatusResult(ok=False, request_id=request_id, error_code="invalid_class_id")
     if not endpoint_url:
-        return HelperRemoteComputeStatusResult(ok=False, error_code="helper_endpoint_not_configured")
+        return HelperRemoteComputeStatusResult(ok=False, request_id=request_id, error_code="helper_endpoint_not_configured")
     if not internal_token:
-        return HelperRemoteComputeStatusResult(ok=False, error_code="helper_token_not_configured")
+        return HelperRemoteComputeStatusResult(ok=False, request_id=request_id, error_code="helper_token_not_configured")
     if not endpoint_url.lower().startswith(("http://", "https://")):
-        return HelperRemoteComputeStatusResult(ok=False, error_code="invalid_endpoint_url_scheme")
+        return HelperRemoteComputeStatusResult(ok=False, request_id=request_id, error_code="invalid_endpoint_url_scheme")
 
     delimiter = "&" if "?" in endpoint_url else "?"
     request = urllib.request.Request(
         f"{endpoint_url}{delimiter}class_id={int(class_id)}",
         method="GET",
-        headers={"Authorization": f"Bearer {internal_token}"},
+        headers={"Authorization": f"Bearer {internal_token}", "X-Request-ID": request_id},
     )
     timeout = max(float(timeout_seconds), 0.2)
 
@@ -262,6 +287,7 @@ def fetch_remote_compute_status(
         with urllib.request.urlopen(request, timeout=timeout) as response:  # nosec B310
             status = int(getattr(response, "status", 200) or 200)
             body = response.read().decode("utf-8", errors="replace")
+            response_request_id = _response_request_id(response=response, body=body, fallback=request_id)
     except urllib.error.HTTPError as exc:
         status = int(getattr(exc, "code", 0) or 0)
         try:
@@ -270,18 +296,20 @@ def fetch_remote_compute_status(
             body = ""
         return HelperRemoteComputeStatusResult(
             ok=False,
+            request_id=_response_request_id(response=exc, body=body, fallback=request_id),
             error_code=_extract_error_code(body) or "helper_http_error",
             status_code=status,
         )
     except urllib.error.URLError:
-        return HelperRemoteComputeStatusResult(ok=False, error_code="helper_unreachable")
+        return HelperRemoteComputeStatusResult(ok=False, request_id=request_id, error_code="helper_unreachable")
     except Exception:
-        return HelperRemoteComputeStatusResult(ok=False, error_code="helper_request_failed")
+        return HelperRemoteComputeStatusResult(ok=False, request_id=request_id, error_code="helper_request_failed")
 
     payload = _safe_json_dict(body)
     if status < 200 or status >= 300 or not payload.get("ok"):
         return HelperRemoteComputeStatusResult(
             ok=False,
+            request_id=response_request_id,
             error_code=str(payload.get("error") or "helper_status_failed"),
             status_code=status,
         )
@@ -322,6 +350,7 @@ def fetch_remote_compute_status(
         last_activation_at=str(payload.get("last_activation_at") or "").strip()[:64],
         last_ready_at=str(payload.get("last_ready_at") or "").strip()[:64],
         last_fallback_at=str(payload.get("last_fallback_at") or "").strip()[:64],
+        request_id=response_request_id,
         status_code=status,
     )
 
@@ -336,18 +365,19 @@ def set_remote_compute_state(
     timeout_seconds: float,
     duration_minutes: int = 0,
 ) -> HelperRemoteComputeActionResult:
+    request_id = _request_id_value("")
     if class_id <= 0:
-        return HelperRemoteComputeActionResult(ok=False, error_code="invalid_class_id")
+        return HelperRemoteComputeActionResult(ok=False, request_id=request_id, error_code="invalid_class_id")
     if action not in {"activate", "deactivate"}:
-        return HelperRemoteComputeActionResult(ok=False, error_code="invalid_action")
+        return HelperRemoteComputeActionResult(ok=False, request_id=request_id, error_code="invalid_action")
     if not requested_by:
-        return HelperRemoteComputeActionResult(ok=False, error_code="missing_requested_by")
+        return HelperRemoteComputeActionResult(ok=False, request_id=request_id, error_code="missing_requested_by")
     if not endpoint_url:
-        return HelperRemoteComputeActionResult(ok=False, error_code="helper_endpoint_not_configured")
+        return HelperRemoteComputeActionResult(ok=False, request_id=request_id, error_code="helper_endpoint_not_configured")
     if not internal_token:
-        return HelperRemoteComputeActionResult(ok=False, error_code="helper_token_not_configured")
+        return HelperRemoteComputeActionResult(ok=False, request_id=request_id, error_code="helper_token_not_configured")
     if not endpoint_url.lower().startswith(("http://", "https://")):
-        return HelperRemoteComputeActionResult(ok=False, error_code="invalid_endpoint_url_scheme")
+        return HelperRemoteComputeActionResult(ok=False, request_id=request_id, error_code="invalid_endpoint_url_scheme")
 
     payload = {
         "action": action,
@@ -364,6 +394,7 @@ def set_remote_compute_state(
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {internal_token}",
+            "X-Request-ID": request_id,
         },
     )
     timeout = max(float(timeout_seconds), 0.2)
@@ -372,6 +403,7 @@ def set_remote_compute_state(
         with urllib.request.urlopen(request, timeout=timeout) as response:  # nosec B310
             status = int(getattr(response, "status", 200) or 200)
             body = response.read().decode("utf-8", errors="replace")
+            response_request_id = _response_request_id(response=response, body=body, fallback=request_id)
     except urllib.error.HTTPError as exc:
         status = int(getattr(exc, "code", 0) or 0)
         try:
@@ -381,13 +413,14 @@ def set_remote_compute_state(
         return HelperRemoteComputeActionResult(
             ok=False,
             action=action,
+            request_id=_response_request_id(response=exc, body=body, fallback=request_id),
             error_code=_extract_error_code(body) or "helper_http_error",
             status_code=status,
         )
     except urllib.error.URLError:
-        return HelperRemoteComputeActionResult(ok=False, action=action, error_code="helper_unreachable")
+        return HelperRemoteComputeActionResult(ok=False, action=action, request_id=request_id, error_code="helper_unreachable")
     except Exception:
-        return HelperRemoteComputeActionResult(ok=False, action=action, error_code="helper_request_failed")
+        return HelperRemoteComputeActionResult(ok=False, action=action, request_id=request_id, error_code="helper_request_failed")
 
     parsed = _safe_json_dict(body)
     lease = parsed.get("lease") if isinstance(parsed.get("lease"), dict) else {}
@@ -402,6 +435,7 @@ def set_remote_compute_state(
             class_id=_safe_non_negative_int(lease.get("class_id")),
             expires_at=str(lease.get("expires_at") or "").strip()[:64],
             remaining_minutes=_safe_non_negative_int(lease.get("remaining_minutes")),
+            request_id=response_request_id,
             error_code=str(parsed.get("error") or "remote_compute_control_failed"),
             status_code=status,
         )
@@ -420,8 +454,28 @@ def set_remote_compute_state(
         provider_request_id=str(parsed.get("provider_request_id") or "").strip()[:120],
         status_detail=str(parsed.get("detail") or "").strip()[:160],
         detail=str(parsed.get("detail") or "").strip()[:160],
+        request_id=response_request_id,
         status_code=status,
     )
+
+
+def _request_id_value(value: str) -> str:
+    token = str(value or "").strip()[:80]
+    return token or uuid4().hex
+
+
+def _response_request_id(*, response, body: str, fallback: str) -> str:
+    header_value = ""
+    headers = getattr(response, "headers", None)
+    if headers is not None:
+        try:
+            header_value = str(headers.get("X-Request-ID") or "").strip()
+        except Exception:
+            header_value = ""
+    if header_value:
+        return _request_id_value(header_value)
+    parsed = _safe_json_dict(body)
+    return _request_id_value(str(parsed.get("request_id") or fallback))
 
 
 def _safe_json_dict(raw: str) -> dict:

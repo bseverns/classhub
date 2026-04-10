@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from .engine import runtime as engine_runtime
+from .internal_access import authorize_internal_request
 from .internal_audit import log_internal_audit_event
 from .remote_compute_control import (
     activate_remote_compute,
@@ -57,6 +58,13 @@ def _authorized(request, *, request_id: str, event_prefix: str):
             request_id=request_id,
         )
         return False, _json_response({"error": "unauthorized"}, request_id=request_id, status=401)
+    allowed, _client_ip = authorize_internal_request(
+        request=request,
+        request_id=request_id,
+        event_prefix=event_prefix,
+    )
+    if not allowed:
+        return False, _json_response({"error": "forbidden"}, request_id=request_id, status=403)
     return True, None
 
 

@@ -1668,6 +1668,10 @@ Execution ownership and gates:
 - Internal-path edge blocking is inside ordered `route` blocks so `/internal/*` rejection is evaluated before catch-all proxy handlers.
 - Helper internal telemetry continues to target `classhub_web` directly via `CLASSHUB_INTERNAL_EVENTS_URL`, bypassing Caddy.
 - Smoke checks assert edge behavior by expecting `404` on `/internal/events/helper-chat-access`.
+- Helper internal control/status endpoints also enforce a helper-side caller IP/CIDR gate after bearer auth:
+  - default allowlist is loopback + RFC1918/ULA private ranges,
+  - optional overrides use `HELPER_INTERNAL_ALLOWED_CIDRS`,
+  - proxy header trust stays explicit via `HELPER_INTERNAL_TRUST_PROXY_HEADERS=1`.
 
 **Why this remains active:**
 - Shrinks public attack surface and discovery traffic on internal-only endpoints.

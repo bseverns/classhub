@@ -28,6 +28,17 @@ class HelperInternalRagStatusTests(TestCase):
         self.assertIn("internal_rag_status_unauthorized", captured.records[0].getMessage())
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
+    @patch.dict("os.environ", {"HELPER_INTERNAL_ALLOWED_CIDRS": "10.0.0.0/8"}, clear=False)
+    def test_internal_rag_status_rejects_non_internal_ip(self):
+        resp = self.client.get(
+            "/helper/internal/rag-status",
+            HTTP_AUTHORIZATION="Bearer token-123",
+            REMOTE_ADDR="198.51.100.8",
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.json().get("error"), "forbidden")
+
+    @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     def test_internal_rag_status_returns_curriculum_only_contract(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             Path(temp_dir, "piper_scratch.md").write_text("# Piper\n", encoding="utf-8")

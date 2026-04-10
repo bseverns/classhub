@@ -686,6 +686,8 @@ bash scripts/demo_data_lifespan_evidence.sh \
 RAG evidence panel prerequisites:
 
 - `HELPER_INTERNAL_API_TOKEN` must match between ClassHub and helper.
+- `HELPER_INTERNAL_ALLOWED_CIDRS` should include the ClassHub caller address range. Defaults allow loopback plus RFC1918/ULA private ranges.
+- If helper receives proxied requests, set `HELPER_INTERNAL_TRUST_PROXY_HEADERS=1` and verify `HELPER_INTERNAL_XFF_INDEX` matches the trusted client position.
 - `HELPER_INTERNAL_RAG_STATUS_URL` should point to helper (`http://helper_web:8000/helper/internal/rag-status` in Compose).
 - `HELPER_INTERNAL_RAG_STATUS_TIMEOUT_SECONDS` controls request timeout (default `1.2`).
 

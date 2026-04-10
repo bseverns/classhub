@@ -1352,6 +1352,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
             deleted_conversations=4,
             archived_conversations=4,
             archive_path="/uploads/helper_reset_exports/sample.json",
+            request_id="helper-reset-req-1",
             status_code=200,
         )
 
@@ -1368,11 +1369,17 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertEqual(event.metadata.get("deleted_conversations"), 4)
         self.assertEqual(event.metadata.get("archived_conversations"), 4)
         self.assertEqual(event.metadata.get("archive_path"), "/uploads/helper_reset_exports/sample.json")
+        self.assertEqual(event.metadata.get("helper_request_id"), "helper-reset-req-1")
 
     @patch("hub.views.teacher_parts.roster_class._reset_helper_class_conversations")
     def test_teacher_reset_helper_conversations_handles_failure(self, reset_mock):
         classroom = Class.objects.create(name="Period Helper Fail", join_code="HLF12345")
-        reset_mock.return_value = HelperResetResult(ok=False, error_code="helper_unreachable", status_code=0)
+        reset_mock.return_value = HelperResetResult(
+            ok=False,
+            request_id="helper-reset-fail-1",
+            error_code="helper_unreachable",
+            status_code=0,
+        )
 
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.post(f"/teach/class/{classroom.id}/reset-helper-conversations")
@@ -1383,6 +1390,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertIsNotNone(event)
         self.assertEqual(event.classroom_id, classroom.id)
         self.assertEqual(event.metadata.get("error_code"), "helper_unreachable")
+        self.assertEqual(event.metadata.get("helper_request_id"), "helper-reset-fail-1")
 
     @patch("hub.views.teacher_parts.roster_class_remote_compute.set_remote_compute_state")
     def test_teacher_can_activate_remote_helper_compute(self, set_remote_compute_mock):
@@ -1397,6 +1405,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
             expires_at="2099-04-08T13:30:00+00:00",
             remaining_minutes=90,
             provider_request_id="req-remote-1",
+            request_id="helper-remote-req-1",
             detail="warming",
             status_code=200,
         )
@@ -1413,6 +1422,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertIsNotNone(event)
         self.assertEqual(event.classroom_id, classroom.id)
         self.assertEqual(event.metadata.get("remaining_minutes"), 90)
+        self.assertEqual(event.metadata.get("helper_request_id"), "helper-remote-req-1")
 
     @patch("hub.views.teacher_parts.roster_class_remote_compute.set_remote_compute_state")
     def test_teacher_remote_helper_compute_failure_redirects_with_error(self, set_remote_compute_mock):
@@ -1420,6 +1430,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         set_remote_compute_mock.return_value = HelperRemoteComputeActionResult(
             ok=False,
             action="activate",
+            request_id="helper-remote-fail-1",
             error_code="remote_compute_control_not_configured",
             status_code=503,
         )
@@ -1431,6 +1442,12 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         )
         self.assertEqual(resp.status_code, 302)
         self.assertIn("error=", resp["Location"])
+
+        event = AuditEvent.objects.filter(action="class.remote_helper_compute_failed").order_by("-id").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.classroom_id, classroom.id)
+        self.assertEqual(event.metadata.get("action_requested"), "activate")
+        self.assertEqual(event.metadata.get("helper_request_id"), "helper-remote-fail-1")
 
     @patch("hub.views.teacher_parts.roster_class_dashboard.fetch_remote_compute_status")
     def test_teach_class_dashboard_shows_remote_helper_compute_panel_for_policy_managers(self, status_mock):
