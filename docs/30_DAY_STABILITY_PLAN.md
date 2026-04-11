@@ -49,6 +49,76 @@ Owner/cadence tracker:
 | Day 31-60 | Accessibility/localization core + outcomes/reporting semantics | Maintainer, Teacher Lead, Executive Director | Core-flow a11y checklist, translation coverage matrix, outcomes semantics note | Core teacher/student flows pass critical a11y smoke and have reviewed copy/translation coverage; reporting terms are canonical and reused |
 | Day 61-90 | Coursepack portability + long-term survivability cadence | Maintainer, Ops Director | Coursepack validation report template, quarterly ritual calendar, turnover packet v2 | Coursepack import/export quality is measurable and repeatable; quarterly rituals are scheduled with owners and runbooks |
 
+## Current 2-Week Slice (April 11-25, 2026)
+
+This slice is intentionally narrow. It addresses two review-visible fractures without expanding product scope:
+
+1. localization finish for live teacher/student runtime polish,
+2. governance usability so staff capability surface does not outrun onboarding discipline.
+
+### Slice 1: Localization Finish For Runtime-Visible Core Flows
+
+Owner: Maintainer + Teacher Lead
+
+Deliverables:
+
+- Reviewed translation coverage matrix for supported locales across:
+  - join flow,
+  - teacher shell (`/teach`, `/teach/lessons`, `/teach/class/<id>`, certificate eligibility),
+  - helper shell/runtime status copy.
+- Explicit deferred-string ledger for any intentionally untranslated copy that remains after the tranche.
+- Rendered-route regression coverage in `hub.tests.test_i18n` for the highest-traffic teacher/student shells.
+- Compose-backed smoke evidence for supported locales when release infrastructure is available.
+
+Command checklist:
+
+- `python3 scripts/check_i18n_family_visible_contract.py`
+- `cd services/classhub && python manage.py test hub.tests.test_i18n --verbosity=2`
+- `python3 scripts/check_frontend_static_refs.py`
+- `python3 scripts/check_no_inline_template_js.py`
+- `python3 scripts/check_no_inline_template_css.py`
+- `bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact critical`
+
+Exit criteria:
+
+- No mixed-language shells in the core join/day-of-class/certificate flows for supported locales.
+- Status banners, button labels, notices, and empty states are either translated or explicitly deferred in docs.
+- CI/local guardrails fail on new family-visible translation drift before release.
+
+### Slice 2: Governance Usability And Staff Training Floor
+
+Owner: Teacher Lead + Executive Director + Maintainer
+
+Deliverables:
+
+- Canonical operating-persona map for:
+  - org admin,
+  - lead teacher,
+  - classroom teacher,
+  - support reviewer.
+- Short runbook set for highest-risk staff actions:
+  - roster reset,
+  - policy changes,
+  - helper remote-compute controls,
+  - exports,
+  - RBAC/policy changes.
+- Inline consequence/warning copy review for governance-heavy teacher surfaces.
+- One dated walkthrough proving a backup operator can complete the core governance tasks using docs only.
+
+Command checklist:
+
+- `python3 scripts/check_teacher_endpoint_capability_map.py`
+- `python3 scripts/check_teacher_admin_hotspot_budgets.py`
+- `python3 scripts/check_teacher_top_tasks_contract.py`
+- `python3 scripts/check_rbac_endpoint_guards.py`
+- `bash scripts/ops_readiness_check.sh`
+
+Exit criteria:
+
+- A normal classroom teacher path does not require touching governance-heavy controls.
+- Risky admin actions have one-sentence operator intent and consequence guidance.
+- Backup operator walkthrough is recorded with date, owner, and follow-up gaps.
+
 ## Day 0-30 Detailed Execution
 
 ### Track A: Teacher Workflow Calm

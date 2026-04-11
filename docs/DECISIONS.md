@@ -3902,3 +3902,34 @@ Execution ownership and gates:
 - Reduces docs drift without introducing a full docs build pipeline.
 - Gives maintainers one bounded place to update when shipped status or repo defaults change.
 - Makes existing contradictions, especially around teacher SSO and CSP rollout posture, fail fast in CI instead of lingering across docs.
+
+## Localization finish + governance usability tranche (2026-04-11)
+
+**Current decision:**
+- Treat the next stability slice as two bounded initiatives, not a generic UX expansion:
+  - localization finish for runtime-visible core flows,
+  - governance usability/training hardening for staff-operated controls.
+- For localization finish:
+  - prioritize runtime-visible copy on join/day-of-class/helper/certificate flows over new i18n architecture work,
+  - require explicit coverage decisions for supported locales (`en`, `es`, `so`, `ksw`) on shell chrome, notices, errors, button labels, export affordances, and empty states,
+  - keep rendered-route regression coverage in `hub.tests.test_i18n` and `scripts/check_i18n_family_visible_contract.py` as the bounded guardrail surface,
+  - record any remaining intentional gaps as a deferred-string ledger rather than leaving partial coverage implicit.
+- For governance usability/training hardening:
+  - freeze net-new governance primitives unless they directly reduce ambiguity in an existing staff workflow,
+  - define one canonical operator persona map for org admin, lead teacher, classroom teacher, and support reviewer,
+  - require short runbook guidance for the highest-risk staff actions before expanding those controls further:
+    - roster reset,
+    - policy changes,
+    - helper remote-compute controls,
+    - exports,
+    - RBAC/policy changes,
+  - treat backup-operator walkthrough evidence as part of governance readiness, not optional documentation polish.
+- Keep the execution details in [30_DAY_STABILITY_PLAN.md](30_DAY_STABILITY_PLAN.md), with supporting operator/task docs anchored in:
+  - [LOCALIZATION.md](LOCALIZATION.md)
+  - [TEACHER_TOP_TASKS.md](TEACHER_TOP_TASKS.md)
+  - [TURNOVER_PACKET.md](TURNOVER_PACKET.md)
+
+**Why this remains active:**
+- The repo already has multilingual scaffolding; the more likely release-visible failure is mixed-language runtime polish in core community-facing flows.
+- The governance surface is now broader than the average staff member can safely use without explicit role boundaries and short runbooks.
+- This keeps the next tranche focused on reliability and operational clarity instead of letting stability work drift back into feature expansion.
