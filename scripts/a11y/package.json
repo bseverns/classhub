@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "smoke": "node run_smoke.mjs",
+    "capture-session": "node run_capture_session.mjs",
     "install-browsers": "playwright install --with-deps chromium"
   },
   "dependencies": {
