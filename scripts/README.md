@@ -88,6 +88,7 @@ Operator shortcut:
 | `check_lesson_course_slug_consistency.py` | Enforces that lesson front matter `course`/`course_slug` values match each course folder slug. |
 | `check_i18n_family_visible_contract.py` | Enforces bounded localization contracts for family-visible routes (`/student` + `/teach?portal_mode=day`) across docs, tests, templates, and required Spanish/Somali msgids. |
 | `check_press_capture_backlog_contract.py` | Enforces press/screenshot backlog governance contracts (bounded backlog size, ownership/target metadata, and docs linkage markers). |
+| `press_screenshot_audit.py` | Inventories `press/screenshots` + `docs/images/press`, flags blank/suspicious PNGs, and writes an optional JSON audit report. |
 | `check_runtime_policy_lock.py` | Validates runtime lock posture with explicit profiles: `baseline` (safe/default env contract) and `release` (strict closeout lock values). |
 | `check_docs_truth.py` | Verifies high-signal docs claims (registry-backed status notes, private LLM + remote-compute topology/control docs, stale wording bans, runbook/troubleshooting operator wording, risk-register metrics, and screenshot tracker truth) stay in sync with repo state. |
 

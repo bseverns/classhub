@@ -37,8 +37,8 @@ def apply_scope_grant_upsert(*, actor_user, payload: dict):
     effect = str(payload.get("effect") or "")
     if effect not in EFFECT_VALUES:
         raise ValueError("Unsupported grant effect.")
-    module_start = _parse_positive_int(str(payload.get("module_start") or ""), min_value=0, max_value=50_000)
-    module_end = _parse_positive_int(str(payload.get("module_end") or ""), min_value=0, max_value=50_000)
+    module_start = _parse_positive_int(str(payload.get("module_start", "")), min_value=0, max_value=50_000)
+    module_end = _parse_positive_int(str(payload.get("module_end", "")), min_value=0, max_value=50_000)
     if module_start is None or module_end is None or module_end < module_start:
         raise ValueError("Invalid module range.")
     is_active = bool(payload.get("is_active"))

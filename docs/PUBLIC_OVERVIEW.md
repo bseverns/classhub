@@ -58,7 +58,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 
 ## Visual reference
 
-Current captured baseline (`01`-`19`):
+Current captured baseline (refresh-pending slots withheld from public embeds):
 
 ![Student join screen](images/press/01-student-join.png)
 
@@ -80,21 +80,15 @@ Captured workflow references:
 
 ![Certificate eligibility](images/press/12-certificate-eligibility.png)
 
-![A11y smoke terminal](images/press/13-a11y-smoke-terminal.png)
-
 ![Student compact view](images/press/14-student-compact-view.png)
-
-![Lesson helper collapsed](images/press/15-lesson-helper-collapsed.png)
 
 ![Student standard view](images/press/16-student-standard-view.png)
 
 ![Student expanded view](images/press/17-student-expanded-view.png)
 
-![Teacher landing editor](images/press/18-teacher-landing-editor.png)
-
 ![RBAC tools tab](images/press/19-rbac-tools-tab.png)
 
-Pending captures are tracked in `press/screenshots/PLACEHOLDERS.md` (`20`/`21` plus optional RBAC approval-on companion; target closeout 2026-03-15).
+Pending captures are tracked in `press/screenshots/PLACEHOLDERS.md` (`13`/`15`/`18` refresh plus `20`/`21`; target closeout 2026-04-30).
 Capture instructions live in `press/screenshots/SHOTLIST.md`.
 
 ## Technical ops and security links

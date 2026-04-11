@@ -12,7 +12,7 @@ PLACEHOLDERS_PATH = Path("press/screenshots/PLACEHOLDERS.md")
 PUBLIC_OVERVIEW_PATH = Path("docs/PUBLIC_OVERVIEW.md")
 CURRENT_STATE_PATH = Path("docs/CURRENT_STATE.md")
 SHOTLIST_PATH = Path("press/screenshots/SHOTLIST.md")
-MAX_BACKLOG_ITEMS = 3
+MAX_BACKLOG_ITEMS = 5
 
 
 def _read(path: Path) -> str:

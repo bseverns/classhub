@@ -43,5 +43,19 @@
                 {% endif %}
               </ol>
             {% endif %}
+
+            {% if classes and not show_day_sections %}
+              <h3 class="section-title-compact">Accessible classes</h3>
+              <ul class="start-here-list">
+                {% for c in classes %}
+                  <li>
+                    <a href="/teach/class/{{ c.id }}">{{ c.name }}</a>
+                    {% if c.id in assigned_class_ids %}
+                      <strong>Assigned</strong>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
           </div>
         {% endif %}

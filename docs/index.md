@@ -73,17 +73,11 @@ Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
 
     ![12 Certificate eligibility](images/press/12-certificate-eligibility.png)
 
-    ![13 A11y smoke terminal](images/press/13-a11y-smoke-terminal.png)
-
     ![14 Student compact view](images/press/14-student-compact-view.png)
-
-    ![15 Lesson helper collapsed](images/press/15-lesson-helper-collapsed.png)
 
     ![16 Student standard view](images/press/16-student-standard-view.png)
 
     ![17 Student expanded view](images/press/17-student-expanded-view.png)
-
-    ![18 Teacher landing editor](images/press/18-teacher-landing-editor.png)
 
     Shot list coverage status:
 
@@ -101,12 +95,12 @@ Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
     | `10-org-management-tab.png` | Captured | Superuser org tab |
     | `11-invite-only-enrollment.png` | Captured | Invite controls |
     | `12-certificate-eligibility.png` | Captured | Eligibility page |
-    | `13-a11y-smoke-terminal.png` | Captured | A11y smoke |
+    | `13-a11y-smoke-terminal.png` | Refresh pending | A11y smoke capture was blank in the 2026-04-11 audit |
     | `14-student-compact-view.png` | Captured | Compact density mode |
-    | `15-lesson-helper-collapsed.png` | Captured | Helper collapsed state |
+    | `15-lesson-helper-collapsed.png` | Refresh pending | Helper collapsed capture was blank in the 2026-04-11 audit |
     | `16-student-standard-view.png` | Captured | Standard density mode |
     | `17-student-expanded-view.png` | Captured | Expanded density mode |
-    | `18-teacher-landing-editor.png` | Captured | Landing editor |
+    | `18-teacher-landing-editor.png` | Refresh pending | Landing editor capture was blank in the 2026-04-11 audit |
     | `19-rbac-tools-tab.png` | Captured | RBAC tools tab |
 
     For capture guidance and remaining backlog, see `press/screenshots/SHOTLIST.md` and `press/screenshots/PLACEHOLDERS.md`.

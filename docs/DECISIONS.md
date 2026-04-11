@@ -3933,3 +3933,27 @@ Execution ownership and gates:
 - The repo already has multilingual scaffolding; the more likely release-visible failure is mixed-language runtime polish in core community-facing flows.
 - The governance surface is now broader than the average staff member can safely use without explicit role boundaries and short runbooks.
 - This keeps the next tranche focused on reliability and operational clarity instead of letting stability work drift back into feature expansion.
+
+## Screenshot truth reset + Python 3.14 psycopg pin correction (2026-04-11)
+
+**Current decision:**
+- Treat `18-teacher-landing-editor.png` as refresh backlog, not shipped evidence, because the tracked public capture audited blank on 2026-04-11.
+- Remove `18` from embedded public docs until a real recapture exists, and keep the bounded screenshot backlog focused on `18`, `20`, and `21`.
+- Bump both Django services from `psycopg[binary]==3.2.1` to `psycopg[binary]==3.3.3` so pinned local installs remain reproducible on Python 3.14 without requiring system `libpq`.
+
+**Why this remains active:**
+- A blank screenshot is worse than a missing screenshot because it makes the release packet claim evidence that is not actually visible.
+- The repo’s active local interpreter is Python 3.14, and the older `3.2.1` binary pin does not provide a usable binary/runtime path there.
+- This keeps the fix narrow: truthful docs plus the smallest dependency correction needed for local verification.
+
+## Screenshot audit-first refresh discipline (2026-04-11)
+
+**Current decision:**
+- Add `scripts/press_screenshot_audit.py` as the fast local truth check for the public screenshot set.
+- Treat suspiciously small duplicate PNGs as evidence drift until proven otherwise, and move them back into refresh backlog instead of continuing to embed them publicly.
+- Allow the bounded screenshot backlog contract to grow from 3 to 5 items when the machine audit finds additional blank assets, rather than hiding the drift to satisfy an artificial limit.
+
+**Why this remains active:**
+- Screenshot drift is easier to miss than code drift because broken PNGs can still exist at the expected path.
+- A cheap audit script creates a repeatable operator check even when full browser recapture is not available in the current shell.
+- Truthful backlog governance matters more than preserving an outdated smaller number.

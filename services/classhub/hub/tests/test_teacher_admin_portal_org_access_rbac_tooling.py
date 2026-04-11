@@ -880,6 +880,7 @@ class TeacherOrganizationRbacPolicyToolingTests(TestCase):
             ).exists()
         )
 
+    @override_settings(CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED=True)
     def test_scoped_submission_view_grant_limits_material_submissions_route(self):
         module_1 = Module.objects.create(classroom=self.class_a, title="Session 1", order_index=0)
         module_2 = Module.objects.create(classroom=self.class_a, title="Session 2", order_index=1)
@@ -988,4 +989,3 @@ class TeacherOrganizationRbacPolicyToolingTests(TestCase):
             {"approve": "1"},
         )
         self.assertEqual(blocked.status_code, 403)
-

@@ -163,6 +163,9 @@ If you need a spoken architecture moment, pair this shotlist with:
 - Optional supplemental file for ON mode: `19-rbac-tools-tab-approval-on.png`.
 - When remote helper compute is part of the talk, prefer showing the class dashboard in a state where the remote panel is visible but not leaking provider internals.
 - Pending in current backlog:
+  - `13-a11y-smoke-terminal.png`
+  - `15-lesson-helper-collapsed.png`
+  - `18-teacher-landing-editor.png`
   - `20-data-lifespan-evidence.png`
   - `21-data-lifespan-export-terminal.png`
 

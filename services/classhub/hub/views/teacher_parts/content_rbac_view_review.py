@@ -68,9 +68,6 @@ def teach_simulate_rbac_access(request):
 @staff_member_required
 @require_POST
 def teach_review_rbac_change_request(request):
-    denied = require_rbac_tools_access(request, enabled_for_user=rbac_tools_enabled_for_user)
-    if denied is not None:
-        return denied
     if not rbac_policy_approval_required():
         return rbac_redirect(request, error="RBAC policy approval workflow is not enabled.")
 
@@ -87,10 +84,10 @@ def teach_review_rbac_change_request(request):
         return rbac_redirect(request, error="Change request not found.")
     if change.status != RbacPolicyChangeRequest.STATUS_PENDING:
         return rbac_redirect(request, error="Change request is already resolved.")
+    if not (rbac_tools_enabled_for_user(request.user) or can_review_change_request(reviewer=request.user, change=change)):
+        return rbac_redirect(request, error="Only org owners/admins (or superusers) can review change requests.")
     if change.requested_by_id == request.user.id:
         return rbac_redirect(request, error="Requesters cannot approve their own policy changes.")
-    if not can_review_change_request(reviewer=request.user, change=change):
-        return rbac_redirect(request, error="Only org owners/admins (or superusers) can review change requests.")
 
     if decision == "reject":
         change.status = RbacPolicyChangeRequest.STATUS_REJECTED

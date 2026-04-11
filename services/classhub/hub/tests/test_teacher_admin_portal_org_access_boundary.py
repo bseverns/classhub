@@ -241,6 +241,7 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
         html = resp.content.decode("utf-8")
         self.assertLess(html.find("Zulu Assigned"), html.find("Alpha Unassigned"))
 
+    @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=False)
     def test_legacy_staff_without_membership_keeps_global_access(self):
         legacy_staff = get_user_model().objects.create_user(
             username="legacy_staff",
@@ -453,4 +454,3 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
         self.staff.refresh_from_db()
         self.assertEqual(self.staff.first_name, "Org")
         self.assertEqual(self.staff.email, "org.teacher@example.org")
-

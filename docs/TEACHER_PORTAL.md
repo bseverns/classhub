@@ -31,7 +31,7 @@ Additional captured teacher views:
 
 ![Certificate eligibility](images/press/12-certificate-eligibility.png)
 
-![Teacher landing editor](images/press/18-teacher-landing-editor.png)
+`18-teacher-landing-editor.png` is temporarily withheld from the public gallery while the landing-editor capture is refreshed after the 2026-04-11 blank-image audit.
 
 ```mermaid
 flowchart TD

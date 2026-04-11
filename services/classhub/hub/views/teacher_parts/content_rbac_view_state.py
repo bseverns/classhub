@@ -53,6 +53,9 @@ RBAC_STATE_DEFAULTS = {
 
 def rbac_state_extra(request, *, extra: dict | None = None) -> dict:
     payload = {"rbac_tools": "1"}
+    if getattr(getattr(request, "user", None), "is_superuser", False):
+        payload["advanced"] = "1"
+        payload["portal_mode"] = "policy"
     for key in RBAC_STATE_KEYS:
         value = request.POST.get(key)
         if value is None:

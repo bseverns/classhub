@@ -64,7 +64,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Scoped RBAC grants are still feature-flagged for controlled rollout.
 - RBAC delegated approval workflow remains feature-flagged for controlled rollout.
 - Async/self-paced sequencing exists as an RFC direction; synchronous teacher-led flow remains the default operation model.
-- Screenshot backlog is now narrow and explicit in `press/screenshots/PLACEHOLDERS.md` (remaining: `19-rbac-tools-tab-approval-on.png` optional companion, plus `20`/`21` data-lifespan evidence captures; target closeout 2026-03-15).
+- Screenshot backlog is now narrow and explicit in `press/screenshots/PLACEHOLDERS.md` (remaining: `13` a11y-terminal refresh, `15` helper-collapsed refresh, `18` teacher-landing refresh, plus `20`/`21` data-lifespan evidence captures; target closeout 2026-04-30).
 
 ## Screenshot evidence status
 - Canonical gallery: [SCREENSHOT_GALLERY.md](SCREENSHOT_GALLERY.md).

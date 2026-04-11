@@ -6,6 +6,7 @@ Pending backlog targets are tracked separately in `press/screenshots/PLACEHOLDER
 Status model:
 - `Captured`: real screenshot from current product UI.
 - `Placeholder`: generated stand-in image awaiting final capture.
+- `Refresh pending`: live view exists, but the tracked public capture is withheld until it is re-shot.
 
 ## Student experience
 
@@ -21,8 +22,8 @@ Status model:
 ### 14. Student compact density (`Captured`)
 ![14 Student compact view](images/press/14-student-compact-view.png)
 
-### 15. Lesson helper collapsed (`Captured`)
-![15 Lesson helper collapsed](images/press/15-lesson-helper-collapsed.png)
+### 15. Lesson helper collapsed (`Refresh pending`)
+Live view is shipped, but the previously tracked public capture was blank in the 2026-04-11 screenshot audit. The refresh target remains in `press/screenshots/PLACEHOLDERS.md`.
 
 ### 16. Student standard density (`Captured`)
 ![16 Student standard view](images/press/16-student-standard-view.png)
@@ -57,8 +58,8 @@ Optional companion capture (approval workflow ON) is tracked as `19-rbac-tools-t
 ### 12. Certificate eligibility (`Captured`)
 ![12 Certificate eligibility](images/press/12-certificate-eligibility.png)
 
-### 18. Teacher landing editor (`Captured`)
-![18 Teacher landing editor](images/press/18-teacher-landing-editor.png)
+### 18. Teacher landing editor (`Refresh pending`)
+Live view is shipped, but the previously tracked public capture was blank in the 2026-04-11 evidence audit. The refresh target remains in `press/screenshots/PLACEHOLDERS.md`.
 
 ## Operations and platform checks
 
@@ -68,8 +69,8 @@ Optional companion capture (approval workflow ON) is tracked as `19-rbac-tools-t
 ### 08. Health checks terminal (`Captured`)
 ![08 Health checks terminal](images/press/08-health-checks-terminal.png)
 
-### 13. A11y smoke terminal (`Captured`)
-![13 A11y smoke terminal](images/press/13-a11y-smoke-terminal.png)
+### 13. A11y smoke terminal (`Refresh pending`)
+The evidence command is live, but the previously tracked public terminal image was blank in the 2026-04-11 screenshot audit. The refresh target remains in `press/screenshots/PLACEHOLDERS.md`.
 
 ## Source files
 
@@ -79,5 +80,8 @@ Optional companion capture (approval workflow ON) is tracked as `19-rbac-tools-t
 ## Pending capture slots (not yet embedded)
 
 - `19-rbac-tools-tab-approval-on.png` (optional companion with approval workflow ON)
+- `13-a11y-smoke-terminal.png` (refresh required before re-embedding)
+- `15-lesson-helper-collapsed.png` (refresh required before re-embedding)
+- `18-teacher-landing-editor.png` (refresh required before re-embedding)
 - `20-data-lifespan-evidence.png`
 - `21-data-lifespan-export-terminal.png`
