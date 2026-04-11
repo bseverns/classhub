@@ -93,6 +93,9 @@ from .views_chat_runtime import (
     invoke_backend as runtime_invoke_backend,
 )
 from .views_chat_runtime import (
+    llm_resolve_backend_name as runtime_llm_resolve_backend_name,
+)
+from .views_chat_runtime import (
     llm_backend_requires_acknowledgement as runtime_llm_backend_requires_acknowledgement,
 )
 from .views_chat_runtime import (
@@ -332,7 +335,7 @@ def _emit_helper_event(
 
 @require_GET
 def healthz(request):
-    backend = (helper_getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
+    backend = runtime_llm_resolve_backend_name(getenv=helper_getenv)
     backend_info = runtime_llm_describe_backend_public(backend=backend)
     return JsonResponse({"ok": True, "backend": backend, "llm": backend_info})
 
@@ -348,7 +351,7 @@ def chat(request):
         settings=settings,
         client_ip_from_request_fn=client_ip_from_request,
     )
-    backend = (helper_getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
+    backend = runtime_llm_resolve_backend_name(getenv=helper_getenv)
 
     if not actor:
         _log_chat_event("warning", "unauthorized", request_id=request_id, actor_type=actor_type, ip=client_ip)
@@ -356,7 +359,7 @@ def chat(request):
 
     classroom_id, student_id = load_session_ids(request)
     remote_overrides = active_remote_compute_overrides_for_class(class_id=classroom_id)
-    local_backend = (helper_getenv("HELPER_LLM_BACKEND", "ollama") or "ollama").lower()
+    local_backend = runtime_llm_resolve_backend_name(getenv=helper_getenv)
 
     actor_limit = _env_int("HELPER_RATE_LIMIT_PER_MINUTE", 30)
     ip_limit = _env_int("HELPER_RATE_LIMIT_PER_IP_PER_MINUTE", 90)

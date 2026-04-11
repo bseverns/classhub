@@ -103,6 +103,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper local curriculum RAG](#helper-local-curriculum-rag)
 - [Helper YAML config layering](#helper-yaml-config-layering)
 - [Helper uses a provider abstraction for private LLM backends (2026-03-28)](#helper-uses-a-provider-abstraction-for-private-llm-backends-2026-03-28)
+- [Hosted OpenAI Responses now uses the shared provider layer (2026-04-11)](#hosted-openai-responses-now-uses-the-shared-provider-layer-2026-04-11)
 - [Private Ollama remains the active remote path; vLLM stays swap-ready (2026-03-28)](#private-ollama-remains-the-active-remote-path-vllm-stays-swap-ready-2026-03-28)
 - [Bounded remote helper compute lease control (2026-04-08)](#bounded-remote-helper-compute-lease-control-2026-04-08)
 - [Production transport hardening](#production-transport-hardening)
@@ -187,6 +188,19 @@ Historical implementation logs and superseded decisions are archived by month in
 - Preserves the existing tested helper flow instead of introducing a parallel, unused abstraction.
 - Makes later swaps to vLLM or another private OpenAI-compatible server a contained provider change rather than a helper endpoint rewrite.
 - Keeps privacy/logging controls and health probing in one auditable place.
+
+## Hosted OpenAI Responses now uses the shared provider layer (2026-04-11)
+
+**Current decision:**
+- Keep `LLM_BACKEND=openai` as the operator-facing hosted OpenAI setting.
+- Normalize that backend name to `openai_responses` internally.
+- Route hosted OpenAI calls and healthchecks through `tutor/llm/*` instead of a separate direct runtime implementation.
+- Continue honoring `OPENAI_*` envs, while also accepting generic `LLM_*` aliases where appropriate.
+
+**Why this remains active:**
+- Removes the split between the helper provider layer and the hosted OpenAI path.
+- Makes backend naming, health probes, and retry behavior consistent across Ollama, hosted OpenAI, and OpenAI-compatible servers.
+- Reduces drift risk between docs, runtime behavior, and operator tooling.
 
 ## Private Ollama remains the active remote path; vLLM stays swap-ready (2026-03-28)
 

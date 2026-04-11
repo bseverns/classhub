@@ -853,3 +853,261 @@ msgstr "lesson တဖၣ်"
 
 msgid "Back to join"
 msgstr "က့ၤကဒါဆူ နုာ်လီၤ"
+
+# Teacher shell tranche (2026-04-11)
+
+msgid "Teacher Portal"
+msgstr "ဆရာ/မ portal"
+
+msgid "Teacher portal links"
+msgstr "ဆရာ/မ portal link တဖၣ်"
+
+msgid "Staff-only cockpit"
+msgstr "staff သီးသန့ panel"
+
+msgid "Lesson videos"
+msgstr "lesson video တဖၣ်"
+
+msgid "Lesson assets"
+msgstr "lesson asset တဖၣ်"
+
+msgid "Data lifespan"
+msgstr "data lifespan"
+
+msgid "Student join page"
+msgstr "ပှၤမၤလိ join page"
+
+msgid "Portal modes"
+msgstr "portal mode တဖၣ်"
+
+msgid "Choose a focused surface for this session."
+msgstr "session အံၤအဂီၢ် ဃုထၢ view လၢအသးစဲတခါ."
+
+msgid "Hide operator tools"
+msgstr "ခူသူၣ် operator tools"
+
+msgid "Show operator tools"
+msgstr "ဒုးနဲၣ် operator tools"
+
+msgid "Class dashboard links"
+msgstr "class dashboard link တဖၣ်"
+
+msgid "Teacher"
+msgstr "ဆရာ/မ"
+
+msgid "Printable join card"
+msgstr "join card လၢ print သ့"
+
+msgid "Students"
+msgstr "ပှၤမၤလိတဖၣ်"
+
+msgid "Join flow"
+msgstr "join flow"
+
+msgid "Invite only"
+msgstr "invite ဒၣ်လဲာ်"
+
+msgid "Closed"
+msgstr "ပာ်ဃာ်"
+
+msgid "Unlocked"
+msgstr "တလိာ်ဃာ်ဘၣ်"
+
+msgid "Class actions"
+msgstr "class action တဖၣ်"
+
+msgid "Join card"
+msgstr "join card"
+
+msgid "Summary CSV"
+msgstr "summary CSV"
+
+msgid "Start Here In This Class"
+msgstr "စးထီၣ်ဖဲတီၤအံၤ"
+
+msgid "The unified workspace above handles the common path. Use these anchors when you need a deeper panel."
+msgstr "workspace ဖဲအဖီခိၣ် ကွဲၤမၤ common path န့ၣ်လီၤ. ဖဲနလိၣ် panel လၢအဆိကတၢၢ်အခါ သုံး anchor တဖၣ်အံၤ."
+
+msgid "Run class now"
+msgstr "မၤ class ခဲအံၤ"
+
+msgid "Print or share join card"
+msgstr "print မ့တမ့ၢ် share join card"
+
+msgid "Open lesson tracker + release controls"
+msgstr "အိးထီၣ် lesson tracker + release controls"
+
+msgid "Check facilitator support board"
+msgstr "ကွၢ် facilitator support board"
+
+msgid "Check outcomes snapshot"
+msgstr "ကွၢ် outcomes snapshot"
+
+msgid "Setup + cleanup"
+msgstr "setup + cleanup"
+
+msgid "Manage invite links + seat caps"
+msgstr "ပၢ invite link တဖၣ် + seat cap တဖၣ်"
+
+msgid "Fix roster identity issues"
+msgstr "မၤဘှါ roster identity တၢ်ကီတၢ်ခဲ"
+
+msgid "Review helper signal trends"
+msgstr "ကွၢ် helper signal trend တဖၣ်"
+
+msgid "Edit module order/content"
+msgstr "မၤဘှါ module order/content"
+
+msgid "Certificate eligibility links"
+msgstr "certificate eligibility link တဖၣ်"
+
+msgid "Certificate Eligibility"
+msgstr "certificate eligibility"
+
+msgid "Eligible students"
+msgstr "ပှၤမၤလိလၢအမီၤစရီ"
+
+msgid "Threshold:"
+msgstr "threshold:"
+
+msgid "sessions"
+msgstr "session တဖၣ်"
+
+msgid "artifacts"
+msgstr "artifact တဖၣ်"
+
+msgid "Export outcomes CSV"
+msgstr "ထုးထီၣ် outcomes CSV"
+
+msgid "Mark Session Completed"
+msgstr "မၤအက့ၢ် session completed"
+
+msgid "Use this only when completion happened offline and no artifact upload was submitted."
+msgstr "သုံးအံၤထဲဖဲ completion မၤအသး offline ဒီး artifact upload တအိၣ်ဘၣ်."
+
+msgid "Select student"
+msgstr "ဃုထၢ student"
+
+msgid "Select module"
+msgstr "ဃုထၢ module"
+
+msgid "Mark completed"
+msgstr "မၤအက့ၢ် completed"
+
+msgid "Read-only role: session completion updates are limited to teacher/admin roles."
+msgstr "read-only role: session completion update တဖၣ် အိၣ်ဘၣ်လၢ teacher/admin role တဖၣ်ဧိၤ."
+
+msgid "All Students"
+msgstr "ပှၤမၤလိခဲလၢာ်"
+
+msgid "Sessions"
+msgstr "session တဖၣ်"
+
+msgid "Artifacts"
+msgstr "artifact တဖၣ်"
+
+msgid "Milestones"
+msgstr "milestone တဖၣ်"
+
+msgid "Certificate"
+msgstr "certificate"
+
+msgid "Eligible"
+msgstr "eligible"
+
+msgid "In progress"
+msgstr "ဆဲးမၤဆူညါ"
+
+msgid "Download PDF"
+msgstr "download PDF"
+
+msgid "Not issued"
+msgstr "တဘၣ်ထုးထီၣ်ဒံးဘၣ်"
+
+msgid "Not eligible"
+msgstr "တမီၤစရီဘၣ်"
+
+msgid "Re-issue"
+msgstr "ထုးထီၣ်ကဒီး"
+
+msgid "Issue"
+msgstr "ထုးထီၣ်"
+
+msgid "No students in this class yet."
+msgstr "ပှၤမၤလိတဖၣ်လၢတီၤအံၤ တအိၣ်ဒံးဘၣ်."
+
+msgid "Teacher · Lessons"
+msgstr "ဆရာ/မ · lesson တဖၣ်"
+
+msgid "Lesson tracker links"
+msgstr "lesson tracker link တဖၣ်"
+
+msgid "Focus on lesson links and submission progress."
+msgstr "အၢၣ်လီၤလၢ lesson link ဒီး submission progress."
+
+msgid "All classes"
+msgstr "class ခဲလၢာ်"
+
+msgid "Apply"
+msgstr "သုံး"
+
+msgid "Open class dashboard"
+msgstr "အိးထီၣ် class dashboard"
+
+msgid "Lesson"
+msgstr "lesson"
+
+msgid "Dropboxes"
+msgstr "dropbox တဖၣ်"
+
+msgid "Teacher notes"
+msgstr "ဆရာ/မ note တဖၣ်"
+
+msgid "Release:"
+msgstr "release:"
+
+msgid "Date"
+msgstr "မုၢ်နံၤ"
+
+msgid "Override active"
+msgstr "override အိၣ်အသး"
+
+msgid "Content default"
+msgstr "content default"
+
+#, python-format
+msgid "Availability date for %(lesson_title)s"
+msgstr "availability date လၢ %(lesson_title)s"
+
+msgid "Set date"
+msgstr "သတ်မှတ် မုၢ်နံၤ"
+
+msgid "Toggle lock"
+msgstr "ထိၣ်ဃာ်ကဒီး lock"
+
+msgid "Open now"
+msgstr "အိးခဲအံၤ"
+
+msgid "Reset default"
+msgstr "ပာ်က့ၤ default"
+
+msgid "Submitted"
+msgstr "ဘၣ်တၢ်ပာ်ဃုာ်"
+
+msgid "Missing"
+msgstr "လီၤမၢ်"
+
+msgid "Latest"
+msgstr "latest"
+
+msgid "Review missing"
+msgstr "ကွၢ် missing"
+
+msgid "No upload dropbox in this module."
+msgstr "upload dropbox လၢ module အံၤ တအိၣ်ဘၣ်."
+
+msgid "No lesson links found in this class yet."
+msgstr "lesson link တဖၣ်လၢတီၤအံၤ တထံၣ်န့ၢ်ဒံးဘၣ်."
+
+msgid "No classes available."
+msgstr "class တဖၣ် တအိၣ်ဘၣ်."

@@ -243,6 +243,28 @@ class I18nSmokeTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "လၢမဟါတနံၤလၢခံ တၢ်လဲၤလိာ်မနုၤတဖၣ်")
 
+    def test_teach_home_uses_active_html_lang(self):
+        teacher = get_user_model().objects.create_user(
+            username="teacher_i18n_home_lang",
+            password="testpass123",
+        )
+        _force_login_staff_verified(self.client, teacher)
+
+        resp = self.client.get("/teach", HTTP_ACCEPT_LANGUAGE="es")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '<html lang="es">')
+
+    def test_teach_lessons_uses_active_html_lang(self):
+        teacher = get_user_model().objects.create_user(
+            username="teacher_i18n_lessons_lang",
+            password="testpass123",
+        )
+        _force_login_staff_verified(self.client, teacher)
+
+        resp = self.client.get("/teach/lessons", HTTP_ACCEPT_LANGUAGE="so")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '<html lang="so">')
+
     def test_student_my_data_page_spanish_renders_translated_core_copy(self):
         self._set_student_session()
 

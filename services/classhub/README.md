@@ -28,8 +28,12 @@ If you're asking "where should this code live?", default answer is:
 From repo root:
 
 ```bash
-DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret python services/classhub/manage.py check
-DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret python services/classhub/manage.py test
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install --upgrade pip
+python3 -m pip install -r services/classhub/requirements.txt
+DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 python3 services/classhub/manage.py check
+DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 python3 services/classhub/manage.py test
 ```
 
 If you’re running the full stack, use compose for realistic routing/storage behavior:
@@ -37,6 +41,7 @@ If you’re running the full stack, use compose for realistic routing/storage be
 ```bash
 cd compose
 docker compose up -d --build
+docker compose exec classhub_web python manage.py check
 ```
 
 ## Non-negotiable product intent

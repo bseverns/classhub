@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 from ..engine.config_source import helper_getenv
 from ..engine.runtime import env_bool, env_float, env_int, redact
 from .base import LLMBackendConfig, LLMHealthStatus, LLMRequest, LLMResponse
-from .providers import FallbackProvider, OllamaProvider, OpenAICompatibleProvider
+from .providers import FallbackProvider, OllamaProvider, OpenAICompatibleProvider, OpenAIResponsesProvider
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +96,12 @@ def resolve_backend_runtime_config(
         api_key = (getenv("LLM_API_KEY", "") or "").strip() or None
         model = (getenv("LLM_MODEL", "") or "").strip()
     elif provider == "openai_responses":
+        api_key = (getenv("OPENAI_API_KEY", "") or getenv("LLM_API_KEY", "")).strip() or None
         model = (getenv("OPENAI_MODEL", "gpt-5.2") or "gpt-5.2").strip()
+        max_tokens = max(
+            env_int("OPENAI_MAX_OUTPUT_TOKENS", env_int("LLM_MAX_TOKENS", 0, getenv=getenv), getenv=getenv),
+            0,
+        )
     elif provider == "mock":
         model = "mock"
 
@@ -127,6 +132,8 @@ def build_provider(
         return OllamaProvider(config)
     if config.provider == "openai_compatible":
         return OpenAICompatibleProvider(config)
+    if config.provider == "openai_responses":
+        return OpenAIResponsesProvider(config)
     if config.provider == "mock":
         return FallbackProvider(config, text=(getenv("HELPER_MOCK_RESPONSE_TEXT", "") or "").strip())
     raise RuntimeError("unknown_backend")

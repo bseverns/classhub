@@ -853,3 +853,261 @@ msgstr "Sideen si fiican u codsadaa caawimo"
 
 msgid "Help me write a clear help request: what I expected, what happened, and what I already tried."
 msgstr "Iga caawi inaan qoro codsi caawimo oo cad: waxa aan filayay, waxa dhacay, iyo waxa aan hore u tijaabiyay."
+
+# Teacher shell tranche (2026-04-11)
+
+msgid "Teacher Portal"
+msgstr "Xariirka Macallinka"
+
+msgid "Teacher portal links"
+msgstr "xiriirrada xariirka macallinka"
+
+msgid "Staff-only cockpit"
+msgstr "guddiga shaqaalaha oo keliya"
+
+msgid "Lesson videos"
+msgstr "fiidyowyada casharrada"
+
+msgid "Lesson assets"
+msgstr "agabka casharrada"
+
+msgid "Data lifespan"
+msgstr "muddada xogta"
+
+msgid "Student join page"
+msgstr "bogga ku biirista ardayga"
+
+msgid "Portal modes"
+msgstr "hababka xariirka"
+
+msgid "Choose a focused surface for this session."
+msgstr "U dooro muuqaal diirran kulankan."
+
+msgid "Hide operator tools"
+msgstr "Qari qalabka hawlwadeenka"
+
+msgid "Show operator tools"
+msgstr "Muuji qalabka hawlwadeenka"
+
+msgid "Class dashboard links"
+msgstr "xiriirrada guddiga fasalka"
+
+msgid "Teacher"
+msgstr "Macallin"
+
+msgid "Printable join card"
+msgstr "kaarka ku biirista ee la daabici karo"
+
+msgid "Students"
+msgstr "ardayda"
+
+msgid "Join flow"
+msgstr "habka ku biirista"
+
+msgid "Invite only"
+msgstr "martiqaad keliya"
+
+msgid "Closed"
+msgstr "xiran"
+
+msgid "Unlocked"
+msgstr "furan"
+
+msgid "Class actions"
+msgstr "ficillada fasalka"
+
+msgid "Join card"
+msgstr "kaarka ku biirista"
+
+msgid "Summary CSV"
+msgstr "soo koobid CSV"
+
+msgid "Start Here In This Class"
+msgstr "Halkan ka bilow fasalkan"
+
+msgid "The unified workspace above handles the common path. Use these anchors when you need a deeper panel."
+msgstr "Goobta shaqo ee mideysan ee kore waxay qabataa jidka caadiga ah. Adeegso xiriirradan marka aad u baahan tahay guddi qoto dheer."
+
+msgid "Run class now"
+msgstr "Hadda socodsii fasalka"
+
+msgid "Print or share join card"
+msgstr "Daabac ama wadaag kaarka ku biirista"
+
+msgid "Open lesson tracker + release controls"
+msgstr "Fur raadraaca casharka iyo xakamaynta sii daynta"
+
+msgid "Check facilitator support board"
+msgstr "Eeg guddiga taageerada fududeeyaha"
+
+msgid "Check outcomes snapshot"
+msgstr "Eeg sawirka natiijooyinka"
+
+msgid "Setup + cleanup"
+msgstr "diyaarinta iyo xiritaanka"
+
+msgid "Manage invite links + seat caps"
+msgstr "Maamul xiriirrada martiqaadka iyo xaddidaadaha kuraasta"
+
+msgid "Fix roster identity issues"
+msgstr "Sax khaladaadka aqoonsiga liiska"
+
+msgid "Review helper signal trends"
+msgstr "Eeg isbeddellada calaamadaha caawiyaha"
+
+msgid "Edit module order/content"
+msgstr "Wax ka beddel kala horraynta iyo nuxurka qaybaha"
+
+msgid "Certificate eligibility links"
+msgstr "xiriirrada u-qalmitaanka shahaadada"
+
+msgid "Certificate Eligibility"
+msgstr "U-qalmitaanka Shahaadada"
+
+msgid "Eligible students"
+msgstr "ardayda u qalanta"
+
+msgid "Threshold:"
+msgstr "xadka:"
+
+msgid "sessions"
+msgstr "kal-fadhiyo"
+
+msgid "artifacts"
+msgstr "agab"
+
+msgid "Export outcomes CSV"
+msgstr "Dhoofi CSV natiijooyinka"
+
+msgid "Mark Session Completed"
+msgstr "Calaamadee kal-fadhiga inuu dhammaaday"
+
+msgid "Use this only when completion happened offline and no artifact upload was submitted."
+msgstr "Isticmaal kaliya marka dhammaystirku ka dhacay offline oo aan wax artifact ah la gudbin."
+
+msgid "Select student"
+msgstr "Dooro arday"
+
+msgid "Select module"
+msgstr "Dooro qayb"
+
+msgid "Mark completed"
+msgstr "Calaamadee inuu dhammaaday"
+
+msgid "Read-only role: session completion updates are limited to teacher/admin roles."
+msgstr "Doorka akhris-kaliya: cusboonaysiinta dhammaystirka kal-fadhigu waxay ku kooban tahay doorka macallin ama admin."
+
+msgid "All Students"
+msgstr "Dhammaan ardayda"
+
+msgid "Sessions"
+msgstr "Kal-fadhiyo"
+
+msgid "Artifacts"
+msgstr "Agab"
+
+msgid "Milestones"
+msgstr "Heerar"
+
+msgid "Certificate"
+msgstr "Shahaado"
+
+msgid "Eligible"
+msgstr "U qalma"
+
+msgid "In progress"
+msgstr "Socota"
+
+msgid "Download PDF"
+msgstr "Soo dejiso PDF"
+
+msgid "Not issued"
+msgstr "Lama bixin"
+
+msgid "Not eligible"
+msgstr "Uma qalmo"
+
+msgid "Re-issue"
+msgstr "Dib u bixi"
+
+msgid "Issue"
+msgstr "Bixi"
+
+msgid "No students in this class yet."
+msgstr "Weli arday kuma jiraan fasalkan."
+
+msgid "Teacher · Lessons"
+msgstr "Macallin · Casharro"
+
+msgid "Lesson tracker links"
+msgstr "xiriirrada raadraaca casharka"
+
+msgid "Focus on lesson links and submission progress."
+msgstr "Diiradda saar xiriirrada casharka iyo horumarka gudbinta."
+
+msgid "All classes"
+msgstr "Dhammaan fasallada"
+
+msgid "Apply"
+msgstr "Codso"
+
+msgid "Open class dashboard"
+msgstr "Fur guddiga fasalka"
+
+msgid "Lesson"
+msgstr "Cashar"
+
+msgid "Dropboxes"
+msgstr "sanduuqyada gudbinta"
+
+msgid "Teacher notes"
+msgstr "qoraallada macallinka"
+
+msgid "Release:"
+msgstr "sii dayn:"
+
+msgid "Date"
+msgstr "taariikh"
+
+msgid "Override active"
+msgstr "ka-beddel firfircoon"
+
+msgid "Content default"
+msgstr "nuxurka caadiga ah"
+
+#, python-format
+msgid "Availability date for %(lesson_title)s"
+msgstr "taariikhda helitaanka %(lesson_title)s"
+
+msgid "Set date"
+msgstr "Deji taariikh"
+
+msgid "Toggle lock"
+msgstr "Beddel qufulka"
+
+msgid "Open now"
+msgstr "Fur hadda"
+
+msgid "Reset default"
+msgstr "Celi caadiga"
+
+msgid "Submitted"
+msgstr "La gudbiyey"
+
+msgid "Missing"
+msgstr "Ka maqan"
+
+msgid "Latest"
+msgstr "Ugu dambeeyay"
+
+msgid "Review missing"
+msgstr "Eeg kuwa maqan"
+
+msgid "No upload dropbox in this module."
+msgstr "Sanduuq gudbin ma jiro qaybtan."
+
+msgid "No lesson links found in this class yet."
+msgstr "Weli xiriirro cashar looma helin fasalkan."
+
+msgid "No classes available."
+msgstr "Fasallo lama hayo."

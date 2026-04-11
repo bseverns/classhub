@@ -1,28 +1,28 @@
-{% load static %}
+{% load static i18n %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Teacher · {{ operator_profile.product_name|default:"Class Hub" }}</title>
+    <title>{% trans "Teacher Portal" %} · {{ operator_profile.product_name|default:"Class Hub" }}</title>
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/teach_home.css' %}" />
   </head>
   <body class="glass-theme teacher-comfort">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
     <div class="shell">
       <main id="main-content">
         <div class="top title-row">
           <div>
-            <h1>Teacher Portal</h1>
-            <div class="muted navline">
-              Staff-only cockpit · <a href="/teach/lessons">Lesson tracker</a> · <a href="/teach/videos">Lesson videos</a> · <a href="/teach/assets">Lesson assets</a>
-              {% if data_lifespan_enabled %} · <a href="/teach/data-lifespan">Data lifespan</a>{% endif %}
+            <h1>{% trans "Teacher Portal" %}</h1>
+            <nav class="muted navline" aria-label="{% trans 'Teacher portal links' %}">
+              {% trans "Staff-only cockpit" %} · <a href="/teach/lessons">{% trans "Lesson tracker" %}</a> · <a href="/teach/videos">{% trans "Lesson videos" %}</a> · <a href="/teach/assets">{% trans "Lesson assets" %}</a>
+              {% if data_lifespan_enabled %} · <a href="/teach/data-lifespan">{% trans "Data lifespan" %}</a>{% endif %}
               {% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %}
-              · <a href="/">Student join page</a> · <a href="/teach/logout">Log out</a>
-            </div>
+              · <a href="/">{% trans "Student join page" %}</a> · <a href="/teach/logout">{% trans "Log out" %}</a>
+            </nav>
           </div>
-          <div class="muted">Signed in as <strong>{{ request.user.username }}</strong></div>
+          <div class="muted">{% trans "Signed in as" %} <strong>{{ request.user.username }}</strong></div>
         </div>
 
         {% if notice %}
@@ -37,16 +37,16 @@
           </div>
         {% endif %}
 
-        <div class="card card-secondary portal-mode-card">
+        <section class="card card-secondary portal-mode-card" aria-labelledby="portal-modes-heading">
           <div class="row">
-            <h2 class="section-title-tight">Portal modes</h2>
-            <div class="muted">Choose a focused surface for this session.</div>
+            <h2 id="portal-modes-heading" class="section-title-tight">{% trans "Portal modes" %}</h2>
+            <div class="muted">{% trans "Choose a focused surface for this session." %}</div>
             {% if advanced_tools_available %}
               <div class="portal-mode-advanced-toggle">
                 {% if advanced_tools_enabled %}
-                  <a href="{{ advanced_tools_disable_url }}">Hide operator tools</a>
+                  <a href="{{ advanced_tools_disable_url }}">{% trans "Hide operator tools" %}</a>
                 {% else %}
-                  <a href="{{ advanced_tools_enable_url }}">Show operator tools</a>
+                  <a href="{{ advanced_tools_enable_url }}">{% trans "Show operator tools" %}</a>
                 {% endif %}
               </div>
             {% endif %}
@@ -63,7 +63,7 @@
               </a>
             {% endfor %}
           </div>
-        </div>
+        </section>
 
         {% include "includes/teach_home/start_here_today.html" %}
 

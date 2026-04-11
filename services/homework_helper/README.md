@@ -28,8 +28,12 @@ If you touch provider integrations, keep interfaces narrow and easy to swap.
 From repo root:
 
 ```bash
-DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret python services/homework_helper/manage.py check
-DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret python services/homework_helper/manage.py test
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install --upgrade pip
+python3 -m pip install -r services/homework_helper/requirements.txt
+DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 python3 services/homework_helper/manage.py check
+DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 python3 services/homework_helper/manage.py test
 ```
 
 For full-stack behavior (redis, routing, classhub integration), run Compose:
@@ -37,6 +41,7 @@ For full-stack behavior (redis, routing, classhub integration), run Compose:
 ```bash
 cd compose
 docker compose up -d --build
+docker compose exec helper_web python manage.py check
 ```
 
 ## Guardrail checklist before PR

@@ -287,6 +287,34 @@ class HelperChatRuntimeModuleTests(TestCase):
             },
         )
 
+    @patch.dict("os.environ", {"LLM_BACKEND": "openai"}, clear=False)
+    def test_llm_resolve_backend_name_normalizes_openai_to_openai_responses(self):
+        backend = views_chat_runtime.llm_resolve_backend_name()
+        self.assertEqual(backend, "openai_responses")
+
+    @patch.dict("os.environ", {"OPENAI_MODEL": "gpt-5.2"}, clear=False)
+    def test_invoke_backend_accepts_openai_responses_backend_name(self):
+        captured = {}
+
+        def openai_chat_fn(model, instructions, message):
+            captured["model"] = model
+            captured["instructions"] = instructions
+            captured["message"] = message
+            return "openai-answer", "openai-model-used"
+
+        text, model = views_chat_runtime.invoke_backend(
+            backend="openai_responses",
+            instructions="system",
+            message="student question",
+            ollama_chat_fn=lambda *_args, **_kwargs: ("nope", "nope"),
+            openai_chat_fn=openai_chat_fn,
+            mock_chat_fn=lambda: ("nope", "nope"),
+        )
+
+        self.assertEqual(text, "openai-answer")
+        self.assertEqual(model, "openai-model-used")
+        self.assertEqual(captured["model"], "gpt-5.2")
+
     def test_invoke_backend_uses_openai_compatible_registry_entry(self):
         captured = {}
 

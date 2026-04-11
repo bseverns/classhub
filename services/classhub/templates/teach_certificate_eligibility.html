@@ -1,83 +1,83 @@
-{% load static %}
+{% load static i18n %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Teacher · Certificate Eligibility · {{ classroom.name }}</title>
+    <title>{% trans "Teacher" %} · {% trans "Certificate Eligibility" %} · {{ classroom.name }}</title>
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/teach_class.css' %}" />
   </head>
   <body class="glass-theme teacher-comfort">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
     <div class="shell">
       <main id="main-content">
         <div class="top">
           <div>
-            <div class="muted navline">
-              <a href="/teach">Teacher</a> · <a href="/teach/class/{{ classroom.id }}">Class dashboard</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a>
-              {% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %} · <a href="/teach/logout">Log out</a>
-            </div>
-            <h1>Certificate Eligibility · {{ classroom.name }}</h1>
+            <nav class="muted navline" aria-label="{% trans 'Certificate eligibility links' %}">
+              <a href="/teach">{% trans "Teacher" %}</a> · <a href="/teach/class/{{ classroom.id }}">{% trans "Class dashboard" %}</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">{% trans "Lesson tracker" %}</a>
+              {% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %} · <a href="/teach/logout">{% trans "Log out" %}</a>
+            </nav>
+            <h1>{% trans "Certificate Eligibility" %} · {{ classroom.name }}</h1>
             <div class="muted">
-              Eligible students <strong>{{ eligible_students }}/{{ total_students }}</strong>
-              · Threshold: {{ certificate_min_sessions }} sessions + {{ certificate_min_artifacts }} artifacts
+              {% trans "Eligible students" %} <strong>{{ eligible_students }}/{{ total_students }}</strong>
+              · {% trans "Threshold:" %} {{ certificate_min_sessions }} {% trans "sessions" %} + {{ certificate_min_artifacts }} {% trans "artifacts" %}
             </div>
           </div>
           <div class="btnline">
-            <a href="/teach/class/{{ classroom.id }}/export-outcomes-csv">Export outcomes CSV</a>
+            <a href="/teach/class/{{ classroom.id }}/export-outcomes-csv">{% trans "Export outcomes CSV" %}</a>
           </div>
         </div>
 
         <div class="card">
           {% if notice %}
-            <p class="notice flash-banner">{{ notice }}</p>
+            <p class="notice flash-banner" role="status" aria-live="polite">{{ notice }}</p>
           {% endif %}
           {% if error %}
-            <p class="error flash-banner">{{ error }}</p>
+            <p class="error flash-banner" role="alert" aria-live="assertive">{{ error }}</p>
           {% endif %}
-          <h2 class="section-title">Mark Session Completed</h2>
+          <h2 class="section-title">{% trans "Mark Session Completed" %}</h2>
           <p class="muted mini merge-note">
-            Use this only when completion happened offline and no artifact upload was submitted.
+            {% trans "Use this only when completion happened offline and no artifact upload was submitted." %}
           </p>
           {% if can_manage %}
             <form method="post" action="/teach/class/{{ classroom.id }}/mark-session-completed" class="invite-create-form">
               {% csrf_token %}
-              <label for="certificate-student-id">Student</label>
+              <label for="certificate-student-id">{% trans "Student" %}</label>
               <select id="certificate-student-id" name="student_id" required>
-                <option value="">Select student</option>
+                <option value="">{% trans "Select student" %}</option>
                 {% for row in eligibility_rows %}
                   <option value="{{ row.student_id }}">{{ row.display_name }}</option>
                 {% endfor %}
               </select>
-              <label for="certificate-module-id">Module</label>
+              <label for="certificate-module-id">{% trans "Module" %}</label>
               <select id="certificate-module-id" name="module_id" required>
-                <option value="">Select module</option>
+                <option value="">{% trans "Select module" %}</option>
                 {% for module in modules %}
                   <option value="{{ module.id }}">{{ module.title }}</option>
                 {% endfor %}
               </select>
-              <button type="submit">Mark completed</button>
+              <button type="submit">{% trans "Mark completed" %}</button>
             </form>
           {% else %}
-            <p class="muted mini section-empty-note">Read-only role: session completion updates are limited to teacher/admin roles.</p>
+            <p class="muted mini section-empty-note">{% trans "Read-only role: session completion updates are limited to teacher/admin roles." %}</p>
           {% endif %}
         </div>
 
         <div class="card">
-          <h2 class="section-title">All Students</h2>
+          <h2 class="section-title">{% trans "All Students" %}</h2>
           {% if eligibility_rows %}
             <div class="roster-table-wrap">
               <table>
-                <caption class="visually-hidden">Certificate eligibility status for {{ classroom.name }}</caption>
+                <caption class="visually-hidden">{% blocktrans with class_name=classroom.name %}Certificate eligibility status for {{ class_name }}{% endblocktrans %}</caption>
                 <thead>
                   <tr>
-                    <th scope="col">Student</th>
-                    <th scope="col">Sessions</th>
-                    <th scope="col">Artifacts</th>
-                    <th scope="col">Milestones</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Certificate</th>
+                    <th scope="col">{% trans "Student" %}</th>
+                    <th scope="col">{% trans "Sessions" %}</th>
+                    <th scope="col">{% trans "Artifacts" %}</th>
+                    <th scope="col">{% trans "Milestones" %}</th>
+                    <th scope="col">{% trans "Status" %}</th>
+                    <th scope="col">{% trans "Certificate" %}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -89,30 +89,30 @@
                       <td>{{ row.milestone_count }}</td>
                       <td>
                         {% if row.certificate_eligible %}
-                          <span class="state-pill state-pill--open">Eligible</span>
+                          <span class="state-pill state-pill--open">{% trans "Eligible" %}</span>
                         {% else %}
-                          <span class="state-pill state-pill--locked">In progress</span>
+                          <span class="state-pill state-pill--locked">{% trans "In progress" %}</span>
                         {% endif %}
                       </td>
                       <td>
                         {% if row.certificate_issued %}
                           <div class="muted mini">
-                            Code <strong>{{ row.certificate_code }}</strong>
+                            {% trans "Code" %} <strong>{{ row.certificate_code }}</strong>
                             {% if row.certificate_issued_at %} · {{ row.certificate_issued_at|date:"M j, Y g:i A" }}{% endif %}
                           </div>
-                          <a href="/teach/class/{{ classroom.id }}/certificate/{{ row.student_id }}/download.pdf">Download PDF</a>
+                          <a href="/teach/class/{{ classroom.id }}/certificate/{{ row.student_id }}/download.pdf">{% trans "Download PDF" %}</a>
                           ·
                           <a href="/teach/class/{{ classroom.id }}/certificate/{{ row.student_id }}/download">TXT</a>
                         {% elif row.certificate_eligible %}
-                          <span class="muted mini">Not issued</span>
+                          <span class="muted mini">{% trans "Not issued" %}</span>
                         {% else %}
-                          <span class="muted mini">Not eligible</span>
+                          <span class="muted mini">{% trans "Not eligible" %}</span>
                         {% endif %}
                         {% if can_manage and row.certificate_eligible %}
                           <form method="post" action="/teach/class/{{ classroom.id }}/issue-certificate" class="mini">
                             {% csrf_token %}
                             <input type="hidden" name="student_id" value="{{ row.student_id }}" />
-                            <button type="submit">{% if row.certificate_issued %}Re-issue{% else %}Issue{% endif %}</button>
+                            <button type="submit">{% if row.certificate_issued %}{% trans "Re-issue" %}{% else %}{% trans "Issue" %}{% endif %}</button>
                           </form>
                         {% endif %}
                       </td>
@@ -122,7 +122,7 @@
               </table>
             </div>
           {% else %}
-            <p class="muted section-empty-note">No students in this class yet.</p>
+            <p class="muted section-empty-note">{% trans "No students in this class yet." %}</p>
           {% endif %}
         </div>
       </main>

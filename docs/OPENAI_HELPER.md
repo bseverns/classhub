@@ -12,6 +12,10 @@ For the serious private scale-out path, prefer a Gemma-family model on a private
 For createMPLS-style deployments, the recommended control plane behind that path is Headscale on a tiny Ubuntu VPS.
 OpenAI remains an explicit development/future path via the **Responses API** and must be intentionally acknowledged before use.
 
+Hosted OpenAI path note:
+- `LLM_BACKEND=openai` normalizes to the shared provider name `openai_responses`.
+- Hosted OpenAI now goes through the same `tutor/llm/*` provider layer as the other helper backends.
+
 ```mermaid
 flowchart TD
   A[POST /helper/chat] --> B[Auth + scope token checks]
@@ -42,7 +46,7 @@ flowchart TD
 | `tutor/engine/runtime_config.py` | profile-aware policy defaults (`strictness`, `scope_mode`, topic filter) |
 | `tutor/engine/execution_config.py` | execution knobs (backend, queue, conversation limits, references, keyword caps) |
 | `tutor/engine/backends.py` | backend registry + retry adapter |
-| `tutor/llm/*` | provider abstraction for private Ollama / future OpenAI-compatible servers |
+| `tutor/llm/*` | provider abstraction for Ollama, hosted OpenAI Responses, and private OpenAI-compatible servers |
 | `tutor/engine/heuristics.py` | intent/follow-up/topic/text-language/Piper heuristics |
 | `tutor/engine/memory.py` | conversation cache state and compaction |
 | `tutor/engine/reference.py` | reference-file resolution + citation extraction |
@@ -56,7 +60,7 @@ Set the backend in `compose/.env`:
 
 ```bash
 LLM_ENABLED=1
-LLM_BACKEND=ollama          # or "openai_compatible", "openai", or "mock"
+LLM_BACKEND=ollama          # or "openai_compatible", "openai", "openai_responses", or "mock"
 HELPER_LLM_BACKEND=ollama   # legacy alias still supported
 LLM_BASE_URL=http://ollama:11434
 LLM_API_KEY=
@@ -284,7 +288,7 @@ Private backend ops bundle:
 
 ### OpenAI (optional, explicit opt-in)
 
-If you want to re-enable OpenAI later:
+If you want to re-enable hosted OpenAI later:
 
 ```
 HELPER_LLM_BACKEND=openai
@@ -292,6 +296,16 @@ HELPER_REMOTE_MODE_ACKNOWLEDGED=1
 OPENAI_API_KEY=...
 OPENAI_MODEL=gpt-5.2
 OPENAI_MAX_OUTPUT_TOKENS=400
+```
+
+Equivalent generic env form:
+
+```bash
+LLM_BACKEND=openai
+HELPER_REMOTE_MODE_ACKNOWLEDGED=1
+LLM_API_KEY=...
+LLM_MODEL=gpt-5.2
+LLM_MAX_TOKENS=400
 ```
 
 Safety behavior:

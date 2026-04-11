@@ -41,14 +41,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         backend = (options.get("backend") or "").strip().lower() or resolve_backend_name()
-        if backend == "openai_responses":
-            payload = {
-                "ok": True,
-                "backend": backend,
-                "detail": "legacy_openai_responses_backend_not_probed",
-            }
-            self._write(payload, as_json=bool(options.get("json")))
-            return
 
         details = describe_backend(backend)
         payload: dict[str, object] = {

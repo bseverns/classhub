@@ -93,6 +93,26 @@ class BackendEngineTests(SimpleTestCase):
         self.assertIn("step by step", text.lower())
         self.assertEqual(model, "mock-tutor-v1")
 
+    @patch("tutor.engine.backends.chat_with_provider")
+    def test_openai_chat_routes_through_provider_layer(self, chat_with_provider_mock):
+        chat_with_provider_mock.return_value = SimpleNamespace(text="Use one hint.", model="gpt-5.2")
+
+        text, model = backends.openai_chat(
+            api_key="test-key",
+            model="gpt-5.2",
+            instructions="Tutor mode",
+            message="How do I start?",
+            max_output_tokens=64,
+        )
+
+        self.assertEqual(text, "Use one hint.")
+        self.assertEqual(model, "gpt-5.2")
+        chat_with_provider_mock.assert_called_once_with(
+            "openai_responses",
+            instructions="Tutor mode",
+            message="How do I start?",
+        )
+
     @patch("tutor.engine.backends.urllib.request.urlopen")
     def test_ollama_chat_parses_response_payload(self, urlopen_mock):
         ctx = MagicMock()

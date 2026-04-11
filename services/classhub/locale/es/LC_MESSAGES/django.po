@@ -901,3 +901,261 @@ msgstr "Como pedir mejor ayuda"
 
 msgid "Help me write a clear help request: what I expected, what happened, and what I already tried."
 msgstr "Ayudame a escribir una solicitud de ayuda clara: que esperaba, que paso y que ya intente."
+
+# Teacher shell tranche (2026-04-11)
+
+msgid "Teacher Portal"
+msgstr "Portal del maestro"
+
+msgid "Teacher portal links"
+msgstr "enlaces del portal del maestro"
+
+msgid "Staff-only cockpit"
+msgstr "panel solo para personal"
+
+msgid "Lesson videos"
+msgstr "videos de lecciones"
+
+msgid "Lesson assets"
+msgstr "recursos de lecciones"
+
+msgid "Data lifespan"
+msgstr "ciclo de vida de los datos"
+
+msgid "Student join page"
+msgstr "pagina de acceso para estudiantes"
+
+msgid "Portal modes"
+msgstr "modos del portal"
+
+msgid "Choose a focused surface for this session."
+msgstr "Elige una vista enfocada para esta sesion."
+
+msgid "Hide operator tools"
+msgstr "Ocultar herramientas del operador"
+
+msgid "Show operator tools"
+msgstr "Mostrar herramientas del operador"
+
+msgid "Class dashboard links"
+msgstr "enlaces del panel de la clase"
+
+msgid "Teacher"
+msgstr "Maestro"
+
+msgid "Printable join card"
+msgstr "tarjeta de acceso imprimible"
+
+msgid "Students"
+msgstr "estudiantes"
+
+msgid "Join flow"
+msgstr "flujo de acceso"
+
+msgid "Invite only"
+msgstr "solo por invitacion"
+
+msgid "Closed"
+msgstr "cerrado"
+
+msgid "Unlocked"
+msgstr "desbloqueada"
+
+msgid "Class actions"
+msgstr "acciones de la clase"
+
+msgid "Join card"
+msgstr "tarjeta de acceso"
+
+msgid "Summary CSV"
+msgstr "CSV de resumen"
+
+msgid "Start Here In This Class"
+msgstr "Empieza aqui en esta clase"
+
+msgid "The unified workspace above handles the common path. Use these anchors when you need a deeper panel."
+msgstr "El espacio de trabajo unificado de arriba cubre el camino comun. Usa estos atajos cuando necesites un panel mas profundo."
+
+msgid "Run class now"
+msgstr "Dirigir la clase ahora"
+
+msgid "Print or share join card"
+msgstr "Imprimir o compartir tarjeta de acceso"
+
+msgid "Open lesson tracker + release controls"
+msgstr "Abrir seguimiento de lecciones y controles de publicacion"
+
+msgid "Check facilitator support board"
+msgstr "Revisar tablero de apoyo del facilitador"
+
+msgid "Check outcomes snapshot"
+msgstr "Revisar resumen de resultados"
+
+msgid "Setup + cleanup"
+msgstr "preparacion y cierre"
+
+msgid "Manage invite links + seat caps"
+msgstr "Gestionar enlaces de invitacion y limites de cupo"
+
+msgid "Fix roster identity issues"
+msgstr "Corregir problemas de identidad del roster"
+
+msgid "Review helper signal trends"
+msgstr "Revisar tendencias de senales del asistente"
+
+msgid "Edit module order/content"
+msgstr "Editar orden y contenido de modulos"
+
+msgid "Certificate eligibility links"
+msgstr "enlaces de elegibilidad de certificados"
+
+msgid "Certificate Eligibility"
+msgstr "Elegibilidad de certificados"
+
+msgid "Eligible students"
+msgstr "estudiantes elegibles"
+
+msgid "Threshold:"
+msgstr "umbral:"
+
+msgid "sessions"
+msgstr "sesiones"
+
+msgid "artifacts"
+msgstr "artefactos"
+
+msgid "Export outcomes CSV"
+msgstr "Exportar CSV de resultados"
+
+msgid "Mark Session Completed"
+msgstr "Marcar sesion completada"
+
+msgid "Use this only when completion happened offline and no artifact upload was submitted."
+msgstr "Usa esto solo cuando la finalizacion ocurrio fuera de linea y no se envio ningun artefacto."
+
+msgid "Select student"
+msgstr "Selecciona estudiante"
+
+msgid "Select module"
+msgstr "Selecciona modulo"
+
+msgid "Mark completed"
+msgstr "Marcar completado"
+
+msgid "Read-only role: session completion updates are limited to teacher/admin roles."
+msgstr "Rol de solo lectura: las actualizaciones de finalizacion de sesion se limitan a roles de maestro o admin."
+
+msgid "All Students"
+msgstr "Todos los estudiantes"
+
+msgid "Sessions"
+msgstr "Sesiones"
+
+msgid "Artifacts"
+msgstr "Artefactos"
+
+msgid "Milestones"
+msgstr "Hitos"
+
+msgid "Certificate"
+msgstr "Certificado"
+
+msgid "Eligible"
+msgstr "Elegible"
+
+msgid "In progress"
+msgstr "En progreso"
+
+msgid "Download PDF"
+msgstr "Descargar PDF"
+
+msgid "Not issued"
+msgstr "No emitido"
+
+msgid "Not eligible"
+msgstr "No elegible"
+
+msgid "Re-issue"
+msgstr "Volver a emitir"
+
+msgid "Issue"
+msgstr "Emitir"
+
+msgid "No students in this class yet."
+msgstr "No hay estudiantes en esta clase todavia."
+
+msgid "Teacher · Lessons"
+msgstr "Maestro · Lecciones"
+
+msgid "Lesson tracker links"
+msgstr "enlaces del seguimiento de lecciones"
+
+msgid "Focus on lesson links and submission progress."
+msgstr "Enfocate en los enlaces de lecciones y el progreso de entregas."
+
+msgid "All classes"
+msgstr "Todas las clases"
+
+msgid "Apply"
+msgstr "Aplicar"
+
+msgid "Open class dashboard"
+msgstr "Abrir panel de clase"
+
+msgid "Lesson"
+msgstr "Leccion"
+
+msgid "Dropboxes"
+msgstr "Buzones de entrega"
+
+msgid "Teacher notes"
+msgstr "Notas del maestro"
+
+msgid "Release:"
+msgstr "Publicacion:"
+
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Override active"
+msgstr "Sobrescritura activa"
+
+msgid "Content default"
+msgstr "Contenido predeterminado"
+
+#, python-format
+msgid "Availability date for %(lesson_title)s"
+msgstr "Fecha de disponibilidad para %(lesson_title)s"
+
+msgid "Set date"
+msgstr "Fijar fecha"
+
+msgid "Toggle lock"
+msgstr "Cambiar bloqueo"
+
+msgid "Open now"
+msgstr "Abrir ahora"
+
+msgid "Reset default"
+msgstr "Restablecer predeterminado"
+
+msgid "Submitted"
+msgstr "Entregados"
+
+msgid "Missing"
+msgstr "Faltantes"
+
+msgid "Latest"
+msgstr "Mas reciente"
+
+msgid "Review missing"
+msgstr "Revisar faltantes"
+
+msgid "No upload dropbox in this module."
+msgstr "No hay buzon de entrega en este modulo."
+
+msgid "No lesson links found in this class yet."
+msgstr "Aun no se encontraron enlaces de lecciones en esta clase."
+
+msgid "No classes available."
+msgstr "No hay clases disponibles."

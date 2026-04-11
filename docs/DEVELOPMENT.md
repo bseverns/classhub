@@ -51,6 +51,38 @@ Notes:
 - If you change data models, include migrations in the same PR and run `bash scripts/migration_gate.sh` before push.
 - After lane tests pass, run `bash scripts/system_doctor.sh --smoke-mode golden` before opening a PR.
 
+## Local bootstrap
+
+There are two supported local paths:
+
+1. Compose-first: best for realistic routing, Redis, uploads, and cross-service behavior.
+2. Local venv: best for quick `manage.py check` and targeted unit tests.
+
+Recommended local Python baseline:
+
+- `python3`
+- virtual environment under `.venv/`
+
+Bootstrap a local venv from repo root:
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install --upgrade pip
+python3 -m pip install -r services/classhub/requirements.txt -r services/homework_helper/requirements.txt
+```
+
+Then quick local checks become:
+
+```bash
+DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 \
+  python3 services/classhub/manage.py check
+DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 \
+  python3 services/homework_helper/manage.py check
+```
+
+If you do not want a local Python environment, use the Compose path below and run service commands through `docker compose exec`.
+
 ## Hot reload (local dev)
 
 The override file:
@@ -75,6 +107,14 @@ Then edit files under:
 
 Django's autoreloader will pick up Python + template changes, and the
 lesson pages read markdown files from disk on each request.
+
+Example container-side checks:
+
+```bash
+cd compose
+docker compose exec classhub_web python manage.py check
+docker compose exec helper_web python manage.py check
+```
 
 ## Local LLM (Ollama)
 

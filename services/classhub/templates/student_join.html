@@ -82,8 +82,8 @@
 
           <label for="name">{% trans "Your display name" %}</label>
           <input id="name" name="display_name" value="{{ default_display_name }}" placeholder="Curious Otter 17"
-            autocomplete="off" required />
-          <p class="name-help muted">{% trans "A nickname or made-up name is fine — no need to use your real name." %}
+            autocomplete="off" required aria-describedby="name-help" />
+          <p id="name-help" class="name-help muted">{% trans "A nickname or made-up name is fine — no need to use your real name." %}
           </p>
 
           <label for="return_code">{% trans "Return code (optional)" %}</label>

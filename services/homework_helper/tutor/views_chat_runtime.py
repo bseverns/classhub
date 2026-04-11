@@ -7,6 +7,7 @@ from .llm.service import (
     describe_backend as service_describe_backend,
     describe_backend_public as service_describe_backend_public,
     healthcheck_provider as service_healthcheck_provider,
+    resolve_backend_name as service_resolve_backend_name,
 )
 
 
@@ -142,6 +143,10 @@ def mock_chat(*, text: str) -> tuple[str, str]:
     return engine_backends.mock_chat(text=text)
 
 
+def llm_resolve_backend_name(*, getenv=helper_getenv) -> str:
+    return service_resolve_backend_name(getenv=getenv)
+
+
 def invoke_backend(
     *,
     backend: str,
@@ -152,6 +157,7 @@ def invoke_backend(
     mock_chat_fn,
     openai_compatible_chat_fn=None,
 ) -> tuple[str, str]:
+    resolved_backend = service_resolve_backend_name(getenv=lambda name, default="": backend if name == "LLM_BACKEND" else default)
     registry = {
         "ollama": engine_backends.CallableBackend(
             chat_fn=lambda system_instructions, user_message: ollama_chat_fn(
@@ -162,6 +168,13 @@ def invoke_backend(
             )
         ),
         "openai": engine_backends.CallableBackend(
+            chat_fn=lambda system_instructions, user_message: openai_chat_fn(
+                helper_getenv("OPENAI_MODEL", "gpt-5.2"),
+                system_instructions,
+                user_message,
+            )
+        ),
+        "openai_responses": engine_backends.CallableBackend(
             chat_fn=lambda system_instructions, user_message: openai_chat_fn(
                 helper_getenv("OPENAI_MODEL", "gpt-5.2"),
                 system_instructions,
@@ -179,7 +192,7 @@ def invoke_backend(
         ),
     }
     return engine_backends.invoke_backend(
-        backend,
+        resolved_backend,
         instructions=instructions,
         message=message,
         registry=registry,
@@ -228,6 +241,7 @@ __all__ = [
     "backend_circuit_is_open",
     "call_backend_with_retries",
     "invoke_backend",
+    "llm_resolve_backend_name",
     "llm_backend_requires_acknowledgement",
     "llm_describe_backend",
     "llm_describe_backend_public",

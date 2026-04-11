@@ -7,6 +7,7 @@ import urllib.error
 from dataclasses import dataclass
 from typing import Callable, Mapping, Protocol
 
+from .config_source import helper_config_overrides
 from ..llm import (
     LLMAuthError,
     LLMBackendConfig,
@@ -150,22 +151,19 @@ def openai_chat(
     message: str,
     max_output_tokens: int,
 ) -> tuple[str, str]:
-    """Execute an OpenAI Responses API request and return `(text, model_used)`."""
-    try:
-        from openai import OpenAI
-    except Exception as exc:  # pragma: no cover - optional dependency
-        raise RuntimeError("openai_not_installed") from exc
-
-    client = OpenAI(api_key=api_key)
-    create_kwargs = {
-        "model": model,
-        "instructions": instructions,
-        "input": message,
+    """Execute an OpenAI Responses API request via the shared provider layer."""
+    overrides = {
+        "OPENAI_MODEL": model,
+        "OPENAI_API_KEY": str(api_key or ""),
+        "OPENAI_MAX_OUTPUT_TOKENS": str(max_output_tokens),
     }
-    if max_output_tokens > 0:
-        create_kwargs["max_output_tokens"] = max_output_tokens
-    response = client.responses.create(**create_kwargs)
-    return (getattr(response, "output_text", "") or ""), model
+    with helper_config_overrides(overrides):
+        response = chat_with_provider(
+            "openai_responses",
+            instructions=instructions,
+            message=message,
+        )
+    return response.text, response.model
 
 
 def mock_chat(*, text: str) -> tuple[str, str]:

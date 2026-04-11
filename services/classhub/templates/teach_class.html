@@ -1,69 +1,69 @@
-{% load static hub_extras %}
+{% load static hub_extras i18n %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Teacher · {{ classroom.name }}</title>
+    <title>{% trans "Teacher" %} · {{ classroom.name }}</title>
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/teach_class.css' %}" />
   </head>
   <body class="glass-theme teacher-comfort" data-class-id="{{ classroom.id }}">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
     <div class="shell">
       <main id="main-content">
         <div class="top">
           <div>
-            <div class="muted navline">
-              <a href="/teach">Teacher</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a> · <a href="/teach/assets">Lesson assets</a>
-              {% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %} · <a href="/teach/logout">Log out</a>
-            </div>
+            <nav class="muted navline" aria-label="{% trans 'Class dashboard links' %}">
+              <a href="/teach">{% trans "Teacher" %}</a> · <a href="/teach/lessons?class_id={{ classroom.id }}">{% trans "Lesson tracker" %}</a> · <a href="/teach/assets">{% trans "Lesson assets" %}</a>
+              {% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %} · <a href="/teach/logout">{% trans "Log out" %}</a>
+            </nav>
             <h1>{{ classroom.name }}</h1>
             <div class="muted">
-              Join code <span class="pill">{{ classroom.join_code }}</span>
-              <button type="button" class="inline-copy" data-copy-value="{{ classroom.join_code }}">Copy</button>
-              · <a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">Printable join card</a>
-              · Students {{ student_count }}
-              · Join flow {% if classroom.enrollment_mode == 'open' %}<span class="state-pill state-pill--open">Open</span>{% elif classroom.enrollment_mode == 'invite_only' %}<span class="state-pill state-pill--locked">Invite only</span>{% else %}<span class="state-pill state-pill--locked">Closed</span>{% endif %}
-              · Class {% if classroom.is_locked %}<span class="state-pill state-pill--locked">Locked</span>{% else %}<span class="state-pill state-pill--open">Unlocked</span>{% endif %}
+              {% trans "Join code" %} <span class="pill">{{ classroom.join_code }}</span>
+              <button type="button" class="inline-copy" data-copy-value="{{ classroom.join_code }}">{% trans "Copy" %}</button>
+              · <a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">{% trans "Printable join card" %}</a>
+              · {% trans "Students" %} {{ student_count }}
+              · {% trans "Join flow" %} {% if classroom.enrollment_mode == 'open' %}<span class="state-pill state-pill--open">{% trans "Open" %}</span>{% elif classroom.enrollment_mode == 'invite_only' %}<span class="state-pill state-pill--locked">{% trans "Invite only" %}</span>{% else %}<span class="state-pill state-pill--locked">{% trans "Closed" %}</span>{% endif %}
+              · {% trans "Class" %} {% if classroom.is_locked %}<span class="state-pill state-pill--locked">{% trans "Locked" %}</span>{% else %}<span class="state-pill state-pill--open">{% trans "Unlocked" %}</span>{% endif %}
             </div>
             <div id="copy-status" class="muted copy-status" role="status" aria-live="polite"></div>
           </div>
-          <div class="btnline btnline--compact">
-            <a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">Join card</a>
-            <a href="/teach/lessons?class_id={{ classroom.id }}">Lesson tracker</a>
-            <a href="/teach/class/{{ classroom.id }}/export-summary-csv">Summary CSV</a>
-          </div>
+          <nav class="btnline btnline--compact" aria-label="{% trans 'Class actions' %}">
+            <a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">{% trans "Join card" %}</a>
+            <a href="/teach/lessons?class_id={{ classroom.id }}">{% trans "Lesson tracker" %}</a>
+            <a href="/teach/class/{{ classroom.id }}/export-summary-csv">{% trans "Summary CSV" %}</a>
+          </nav>
         </div>
 
         {% include "includes/teach_class/class_workspace_card.html" %}
 
-        <div class="card card-secondary class-focus-card">
+        <section class="card card-secondary class-focus-card" aria-labelledby="class-focus-heading">
           <div class="row">
-            <h2 class="section-title-tight">Start Here In This Class</h2>
-            <div class="muted">The unified workspace above handles the common path. Use these anchors when you need a deeper panel.</div>
+            <h2 id="class-focus-heading" class="section-title-tight">{% trans "Start Here In This Class" %}</h2>
+            <div class="muted">{% trans "The unified workspace above handles the common path. Use these anchors when you need a deeper panel." %}</div>
           </div>
           <div class="class-focus-grid">
             <div class="class-focus-column">
-              <h3 class="section-title-compact">Run class now</h3>
+              <h3 class="section-title-compact">{% trans "Run class now" %}</h3>
               <ul class="class-focus-list">
-                <li><a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">Print or share join card</a></li>
-                <li><a href="/teach/lessons?class_id={{ classroom.id }}">Open lesson tracker + release controls</a></li>
-                <li><a href="#section-support-board">Check facilitator support board</a></li>
-                <li><a href="#section-outcomes">Check outcomes snapshot</a></li>
+                <li><a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">{% trans "Print or share join card" %}</a></li>
+                <li><a href="/teach/lessons?class_id={{ classroom.id }}">{% trans "Open lesson tracker + release controls" %}</a></li>
+                <li><a href="#section-support-board">{% trans "Check facilitator support board" %}</a></li>
+                <li><a href="#section-outcomes">{% trans "Check outcomes snapshot" %}</a></li>
               </ul>
             </div>
             <div class="class-focus-column">
-              <h3 class="section-title-compact">Setup + cleanup</h3>
+              <h3 class="section-title-compact">{% trans "Setup + cleanup" %}</h3>
               <ul class="class-focus-list">
-                <li><a href="#section-invite-links">Manage invite links + seat caps</a></li>
-                <li><a href="#section-roster">Fix roster identity issues</a></li>
-                <li><a href="#section-helper-signals">Review helper signal trends</a></li>
-                <li><a href="#section-module-editor">Edit module order/content</a></li>
+                <li><a href="#section-invite-links">{% trans "Manage invite links + seat caps" %}</a></li>
+                <li><a href="#section-roster">{% trans "Fix roster identity issues" %}</a></li>
+                <li><a href="#section-helper-signals">{% trans "Review helper signal trends" %}</a></li>
+                <li><a href="#section-module-editor">{% trans "Edit module order/content" %}</a></li>
               </ul>
             </div>
           </div>
-        </div>
+        </section>
 
         {% include "includes/teach_class/class_setup_and_roster_card.html" %}
         {% include "includes/teach_class/support_board_card.html" %}

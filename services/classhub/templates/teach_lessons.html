@@ -1,44 +1,44 @@
-{% load static %}
+{% load static i18n %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Teacher · Lessons</title>
+    <title>{% trans "Teacher · Lessons" %}</title>
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/teach_lessons.css' %}" />
   </head>
   <body class="glass-theme teacher-comfort">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
     <div class="shell">
       <main id="main-content">
         <div class="top heading">
           <div>
-            <div class="muted navline">
-              <a href="/teach">Teacher</a> · <a href="/teach/assets">Lesson assets</a>{% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %} · <a href="/teach/logout">Log out</a>
-            </div>
-            <h1>Lesson Tracker</h1>
-            <div class="muted">Focus on lesson links and submission progress.</div>
+            <nav class="muted navline" aria-label="{% trans 'Lesson tracker links' %}">
+              <a href="/teach">{% trans "Teacher" %}</a> · <a href="/teach/assets">{% trans "Lesson assets" %}</a>{% if request.user.is_superuser %} · <a href="/admin/">Admin</a>{% endif %} · <a href="/teach/logout">{% trans "Log out" %}</a>
+            </nav>
+            <h1>{% trans "Lesson Tracker" %}</h1>
+            <div class="muted">{% trans "Focus on lesson links and submission progress." %}</div>
           </div>
         </div>
 
         <div class="card">
           {% if notice %}
-            <p class="notice flash-banner">{{ notice }}</p>
+            <p class="notice flash-banner" role="status" aria-live="polite">{{ notice }}</p>
           {% endif %}
           {% if error %}
-            <p class="error flash-banner">{{ error }}</p>
+            <p class="error flash-banner" role="alert" aria-live="assertive">{{ error }}</p>
           {% endif %}
 
           <form method="get" class="row filter-form">
-            <label for="class_id">Class</label>
+            <label for="class_id">{% trans "Class" %}</label>
             <select name="class_id" id="class_id">
-              <option value="0" {% if not selected_class_id %}selected{% endif %}>All classes</option>
+              <option value="0" {% if not selected_class_id %}selected{% endif %}>{% trans "All classes" %}</option>
               {% for classroom in classes %}
                 <option value="{{ classroom.id }}" {% if selected_class_id == classroom.id %}selected{% endif %}>{{ classroom.name }}</option>
               {% endfor %}
             </select>
-            <button type="submit">Apply</button>
+            <button type="submit">{% trans "Apply" %}</button>
           </form>
         </div>
 
@@ -47,20 +47,20 @@
             <div class="row">
               <div>
                 <h2 class="section-title-tight">{{ group.classroom.name }}</h2>
-                <div class="muted">Join code <span class="pill">{{ group.classroom.join_code }}</span> · Students {{ group.student_count }}</div>
+                <div class="muted">{% trans "Join code" %} <span class="pill">{{ group.classroom.join_code }}</span> · {% trans "Students" %} {{ group.student_count }}</div>
               </div>
-              <div class="muted"><a href="/teach/class/{{ group.classroom.id }}">Open class dashboard</a></div>
+              <div class="muted"><a href="/teach/class/{{ group.classroom.id }}">{% trans "Open class dashboard" %}</a></div>
             </div>
 
             {% if group.lesson_rows %}
               <div class="tracker-table-wrap">
                 <table>
-                  <caption class="visually-hidden">Lesson tracker for {{ group.classroom.name }}</caption>
+                  <caption class="visually-hidden">{% blocktrans with class_name=group.classroom.name %}Lesson tracker for {{ class_name }}{% endblocktrans %}</caption>
                   <thead>
                     <tr>
-                      <th scope="col">Module</th>
-                      <th scope="col">Lesson</th>
-                      <th scope="col">Dropboxes</th>
+                      <th scope="col">{% trans "Module" %}</th>
+                      <th scope="col">{% trans "Lesson" %}</th>
+                      <th scope="col">{% trans "Dropboxes" %}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -77,26 +77,26 @@
                           {% endif %}
                           {% if row.teacher_material_html %}
                             <details class="teacher-note">
-                              <summary>Teacher notes</summary>
+                              <summary>{% trans "Teacher notes" %}</summary>
                               <div class="teacher-note-body">{{ row.teacher_material_html|safe }}</div>
                             </details>
                           {% endif %}
                           <div class="release-box">
                             {% with release=row.release_state %}
                               <div class="release-status">
-                                Release:
+                                {% trans "Release:" %}
                                 {% if release.is_locked %}
-                                  <span class="state-pill state-pill--locked">Locked</span>
+                                  <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
                                 {% else %}
-                                  <span class="state-pill state-pill--open">Open</span>
+                                  <span class="state-pill state-pill--open">{% trans "Open" %}</span>
                                 {% endif %}
                                 {% if release.available_on %}
-                                  · Date <strong>{{ release.available_on|date:"M j, Y" }}</strong>
+                                  · {% trans "Date" %} <strong>{{ release.available_on|date:"M j, Y" }}</strong>
                                 {% endif %}
                                 {% if release.has_override %}
-                                  · Override active
+                                  · {% trans "Override active" %}
                                 {% else %}
-                                  · Content default
+                                  · {% trans "Content default" %}
                                 {% endif %}
                               </div>
                               <div class="release-actions">
@@ -108,7 +108,7 @@
                                   <input type="hidden" name="action" value="set_date" />
                                   <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
                                   <label class="visually-hidden" for="release-date-{{ group.classroom.id }}-{{ forloop.counter0 }}">
-                                    Availability date for {{ row.lesson_title }}
+                                    {% blocktrans with lesson_title=row.lesson_title %}Availability date for {{ lesson_title }}{% endblocktrans %}
                                   </label>
                                   <input
                                     id="release-date-{{ group.classroom.id }}-{{ forloop.counter0 }}"
@@ -116,7 +116,7 @@
                                     name="available_on"
                                     value="{% if release.override_available_on %}{{ release.override_available_on|date:'Y-m-d' }}{% endif %}"
                                   />
-                                  <button type="submit">Set date</button>
+                                  <button type="submit">{% trans "Set date" %}</button>
                                 </form>
                                 <form method="post" action="/teach/lessons/release">
                                   {% csrf_token %}
@@ -125,7 +125,7 @@
                                   <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
                                   <input type="hidden" name="action" value="toggle_lock" />
                                   <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
-                                  <button type="submit">Toggle lock</button>
+                                  <button type="submit">{% trans "Toggle lock" %}</button>
                                 </form>
                                 <form method="post" action="/teach/lessons/release">
                                   {% csrf_token %}
@@ -134,7 +134,7 @@
                                   <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
                                   <input type="hidden" name="action" value="unlock_now" />
                                   <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
-                                  <button type="submit">Open now</button>
+                                  <button type="submit">{% trans "Open now" %}</button>
                                 </form>
                                 <form method="post" action="/teach/lessons/release">
                                   {% csrf_token %}
@@ -143,7 +143,7 @@
                                   <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
                                   <input type="hidden" name="action" value="reset_default" />
                                   <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
-                                  <button type="submit">Reset default</button>
+                                  <button type="submit">{% trans "Reset default" %}</button>
                                 </form>
                               </div>
                             {% endwith %}
@@ -155,19 +155,19 @@
                               <div class="dropbox">
                                 <div><a href="/teach/material/{{ dropbox.id }}/submissions">{{ dropbox.title }}</a></div>
                                 <div class="muted">
-                                  Submitted {{ dropbox.submitted }} / {{ group.student_count }}
-                                  · Missing {{ dropbox.missing }}
-                                  {% if dropbox.last_uploaded_at %}· Latest {{ dropbox.last_uploaded_at }}{% endif %}
+                                  {% trans "Submitted" %} {{ dropbox.submitted }} / {{ group.student_count }}
+                                  · {% trans "Missing" %} {{ dropbox.missing }}
+                                  {% if dropbox.last_uploaded_at %}· {% trans "Latest" %} {{ dropbox.last_uploaded_at }}{% endif %}
                                 </div>
                                 <div class="actions">
                                   <a href="/teach/material/{{ dropbox.id }}/submissions">Review submissions</a>
-                                  <a href="/teach/material/{{ dropbox.id }}/submissions?show=missing">Review missing</a>
+                                  <a href="/teach/material/{{ dropbox.id }}/submissions?show=missing">{% trans "Review missing" %}</a>
                                   <a href="/teach/material/{{ dropbox.id }}/submissions?download=zip_latest">ZIP latest</a>
                                 </div>
                               </div>
                             {% endfor %}
                           {% else %}
-                            <span class="muted">No upload dropbox in this module.</span>
+                            <span class="muted">{% trans "No upload dropbox in this module." %}</span>
                           {% endif %}
                         </td>
                       </tr>
@@ -176,14 +176,14 @@
                 </table>
               </div>
             {% else %}
-              <p class="muted section-empty-note">No lesson links found in this class yet.</p>
+              <p class="muted section-empty-note">{% trans "No lesson links found in this class yet." %}</p>
             {% endif %}
           </div>
         {% endfor %}
 
         {% if not class_rows %}
           <div class="card">
-            <p class="muted">No classes available.</p>
+            <p class="muted">{% trans "No classes available." %}</p>
           </div>
         {% endif %}
       </main>
