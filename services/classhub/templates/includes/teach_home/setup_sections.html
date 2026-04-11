@@ -1,15 +1,16 @@
+{% load i18n %}
         {% if show_setup_console %}
           <div class="card card-secondary" data-tabs data-initial-tab="{{ initial_top_tab|default:'quick-actions' }}">
-            <h2 class="section-title">Portal setup + account tools</h2>
+            <h2 class="section-title">{% trans "Portal setup + account tools" %}</h2>
             <div class="muted section-subtitle">
-              Start with Class setup first. Superuser operator + policy workflows live behind Show operator tools.
+              {% trans "Start with Class setup first. Superuser operator + policy workflows live behind Show operator tools." %}
             </div>
-            <div class="top-tabs" role="tablist" aria-label="Teacher top actions">
+            <div class="top-tabs" role="tablist" aria-label="{% trans 'Teacher top actions' %}">
             <button type="button" class="top-tab" id="tab-quick-actions" role="tab" aria-controls="panel-quick-actions" aria-selected="true">
-              Class setup
+              {% trans "Class setup" %}
             </button>
             <button type="button" class="top-tab" id="tab-profile" role="tab" aria-controls="panel-profile" aria-selected="false">
-              My profile
+              {% trans "My profile" %}
             </button>
             {% if rbac_tools_enabled and advanced_tools_enabled %}
               <button type="button" class="top-tab" id="tab-rbac-tools" role="tab" aria-controls="panel-rbac-tools" aria-selected="false">
@@ -18,10 +19,10 @@
             {% endif %}
             {% if request.user.is_superuser and advanced_tools_enabled %}
               <button type="button" class="top-tab" id="tab-invite-teacher" role="tab" aria-controls="panel-invite-teacher" aria-selected="false">
-                Invite teacher
+                {% trans "Invite teacher" %}
               </button>
               <button type="button" class="top-tab" id="tab-org-admin" role="tab" aria-controls="panel-org-admin" aria-selected="false">
-                Organizations
+                {% trans "Organizations" %}
               </button>
             {% endif %}
             </div>

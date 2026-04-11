@@ -1111,3 +1111,251 @@ msgstr "lesson link တဖၣ်လၢတီၤအံၤ တထံၣ်န့�
 
 msgid "No classes available."
 msgstr "class တဖၣ် တအိၣ်ဘၣ်."
+
+msgid "Portal setup + account tools"
+msgstr "တၢ်တဲာ်တဲာ် portal ဒီး account tool တဖၣ်"
+
+msgid "Start with Class setup first. Superuser operator + policy workflows live behind Show operator tools."
+msgstr "စးထီၣ်လၢ class setup အကတီၢ်ဆိတက့ၢ်. superuser operator ဒီး policy workflow တဖၣ် အိၣ်လၢ Show operator tools အလီၢ်ခံ."
+
+msgid "Teacher top actions"
+msgstr "ဆရာ/မ အတၢ်မၤအခိၣ်တဖၣ်"
+
+msgid "Class setup"
+msgstr "class setup"
+
+msgid "My profile"
+msgstr "ယပရိုဖိုင်း"
+
+msgid "Invite teacher"
+msgstr "ကိးဖိတ် ဆရာ/မ"
+
+msgid "Organizations"
+msgstr "organization တဖၣ်"
+
+msgid "Create a class workspace"
+msgstr "တီၤအတၢ်မၤတၢ်လီၢ် မၤတ့ၢ်"
+
+msgid "Class name"
+msgstr "တီၤမံၤ"
+
+msgid "e.g., Piper + Scratch (Period 3)"
+msgstr "ဥပမာ, Piper + Scratch (အတီၢ်ပူၤ 3)"
+
+msgid "Student landing title (optional)"
+msgstr "ပှၤမၤလိ landing ခေါင်းစဉ် (optional)"
+
+msgid "e.g., Week 3: Story + Motion"
+msgstr "ဥပမာ, Week 3: Story + Motion"
+
+msgid "First session/module (optional)"
+msgstr "session/module အဆိကတၢၢ် (optional)"
+
+msgid "e.g., Session 1 — Warm-up + Build"
+msgstr "ဥပမာ, Session 1 - Warm-up + Build"
+
+msgid "Student kickoff note (optional)"
+msgstr "ပှၤမၤလိ kickoff note (optional)"
+
+msgid "Tell students where to start as soon as they join."
+msgstr "တဲဘၣ်ပှၤမၤလိလၢကစးထီၣ်ဖဲလဲၣ် တဘျီဃီဖဲအဝဲသ့ၣ်ဟဲနုာ်လီၤ."
+
+msgid "Create class workspace"
+msgstr "တီၤအတၢ်မၤတၢ်လီၢ် မၤတ့ၢ်"
+
+msgid "Update your contact details and password for teacher sign-in."
+msgstr "မၤသစ်က့ၤန contact detail ဒီး password လၢ teacher sign-in အဂီၢ်."
+
+msgid "Profile details"
+msgstr "profile အတၢ်ဂ့ၢ်"
+
+msgid "First name"
+msgstr "မံၤဖျၢၣ်"
+
+msgid "Last name"
+msgstr "အမံၤခံ"
+
+msgid "Email"
+msgstr "email"
+
+msgid "Save profile"
+msgstr "ပာ်ဖှိၣ် profile"
+
+msgid "Change password"
+msgstr "လဲလိာ် password"
+
+msgid "Current password"
+msgstr "password လၢအခဲအံၤ"
+
+msgid "New password"
+msgstr "password အသစ်"
+
+msgid "Confirm new password"
+msgstr "အုၣ်ကီၤ password အသစ်"
+
+msgid "Import Syllabus Source"
+msgstr "ဟဲစိာ် syllabus source"
+
+msgid "Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`)."
+msgstr "တ့ထီၣ် course ဒ် repo style အသိး လၢ teacher source file (`.md`, `.docx`, မ့တမ့ၢ် `.zip`) အပူၤ."
+
+msgid "Course slug (optional)"
+msgstr "course slug (optional)"
+
+msgid "Course title override (optional)"
+msgstr "course title override (optional)"
+
+msgid "Default UI level"
+msgstr "UI level လၢအမ့ၢ် default"
+
+msgid "elementary"
+msgstr "elementary"
+
+msgid "secondary"
+msgstr "secondary"
+
+msgid "advanced"
+msgstr "advanced"
+
+msgid "Session parser mode"
+msgstr "session parser mode"
+
+msgid "auto"
+msgstr "auto"
+
+msgid "template"
+msgstr "template"
+
+msgid "verbose"
+msgstr "verbose"
+
+msgid "Source file (.md, .docx, or .zip)"
+msgstr "source file (.md, .docx, မ့တမ့ၢ် .zip)"
+
+msgid "Optional overview (.md or .docx)"
+msgstr "overview (optional) (.md မ့တမ့ၢ် .docx)"
+
+msgid "Overwrite existing course folder"
+msgstr "overwrite course folder လၢအအိၣ်လံ"
+
+msgid "Import source"
+msgstr "ဟဲစိာ် source"
+
+msgid "Generate Course Authoring Templates"
+msgstr "ထုးထီၣ် course authoring template တဖၣ်"
+
+msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
+msgstr "တ့ထီၣ် `.md` ဒီး `.docx` starter file လၢတၢ်ကတဲာ်ကတီၤပာ်စၢၤအီၤလံ လၢဆရာ/မတဖၣ်အဂီၢ်."
+
+msgid "Course slug"
+msgstr "course slug"
+
+msgid "Course title"
+msgstr "course ခေါင်းစဉ်"
+
+msgid "Session duration (minutes)"
+msgstr "session အဆၢကတီၢ် (မံးနံး)"
+
+#, python-format
+msgid "Files are written to %(template_output_dir)s."
+msgstr "file တဖၣ် ဘၣ်တၢ်ကွဲးလီၤဆူ %(template_output_dir)s."
+
+msgid "Generate templates"
+msgstr "ထုးထီၣ် template တဖၣ်"
+
+#, python-format
+msgid "Download files for %(template_slug)s"
+msgstr "download file တဖၣ် လၢ %(template_slug)s"
+
+#, python-format
+msgid "%(label)s (not generated yet)"
+msgstr "%(label)s (တဘၣ်ထုးထီၣ်ဒံးဘၣ်)"
+
+msgid "Syllabus Exports"
+msgstr "syllabus export တဖၣ်"
+
+msgid "Admin/superuser backup and catalog downloads for repo-authored course syllabi."
+msgstr "admin/superuser backup ဒီး catalog download တဖၣ် လၢ repo-authored course syllabus တဖၣ်အဂီၢ်."
+
+msgid "Download catalog CSV"
+msgstr "download catalog CSV"
+
+msgid "Download full backup ZIP"
+msgstr "download full backup ZIP"
+
+msgid "Single-course backup ZIP"
+msgstr "course တဖျၢၣ် backup ZIP"
+
+msgid "Course"
+msgstr "course"
+
+#, python-format
+msgid "%(title)s (%(slug)s) · %(lesson_count)s lessons"
+msgstr "%(title)s (%(slug)s) · %(lesson_count)s lesson တဖၣ်"
+
+msgid "Download course ZIP"
+msgstr "download course ZIP"
+
+msgid "No syllabus courses found."
+msgstr "syllabus course တဖၣ် တထံၣ်န့ၢ်ဘၣ်."
+
+msgid "What We Store"
+msgstr "တၢ်လၢပသိမ်းဆည်း"
+
+msgid "Privacy page"
+msgstr "တၢ်ခူသူၣ်အကဘျံးပၤ"
+
+msgid "What we store / what we never store"
+msgstr "တၢ်လၢပသိမ်းဆည်း / တၢ်လၢပတသိမ်းဆည်းနီတဘျီဘၣ်"
+
+msgid "Plain-language trust notes for students, families, and staff."
+msgstr "trust note လၢအကစီဒီကစီလီၤ လၢပှၤမၤလိ, ဟံၣ်ဖိဃီဖိ ဒီး staff တဖၣ်အဂီၢ်."
+
+msgid "We store your class display name so your teacher can identify your work."
+msgstr "ပသိမ်းဆည်း နတီၤအ display name ဒ်သိး နဆရာ/မ ကသ့ၣ်ညါ နတၢ်မၤ."
+
+msgid "We store your class files and activity responses (checklists, reflections, rubric answers)."
+msgstr "ပသိမ်းဆည်း နတီၤအ file တဖၣ် ဒီး activity response တဖၣ် (checklist, reflection, rubric answer တဖၣ်)."
+
+msgid "We store basic event timestamps (for example join time and upload time)."
+msgstr "ပသိမ်းဆည်း event timestamp အခီၣ်ထံးတဖၣ် (ဥပမာ join အဆၢကတီၢ် ဒီး upload အဆၢကတီၢ်)."
+
+msgid "We never require student email or student password for normal class use."
+msgstr "ပတဃ့ student email မ့တမ့ၢ် student password လၢ class သုံးစွဲအရိုးရိုးအဂီၢ်ဘၣ်."
+
+msgid "We never sell student data and we do not run ad tracking."
+msgstr "ပတဆါ student data နီတဘျီဘၣ် ဒီး ad tracking မအိၣ်ဘၣ်."
+
+msgid "Teachers and approved staff can see student work in their class. Other classes cannot."
+msgstr "ဆရာ/မတဖၣ် ဒီး staff လၢဘၣ်တၢ်ပျဲအီၤတဖၣ် ကထံၣ်ဘၣ် student work လၢအတီၤပူၤသ့. class အဂၤတဖၣ် တထံၣ်ဘၣ်."
+
+msgid "Students can rename their display name from My Data at any time (safety rules still apply)."
+msgstr "ပှၤမၤလိတဖၣ် လဲလိာ်အ display name လၢ My Data အပူၤသ့ ဖဲအဆၢကတီၢ်ခဲလၢာ် (safety rule တဖၣ် ဒံးအိၣ်အသး)."
+
+msgid "Students can request deletion of their own artifacts and class activity history from My Data. Staff review the request before removal."
+msgstr "ပှၤမၤလိတဖၣ် ဃ့ဖျီၣ်ကွံာ် အဝဲသ့ၣ်အ artifact ဒီး class activity history လၢ My Data အပူၤသ့. staff ကကွၢ်သမံသမိး request အံၤ လၢတၢ်ဖျီၣ်ကွံာ် အခါခီ."
+
+msgid "Students can delete their own artifacts and class activity history from My Data at any time."
+msgstr "ပှၤမၤလိတဖၣ် ဖျီၣ်ကွံာ် အဝဲသ့ၣ်အ artifact ဒီး class activity history လၢ My Data အပူၤသ့ ဖဲအဆၢကတီၢ်ခဲလၢာ်."
+
+msgid "Retention policy for submissions:"
+msgstr "submission retention policy:"
+
+msgid "Retention policy for event metadata:"
+msgstr "event metadata retention policy:"
+
+msgid "operator-controlled by class policy."
+msgstr "class policy ကပၢဆှၢအီၤ."
+
+msgid "Quick controls"
+msgstr "quick control တဖၣ်"
+
+msgid "Student controls are at"
+msgstr "student control တဖၣ် အိၣ်ဖဲ"
+
+msgid "rename, download, delete, and end session."
+msgstr "လဲလိာ်မံၤ, download, ဖျီၣ်ကွံာ်, ဒီးမၤဝံၤ session."
+
+#, python-format
+msgid "this server is hosted by %(operator_name)s, %(operator_descriptor)s."
+msgstr "server အံၤ ဘၣ်တၢ်host အီၤလၢ %(operator_name)s, %(operator_descriptor)s."

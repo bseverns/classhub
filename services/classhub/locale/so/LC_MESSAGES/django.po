@@ -1111,3 +1111,251 @@ msgstr "Weli xiriirro cashar looma helin fasalkan."
 
 msgid "No classes available."
 msgstr "Fasallo lama hayo."
+
+msgid "Portal setup + account tools"
+msgstr "Dejinta portalka iyo qalabka akoonka"
+
+msgid "Start with Class setup first. Superuser operator + policy workflows live behind Show operator tools."
+msgstr "Ku billow dejinta fasalka marka hore. Hawlaha superuser-ka iyo siyaasadda waxay ku jiraan gadaasha Muuji qalabka hawlwadeenka."
+
+msgid "Teacher top actions"
+msgstr "Falalka ugu waaweyn ee macallinka"
+
+msgid "Class setup"
+msgstr "Dejinta fasalka"
+
+msgid "My profile"
+msgstr "Boggeyga"
+
+msgid "Invite teacher"
+msgstr "Casuun macallin"
+
+msgid "Organizations"
+msgstr "Ururrada"
+
+msgid "Create a class workspace"
+msgstr "Samee goob fasal"
+
+msgid "Class name"
+msgstr "Magaca fasalka"
+
+msgid "e.g., Piper + Scratch (Period 3)"
+msgstr "tusaale, Piper + Scratch (Xilli 3)"
+
+msgid "Student landing title (optional)"
+msgstr "Cinwaanka degista ardayga (ikhtiyaari)"
+
+msgid "e.g., Week 3: Story + Motion"
+msgstr "tusaale, Toddobaadka 3: Sheeko + Dhaqdhaqaaq"
+
+msgid "First session/module (optional)"
+msgstr "Kulanka/qaybta koowaad (ikhtiyaari)"
+
+msgid "e.g., Session 1 — Warm-up + Build"
+msgstr "tusaale, Kulan 1 - Diyaargarow + Dhisid"
+
+msgid "Student kickoff note (optional)"
+msgstr "Fariinta bilowga ardayga (ikhtiyaari)"
+
+msgid "Tell students where to start as soon as they join."
+msgstr "U sheeg ardayda halka ay ka bilaabayaan isla marka ay ku biiraan."
+
+msgid "Create class workspace"
+msgstr "Samee goobta fasalka"
+
+msgid "Update your contact details and password for teacher sign-in."
+msgstr "Cusboonaysii faahfaahinta xiriirkaaga iyo eraygaaga sirta ah ee gelitaanka macallinka."
+
+msgid "Profile details"
+msgstr "Faahfaahinta profile-ka"
+
+msgid "First name"
+msgstr "Magaca hore"
+
+msgid "Last name"
+msgstr "Magaca dambe"
+
+msgid "Email"
+msgstr "Iimayl"
+
+msgid "Save profile"
+msgstr "Kaydi profile-ka"
+
+msgid "Change password"
+msgstr "Beddel erayga sirta ah"
+
+msgid "Current password"
+msgstr "Erayga sirta ah ee hadda"
+
+msgid "New password"
+msgstr "Eray sir ah oo cusub"
+
+msgid "Confirm new password"
+msgstr "Xaqiiji erayga sirta ah ee cusub"
+
+msgid "Import Syllabus Source"
+msgstr "Soo geli isha manhajka"
+
+msgid "Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`)."
+msgstr "Ka dhis koorso qaab repo ah fayl il macallin (`.md`, `.docx`, ama `.zip`)."
+
+msgid "Course slug (optional)"
+msgstr "Slug-ga koorsada (ikhtiyaari)"
+
+msgid "Course title override (optional)"
+msgstr "Beddel cinwaanka koorsada (ikhtiyaari)"
+
+msgid "Default UI level"
+msgstr "Heerka UI-ga caadiga ah"
+
+msgid "elementary"
+msgstr "hoose"
+
+msgid "secondary"
+msgstr "sare"
+
+msgid "advanced"
+msgstr "horumarsan"
+
+msgid "Session parser mode"
+msgstr "Habka falanqeeyaha kulanka"
+
+msgid "auto"
+msgstr "otomaatig"
+
+msgid "template"
+msgstr "qaab"
+
+msgid "verbose"
+msgstr "faahfaahsan"
+
+msgid "Source file (.md, .docx, or .zip)"
+msgstr "Faylka isha (.md, .docx, ama .zip)"
+
+msgid "Optional overview (.md or .docx)"
+msgstr "Dulmar ikhtiyaari ah (.md ama .docx)"
+
+msgid "Overwrite existing course folder"
+msgstr "Ku qor korka galka koorsada ee jira"
+
+msgid "Import source"
+msgstr "Soo geli isha"
+
+msgid "Generate Course Authoring Templates"
+msgstr "Samee qaabab qorista koorsada"
+
+msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
+msgstr "Samee faylal `.md` iyo `.docx` oo bilow ah oo hore loo qaabeeyey oo loogu talagalay macallimiinta."
+
+msgid "Course slug"
+msgstr "Slug-ga koorsada"
+
+msgid "Course title"
+msgstr "Cinwaanka koorsada"
+
+msgid "Session duration (minutes)"
+msgstr "Muddada kulanka (daqiiqado)"
+
+#, python-format
+msgid "Files are written to %(template_output_dir)s."
+msgstr "Faylasha waxaa lagu qoraa %(template_output_dir)s."
+
+msgid "Generate templates"
+msgstr "Samee qaabab"
+
+#, python-format
+msgid "Download files for %(template_slug)s"
+msgstr "Soo dejiso faylasha %(template_slug)s"
+
+#, python-format
+msgid "%(label)s (not generated yet)"
+msgstr "%(label)s (weli lama samayn)"
+
+msgid "Syllabus Exports"
+msgstr "Dhoofinta manhajka"
+
+msgid "Admin/superuser backup and catalog downloads for repo-authored course syllabi."
+msgstr "Soo dejinta kaydka iyo kataloogga ee admin ama superuser-ka ee manhajyada koorsooyinka repo-ga lagu qoray."
+
+msgid "Download catalog CSV"
+msgstr "Soo dejiso CSV-ga kataloogga"
+
+msgid "Download full backup ZIP"
+msgstr "Soo dejiso ZIP-ga kaydka oo buuxa"
+
+msgid "Single-course backup ZIP"
+msgstr "ZIP kaydka hal koorso"
+
+msgid "Course"
+msgstr "Koorso"
+
+#, python-format
+msgid "%(title)s (%(slug)s) · %(lesson_count)s lessons"
+msgstr "%(title)s (%(slug)s) · %(lesson_count)s casharro"
+
+msgid "Download course ZIP"
+msgstr "Soo dejiso ZIP-ga koorsada"
+
+msgid "No syllabus courses found."
+msgstr "Koorsooyin manhaj ah lama helin."
+
+msgid "What We Store"
+msgstr "Waxa Aan Kaydinno"
+
+msgid "Privacy page"
+msgstr "Bogga asturnaanta"
+
+msgid "What we store / what we never store"
+msgstr "Waxa aan kaydinno / waxa aanan marnaba kaydin"
+
+msgid "Plain-language trust notes for students, families, and staff."
+msgstr "Qoraallo kalsooni oo luqad fudud ku qoran oo loogu talagalay ardayda, qoysaska, iyo shaqaalaha."
+
+msgid "We store your class display name so your teacher can identify your work."
+msgstr "Waxaan kaydinnaa magacaaga muuqda ee fasalka si macallinkaagu u garto shaqadaada."
+
+msgid "We store your class files and activity responses (checklists, reflections, rubric answers)."
+msgstr "Waxaan kaydinnaa faylasha fasalkaaga iyo jawaabaha hawlaha (liisaska hubinta, milicsiyada, iyo jawaabaha rubric-ga)."
+
+msgid "We store basic event timestamps (for example join time and upload time)."
+msgstr "Waxaan kaydinnaa waqtiyada aasaasiga ah ee dhacdooyinka (tusaale ahaan waqtiga ku biirista iyo waqtiga gelinta)."
+
+msgid "We never require student email or student password for normal class use."
+msgstr "Marnaba kama dalbanno ardayga iimayl ama eray sir ah isticmaalka caadiga ah ee fasalka."
+
+msgid "We never sell student data and we do not run ad tracking."
+msgstr "Marnaba ma iibinno xogta ardayga mana samayno raadraac xayeysiis."
+
+msgid "Teachers and approved staff can see student work in their class. Other classes cannot."
+msgstr "Macallimiinta iyo shaqaalaha la oggolaaday waxay arki karaan shaqada ardayga ee fasalkooda. Fasallo kale ma arki karaan."
+
+msgid "Students can rename their display name from My Data at any time (safety rules still apply)."
+msgstr "Ardaydu waxay ka beddeli karaan magaca muuqda bogga Xogtayda wakhti kasta (xeerarka badbaadadu weli way shaqaynayaan)."
+
+msgid "Students can request deletion of their own artifacts and class activity history from My Data. Staff review the request before removal."
+msgstr "Ardaydu waxay ka codsan karaan tirtiridda agabkooda iyo taariikhda hawlahooda fasalka bogga Xogtayda. Shaqaaluhu waxay eegaan codsiga ka hor tirtiridda."
+
+msgid "Students can delete their own artifacts and class activity history from My Data at any time."
+msgstr "Ardaydu waxay ka tirtiri karaan agabkooda iyo taariikhda hawlahooda fasalka bogga Xogtayda wakhti kasta."
+
+msgid "Retention policy for submissions:"
+msgstr "Siyaasadda haynta gudbinnada:"
+
+msgid "Retention policy for event metadata:"
+msgstr "Siyaasadda haynta metadata dhacdooyinka:"
+
+msgid "operator-controlled by class policy."
+msgstr "waxaa maamula siyaasadda fasalka."
+
+msgid "Quick controls"
+msgstr "Xakamaynta degdegga ah"
+
+msgid "Student controls are at"
+msgstr "Xakamaynta ardaygu waxay ku taal"
+
+msgid "rename, download, delete, and end session."
+msgstr "magaca beddel, soo dejiso, tirtir, oo dhammee kal-fadhiga."
+
+#, python-format
+msgid "this server is hosted by %(operator_name)s, %(operator_descriptor)s."
+msgstr "server-kan waxaa martigeliya %(operator_name)s, %(operator_descriptor)s."

@@ -1,44 +1,45 @@
+{% load i18n %}
           <section class="top-tab-panel" id="panel-quick-actions" role="tabpanel" aria-labelledby="tab-quick-actions">
-            <h2 class="section-title">Create a class workspace</h2>
+            <h2 class="section-title">{% trans "Create a class workspace" %}</h2>
             <form method="post" action="/teach/create-class">
               {% csrf_token %}
               <div class="create-class-name-wrap">
-                <label for="class-name">Class name</label>
-                <input id="class-name" name="name" placeholder="e.g., Piper + Scratch (Period 3)" />
+                <label for="class-name">{% trans "Class name" %}</label>
+                <input id="class-name" name="name" placeholder="{% trans 'e.g., Piper + Scratch (Period 3)' %}" />
               </div>
               <div class="create-class-grid">
                 <div>
-                  <label for="class-landing-title">Student landing title (optional)</label>
+                  <label for="class-landing-title">{% trans "Student landing title (optional)" %}</label>
                   <input
                     id="class-landing-title"
                     name="student_landing_title"
                     maxlength="200"
-                    placeholder="e.g., Week 3: Story + Motion"
+                    placeholder="{% trans 'e.g., Week 3: Story + Motion' %}"
                   />
                 </div>
                 <div>
-                  <label for="first-module-title">First session/module (optional)</label>
+                  <label for="first-module-title">{% trans "First session/module (optional)" %}</label>
                   <input
                     id="first-module-title"
                     name="first_module_title"
                     maxlength="200"
-                    placeholder="e.g., Session 1 — Warm-up + Build"
+                    placeholder="{% trans 'e.g., Session 1 — Warm-up + Build' %}"
                   />
                 </div>
               </div>
               <div class="create-class-message-wrap">
-                <label for="class-landing-message">Student kickoff note (optional)</label>
+                <label for="class-landing-message">{% trans "Student kickoff note (optional)" %}</label>
                 <textarea
                   id="class-landing-message"
                   name="student_landing_message"
                   rows="4"
                   maxlength="4000"
-                  placeholder="Tell students where to start as soon as they join."
+                  placeholder="{% trans 'Tell students where to start as soon as they join.' %}"
                 ></textarea>
               </div>
               <input type="hidden" name="open_after_create" value="1" />
               <div class="submit-wrap">
-                <button type="submit">Create class workspace</button>
+                <button type="submit">{% trans "Create class workspace" %}</button>
               </div>
             </form>
           </section>

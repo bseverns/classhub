@@ -1,6 +1,7 @@
 """Template context processors for Class Hub."""
 
 from django.conf import settings
+from django.utils.translation import gettext as _
 from config.localization import localization_from_request
 
 from hub.services.ui_density import default_ui_density_mode
@@ -26,6 +27,8 @@ def operator_profile(_request):
     )
     profile["operator_name"] = operator_name
     profile["operator_descriptor"] = operator_descriptor
+    default_storage_location_text = f"this server is hosted by {operator_name}, {operator_descriptor}."
+    default_privacy_promise_text = "No tracking. No ads. No data broker sharing."
     profile["product_name"] = str(
         getattr(
             settings,
@@ -40,19 +43,28 @@ def operator_profile(_request):
             "CLASSHUB_STORAGE_LOCATION_TEXT",
             profile.get(
                 "storage_location_text",
-                f"this server is hosted by {operator_name}, {operator_descriptor}.",
+                default_storage_location_text,
             ),
         )
-        or f"this server is hosted by {operator_name}, {operator_descriptor}."
+        or default_storage_location_text
     )
+    if profile["storage_location_text"] == default_storage_location_text:
+        profile["storage_location_text"] = _(
+            "this server is hosted by %(operator_name)s, %(operator_descriptor)s."
+        ) % {
+            "operator_name": operator_name,
+            "operator_descriptor": operator_descriptor,
+        }
     profile["privacy_promise_text"] = str(
         getattr(
             settings,
             "CLASSHUB_PRIVACY_PROMISE_TEXT",
-            profile.get("privacy_promise_text", "No tracking. No ads. No data broker sharing."),
+            profile.get("privacy_promise_text", default_privacy_promise_text),
         )
-        or "No tracking. No ads. No data broker sharing."
+        or default_privacy_promise_text
     )
+    if profile["privacy_promise_text"] == default_privacy_promise_text:
+        profile["privacy_promise_text"] = _(default_privacy_promise_text)
     profile["admin_label"] = str(
         getattr(
             settings,

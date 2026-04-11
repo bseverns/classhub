@@ -1159,3 +1159,251 @@ msgstr "Aun no se encontraron enlaces de lecciones en esta clase."
 
 msgid "No classes available."
 msgstr "No hay clases disponibles."
+
+msgid "Portal setup + account tools"
+msgstr "Configuración del portal y herramientas de cuenta"
+
+msgid "Start with Class setup first. Superuser operator + policy workflows live behind Show operator tools."
+msgstr "Empieza primero con la configuración de la clase. Los flujos de operador superusuario y de políticas están detrás de Mostrar herramientas de operador."
+
+msgid "Teacher top actions"
+msgstr "Acciones principales del maestro"
+
+msgid "Class setup"
+msgstr "Configuración de la clase"
+
+msgid "My profile"
+msgstr "Mi perfil"
+
+msgid "Invite teacher"
+msgstr "Invitar maestro"
+
+msgid "Organizations"
+msgstr "Organizaciones"
+
+msgid "Create a class workspace"
+msgstr "Crear un espacio de clase"
+
+msgid "Class name"
+msgstr "Nombre de la clase"
+
+msgid "e.g., Piper + Scratch (Period 3)"
+msgstr "p. ej., Piper + Scratch (Periodo 3)"
+
+msgid "Student landing title (optional)"
+msgstr "Título de inicio del estudiante (opcional)"
+
+msgid "e.g., Week 3: Story + Motion"
+msgstr "p. ej., Semana 3: Historia + Movimiento"
+
+msgid "First session/module (optional)"
+msgstr "Primera sesión/módulo (opcional)"
+
+msgid "e.g., Session 1 — Warm-up + Build"
+msgstr "p. ej., Sesión 1 - Calentamiento + Construcción"
+
+msgid "Student kickoff note (optional)"
+msgstr "Nota inicial para estudiantes (opcional)"
+
+msgid "Tell students where to start as soon as they join."
+msgstr "Diles a los estudiantes dónde empezar en cuanto se unan."
+
+msgid "Create class workspace"
+msgstr "Crear espacio de clase"
+
+msgid "Update your contact details and password for teacher sign-in."
+msgstr "Actualiza tus datos de contacto y tu contraseña para el inicio de sesión del maestro."
+
+msgid "Profile details"
+msgstr "Detalles del perfil"
+
+msgid "First name"
+msgstr "Nombre"
+
+msgid "Last name"
+msgstr "Apellido"
+
+msgid "Email"
+msgstr "Correo electrónico"
+
+msgid "Save profile"
+msgstr "Guardar perfil"
+
+msgid "Change password"
+msgstr "Cambiar contraseña"
+
+msgid "Current password"
+msgstr "Contraseña actual"
+
+msgid "New password"
+msgstr "Nueva contraseña"
+
+msgid "Confirm new password"
+msgstr "Confirmar nueva contraseña"
+
+msgid "Import Syllabus Source"
+msgstr "Importar fuente del programa"
+
+msgid "Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`)."
+msgstr "Crea un curso con estilo de repositorio a partir de un archivo fuente del maestro (`.md`, `.docx` o `.zip`)."
+
+msgid "Course slug (optional)"
+msgstr "Slug del curso (opcional)"
+
+msgid "Course title override (optional)"
+msgstr "Reemplazo del título del curso (opcional)"
+
+msgid "Default UI level"
+msgstr "Nivel de interfaz predeterminado"
+
+msgid "elementary"
+msgstr "elemental"
+
+msgid "secondary"
+msgstr "secundaria"
+
+msgid "advanced"
+msgstr "avanzado"
+
+msgid "Session parser mode"
+msgstr "Modo del analizador de sesiones"
+
+msgid "auto"
+msgstr "automático"
+
+msgid "template"
+msgstr "plantilla"
+
+msgid "verbose"
+msgstr "detallado"
+
+msgid "Source file (.md, .docx, or .zip)"
+msgstr "Archivo fuente (.md, .docx o .zip)"
+
+msgid "Optional overview (.md or .docx)"
+msgstr "Resumen opcional (.md o .docx)"
+
+msgid "Overwrite existing course folder"
+msgstr "Sobrescribir la carpeta del curso existente"
+
+msgid "Import source"
+msgstr "Importar fuente"
+
+msgid "Generate Course Authoring Templates"
+msgstr "Generar plantillas de autoría del curso"
+
+msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
+msgstr "Crea archivos iniciales `.md` y `.docx` ya formateados para maestros."
+
+msgid "Course slug"
+msgstr "Slug del curso"
+
+msgid "Course title"
+msgstr "Título del curso"
+
+msgid "Session duration (minutes)"
+msgstr "Duración de la sesión (minutos)"
+
+#, python-format
+msgid "Files are written to %(template_output_dir)s."
+msgstr "Los archivos se escriben en %(template_output_dir)s."
+
+msgid "Generate templates"
+msgstr "Generar plantillas"
+
+#, python-format
+msgid "Download files for %(template_slug)s"
+msgstr "Descargar archivos para %(template_slug)s"
+
+#, python-format
+msgid "%(label)s (not generated yet)"
+msgstr "%(label)s (aún no generado)"
+
+msgid "Syllabus Exports"
+msgstr "Exportaciones del programa"
+
+msgid "Admin/superuser backup and catalog downloads for repo-authored course syllabi."
+msgstr "Descargas de respaldo y catálogo para administradores o superusuarios de programas de curso escritos en el repositorio."
+
+msgid "Download catalog CSV"
+msgstr "Descargar catálogo CSV"
+
+msgid "Download full backup ZIP"
+msgstr "Descargar ZIP de respaldo completo"
+
+msgid "Single-course backup ZIP"
+msgstr "ZIP de respaldo de un solo curso"
+
+msgid "Course"
+msgstr "Curso"
+
+#, python-format
+msgid "%(title)s (%(slug)s) · %(lesson_count)s lessons"
+msgstr "%(title)s (%(slug)s) · %(lesson_count)s lecciones"
+
+msgid "Download course ZIP"
+msgstr "Descargar ZIP del curso"
+
+msgid "No syllabus courses found."
+msgstr "No se encontraron cursos de programa."
+
+msgid "What We Store"
+msgstr "Qué guardamos"
+
+msgid "Privacy page"
+msgstr "Página de privacidad"
+
+msgid "What we store / what we never store"
+msgstr "Qué guardamos / qué nunca guardamos"
+
+msgid "Plain-language trust notes for students, families, and staff."
+msgstr "Notas de confianza en lenguaje sencillo para estudiantes, familias y personal."
+
+msgid "We store your class display name so your teacher can identify your work."
+msgstr "Guardamos tu nombre para mostrar de la clase para que tu maestro pueda identificar tu trabajo."
+
+msgid "We store your class files and activity responses (checklists, reflections, rubric answers)."
+msgstr "Guardamos tus archivos de clase y respuestas de actividad (listas, reflexiones y respuestas de rúbrica)."
+
+msgid "We store basic event timestamps (for example join time and upload time)."
+msgstr "Guardamos marcas de tiempo básicas de eventos (por ejemplo, la hora de unión y la hora de carga)."
+
+msgid "We never require student email or student password for normal class use."
+msgstr "Nunca exigimos correo electrónico ni contraseña del estudiante para el uso normal de la clase."
+
+msgid "We never sell student data and we do not run ad tracking."
+msgstr "Nunca vendemos datos de estudiantes y no hacemos seguimiento publicitario."
+
+msgid "Teachers and approved staff can see student work in their class. Other classes cannot."
+msgstr "Los maestros y el personal aprobado pueden ver el trabajo estudiantil de su clase. Otras clases no."
+
+msgid "Students can rename their display name from My Data at any time (safety rules still apply)."
+msgstr "Los estudiantes pueden cambiar su nombre para mostrar desde Mis datos en cualquier momento (siguen aplicando las reglas de seguridad)."
+
+msgid "Students can request deletion of their own artifacts and class activity history from My Data. Staff review the request before removal."
+msgstr "Los estudiantes pueden solicitar la eliminación de sus propios archivos e historial de actividad desde Mis datos. El personal revisa la solicitud antes de eliminar."
+
+msgid "Students can delete their own artifacts and class activity history from My Data at any time."
+msgstr "Los estudiantes pueden eliminar sus propios archivos e historial de actividad de la clase desde Mis datos en cualquier momento."
+
+msgid "Retention policy for submissions:"
+msgstr "Política de retención de entregas:"
+
+msgid "Retention policy for event metadata:"
+msgstr "Política de retención de metadatos de eventos:"
+
+msgid "operator-controlled by class policy."
+msgstr "controlado por la política de la clase."
+
+msgid "Quick controls"
+msgstr "Controles rápidos"
+
+msgid "Student controls are at"
+msgstr "Los controles del estudiante están en"
+
+msgid "rename, download, delete, and end session."
+msgstr "renombrar, descargar, eliminar y terminar sesión."
+
+#, python-format
+msgid "this server is hosted by %(operator_name)s, %(operator_descriptor)s."
+msgstr "este servidor está alojado por %(operator_name)s, %(operator_descriptor)s."

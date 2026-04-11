@@ -214,6 +214,7 @@ class I18nSmokeTests(TestCase):
         teacher = get_user_model().objects.create_user(
             username="teacher_i18n_day_mode",
             password="testpass123",
+            is_staff=True,
         )
         _force_login_staff_verified(self.client, teacher)
 
@@ -225,6 +226,7 @@ class I18nSmokeTests(TestCase):
         teacher = get_user_model().objects.create_user(
             username="teacher_i18n_day_mode_so",
             password="testpass123",
+            is_staff=True,
         )
         _force_login_staff_verified(self.client, teacher)
 
@@ -236,6 +238,7 @@ class I18nSmokeTests(TestCase):
         teacher = get_user_model().objects.create_user(
             username="teacher_i18n_day_mode_ksw",
             password="testpass123",
+            is_staff=True,
         )
         _force_login_staff_verified(self.client, teacher)
 
@@ -247,6 +250,7 @@ class I18nSmokeTests(TestCase):
         teacher = get_user_model().objects.create_user(
             username="teacher_i18n_home_lang",
             password="testpass123",
+            is_staff=True,
         )
         _force_login_staff_verified(self.client, teacher)
 
@@ -258,12 +262,52 @@ class I18nSmokeTests(TestCase):
         teacher = get_user_model().objects.create_user(
             username="teacher_i18n_lessons_lang",
             password="testpass123",
+            is_staff=True,
         )
         _force_login_staff_verified(self.client, teacher)
 
         resp = self.client.get("/teach/lessons", HTTP_ACCEPT_LANGUAGE="so")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, '<html lang="so">')
+
+    def test_teach_home_setup_console_spanish_renders_translated_setup_copy(self):
+        teacher = get_user_model().objects.create_user(
+            username="teacher_i18n_setup_es",
+            password="testpass123",
+            is_staff=True,
+        )
+        _force_login_staff_verified(self.client, teacher)
+
+        resp = self.client.get("/teach", HTTP_ACCEPT_LANGUAGE="es")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Configuración del portal y herramientas de cuenta")
+        self.assertContains(resp, "Crear un espacio de clase")
+
+    def test_teach_home_setup_console_somali_renders_translated_setup_copy(self):
+        teacher = get_user_model().objects.create_user(
+            username="teacher_i18n_setup_so",
+            password="testpass123",
+            is_staff=True,
+        )
+        _force_login_staff_verified(self.client, teacher)
+
+        resp = self.client.get("/teach", HTTP_ACCEPT_LANGUAGE="so")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Dejinta portalka iyo qalabka akoonka")
+        self.assertContains(resp, "Samee goob fasal")
+
+    def test_teach_home_setup_console_sgaw_karen_renders_translated_setup_copy(self):
+        teacher = get_user_model().objects.create_user(
+            username="teacher_i18n_setup_ksw",
+            password="testpass123",
+            is_staff=True,
+        )
+        _force_login_staff_verified(self.client, teacher)
+
+        resp = self.client.get("/teach", HTTP_ACCEPT_LANGUAGE="ksw")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "တၢ်တဲာ်တဲာ် portal ဒီး account tool တဖၣ်")
+        self.assertContains(resp, "တီၤအတၢ်မၤတၢ်လီၢ် မၤတ့ၢ်")
 
     def test_student_my_data_page_spanish_renders_translated_core_copy(self):
         self._set_student_session()
@@ -313,4 +357,4 @@ class I18nSmokeTests(TestCase):
     def test_privacy_page_sgaw_karen_renders_translated_core_copy(self):
         resp = self.client.get("/trust", HTTP_ACCEPT_LANGUAGE="ksw")
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "တၢ်ခူသူၣ် အတၢ်ဂ့ၢ်")
+        self.assertContains(resp, "တၢ်လၢပသိမ်းဆည်း / တၢ်လၢပတသိမ်းဆည်းနီတဘျီဘၣ်")
