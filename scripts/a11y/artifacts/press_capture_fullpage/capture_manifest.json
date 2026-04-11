@@ -1,0 +1,79 @@
+{
+  "baseUrl": "http://127.0.0.1:8000",
+  "fullPage": true,
+  "captured": [
+    {
+      "filename": "01-student-join.png",
+      "url": "http://127.0.0.1:8000/"
+    },
+    {
+      "filename": "02-student-class-view.png",
+      "url": "http://127.0.0.1:8000/student"
+    },
+    {
+      "filename": "03-teacher-dashboard.png",
+      "url": "http://127.0.0.1:8000/teach?portal_mode=day"
+    },
+    {
+      "filename": "04-teacher-lesson-tracker.png",
+      "url": "http://127.0.0.1:8000/teach/lessons"
+    },
+    {
+      "filename": "05-lesson-with-helper.png",
+      "url": "http://127.0.0.1:8000/course/piper_scratch_12_session/s01-welcome-private-workflow"
+    },
+    {
+      "filename": "06-submission-dropbox.png",
+      "url": "http://127.0.0.1:8000/material/128/upload"
+    },
+    {
+      "filename": "07-admin-login.png",
+      "url": "http://127.0.0.1:8000/admin/login/"
+    },
+    {
+      "filename": "09-teacher-profile-tab.png",
+      "url": "http://127.0.0.1:8000/teach?profile_tab=1"
+    },
+    {
+      "filename": "10-org-management-tab.png",
+      "url": "http://127.0.0.1:8000/teach?portal_mode=admin&advanced=1"
+    },
+    {
+      "filename": "11-invite-only-enrollment.png",
+      "url": "http://127.0.0.1:8000/teach/class/1"
+    },
+    {
+      "filename": "12-certificate-eligibility.png",
+      "url": "http://127.0.0.1:8000/teach/class/1/certificate-eligibility"
+    },
+    {
+      "filename": "14-student-compact-view.png",
+      "url": "http://127.0.0.1:8000/student"
+    },
+    {
+      "filename": "15-lesson-helper-collapsed.png",
+      "url": "http://127.0.0.1:8000/course/piper_scratch_12_session/s01-welcome-private-workflow"
+    },
+    {
+      "filename": "16-student-standard-view.png",
+      "url": "http://127.0.0.1:8000/student"
+    },
+    {
+      "filename": "17-student-expanded-view.png",
+      "url": "http://127.0.0.1:8000/student"
+    },
+    {
+      "filename": "18-teacher-landing-editor.png",
+      "url": "http://127.0.0.1:8000/teach/class/1"
+    },
+    {
+      "filename": "19-rbac-tools-tab.png",
+      "url": "http://127.0.0.1:8000/teach?portal_mode=policy&advanced=1"
+    },
+    {
+      "filename": "20-data-lifespan-evidence.png",
+      "url": "http://127.0.0.1:8000/teach/data-lifespan"
+    }
+  ],
+  "skipped": []
+}
