@@ -12,13 +12,8 @@ from django.views.decorators.http import require_POST
 
 from ...http.headers import apply_no_store
 from ...models import Class, ClassInviteLink, ClassStaffAssignment
-from ...services.helper_control import (
-    HelperRemoteComputeEvidenceResult,
-    HelperRemoteComputeStatusResult,
-    fetch_remote_compute_evidence,
-    fetch_remote_compute_status,
-)
 from ...services.teacher_roster_class import build_dashboard_context
+from .roster_class_remote_compute import remote_compute_status_context
 from .shared_auth import (
     staff_can_create_classes,
     staff_can_manage_policy,
@@ -57,77 +52,6 @@ def _clean_class_seed_value(raw: str | None, *, limit: int) -> str:
 def _should_open_class_workspace(request) -> bool:
     raw = (request.POST.get("open_after_create") or "").strip().lower()
     return raw in {"1", "true", "yes", "on"}
-
-
-def _remote_compute_status_context(*, can_manage_remote_compute: bool, classroom) -> dict:
-    if can_manage_remote_compute:
-        status_result = fetch_remote_compute_status(
-            class_id=classroom.id,
-            endpoint_url=str(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL", "") or "").strip(),
-            internal_token=str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip(),
-            timeout_seconds=float(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_TIMEOUT_SECONDS", 2.0) or 2.0),
-        )
-        evidence_result = fetch_remote_compute_evidence(
-            class_id=classroom.id,
-            endpoint_url=str(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_EVIDENCE_URL", "") or "").strip(),
-            internal_token=str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip(),
-            timeout_seconds=float(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_TIMEOUT_SECONDS", 2.0) or 2.0),
-        )
-    else:
-        status_result = HelperRemoteComputeStatusResult(ok=False, error_code="not_visible")
-        evidence_result = HelperRemoteComputeEvidenceResult(ok=False, error_code="not_visible")
-    return {
-        "helper_remote_compute": status_result,
-        "helper_remote_compute_evidence": evidence_result,
-        "helper_remote_compute_cost_risk": _remote_compute_cost_risk(
-            status_result=status_result,
-            evidence_result=evidence_result,
-        ),
-        "helper_remote_compute_duration_choices": [30, 60, 90, 120],
-    }
-
-
-def _remote_compute_cost_risk(*, status_result, evidence_result) -> dict:
-    if not bool(getattr(status_result, "ok", False)):
-        return {
-            "level": "unavailable",
-            "summary": "Staff evidence unavailable",
-            "detail": "The helper evidence path did not return a usable remote-compute status snapshot.",
-        }
-    if not bool(getattr(status_result, "active", False)):
-        return {
-            "level": "low",
-            "summary": "No active lease",
-            "detail": "Remote helper compute is off, so there is no current leased-cost exposure.",
-        }
-    if str(getattr(status_result, "state", "") or "").strip() == "degraded":
-        return {
-            "level": "degraded_active",
-            "summary": "Lease active while degraded",
-            "detail": "The lease is still active but helper traffic is falling back locally; stop it if the class no longer needs remote capacity.",
-        }
-    if int(getattr(status_result, "remaining_minutes", 0) or 0) <= 10:
-        return {
-            "level": "expiring",
-            "summary": "Lease nearing expiry",
-            "detail": "The remote window is close to ending; extend it only if the class is actively using the remote path right now.",
-        }
-    remote_routes = int(getattr(status_result, "remote_route_count", 0) or 0)
-    if bool(getattr(evidence_result, "ok", False)):
-        recent_sessions = list(getattr(evidence_result, "recent_sessions", []) or [])
-        if recent_sessions:
-            remote_routes = int(recent_sessions[0].get("remote_route_count") or remote_routes)
-    if remote_routes <= 0:
-        return {
-            "level": "unused_active",
-            "summary": "Lease active but unused",
-            "detail": "The current lease is running but the helper has not recorded remote-routed chats yet.",
-        }
-    return {
-        "level": "bounded",
-        "summary": "Bounded active lease",
-        "detail": "Remote helper compute is active within a class-scoped window and has recorded live remote usage.",
-    }
 
 
 @staff_member_required
@@ -223,7 +147,7 @@ def teach_class_dashboard(request, class_id: int):
             "notice": notice,
             "error": error,
             "can_manage_helper_remote_compute": can_manage_remote_compute,
-            **_remote_compute_status_context(
+            **remote_compute_status_context(
                 can_manage_remote_compute=can_manage_remote_compute,
                 classroom=classroom,
             ),
