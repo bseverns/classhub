@@ -169,7 +169,7 @@ def _register_index_key(
     if max_entries > 0 and len(values) > max_entries:
         values = values[-max_entries:]
     try:
-        cache_backend.set(index_key, values, timeout=max(int(ttl_seconds), 300))
+        cache_backend.set(index_key, values, timeout=max(int(ttl_seconds), 1))
     except Exception:
         logger.warning("conversation_memory_cache_set_failed key=%s", index_key)
 
@@ -189,7 +189,7 @@ def save_state(
         "summary": _coerce_summary(summary, max_chars=2000),
         "turns": normalized,
     }
-    timeout = max(int(ttl_seconds), 60)
+    timeout = max(int(ttl_seconds), 1)
     try:
         cache_backend.set(key, payload, timeout=timeout)
     except Exception:
