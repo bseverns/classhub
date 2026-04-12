@@ -1193,7 +1193,7 @@ msgstr "password အသစ်"
 msgid "Confirm new password"
 msgstr "အုၣ်ကီၤ password အသစ်"
 
-msgid "Import Syllabus Source"
+msgid "Compile Coursepack ZIP"
 msgstr "ဟဲစိာ် syllabus source"
 
 msgid "Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`)."

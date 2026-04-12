@@ -1241,7 +1241,7 @@ msgstr "Nueva contraseña"
 msgid "Confirm new password"
 msgstr "Confirmar nueva contraseña"
 
-msgid "Import Syllabus Source"
+msgid "Compile Coursepack ZIP"
 msgstr "Importar fuente del programa"
 
 msgid "Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`)."

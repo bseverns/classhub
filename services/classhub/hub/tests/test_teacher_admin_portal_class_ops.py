@@ -55,7 +55,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertNotContains(resp, "const tabRoot = document.querySelector", html=False)
         self.assertContains(resp, "Recent submissions")
         self.assertContains(resp, "Ada")
-        self.assertNotContains(resp, "Import Syllabus Source")
+        self.assertNotContains(resp, "Compile Coursepack ZIP")
         self.assertNotContains(resp, "Generate Course Authoring Templates")
         self.assertNotContains(resp, "Syllabus Exports")
         self.assertContains(resp, "Show operator tools")
@@ -88,7 +88,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, "Portal modes")
         self.assertContains(resp, "Classroom focus")
         self.assertContains(resp, "Recent submissions")
-        self.assertNotContains(resp, "Import Syllabus Source")
+        self.assertNotContains(resp, "Compile Coursepack ZIP")
         self.assertNotContains(resp, "Portal setup + account tools")
         self.assertNotContains(resp, "Operator config snapshot")
 
@@ -101,7 +101,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, "Daily teaching workflows (tasks 1-8)")
         self.assertContains(resp, "Operator + policy workflows (tasks 9-10)")
         self.assertContains(resp, "Portal setup + account tools")
-        self.assertContains(resp, "Import Syllabus Source")
+        self.assertContains(resp, "Compile Coursepack ZIP")
         self.assertNotContains(resp, "Classroom focus")
         self.assertNotContains(resp, "Recent submissions")
 

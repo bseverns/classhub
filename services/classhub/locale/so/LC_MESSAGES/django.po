@@ -1193,7 +1193,7 @@ msgstr "Eray sir ah oo cusub"
 msgid "Confirm new password"
 msgstr "Xaqiiji erayga sirta ah ee cusub"
 
-msgid "Import Syllabus Source"
+msgid "Compile Coursepack ZIP"
 msgstr "Soo geli isha manhajka"
 
 msgid "Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`)."
