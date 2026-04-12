@@ -1,0 +1,69 @@
+{% load static hub_extras %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit Lesson: {{ lesson_title }}</title>
+    {% include "includes/glass_theme.html" %}
+    <style>
+        .editor-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .editor-textarea {
+            width: 100%;
+            height: 75vh;
+            font-family: monospace;
+            font-size: 14px;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            line-height: 1.5;
+            resize: vertical;
+        }
+
+        .editor-textarea:focus {
+            outline: 2px solid var(--accent-indigo);
+            border-color: transparent;
+        }
+
+        .actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-save {
+            background-color: var(--accent-indigo, #6366f1);
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+
+<body class="glass-theme">
+    <div class="shell editor-container">
+        <div style="margin-bottom: 1rem;">
+            <div class="muted">Course: {{ course_slug }}</div>
+            <h1>Edit: {{ lesson_title|default:lesson_slug }}</h1>
+            <p class="muted">You are directly editing the source markdown. Changes will reflect instantly upon save.</p>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <textarea name="content" class="editor-textarea" spellcheck="false">{{ raw_content }}</textarea>
+            <div class="actions">
+                <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}">Cancel</a>
+                <button type="submit" class="btn btn-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

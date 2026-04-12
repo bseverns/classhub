@@ -110,6 +110,7 @@ urlpatterns = [
     path("teach/logout", views.teacher_logout),
     path("teach/lessons", views.teach_lessons),
     path("teach/lessons/release", views.teach_set_lesson_release),
+    path("teach/course/<slug:course_slug>/<slug:lesson_slug>/edit", views.teach_edit_lesson_content),
     path("teach/assets", views.teach_assets),
     path("teach/create-class", views.teach_create_class),
     path("teach/class/<int:class_id>", views.teach_class_dashboard),

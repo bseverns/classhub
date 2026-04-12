@@ -18,6 +18,42 @@ from .shared import (
     staff_classroom_or_none,
     staff_member_required,
 )
+from django.shortcuts import redirect
+from ..services.markdown_content import _safe_course_file_path, load_course_manifest
+
+@staff_member_required
+def teach_edit_lesson_content(request, course_slug: str, lesson_slug: str):
+    manifest = load_course_manifest(course_slug)
+    lessons = manifest.get("lessons") or []
+    match = next((l for l in lessons if isinstance(l, dict) and (l.get("slug") == lesson_slug)), None)
+    if not match:
+        return _safe_internal_redirect(request, f"/course/{course_slug}/{lesson_slug}", error="Lesson mapping not found.")
+        
+    rel = str(match.get("file") or "").strip()
+    if not rel:
+        return _safe_internal_redirect(request, f"/course/{course_slug}/{lesson_slug}", error="Lesson file path not mapped.")
+        
+    lesson_path = _safe_course_file_path(course_slug, rel)
+    if lesson_path is None or not lesson_path.exists():
+        return _safe_internal_redirect(request, f"/course/{course_slug}/{lesson_slug}", error="Lesson file does not exist on disk.")
+        
+    if request.method == "POST":
+        new_content = request.POST.get("content", "")
+        lesson_path.write_text(new_content, encoding="utf-8")
+        _audit(request, action="lesson_edit", classroom=None, target_type="LessonFile", target_id=f"{course_slug}/{lesson_slug}", summary="Edited markdown content", metadata={})
+        return redirect(f"/course/{course_slug}/{lesson_slug}")
+        
+    raw_content = lesson_path.read_text(encoding="utf-8")
+    return render(
+        request,
+        "teacher/teach_lesson_edit.html",
+        {
+            "course_slug": course_slug,
+            "lesson_slug": lesson_slug,
+            "lesson_title": match.get("title") or lesson_slug,
+            "raw_content": raw_content,
+        }
+    )
 
 
 @staff_member_required
@@ -315,4 +351,5 @@ def teach_set_lesson_release(request):
 __all__ = [
     "teach_lessons",
     "teach_set_lesson_release",
+    "teach_edit_lesson_content",
 ]

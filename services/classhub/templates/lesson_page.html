@@ -1,202 +1,201 @@
 {% load static hub_extras %}
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ front_matter.title|default:lesson_slug }}</title>
-    {% include "includes/glass_theme.html" %}
-    <link rel="stylesheet" href="{% static 'css/lesson_page.css' %}" />
-  </head>
-  <body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
-    <div class="shell">
-      <main id="main-content">
-        <div class="top">
-          <div>
-            <div class="muted">Course: <a href="/course/{{ course_slug }}">{{ course.title|default:course_slug }}</a></div>
-            <h1>{{ front_matter.title|default:lesson_slug }}</h1>
-            {% if front_matter.makes %}
-              <div class="muted">
-                {% if ui_density_mode == "compact" %}
-                  Goal: {{ front_matter.makes }}
-                {% else %}
-                  Makes: {{ front_matter.makes }}
-                {% endif %}
-              </div>
-            {% endif %}
-            {% if ui_density_mode == "expanded" %}
-              <div class="muted">Studio mode: be ready to explain why your code choices improve clarity, fairness, or reliability.</div>
-            {% endif %}
-            <div class="lesson-status">
-              {% if lesson_locked %}
-                <span class="state-pill state-pill--locked">Lesson locked</span>
-              {% else %}
-                <span class="state-pill state-pill--open">Lesson open</span>
-              {% endif %}
-            </div>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ front_matter.title|default:lesson_slug }}</title>
+  {% include "includes/glass_theme.html" %}
+  <link rel="stylesheet" href="{% static 'css/lesson_page.css' %}" />
+</head>
+
+<body class="glass-theme ui-density-{{ ui_density_mode|default:'standard' }}">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <div class="shell">
+    <main id="main-content">
+      <div class="top">
+        <div>
+          <div class="muted">Course: <a href="/course/{{ course_slug }}">{{ course.title|default:course_slug }}</a>
           </div>
-          <div class="nav">
-            <a class="btn" href="/student">Back to class</a>
-            {% if ui_density_mode == "expanded" %}
-              <a class="btn" href="/student/portfolio-export">Export portfolio</a>
-            {% endif %}
-            {% if prev %}
-              <a class="btn" href="/course/{{ course_slug }}/{{ prev.slug }}">← Prev</a>
-            {% endif %}
-            {% if next %}
-              <a class="btn" href="/course/{{ course_slug }}/{{ next.slug }}">Next →</a>
-            {% endif %}
-          </div>
-        </div>
-
-        {% if lesson_locked %}
-          <div class="card">
-            <h2 class="card-title">Lesson schedule</h2>
-            <p><span class="state-pill state-pill--locked">Intro-only mode</span></p>
-            <p class="muted">
-              Full activities and submissions unlock on
-              <strong>{{ lesson_available_on|date:"M j, Y" }}</strong>.
-            </p>
-          </div>
-        {% endif %}
-
-        {% if not lesson_locked and lesson_videos %}
-          <div class="card">
-            <h2 class="card-title">Lesson videos</h2>
-            {% for video in lesson_videos %}
-              <section class="video-item">
-                <button
-                  type="button"
-                  class="video-toggle"
-                  id="video-toggle-{{ forloop.counter }}"
-                  aria-expanded="false"
-                  aria-controls="video-panel-{{ forloop.counter }}"
-                >
-                  <h3>
-                    {% if video.id %}{{ video.id }} — {% endif %}{{ video.title }}
-                    {% if video.minutes %}<span class="muted">({{ video.minutes }} min)</span>{% endif %}
-                  </h3>
-                </button>
-                <div
-                  id="video-panel-{{ forloop.counter }}"
-                  class="video-panel"
-                  role="region"
-                  aria-labelledby="video-toggle-{{ forloop.counter }}"
-                  hidden
-                >
-                  {% if video.source_type == "youtube" and video.embed_url %}
-                    <div class="video-frame">
-                      <iframe
-                        data-src="{{ video.embed_url }}"
-                        title="{{ video.title }}"
-                        loading="lazy"
-                        allowfullscreen
-                      ></iframe>
-                    </div>
-                  {% elif video.source_type == "native" and video.media_url %}
-                    <video class="video-native" controls preload="metadata" playsinline>
-                      <source src="{{ video.media_url }}" {% if video.media_type %}type="{{ video.media_type }}"{% endif %} />
-                      Your browser does not support this video. Use the open link below.
-                    </video>
-                  {% else %}
-                    <p class="muted video-state">No inline video source is configured yet.</p>
-                  {% endif %}
-
-                  {% if video.url %}
-                    <p class="video-state">
-                      <a href="{{ video.url }}" target="_blank" rel="noopener noreferrer">Open video in a new tab</a>
-                    </p>
-                  {% endif %}
-                  {% if video.outcome %}
-                    <p class="muted video-state">After this you can: {{ video.outcome }}</p>
-                  {% endif %}
-                </div>
-              </section>
-            {% endfor %}
-          </div>
-        {% endif %}
-
-        {% if not lesson_locked and lesson_submission.type == "file" %}
-          <div class="card">
-            <h2 class="card-title">Homework dropbox</h2>
-            <p class="muted dropbox-detail"><span class="state-pill state-pill--open">Submissions open</span></p>
-            <p class="muted dropbox-detail">
-              {% if lesson_submission.accepted_exts %}
-                Accepted: <strong>{{ lesson_submission.accepted_exts|join:", " }}</strong>
-              {% else %}
-                Accepted: <strong>.sb3</strong>
-              {% endif %}
-              {% if lesson_submission.naming %}
-                · Suggested name: <strong>{{ lesson_submission.naming }}</strong>
-              {% endif %}
-            </p>
-
-            {% if student and lesson_upload_material %}
-              <p class="muted dropbox-state">
-                {% if lesson_upload_status %}
-                  <span class="state-pill state-pill--done">Done</span> File saved. Re-upload to replace.
-                {% else %}
-                  <span class="state-pill state-pill--open">Open</span> Upload at least one file to finish.
-                {% endif %}
-              </p>
-              <div class="nav dropbox-actions">
-                <a class="btn" href="/material/{{ lesson_upload_material.id }}/upload">Open dropbox</a>
-                {% if lesson_upload_status %}
-                  <span class="muted">Uploaded {{ lesson_upload_status.count }} file{{ lesson_upload_status.count|pluralize }} · latest {{ lesson_upload_status.last_uploaded_at }}</span>
-                {% endif %}
-              </div>
-            {% elif student %}
-              <p class="muted dropbox-state">Dropbox is not configured for this lesson yet. A teacher can re-import the course pack to enable it.</p>
+          <h1>{{ front_matter.title|default:lesson_slug }}</h1>
+          {% if front_matter.makes %}
+          <div class="muted">
+            {% if ui_density_mode == "compact" %}
+            Goal: {{ front_matter.makes }}
             {% else %}
-              <div class="nav dropbox-actions">
-                <a class="btn" href="/">Join your class to upload homework</a>
-              </div>
+            Makes: {{ front_matter.makes }}
             {% endif %}
           </div>
-        {% endif %}
-
-        {% if ui_density_mode == "expanded" and not lesson_locked %}
-          <div class="card studio-expectations">
-            <h2 class="card-title">Design log prompt</h2>
-            <p class="muted">Before you leave this session, record what changed, why you changed it, and what you would improve next.</p>
-            <ul class="studio-checklist">
-              <li>Update your design log with one intentional decision and rationale.</li>
-              <li>Add a short changelog entry for this session.</li>
-              <li>Draft release notes for what a tester should notice.</li>
-              <li>Explain one block/script path in plain language.</li>
-            </ul>
-            {% if front_matter.extend %}
-              <h3 class="card-title">Challenge branches</h3>
-              <p class="muted">Choose one branch and document why you picked it.</p>
-              <ul class="studio-branch-list">
-                {% for option in front_matter.extend|slice:":3" %}
-                  <li class="studio-branch-item">{{ option }}</li>
-                {% endfor %}
-              </ul>
+          {% endif %}
+          {% if ui_density_mode == "expanded" %}
+          <div class="muted">Studio mode: be ready to explain why your code choices improve clarity, fairness, or
+            reliability.</div>
+          {% endif %}
+          <div class="lesson-status">
+            {% if lesson_locked %}
+            <span class="state-pill state-pill--locked">Lesson locked</span>
+            {% else %}
+            <span class="state-pill state-pill--open">Lesson open</span>
             {% endif %}
-          </div>
-        {% endif %}
-
-        <div class="card lesson-content">
-          <div class="lesson-reading">
-            {{ lesson_html|safe }}
           </div>
         </div>
+        <div class="nav">
+          <a class="btn" href="/student">Back to class</a>
+          {% if ui_density_mode == "expanded" %}
+          <a class="btn" href="/student/portfolio-export">Export portfolio</a>
+          {% endif %}
+          {% if prev %}
+          <a class="btn" href="/course/{{ course_slug }}/{{ prev.slug }}">← Prev</a>
+          {% endif %}
+          {% if next %}
+          <a class="btn" href="/course/{{ course_slug }}/{{ next.slug }}">Next →</a>
+          {% endif %}
+          {% if request.user.is_staff %}
+          <a class="btn" href="/teach/course/{{ course_slug }}/{{ lesson_slug }}/edit"
+            style="background-color: var(--accent-indigo); color: white;">✏️ Edit Markdown</a>
+          {% endif %}
+        </div>
+      </div>
 
-        {% if helper_widget %}
-          {{ helper_widget|safe }}
-        {% endif %}
-
+      {% if lesson_locked %}
+      <div class="card">
+        <h2 class="card-title">Lesson schedule</h2>
+        <p><span class="state-pill state-pill--locked">Intro-only mode</span></p>
         <p class="muted">
-          {% if ui_density_mode == "compact" %}
-            If something feels unsafe to share, keep it private and tell your teacher.
+          Full activities and submissions unlock on
+          <strong>{{ lesson_available_on|date:"M j, Y" }}</strong>.
+        </p>
+      </div>
+      {% endif %}
+
+      {% if not lesson_locked and lesson_videos %}
+      <div class="card">
+        <h2 class="card-title">Lesson videos</h2>
+        {% for video in lesson_videos %}
+        <section class="video-item">
+          <button type="button" class="video-toggle" id="video-toggle-{{ forloop.counter }}" aria-expanded="false"
+            aria-controls="video-panel-{{ forloop.counter }}">
+            <h3>
+              {% if video.id %}{{ video.id }} — {% endif %}{{ video.title }}
+              {% if video.minutes %}<span class="muted">({{ video.minutes }} min)</span>{% endif %}
+            </h3>
+          </button>
+          <div id="video-panel-{{ forloop.counter }}" class="video-panel" role="region"
+            aria-labelledby="video-toggle-{{ forloop.counter }}" hidden>
+            {% if video.source_type == "youtube" and video.embed_url %}
+            <div class="video-frame">
+              <iframe data-src="{{ video.embed_url }}" title="{{ video.title }}" loading="lazy"
+                allowfullscreen></iframe>
+            </div>
+            {% elif video.source_type == "native" and video.media_url %}
+            <video class="video-native" controls preload="metadata" playsinline>
+              <source src="{{ video.media_url }}" {% if video.media_type %}type="{{ video.media_type }}" {% endif %} />
+              Your browser does not support this video. Use the open link below.
+            </video>
+            {% else %}
+            <p class="muted video-state">No inline video source is configured yet.</p>
+            {% endif %}
+
+            {% if video.url %}
+            <p class="video-state">
+              <a href="{{ video.url }}" target="_blank" rel="noopener noreferrer">Open video in a new tab</a>
+            </p>
+            {% endif %}
+            {% if video.outcome %}
+            <p class="muted video-state">After this you can: {{ video.outcome }}</p>
+            {% endif %}
+          </div>
+        </section>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if not lesson_locked and lesson_submission.type == "file" %}
+      <div class="card">
+        <h2 class="card-title">Homework dropbox</h2>
+        <p class="muted dropbox-detail"><span class="state-pill state-pill--open">Submissions open</span></p>
+        <p class="muted dropbox-detail">
+          {% if lesson_submission.accepted_exts %}
+          Accepted: <strong>{{ lesson_submission.accepted_exts|join:", " }}</strong>
           {% else %}
-            If something feels unsafe to share, keep your work private and submit only the file. You control what leaves your device.
+          Accepted: <strong>.sb3</strong>
+          {% endif %}
+          {% if lesson_submission.naming %}
+          · Suggested name: <strong>{{ lesson_submission.naming }}</strong>
           {% endif %}
         </p>
-      </main>
-    </div>
-    <script src="{% static 'js/lesson_page.js' %}" defer></script>
-  </body>
+
+        {% if student and lesson_upload_material %}
+        <p class="muted dropbox-state">
+          {% if lesson_upload_status %}
+          <span class="state-pill state-pill--done">Done</span> File saved. Re-upload to replace.
+          {% else %}
+          <span class="state-pill state-pill--open">Open</span> Upload at least one file to finish.
+          {% endif %}
+        </p>
+        <div class="nav dropbox-actions">
+          <a class="btn" href="/material/{{ lesson_upload_material.id }}/upload">Open dropbox</a>
+          {% if lesson_upload_status %}
+          <span class="muted">Uploaded {{ lesson_upload_status.count }} file{{ lesson_upload_status.count|pluralize }} ·
+            latest {{ lesson_upload_status.last_uploaded_at }}</span>
+          {% endif %}
+        </div>
+        {% elif student %}
+        <p class="muted dropbox-state">Dropbox is not configured for this lesson yet. A teacher can re-import the course
+          pack to enable it.</p>
+        {% else %}
+        <div class="nav dropbox-actions">
+          <a class="btn" href="/">Join your class to upload homework</a>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% if ui_density_mode == "expanded" and not lesson_locked %}
+      <div class="card studio-expectations">
+        <h2 class="card-title">Design log prompt</h2>
+        <p class="muted">Before you leave this session, record what changed, why you changed it, and what you would
+          improve next.</p>
+        <ul class="studio-checklist">
+          <li>Update your design log with one intentional decision and rationale.</li>
+          <li>Add a short changelog entry for this session.</li>
+          <li>Draft release notes for what a tester should notice.</li>
+          <li>Explain one block/script path in plain language.</li>
+        </ul>
+        {% if front_matter.extend %}
+        <h3 class="card-title">Challenge branches</h3>
+        <p class="muted">Choose one branch and document why you picked it.</p>
+        <ul class="studio-branch-list">
+          {% for option in front_matter.extend|slice:":3" %}
+          <li class="studio-branch-item">{{ option }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="card lesson-content">
+        <div class="lesson-reading">
+          {{ lesson_html|safe }}
+        </div>
+      </div>
+
+      {% if helper_widget %}
+      {{ helper_widget|safe }}
+      {% endif %}
+
+      <p class="muted">
+        {% if ui_density_mode == "compact" %}
+        If something feels unsafe to share, keep it private and tell your teacher.
+        {% else %}
+        If something feels unsafe to share, keep your work private and submit only the file. You control what leaves
+        your device.
+        {% endif %}
+      </p>
+    </main>
+  </div>
+  <script src="{% static 'js/lesson_page.js' %}" defer></script>
+</body>
+
 </html>
