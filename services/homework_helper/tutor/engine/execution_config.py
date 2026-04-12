@@ -63,7 +63,7 @@ def resolve_execution_config(
         scope_token_max_age_seconds=max(env_int("HELPER_SCOPE_TOKEN_MAX_AGE_SECONDS", 7200), 60),
         conversation_enabled=env_bool("HELPER_CONVERSATION_ENABLED", True),
         conversation_max_messages=max(env_int("HELPER_CONVERSATION_MAX_MESSAGES", 12), 0),
-        conversation_ttl_seconds=max(env_int("HELPER_CONVERSATION_TTL_SECONDS", 7200), 60),
+        conversation_ttl_seconds=max(env_int("HELPER_CONVERSATION_TTL_SECONDS", 7200), 1),
         conversation_turn_max_chars=max(env_int("HELPER_CONVERSATION_TURN_MAX_CHARS", 1000), 80),
         conversation_history_max_chars=max(env_int("HELPER_CONVERSATION_HISTORY_MAX_CHARS", 4000), 300),
         conversation_summary_max_chars=max(env_int("HELPER_CONVERSATION_SUMMARY_MAX_CHARS", 1400), 200),

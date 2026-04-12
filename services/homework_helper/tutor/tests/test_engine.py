@@ -468,7 +468,7 @@ class ExecutionConfigEngineTests(SimpleTestCase):
             values = {
                 "HELPER_SCOPE_TOKEN_MAX_AGE_SECONDS": 10,  # clamps up to 60
                 "HELPER_CONVERSATION_MAX_MESSAGES": -5,  # clamps up to 0
-                "HELPER_CONVERSATION_TTL_SECONDS": 3,  # clamps up to 60
+                "HELPER_CONVERSATION_TTL_SECONDS": 0,  # clamps up to 1
                 "HELPER_CONVERSATION_TURN_MAX_CHARS": 20,  # clamps up to 80
                 "HELPER_CONVERSATION_HISTORY_MAX_CHARS": 22,  # clamps up to 300
                 "HELPER_CONVERSATION_SUMMARY_MAX_CHARS": 11,  # clamps up to 200
@@ -509,7 +509,7 @@ class ExecutionConfigEngineTests(SimpleTestCase):
         self.assertEqual(cfg.scope_token_max_age_seconds, 60)
         self.assertFalse(cfg.conversation_enabled)
         self.assertEqual(cfg.conversation_max_messages, 0)
-        self.assertEqual(cfg.conversation_ttl_seconds, 60)
+        self.assertEqual(cfg.conversation_ttl_seconds, 1)
         self.assertEqual(cfg.conversation_turn_max_chars, 80)
         self.assertEqual(cfg.conversation_history_max_chars, 300)
         self.assertEqual(cfg.conversation_summary_max_chars, 200)
