@@ -95,7 +95,7 @@ Session 02: Drift Tests
             lesson_files = [n for n in zf.namelist() if n.startswith("field_systems_studio/lessons/") and n.endswith(".md")]
             self.assertEqual(len(lesson_files), 2)
 
-        event = AuditEvent.objects.filter(action="teacher_syllabus_import.upload").order_by("-id").first()
+        event = AuditEvent.objects.filter(action="teacher_syllabus_import.compile").order_by("-id").first()
         self.assertIsNotNone(event)
         self.assertEqual(event.target_id, "field_systems_studio")
 
@@ -239,7 +239,7 @@ Session 02: Final Build
                 )
         self.assertEqual(resp.status_code, 302)
         self.assertIn("/teach?error=", resp["Location"])
-        self.assertEqual(AuditEvent.objects.filter(action="teacher_syllabus_import.upload").count(), 0)
+        self.assertEqual(AuditEvent.objects.filter(action="teacher_syllabus_import.compile").count(), 0)
 
     def test_teach_home_shows_template_download_links_for_selected_slug(self):
         _force_login_staff_verified(self.client, self.staff)
