@@ -317,5 +317,4 @@ def teach_set_lesson_release(request):
 __all__ = [
     "teach_lessons",
     "teach_set_lesson_release",
-    "teach_edit_lesson_content",
 ]
