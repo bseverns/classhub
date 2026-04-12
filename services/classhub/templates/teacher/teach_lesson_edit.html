@@ -54,15 +54,14 @@
             <a href="/course/{{ course_slug }}/{{ lesson_slug }}?class_id={{ class_id }}" class="btn btn-secondary">{%
                 trans "Cancel" %}</a>
             {% if has_override %}
-            <form method="post" action="?class_id={{ class_id }}" style="display:inline;"
-                onsubmit="return confirmReset();">
+            <form id="reset-form" method="post" action="?class_id={{ class_id }}" style="display:inline;"
+                data-confirm-message='{% trans "Are you sure you want to reset this lesson to the global repository default? This will delete your local changes."|escapejs %}'>
                 {% csrf_token %}
                 <input type="hidden" name="action" value="reset">
                 <button type="submit" class="btn btn-danger">{% trans "Reset to Default" %}</button>
             </form>
             {% endif %}
-            <button type="button" class="btn btn-primary" onclick="document.getElementById('editor-form').submit()">{%
-                trans "Save Override" %}</button>
+            <button type="button" id="save-override-btn" class="btn btn-primary">{% trans "Save Override" %}</button>
         </div>
     </div>
 
@@ -77,17 +76,5 @@
 {% block body_scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
-<script>
-    function confirmReset() {
-        return confirm('{% trans "Are you sure you want to reset this lesson to the global repository default? This will delete your local changes."|escapejs %}');
-    }
-    document.addEventListener('DOMContentLoaded', function () {
-        var editor = CodeMirror.fromTextArea(document.getElementById('markdown-editor'), {
-            mode: 'markdown',
-            lineNumbers: true,
-            lineWrapping: true,
-            theme: 'default'
-        });
-    });
-</script>
+<script src="{% static 'js/teach_lesson_edit.js' %}"></script>
 {% endblock %}
