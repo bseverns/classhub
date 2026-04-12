@@ -3,38 +3,7 @@
 
 {% block header_extra %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-<style>
-    .editor-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
-    }
-
-    .editor-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .editor-header h1 {
-        font-size: 1.5rem;
-        margin: 0;
-    }
-
-    .editor-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .CodeMirror {
-        height: 70vh;
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-md);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-size: 14px;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/teach_lesson_edit.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -54,7 +23,7 @@
             <a href="/course/{{ course_slug }}/{{ lesson_slug }}?class_id={{ class_id }}" class="btn btn-secondary">{%
                 trans "Cancel" %}</a>
             {% if has_override %}
-            <form id="reset-form" method="post" action="?class_id={{ class_id }}" style="display:inline;"
+            <form id="reset-form" method="post" action="?class_id={{ class_id }}" class="inline-form"
                 data-confirm-message='{% trans "Are you sure you want to reset this lesson to the global repository default? This will delete your local changes."|escapejs %}'>
                 {% csrf_token %}
                 <input type="hidden" name="action" value="reset">
