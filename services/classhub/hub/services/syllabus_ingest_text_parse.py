@@ -129,21 +129,27 @@ def _parse_session_header(line: str, *, mode: str) -> tuple[int, str] | None:
         token = token[hash_count:].lstrip()
 
     token_lower = token.lower()
-    if not token_lower.startswith("session"):
+    matched_keyword = ""
+    if token_lower.startswith("session"):
+        matched_keyword = "session"
+    elif token_lower.startswith("topic"):
+        matched_keyword = "topic"
+    else:
         return None
-    token = token[len("session") :].lstrip()
+    token = token[len(matched_keyword) :].lstrip()
     if not token:
         return None
 
     idx = 0
     while idx < len(token) and token[idx].isdigit() and idx < 2:
         idx += 1
-    if idx == 0:
-        return None
-    if idx < len(token) and token[idx].isdigit():
-        return None
-    session_num = int(token[:idx])
-    token = token[idx:].lstrip()
+    
+    session_num = 0
+    if idx > 0:
+        if idx < len(token) and token[idx].isdigit():
+            return None
+        session_num = int(token[:idx])
+        token = token[idx:].lstrip()
     if not token:
         return None
 
@@ -298,16 +304,23 @@ def _extract_session_ui_level(body_lines: list[str]) -> str:
 def _parse_sessions(raw: str, *, session_parse_mode: str = "auto") -> list[dict]:
     lines = raw.splitlines()
     indices = []
+    session_counter = 1
     headers: dict[int, tuple[int, str]] = {}
     for idx, line in enumerate(lines):
         parsed = _session_header_match(line, session_parse_mode)
         if parsed:
             indices.append(idx)
-            headers[idx] = parsed
+            header_num, title = parsed
+            if header_num == 0:
+                header_num = session_counter
+            headers[idx] = (header_num, title)
+            if header_num >= session_counter:
+                session_counter = header_num + 1
+
     sessions = []
     for i, start in enumerate(indices):
         end = indices[i + 1] if i + 1 < len(indices) else len(lines)
-        parsed = headers.get(start) or _session_header_match(lines[start], session_parse_mode)
+        parsed = headers.get(start)
         if not parsed:
             continue
         session_num, title = parsed

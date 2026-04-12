@@ -22,11 +22,11 @@ from xml.etree import ElementTree as ET
 COURSES_ROOT = Path("services/classhub/content/courses")
 
 SESSION_TEMPLATE_RE = re.compile(
-    r"^\s{0,3}(?:#\s*)?session\s*(\d{1,2})\s*:\s*(.+?)\s*$",
+    r"^\s{0,3}(?:#\s*)?(?:session|topic)\s*(\d{0,2})\s*:\s*(.+?)\s*$",
     re.IGNORECASE,
 )
 SESSION_VERBOSE_RE = re.compile(
-    r"^\s{0,3}(?:#{1,6}\s*)?session\s*(\d{1,2})\s*[:\-–—]\s*(.+?)\s*$",
+    r"^\s{0,3}(?:#{1,6}\s*)?(?:session|topic)\s*(\d{0,2})\s*[:\-–—]\s*(.+?)\s*$",
     re.IGNORECASE,
 )
 HEADING_RE = re.compile(r"^(#{2,6})\s+(.*)")
@@ -224,18 +224,26 @@ def _find_section(sections: dict[str, list[str]], keyword: str) -> list[str]:
 def _parse_sessions(raw: str, *, session_parse_mode: str = "auto") -> list[dict]:
     lines = raw.splitlines()
     indices = []
+    session_counter = 1
+    headers: dict[int, tuple[int, str]] = {}
     for idx, line in enumerate(lines):
-        if _session_header_match(line, session_parse_mode):
+        m = _session_header_match(line, session_parse_mode)
+        if m:
             indices.append(idx)
+            num_str = m.group(1)
+            header_num = int(num_str) if num_str else 0
+            if header_num == 0:
+                header_num = session_counter
+            headers[idx] = (header_num, m.group(2).strip())
+            if header_num >= session_counter:
+                session_counter = header_num + 1
+
     sessions = []
     for i, start in enumerate(indices):
         end = indices[i + 1] if i + 1 < len(indices) else len(lines)
-        header = lines[start]
-        m = _session_header_match(header, session_parse_mode)
-        if not m:
+        if start not in headers:
             continue
-        session_num = int(m.group(1))
-        title = m.group(2).strip()
+        session_num, title = headers[start]
         body_lines = lines[start + 1 : end]
         ui_level_override = _extract_session_ui_level(body_lines)
         sessions.append({
