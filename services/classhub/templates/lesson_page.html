@@ -52,8 +52,7 @@
           <a class="btn" href="/course/{{ course_slug }}/{{ next.slug }}">Next →</a>
           {% endif %}
           {% if request.user.is_staff %}
-          <a class="btn" href="/teach/course/{{ course_slug }}/{{ lesson_slug }}/edit"
-            style="background-color: var(--accent-indigo); color: white;">✏️ Edit Markdown</a>
+          <a class="btn btn-outline" href="/teach/course/{{ course_slug }}/{{ lesson_slug }}/edit">✏️ Edit Markdown</a>
           {% endif %}
         </div>
       </div>

@@ -19,7 +19,7 @@ from .shared import (
     staff_member_required,
 )
 from django.shortcuts import redirect
-from ..services.markdown_content import _safe_course_file_path, load_course_manifest
+from hub.services.markdown_content import _safe_course_file_path, load_course_manifest
 
 @staff_member_required
 def teach_edit_lesson_content(request, course_slug: str, lesson_slug: str):

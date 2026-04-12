@@ -35,13 +35,15 @@ class HelperChatAuthTests(TestCase):
         self.addCleanup(self._default_env_patch.stop)
 
     def _scope_token(self) -> str:
-        return issue_scope_token(
-            context="Lesson scope: Session 1",
-            topics=["scratch motion"],
-            allowed_topics=["scratch motion", "sprites"],
-            reference="piper_scratch",
-            signing_key=str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or ""),
-        )
+        if not hasattr(self, "_cached_default_scope_token"):
+            self._cached_default_scope_token = issue_scope_token(
+                context="Starter platformer game",
+                topics=["scratch motion"],
+                allowed_topics=["scratch motion", "sprites"],
+                reference="piper_scratch",
+                signing_key=str(getattr(settings, "HELPER_SCOPE_SIGNING_KEY", "") or ""),
+            )
+        return self._cached_default_scope_token
 
     def _post_chat(self, payload: dict, *, include_scope: bool = True):
         body = dict(payload)
