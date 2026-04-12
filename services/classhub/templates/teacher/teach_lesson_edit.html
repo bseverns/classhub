@@ -1,0 +1,93 @@
+{% extends "layouts/base.html" %}
+{% load i18n static %}
+
+{% block header_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+<style>
+    .editor-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .editor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .editor-header h1 {
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    .editor-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .CodeMirror {
+        height: 70vh;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="editor-container">
+    <div class="editor-header">
+        <div>
+            <h1>{% blocktrans with lesson_title=lesson_title %}Edit Lesson: {{ lesson_title }}{% endblocktrans %}</h1>
+            <p class="muted">
+                {% if has_override %}
+                {% trans "You are currently editing a local override for this classroom." %}
+                {% else %}
+                {% trans "You are currently viewing the master repository content. Save to create a local override." %}
+                {% endif %}
+            </p>
+        </div>
+        <div class="editor-actions">
+            <a href="/course/{{ course_slug }}/{{ lesson_slug }}?class_id={{ class_id }}" class="btn btn-secondary">{%
+                trans "Cancel" %}</a>
+            {% if has_override %}
+            <form method="post" action="?class_id={{ class_id }}" style="display:inline;"
+                onsubmit="return confirmReset();">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reset">
+                <button type="submit" class="btn btn-danger">{% trans "Reset to Default" %}</button>
+            </form>
+            {% endif %}
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('editor-form').submit()">{%
+                trans "Save Override" %}</button>
+        </div>
+    </div>
+
+    <form id="editor-form" method="post" action="?class_id={{ class_id }}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="save">
+        <textarea id="markdown-editor" name="raw_markdown">{{ current_raw }}</textarea>
+    </form>
+</main>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
+<script>
+    function confirmReset() {
+        return confirm('{% trans "Are you sure you want to reset this lesson to the global repository default? This will delete your local changes."|escapejs %}');
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        var editor = CodeMirror.fromTextArea(document.getElementById('markdown-editor'), {
+            mode: 'markdown',
+            lineNumbers: true,
+            lineWrapping: true,
+            theme: 'default'
+        });
+    });
+</script>
+{% endblock %}

@@ -780,6 +780,43 @@ class ClassInviteLink(models.Model):
         return f"Invite #{self.id} for class {self.classroom_id}"
 
 
+class ClassLessonOverride(models.Model):
+    """Database-backed Markdown lesson stored per-class to grant Teacher Freedom."""
+
+    classroom = models.ForeignKey(
+        Class,
+        on_delete=models.CASCADE,
+        related_name="lesson_overrides",
+    )
+    course_slug = models.CharField(max_length=200)
+    lesson_slug = models.CharField(max_length=200)
+    raw_markdown = models.TextField(blank=True, default="")
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="classhub_lesson_overrides_updated",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["classroom", "course_slug", "lesson_slug"],
+                name="uniq_classroom_lesson_override",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["classroom", "course_slug", "lesson_slug"], name="hub_lessonov_cls_8b0a_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.classroom.name}: {self.course_slug}/{self.lesson_slug}"
+
+
 from . import models_append_only_events as _append_only_events
 from . import models_assets_audit as _assets_audit
 

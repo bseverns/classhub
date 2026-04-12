@@ -188,8 +188,25 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
     if not manifest:
         return HttpResponse("Course not found", status=404)
 
+    classroom_id = getattr(getattr(request, "classroom", None), "id", 0) or 0
+    raw_markdown_override = None
+    if classroom_id:
+        from ..models import ClassLessonOverride
+        override = ClassLessonOverride.objects.filter(
+            classroom_id=classroom_id, course_slug=course_slug, lesson_slug=lesson_slug
+        ).first()
+        if override and override.raw_markdown.strip():
+            raw_markdown_override = override.raw_markdown
+
     try:
-        fm, body_md, lesson_meta = load_lesson_markdown(course_slug, lesson_slug)
+        if raw_markdown_override:
+            fm, body_md, lesson_meta = load_lesson_markdown(
+                course_slug,
+                lesson_slug,
+                raw_markdown_override=raw_markdown_override,
+            )
+        else:
+            fm, body_md, lesson_meta = load_lesson_markdown(course_slug, lesson_slug)
     except ValueError:
         logger.warning(
             "lesson_metadata_invalid course_slug=%s lesson_slug=%s",

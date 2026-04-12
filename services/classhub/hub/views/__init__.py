@@ -84,6 +84,7 @@ from .teacher import (
     teach_import_syllabus_source,
     teach_lessons,
     teach_set_lesson_release,
+    teach_edit_override_lesson,
     teach_lock_class,
     teach_login,
     teach_sso_callback,
@@ -124,6 +125,7 @@ from .teacher import (
     teach_update_profile,
     teach_upsert_organization_membership,
     teach_videos,
+    teach_edit_override_lesson,
     teacher_logout,
 )
 
@@ -212,6 +214,7 @@ __all__ = [
     "teach_home",
     "teach_lessons",
     "teach_set_lesson_release",
+    "teach_edit_override_lesson",
     "teach_upsert_module_scope_grant",
     "teach_set_module_scope_grant_active",
     "teach_simulate_rbac_access",

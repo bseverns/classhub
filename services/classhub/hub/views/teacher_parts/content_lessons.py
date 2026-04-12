@@ -19,7 +19,8 @@ from .shared import (
     staff_member_required,
 )
 from django.shortcuts import redirect
-from hub.services.markdown_content import _safe_course_file_path, load_course_manifest
+from hub.models import ClassLessonOverride
+from hub.services.markdown_content import _safe_course_file_path, load_course_manifest, load_lesson_markdown
 
 
 @staff_member_required
@@ -314,7 +315,81 @@ def teach_set_lesson_release(request):
     )
 
 
+@staff_member_required
+def teach_edit_override_lesson(request, course_slug: str, lesson_slug: str):
+    """Postgres-backed override editor for Teacher Freedom compliance."""
+    try:
+        class_id = int((request.GET.get("class_id") or "0").strip())
+    except ValueError:
+        class_id = 0
+
+    classroom = staff_classroom_or_none(request.user, class_id)
+    if not classroom:
+        return redirect("/teach/lessons")
+
+    manifest = load_course_manifest(course_slug)
+    lessons = manifest.get("lessons") or []
+    match = next((l for l in lessons if isinstance(l, dict) and l.get("slug") == lesson_slug), None)
+    if not match:
+        return redirect("/teach/lessons")
+        
+    rel = str(match.get("file") or "").strip()
+    lesson_path = _safe_course_file_path(course_slug, rel)
+    if not lesson_path or not lesson_path.exists():
+        return redirect("/teach/lessons")
+        
+    master_raw = lesson_path.read_text(encoding="utf-8")
+    
+    fm, _, _ = load_lesson_markdown(course_slug, lesson_slug)
+
+    override = ClassLessonOverride.objects.filter(
+        classroom_id=classroom.id, course_slug=course_slug, lesson_slug=lesson_slug
+    ).first()
+
+    current_raw = override.raw_markdown if override else master_raw
+
+    if request.method == "POST":
+        if not staff_can_manage_policy(request.user, classroom):
+            return redirect(f"/course/{course_slug}/{lesson_slug}?class_id={class_id}")
+            
+        action = request.POST.get("action")
+        if action == "reset":
+            if override:
+                override.delete()
+            return redirect(f"/course/{course_slug}/{lesson_slug}?class_id={class_id}")
+            
+        new_markdown = request.POST.get("raw_markdown", "").strip()
+        if override:
+            override.raw_markdown = new_markdown
+            override.updated_by = request.user
+            override.save()
+        else:
+            ClassLessonOverride.objects.create(
+                classroom=classroom,
+                course_slug=course_slug,
+                lesson_slug=lesson_slug,
+                raw_markdown=new_markdown,
+                updated_by=request.user,
+            )
+        return redirect(f"/course/{course_slug}/{lesson_slug}?class_id={class_id}")
+
+    return render(
+        request,
+        "teacher/teach_lesson_edit.html",
+        {
+            "class_id": class_id,
+            "classroom": classroom,
+            "course_slug": course_slug,
+            "lesson_slug": lesson_slug,
+            "lesson_title": fm.get("title") or lesson_slug,
+            "current_raw": current_raw,
+            "has_override": bool(override),
+        },
+    )
+
+
 __all__ = [
     "teach_lessons",
     "teach_set_lesson_release",
+    "teach_edit_override_lesson",
 ]

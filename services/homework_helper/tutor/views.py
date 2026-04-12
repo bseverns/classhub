@@ -16,6 +16,7 @@ from django.core.signing import BadSignature, SignatureExpired
 from django.db import connection, transaction
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
+from asgiref.sync import sync_to_async
 
 from .classhub_events import emit_helper_chat_access_event
 from .engine import auth as engine_auth  # re-exported patch surface in tests
@@ -340,11 +341,8 @@ def healthz(request):
     return JsonResponse({"ok": True, "backend": backend, "llm": backend_info})
 
 
-@require_POST
-def chat(request):
-    """POST /helper/chat"""
-    started_at = time.monotonic()
-    request_id = _request_id(request)
+@sync_to_async(thread_sensitive=True)
+def _sync_chat_pre_flight(request, request_id):
     actor, actor_type, client_ip = resolve_actor_and_client(
         request=request,
         actor_key_fn=_actor_key,
@@ -355,7 +353,7 @@ def chat(request):
 
     if not actor:
         _log_chat_event("warning", "unauthorized", request_id=request_id, actor_type=actor_type, ip=client_ip)
-        return _json_response({"error": "unauthorized"}, status=401, request_id=request_id)
+        return _json_response({"error": "unauthorized"}, status=401, request_id=request_id), None, None, None, None, None, None, None, None
 
     classroom_id, student_id = load_session_ids(request)
     remote_overrides = active_remote_compute_overrides_for_class(class_id=classroom_id)
@@ -376,16 +374,7 @@ def chat(request):
         json_response_fn=_json_response,
     )
     if rate_limit_response is not None:
-        _emit_helper_event(
-            response=rate_limit_response,
-            classroom_id=classroom_id,
-            student_id=student_id,
-            client_ip=client_ip,
-            request_id=request_id,
-            actor_type=actor_type,
-            backend=backend,
-        )
-        return rate_limit_response
+        return rate_limit_response, actor, actor_type, client_ip, backend, classroom_id, student_id, remote_overrides, local_backend
 
     payload, bad_payload_response = parse_chat_payload(
         request_body=request.body,
@@ -396,17 +385,34 @@ def chat(request):
         json_response_fn=_json_response,
     )
     if bad_payload_response is not None:
-        response = bad_payload_response
-        _emit_helper_event(
-            response=response,
-            classroom_id=classroom_id,
-            student_id=student_id,
-            client_ip=client_ip,
-            request_id=request_id,
-            actor_type=actor_type,
-            backend=backend,
-        )
-        return response
+        return bad_payload_response, actor, actor_type, client_ip, backend, classroom_id, student_id, remote_overrides, local_backend
+
+    return None, actor, actor_type, client_ip, backend, classroom_id, student_id, remote_overrides, local_backend, payload
+
+
+@require_POST
+async def chat(request):
+    """POST /helper/chat"""
+    started_at = time.monotonic()
+    request_id = _request_id(request)
+    
+    preflight_result = await _sync_chat_pre_flight(request, request_id)
+    
+    if len(preflight_result) == 9:
+        err_response, actor, actor_type, client_ip, backend, classroom_id, student_id, remote_overrides, local_backend = preflight_result
+        if classroom_id is not None:
+            await sync_to_async(_emit_helper_event, thread_sensitive=False)(
+                response=err_response,
+                classroom_id=classroom_id,
+                student_id=student_id,
+                client_ip=client_ip,
+                request_id=request_id,
+                actor_type=actor_type,
+                backend=backend,
+            )
+        return err_response
+        
+    _, actor, actor_type, client_ip, backend, classroom_id, student_id, remote_overrides, local_backend, payload = preflight_result
 
     deps = build_chat_deps(
         json_response_fn=_json_response,
@@ -418,7 +424,7 @@ def chat(request):
         load_scope_from_token_fn=_load_scope_from_token,
         load_reference_text_fn=_load_reference_text,
         load_reference_chunks_fn=_load_reference_chunks,
-        retrieve_curriculum_citations_fn=_retrieve_curriculum_citations,
+        retrieve_curriculum_citations_fn=sync_to_async(_retrieve_curriculum_citations, thread_sensitive=False),
         is_piper_context_fn=_is_piper_context,
         is_piper_hardware_question_fn=_is_piper_hardware_question,
         build_piper_hardware_triage_text_fn=_build_piper_hardware_triage_text,
@@ -439,8 +445,8 @@ def chat(request):
         llm_backend_requires_acknowledgement_fn=lambda backend: runtime_llm_backend_requires_acknowledgement(
             backend=backend
         ),
-        call_backend_with_retries_fn=(
-            lambda backend_name, instructions, model_message: _call_backend_with_optional_remote_fallback(
+        call_backend_with_retries_fn=sync_to_async(
+            (lambda backend_name, instructions, model_message: _call_backend_with_optional_remote_fallback(
                 backend_name=backend_name,
                 instructions=instructions,
                 model_message=model_message,
@@ -449,7 +455,8 @@ def chat(request):
                 local_backend=local_backend,
                 request_id=request_id,
                 actor_type=actor_type,
-            )
+            )),
+            thread_sensitive=False
         ),
         record_backend_failure_fn=_record_backend_failure,
         reset_backend_failure_state_fn=_reset_backend_failure_state,
@@ -467,7 +474,7 @@ def chat(request):
         build_follow_up_suggestions_fn=_build_follow_up_suggestions,
     )
     with helper_config_overrides(remote_overrides):
-        response = engine_service.handle_chat(
+        response = await engine_service.handle_chat(
             request=request,
             payload=payload,
             request_id=request_id,
@@ -481,7 +488,7 @@ def chat(request):
             bad_signature_exc=BadSignature,
             deps=deps,
         )
-    _emit_helper_event(
+    await sync_to_async(_emit_helper_event, thread_sensitive=False)(
         response=response,
         classroom_id=classroom_id,
         student_id=student_id,

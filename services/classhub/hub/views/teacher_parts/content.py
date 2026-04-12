@@ -19,7 +19,7 @@ from .content_rbac_policy_io import (
     teach_export_rbac_policy,
     teach_import_rbac_policy,
 )
-from .content_lessons import teach_lessons, teach_set_lesson_release
+from .content_lessons import teach_lessons, teach_set_lesson_release, teach_edit_override_lesson
 from .content_syllabus_import import teach_import_syllabus_source
 from .content_syllabus_exports import teach_export_syllabus
 
@@ -42,4 +42,5 @@ __all__ = [
     "teach_download_authoring_template",
     "teach_lessons",
     "teach_set_lesson_release",
+    "teach_edit_override_lesson",
 ]

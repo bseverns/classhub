@@ -86,21 +86,20 @@ Session 02: Drift Tests
                     },
                 )
 
-                course_yaml_path = content_root / "courses" / "field_systems_studio" / "course.yaml"
-                self.assertTrue(course_yaml_path.exists())
-                course_yaml = course_yaml_path.read_text(encoding="utf-8")
-                self.assertIn('title: "Field Systems Studio"', course_yaml)
-                self.assertIn("ui_level: advanced", course_yaml)
-                lesson_files = sorted((course_yaml_path.parent / "lessons").glob("*.md"))
-                self.assertEqual(len(lesson_files), 2)
+        self.assertEqual(resp.status_code, 200)
+        buffer = b"".join(resp.streaming_content)
+        with zipfile.ZipFile(BytesIO(buffer)) as zf:
+            course_yaml = zf.read("field_systems_studio/course.yaml").decode("utf-8")
+            self.assertIn('title: "Field Systems Studio"', course_yaml)
+            self.assertIn("ui_level: advanced", course_yaml)
+            lesson_files = [n for n in zf.namelist() if n.startswith("field_systems_studio/lessons/") and n.endswith(".md")]
+            self.assertEqual(len(lesson_files), 2)
 
-        self.assertEqual(resp.status_code, 302)
-        self.assertIn("/teach?notice=", resp["Location"])
         event = AuditEvent.objects.filter(action="teacher_syllabus_import.upload").order_by("-id").first()
         self.assertIsNotNone(event)
         self.assertEqual(event.target_id, "field_systems_studio")
 
-    def test_staff_teacher_syllabus_import_creates_assigned_class_with_modules(self):
+    def test_staff_teacher_syllabus_import_compiles_valid_zip(self):
         teacher = get_user_model().objects.create_user(
             username="staff_teacher_import",
             password="pw12345",
@@ -133,26 +132,9 @@ Session 02: Final Build
                     },
                 )
 
-        self.assertEqual(resp.status_code, 302)
-        self.assertIn("/teach?notice=", resp["Location"])
-
-        classroom = Class.objects.filter(name="Course Forge").order_by("-id").first()
-        self.assertIsNotNone(classroom)
-        self.assertTrue(
-            ClassStaffAssignment.objects.filter(
-                classroom=classroom,
-                user=teacher,
-                is_active=True,
-            ).exists()
-        )
-        self.assertEqual(Module.objects.filter(classroom=classroom).count(), 2)
-        self.assertTrue(
-            Material.objects.filter(
-                module__classroom=classroom,
-                type=Material.TYPE_LINK,
-                url__startswith="/course/course_forge/",
-            ).exists()
-        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "application/zip")
+        self.assertTrue(resp["Content-Disposition"].startswith("attachment;"))
 
     def test_teacher_can_import_docx_syllabus_source(self):
         from ..services.authoring_templates import generate_authoring_templates
@@ -188,15 +170,13 @@ Session 02: Final Build
                     },
                 )
 
-                course_yaml_path = content_root / "courses" / "docx_source" / "course.yaml"
-                self.assertTrue(course_yaml_path.exists())
-                course_yaml = course_yaml_path.read_text(encoding="utf-8")
-                self.assertIn('title: "DOCX Source"', course_yaml)
-                lesson_files = sorted((course_yaml_path.parent / "lessons").glob("*.md"))
-                self.assertEqual(len(lesson_files), 2)
-
-        self.assertEqual(resp.status_code, 302)
-        self.assertIn("/teach?notice=", resp["Location"])
+        self.assertEqual(resp.status_code, 200)
+        buffer = b"".join(resp.streaming_content)
+        with zipfile.ZipFile(BytesIO(buffer)) as zf:
+            course_yaml = zf.read("docx_source/course.yaml").decode("utf-8")
+            self.assertIn('title: "DOCX Source"', course_yaml)
+            lesson_files = [n for n in zf.namelist() if n.startswith("docx_source/lessons/") and n.endswith(".md")]
+            self.assertEqual(len(lesson_files), 2)
 
     def test_teacher_can_import_zip_syllabus_source(self):
         _force_login_staff_verified(self.client, self.staff)
@@ -234,37 +214,14 @@ Session 02: Final Build
                     },
                 )
 
-                course_yaml_path = content_root / "courses" / "swarm_aesthetics" / "course.yaml"
-                self.assertTrue(course_yaml_path.exists())
-                course_yaml = course_yaml_path.read_text(encoding="utf-8")
-                self.assertIn('title: "Swarm Aesthetics"', course_yaml)
-                self.assertIn("ui_level: advanced", course_yaml)
-                lesson_files = sorted((course_yaml_path.parent / "lessons").glob("*.md"))
-                self.assertEqual(len(lesson_files), 2)
-                first_lesson = lesson_files[0].read_text(encoding="utf-8")
-                self.assertIn("support_images:", first_lesson)
-                self.assertIn("lesson_support_images/s01-swarm-map.png", first_lesson)
-
-                classroom = Class.objects.filter(name="Swarm Aesthetics").first()
-                self.assertIsNotNone(classroom)
-                first_module = Module.objects.filter(classroom=classroom).order_by("order_index", "id").first()
-                self.assertIsNotNone(first_module)
-                support_material = Material.objects.filter(
-                    module=first_module,
-                    type=Material.TYPE_LINK,
-                    title__startswith="Support image:",
-                ).first()
-                self.assertIsNotNone(support_material)
-                self.assertTrue((support_material.url or "").startswith("/lesson-asset/"))
-                support_asset = LessonAsset.objects.filter(
-                    course_slug="swarm_aesthetics",
-                    lesson_slug="s01-swarms-systems",
-                ).first()
-                self.assertIsNotNone(support_asset)
-                self.assertEqual(support_asset.original_filename, "s01-swarm-map.png")
-
-        self.assertEqual(resp.status_code, 302)
-        self.assertIn("/teach?notice=", resp["Location"])
+        self.assertEqual(resp.status_code, 200)
+        buffer = b"".join(resp.streaming_content)
+        with zipfile.ZipFile(BytesIO(buffer)) as zf:
+            course_yaml = zf.read("swarm_aesthetics/course.yaml").decode("utf-8")
+            self.assertIn('title: "Swarm Aesthetics"', course_yaml)
+            self.assertIn("ui_level: advanced", course_yaml)
+            lesson_files = [n for n in zf.namelist() if n.startswith("swarm_aesthetics/lessons/") and n.endswith(".md")]
+            self.assertEqual(len(lesson_files), 2)
 
     def test_teacher_syllabus_import_rejects_unsupported_extension(self):
         _force_login_staff_verified(self.client, self.staff)

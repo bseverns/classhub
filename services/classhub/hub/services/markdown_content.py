@@ -109,13 +109,27 @@ def load_course_manifest(course_slug: str) -> dict:
     return copy.deepcopy(_load_manifest_cached(str(manifest_path), mtime_ns))
 
 
-def load_lesson_markdown(course_slug: str, lesson_slug: str) -> tuple[dict, str, dict]:
+def load_lesson_markdown(course_slug: str, lesson_slug: str, raw_markdown_override: str = None) -> tuple[dict, str, dict]:
     """Return (front_matter, markdown_body, lesson_meta)."""
     manifest = load_course_manifest(course_slug)
     lessons = manifest.get("lessons") or []
     match = next((l for l in lessons if isinstance(l, dict) and (l.get("slug") == lesson_slug)), None)
     if not match:
         return {}, "", {}
+
+    if raw_markdown_override is not None:
+        raw = raw_markdown_override
+        if raw.startswith("---"):
+            parts = raw.split("---", 2)
+            if len(parts) >= 3:
+                front_matter_text = parts[1]
+                try:
+                    fm = yaml.safe_load(front_matter_text) or {}
+                except yaml.scanner.ScannerError as exc:
+                    raise ValueError(f"Invalid YAML override: {exc}") from exc
+                body = parts[2].lstrip("\n")
+                return copy.deepcopy(fm), body, match
+        return {}, raw, match
 
     rel = str(match.get("file") or "").strip()
     if not rel:

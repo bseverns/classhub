@@ -1,25 +1,24 @@
 """Teacher syllabus import endpoint and helpers."""
 
-from django.core.management import call_command
-from django.core.management.base import CommandError
+import io
+import tempfile
+import zipfile
+from pathlib import Path
+
+from django.http import FileResponse
 
 from ...services.syllabus_ingest import (
     SyllabusIngestError,
     ingest_uploaded_syllabus_files,
 )
 from .shared import (
-    Class,
-    ClassStaffAssignment,
     _TEMPLATE_SLUG_RE,
     _audit,
-    _next_unique_class_join_code,
     _safe_internal_redirect,
     _with_notice,
     require_POST,
     staff_can_create_classes,
-    staff_default_organization,
     staff_member_required,
-    transaction,
 )
 
 
@@ -73,50 +72,21 @@ def _validate_syllabus_import_state(state: dict) -> str:
     return ""
 
 
-def _create_class_from_import_result(request, *, result):
-    class_name = (result.course_title or result.course_slug).strip()[:200] or result.course_slug
-    join_code = _next_unique_class_join_code()
-    organization = staff_default_organization(request.user)
-    with transaction.atomic():
-        classroom = Class.objects.create(
-            organization=organization,
-            name=class_name,
-            join_code=join_code,
-        )
-        if not request.user.is_superuser:
-            ClassStaffAssignment.objects.update_or_create(
-                classroom=classroom,
-                user=request.user,
-                defaults={"is_active": True},
-            )
-        call_command(
-            "import_coursepack",
-            course_slug=result.course_slug,
-            class_code=join_code,
-            verbosity=0,
-        )
-    return classroom
-
-
-def _audit_syllabus_import(request, *, result, overwrite: bool, classroom):
+def _audit_syllabus_import(request, *, result, overwrite: bool):
     _audit(
         request,
-        action="teacher_syllabus_import.upload",
+        action="teacher_syllabus_import.compile",
         target_type="CourseSyllabus",
         target_id=result.course_slug,
-        summary=f"Imported syllabus source into {result.course_slug}",
+        summary=f"Compiled syllabus source into {result.course_slug}",
         metadata={
             "course_slug": result.course_slug,
             "course_title": result.course_title,
-            "course_dir": str(result.course_dir),
             "lesson_count": result.lesson_count,
             "source_kind": result.source_kind,
             "source_files": result.source_files,
             "ui_level": result.ui_level,
             "overwrite": overwrite,
-            "classroom_id": classroom.id,
-            "classroom_name": classroom.name,
-            "classroom_join_code": classroom.join_code,
         },
     )
 
@@ -130,47 +100,48 @@ def teach_import_syllabus_source(request):
         return _syllabus_import_error(
             request,
             form_values=form_values,
-            message="Your account cannot create classes in the current organization scope.",
+            message="Your account cannot compile classes in the current organization scope.",
         )
     error = _validate_syllabus_import_state(state)
     if error:
         return _syllabus_import_error(request, form_values=form_values, message=error)
 
     try:
-        result = ingest_uploaded_syllabus_files(
-            source_upload=state["source_upload"],
-            course_slug=state["slug"],
-            course_title=state["title"],
-            overview_upload=state["overview_upload"],
-            default_ui_level=state["default_ui_level"],
-            session_parse_mode=state["session_parse_mode"],
-            overwrite=state["overwrite"],
-        )
-        classroom = _create_class_from_import_result(request, result=result)
-    except (SyllabusIngestError, OSError, ValueError, CommandError) as exc:
+        with tempfile.TemporaryDirectory() as scratch_dir:
+            scratch_path = Path(scratch_dir).resolve()
+            result = ingest_uploaded_syllabus_files(
+                source_upload=state["source_upload"],
+                course_slug=state["slug"],
+                course_title=state["title"],
+                overview_upload=state["overview_upload"],
+                default_ui_level=state["default_ui_level"],
+                session_parse_mode=state["session_parse_mode"],
+                overwrite=True,
+                courses_root=scratch_path,
+            )
+
+            buffer = io.BytesIO()
+            with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+                course_dir = Path(result.course_dir)
+                for file_path in course_dir.rglob("*"):
+                    if file_path.is_file():
+                        arcname = file_path.relative_to(scratch_path)
+                        zf.write(file_path, arcname)
+
+            buffer.seek(0)
+            _audit_syllabus_import(request, result=result, overwrite=False)
+
+            return FileResponse(
+                buffer,
+                as_attachment=True,
+                filename=f"coursepack_{result.course_slug}.zip",
+            )
+    except (SyllabusIngestError, OSError, ValueError) as exc:
         return _syllabus_import_error(
             request,
             form_values=form_values,
-            message=f"Syllabus import failed: {exc}",
+            message=f"Syllabus compilation failed: {exc}",
         )
-
-    _audit_syllabus_import(request, result=result, overwrite=state["overwrite"], classroom=classroom)
-    notice = (
-        f"Imported course '{result.course_slug}' with {result.lesson_count} lessons. "
-        f"Created class '{classroom.name}' ({classroom.join_code})."
-    )
-    success_values = {
-        "import_course_slug": result.course_slug,
-        "import_course_title": result.course_title,
-        "import_default_ui_level": state["default_ui_level"],
-        "import_session_parse_mode": state["session_parse_mode"],
-        "import_overwrite": "1" if state["overwrite"] else "0",
-    }
-    return _safe_internal_redirect(
-        request,
-        _with_notice("/teach", notice=notice, extra=success_values),
-        fallback="/teach",
-    )
 
 
 __all__ = [

@@ -6,7 +6,7 @@ import time
 import urllib.error
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Awaitable, Callable
 
 from ..llm import (
     LLMAuthError,
@@ -32,7 +32,7 @@ class ChatDeps:
     resolve_reference_file: Callable[[str | None, str, str], str]
     load_reference_text: Callable[[str], str]
     load_reference_chunks: Callable[[str], tuple[str, ...]]
-    retrieve_curriculum_citations: Callable[..., list[dict]]
+    retrieve_curriculum_citations: Callable[..., Awaitable[list[dict]]]
     build_reference_citations: Callable[..., list[dict]]
     format_reference_citations_for_prompt: Callable[[list[dict]], str]
     parse_csv_list: Callable[[str], list[str]]
@@ -62,7 +62,7 @@ class ChatDeps:
     build_allowed_topics_redirect: Callable[[str, list[str]], str]
     backend_circuit_is_open: Callable[[str], bool]
     llm_backend_requires_acknowledgement: Callable[[str], bool]
-    call_backend_with_retries: Callable[[str, str, str], tuple[str, str, int]]
+    call_backend_with_retries: Callable[[str, str, str], Awaitable[tuple[str, str, int]]]
     record_backend_failure: Callable[[str], None]
     reset_backend_failure_state: Callable[[str], None]
     acquire_slot: Callable[[int, float, float, int], tuple[str | None, str | None]]
@@ -79,7 +79,7 @@ class ChatDeps:
     build_follow_up_suggestions: Callable[..., list[str]]
 
 
-def handle_chat(
+async def handle_chat(
     *,
     request,
     payload: dict,
@@ -440,7 +440,7 @@ def handle_chat(
     citations: list[dict] = []
     if execution_config.rag_enabled:
         try:
-            citations = deps.retrieve_curriculum_citations(
+            citations = await deps.retrieve_curriculum_citations(
                 query_text=" ".join([message, context_value or "", " ".join(topics)]),
                 reference_key=reference_source,
                 max_items=execution_config.reference_max_citations,
@@ -615,7 +615,7 @@ def handle_chat(
     attempts_used = 0
     model_used = ""
     try:
-        text, model_used, attempts_used = deps.call_backend_with_retries(backend, instructions, model_message)
+        text, model_used, attempts_used = await deps.call_backend_with_retries(backend, instructions, model_message)
     except LLMTimeoutError:
         deps.record_backend_failure(backend)
         deps.log_chat_event("error", "backend_timeout", request_id=request_id, backend=backend)
