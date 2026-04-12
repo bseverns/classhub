@@ -36,8 +36,6 @@ Operations captures:
 
 ![Certificate eligibility](images/press/12-certificate-eligibility.png)
 
-![A11y smoke terminal](images/press/13-a11y-smoke-terminal.png)
-
 ## What success looks like
 
 - The right staff can access the right classes without sharing accounts.

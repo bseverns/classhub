@@ -20,16 +20,20 @@ If docs answer all four, they are curriculum.
 
 ## Audience model
 
-Write for three audiences in this order:
+Write for three distinct audience streams. Never mix their documentation:
 
+### System Track (Ops & Devs)
 1. On-call operator:
   - needs short, reliable actions under pressure.
-2. New developer:
+2. New developer/maintainer:
   - needs architecture boundaries and decision logic.
-3. Future maintainer:
-  - needs enough context to refactor safely months later.
 
-When these needs conflict, favor operational clarity first.
+### User Track (End-Users)
+3. Non-Technical End-User (Teachers/Staff):
+  - needs website navigation, pedagogy, and workflow instructions.
+  - NEVER include CLI, bash scripts, or server administration commands in this track.
+
+When system track needs conflict, favor operational clarity first.
 
 ## Documentation packet per feature
 
