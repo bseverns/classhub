@@ -156,10 +156,8 @@
             <label for="syllabus-course-slug">{% trans "Course" %}</label>
             <select id="syllabus-course-slug" name="course_slug" required>
               {% for course_row in syllabus_export_courses %}
-              <option value="{{ course_row.slug }}" {% if syllabus_export_selected_course_slug == course_row.slug
-                %}selected{% endif %}>
-                {% blocktrans with title=course_row.title slug=course_row.slug lesson_count=course_row.lesson_count %}{{
-                title }} ({{ slug }}) · {{ lesson_count }} lessons{% endblocktrans %}
+              <option value="{{ course_row.slug }}" {% if syllabus_export_selected_course_slug == course_row.slug %}selected{% endif %}>
+                {% blocktrans with title=course_row.title slug=course_row.slug lesson_count=course_row.lesson_count %}{{ title }} ({{ slug }}) · {{ lesson_count }} lessons{% endblocktrans %}
               </option>
               {% endfor %}
             </select>
