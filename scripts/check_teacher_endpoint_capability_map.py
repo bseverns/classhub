@@ -103,7 +103,6 @@ ROUTE_CAPABILITY_MAP: dict[str, RouteContract] = {
     "/teach/logout": RouteContract("auth_or_public", "teacher_logout"),
     "/teach/lessons": RouteContract("class.view", "teach_lessons"),
     "/teach/lessons/release": RouteContract("policy.manage", "teach_set_lesson_release"),
-    "/teach/course/<slug:course_slug>/<slug:lesson_slug>/edit": RouteContract("staff_only", "teach_edit_lesson_content"),
     "/teach/assets": RouteContract("staff_only", "teach_assets"),
     "/teach/create-class": RouteContract("class.create", "teach_create_class"),
     "/teach/class/<int:class_id>": RouteContract("class.view", "teach_class_dashboard"),
