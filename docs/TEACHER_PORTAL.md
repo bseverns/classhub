@@ -126,6 +126,7 @@ Use this section in two passes:
     - idle-time context list (interpret carefully)
     - manual refresh link (no high-frequency polling)
   - module/material editor
+  - in-browser markdown lesson editor (saves as database overrides without modifying source files)
   - `Copy` join code
   - `Printable join card` shortcut for in-room posting
   - student landing editor:
@@ -192,7 +193,7 @@ Most classroom teachers can skip this section.
   - review/approve/reject pending policy change requests
   - tab appears only for accounts with syllabus-export capability (`staff_can_export_syllabi`)
   - create class
-  - import syllabus sources into coursepacks:
+  - compile syllabus sources into coursepack ZIPs (stateless):
     - accepts `.md`, `.docx`, and `.zip`
     - supports optional overview file (`.md`/`.docx`) and parser mode (`auto`/`template`/`verbose`)
     - can overwrite an existing slug when updating a course

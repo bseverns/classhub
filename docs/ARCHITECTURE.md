@@ -160,7 +160,7 @@ For the remote private-model continuation of that flow, see [PRIVATE_LLM_BACKEND
 ## Deployment model
 
 - Production images bake service code and curriculum content from repo.
-- Gunicorn serves Django in containers.
+- Gunicorn serves Django WSGI (ClassHub) and ASGI via Uvicorn workers (Homework Helper) in containers.
 - Local dev uses compose override + bind mounts for fast iteration.
 - Day-1 deploy/test defaults to a bundled CPU-local Ollama service with a small local smoke profile when the helper backend points at `http://ollama:11434`.
 - Private remote inference remains optional; remote helper validation is advisory by default so the core LMS stack can still deploy and smoke-test independently.

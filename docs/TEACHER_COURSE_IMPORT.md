@@ -1,6 +1,6 @@
-# Syllabus Import Guide (Teachers)
+# Compiled Coursepack Guide (Teachers)
 
-Staff users can ingest syllabus sources directly into the ClassHub platform using the **Import Syllabus Source** tool found on the Teacher Portal home page (`/teach`).
+Staff users can securely build syllabus Coursepack archives directly with the ClassHub platform using the **Compile Coursepack ZIP** tool found on the Teacher Portal home page (`/teach`).
 
 > [!NOTE]
 > This is a non-technical guide utilizing the teacher portal web interface. For rigorous CLI SDK development, see [COURSE_AUTHORING.md](COURSE_AUTHORING.md).
@@ -10,9 +10,9 @@ Staff users can ingest syllabus sources directly into the ClassHub platform usin
 - `.docx` session plan file
 - `.zip` bundle containing source docs and directories
 
-## Import Process
+## Compilation Process
 
-When running the import, you will see a form allowing several optional inputs:
+When compiling the ZIP, you will see a form allowing several optional inputs:
 - **Course slug** (if blank, derived from title)
 - **Course title override**
 - **Default UI level** (choose between `elementary`, `secondary`, `advanced`)
