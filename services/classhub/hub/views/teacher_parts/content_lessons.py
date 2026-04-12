@@ -15,6 +15,7 @@ from .shared import (
     require_POST,
     staff_accessible_classes_ranked,
     staff_can_manage_policy,
+    staff_can_manage_classroom,
     staff_classroom_or_none,
     staff_member_required,
 )
@@ -324,7 +325,7 @@ def teach_edit_override_lesson(request, course_slug: str, lesson_slug: str):
         class_id = 0
 
     classroom = staff_classroom_or_none(request.user, class_id)
-    if not classroom:
+    if not classroom or not staff_can_manage_classroom(request.user, classroom):
         return redirect("/teach/lessons")
 
     manifest = load_course_manifest(course_slug)
@@ -349,7 +350,7 @@ def teach_edit_override_lesson(request, course_slug: str, lesson_slug: str):
     current_raw = override.raw_markdown if override else master_raw
 
     if request.method == "POST":
-        if not staff_can_manage_policy(request.user, classroom):
+        if not staff_can_manage_classroom(request.user, classroom):
             return redirect(f"/course/{course_slug}/{lesson_slug}?class_id={class_id}")
             
         action = request.POST.get("action")
