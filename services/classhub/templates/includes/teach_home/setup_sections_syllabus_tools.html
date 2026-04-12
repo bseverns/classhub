@@ -26,22 +26,22 @@
           <div>
             <label for="import-default-ui-level">{% trans "Default UI level" %}</label>
             <select id="import-default-ui-level" name="import_default_ui_level">
-              <option value="elementary" {% if import_default_ui_level=="elementary" %}selected{% endif %}>{% trans
+              <option value="elementary" {% if import_default_ui_level == "elementary" %}selected{% endif %}>{% trans
                 "elementary" %}</option>
-              <option value="secondary" {% if import_default_ui_level=="secondary" %}selected{% endif %}>{% trans
+              <option value="secondary" {% if import_default_ui_level == "secondary" %}selected{% endif %}>{% trans
                 "secondary" %}</option>
-              <option value="advanced" {% if import_default_ui_level=="advanced" %}selected{% endif %}>{% trans
+              <option value="advanced" {% if import_default_ui_level == "advanced" %}selected{% endif %}>{% trans
                 "advanced" %}</option>
             </select>
           </div>
           <div>
             <label for="import-session-parse-mode">{% trans "Session parser mode" %}</label>
             <select id="import-session-parse-mode" name="import_session_parse_mode">
-              <option value="auto" {% if import_session_parse_mode=="auto" %}selected{% endif %}>{% trans "auto" %}
+              <option value="auto" {% if import_session_parse_mode == "auto" %}selected{% endif %}>{% trans "auto" %}
               </option>
-              <option value="template" {% if import_session_parse_mode=="template" %}selected{% endif %}>{% trans
+              <option value="template" {% if import_session_parse_mode == "template" %}selected{% endif %}>{% trans
                 "template" %}</option>
-              <option value="verbose" {% if import_session_parse_mode=="verbose" %}selected{% endif %}>{% trans
+              <option value="verbose" {% if import_session_parse_mode == "verbose" %}selected{% endif %}>{% trans
                 "verbose" %}</option>
             </select>
           </div>
@@ -157,7 +157,7 @@
             <label for="syllabus-course-slug">{% trans "Course" %}</label>
             <select id="syllabus-course-slug" name="course_slug" required>
               {% for course_row in syllabus_export_courses %}
-              <option value="{{ course_row.slug }}" {% if syllabus_export_selected_course_slug==course_row.slug
+              <option value="{{ course_row.slug }}" {% if syllabus_export_selected_course_slug == course_row.slug
                 %}selected{% endif %}>
                 {% blocktrans with title=course_row.title slug=course_row.slug lesson_count=course_row.lesson_count %}{{
                 title }} ({{ slug }}) · {{ lesson_count }} lessons{% endblocktrans %}
