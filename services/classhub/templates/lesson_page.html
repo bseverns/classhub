@@ -43,9 +43,7 @@
         <div class="nav">
           <a class="btn" href="/student">Back to class</a>
           {% if can_edit_lesson_override and classroom %}
-          <a class="btn"
-            href="/teach/course/{{ course_slug }}/lesson/{{ lesson_slug }}/edit?class_id={{ classroom.id }}">Edit
-            Markdown</a>
+          <a class="btn" href="/teach/course/{{ course_slug }}/lesson/{{ lesson_slug }}/edit?class_id={{ classroom.id }}">Edit Markdown</a>
           {% endif %}
           {% if ui_density_mode == "expanded" %}
           <a class="btn" href="/student/portfolio-export">Export portfolio</a>

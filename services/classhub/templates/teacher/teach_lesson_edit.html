@@ -1,11 +1,15 @@
-{% extends "layouts/base.html" %}
 {% load i18n static %}
-
-{% block header_extra %}
-<link rel="stylesheet" href="{% static 'css/teach_lesson_edit.css' %}">
-{% endblock %}
-
-{% block content %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% blocktrans with lesson_title=lesson_title %}Teacher · Edit Lesson: {{ lesson_title }}{% endblocktrans %}</title>
+    {% include "includes/glass_theme.html" %}
+    <link rel="stylesheet" href="{% static 'css/teach_lesson_edit.css' %}">
+</head>
+<body class="glass-theme teacher-comfort">
+<a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
 <main class="editor-container">
     <div class="editor-header">
         <div>
@@ -49,8 +53,6 @@
         </p>
     </form>
 </main>
-{% endblock %}
-
-{% block body_scripts %}
 <script src="{% static 'js/confirm_forms.js' %}" defer></script>
-{% endblock %}
+</body>
+</html>
