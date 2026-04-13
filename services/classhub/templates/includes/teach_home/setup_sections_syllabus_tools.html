@@ -1,12 +1,12 @@
 {% load i18n %}
 {% if show_setup_sections %}
+{% if can_compile_coursepack %}
 <div class="card card-secondary card-secondary--tools">
   <details class="support-collapsible">
     <summary class="support-summary">
       <span class="support-summary-text">
         <span class="support-summary-title">{% trans "Compile Coursepack ZIP" %}</span>
-        <span class="support-summary-note muted">{% trans "Build a repo-style course from a teacher source file (`.md`,
-          `.docx`, or `.zip`)." %}</span>
+        <span class="support-summary-note muted">{% trans "Build a downloadable repo-style coursepack from a teacher source file (`.md`, `.docx`, or `.zip`)." %}</span>
       </span>
     </summary>
     <div class="support-collapsible-body">
@@ -53,20 +53,18 @@
             <label for="import-overview-file">{% trans "Optional overview (.md or .docx)" %}</label>
             <input id="import-overview-file" name="syllabus_overview" type="file" accept=".md,.docx" />
           </div>
-          <div class="teacher-invite-checkbox-wrap">
-            <label class="teacher-invite-checkbox-label">
-              <input type="checkbox" name="import_overwrite" value="1" {% if import_overwrite %}checked{% endif %} />
-              {% trans "Overwrite existing course folder" %}
-            </label>
-          </div>
         </div>
+        <p class="muted">
+          {% trans "Compilation runs in temporary scratch space and returns a downloadable coursepack ZIP. It does not overwrite repository course folders or mutate live curriculum content." %}
+        </p>
         <div class="submit-wrap">
-          <button type="submit">{% trans "Import source" %}</button>
+          <button type="submit">{% trans "Compile coursepack ZIP" %}</button>
         </div>
       </form>
     </div>
   </details>
 </div>
+{% endif %}
 
 <div class="card card-secondary card-secondary--tools">
   <details class="support-collapsible">

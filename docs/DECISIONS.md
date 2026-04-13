@@ -20,7 +20,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Organization boundary and staff roles](#organization-boundary-and-staff-roles)
 - [Org boundary deployment policy](#org-boundary-deployment-policy)
 - [Class assignments and teacher-first class ordering](#class-assignments-and-teacher-first-class-ordering)
-- [Syllabus import class provisioning](#syllabus-import-class-provisioning)
+- [Syllabus compilation scratch export](#syllabus-compilation-scratch-export)
 - [Paid cohort enrollment controls](#paid-cohort-enrollment-controls)
 - [Service boundary: Homework Helper separate service](#service-boundary-homework-helper-separate-service)
 - [Helper engine modularization seam](#helper-engine-modularization-seam)
@@ -521,22 +521,22 @@ Execution ownership and gates:
 - Preserves org-wide course/syllabus access while making daily “my classes” workflows faster.
 - Gives a clean foundation for future per-class staffing controls without changing student auth/join UX.
 
-## Syllabus import class provisioning
+## Syllabus compilation scratch export
 
 **Current decision:**
-- Teacher portal syllabus imports (`/teach/import-syllabus-source`) now provision a class automatically.
-- The class is created in the uploader’s default organization scope and populated from the imported course pack.
-- Non-superuser staff uploaders receive an active `ClassStaffAssignment` on the newly created class.
-- If staff cannot create classes under current org policy, syllabus import returns an error instead of creating content without a class.
+- Teacher portal syllabus compilation (`/teach/import-syllabus-source`) is scratch-based and export-oriented.
+- Uploaded `.md`, `.docx`, and `.zip` sources compile into a temporary working directory and return a downloadable coursepack ZIP.
+- The teacher-facing flow does not mutate `CONTENT_ROOT`, overwrite repository course folders, or provision a class as a side effect.
+- If staff lacks the current organization capability for this tool, syllabus compilation returns an error instead of opening a hidden content-write path.
 - Zip syllabus imports now map lesson-support images by filename prefix (`01-...`, `02-...`) to matching sessions:
   - images are written into course content under `lesson_support_images/`,
   - generated lesson front matter includes `support_images`,
-  - coursepack import creates lesson-tagged `LessonAsset` rows + module links to those assets.
+  - those files live inside the downloadable coursepack artifact rather than being written into the live curriculum tree by the web request.
 
 **Why this remains active:**
-- Keeps teacher workflow one-step: upload source, then immediately have a runnable class.
-- Reduces setup drift where course content exists on disk but no class is attached for student use.
-- Preserves supportive visual context from teacher-authored zip bundles without manual per-lesson asset re-upload.
+- Preserves a file-first, Git-native curriculum model for self-hosted deployments.
+- Keeps the teacher workflow useful without adding hidden in-image writes or mutable canonical content paths.
+- Preserves supportive visual context from teacher-authored zip bundles inside the exported artifact without manual per-lesson asset re-upload.
 
 ## Paid cohort enrollment controls
 

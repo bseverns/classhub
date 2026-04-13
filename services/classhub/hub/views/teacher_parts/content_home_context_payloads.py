@@ -64,7 +64,6 @@ def _build_teach_home_class_context(
     import_course_title: str,
     import_default_ui_level: str,
     import_session_parse_mode: str,
-    import_overwrite: bool,
     output_dir: Path,
     template_download_rows: list,
 ) -> dict:
@@ -91,7 +90,6 @@ def _build_teach_home_class_context(
         "import_session_parse_mode": (
             import_session_parse_mode if import_session_parse_mode in {"auto", "template", "verbose"} else "auto"
         ),
-        "import_overwrite": import_overwrite,
         "template_output_dir": str(output_dir),
         "template_download_rows": template_download_rows,
     }

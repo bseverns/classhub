@@ -35,6 +35,7 @@ from ..services.helper_topics import (
     split_helper_topics_text,
 )
 from ..services.helper_widget import build_helper_prompt_sets_json
+from ..services.org_access import staff_can_manage_classroom, staff_classroom_or_none
 from ..services.release_state import lesson_release_override_map, lesson_release_state
 from ..services.upload_policy import front_matter_submission
 from ..services.ui_density import resolve_ui_density_mode
@@ -69,6 +70,16 @@ def _retention_days(setting_name: str, default: int) -> int:
     except Exception:
         value = int(default)
     return value if value > 0 else 0
+
+
+def _staff_preview_classroom(request):
+    if not (request.user.is_authenticated and request.user.is_staff):
+        return None
+    try:
+        class_id = int((request.GET.get("class_id") or "0").strip())
+    except Exception:
+        return None
+    return staff_classroom_or_none(request.user, class_id)
 
 
 def course_overview(request, course_slug: str):
@@ -188,7 +199,8 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
     if not manifest:
         return HttpResponse("Course not found", status=404)
 
-    classroom_id = getattr(getattr(request, "classroom", None), "id", 0) or 0
+    effective_classroom = getattr(request, "classroom", None) or _staff_preview_classroom(request)
+    classroom_id = getattr(effective_classroom, "id", 0) or 0
     raw_markdown_override = None
     if classroom_id:
         from ..models import ClassLessonOverride
@@ -225,7 +237,6 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
     )
 
     learner_body_md, _teacher_body_md = split_lesson_markdown_for_audiences(body_md)
-    classroom_id = getattr(getattr(request, "classroom", None), "id", 0) or 0
     release_override_map = lesson_release_override_map(classroom_id) if classroom_id else {}
     release_override = release_override_map.get((course_slug, lesson_slug))
     release_state = lesson_release_state(
@@ -351,13 +362,14 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
             "next": next_l,
             "helper_widget": helper_widget,
             "student": getattr(request, "student", None),
-            "classroom": getattr(request, "classroom", None),
+            "classroom": effective_classroom,
             "lesson_submission": lesson_submission,
             "lesson_upload_material": lesson_upload_material,
             "lesson_upload_status": lesson_upload_status,
             "lesson_locked": lesson_locked,
             "lesson_available_on": lesson_available_on,
             "ui_density_mode": ui_density_mode,
+            "can_edit_lesson_override": staff_can_manage_classroom(request.user, effective_classroom),
         },
     )
 

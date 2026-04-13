@@ -43,6 +43,7 @@ from .shared import (
     require_POST,
     safe_attachment_filename,
     staff_member_required,
+    staff_can_create_classes,
 )
 
 
@@ -59,7 +60,6 @@ def teach_home(request):
     import_course_title = (request.GET.get("import_course_title") or "").strip()
     import_default_ui_level = (request.GET.get("import_default_ui_level") or "secondary").strip().lower()
     import_session_parse_mode = (request.GET.get("import_session_parse_mode") or "auto").strip().lower()
-    import_overwrite = (request.GET.get("import_overwrite") or "").strip() == "1"
     teacher_invite_state = _read_teacher_invite_state(request)
     org_state = _read_org_admin_state(request)
     profile_state = _read_profile_state(request, request.user)
@@ -120,7 +120,6 @@ def teach_home(request):
             import_course_title=import_course_title,
             import_default_ui_level=import_default_ui_level,
             import_session_parse_mode=import_session_parse_mode,
-            import_overwrite=import_overwrite,
             output_dir=output_dir,
             template_download_rows=template_download_rows,
         ),
@@ -138,6 +137,7 @@ def teach_home(request):
         **operator_config_snapshot,
         **portal_mode_context,
         "org_membership_strict_mode": bool(getattr(settings, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", False)),
+        "can_compile_coursepack": bool(staff_can_create_classes(request.user)),
     }
     response = render(request, "teach_home.html", context)
     apply_no_store(response, private=True, pragma=True)

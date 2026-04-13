@@ -81,7 +81,6 @@ Session 02: Drift Tests
                         "import_course_title": "",
                         "import_default_ui_level": "secondary",
                         "import_session_parse_mode": "auto",
-                        "import_overwrite": "1",
                         "syllabus_source": SimpleUploadedFile("field_systems.md", source_md.encode("utf-8")),
                     },
                 )
@@ -98,6 +97,9 @@ Session 02: Drift Tests
         event = AuditEvent.objects.filter(action="teacher_syllabus_import.compile").order_by("-id").first()
         self.assertIsNotNone(event)
         self.assertEqual(event.target_id, "field_systems_studio")
+        self.assertEqual(event.metadata["build_mode"], "scratch_coursepack_zip")
+        self.assertFalse(event.metadata["writes_live_content"])
+        self.assertFalse((content_root / "courses" / "field_systems_studio").exists())
 
     def test_staff_teacher_syllabus_import_compiles_valid_zip(self):
         teacher = get_user_model().objects.create_user(
@@ -127,7 +129,6 @@ Session 02: Final Build
                         "import_course_title": "",
                         "import_default_ui_level": "secondary",
                         "import_session_parse_mode": "auto",
-                        "import_overwrite": "1",
                         "syllabus_source": SimpleUploadedFile("course_forge.md", source_md.encode("utf-8")),
                     },
                 )
@@ -161,7 +162,6 @@ Session 02: Final Build
                         "import_course_title": "DOCX Source",
                         "import_default_ui_level": "secondary",
                         "import_session_parse_mode": "template",
-                        "import_overwrite": "1",
                         "syllabus_source": SimpleUploadedFile(
                             "docx_source.docx",
                             docx_bytes,
@@ -209,7 +209,6 @@ Session 02: Final Build
                         "import_course_title": "",
                         "import_default_ui_level": "advanced",
                         "import_session_parse_mode": "verbose",
-                        "import_overwrite": "1",
                         "syllabus_source": SimpleUploadedFile("swarm.zip", zip_buffer.getvalue(), content_type="application/zip"),
                     },
                 )
@@ -240,6 +239,17 @@ Session 02: Final Build
         self.assertEqual(resp.status_code, 302)
         self.assertIn("/teach?error=", resp["Location"])
         self.assertEqual(AuditEvent.objects.filter(action="teacher_syllabus_import.compile").count(), 0)
+
+    def test_teach_home_compile_tool_uses_scratch_build_copy_without_overwrite_language(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach")
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Compile Coursepack ZIP")
+        self.assertContains(resp, "temporary scratch space")
+        self.assertContains(resp, "Compile coursepack ZIP")
+        self.assertNotContains(resp, "Overwrite existing course folder")
 
     def test_teach_home_shows_template_download_links_for_selected_slug(self):
         _force_login_staff_verified(self.client, self.staff)

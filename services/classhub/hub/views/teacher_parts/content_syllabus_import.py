@@ -29,7 +29,6 @@ def _syllabus_import_form_state(request):
     title = (request.POST.get("import_course_title") or "").strip()
     default_ui_level = (request.POST.get("import_default_ui_level") or "secondary").strip().lower()
     session_parse_mode = (request.POST.get("import_session_parse_mode") or "auto").strip().lower()
-    overwrite = (request.POST.get("import_overwrite") or "").strip() == "1"
     return {
         "source_upload": source_upload,
         "overview_upload": overview_upload,
@@ -37,13 +36,11 @@ def _syllabus_import_form_state(request):
         "title": title,
         "default_ui_level": default_ui_level,
         "session_parse_mode": session_parse_mode,
-        "overwrite": overwrite,
         "form_values": {
             "import_course_slug": slug,
             "import_course_title": title,
             "import_default_ui_level": default_ui_level,
             "import_session_parse_mode": session_parse_mode,
-            "import_overwrite": "1" if overwrite else "0",
         },
     }
 
@@ -72,13 +69,13 @@ def _validate_syllabus_import_state(state: dict) -> str:
     return ""
 
 
-def _audit_syllabus_import(request, *, result, overwrite: bool):
+def _audit_syllabus_import(request, *, result):
     _audit(
         request,
         action="teacher_syllabus_import.compile",
         target_type="CourseSyllabus",
         target_id=result.course_slug,
-        summary=f"Compiled syllabus source into {result.course_slug}",
+        summary=f"Compiled downloadable coursepack ZIP for {result.course_slug}",
         metadata={
             "course_slug": result.course_slug,
             "course_title": result.course_title,
@@ -86,7 +83,9 @@ def _audit_syllabus_import(request, *, result, overwrite: bool):
             "source_kind": result.source_kind,
             "source_files": result.source_files,
             "ui_level": result.ui_level,
-            "overwrite": overwrite,
+            "build_mode": "scratch_coursepack_zip",
+            "writes_live_content": False,
+            "artifact_filename": f"coursepack_{result.course_slug}.zip",
         },
     )
 
@@ -100,7 +99,7 @@ def teach_import_syllabus_source(request):
         return _syllabus_import_error(
             request,
             form_values=form_values,
-            message="Your account cannot compile classes in the current organization scope.",
+            message="Your account cannot compile coursepacks in the current organization scope.",
         )
     error = _validate_syllabus_import_state(state)
     if error:
@@ -116,7 +115,6 @@ def teach_import_syllabus_source(request):
                 overview_upload=state["overview_upload"],
                 default_ui_level=state["default_ui_level"],
                 session_parse_mode=state["session_parse_mode"],
-                overwrite=True,
                 courses_root=scratch_path,
             )
 
@@ -129,7 +127,7 @@ def teach_import_syllabus_source(request):
                         zf.write(file_path, arcname)
 
             buffer.seek(0)
-            _audit_syllabus_import(request, result=result, overwrite=False)
+            _audit_syllabus_import(request, result=result)
 
             return FileResponse(
                 buffer,

@@ -18,13 +18,14 @@ When compiling the ZIP, you will see a form allowing several optional inputs:
 - **Default UI level** (choose between `elementary`, `secondary`, `advanced`)
 - **Session parser mode** (leave at `auto` unless you have strict needs: `template`, `verbose`)
 - **Overview file** (`.md` or `.docx`) when uploading a single session plan
-- **Overwrite existing course folder** (toggles updating vs generating a new entry)
+
+Compilation runs in temporary scratch space. The teacher portal returns a downloadable coursepack ZIP and does **not** overwrite repository course folders or mutate live curriculum content.
 
 ### Zip Handling Rules
 If you upload an entire `.zip` bundle of curriculum material:
 - The importer automatically scans `.md` and `.docx` files in the archive.
 - It prioritizes files located inside `sessions/` or `lessons/` folders and files named things like `session01_*`.
 - It derives the global overview and title metadata from files titled `COURSE_DESCRIPTION.md`, files containing `overview`, `syllabus`, or standard `README`s.
-- Support images named with session prefixes will be mapped automatically (e.g. `01-circuit-layout.png`). They will be attached as Lesson Assets directly into the module links within the system.
+- Support images named with session prefixes will be mapped automatically (e.g. `01-circuit-layout.png`). They are packaged into the generated coursepack and referenced from the generated lesson front matter.
 
 *(For changing exact syllabus layout attributes like age-bands or fine-tuning helper variables, please consult the system administrator workflow in `COURSE_AUTHORING.md`)*

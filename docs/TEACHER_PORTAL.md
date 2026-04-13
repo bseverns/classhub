@@ -196,7 +196,7 @@ Most classroom teachers can skip this section.
   - compile syllabus sources into coursepack ZIPs (stateless):
     - accepts `.md`, `.docx`, and `.zip`
     - supports optional overview file (`.md`/`.docx`) and parser mode (`auto`/`template`/`verbose`)
-    - can overwrite an existing slug when updating a course
+    - builds in temporary scratch space and returns a downloadable ZIP without mutating live curriculum content
   - operator link: `/teach/data-lifespan` (owner/admin/superuser) for retention verification snapshot
   - generate authoring templates (`.md` + `.docx`) by setting:
     - `course slug`

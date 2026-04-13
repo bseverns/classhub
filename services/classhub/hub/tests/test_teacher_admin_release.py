@@ -1,4 +1,6 @@
+from ..models import ClassLessonOverride
 from ._shared import *  # noqa: F401,F403
+
 
 class LessonReleaseTests(TestCase):
     def setUp(self):
@@ -230,6 +232,115 @@ class LessonReleaseTests(TestCase):
         lesson_resp = self.client.get("/course/piper_scratch_12_session/s01-welcome-private-workflow")
         self.assertEqual(lesson_resp.status_code, 200)
         self.assertContains(lesson_resp, '<details class="helper-shell">', html=False)
+
+    def test_teacher_lesson_override_editor_uses_self_hosted_assets_only(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(
+            f"/teach/course/piper_scratch_12_session/lesson/s01-welcome-private-workflow/edit?class_id={self.classroom.id}"
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "/static/css/teach_lesson_edit.css")
+        self.assertContains(resp, "/static/js/confirm_forms.js")
+        self.assertContains(resp, 'name="raw_markdown"', html=False)
+        self.assertNotContains(resp, "cdnjs.cloudflare.com")
+        self.assertNotContains(resp, "CodeMirror")
+
+    def test_teacher_lesson_override_save_update_reset_is_audited_and_previewable(self):
+        _force_login_staff_verified(self.client, self.staff)
+        edit_url = f"/teach/course/piper_scratch_12_session/lesson/s01-welcome-private-workflow/edit?class_id={self.classroom.id}"
+        preview_url = f"/course/piper_scratch_12_session/s01-welcome-private-workflow?class_id={self.classroom.id}"
+
+        original_markdown = "\n# Custom class intro\n\nKeep trailing space \n"
+        resp = self.client.post(
+            edit_url,
+            {
+                "action": "save",
+                "raw_markdown": original_markdown,
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], preview_url)
+
+        override = ClassLessonOverride.objects.get(
+            classroom=self.classroom,
+            course_slug="piper_scratch_12_session",
+            lesson_slug="s01-welcome-private-workflow",
+        )
+        self.assertEqual(override.raw_markdown, original_markdown)
+
+        create_event = AuditEvent.objects.filter(action="lesson_override.create").latest("id")
+        self.assertEqual(create_event.actor_user_id, self.staff.id)
+        self.assertEqual(create_event.classroom_id, self.classroom.id)
+        self.assertEqual(create_event.metadata["lesson_slug"], "s01-welcome-private-workflow")
+        self.assertTrue(create_event.metadata["has_override"])
+
+        updated_markdown = "## Class-only pacing note\n\nUse the projector timer.\n"
+        resp = self.client.post(
+            edit_url,
+            {
+                "action": "save",
+                "raw_markdown": updated_markdown,
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        override.refresh_from_db()
+        self.assertEqual(override.raw_markdown, updated_markdown)
+
+        update_event = AuditEvent.objects.filter(action="lesson_override.update").latest("id")
+        self.assertEqual(update_event.actor_user_id, self.staff.id)
+        self.assertEqual(update_event.metadata["course_slug"], "piper_scratch_12_session")
+        self.assertTrue(update_event.metadata["has_override"])
+
+        preview = self.client.get(preview_url)
+        self.assertEqual(preview.status_code, 200)
+        self.assertContains(preview, "Class-only pacing note")
+        self.assertContains(preview, "Edit Markdown")
+
+        resp = self.client.post(
+            edit_url,
+            {
+                "action": "reset",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertFalse(
+            ClassLessonOverride.objects.filter(
+                classroom=self.classroom,
+                course_slug="piper_scratch_12_session",
+                lesson_slug="s01-welcome-private-workflow",
+            ).exists()
+        )
+
+        reset_event = AuditEvent.objects.filter(action="lesson_override.reset").latest("id")
+        self.assertEqual(reset_event.actor_user_id, self.staff.id)
+        self.assertFalse(reset_event.metadata["has_override"])
+
+    def test_lesson_page_hides_edit_button_for_staff_without_manage_permission(self):
+        org = Organization.objects.create(name="Viewer Org")
+        self.classroom.organization = org
+        self.classroom.save(update_fields=["organization"])
+        viewer = get_user_model().objects.create_user(
+            username="viewer_release",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=org,
+            user=viewer,
+            role=OrganizationMembership.ROLE_VIEWER,
+            is_active=True,
+        )
+
+        self.client.force_login(viewer)
+        resp = self.client.get(
+            f"/course/piper_scratch_12_session/s01-welcome-private-workflow?class_id={self.classroom.id}"
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, "Edit Markdown")
 
     def test_course_overview_uses_external_css_without_inline_styles(self):
         self._login_student()

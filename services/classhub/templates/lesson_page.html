@@ -42,9 +42,9 @@
         </div>
         <div class="nav">
           <a class="btn" href="/student">Back to class</a>
-          {% if user.is_staff %}
+          {% if can_edit_lesson_override and classroom %}
           <a class="btn"
-            href="/teach/course/{{ course_slug }}/lesson/{{ lesson_slug }}/edit?class_id={{ classroom.id|default:0 }}">Edit
+            href="/teach/course/{{ course_slug }}/lesson/{{ lesson_slug }}/edit?class_id={{ classroom.id }}">Edit
             Markdown</a>
           {% endif %}
           {% if ui_density_mode == "expanded" %}

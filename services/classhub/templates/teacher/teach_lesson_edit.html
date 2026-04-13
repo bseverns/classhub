@@ -2,7 +2,6 @@
 {% load i18n static %}
 
 {% block header_extra %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
 <link rel="stylesheet" href="{% static 'css/teach_lesson_edit.css' %}">
 {% endblock %}
 
@@ -24,26 +23,34 @@
                 trans "Cancel" %}</a>
             {% if has_override %}
             <form id="reset-form" method="post" action="?class_id={{ class_id }}" class="inline-form"
-                data-confirm-message='{% trans "Are you sure you want to reset this lesson to the global repository default? This will delete your local changes."|escapejs %}'>
+                data-confirm='{% trans "Are you sure you want to reset this lesson to the global repository default? This will delete your local changes."|escapejs %}'>
                 {% csrf_token %}
                 <input type="hidden" name="action" value="reset">
                 <button type="submit" class="btn btn-danger">{% trans "Reset to Default" %}</button>
             </form>
             {% endif %}
-            <button type="button" id="save-override-btn" class="btn btn-primary">{% trans "Save Override" %}</button>
+            <button type="submit" form="editor-form" class="btn btn-primary">{% trans "Save Override" %}</button>
         </div>
     </div>
 
     <form id="editor-form" method="post" action="?class_id={{ class_id }}">
         {% csrf_token %}
         <input type="hidden" name="action" value="save">
-        <textarea id="markdown-editor" name="raw_markdown">{{ current_raw }}</textarea>
+        <label class="editor-label" for="markdown-editor">{% trans "Lesson Markdown" %}</label>
+        <textarea
+            id="markdown-editor"
+            class="editor-textarea"
+            name="raw_markdown"
+            spellcheck="false"
+            autocapitalize="off"
+            autocomplete="off">{{ current_raw }}</textarea>
+        <p class="editor-note muted">
+            {% trans "This editor writes a class-local database override only. Repository course files are not modified." %}
+        </p>
     </form>
 </main>
 {% endblock %}
 
 {% block body_scripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
-<script src="{% static 'js/teach_lesson_edit.js' %}"></script>
+<script src="{% static 'js/confirm_forms.js' %}" defer></script>
 {% endblock %}
