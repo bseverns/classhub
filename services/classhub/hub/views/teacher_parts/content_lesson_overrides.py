@@ -1,11 +1,20 @@
 """Teacher class-local lesson override editor endpoints."""
 
+from urllib.parse import urlencode
+
 from django.shortcuts import redirect
 
 from hub.models import ClassLessonOverride
 from hub.services.markdown_content import _safe_course_file_path, load_course_manifest, load_lesson_markdown
 
-from .shared import _audit, render, staff_can_manage_classroom, staff_classroom_or_none, staff_member_required
+from .shared import (
+    _audit,
+    _safe_internal_redirect,
+    render,
+    staff_can_manage_classroom,
+    staff_classroom_or_none,
+    staff_member_required,
+)
 
 
 def _parse_class_id(request) -> int:
@@ -77,7 +86,8 @@ def _load_editable_lesson(course_slug: str, lesson_slug: str):
 
 
 def _lesson_override_redirect(*, class_id: int, course_slug: str, lesson_slug: str):
-    return redirect(f"/course/{course_slug}/{lesson_slug}?class_id={class_id}")
+    path = f"/course/{course_slug}/{lesson_slug}"
+    return f"{path}?{urlencode({'class_id': str(class_id)})}"
 
 
 def _upsert_lesson_override(
@@ -132,7 +142,11 @@ def _handle_override_post(
     override,
 ):
     if not staff_can_manage_classroom(request.user, classroom):
-        return _lesson_override_redirect(class_id=class_id, course_slug=course_slug, lesson_slug=lesson_slug)
+        return _safe_internal_redirect(
+            request,
+            _lesson_override_redirect(class_id=class_id, course_slug=course_slug, lesson_slug=lesson_slug),
+            fallback="/teach/lessons",
+        )
 
     if request.POST.get("action") == "reset":
         if override:
@@ -146,7 +160,11 @@ def _handle_override_post(
                 summary="Reset lesson override to repository default",
                 has_override=False,
             )
-        return _lesson_override_redirect(class_id=class_id, course_slug=course_slug, lesson_slug=lesson_slug)
+        return _safe_internal_redirect(
+            request,
+            _lesson_override_redirect(class_id=class_id, course_slug=course_slug, lesson_slug=lesson_slug),
+            fallback="/teach/lessons",
+        )
 
     _upsert_lesson_override(
         request,
@@ -155,7 +173,11 @@ def _handle_override_post(
         lesson_slug=lesson_slug,
         override=override,
     )
-    return _lesson_override_redirect(class_id=class_id, course_slug=course_slug, lesson_slug=lesson_slug)
+    return _safe_internal_redirect(
+        request,
+        _lesson_override_redirect(class_id=class_id, course_slug=course_slug, lesson_slug=lesson_slug),
+        fallback="/teach/lessons",
+    )
 
 
 @staff_member_required

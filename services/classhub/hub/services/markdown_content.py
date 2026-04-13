@@ -15,14 +15,12 @@ from django.utils._os import safe_join
 from .content_links import build_asset_url
 
 _COURSE_SLUG_RE = re.compile(r"^[A-Za-z0-9_-]+$")
-_HEADING_LEVEL2_RE = re.compile(r"^##\s+(.+?)\s*$")
 _IMG_TAG_RE = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
 _IMG_SRC_RE = re.compile(r"""\bsrc\s*=\s*(?:"([^"]*)"|'([^']*)')""", re.IGNORECASE)
 _MEDIA_LINK_ATTR_RE = re.compile(
     r"""(?P<prefix>\b(?:href|src)\s*=\s*)(?P<quote>["'])(?P<path>/lesson-(?:asset|video)/[^"']+)(?P=quote)""",
     re.IGNORECASE,
 )
-_LEGACY_TEACHER_DETAILS_RE = re.compile(r"(?is)<details>\s*<summary>.*?teacher.*?</summary>.*?</details>")
 _TEACHER_SECTION_PREFIXES = (
     "teacher prep",
     "teacher panel",
@@ -144,7 +142,7 @@ def load_lesson_markdown(course_slug: str, lesson_slug: str, raw_markdown_overri
 
 
 def is_teacher_section_heading(heading_text: str) -> bool:
-    normalized = re.sub(r"\s+", " ", (heading_text or "").strip().lower())
+    normalized = " ".join((heading_text or "").strip().lower().split())
     if not normalized:
         return False
     if normalized.startswith("teacher "):
@@ -152,13 +150,65 @@ def is_teacher_section_heading(heading_text: str) -> bool:
     return any(normalized.startswith(prefix) for prefix in _TEACHER_SECTION_PREFIXES)
 
 
+def _parse_level2_heading(line: str) -> str | None:
+    if not line.startswith("##"):
+        return None
+    remainder = line[2:]
+    if not remainder or not remainder[0].isspace():
+        return None
+    heading = remainder.strip()
+    return heading or None
+
+
+def _extract_legacy_teacher_details(markdown_text: str) -> tuple[list[str], str]:
+    lowered = markdown_text.lower()
+    blocks: list[str] = []
+    stripped_parts: list[str] = []
+    cursor = 0
+    search_from = 0
+
+    while True:
+        details_start = lowered.find("<details", search_from)
+        if details_start < 0:
+            break
+
+        open_tag_end = lowered.find(">", details_start)
+        if open_tag_end < 0:
+            break
+
+        summary_start = lowered.find("<summary", open_tag_end + 1)
+        details_end = lowered.find("</details>", open_tag_end + 1)
+        if summary_start < 0 or details_end < 0 or summary_start > details_end:
+            search_from = details_start + len("<details")
+            continue
+
+        summary_open_end = lowered.find(">", summary_start)
+        summary_end = lowered.find("</summary>", summary_open_end + 1 if summary_open_end >= 0 else summary_start)
+        if summary_open_end < 0 or summary_end < 0 or summary_end > details_end:
+            search_from = details_start + len("<details")
+            continue
+
+        summary_text = lowered[summary_open_end + 1 : summary_end]
+        if "teacher" not in summary_text:
+            search_from = details_start + len("<details")
+            continue
+
+        stripped_parts.append(markdown_text[cursor:details_start])
+        block_end = details_end + len("</details>")
+        blocks.append(markdown_text[details_start:block_end])
+        cursor = block_end
+        search_from = block_end
+
+    stripped_parts.append(markdown_text[cursor:])
+    return blocks, "".join(stripped_parts)
+
+
 def split_lesson_markdown_for_audiences(markdown_text: str) -> tuple[str, str]:
     """Return (learner_markdown, teacher_markdown)."""
     if not (markdown_text or "").strip():
         return "", ""
 
-    legacy_teacher_blocks = _LEGACY_TEACHER_DETAILS_RE.findall(markdown_text)
-    stripped_markdown = _LEGACY_TEACHER_DETAILS_RE.sub("", markdown_text)
+    legacy_teacher_blocks, stripped_markdown = _extract_legacy_teacher_details(markdown_text)
 
     learner_chunks: list[str] = []
     teacher_chunks: list[str] = []
@@ -178,11 +228,11 @@ def split_lesson_markdown_for_audiences(markdown_text: str) -> tuple[str, str]:
             learner_chunks.append(text)
 
     for line in stripped_markdown.splitlines():
-        heading = _HEADING_LEVEL2_RE.match(line)
-        if heading:
+        heading = _parse_level2_heading(line)
+        if heading is not None:
             flush_chunk()
             chunk_lines.append(line)
-            chunk_is_teacher = is_teacher_section_heading(heading.group(1))
+            chunk_is_teacher = is_teacher_section_heading(heading)
             continue
         chunk_lines.append(line)
     flush_chunk()
