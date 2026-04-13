@@ -1283,9 +1283,6 @@ msgstr "Archivo fuente (.md, .docx o .zip)"
 msgid "Optional overview (.md or .docx)"
 msgstr "Resumen opcional (.md o .docx)"
 
-msgid "Overwrite existing course folder"
-msgstr "Sobrescribir la carpeta del curso existente"
-
 msgid "Import source"
 msgstr "Importar fuente"
 

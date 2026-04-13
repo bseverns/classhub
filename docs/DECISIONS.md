@@ -3881,6 +3881,7 @@ Execution ownership and gates:
   - inline script execution is not allowed,
   - any temporary inline allowance is limited to `style-src`.
 - Keep report-only overrides strict so telemetry reflects the intended end state rather than a relaxed parallel policy.
+- Keep release artifact expectations explicit: release ZIPs intentionally omit `compose/.env`, so the CSP runtime contract is verified against env presets or deployment env, not from `dist` alone.
 
 **Why this remains active:**
 - Creates an explicit guardrail between “we are still transitioning” and “we accidentally shipped a weak strict override.”

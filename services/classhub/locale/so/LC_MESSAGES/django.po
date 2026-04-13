@@ -1235,9 +1235,6 @@ msgstr "Faylka isha (.md, .docx, ama .zip)"
 msgid "Optional overview (.md or .docx)"
 msgstr "Dulmar ikhtiyaari ah (.md ama .docx)"
 
-msgid "Overwrite existing course folder"
-msgstr "Ku qor korka galka koorsada ee jira"
-
 msgid "Import source"
 msgstr "Soo geli isha"
 

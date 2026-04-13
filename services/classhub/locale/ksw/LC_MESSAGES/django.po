@@ -1235,9 +1235,6 @@ msgstr "source file (.md, .docx, မ့တမ့ၢ် .zip)"
 msgid "Optional overview (.md or .docx)"
 msgstr "overview (optional) (.md မ့တမ့ၢ် .docx)"
 
-msgid "Overwrite existing course folder"
-msgstr "overwrite course folder လၢအအိၣ်လံ"
-
 msgid "Import source"
 msgstr "ဟဲစိာ် source"
 

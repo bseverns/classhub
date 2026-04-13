@@ -241,6 +241,8 @@ class LessonReleaseTests(TestCase):
         )
 
         self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '<a class="skip-link" href="#main-content">', html=False)
+        self.assertContains(resp, '<main id="main-content" class="editor-container">', html=False)
         self.assertContains(resp, "/static/css/teach_lesson_edit.css")
         self.assertContains(resp, "/static/js/confirm_forms.js")
         self.assertContains(resp, 'name="raw_markdown"', html=False)
