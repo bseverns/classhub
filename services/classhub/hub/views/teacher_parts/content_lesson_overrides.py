@@ -187,6 +187,8 @@ def teach_edit_override_lesson(request, course_slug: str, lesson_slug: str):
     classroom, redirect_response = _editable_classroom_or_redirect(request, class_id=class_id)
     if redirect_response:
         return redirect_response
+    if not staff_can_manage_classroom(request.user, classroom):
+        return redirect("/teach/lessons")
 
     lesson_data = _load_editable_lesson(course_slug, lesson_slug)
     if lesson_data is None:
