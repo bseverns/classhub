@@ -160,15 +160,10 @@ If you need a spoken architecture moment, pair this shotlist with:
 
 ## Priority order
 - Capture with approval workflow OFF (`CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=0`) first, then optional refresh with workflow ON.
-- Optional supplemental file for ON mode: `19-rbac-tools-tab-approval-on.png`.
+- Optional supplemental file for ON mode: `19-rbac-tools-tab-approval-on.png` (captured in the current baseline).
 - When remote helper compute is part of the talk, prefer showing the class dashboard in a state where the remote panel is visible but not leaking provider internals.
-- Pending in current backlog:
-  - `13-a11y-smoke-terminal.png`
-  - `15-lesson-helper-collapsed.png`
-  - `18-teacher-landing-editor.png`
-  - `20-data-lifespan-evidence.png`
-  - `21-data-lifespan-export-terminal.png`
+- Current public screenshot set is complete through `21`.
+- Placeholder tracker remains available for future drift, but there is no active screenshot backlog.
 
 ## Placeholders
-- If these new screenshots are not captured yet, keep placeholders in
-  `press/screenshots/PLACEHOLDERS.md` and avoid broken image links in docs until files exist.
+- If future screenshots drift or go missing, track them in `press/screenshots/PLACEHOLDERS.md` before re-embedding.

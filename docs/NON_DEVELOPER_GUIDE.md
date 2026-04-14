@@ -4,6 +4,8 @@ If you are not writing code, start here.
 
 You do not need to read every docs file. For normal classroom use, this page plus [TEACHER_PORTAL.md](TEACHER_PORTAL.md) is enough.
 
+If one class needs a local lesson tweak without changing the shared curriculum for everyone else, use [LESSON_OVERRIDES.md](LESSON_OVERRIDES.md).
+
 If you want a guided wiki reading order, open [TEACHER_DOCS_JOURNEY.md](TEACHER_DOCS_JOURNEY.md).
 
 If you want the shortest role-based path, open [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md). If you need an action-only checklist for tomorrow's class, use [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md).
@@ -72,6 +74,19 @@ If any step fails, use [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 6. Review missing submissions from the dropbox links.
 7. For paid/limited cohorts, monitor invite seat usage and disable links when full.
 
+## Shared curriculum vs class-local edits
+
+- Shared curriculum is still file-first and repo-native.
+- If your team updates course files in the repository, that affects the canonical version of the curriculum.
+- Teacher lesson edits in the portal are different:
+  - they are class-local,
+  - they are reversible,
+  - they do not modify repository course files.
+- Use a class-local override when one class needs a pacing note, temporary wording change, or local adaptation.
+- Use normal curriculum-authoring or coursepack workflows when the shared curriculum itself should change for everyone.
+
+Step-by-step guide: [LESSON_OVERRIDES.md](LESSON_OVERRIDES.md)
+
 ## Student portfolio + gallery basics
 
 - Student artifacts are teacher-only by default.
@@ -110,6 +125,7 @@ Deep walkthrough: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - Guided teacher read path: [TEACHER_DOCS_JOURNEY.md](TEACHER_DOCS_JOURNEY.md)
 - First-time teacher checklist: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
 - Short playbooks for common issues: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md)
+- Class-local lesson editing guide: [LESSON_OVERRIDES.md](LESSON_OVERRIDES.md)
 - Teacher workflow and screen-by-screen guide: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - Day-1 setup (technical setup team): [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
 - Incident recovery: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)

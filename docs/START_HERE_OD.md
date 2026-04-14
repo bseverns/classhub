@@ -2,7 +2,7 @@
 
 ## What ClassHub is
 
-ClassHub is an operations-friendly learning hub for running cohorts, managing staff access by `Organization`, controlling enrollment, exporting outcomes, and rehearsing recovery from backups.
+ClassHub is an operations-friendly learning hub for running cohorts, managing staff access by `Organization`, controlling enrollment, exporting outcomes, and rehearsing recovery from backups without depending on a large vendor ops team.
 
 ## What ClassHub is not
 
@@ -42,7 +42,7 @@ Operations captures:
 - Invite-only cohorts can open and close cleanly.
 - Routine reporting is export-driven, not screenshot-driven.
 - Restore rehearsal is documented and repeatable.
-- Incidents have a known path: troubleshoot, restore, verify, communicate.
+- Incidents have a known path: detect, contain, recover, verify, communicate.
 
 ## Where revenue can come from
 
@@ -74,8 +74,12 @@ The operational question is not "Can the software sell?" It is "Can staff run a 
 
 - Daily and weekly operating procedures: [RUNBOOK.md](RUNBOOK.md)
 - Teacher portal permissions, org access, and exports: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
+- Staff account lifecycle and terminal procedures: [STAFF_ACCOUNT_OPS.md](STAFF_ACCOUNT_OPS.md)
+- Server bootstrap baseline: [BOOTSTRAP_SERVER.md](BOOTSTRAP_SERVER.md)
 - Revenue-oriented program framing: [PROGRAM_LIFECYCLE.md](PROGRAM_LIFECYCLE.md), [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
 - Restore and recovery process: [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
+- Incident handling and evidence preservation: [INCIDENT_RESPONSE.md](INCIDENT_RESPONSE.md)
 - Security baseline and staff/org boundary controls: [SECURITY.md](SECURITY.md)
+- Governance/support boundary: [TOOL_CHARTER.md](TOOL_CHARTER.md)
 - Program profile defaults and overrides: [PROGRAM_PROFILES.md](PROGRAM_PROFILES.md)
 - Common break/fix playbooks: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)

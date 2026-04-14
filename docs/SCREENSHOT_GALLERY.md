@@ -1,12 +1,10 @@
 # Screenshot Gallery
 
-This gallery embeds the current captured screenshot baseline from `press/screenshots/SHOTLIST.md`.
-Pending backlog targets are tracked separately in `press/screenshots/PLACEHOLDERS.md`.
+This gallery embeds the current captured screenshot set from `press/screenshots/SHOTLIST.md`.
+`press/screenshots/PLACEHOLDERS.md` remains the backlog tracker if future screenshot drift appears.
 
 Status model:
 - `Captured`: real screenshot from current product UI.
-- `Placeholder`: generated stand-in image awaiting final capture.
-- `Refresh pending`: live view exists, but the tracked public capture is withheld until it is re-shot.
 
 ## Student experience
 
@@ -22,8 +20,8 @@ Status model:
 ### 14. Student compact density (`Captured`)
 ![14 Student compact view](images/press/14-student-compact-view.png)
 
-### 15. Lesson helper collapsed (`Refresh pending`)
-Live view is shipped, but the previously tracked public capture was blank in the 2026-04-11 screenshot audit. The refresh target remains in `press/screenshots/PLACEHOLDERS.md`.
+### 15. Lesson helper collapsed (`Captured`)
+![15 Lesson helper collapsed](images/press/15-lesson-helper-collapsed.png)
 
 ### 16. Student standard density (`Captured`)
 ![16 Student standard view](images/press/16-student-standard-view.png)
@@ -50,7 +48,8 @@ Live view is shipped, but the previously tracked public capture was blank in the
 
 ### 19. RBAC tools tab (scoped grants + custom roles + policy approval queue) (`Captured`)
 ![19 RBAC tools tab](images/press/19-rbac-tools-tab.png)
-Optional companion capture (approval workflow ON) is tracked as `19-rbac-tools-tab-approval-on.png` in `press/screenshots/PLACEHOLDERS.md`.
+Optional companion capture with approval workflow ON is also available:
+![19 RBAC tools tab approval on](images/press/19-rbac-tools-tab-approval-on.png)
 
 ### 11. Invite-only enrollment controls (`Captured`)
 ![11 Invite-only enrollment](images/press/11-invite-only-enrollment.png)
@@ -58,8 +57,8 @@ Optional companion capture (approval workflow ON) is tracked as `19-rbac-tools-t
 ### 12. Certificate eligibility (`Captured`)
 ![12 Certificate eligibility](images/press/12-certificate-eligibility.png)
 
-### 18. Teacher landing editor (`Refresh pending`)
-Live view is shipped, but the previously tracked public capture was blank in the 2026-04-11 evidence audit. The refresh target remains in `press/screenshots/PLACEHOLDERS.md`.
+### 18. Teacher landing editor (`Captured`)
+![18 Teacher landing editor](images/press/18-teacher-landing-editor.png)
 
 ## Operations and platform checks
 
@@ -69,8 +68,14 @@ Live view is shipped, but the previously tracked public capture was blank in the
 ### 08. Health checks terminal (`Captured`)
 ![08 Health checks terminal](images/press/08-health-checks-terminal.png)
 
-### 13. A11y smoke terminal (`Refresh pending`)
-The evidence command is live, but the previously tracked public terminal image was blank in the 2026-04-11 screenshot audit. The refresh target remains in `press/screenshots/PLACEHOLDERS.md`.
+### 13. A11y smoke terminal (`Captured`)
+![13 A11y smoke terminal](images/press/13-a11y-smoke-terminal.png)
+
+### 20. Data lifespan evidence (`Captured`)
+![20 Data lifespan evidence](images/press/20-data-lifespan-evidence.png)
+
+### 21. Data lifespan export terminal (`Captured`)
+![21 Data lifespan export terminal](images/press/21-data-lifespan-export-terminal.png)
 
 ## Source files
 
@@ -79,9 +84,4 @@ The evidence command is live, but the previously tracked public terminal image w
 
 ## Pending capture slots (not yet embedded)
 
-- `19-rbac-tools-tab-approval-on.png` (optional companion with approval workflow ON)
-- `13-a11y-smoke-terminal.png` (refresh required before re-embedding)
-- `15-lesson-helper-collapsed.png` (refresh required before re-embedding)
-- `18-teacher-landing-editor.png` (refresh required before re-embedding)
-- `20-data-lifespan-evidence.png`
-- `21-data-lifespan-export-terminal.png`
+None currently.

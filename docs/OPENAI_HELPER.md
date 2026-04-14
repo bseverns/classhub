@@ -1,4 +1,22 @@
-# Homework Helper (LLM backend)
+# Homework Helper Backend Operations
+
+## Summary
+This page is the runtime/config guide for Homework Helper regardless of provider. The filename is historical: it covers the helper backend in general, not only hosted OpenAI.
+
+Use this page for backend selection, shared runtime knobs, references, curriculum RAG, conversation controls, and queue/resilience settings.
+
+Use these related docs for narrower questions:
+- [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md) for network topology and the private model-host path
+- [HELPER_POLICY.md](HELPER_POLICY.md) for tutor stance and anti-cheating policy
+- [SECURITY.md](SECURITY.md) for access boundaries and browser/security posture
+
+## What to do now
+1. Choose your backend family in `LLM_BACKEND`.
+2. Treat scope, references, conversation controls, and RAG as helper features unless a section says they are provider-specific.
+3. Use the provider-specific sections only for the backend you are actually operating.
+
+## Verification signal
+An operator should be able to say which settings apply to any helper backend and which settings only apply to one provider family.
 
 The helper service is a Django app that exposes:
 
@@ -10,7 +28,7 @@ The helper service is a Django app that exposes:
 By default, the helper is wired to a small local LLM path (via Ollama) for self-hosted smoke validation and predictable day-1 ops.
 For the serious private scale-out path, prefer a Gemma-family model on a private GPU host and let Homework Helper reach it over the host-to-host tailnet through Ollama or another compatible private backend.
 For createMPLS-style deployments, the recommended control plane behind that path is Headscale on a tiny Ubuntu VPS.
-OpenAI remains an explicit development/future path via the **Responses API** and must be intentionally acknowledged before use.
+Hosted OpenAI remains an explicit optional path via the **Responses API** and must be intentionally acknowledged before use.
 
 Hosted OpenAI path note:
 - `LLM_BACKEND=openai` normalizes to the shared provider name `openai_responses`.
@@ -55,6 +73,15 @@ flowchart TD
 | `tutor/engine/circuit.py` | cache-backed backend failure circuit state |
 
 ## Backend selection
+
+Provider-neutral runtime surfaces:
+
+- `LLM_BACKEND`, `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`, timeout, and token controls are the shared backend-selection surface.
+- Scope enforcement, conversation cache, queue limits, audit/event behavior, references, and lesson-boundary policy are helper features, not OpenAI-only features.
+- Curriculum references and curriculum RAG are backend-neutral at the product level:
+  - they stay bounded to configured helper reference markdown,
+  - they do not index student submissions or student events.
+- Current embedding/index build flow for RAG uses the helper's `HELPER_RAG_EMBED_*` settings and an Ollama-style embedding endpoint. That is an implementation detail of the current shipped path, not a claim that every provider automatically supports helper RAG.
 
 Set the backend in `compose/.env`:
 
@@ -286,6 +313,23 @@ Private backend ops bundle:
 - [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md)
 - `ops/llm-server/README.md` (in repo root, outside docs site)
 
+### OpenAI-compatible / private API servers
+
+Use this when the helper should call a private or self-hosted API that speaks the current OpenAI-compatible request shape used by the helper runtime.
+
+```bash
+LLM_BACKEND=openai_compatible
+LLM_BASE_URL=https://private-llm.example.org
+LLM_API_KEY=REPLACE_ME
+LLM_MODEL=your-model-name
+HELPER_REMOTE_MODE_ACKNOWLEDGED=1
+```
+
+Notes:
+- This is distinct from hosted OpenAI Responses.
+- Helper scope, references, conversation memory, and policy behavior stay the same.
+- Advanced helper features such as curriculum references and RAG still use the helper-specific config surfaces documented on this page.
+
 ### OpenAI (optional, explicit opt-in)
 
 If you want to re-enable hosted OpenAI later:
@@ -388,7 +432,7 @@ python3 scripts/new_course_scaffold.py \
 ## Course reference facts
 
 You can reinforce subject expertise by providing a reference file with concrete
-facts and workflows for the course. The helper will include this text in the
+facts and workflows for the course. This is a helper feature, not a provider-specific one. The helper will include this text in the
 system instructions:
 
 ```
@@ -416,6 +460,8 @@ HELPER_REFERENCE_MAP={"piper_scratch":"piper_scratch.md"}
 This keeps file access safe and lets you swap references per lesson or course.
 
 ### Optional local pgvector RAG (curriculum only)
+
+This is backend-neutral at the product level: retrieval stays bounded to helper curriculum references, not to a vendor-managed knowledge base.
 
 Enable RAG only after preparing a curriculum index in Postgres:
 
@@ -562,6 +608,7 @@ Local curriculum RAG is available now when enabled:
 - Build/update the curriculum-only index: `python services/homework_helper/manage.py build_curriculum_rag --clear-first`
 - Enable retrieval: `HELPER_RAG_ENABLED=1`
 - Retrieval scope remains bounded to configured curriculum references; student submissions/events are not embedded or queried.
+- Current shipped embedding/index build flow uses `HELPER_RAG_EMBED_*` against the helper's configured embedding endpoint, typically local or private Ollama-compatible infrastructure.
 - If pgvector/index data is unavailable, helper falls back to lexical lesson citations so chat remains available.
 
 ## Evals (recommended)

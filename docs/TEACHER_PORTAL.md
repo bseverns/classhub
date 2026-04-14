@@ -29,9 +29,9 @@ Additional captured teacher views:
 
 ![Invite-only enrollment](images/press/11-invite-only-enrollment.png)
 
-![Certificate eligibility](images/press/12-certificate-eligibility.png)
+![Teacher landing editor](images/press/18-teacher-landing-editor.png)
 
-`18-teacher-landing-editor.png` is temporarily withheld from the public gallery while the landing-editor capture is refreshed after the 2026-04-11 blank-image audit.
+![Certificate eligibility](images/press/12-certificate-eligibility.png)
 
 ```mermaid
 flowchart TD
@@ -126,7 +126,7 @@ Use this section in two passes:
     - idle-time context list (interpret carefully)
     - manual refresh link (no high-frequency polling)
   - module/material editor
-  - in-browser markdown lesson editor (saves as database overrides without modifying source files)
+  - in-browser markdown lesson editor (class-local, reversible, and stored as database overrides without modifying source files)
   - `Copy` join code
   - `Printable join card` shortcut for in-room posting
   - student landing editor:
@@ -230,6 +230,28 @@ When using the **Facilitator Support Board** on `/teach/class/<id>`:
 4. Use `Manage videos` on a lesson row to add/update that lesson's video list.
 5. Use `Review missing now` to jump to students who still owe uploads.
 6. Use `ZIP latest` for batch review/download.
+
+## Class-local lesson overrides
+
+Use this when one class needs a different pacing note, wording change, or temporary adaptation without changing the shared curriculum for every class.
+
+- Shared curriculum stays file-first and repo-native.
+- The editor creates a class-local database override for one `Class` + one lesson.
+- It does not overwrite repository course files or mutate the canonical course folder.
+- To enter the editor:
+  - open the lesson in class context from your teacher workflow,
+  - use the `Edit Markdown` button on the lesson page,
+  - the button appears only for staff who can manage that class.
+- Save behavior:
+  - `Save Override` stores the new markdown for that class only,
+  - you are redirected back to the lesson page with that class context so you can preview the rendered result immediately.
+- Reset behavior:
+  - `Reset to Default` deletes the class-local override,
+  - the lesson falls back to the repository version for that class.
+- Auditing:
+  - create, update, and reset actions are written to immutable `AuditEvent` rows.
+
+Use [LESSON_OVERRIDES.md](LESSON_OVERRIDES.md) for the step-by-step guide.
 
 ## Student experience structure (what teachers should expect)
 

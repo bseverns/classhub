@@ -33,6 +33,17 @@ def _extract_capture_backlog_filenames(placeholders_text: str) -> list[str]:
     return re.findall(r"^\s*\d+\.\s+`([^`]+)`", section, flags=re.MULTILINE)
 
 
+def _capture_backlog_is_explicitly_empty(placeholders_text: str) -> bool:
+    section_start = placeholders_text.find("## Capture backlog")
+    if section_start < 0:
+        return False
+    next_section = placeholders_text.find("\n## ", section_start + 1)
+    if next_section < 0:
+        next_section = len(placeholders_text)
+    section = placeholders_text[section_start:next_section]
+    return "No pending captures." in section
+
+
 def main() -> int:
     failures: list[str] = []
     try:
@@ -45,8 +56,8 @@ def main() -> int:
         return 1
 
     filenames = _extract_capture_backlog_filenames(placeholders)
-    if not filenames:
-        failures.append(f"{PLACEHOLDERS_PATH}: missing or empty '## Capture backlog' list")
+    if not filenames and not _capture_backlog_is_explicitly_empty(placeholders):
+        failures.append(f"{PLACEHOLDERS_PATH}: missing numbered backlog items or explicit zero-backlog marker")
     elif len(filenames) > MAX_BACKLOG_ITEMS:
         failures.append(
             f"{PLACEHOLDERS_PATH}: backlog has {len(filenames)} items (max {MAX_BACKLOG_ITEMS})"
@@ -56,10 +67,16 @@ def main() -> int:
         if required_marker not in placeholders:
             failures.append(f"{PLACEHOLDERS_PATH}: missing governance marker {required_marker!r}")
 
-    if "Pending captures are tracked in `press/screenshots/PLACEHOLDERS.md`" not in public_overview:
-        failures.append(f"{PUBLIC_OVERVIEW_PATH}: missing pending-capture pointer to placeholders")
-    if "Screenshot backlog is now narrow and explicit in `press/screenshots/PLACEHOLDERS.md`" not in current_state:
-        failures.append(f"{CURRENT_STATE_PATH}: missing narrow-backlog status marker")
+    if filenames:
+        if "Pending captures are tracked in `press/screenshots/PLACEHOLDERS.md`" not in public_overview:
+            failures.append(f"{PUBLIC_OVERVIEW_PATH}: missing pending-capture pointer to placeholders")
+        if "Screenshot backlog is now narrow and explicit in `press/screenshots/PLACEHOLDERS.md`" not in current_state:
+            failures.append(f"{CURRENT_STATE_PATH}: missing narrow-backlog status marker")
+    else:
+        if "No pending captures are currently tracked in `press/screenshots/PLACEHOLDERS.md`" not in public_overview:
+            failures.append(f"{PUBLIC_OVERVIEW_PATH}: missing zero-backlog pointer to placeholders")
+        if "Screenshot backlog is now clear in `press/screenshots/PLACEHOLDERS.md`" not in current_state:
+            failures.append(f"{CURRENT_STATE_PATH}: missing zero-backlog status marker")
 
     for filename in filenames:
         if filename not in shotlist:

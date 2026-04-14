@@ -30,15 +30,16 @@ Workflow captures:
 8. Preview student home (`/student`) from a classroom/student session and confirm the landing page is clear:
    - `This week` points to the right lesson.
    - `Course links` lists the expected lesson sequence.
-9. As students join, confirm that the roster is filling as expected.
-10. During class, direct students to submit their work through the normal class materials flow.
-11. If a student cannot join, check whether the invite is expired/full or whether the class is accidentally `Closed`.
-12. At the end of the session, review submissions and confirm the roster reflects who participated.
-13. Use the teacher action to mark session completion where appropriate.
-14. Generate the `Outcomes export` or class summary export for reporting.
-15. Open `Certificate eligibility/issuance` and issue certificates for students who meet the threshold.
-16. Download the certificate output you need and store it according to your organization's process.
-17. If anything looked off, document it the same day and hand it to ops while details are still fresh.
+9. If tomorrow's class needs a class-specific wording or pacing change, open the lesson in class context and use `Edit Markdown` to create a class-local override. This is reversible and does not change the shared curriculum files.
+10. As students join, confirm that the roster is filling as expected.
+11. During class, direct students to submit their work through the normal class materials flow.
+12. If a student cannot join, check whether the invite is expired/full or whether the class is accidentally `Closed`.
+13. At the end of the session, review submissions and confirm the roster reflects who participated.
+14. Use the teacher action to mark session completion where appropriate.
+15. Generate the `Outcomes export` or class summary export for reporting.
+16. Open `Certificate eligibility/issuance` and issue certificates for students who meet the threshold.
+17. Download the certificate output you need and store it according to your organization's process.
+18. If anything looked off, document it the same day and hand it to ops while details are still fresh.
 
 ## Before you leave for the day
 
@@ -49,6 +50,7 @@ Workflow captures:
 ## If something goes wrong
 
 - Join problems, full/expired invites, helper downtime: [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md)
+- Class-local lesson edits: [LESSON_OVERRIDES.md](LESSON_OVERRIDES.md)
 - Full teacher workflow and exact screens: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - Plain-language teacher instructions: [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md)
 - Operational troubleshooting: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)

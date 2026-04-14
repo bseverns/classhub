@@ -11,6 +11,8 @@ For private vulnerability reports, use GitHub private vulnerability reporting fo
 - Include reproduction steps, affected version/commit, and impact.
 - Expect an initial acknowledgement within 3 business days.
 
+For operator-handled live incidents, use [INCIDENT_RESPONSE.md](INCIDENT_RESPONSE.md) alongside this page.
+
 If you only do three things before production:
 
 1. set strong secrets and `DJANGO_DEBUG=0`
@@ -41,7 +43,7 @@ flowchart LR
 | Teacher/admin auth | Django auth session; Google teacher SSO is shipped behind deployment flags; Microsoft/custom OIDC providers remain scaffolded; OTP required by default for `/admin` and `/teach` |
 | Transport | Caddy at edge; HTTPS expected in production |
 | Service exposure | Postgres/Redis internal-only; Ollama/MinIO localhost-bound on host |
-| Browser hardening | Mode-driven CSP rollout + Permissions-Policy + Referrer-Policy + frame protections |
+| Browser hardening | No-inline template guardrails in CI; mode-driven CSP rollout with strict as the target state; Permissions-Policy + Referrer-Policy + frame protections |
 | Supply chain | Exact-tag Compose image pins + dependency/container scanning in CI; full digest pinning deferred |
 | Helper scope protection | Student helper calls require signed `scope_token` |
 | Upload access | Not public `/media`; downloads are permission-checked views |
@@ -230,10 +232,10 @@ Enable command-based scanning (for example ClamAV):
 
 ## CSP and browser security headers
 
-Class Hub and Homework Helper attach these headers by default:
+Class Hub and Homework Helper attach these headers according to the active mode/configuration:
 
-- `Content-Security-Policy` (enforced)
-- `Content-Security-Policy-Report-Only` (for visibility while tuning)
+- `Content-Security-Policy` when enforced mode or an explicit enforced policy is active
+- `Content-Security-Policy-Report-Only` when report-only mode or an explicit report-only policy is active
 - `Permissions-Policy`
 - `Referrer-Policy`
 - `X-Frame-Options`
@@ -254,13 +256,22 @@ Mode behavior:
 
 `DJANGO_CSP_POLICY` and `DJANGO_CSP_REPORT_ONLY_POLICY` remain explicit overrides when you need custom policies.
 
-Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
+Current posture:
+
+- The repo treats inline template JS/CSS as regression territory:
+  - `scripts/check_no_inline_template_js.py` blocks inline `<script>` tags and inline event handlers.
+  - `scripts/check_no_inline_template_css.py` blocks inline `<style>` blocks and `style=` attributes.
+- New template work should assume external static assets and data attributes, not inline code.
+- Strict CSP is the intended end state.
+- Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
+- Treat `relaxed` as fallback behavior, not as a production posture recommendation.
 
 Rollout strategy:
 
-1. Keep report-only enabled while reviewing violations.
-2. Tighten directives (especially `script-src`, `style-src`, `connect-src`, `frame-src`).
-3. Keep enforced + report-only in parallel until violation noise stabilizes.
+1. Keep report-only enabled only while you are validating deployment-specific violations.
+2. Treat no-inline templates as the baseline, not as an optional hardening project.
+3. Move to `strict` when your deployment-specific policy noise is understood and acceptable.
+4. Use explicit overrides only when you need a controlled, temporary exception.
 
 Transitional strict-script canary:
 
@@ -268,8 +279,9 @@ Transitional strict-script canary:
 - Set:
   - `DJANGO_CSP_MODE=strict`
   - `DJANGO_CSP_POLICY=default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https:;`
-- This is useful when inline scripts are removed but template/style extraction is still in progress.
+- This is useful only for a controlled transition window after inline scripts are removed but before all style cleanup is complete.
 - After style cleanup, remove `'unsafe-inline'` from `style-src` and rely on mode-derived strict policy.
+- The runtime contract guard for this posture is `scripts/check_csp_runtime_contract.py`.
 
 Embed notes:
 

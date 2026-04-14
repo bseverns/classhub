@@ -84,23 +84,26 @@ Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
     | Shot | Status | Notes |
     | --- | --- | --- |
     | `01-student-join.png` | Captured | Student join |
-    | `02-student-class-view.png` | Captured (refresh queued) | Student landing |
+    | `02-student-class-view.png` | Captured | Student landing |
     | `03-teacher-dashboard.png` | Captured | Teacher home |
     | `04-teacher-lesson-tracker.png` | Captured | Lessons tracker |
-    | `05-lesson-with-helper.png` | Captured (refresh queued) | Lesson + helper |
-    | `06-submission-dropbox.png` | Captured (refresh queued) | Submission flow |
+    | `05-lesson-with-helper.png` | Captured | Lesson + helper |
+    | `06-submission-dropbox.png` | Captured | Submission flow |
     | `07-admin-login.png` | Captured | Admin login |
     | `08-health-checks-terminal.png` | Captured | Ops checks |
     | `09-teacher-profile-tab.png` | Captured | Teacher profile tab |
     | `10-org-management-tab.png` | Captured | Superuser org tab |
     | `11-invite-only-enrollment.png` | Captured | Invite controls |
     | `12-certificate-eligibility.png` | Captured | Eligibility page |
-    | `13-a11y-smoke-terminal.png` | Refresh pending | A11y smoke capture was blank in the 2026-04-11 audit |
+    | `13-a11y-smoke-terminal.png` | Captured | Accessibility smoke transcript |
     | `14-student-compact-view.png` | Captured | Compact density mode |
-    | `15-lesson-helper-collapsed.png` | Refresh pending | Helper collapsed capture was blank in the 2026-04-11 audit |
+    | `15-lesson-helper-collapsed.png` | Captured | Helper collapsed state |
     | `16-student-standard-view.png` | Captured | Standard density mode |
     | `17-student-expanded-view.png` | Captured | Expanded density mode |
-    | `18-teacher-landing-editor.png` | Refresh pending | Landing editor capture was blank in the 2026-04-11 audit |
+    | `18-teacher-landing-editor.png` | Captured | Landing editor |
     | `19-rbac-tools-tab.png` | Captured | RBAC tools tab |
+    | `19-rbac-tools-tab-approval-on.png` | Captured | RBAC approval queue companion |
+    | `20-data-lifespan-evidence.png` | Captured | Data lifespan evidence dashboard |
+    | `21-data-lifespan-export-terminal.png` | Captured | Export command + artifact listing |
 
-    For capture guidance and remaining backlog, see `press/screenshots/SHOTLIST.md` and `press/screenshots/PLACEHOLDERS.md`.
+    Shot list is fully captured. For capture guidance and future drift tracking, see `press/screenshots/SHOTLIST.md` and `press/screenshots/PLACEHOLDERS.md`.

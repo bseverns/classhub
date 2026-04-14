@@ -22,6 +22,17 @@ See also: [TEACHER_PORTAL.md](TEACHER_PORTAL.md), [TROUBLESHOOTING.md](TROUBLESH
 
 See also: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
+## One class needs a lesson tweak without changing the shared curriculum
+
+1. Open the lesson in the target class context.
+2. Use `Edit Markdown` on the lesson page.
+3. Save only the wording or pacing changes that are specific to that class.
+4. Review the redirected lesson page to preview the rendered result for that class.
+5. If the change should apply to every class, stop and use the normal curriculum/course-authoring path instead of keeping a local override.
+6. If the local change is no longer needed, use `Reset to Default`.
+
+See also: [LESSON_OVERRIDES.md](LESSON_OVERRIDES.md), [TEACHER_PORTAL.md](TEACHER_PORTAL.md), [TEACHER_COURSE_IMPORT.md](TEACHER_COURSE_IMPORT.md)
+
 ## Staff member leaves
 
 1. Remove or deactivate their organization membership.

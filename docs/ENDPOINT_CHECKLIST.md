@@ -9,7 +9,9 @@ Use this checklist whenever adding or changing an HTTP endpoint in ClassHub or H
   - Use shared helpers (`apply_no_store` / runtime helpers) instead of ad-hoc header writes.
 - CSP expectations:
   - Do not add inline JS or inline CSS in templates.
-  - Keep CSP policy behavior aligned with `CSP_MODE` rollout (`relaxed`, `report-only`, `strict`).
+  - Keep CSP policy behavior aligned with `DJANGO_CSP_MODE` rollout (`relaxed`, `report-only`, `strict`).
+  - Treat no-inline templates as the norm; the repo ships CI guards for both inline JS and inline CSS.
+  - Cross-check posture and ownership with [SECURITY.md](SECURITY.md) and [SECURITY_BASELINE.md](SECURITY_BASELINE.md).
 - Download hardening:
   - For file downloads/attachments, apply `X-Content-Type-Options: nosniff` and restrictive CSP sandbox headers.
   - Use `safe_attachment_filename(...)` for user/content-derived filenames.

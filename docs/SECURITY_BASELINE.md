@@ -22,8 +22,10 @@ This is the single source of truth for edge-vs-app security ownership.
   - Mode selector: `DJANGO_CSP_MODE` (`relaxed`, `report-only`, `strict`)
   - Enforced override: `DJANGO_CSP_POLICY`
   - Report-only override: `DJANGO_CSP_REPORT_ONLY_POLICY`
-  - Django code fallback is `relaxed` (enforced relaxed + strict report-only) when `DJANGO_CSP_MODE` is unset
+  - Template no-inline guardrails are enforced in CI by `scripts/check_no_inline_template_js.py` and `scripts/check_no_inline_template_css.py`
+  - Strict CSP is the target state for shipped templates.
   - Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
+  - `relaxed` means enforced relaxed + strict report-only when `DJANGO_CSP_MODE` is unset.
   - Transitional strict-script canary is allowed via `DJANGO_CSP_MODE=strict` + explicit `DJANGO_CSP_POLICY` that keeps `script-src 'self'` while temporarily allowing `style-src 'unsafe-inline'`
 - Framing policy:
   - Primary: CSP `frame-ancestors 'self'`
@@ -44,8 +46,8 @@ This is the single source of truth for edge-vs-app security ownership.
 
 | Header | Set by (current) | Current value(s) | Intended owner | Final intended value |
 |---|---|---|---|---|
-| `Content-Security-Policy` | Django middleware + some download views | Default policy includes `frame-ancestors 'self'`; download views use `default-src 'none'; sandbox` | Django | Keep middleware policy; keep stricter per-download override |
-| `Content-Security-Policy-Report-Only` | Django middleware | Mirrors configured report-only policy | Django | Keep report-only during rollout, then tune/remove as needed |
+| `Content-Security-Policy` | Django middleware + some download views | Default policy includes `frame-ancestors 'self'`; download views use `default-src 'none'; sandbox` | Django | Strict middleware policy with no inline allowances is the target; keep stricter per-download override |
+| `Content-Security-Policy-Report-Only` | Django middleware | Mirrors configured report-only policy | Django | Transitional rollout header only; keep while strict validation is still in progress |
 | `X-Frame-Options` | Django middleware | `SAMEORIGIN` default (`DJANGO_X_FRAME_OPTIONS`) | Django | `SAMEORIGIN` fallback, compatible with CSP `frame-ancestors 'self'` |
 | `Permissions-Policy` | Django middleware | Value from `DJANGO_PERMISSIONS_POLICY` | Django | Keep app-owned |
 | `Referrer-Policy` | Django middleware + some download views | Global `strict-origin-when-cross-origin`; downloads `no-referrer` | Django | Keep app-owned with per-download strict override |
@@ -57,3 +59,4 @@ This is the single source of truth for edge-vs-app security ownership.
 ## Conflict Resolution Notes
 - Framing conflict resolved: no contradictory `DENY` fallback against CSP `'self'`.
 - Caddy no longer sets app-layer policy headers (`CSP`, `Permissions-Policy`, `Referrer-Policy`, `X-Frame-Options`), preventing split ownership drift.
+- Template no-inline guardrails keep Django-owned CSP assumptions aligned with shipped templates.

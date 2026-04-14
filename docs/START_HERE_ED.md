@@ -49,4 +49,5 @@ ClassHub is a self-hosted learning hub for running classes, enrolling students w
 - Teacher capabilities and workflow: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)
 - Security posture in plain operational terms: [SECURITY.md](SECURITY.md)
 - Privacy boundaries and what is intentionally not stored: [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md)
+- Partner/privacy boundary notes (non-legal): [LEGAL_AND_PARTNER_NOTES.md](LEGAL_AND_PARTNER_NOTES.md)
 - If you need the deployment and continuity view: [RUNBOOK.md](RUNBOOK.md), [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)

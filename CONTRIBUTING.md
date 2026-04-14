@@ -15,6 +15,8 @@ A ready PR should include: passing checks, updated docs (when behavior/docs chan
 
 ### 1) Docs lane
 - Improve clarity, runbooks, onboarding, or examples.
+- Start with `docs/DOCS_MAP.md` and `docs/CANONICAL_TRUTHS.md` so new links and claims land in the right place.
+- Use `docs/CONTRIBUTING_DOCS.md` for MkDocs setup and local verification.
 - Preferred first contributions for new collaborators.
 
 ### 2) Classroom UX polish lane
@@ -29,6 +31,9 @@ A ready PR should include: passing checks, updated docs (when behavior/docs chan
 - Local setup and workflow: `docs/DEVELOPMENT.md`
 - Architecture context: `docs/ARCHITECTURE.md`
 - Design tradeoffs and constraints: `docs/DECISIONS.md`
+- Docs maintenance workflow: `docs/CONTRIBUTING_DOCS.md`
+- HTTP endpoint expectations when behavior changes: `docs/ENDPOINT_CHECKLIST.md`
+- Product/support boundary: `docs/TOOL_CHARTER.md`
 
 ## Before opening a PR
 Run from repo root:

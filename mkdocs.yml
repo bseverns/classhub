@@ -55,7 +55,9 @@ nav:
 
   - Teaching:
       - Non-Developer Guide: NON_DEVELOPER_GUIDE.md
+      - Lesson Overrides: LESSON_OVERRIDES.md
       - Teacher Portal: TEACHER_PORTAL.md
+      - Compiled Coursepacks: TEACHER_COURSE_IMPORT.md
       - Course Authoring: COURSE_AUTHORING.md
       - Teaching Playbook: TEACHING_PLAYBOOK.md
       - Learning Paths: LEARNING_PATHS.md
@@ -68,12 +70,15 @@ nav:
       - Infrastructure Hardening Roadmap: INFRASTRUCTURE_HARDENING_ROADMAP.md
       - Canonical Truths: CANONICAL_TRUTHS.md
       - Day 1 Checklist: DAY1_DEPLOY_CHECKLIST.md
+      - Bootstrap Server: BOOTSTRAP_SERVER.md
+      - Staff Account Operations: STAFF_ACCOUNT_OPS.md
       - Minimum Viable Operator: MINIMUM_VIABLE_OPERATOR.md
       - Headscale Control Plane: HEADSCALE_CONTROL_PLANE.md
       - Private LLM Backend: PRIVATE_LLM_BACKEND.md
       - Remote Helper Compute Control: REMOTE_HELPER_COMPUTE_CONTROL.md
       - Remote Compute Evidence: EVIDENCE_REMOTE_COMPUTE.md
       - Runbook: RUNBOOK.md
+      - Incident Response: INCIDENT_RESPONSE.md
       - Curriculum Ops: CURRICULUM_OPS.md
       - Troubleshooting: TROUBLESHOOTING.md
       - Disaster Recovery: DISASTER_RECOVERY.md
@@ -110,7 +115,7 @@ nav:
       - Telemetry DB Split Plan: TELEMETRY_DB_SPLIT_PLAN.md
       - Runtime Lock Profiles: RUNTIME_LOCK_PROFILES.md
       - Classroom Kiosk PWA: KIOSK_PWA.md
-      - Helper Internals: OPENAI_HELPER.md
+      - Helper Backend Operations: OPENAI_HELPER.md
       - Request Safety: REQUEST_SAFETY.md
       - Helper Evals: HELPER_EVALS.md
       - Merge Readiness: MERGE_READINESS.md
@@ -119,6 +124,7 @@ nav:
       - Docs Truth Mechanism: DOCS_TRUTH_MECHANISM.md
 
   - Governance:
+      - Legal and Partner Notes: LEGAL_AND_PARTNER_NOTES.md
       - Tool Charter: TOOL_CHARTER.md
       - Stability Charter: STABILITY_CHARTER.md
       - Stability Issues: STABILITY_ISSUES.md

@@ -16,6 +16,7 @@ A first-time teacher should be able to answer "What do I do before class, during
 1. [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md): what ClassHub is, what success looks like.
 2. [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md): exact steps for a live class day.
 3. [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md): what to do when something breaks.
+4. [LESSON_OVERRIDES.md](LESSON_OVERRIDES.md): how to make a reversible class-specific lesson change without editing shared curriculum files.
 
 ## Full teacher read order (30-45 minutes)
 
@@ -24,10 +25,11 @@ A first-time teacher should be able to answer "What do I do before class, during
 | 1 | [START_HERE_INSTRUCTOR.md](START_HERE_INSTRUCTOR.md) | Sets expectations and core goals. | New teacher onboarding. |
 | 2 | [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md) | Gives a concrete session checklist. | Before each class day. |
 | 3 | [NON_DEVELOPER_GUIDE.md](NON_DEVELOPER_GUIDE.md) | Explains normal classroom workflows in plain language. | Weekly refresh or when coaching a new assistant. |
-| 4 | [TEACHER_PORTAL.md](TEACHER_PORTAL.md) | Deep reference for screens, routes, and exports. | When you need exact UI details. |
-| 5 | [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md) | Fast decision tree for real-world problems. | Mid-session issue handling. |
-| 6 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Operational triage with health checks and recovery steps. | Escalations or repeated failures. |
-| 7 | [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) | Explains privacy/data boundaries in non-technical language. | Stakeholder or parent questions. |
+| 4 | [LESSON_OVERRIDES.md](LESSON_OVERRIDES.md) | Shows how to make class-only lesson edits without changing shared curriculum files. | When one class needs a temporary or local variation. |
+| 5 | [TEACHER_PORTAL.md](TEACHER_PORTAL.md) | Deep reference for screens, routes, and exports. | When you need exact UI details. |
+| 6 | [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md) | Fast decision tree for real-world problems. | Mid-session issue handling. |
+| 7 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Operational triage with health checks and recovery steps. | Escalations or repeated failures. |
+| 8 | [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) | Explains privacy/data boundaries in non-technical language. | Stakeholder or parent questions. |
 
 ## Mental model that helps this stick
 
@@ -46,4 +48,5 @@ Read this to a new teacher in 60 seconds:
 
 - Canonical docs landing: [START_HERE.md](START_HERE.md)
 - Compact docs map: [DOCS_MAP.md](DOCS_MAP.md)
+- Class-local lesson editing: [LESSON_OVERRIDES.md](LESSON_OVERRIDES.md)
 - Teacher workflow reference: [TEACHER_PORTAL.md](TEACHER_PORTAL.md)

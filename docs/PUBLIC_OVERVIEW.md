@@ -8,12 +8,14 @@ Class Hub is a self-hosted classroom platform with a separate Homework Helper se
 2. Try the local demo path in [TRY_IT_LOCAL.md](TRY_IT_LOCAL.md).
 3. If your team plans to host this publicly, read [SECURITY.md](SECURITY.md), then [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) and [RUNBOOK.md](RUNBOOK.md).
 4. For plain-language trust boundaries, review [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md) and [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md).
-5. If docs feel overlapping, use [CANONICAL_TRUTHS.md](CANONICAL_TRUTHS.md) to identify one source per policy area.
+5. For partner or district-facing boundary questions, review [LEGAL_AND_PARTNER_NOTES.md](LEGAL_AND_PARTNER_NOTES.md).
+6. If docs feel overlapping, use [CANONICAL_TRUTHS.md](CANONICAL_TRUTHS.md) to identify one source per policy area.
 
 If you are reading this as leadership rather than as a technical evaluator, start with:
 - [START_HERE_ED.md](START_HERE_ED.md)
 - [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
 - [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md)
+- [LEGAL_AND_PARTNER_NOTES.md](LEGAL_AND_PARTNER_NOTES.md)
 - [PROGRAM_LIFECYCLE.md](PROGRAM_LIFECYCLE.md)
 
 ## Verification signal
@@ -58,7 +60,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 
 ## Visual reference
 
-Current captured baseline (refresh-pending slots withheld from public embeds):
+Current captured baseline:
 
 ![Student join screen](images/press/01-student-join.png)
 
@@ -88,7 +90,12 @@ Captured workflow references:
 
 ![RBAC tools tab](images/press/19-rbac-tools-tab.png)
 
-Pending captures are tracked in `press/screenshots/PLACEHOLDERS.md` (`13`/`15`/`18` refresh plus `20`/`21`; target closeout 2026-04-30).
+![A11y smoke terminal](images/press/13-a11y-smoke-terminal.png)
+
+![Data lifespan export terminal](images/press/21-data-lifespan-export-terminal.png)
+
+Public screenshots are current in `press/screenshots/` and `docs/images/press/`.
+No pending captures are currently tracked in `press/screenshots/PLACEHOLDERS.md`.
 Capture instructions live in `press/screenshots/SHOTLIST.md`.
 
 ## Technical ops and security links

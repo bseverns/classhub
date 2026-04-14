@@ -28,11 +28,14 @@ For any policy question, you should be able to name one canonical doc in under 3
 | Organization boundary semantics | [ORG_BOUNDARY_EXPLAINER.md](ORG_BOUNDARY_EXPLAINER.md) | [ORG_BOUNDARY_POLICY_AUDIT.md](ORG_BOUNDARY_POLICY_AUDIT.md), [RBAC_GUIDE.md](RBAC_GUIDE.md) |
 | RBAC capability model and policy workflows | [RBAC_GUIDE.md](RBAC_GUIDE.md) | [RBAC_CAPABILITIES_RFC.md](RBAC_CAPABILITIES_RFC.md), [TEACHER_PORTAL.md](TEACHER_PORTAL.md) |
 | Teacher top-task choreography and day-of-class priorities | [TEACHER_TOP_TASKS.md](TEACHER_TOP_TASKS.md) | [TEACHER_PORTAL.md](TEACHER_PORTAL.md), [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md) |
-| Operator commands and incident response flow | [RUNBOOK.md](RUNBOOK.md) | [TROUBLESHOOTING.md](TROUBLESHOOTING.md), [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md) |
+| Class-local lesson editing and reversible teacher customization | [LESSON_OVERRIDES.md](LESSON_OVERRIDES.md) | [TEACHER_PORTAL.md](TEACHER_PORTAL.md), [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md), [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md) |
+| Operator commands and day-to-day recovery flow | [RUNBOOK.md](RUNBOOK.md) | [TROUBLESHOOTING.md](TROUBLESHOOTING.md), [COMMON_SCENARIOS.md](COMMON_SCENARIOS.md) |
+| Incident response coordination and evidence preservation | [INCIDENT_RESPONSE.md](INCIDENT_RESPONSE.md) | [RUNBOOK.md](RUNBOOK.md), [SECURITY.md](SECURITY.md), [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md) |
 | Private LLM topology and traffic boundary | [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md) | [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md), [ARCHITECTURE.md](ARCHITECTURE.md), [RUNBOOK.md](RUNBOOK.md) |
 | Headscale control-plane path for createMPLS-style deployments | [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md) | [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md), [RUNBOOK.md](RUNBOOK.md) |
 | Staff-only remote helper compute activation control | [REMOTE_HELPER_COMPUTE_CONTROL.md](REMOTE_HELPER_COMPUTE_CONTROL.md) | [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md), [RUNBOOK.md](RUNBOOK.md), [ARCHITECTURE.md](ARCHITECTURE.md), `ops/remote-helper-compute/README.md` |
 | Minimum operator skill floor | [MINIMUM_VIABLE_OPERATOR.md](MINIMUM_VIABLE_OPERATOR.md) | [RUNBOOK.md](RUNBOOK.md), [TURNOVER_PACKET.md](TURNOVER_PACKET.md) |
 | Recovery and restore procedure | [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md) | [REPORTING_REHEARSAL.md](REPORTING_REHEARSAL.md), [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md) |
+| Partner/privacy boundary briefing (non-legal) | [LEGAL_AND_PARTNER_NOTES.md](LEGAL_AND_PARTNER_NOTES.md) | [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md), [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md), [TOOL_CHARTER.md](TOOL_CHARTER.md) |
 | Stability/release evidence expectations | [30_DAY_STABILITY_PLAN.md](30_DAY_STABILITY_PLAN.md) | [RELEASING.md](RELEASING.md), `artifacts/stability/<date>/EVIDENCE_INDEX.md` |
 | Localization coverage and expansion contract | [LOCALIZATION.md](LOCALIZATION.md) | [CURRENT_STATE.md](CURRENT_STATE.md), `scripts/check_i18n_family_visible_contract.py` |
