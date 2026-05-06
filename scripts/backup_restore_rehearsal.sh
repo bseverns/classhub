@@ -200,7 +200,12 @@ if [[ "${SKIP_BACKUP}" == "0" ]]; then
   echo "[rehearsal] 1/5 creating fresh backups (stamp ${STAMP})"
   mkdir -p "${BACKUP_ROOT}/postgres" "${BACKUP_ROOT}/uploads" "${BACKUP_ROOT}/minio"
 
-  OUT_DIR="${BACKUP_ROOT}/postgres" STAMP="${STAMP}" POSTGRES_USER="${POSTGRES_USER}" POSTGRES_DB="${POSTGRES_DB}" \
+  run_compose up -d "${POSTGRES_SERVICE}" >/dev/null
+  wait_for_service_state "${POSTGRES_SERVICE}" healthy
+
+  OUT_DIR="${BACKUP_ROOT}/postgres" STAMP="${STAMP}" COMPOSE_MODE="${COMPOSE_MODE}" \
+    POSTGRES_SERVICE="${POSTGRES_SERVICE}" POSTGRES_USER="${POSTGRES_USER}" POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
+    POSTGRES_DB="${POSTGRES_DB}" \
     bash "${BACKUP_POSTGRES_SCRIPT}"
   OUT_DIR="${BACKUP_ROOT}/uploads" STAMP="${STAMP}" bash "${BACKUP_UPLOADS_SCRIPT}"
   OUT_DIR="${BACKUP_ROOT}/minio" STAMP="${STAMP}" bash "${BACKUP_MINIO_SCRIPT}"

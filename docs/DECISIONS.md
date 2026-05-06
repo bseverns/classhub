@@ -1966,9 +1966,11 @@ Execution ownership and gates:
 - Use `scripts/backup_restore_rehearsal.sh` as the single operator entrypoint for backup+restore drills.
 - The rehearsal script:
   - runs Postgres/uploads/MinIO backup scripts,
+  - starts the compose Postgres service and waits for a healthy state before running `pg_dump`,
   - restores Postgres into a temporary database,
   - extracts uploads/MinIO archives into a temporary workspace,
   - runs ClassHub/Helper `migrate` + `check` against the restored DB.
+- `scripts/backup_postgres.sh` uses `docker compose exec` against the configured Postgres service instead of a hard-coded container name so CI, dev, and production compose modes share the same service addressing path.
 - Legacy per-surface scripts remain available for ad-hoc usage:
   - `scripts/backup_postgres.sh`
   - `scripts/backup_uploads.sh`
