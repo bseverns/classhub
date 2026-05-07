@@ -13,6 +13,12 @@ ALLOW_PARITY_DRIFT=0
 SMOKE_TIMEOUT_SECONDS="${SMOKE_TIMEOUT_SECONDS:-30}"
 SMOKE_BASE_URL="${SMOKE_BASE_URL:-}"
 SMOKE_INSECURE_TLS=0
+STUDENT_HOME_P95_MS="${STUDENT_HOME_P95_MS:-}"
+STUDENT_HOME_P95_BASELINE_MS="${STUDENT_HOME_P95_BASELINE_MS:-}"
+STUDENT_UPLOAD_SUCCESS_RATE_PCT="${STUDENT_UPLOAD_SUCCESS_RATE_PCT:-}"
+STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT="${STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT:-}"
+HELPER_CHAT_5XX_RATE_PCT="${HELPER_CHAT_5XX_RATE_PCT:-}"
+HELPER_CHAT_5XX_RATE_BASELINE_PCT="${HELPER_CHAT_5XX_RATE_BASELINE_PCT:-}"
 
 usage() {
   cat <<'USAGE'
@@ -33,6 +39,17 @@ Options:
   --smoke-timeout-seconds <n>   Timeout passed to smoke_check.sh (default: 30)
   --base-url <url>              Override smoke base URL
   --insecure-tls                Use -k for HTTPS smoke checks
+  --student-home-p95-ms <ms>    Observed student home p95 for the release window
+  --student-home-p95-baseline-ms <ms>
+                                 Pre-cutover student home p95 baseline
+  --student-upload-success-rate-pct <pct>
+                                 Observed student upload success rate for the release window
+  --student-upload-success-rate-baseline-pct <pct>
+                                 Pre-cutover upload success baseline
+  --helper-chat-5xx-rate-pct <pct>
+                                 Observed helper chat 5xx rate for the release window
+  --helper-chat-5xx-rate-baseline-pct <pct>
+                                 Pre-cutover helper chat 5xx baseline
   -h, --help                    Show this help
 USAGE
 }
@@ -75,6 +92,30 @@ while [[ $# -gt 0 ]]; do
       SMOKE_INSECURE_TLS=1
       shift
       ;;
+    --student-home-p95-ms)
+      STUDENT_HOME_P95_MS="$2"
+      shift 2
+      ;;
+    --student-home-p95-baseline-ms)
+      STUDENT_HOME_P95_BASELINE_MS="$2"
+      shift 2
+      ;;
+    --student-upload-success-rate-pct)
+      STUDENT_UPLOAD_SUCCESS_RATE_PCT="$2"
+      shift 2
+      ;;
+    --student-upload-success-rate-baseline-pct)
+      STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT="$2"
+      shift 2
+      ;;
+    --helper-chat-5xx-rate-pct)
+      HELPER_CHAT_5XX_RATE_PCT="$2"
+      shift 2
+      ;;
+    --helper-chat-5xx-rate-baseline-pct)
+      HELPER_CHAT_5XX_RATE_BASELINE_PCT="$2"
+      shift 2
+      ;;
     -h|--help)
       usage
       exit 0
@@ -108,6 +149,25 @@ if [[ ! -f "${ENV_FILE}" ]]; then
   echo "[telemetry-evidence] missing compose/.env" >&2
   exit 2
 fi
+
+validate_optional_decimal() {
+  local label="$1"
+  local value="$2"
+  if [[ -z "${value}" ]]; then
+    return 0
+  fi
+  if [[ ! "${value}" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+    echo "[telemetry-evidence] ${label} must be numeric when provided" >&2
+    exit 2
+  fi
+}
+
+validate_optional_decimal "--student-home-p95-ms" "${STUDENT_HOME_P95_MS}"
+validate_optional_decimal "--student-home-p95-baseline-ms" "${STUDENT_HOME_P95_BASELINE_MS}"
+validate_optional_decimal "--student-upload-success-rate-pct" "${STUDENT_UPLOAD_SUCCESS_RATE_PCT}"
+validate_optional_decimal "--student-upload-success-rate-baseline-pct" "${STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT}"
+validate_optional_decimal "--helper-chat-5xx-rate-pct" "${HELPER_CHAT_5XX_RATE_PCT}"
+validate_optional_decimal "--helper-chat-5xx-rate-baseline-pct" "${HELPER_CHAT_5XX_RATE_BASELINE_PCT}"
 
 run_compose() {
   docker compose "${COMPOSE_ARGS[@]}" "$@"
@@ -151,6 +211,7 @@ replace_env_key() {
 mkdir -p "${OUT_DIR}"
 SUMMARY_FILE="${OUT_DIR}/summary.md"
 META_FILE="${OUT_DIR}/metadata.env"
+SLO_SUMMARY_PATH="${OUT_DIR}/slo_summary.md"
 
 STATUS_PARITY="pending"
 STATUS_SMOKE="skipped"
@@ -309,6 +370,12 @@ run_strict_smoke_command() {
   echo "telemetry_database_url_set=$([[ -n "$(env_file_value CLASSHUB_TELEMETRY_DATABASE_URL)" ]] && echo 1 || echo 0)"
   echo "telemetry_write_mode=$(env_file_value CLASSHUB_TELEMETRY_WRITE_MODE)"
   echo "telemetry_read_mode=$(env_file_value CLASSHUB_TELEMETRY_READ_MODE)"
+  echo "student_home_p95_ms=${STUDENT_HOME_P95_MS}"
+  echo "student_home_p95_baseline_ms=${STUDENT_HOME_P95_BASELINE_MS}"
+  echo "student_upload_success_rate_pct=${STUDENT_UPLOAD_SUCCESS_RATE_PCT}"
+  echo "student_upload_success_rate_baseline_pct=${STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT}"
+  echo "helper_chat_5xx_rate_pct=${HELPER_CHAT_5XX_RATE_PCT}"
+  echo "helper_chat_5xx_rate_baseline_pct=${HELPER_CHAT_5XX_RATE_BASELINE_PCT}"
 } > "${META_FILE}"
 
 echo "[telemetry-evidence] output dir: ${OUT_DIR}"
@@ -391,6 +458,31 @@ if (( RUN_ROLLBACK_DRILL == 1 )); then
   echo "[telemetry-evidence] rollback drill status: ${STATUS_ROLLBACK} (${ROLLBACK_LOG})"
 fi
 
+slo_cmd=(
+  python3 "${ROOT_DIR}/scripts/render_telemetry_slo_summary.py"
+  --out "${SLO_SUMMARY_PATH}"
+  --window-days "${WINDOW_DAYS}"
+)
+if [[ -n "${STUDENT_HOME_P95_MS}" ]]; then
+  slo_cmd+=(--student-home-p95-ms "${STUDENT_HOME_P95_MS}")
+fi
+if [[ -n "${STUDENT_HOME_P95_BASELINE_MS}" ]]; then
+  slo_cmd+=(--student-home-p95-baseline-ms "${STUDENT_HOME_P95_BASELINE_MS}")
+fi
+if [[ -n "${STUDENT_UPLOAD_SUCCESS_RATE_PCT}" ]]; then
+  slo_cmd+=(--student-upload-success-rate-pct "${STUDENT_UPLOAD_SUCCESS_RATE_PCT}")
+fi
+if [[ -n "${STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT}" ]]; then
+  slo_cmd+=(--student-upload-success-rate-baseline-pct "${STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT}")
+fi
+if [[ -n "${HELPER_CHAT_5XX_RATE_PCT}" ]]; then
+  slo_cmd+=(--helper-chat-5xx-rate-pct "${HELPER_CHAT_5XX_RATE_PCT}")
+fi
+if [[ -n "${HELPER_CHAT_5XX_RATE_BASELINE_PCT}" ]]; then
+  slo_cmd+=(--helper-chat-5xx-rate-baseline-pct "${HELPER_CHAT_5XX_RATE_BASELINE_PCT}")
+fi
+"${slo_cmd[@]}"
+
 {
   echo "# Telemetry Stabilization Evidence"
   echo
@@ -409,6 +501,7 @@ fi
   echo
   echo "- Metadata: \`${META_FILE}\`"
   echo "- Parity log: \`${PARITY_LOG}\`"
+  echo "- SLO summary: \`${SLO_SUMMARY_PATH}\`"
   if (( RUN_SMOKE == 1 )); then
     echo "- Smoke log: \`${SMOKE_LOG}\`"
   fi

@@ -2916,6 +2916,28 @@ Execution ownership and gates:
 - Enforces proof-first sign-off criteria for stability and telemetry rollouts.
 - Reduces cutover risk by requiring strict parity and rollback drill evidence before any write-mode escalation.
 
+## Telemetry SLO evidence renderer + telemetry-aware restore rehearsal (2026-05-07)
+
+**Current decision:**
+- Replace the hand-edited telemetry `slo_summary.md` placeholder path with an explicit renderer:
+  - `scripts/render_telemetry_slo_summary.py`
+  - wired through `scripts/telemetry_stabilization_evidence.sh`
+  - enforced during full closeout by `scripts/stability_phase1_closeout.sh`
+- Require explicit baseline/observed metric inputs for:
+  - student home p95 latency,
+  - student upload success rate,
+  - helper chat 5xx rate.
+- Extend disaster-recovery tooling so telemetry split environments can rehearse both databases intentionally:
+  - `scripts/backup_telemetry_postgres.sh`
+  - `scripts/backup_restore_rehearsal.sh --include-telemetry-db`
+  - `scripts/restore_rehearsal_evidence.sh --include-telemetry-db`
+- When telemetry rehearsal is not enabled, force restore validation to run with telemetry env overrides disabled so rehearsal commands do not accidentally point at the live telemetry database.
+
+**Why this remains active:**
+- Converts telemetry SLO closeout from a markdown TODO into a repeatable operator command path.
+- Removes ambiguity about whether telemetry DB disaster recovery is covered when the split is active.
+- Prevents restore rehearsal from quietly validating core data while still reading from a live telemetry endpoint.
+
 ## Runtime policy lock surfaced in `/teach` and evidence guardrails (2026-03-11)
 
 **Current decision:**

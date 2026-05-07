@@ -12,6 +12,15 @@ bash scripts/restore_rehearsal_evidence.sh \
 
 Run this periodically so backup+restore is tested before an incident.
 
+If telemetry split is active (`CLASSHUB_TELEMETRY_DATABASE_URL` set), prefer:
+
+```bash
+bash scripts/restore_rehearsal_evidence.sh \
+  --compose-mode prod \
+  --include-telemetry-db \
+  --out-dir artifacts/stability/$(date +%F)
+```
+
 Automation path:
 - `.github/workflows/restore-rehearsal.yml` runs weekly and on manual dispatch.
 - Each run uploads rehearsal evidence artifacts (log, metrics, backup checksums) for auditability.

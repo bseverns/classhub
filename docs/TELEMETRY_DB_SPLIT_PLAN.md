@@ -10,15 +10,19 @@ Goal:
 Non-goal (Phase 1):
 - do not split core transactional models (`Class`, `Module`, `Material`, `Submission`, auth tables).
 
-## Implementation status (as of 2026-03-10)
+## Implementation status (as of 2026-05-07)
 - Slice 0-6 implementation is shipped on `main` (flags, telemetry schema/router, dual-write seams, read abstraction, backfill command, parity command).
 - Slice 7 tooling is shipped (`scripts/telemetry_stabilization_evidence.sh`) and first release-cycle evidence capture is complete at `artifacts/stability/2026-03-10/telemetry/` (`parity`, strict smoke, rollback drill all pass).
+- Slice 7 tooling now also includes:
+  - machine-rendered SLO summary capture via `scripts/render_telemetry_slo_summary.py` and explicit metric flags on `scripts/telemetry_stabilization_evidence.sh`,
+  - telemetry-aware restore rehearsal support via `scripts/backup_telemetry_postgres.sh`, `scripts/backup_restore_rehearsal.sh`, and `scripts/restore_rehearsal_evidence.sh --include-telemetry-db`.
 
 ## What to do now
 1. Run a second full release cycle with `WRITE_MODE=dual` and `READ_MODE=telemetry` to prove repeatability.
-2. Capture and archive a second evidence packet (`parity`, `smoke`, rollback drill) using `scripts/telemetry_stabilization_evidence.sh`.
+2. Capture and archive a second evidence packet (`parity`, `smoke`, rollback drill, SLO summary) using `scripts/telemetry_stabilization_evidence.sh`.
 3. Maintain strict zero parity drift; resolve any deltas before sign-off.
-4. Decide steady-state write mode (`dual` vs `telemetry_only`) and document the dated decision.
+4. Run one telemetry-inclusive restore rehearsal with `bash scripts/restore_rehearsal_evidence.sh --include-telemetry-db ...`.
+5. Decide steady-state write mode (`dual` vs `telemetry_only`) and document the dated decision.
 
 ## 30/60/90-day execution checklist (kickoff: March 7, 2026)
 
@@ -47,7 +51,7 @@ Use the same metrics in staging and production evidence packets.
   - parity output,
   - smoke output,
   - rollback drill output (`--perform-rollback-drill`).
-- [ ] Publish a one-page SLO summary for student home latency, upload success, and helper 5xx rates (replace `TODO` values in `artifacts/stability/2026-03-10/telemetry/slo_summary.md`).
+- [ ] Publish a one-page SLO summary for student home latency, upload success, and helper 5xx rates using explicit metric inputs to `scripts/telemetry_stabilization_evidence.sh` / `scripts/render_telemetry_slo_summary.py`.
 - [x] Log and resolve all parity deltas; strict gate for this cycle is zero unresolved drift.
 
 Exit criteria for Day 30:
@@ -72,7 +76,7 @@ Lock these policies for the current sign-off cycle:
   - remain `dual` (safer default), or
   - move to `telemetry_only` if all gates are green.
 - [ ] Update runbook and incident checklist with the chosen steady state.
-- [ ] Complete one restore rehearsal that includes both `default` and `telemetry` DB artifacts.
+- [ ] Complete one restore rehearsal that includes both `default` and `telemetry` DB artifacts using `bash scripts/restore_rehearsal_evidence.sh --include-telemetry-db ...`.
 
 Exit criteria for Day 60:
 - two consecutive evidence cycles green,
@@ -381,9 +385,9 @@ Use this as the canonical execution tracker for telemetry split completion.
   - Add rollback checklist step: immediate switch back to `READ_MODE=core`.
 - [ ] Slice 7: Staging/prod stabilization evidence
   - Evidence capture tooling is now available via `scripts/telemetry_stabilization_evidence.sh`.
-  - Run at least one full release cycle with `WRITE_MODE=dual`, `READ_MODE=telemetry`.
-  - Capture parity evidence snapshots and rollback drill output.
-  - Only then decide whether to keep `dual` or move to `telemetry_only`.
+  - SLO summary rendering is now available via `scripts/render_telemetry_slo_summary.py`.
+  - Telemetry-aware restore rehearsal tooling is now available via `scripts/backup_telemetry_postgres.sh` and `scripts/restore_rehearsal_evidence.sh --include-telemetry-db`.
+  - Remaining work is operational: run a second full release cycle with `WRITE_MODE=dual`, `READ_MODE=telemetry`, capture the second evidence packet, complete one telemetry-inclusive restore rehearsal, and only then decide whether to keep `dual` or move to `telemetry_only`.
 
 ## Code touchpoints inventory (expected)
 
@@ -398,6 +402,8 @@ Primary ClassHub areas likely to change:
 - `services/classhub/hub/management/commands/` (new backfill/parity commands)
 - `services/classhub/hub/tests/` + `services/classhub/hub/tests_services.py` (behavior parity and toggle tests)
 - `scripts/system_doctor.sh` / smoke docs (optional telemetry parity gates when URL is configured)
+- `scripts/render_telemetry_slo_summary.py` (operator SLO evidence rendering)
+- `scripts/backup_telemetry_postgres.sh` + restore rehearsal wrappers (telemetry-aware DR evidence)
 
 Implemented app path:
 - `services/classhub/hub_telemetry/` (models, migrations, query adapters).
@@ -443,7 +449,13 @@ Stabilization evidence capture (Slice 7 helper):
 cd /srv/lms/app
 bash scripts/telemetry_stabilization_evidence.sh \
   --window-days 7 \
-  --perform-rollback-drill
+  --perform-rollback-drill \
+  --student-home-p95-baseline-ms 240 \
+  --student-home-p95-ms 248 \
+  --student-upload-success-rate-baseline-pct 99.40 \
+  --student-upload-success-rate-pct 99.35 \
+  --helper-chat-5xx-rate-baseline-pct 0.20 \
+  --helper-chat-5xx-rate-pct 0.30
 ```
 
 ## Open decisions requiring sign-off

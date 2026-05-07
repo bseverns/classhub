@@ -24,6 +24,7 @@ Operator shortcut:
 | Script | Intent |
 |---|---|
 | `backup_postgres.sh` | Dumps the Postgres database to an archive format. |
+| `backup_telemetry_postgres.sh` | Dumps the telemetry Postgres database referenced by `CLASSHUB_TELEMETRY_DATABASE_URL`. |
 | `backup_minio.sh` | Syncs MinIO (if used) object storage. |
 | `backup_uploads.sh` | Creates a tarball of user-uploaded files for safe keeping. |
 | `backup_restore_rehearsal.sh`| Automated script for rehearsing and verifying disaster recovery. |
@@ -39,6 +40,7 @@ Operator shortcut:
 | `a11y_smoke.sh` | Automated accessibility test leveraging Playwright to find WCAG compliance errors. |
 | `kiosk_resilience_check.sh` | Runs kiosk/PWA endpoint checks and captures unstable-network upload drill outcomes in a timestamped report. |
 | `telemetry_stabilization_evidence.sh` | Captures telemetry split Slice 7 evidence (parity + smoke + optional rollback drill) into timestamped artifacts. |
+| `render_telemetry_slo_summary.py` | Renders the telemetry Slice 7 SLO summary from explicit baseline/observed metric inputs and can enforce complete/pass-only closeout. |
 | `stability_release_evidence.sh` | Captures Day 0-30 stability evidence pack artifacts (guardrails, smoke, a11y, restore, kiosk, release lint + scorecard + evidence index), with optional skip flags for non-docker environments. |
 | `stability_phase1_closeout.sh` | Runs one full closeout cycle for stability Phase 1 + telemetry Slice 7, enforces the runtime lock `release` profile, validates required artifacts, and writes cycle summary output. |
 | `remote_compute_operator_watch.py` | Captures remote-compute operator evidence from `classhub_web` and optionally posts webhook alerts when derived trend signals need attention. |

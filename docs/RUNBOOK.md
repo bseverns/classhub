@@ -295,6 +295,10 @@ Notes:
 
 - Writes timestamped artifacts to `/tmp/classhub_telemetry_stabilization_<timestamp>/`.
 - Includes parity output, strict smoke output, and optional rollback-drill output.
+- To render a non-placeholder `slo_summary.md`, pass explicit baseline/observed values for:
+  - `--student-home-p95-baseline-ms` and `--student-home-p95-ms`
+  - `--student-upload-success-rate-baseline-pct` and `--student-upload-success-rate-pct`
+  - `--helper-chat-5xx-rate-baseline-pct` and `--helper-chat-5xx-rate-pct`
 - Keep telemetry `READ_MODE=core` if parity reports drift.
 - Endpoint policy and env presets for telemetry rollout live in [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md#endpoint-policy-and-concrete-env-presets).
 
@@ -567,6 +571,17 @@ This command:
 2. Captures rehearsal log and metrics (`RTO`/`RPO`) to the evidence directory.
 3. Copies backup artifacts and writes checksums for auditability.
 4. Writes a markdown summary for operator review.
+
+Telemetry-aware restore drill:
+
+```bash
+bash scripts/restore_rehearsal_evidence.sh \
+  --compose-mode prod \
+  --include-telemetry-db \
+  --out-dir artifacts/stability/$(date +%F)
+```
+
+Use this mode when `CLASSHUB_TELEMETRY_DATABASE_URL` is active and you want the rehearsal to validate both the core and telemetry databases.
 
 Optional reuse of existing artifacts:
 

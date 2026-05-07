@@ -16,6 +16,12 @@ BASE_URL=""
 SKIP_STABILITY_EVIDENCE=0
 SKIP_TELEMETRY_EVIDENCE=0
 SKIP_KIOSK=0
+STUDENT_HOME_P95_MS="${STUDENT_HOME_P95_MS:-}"
+STUDENT_HOME_P95_BASELINE_MS="${STUDENT_HOME_P95_BASELINE_MS:-}"
+STUDENT_UPLOAD_SUCCESS_RATE_PCT="${STUDENT_UPLOAD_SUCCESS_RATE_PCT:-}"
+STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT="${STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT:-}"
+HELPER_CHAT_5XX_RATE_PCT="${HELPER_CHAT_5XX_RATE_PCT:-}"
+HELPER_CHAT_5XX_RATE_BASELINE_PCT="${HELPER_CHAT_5XX_RATE_BASELINE_PCT:-}"
 
 usage() {
   cat <<'EOF'
@@ -35,6 +41,16 @@ Options:
   --a11y-timeout-ms <ms>            a11y timeout in milliseconds (default: 30000)
   --install-browsers                Install Playwright browsers in a11y check
   --base-url <url>                  Optional base URL override for smoke/a11y/telemetry smoke
+  --student-home-p95-ms <ms>        Observed student home p95 for the release window
+  --student-home-p95-baseline-ms <ms>
+                                     Pre-cutover student home p95 baseline
+  --student-upload-success-rate-pct <pct>
+                                     Observed student upload success rate for the release window
+  --student-upload-success-rate-baseline-pct <pct>
+                                     Pre-cutover upload success baseline
+  --helper-chat-5xx-rate-pct <pct>  Observed helper chat 5xx rate for the release window
+  --helper-chat-5xx-rate-baseline-pct <pct>
+                                     Pre-cutover helper chat 5xx baseline
   --skip-stability-evidence         Reuse existing release evidence artifacts
   --skip-telemetry-evidence         Reuse existing telemetry evidence artifacts
   --skip-kiosk                      Skip kiosk resilience inside stability evidence
@@ -80,6 +96,30 @@ while [[ $# -gt 0 ]]; do
       BASE_URL="$2"
       shift 2
       ;;
+    --student-home-p95-ms)
+      STUDENT_HOME_P95_MS="$2"
+      shift 2
+      ;;
+    --student-home-p95-baseline-ms)
+      STUDENT_HOME_P95_BASELINE_MS="$2"
+      shift 2
+      ;;
+    --student-upload-success-rate-pct)
+      STUDENT_UPLOAD_SUCCESS_RATE_PCT="$2"
+      shift 2
+      ;;
+    --student-upload-success-rate-baseline-pct)
+      STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT="$2"
+      shift 2
+      ;;
+    --helper-chat-5xx-rate-pct)
+      HELPER_CHAT_5XX_RATE_PCT="$2"
+      shift 2
+      ;;
+    --helper-chat-5xx-rate-baseline-pct)
+      HELPER_CHAT_5XX_RATE_BASELINE_PCT="$2"
+      shift 2
+      ;;
     --skip-stability-evidence)
       SKIP_STABILITY_EVIDENCE=1
       shift
@@ -122,6 +162,25 @@ if [[ ! -f "${ENV_FILE}" ]]; then
   echo "[cycle-closeout] missing compose/.env" >&2
   exit 1
 fi
+
+validate_optional_decimal() {
+  local label="$1"
+  local value="$2"
+  if [[ -z "${value}" ]]; then
+    return 0
+  fi
+  if [[ ! "${value}" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+    echo "[cycle-closeout] ${label} must be numeric when provided" >&2
+    exit 1
+  fi
+}
+
+validate_optional_decimal "--student-home-p95-ms" "${STUDENT_HOME_P95_MS}"
+validate_optional_decimal "--student-home-p95-baseline-ms" "${STUDENT_HOME_P95_BASELINE_MS}"
+validate_optional_decimal "--student-upload-success-rate-pct" "${STUDENT_UPLOAD_SUCCESS_RATE_PCT}"
+validate_optional_decimal "--student-upload-success-rate-baseline-pct" "${STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT}"
+validate_optional_decimal "--helper-chat-5xx-rate-pct" "${HELPER_CHAT_5XX_RATE_PCT}"
+validate_optional_decimal "--helper-chat-5xx-rate-baseline-pct" "${HELPER_CHAT_5XX_RATE_BASELINE_PCT}"
 
 EVIDENCE_DIR="${ROOT_DIR}/artifacts/stability/${RELEASE_DATE}"
 TELEMETRY_DIR="${EVIDENCE_DIR}/telemetry"
@@ -184,28 +243,57 @@ if (( SKIP_TELEMETRY_EVIDENCE == 0 )); then
   if [[ -n "${BASE_URL}" ]]; then
     telemetry_cmd+=(--base-url "${BASE_URL}")
   fi
+  if [[ -n "${STUDENT_HOME_P95_MS}" ]]; then
+    telemetry_cmd+=(--student-home-p95-ms "${STUDENT_HOME_P95_MS}")
+  fi
+  if [[ -n "${STUDENT_HOME_P95_BASELINE_MS}" ]]; then
+    telemetry_cmd+=(--student-home-p95-baseline-ms "${STUDENT_HOME_P95_BASELINE_MS}")
+  fi
+  if [[ -n "${STUDENT_UPLOAD_SUCCESS_RATE_PCT}" ]]; then
+    telemetry_cmd+=(--student-upload-success-rate-pct "${STUDENT_UPLOAD_SUCCESS_RATE_PCT}")
+  fi
+  if [[ -n "${STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT}" ]]; then
+    telemetry_cmd+=(--student-upload-success-rate-baseline-pct "${STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT}")
+  fi
+  if [[ -n "${HELPER_CHAT_5XX_RATE_PCT}" ]]; then
+    telemetry_cmd+=(--helper-chat-5xx-rate-pct "${HELPER_CHAT_5XX_RATE_PCT}")
+  fi
+  if [[ -n "${HELPER_CHAT_5XX_RATE_BASELINE_PCT}" ]]; then
+    telemetry_cmd+=(--helper-chat-5xx-rate-baseline-pct "${HELPER_CHAT_5XX_RATE_BASELINE_PCT}")
+  fi
   "${telemetry_cmd[@]}"
 fi
 
-cat > "${SLO_SUMMARY_PATH}" <<EOF
-# Telemetry Slice 7 SLO Summary
-
-- Generated at (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)
-- Release date: ${RELEASE_DATE}
-- Window days: ${WINDOW_DAYS}
-
-## Required cycle metrics
-
-- Student home p95 latency: TODO (7-day release window)
-- Student upload success rate: TODO (same release window)
-- Helper chat 5xx rate: TODO (same release window)
-
-## Policy
-
-- Strict parity drift threshold for this cycle: zero drift.
-- Steady-state write mode decision for this cycle: remain \`dual\`.
-- Gate D (\`telemetry_only\`) decision: deferred to next cycle.
-EOF
+render_slo_cmd=(
+  python3 "${ROOT_DIR}/scripts/render_telemetry_slo_summary.py"
+  --out "${SLO_SUMMARY_PATH}"
+  --release-date "${RELEASE_DATE}"
+  --window-days "${WINDOW_DAYS}"
+  --parity-threshold-label "strict zero drift"
+  --steady-write-mode-label "remain \`dual\`"
+  --gate-d-label "deferred to next cycle"
+  --require-complete
+  --require-pass
+)
+if [[ -n "${STUDENT_HOME_P95_MS}" ]]; then
+  render_slo_cmd+=(--student-home-p95-ms "${STUDENT_HOME_P95_MS}")
+fi
+if [[ -n "${STUDENT_HOME_P95_BASELINE_MS}" ]]; then
+  render_slo_cmd+=(--student-home-p95-baseline-ms "${STUDENT_HOME_P95_BASELINE_MS}")
+fi
+if [[ -n "${STUDENT_UPLOAD_SUCCESS_RATE_PCT}" ]]; then
+  render_slo_cmd+=(--student-upload-success-rate-pct "${STUDENT_UPLOAD_SUCCESS_RATE_PCT}")
+fi
+if [[ -n "${STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT}" ]]; then
+  render_slo_cmd+=(--student-upload-success-rate-baseline-pct "${STUDENT_UPLOAD_SUCCESS_RATE_BASELINE_PCT}")
+fi
+if [[ -n "${HELPER_CHAT_5XX_RATE_PCT}" ]]; then
+  render_slo_cmd+=(--helper-chat-5xx-rate-pct "${HELPER_CHAT_5XX_RATE_PCT}")
+fi
+if [[ -n "${HELPER_CHAT_5XX_RATE_BASELINE_PCT}" ]]; then
+  render_slo_cmd+=(--helper-chat-5xx-rate-baseline-pct "${HELPER_CHAT_5XX_RATE_BASELINE_PCT}")
+fi
+"${render_slo_cmd[@]}"
 
 required_release_files=(
   "${EVIDENCE_DIR}/system_doctor.log"
