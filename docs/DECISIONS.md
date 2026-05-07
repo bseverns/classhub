@@ -234,6 +234,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Persist the active remote lease and per-class accounting in helper-owned Django tables, with cache used only as a hot-read mirror.
 - Reconcile durable remote lease state on helper start via a management command before gunicorn boots, so cold-cache restarts do not wait for a teacher page refresh to normalize expired or degraded leases.
 - Expose a teacher-facing JSON/CSV remote-helper snapshot export from `/teach/class/<id>` so staff can preserve the current lease/accounting state outside the live dashboard card.
+- Derive a low-noise operator trend summary from that class evidence so `/teach/class/<id>` and snapshot exports can flag waste, fallback rate, provider reachability, and slow warm-up without requiring raw log reads.
 - Keep lightweight operator accounting for the remote path:
   - activations,
   - average time to ready,
@@ -2867,6 +2868,7 @@ Execution ownership and gates:
   - run `backup_restore_rehearsal.sh`,
   - capture rehearsal log,
   - write metrics (`RTO`/`RPO`) JSON,
+  - record whether the drill was same-host or replacement-host proof plus the rehearsal host label,
   - copy backup artifacts and write checksums,
   - emit a human-readable summary markdown.
 - Record each rehearsal in `docs/RESTORE_REHEARSAL_LOG.md` with date, result, evidence path, and next review date.

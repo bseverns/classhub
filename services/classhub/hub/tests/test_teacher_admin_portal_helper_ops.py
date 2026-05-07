@@ -136,8 +136,8 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertEqual(event.classroom_id, classroom.id)
         self.assertEqual(event.metadata.get("stop_reason"), "manual_stop")
 
-    @patch("hub.views.teacher_parts.roster_class_dashboard.fetch_remote_compute_evidence")
-    @patch("hub.views.teacher_parts.roster_class_dashboard.fetch_remote_compute_status")
+    @patch("hub.views.teacher_parts.roster_class_remote_compute.fetch_remote_compute_evidence")
+    @patch("hub.views.teacher_parts.roster_class_remote_compute.fetch_remote_compute_status")
     def test_teach_class_dashboard_shows_remote_helper_compute_panel_for_policy_managers(self, status_mock, evidence_mock):
         classroom = Class.objects.create(name="Partner Session Status", join_code="GPU00001")
         status_mock.return_value = HelperRemoteComputeStatusResult(
@@ -194,6 +194,8 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, "Remote-routed helper chats: <strong>4</strong>", html=False)
         self.assertContains(resp, "Remote fallbacks to local/default: <strong>1</strong>", html=False)
         self.assertContains(resp, "Cost risk state: <strong>Bounded active lease</strong>", html=False)
+        self.assertContains(resp, "Trend state: <strong>Needs attention</strong>", html=False)
+        self.assertContains(resp, "Provider reachability failed recently")
         self.assertContains(resp, "Recent remote-compute sessions")
         self.assertContains(resp, "leased 42 min")
         self.assertContains(resp, "Recent remote-compute events")
@@ -204,7 +206,7 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, f"/teach/class/{classroom.id}/export-helper-remote-snapshot?format=csv")
 
     @patch("hub.views.teacher_parts.roster_class_dashboard.staff_can_manage_policy", return_value=False)
-    @patch("hub.views.teacher_parts.roster_class_dashboard.fetch_remote_compute_status")
+    @patch("hub.views.teacher_parts.roster_class_remote_compute.fetch_remote_compute_status")
     def test_teach_class_dashboard_hides_remote_helper_compute_panel_without_policy_capability(
         self,
         status_mock,
@@ -219,10 +221,11 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertNotContains(resp, "Remote helper compute")
         status_mock.assert_not_called()
 
+    @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_status")
     @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_evidence")
-    def test_teacher_can_export_remote_helper_snapshot_json(self, status_mock):
+    def test_teacher_can_export_remote_helper_snapshot_json(self, evidence_mock, status_mock):
         classroom = Class.objects.create(name="Partner Session Export", join_code="GPU10001")
-        status_mock.return_value = HelperRemoteComputeEvidenceResult(
+        evidence_mock.return_value = HelperRemoteComputeEvidenceResult(
             ok=True,
             class_id=classroom.id,
             active_lease={
@@ -261,6 +264,17 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
             request_id="helper-status-req-1",
             status_code=200,
         )
+        status_mock.return_value = HelperRemoteComputeStatusResult(
+            ok=True,
+            class_id=classroom.id,
+            activation_count=3,
+            avg_ready_seconds=42,
+            remote_route_count=4,
+            fallback_local_count=2,
+            degraded_transition_count=1,
+            provider_unreachable_count=1,
+            unused_activation_count=2,
+        )
 
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.get(f"/teach/class/{classroom.id}/export-helper-remote-snapshot?format=json")
@@ -274,6 +288,10 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertEqual(payload["remote_route_count"], 4)
         self.assertEqual(payload["requested_duration_minutes_total"], 270)
         self.assertEqual(payload["approximate_cost_usd_total"], "12.50")
+        self.assertEqual(payload["signal_level"], "attention")
+        self.assertEqual(payload["fallback_rate_pct"], 33)
+        self.assertEqual(payload["unused_activation_rate_pct"], 67)
+        self.assertEqual(len(payload["signal_alerts"]), 4)
         self.assertEqual(len(payload["recent_sessions"]), 1)
 
         event = AuditEvent.objects.filter(action="class.remote_helper_snapshot_export").order_by("-id").first()
@@ -284,10 +302,11 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertEqual(event.metadata.get("state"), "ready")
         self.assertTrue(event.metadata.get("ok"))
 
+    @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_status")
     @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_evidence")
-    def test_teacher_can_export_remote_helper_snapshot_csv(self, status_mock):
+    def test_teacher_can_export_remote_helper_snapshot_csv(self, evidence_mock, status_mock):
         classroom = Class.objects.create(name="Partner Session Export CSV", join_code="GPU10002")
-        status_mock.return_value = HelperRemoteComputeEvidenceResult(
+        evidence_mock.return_value = HelperRemoteComputeEvidenceResult(
             ok=False,
             class_id=classroom.id,
             active_lease={
@@ -298,6 +317,15 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
             request_id="helper-status-csv-1",
             error_code="provider_unreachable",
             status_code=503,
+        )
+        status_mock.return_value = HelperRemoteComputeStatusResult(
+            ok=True,
+            class_id=classroom.id,
+            activation_count=2,
+            remote_route_count=1,
+            fallback_local_count=1,
+            provider_unreachable_count=1,
+            unused_activation_count=1,
         )
 
         _force_login_staff_verified(self.client, self.staff)
@@ -311,6 +339,9 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertIn("request_id,helper-status-csv-1", body)
         self.assertIn("error_code,provider_unreachable", body)
         self.assertIn("state,degraded", body)
+        self.assertIn("signal_level,attention", body)
+        self.assertIn("fallback_rate_pct,50", body)
+        self.assertIn("signal_alerts,", body)
 
         event = AuditEvent.objects.filter(action="class.remote_helper_snapshot_export").order_by("-id").first()
         self.assertIsNotNone(event)

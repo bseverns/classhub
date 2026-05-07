@@ -135,6 +135,7 @@ An operator can now produce a class-scoped snapshot that shows:
 - recent lease sessions
 - recent transition/fallback events
 - whether the current lease looks bounded, unused, degraded, or close to expiry from a staff cost-risk perspective
+- a derived trend state plus low-noise warning flags for fallback rate, provider reachability, lease waste, and slow warm-up
 
 That is enough to support a technical talk or evaluator review without exposing provider internals.
 
@@ -154,6 +155,7 @@ The repo still does not claim:
 
 - long-term real-world uptime statistics
 - a full alerting/metrics platform
+- automated webhook/pager delivery for every derived warning signal
 - a mesh/service-identity architecture
 - zero-touch provisioning of every external bridge/provider component
 - globally valid cost estimates across providers without operator-supplied pricing assumptions

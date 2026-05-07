@@ -12,6 +12,7 @@ from ...services.helper_control import (
     fetch_remote_compute_status,
     set_remote_compute_state,
 )
+from ...services.remote_compute_signals import build_remote_compute_signal_summary
 from .shared_auth import staff_can_manage_policy, staff_classroom_or_none
 from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
 
@@ -37,6 +38,10 @@ def remote_compute_status_context(*, can_manage_remote_compute: bool, classroom)
         "helper_remote_compute": status_result,
         "helper_remote_compute_evidence": evidence_result,
         "helper_remote_compute_cost_risk": _remote_compute_cost_risk(
+            status_result=status_result,
+            evidence_result=evidence_result,
+        ),
+        "helper_remote_compute_signal_summary": build_remote_compute_signal_summary(
             status_result=status_result,
             evidence_result=evidence_result,
         ),

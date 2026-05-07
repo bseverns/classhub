@@ -45,12 +45,15 @@ from .services.data_lifespan import (
 )
 from .services.filenames import safe_filename
 from .services.helper_control import (
+    HelperRemoteComputeEvidenceResult,
+    HelperRemoteComputeStatusResult,
     _safe_json_dict,
     _safe_reference_rows,
     fetch_rag_status,
 )
 from .services.helper_topics import build_allowed_topics, build_lesson_topics, split_helper_topics_text
 from .services.ip_privacy import minimize_student_event_ip
+from .services.remote_compute_signals import build_remote_compute_signal_summary
 from .services.release_state import (
     lesson_available_on,
     lesson_release_state,
@@ -789,6 +792,46 @@ class TeacherRosterClassServiceTests(SimpleTestCase):
 
         self.assertEqual(modules_manager.prefetch_calls, 1)
         self.assertEqual(len(context["modules"]), 1)
+
+
+class RemoteComputeSignalServiceTests(SimpleTestCase):
+    def test_build_remote_compute_signal_summary_returns_calm_when_metrics_are_bounded(self):
+        summary = build_remote_compute_signal_summary(
+            status_result=HelperRemoteComputeStatusResult(
+                ok=True,
+                activation_count=3,
+                avg_ready_seconds=18,
+                remote_route_count=6,
+                fallback_local_count=1,
+                degraded_transition_count=0,
+                provider_unreachable_count=0,
+                unused_activation_count=0,
+            ),
+            evidence_result=HelperRemoteComputeEvidenceResult(ok=True, recent_sessions=[{"lease_session_id": 1}]),
+        )
+        self.assertEqual(summary["level"], "calm")
+        self.assertEqual(summary["fallback_rate_pct"], 14)
+        self.assertEqual(summary["unused_activation_rate_pct"], 0)
+        self.assertEqual(summary["alerts"], [])
+
+    def test_build_remote_compute_signal_summary_returns_attention_for_waste_and_instability(self):
+        summary = build_remote_compute_signal_summary(
+            status_result=HelperRemoteComputeStatusResult(
+                ok=True,
+                activation_count=4,
+                avg_ready_seconds=45,
+                remote_route_count=4,
+                fallback_local_count=2,
+                degraded_transition_count=2,
+                provider_unreachable_count=1,
+                unused_activation_count=2,
+            ),
+            evidence_result=HelperRemoteComputeEvidenceResult(ok=True),
+        )
+        self.assertEqual(summary["level"], "attention")
+        self.assertEqual(summary["fallback_rate_pct"], 33)
+        self.assertEqual(summary["unused_activation_rate_pct"], 50)
+        self.assertGreaterEqual(len(summary["alerts"]), 3)
 
 
 class UploadScanServiceTests(SimpleTestCase):

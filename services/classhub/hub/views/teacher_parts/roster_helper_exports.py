@@ -11,6 +11,8 @@ from django.http import JsonResponse
 
 from ...services.filenames import safe_filename
 from ...services.helper_control import fetch_remote_compute_evidence
+from ...services.helper_control import fetch_remote_compute_status
+from ...services.remote_compute_signals import build_remote_compute_signal_summary
 from .shared import (
     HttpResponse,
     _audit,
@@ -32,12 +34,21 @@ def _remote_helper_snapshot_filename(*, classroom, extension: str) -> str:
 
 
 def _remote_helper_snapshot_payload(*, classroom) -> dict:
+    timeout_seconds = float(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_TIMEOUT_SECONDS", 2.0) or 2.0)
+    internal_token = str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip()
     result = fetch_remote_compute_evidence(
         class_id=classroom.id,
         endpoint_url=str(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_EVIDENCE_URL", "") or "").strip(),
-        internal_token=str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip(),
-        timeout_seconds=float(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_TIMEOUT_SECONDS", 2.0) or 2.0),
+        internal_token=internal_token,
+        timeout_seconds=timeout_seconds,
     )
+    status_result = fetch_remote_compute_status(
+        class_id=classroom.id,
+        endpoint_url=str(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL", "") or "").strip(),
+        internal_token=internal_token,
+        timeout_seconds=timeout_seconds,
+    )
+    signal_summary = build_remote_compute_signal_summary(status_result=status_result, evidence_result=result)
     active_lease = result.active_lease or {}
     summary = result.summary or {}
     return {
@@ -75,6 +86,13 @@ def _remote_helper_snapshot_payload(*, classroom) -> dict:
         "fallback_local_count": int(summary.get("fallback_local_count") or 0),
         "leased_minutes_total": int(summary.get("leased_minutes_total") or 0),
         "approximate_cost_usd_total": str(summary.get("approximate_cost_usd_total") or ""),
+        "signal_level": str(signal_summary.get("level") or ""),
+        "signal_summary": str(signal_summary.get("summary") or ""),
+        "signal_detail": str(signal_summary.get("detail") or ""),
+        "remote_attempt_count": int(signal_summary.get("remote_attempt_count") or 0),
+        "fallback_rate_pct": int(signal_summary.get("fallback_rate_pct") or 0),
+        "unused_activation_rate_pct": int(signal_summary.get("unused_activation_rate_pct") or 0),
+        "signal_alerts": list(signal_summary.get("alerts") or []),
         "recent_sessions": list(result.recent_sessions or []),
         "recent_events": list(result.recent_events or []),
         "request_id": str(result.request_id or ""),
@@ -89,7 +107,7 @@ def _remote_helper_snapshot_csv(payload: dict) -> str:
     writer = csv.writer(out)
     writer.writerow(["field", "value"])
     for key, value in payload.items():
-        if key in {"recent_sessions", "recent_events"}:
+        if key in {"recent_sessions", "recent_events", "signal_alerts"}:
             writer.writerow([key, json.dumps(value, separators=(",", ":"), sort_keys=True)])
             continue
         writer.writerow([key, value])

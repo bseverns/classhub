@@ -77,6 +77,26 @@
                       {{ helper_remote_compute_cost_risk.detail }}
                     </p>
                   {% endif %}
+                  {% if helper_remote_compute_signal_summary %}
+                    <p class="muted mini">
+                      Trend state: <strong>{{ helper_remote_compute_signal_summary.summary }}</strong>.
+                      {{ helper_remote_compute_signal_summary.detail }}
+                    </p>
+                    {% if helper_remote_compute_signal_summary.remote_attempt_count %}
+                      <p class="muted mini">
+                        Remote attempts tracked: <strong>{{ helper_remote_compute_signal_summary.remote_attempt_count }}</strong>.
+                        Fallback rate: <strong>{{ helper_remote_compute_signal_summary.fallback_rate_pct }}%</strong>.
+                        Unused activation rate: <strong>{{ helper_remote_compute_signal_summary.unused_activation_rate_pct }}%</strong>.
+                      </p>
+                    {% endif %}
+                    {% if helper_remote_compute_signal_summary.alerts %}
+                      <ul class="signal-list">
+                        {% for alert in helper_remote_compute_signal_summary.alerts %}
+                          <li><strong>{{ alert.summary }}</strong> · {{ alert.detail }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+                  {% endif %}
                   <p class="muted mini">
                     Export remote helper snapshot:
                     <a href="/teach/class/{{ classroom.id }}/export-helper-remote-snapshot?format=json">JSON</a>
