@@ -12,6 +12,8 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Teacher portal includes roster, submissions, moderation, outcomes, and certificate workflows.
 - Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded.
 - Operator data-lifespan dashboard is live at `/teach/data-lifespan` with retention trend rows and CSV/JSON snapshot export (`/teach/data-lifespan/export`).
+- `/teach/data-lifespan` now also surfaces aggregate remote-helper-compute posture: active lease status, low-noise trend summary, and recent class activity rows from helper-owned evidence.
+- Repo now ships an unattended remote-compute evidence watcher (`python3 scripts/remote_compute_operator_watch.py`) plus reference systemd timer units for bounded webhook alerting from the helper-owned operator snapshot.
 - Homework Helper runs as a separate Django service behind `/helper/*`.
 - Homework Helper supports optional bounded local curriculum RAG (pgvector) with curriculum-only retrieval scope.
 - Helper exposes an internal RAG posture contract at `/helper/internal/rag-status` (token-protected) for ClassHub operator evidence panels.

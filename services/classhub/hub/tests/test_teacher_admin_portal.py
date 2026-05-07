@@ -90,7 +90,8 @@ class DataLifespanDashboardTests(TestCase):
         self.assertEqual(snapshot["last_prune_run"].action, "retention.prune_submissions")
 
     @patch("hub.views.teacher_parts.content_data_lifespan.fetch_rag_status")
-    def test_dashboard_renders_rag_panel_from_helper_status(self, rag_status_mock):
+    @patch("hub.views.teacher_parts.content_data_lifespan.build_remote_compute_operator_snapshot")
+    def test_dashboard_renders_rag_panel_from_helper_status(self, remote_snapshot_mock, rag_status_mock):
         rag_status_mock.return_value = HelperRagStatusResult(
             ok=True,
             rag_enabled=True,
@@ -109,6 +110,42 @@ class DataLifespanDashboardTests(TestCase):
             student_data_excluded_from_index=True,
             status_code=200,
         )
+        remote_snapshot_mock.return_value = {
+            "status": "ok",
+            "active_lease": {
+                "active": True,
+                "class_id": self.classroom.id,
+                "class_name": self.classroom.name,
+                "state": "ready",
+                "expires_at": "2099-04-08T13:30:00+00:00",
+            },
+            "summary": {
+                "class_count_with_activity": 1,
+                "activation_count": 2,
+                "avg_ready_seconds": 15,
+                "remote_route_count": 5,
+                "fallback_local_count": 1,
+                "leased_minutes_total": 60,
+                "approximate_cost_usd_total": "8.50",
+            },
+            "aggregate_signal": {
+                "level": "calm",
+                "summary": "Trend signals are calm",
+                "detail": "Recent remote-compute evidence is bounded and calm.",
+                "alerts": [],
+            },
+            "recent_classes": [
+                {
+                    "class_id": self.classroom.id,
+                    "class_name": self.classroom.name,
+                    "activation_count": 2,
+                    "avg_ready_seconds": 15,
+                    "remote_route_count": 5,
+                    "fallback_local_count": 1,
+                    "signal": {"level": "calm", "summary": "Trend signals are calm", "alerts": []},
+                }
+            ],
+        }
         _force_login_staff_verified(self.client, self.superuser)
 
         resp = self.client.get("/teach/data-lifespan")
@@ -117,6 +154,9 @@ class DataLifespanDashboardTests(TestCase):
         self.assertContains(resp, "RAG enabled and indexed")
         self.assertContains(resp, "Student uploads and student PII are excluded from the RAG index.")
         self.assertContains(resp, "piper_scratch")
+        self.assertContains(resp, "Remote helper compute posture")
+        self.assertContains(resp, "Classes with activity: <strong>1</strong>", html=False)
+        self.assertContains(resp, "Ops Class")
 
     def test_superuser_can_export_data_lifespan_json_snapshot(self):
         _force_login_staff_verified(self.client, self.superuser)
@@ -127,6 +167,7 @@ class DataLifespanDashboardTests(TestCase):
         payload = resp.json()
         self.assertIn("snapshot", payload)
         self.assertIn("rag_status", payload)
+        self.assertIn("remote_compute_operator_snapshot", payload)
         self.assertIn("policy_overdue_total", payload["snapshot"])
 
         event = AuditEvent.objects.filter(action="data_lifespan.snapshot_export").order_by("-id").first()
@@ -143,6 +184,7 @@ class DataLifespanDashboardTests(TestCase):
         self.assertIn("field,value", resp.content.decode("utf-8"))
         self.assertIn("policy_overdue_total", resp.content.decode("utf-8"))
         self.assertIn("rag_status", resp.content.decode("utf-8"))
+        self.assertIn("remote_compute_operator_snapshot", resp.content.decode("utf-8"))
 
         event = AuditEvent.objects.filter(action="data_lifespan.snapshot_export").order_by("-id").first()
         self.assertIsNotNone(event)
@@ -357,7 +399,5 @@ class TeacherRosterClassServiceTests(TestCase):
         self.assertEqual(snapshot["eligible_students"], summary["eligible_students"])
         self.assertEqual(top["session_count"], row["session_count"])
         self.assertEqual(top["artifact_count"], row["artifact_count"])
-
-
 
 

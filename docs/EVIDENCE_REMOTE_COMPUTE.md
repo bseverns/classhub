@@ -60,12 +60,15 @@ Helper internal staff/operator endpoints:
 
 - `/helper/internal/remote-compute-status`
 - `/helper/internal/remote-compute-evidence`
+- `/helper/internal/remote-compute-operator-snapshot`
 
 Teacher/admin export surface:
 
 - `/teach/class/<id>/export-helper-remote-snapshot?format=json`
 - `/teach/class/<id>/export-helper-remote-snapshot?format=csv`
 - `/teach/class/<id>` remote-compute panel with recent lease sessions, recent events, and a simple cost-risk state
+- `/teach/data-lifespan` operator posture card with aggregate remote-compute trend state and recent class rows
+- `python3 scripts/remote_compute_operator_watch.py` for unattended evidence capture + optional webhook alerts from the same aggregate operator snapshot
 
 ## What `ready` means now
 
@@ -155,7 +158,6 @@ The repo still does not claim:
 
 - long-term real-world uptime statistics
 - a full alerting/metrics platform
-- automated webhook/pager delivery for every derived warning signal
 - a mesh/service-identity architecture
 - zero-touch provisioning of every external bridge/provider component
 - globally valid cost estimates across providers without operator-supplied pricing assumptions

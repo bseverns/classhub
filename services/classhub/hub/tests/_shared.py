@@ -53,6 +53,7 @@ from ..services.helper_control import (
     HelperRagStatusResult,
     HelperRemoteComputeActionResult,
     HelperRemoteComputeEvidenceResult,
+    HelperRemoteComputeOperatorSnapshotResult,
     HelperRemoteComputeStatusResult,
     HelperResetResult,
 )

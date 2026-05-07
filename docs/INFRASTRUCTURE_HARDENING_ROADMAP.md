@@ -130,7 +130,7 @@ Once leases and readiness are honest, the next question is whether the feature i
 Current status:
 
 - helper remote lease state and per-class accounting are now durable in helper-owned Django tables, with cache retained only as a mirror for hot reads
-- the remaining work in this priority is export/snapshot polish rather than basic durability
+- export/snapshot polish is now live in both `/teach` and the unattended `remote_compute_operator_watch.py` path
 
 ### Done looks like
 

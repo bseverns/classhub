@@ -10,7 +10,7 @@ from django.db.utils import OperationalError, ProgrammingError
 from django.utils import timezone as dj_timezone
 
 from .engine.config_source import helper_explicit_env
-from .models import RemoteComputeLeaseEvent, RemoteComputeLeaseSession
+from .models import RemoteComputeClassMetric, RemoteComputeLeaseEvent, RemoteComputeLeaseSession
 
 _STARTING_STATES = {"requested", "starting"}
 _ACTIVE_STATES = {"requested", "starting", "ready", "degraded", "stopping", "error"}
@@ -31,6 +31,12 @@ class RemoteComputeEvidenceSnapshot:
     approximate_cost_usd_total: str
     recent_sessions: list[dict]
     recent_events: list[dict]
+
+
+@dataclass(frozen=True)
+class RemoteComputeOperatorSnapshot:
+    summary: dict
+    recent_classes: list[dict]
 
 
 def create_or_update_active_session(*, payload: dict, provider_label: str, provider_adapter: str) -> int:
@@ -262,6 +268,82 @@ def build_class_evidence(*, class_id: int, recent_limit: int = 8, event_limit: i
     )
 
 
+def build_operator_evidence(*, class_limit: int = 8) -> RemoteComputeOperatorSnapshot:
+    try:
+        metric_rows = list(RemoteComputeClassMetric.objects.order_by("-updated_at", "-id")[: max(int(class_limit), 1)])
+        all_metric_rows = list(RemoteComputeClassMetric.objects.filter(activation_count__gt=0))
+        session_rows = list(RemoteComputeLeaseSession.objects.only("leased_minutes", "estimated_cost_per_hour_usd"))
+    except (OperationalError, ProgrammingError):
+        return RemoteComputeOperatorSnapshot(summary=_empty_operator_summary(), recent_classes=[])
+
+    activation_count = 0
+    ready_transition_count = 0
+    cumulative_ready_seconds = 0
+    remote_route_count = 0
+    fallback_local_count = 0
+    degraded_transition_count = 0
+    provider_unreachable_count = 0
+    unused_activation_count = 0
+    leased_minutes_total = 0
+    approximate_cost_total = Decimal("0.00")
+
+    for row in all_metric_rows:
+        activation_count += int(row.activation_count or 0)
+        ready_transition_count += int(row.ready_transition_count or 0)
+        cumulative_ready_seconds += int(row.cumulative_ready_seconds or 0)
+        remote_route_count += int(row.remote_route_count or 0)
+        fallback_local_count += int(row.fallback_local_count or 0)
+        degraded_transition_count += int(row.degraded_transition_count or 0)
+        provider_unreachable_count += int(row.provider_unreachable_count or 0)
+        unused_activation_count += int(row.unused_activation_count or 0)
+
+    for session in session_rows:
+        leased_minutes_total += int(session.leased_minutes or 0)
+        approximate_cost_total += Decimal(session.estimated_cost_usd() or "0.00")
+
+    avg_ready_seconds = 0
+    if ready_transition_count > 0:
+        avg_ready_seconds = int(round(cumulative_ready_seconds / float(ready_transition_count)))
+
+    recent_classes = [
+        {
+            "class_id": int(row.class_id or 0),
+            "activation_count": int(row.activation_count or 0),
+            "ready_transition_count": int(row.ready_transition_count or 0),
+            "avg_ready_seconds": int(round((row.cumulative_ready_seconds or 0) / float(row.ready_transition_count)))
+            if int(row.ready_transition_count or 0) > 0
+            else 0,
+            "remote_route_count": int(row.remote_route_count or 0),
+            "fallback_local_count": int(row.fallback_local_count or 0),
+            "degraded_transition_count": int(row.degraded_transition_count or 0),
+            "provider_unreachable_count": int(row.provider_unreachable_count or 0),
+            "unused_activation_count": int(row.unused_activation_count or 0),
+            "last_activation_at": _iso_or_empty(getattr(row, "last_activation_at", None)),
+            "last_ready_at": _iso_or_empty(getattr(row, "last_ready_at", None)),
+            "last_fallback_at": _iso_or_empty(getattr(row, "last_fallback_at", None)),
+            "updated_at": _iso_or_empty(getattr(row, "updated_at", None)),
+        }
+        for row in metric_rows
+        if int(row.activation_count or 0) > 0
+    ]
+    return RemoteComputeOperatorSnapshot(
+        summary={
+            "class_count_with_activity": len(all_metric_rows),
+            "activation_count": activation_count,
+            "ready_transition_count": ready_transition_count,
+            "avg_ready_seconds": avg_ready_seconds,
+            "remote_route_count": remote_route_count,
+            "fallback_local_count": fallback_local_count,
+            "degraded_transition_count": degraded_transition_count,
+            "provider_unreachable_count": provider_unreachable_count,
+            "unused_activation_count": unused_activation_count,
+            "leased_minutes_total": leased_minutes_total,
+            "approximate_cost_usd_total": f"{approximate_cost_total.quantize(Decimal('0.01'))}",
+        },
+        recent_classes=recent_classes,
+    )
+
+
 def _session_from_payload(payload: dict) -> RemoteComputeLeaseSession | None:
     lease_session_id = _safe_int(payload.get("lease_session_id"))
     if lease_session_id <= 0:
@@ -394,6 +476,22 @@ def _iso_or_empty(value: datetime | None) -> str:
     if value is None:
         return ""
     return value.isoformat()
+
+
+def _empty_operator_summary() -> dict:
+    return {
+        "class_count_with_activity": 0,
+        "activation_count": 0,
+        "ready_transition_count": 0,
+        "avg_ready_seconds": 0,
+        "remote_route_count": 0,
+        "fallback_local_count": 0,
+        "degraded_transition_count": 0,
+        "provider_unreachable_count": 0,
+        "unused_activation_count": 0,
+        "leased_minutes_total": 0,
+        "approximate_cost_usd_total": "",
+    }
 
 
 def _safe_int(value) -> int:

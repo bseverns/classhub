@@ -6,7 +6,12 @@ from unittest.mock import patch
 
 from django.test import SimpleTestCase
 
-from hub.services.helper_control import fetch_rag_status, reset_class_conversations, set_remote_compute_state
+from hub.services.helper_control import (
+    fetch_rag_status,
+    fetch_remote_compute_operator_snapshot,
+    reset_class_conversations,
+    set_remote_compute_state,
+)
 
 
 class HelperControlServiceTests(SimpleTestCase):
@@ -90,3 +95,22 @@ class HelperControlServiceTests(SimpleTestCase):
         self.assertTrue(req.data)
         payload = json.loads(req.data.decode("utf-8"))
         self.assertEqual(payload["stop_reason"], "manual_stop")
+
+    @patch("hub.services.helper_control.urllib.request.urlopen")
+    def test_fetch_remote_compute_operator_snapshot_uses_response_body_request_id_when_header_missing(self, urlopen_mock):
+        response = SimpleNamespace(status=200, headers={})
+        response.read = lambda: (
+            b'{"ok": true, "request_id": "helper-remote-ops-1", "summary": {"activation_count": 2}, "recent_classes": [{"class_id": 7}]}'
+        )
+        urlopen_mock.return_value.__enter__.return_value = response
+
+        result = fetch_remote_compute_operator_snapshot(
+            endpoint_url="http://helper_web:8000/helper/internal/remote-compute-operator-snapshot",
+            internal_token="token-123",
+            timeout_seconds=1.0,
+        )
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.request_id, "helper-remote-ops-1")
+        self.assertEqual(result.summary.get("activation_count"), 2)
+        self.assertEqual(result.recent_classes[0]["class_id"], 7)

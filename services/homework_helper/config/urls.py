@@ -11,5 +11,6 @@ urlpatterns = [
     path("helper/internal/rag-status", views.internal_rag_status),
     path("helper/internal/remote-compute-status", views_remote_compute.internal_remote_compute_status),
     path("helper/internal/remote-compute-evidence", views_remote_compute.internal_remote_compute_evidence),
+    path("helper/internal/remote-compute-operator-snapshot", views_remote_compute.internal_remote_compute_operator_snapshot),
     path("helper/internal/remote-compute-control", views_remote_compute.internal_remote_compute_control),
 ]

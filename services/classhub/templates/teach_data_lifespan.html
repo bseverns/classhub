@@ -174,6 +174,92 @@
         </div>
 
         <div class="card">
+          <h2 class="section-title-tight">Remote helper compute posture</h2>
+          {% if remote_compute_operator_snapshot.status == "ok" %}
+            <p class="muted">
+              Trend state:
+              <strong>{{ remote_compute_operator_snapshot.aggregate_signal.summary }}</strong>.
+              {{ remote_compute_operator_snapshot.aggregate_signal.detail }}
+            </p>
+            <p class="muted">
+              Classes with activity: <strong>{{ remote_compute_operator_snapshot.summary.class_count_with_activity|default:0 }}</strong> ·
+              Activations: <strong>{{ remote_compute_operator_snapshot.summary.activation_count|default:0 }}</strong> ·
+              Remote chats: <strong>{{ remote_compute_operator_snapshot.summary.remote_route_count|default:0 }}</strong> ·
+              Fallbacks: <strong>{{ remote_compute_operator_snapshot.summary.fallback_local_count|default:0 }}</strong>
+            </p>
+            <p class="muted">
+              Avg time to ready: <strong>{{ remote_compute_operator_snapshot.summary.avg_ready_seconds|default:0 }} second(s)</strong> ·
+              Leased minutes: <strong>{{ remote_compute_operator_snapshot.summary.leased_minutes_total|default:0 }}</strong>
+              {% if remote_compute_operator_snapshot.summary.approximate_cost_usd_total %}
+                · Approximate cost: <strong>${{ remote_compute_operator_snapshot.summary.approximate_cost_usd_total }}</strong>
+              {% endif %}
+            </p>
+            <p class="muted">
+              Active lease:
+              {% if remote_compute_operator_snapshot.active_lease.active %}
+                <strong>{{ remote_compute_operator_snapshot.active_lease.state|default:"active" }}</strong>
+                {% if remote_compute_operator_snapshot.active_lease.class_name %}
+                  for <strong>{{ remote_compute_operator_snapshot.active_lease.class_name }}</strong>
+                {% elif remote_compute_operator_snapshot.active_lease.class_id %}
+                  for class <strong>#{{ remote_compute_operator_snapshot.active_lease.class_id }}</strong>
+                {% endif %}
+                {% if remote_compute_operator_snapshot.active_lease.expires_at %}
+                  · expires <strong>{{ remote_compute_operator_snapshot.active_lease.expires_at }}</strong>
+                {% endif %}
+              {% else %}
+                <strong>none</strong>
+              {% endif %}
+            </p>
+            {% if remote_compute_operator_snapshot.aggregate_signal.alerts %}
+              <ul>
+                {% for alert in remote_compute_operator_snapshot.aggregate_signal.alerts %}
+                  <li><strong>{{ alert.summary }}</strong> · {{ alert.detail }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+            {% if remote_compute_operator_snapshot.recent_classes %}
+              <div class="table-wrap">
+                <table>
+                  <caption class="visually-hidden">Recent class remote compute posture</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Class</th>
+                      <th scope="col">Activations</th>
+                      <th scope="col">Remote chats</th>
+                      <th scope="col">Fallbacks</th>
+                      <th scope="col">Trend</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in remote_compute_operator_snapshot.recent_classes %}
+                      <tr>
+                        <td class="muted">
+                          {% if row.class_name %}
+                            {{ row.class_name }}
+                          {% else %}
+                            Class #{{ row.class_id }}
+                          {% endif %}
+                        </td>
+                        <td class="muted">{{ row.activation_count }}</td>
+                        <td class="muted">{{ row.remote_route_count }}</td>
+                        <td class="muted">{{ row.fallback_local_count }}</td>
+                        <td class="muted">{{ row.signal.summary }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="muted">No remote helper compute activity has been recorded yet.</p>
+            {% endif %}
+          {% elif remote_compute_operator_snapshot.status == "not_configured" %}
+            <p class="muted">Remote helper operator snapshot is not configured for this deployment yet.</p>
+          {% else %}
+            <p class="muted">Remote helper operator snapshot failed: <code>{{ remote_compute_operator_snapshot.error_code|default:"unknown_error" }}</code></p>
+          {% endif %}
+        </div>
+
+        <div class="card">
           <h2 class="section-title-tight">Recent retention prune runs</h2>
           {% if snapshot.prune_runs %}
             <div class="table-wrap">

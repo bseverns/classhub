@@ -105,6 +105,17 @@ class HelperRemoteComputeEvidenceResult:
 
 
 @dataclass(frozen=True)
+class HelperRemoteComputeOperatorSnapshotResult:
+    ok: bool
+    active_lease: dict | None = None
+    summary: dict | None = None
+    recent_classes: list[dict] | None = None
+    request_id: str = ""
+    error_code: str = ""
+    status_code: int = 0
+
+
+@dataclass(frozen=True)
 class HelperRemoteComputeActionResult:
     ok: bool
     action: str = ""
@@ -458,6 +469,70 @@ def fetch_remote_compute_evidence(
         summary=summary,
         recent_sessions=[item for item in recent_sessions if isinstance(item, dict)],
         recent_events=[item for item in recent_events if isinstance(item, dict)],
+        request_id=response_request_id,
+        status_code=status,
+    )
+
+
+def fetch_remote_compute_operator_snapshot(
+    *,
+    endpoint_url: str,
+    internal_token: str,
+    timeout_seconds: float,
+) -> HelperRemoteComputeOperatorSnapshotResult:
+    request_id = _request_id_value("")
+    if not endpoint_url:
+        return HelperRemoteComputeOperatorSnapshotResult(ok=False, request_id=request_id, error_code="helper_endpoint_not_configured")
+    if not internal_token:
+        return HelperRemoteComputeOperatorSnapshotResult(ok=False, request_id=request_id, error_code="helper_token_not_configured")
+    if not endpoint_url.lower().startswith(("http://", "https://")):
+        return HelperRemoteComputeOperatorSnapshotResult(ok=False, request_id=request_id, error_code="invalid_endpoint_url_scheme")
+
+    request = urllib.request.Request(
+        endpoint_url,
+        method="GET",
+        headers={"Authorization": f"Bearer {internal_token}", "X-Request-ID": request_id},
+    )
+    timeout = max(float(timeout_seconds), 0.2)
+
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:  # nosec B310
+            status = int(getattr(response, "status", 200) or 200)
+            body = response.read().decode("utf-8", errors="replace")
+            response_request_id = _response_request_id(response=response, body=body, fallback=request_id)
+    except urllib.error.HTTPError as exc:
+        status = int(getattr(exc, "code", 0) or 0)
+        try:
+            body = exc.read().decode("utf-8", errors="replace")
+        except Exception:
+            body = ""
+        return HelperRemoteComputeOperatorSnapshotResult(
+            ok=False,
+            request_id=_response_request_id(response=exc, body=body, fallback=request_id),
+            error_code=_extract_error_code(body) or "helper_http_error",
+            status_code=status,
+        )
+    except urllib.error.URLError:
+        return HelperRemoteComputeOperatorSnapshotResult(ok=False, request_id=request_id, error_code="helper_unreachable")
+    except Exception:
+        return HelperRemoteComputeOperatorSnapshotResult(ok=False, request_id=request_id, error_code="helper_request_failed")
+
+    payload = _safe_json_dict(body)
+    if status < 200 or status >= 300 or not payload.get("ok"):
+        return HelperRemoteComputeOperatorSnapshotResult(
+            ok=False,
+            request_id=response_request_id,
+            error_code=str(payload.get("error") or "helper_status_failed"),
+            status_code=status,
+        )
+    active_lease = payload.get("active_lease") if isinstance(payload.get("active_lease"), dict) else {}
+    summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else {}
+    recent_classes = payload.get("recent_classes") if isinstance(payload.get("recent_classes"), list) else []
+    return HelperRemoteComputeOperatorSnapshotResult(
+        ok=True,
+        active_lease=active_lease,
+        summary=summary,
+        recent_classes=[item for item in recent_classes if isinstance(item, dict)],
         request_id=response_request_id,
         status_code=status,
     )

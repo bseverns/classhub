@@ -33,10 +33,10 @@ def _remote_helper_snapshot_filename(*, classroom, extension: str) -> str:
     )
 
 
-def _remote_helper_snapshot_payload(*, classroom) -> dict:
+def _remote_helper_fetch_context(*, classroom):
     timeout_seconds = float(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_TIMEOUT_SECONDS", 2.0) or 2.0)
     internal_token = str(getattr(settings, "HELPER_INTERNAL_API_TOKEN", "") or "").strip()
-    result = fetch_remote_compute_evidence(
+    evidence_result = fetch_remote_compute_evidence(
         class_id=classroom.id,
         endpoint_url=str(getattr(settings, "HELPER_INTERNAL_REMOTE_COMPUTE_EVIDENCE_URL", "") or "").strip(),
         internal_token=internal_token,
@@ -48,11 +48,12 @@ def _remote_helper_snapshot_payload(*, classroom) -> dict:
         internal_token=internal_token,
         timeout_seconds=timeout_seconds,
     )
-    signal_summary = build_remote_compute_signal_summary(status_result=status_result, evidence_result=result)
-    active_lease = result.active_lease or {}
-    summary = result.summary or {}
+    return evidence_result, build_remote_compute_signal_summary(status_result=status_result, evidence_result=evidence_result)
+
+
+def _remote_helper_snapshot_base_payload(*, classroom, active_lease: dict, summary: dict) -> dict:
     return {
-        "ok": bool(result.ok),
+        "ok": False,
         "class_id": int(classroom.id),
         "class_name": str(classroom.name or ""),
         "state": str(active_lease.get("state") or "off"),
@@ -86,6 +87,11 @@ def _remote_helper_snapshot_payload(*, classroom) -> dict:
         "fallback_local_count": int(summary.get("fallback_local_count") or 0),
         "leased_minutes_total": int(summary.get("leased_minutes_total") or 0),
         "approximate_cost_usd_total": str(summary.get("approximate_cost_usd_total") or ""),
+    }
+
+
+def _remote_helper_snapshot_signal_payload(signal_summary: dict) -> dict:
+    return {
         "signal_level": str(signal_summary.get("level") or ""),
         "signal_summary": str(signal_summary.get("summary") or ""),
         "signal_detail": str(signal_summary.get("detail") or ""),
@@ -93,13 +99,29 @@ def _remote_helper_snapshot_payload(*, classroom) -> dict:
         "fallback_rate_pct": int(signal_summary.get("fallback_rate_pct") or 0),
         "unused_activation_rate_pct": int(signal_summary.get("unused_activation_rate_pct") or 0),
         "signal_alerts": list(signal_summary.get("alerts") or []),
-        "recent_sessions": list(result.recent_sessions or []),
-        "recent_events": list(result.recent_events or []),
-        "request_id": str(result.request_id or ""),
-        "error_code": str(result.error_code or ""),
-        "status_code": int(result.status_code or 0),
-        "exported_at": timezone.now().isoformat(),
     }
+
+
+def _remote_helper_snapshot_payload(*, classroom) -> dict:
+    result, signal_summary = _remote_helper_fetch_context(classroom=classroom)
+    payload = _remote_helper_snapshot_base_payload(
+        classroom=classroom,
+        active_lease=result.active_lease or {},
+        summary=result.summary or {},
+    )
+    payload.update(_remote_helper_snapshot_signal_payload(signal_summary))
+    payload.update(
+        {
+            "ok": bool(result.ok),
+            "recent_sessions": list(result.recent_sessions or []),
+            "recent_events": list(result.recent_events or []),
+            "request_id": str(result.request_id or ""),
+            "error_code": str(result.error_code or ""),
+            "status_code": int(result.status_code or 0),
+            "exported_at": timezone.now().isoformat(),
+        }
+    )
+    return payload
 
 
 def _remote_helper_snapshot_csv(payload: dict) -> str:

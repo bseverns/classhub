@@ -135,6 +135,18 @@ class HelperInternalRemoteComputeTests(TestCase):
         self.assertEqual(len(evidence_body.get("recent_sessions") or []), 1)
         self.assertTrue(any(row.get("event_type") == "activation_requested" for row in (evidence_body.get("recent_events") or [])))
 
+        operator_resp = self.client.get(
+            "/helper/internal/remote-compute-operator-snapshot",
+            HTTP_AUTHORIZATION="Bearer token-123",
+        )
+        self.assertEqual(operator_resp.status_code, 200)
+        operator_body = operator_resp.json()
+        self.assertTrue(operator_body.get("ok"))
+        self.assertEqual(operator_body.get("summary", {}).get("class_count_with_activity"), 1)
+        self.assertEqual(operator_body.get("summary", {}).get("activation_count"), 1)
+        self.assertEqual(len(operator_body.get("recent_classes") or []), 1)
+        self.assertEqual((operator_body.get("recent_classes") or [])[0].get("class_id"), 7)
+
         deactivate_resp = self.client.post(
             "/helper/internal/remote-compute-control",
             data=json.dumps(

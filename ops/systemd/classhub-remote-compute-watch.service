@@ -1,0 +1,36 @@
+[Unit]
+Description=ClassHub unattended remote-compute evidence watch
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+# Run as a non-root account that can execute docker compose on this host.
+# Override User=/Group= in the deployed unit copy when host identity differs.
+User=lms
+Group=docker
+WorkingDirectory=/srv/lms/app
+EnvironmentFile=/srv/lms/app/compose/.env
+ExecStartPre=/usr/bin/env bash -lc 'if [[ "$(id -u)" -eq 0 && "${CLASSHUB_ALLOW_ROOT_MAINTENANCE:-0}" != "1" ]]; then echo "Refusing to run classhub-remote-compute-watch as root. Set User=/Group= in the unit (preferred) or set CLASSHUB_ALLOW_ROOT_MAINTENANCE=1 for temporary break-glass."; exit 1; fi'
+ExecStart=/usr/bin/env python3 /srv/lms/app/scripts/remote_compute_operator_watch.py --compose-mode prod
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/srv/lms/app /run/docker.sock /var/run/docker.sock
+
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+[Install]
+WantedBy=multi-user.target

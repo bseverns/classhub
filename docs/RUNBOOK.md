@@ -840,6 +840,55 @@ bash scripts/retention_health_snapshot.sh \
   --out artifacts/stability/$(date +%F)/retention_health.log
 ```
 
+### Unattended remote-compute evidence watch
+
+Run once manually:
+
+```bash
+cd /srv/lms/app
+python3 scripts/remote_compute_operator_watch.py --compose-mode prod
+```
+
+Optional webhook alerts:
+
+```bash
+export REMOTE_COMPUTE_ALERT_WEBHOOK_URL="https://hooks.example.org/classhub"
+python3 scripts/remote_compute_operator_watch.py --compose-mode prod
+```
+
+If you want notice-level `watch` states to fail the timer run as well as `attention` states:
+
+```bash
+export REMOTE_COMPUTE_FAIL_ON_WATCH=1
+python3 scripts/remote_compute_operator_watch.py --compose-mode prod
+```
+
+The watcher executes the snapshot export inside `classhub_web`, so the default internal helper URL contract can stay private (`http://helper_web:8000/...`) and does not need host port exposure.
+
+Systemd timer (recommended):
+
+```bash
+sudo cp /srv/lms/app/ops/systemd/classhub-remote-compute-watch.service /etc/systemd/system/
+sudo cp /srv/lms/app/ops/systemd/classhub-remote-compute-watch.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now classhub-remote-compute-watch.timer
+sudo systemctl status classhub-remote-compute-watch.timer
+```
+
+Review last run:
+
+```bash
+systemctl list-timers | grep classhub-remote-compute-watch
+journalctl -u classhub-remote-compute-watch.service -n 200 --no-pager
+```
+
+Artifacts land under `artifacts/stability/<YYYY-MM-DD>/remote_compute_watch_<HHMMSSZ>/` and include:
+
+- `remote_compute_operator_snapshot.json`
+- `remote_compute_operator_report.json`
+- `remote_compute_operator_summary.md`
+- `remote_compute_operator_watch.log`
+
 ## Disk Space Management
 
 ClassHub is designed to be operationally calm and run on a single host. If disk space exceeds 85%, take these steps:

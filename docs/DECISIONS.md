@@ -235,6 +235,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - Reconcile durable remote lease state on helper start via a management command before gunicorn boots, so cold-cache restarts do not wait for a teacher page refresh to normalize expired or degraded leases.
 - Expose a teacher-facing JSON/CSV remote-helper snapshot export from `/teach/class/<id>` so staff can preserve the current lease/accounting state outside the live dashboard card.
 - Derive a low-noise operator trend summary from that class evidence so `/teach/class/<id>` and snapshot exports can flag waste, fallback rate, provider reachability, and slow warm-up without requiring raw log reads.
+- Expose one aggregate helper-owned operator snapshot so `/teach/data-lifespan` can show active lease posture and recent class trend rows without making the LMS reach into helper tables directly.
 - Keep lightweight operator accounting for the remote path:
   - activations,
   - average time to ready,
@@ -3962,3 +3963,24 @@ Execution ownership and gates:
 - Screenshot drift is easier to miss than code drift because broken PNGs can still exist at the expected path.
 - A cheap audit script creates a repeatable operator check even when full browser recapture is not available in the current shell.
 - Truthful backlog governance matters more than preserving an outdated smaller number.
+
+## Unattended remote-compute evidence watch (2026-05-07)
+
+**Current decision:**
+- Add `python3 scripts/remote_compute_operator_watch.py` as the bounded unattended watcher for helper remote-compute evidence.
+- Keep the watcher on the existing private control path by executing snapshot export inside `classhub_web`, rather than exposing helper internal URLs on the host network.
+- Reuse the same derived aggregate/class signal summaries already shown in `/teach/data-lifespan`, and treat `attention` as a failing alert state while keeping `watch` configurable (`REMOTE_COMPUTE_FAIL_ON_WATCH=1`).
+- Provide reference systemd units in `ops/systemd/classhub-remote-compute-watch.{service,timer}` plus optional webhook env hooks:
+  - `REMOTE_COMPUTE_ALERT_WEBHOOK_URL`
+  - `REMOTE_COMPUTE_ALERT_ON_SUCCESS`
+  - `REMOTE_COMPUTE_FAIL_ON_WATCH`
+- Keep artifact output under `artifacts/stability/<YYYY-MM-DD>/remote_compute_watch_<HHMMSSZ>/` with:
+  - `remote_compute_operator_snapshot.json`
+  - `remote_compute_operator_report.json`
+  - `remote_compute_operator_summary.md`
+  - `remote_compute_operator_watch.log`
+
+**Why this remains active:**
+- Closes the “broader trend/alerting signals” gap in a bounded way without pretending the repo ships a full observability platform.
+- Preserves the internal-only helper topology and avoids turning alerting into a reason to publish sensitive control endpoints.
+- Produces durable unattended evidence artifacts even when no human is logged into `/teach/data-lifespan`.
