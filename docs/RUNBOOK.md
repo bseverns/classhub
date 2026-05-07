@@ -228,6 +228,17 @@ sudo /usr/local/bin/classhub-headscale-restore \
   --start-stack
 ```
 
+Canonical rehearsal evidence wrapper on a replacement VPS:
+
+```bash
+cd /srv/headscale/app
+sudo bash scripts/headscale_restore_rehearsal_evidence.sh \
+  --backup /srv/headscale/backups/headscale_<STAMP>.tgz \
+  --host-class replacement-host \
+  --host-label hs-replacement-01 \
+  --evidence-note "Quarterly blank-VPS Headscale recovery rehearsal"
+```
+
 Operational intent:
 
 - keep the Headscale VPS small and replaceable
@@ -236,6 +247,25 @@ Operational intent:
 
 The Headscale bundle is not part of the public LMS Compose stack.
 It is a separate control-plane bundle for the separate VPS.
+
+The rehearsal wrapper writes a timestamped artifact directory under:
+
+- `artifacts/stability/<date>/headscale_restore_rehearsal/<timestamp>/`
+
+Expected artifacts:
+
+- `headscale_restore_rehearsal.log`
+- `headscale_restore_rehearsal_metrics.json`
+- `headscale_restore_rehearsal_summary.md`
+- `manual_verification_checklist.md`
+- automated Headscale VPS captures (`systemctl`, `docker compose ps`, metrics sample, node list, logs)
+- LMS/GPU-side evidence placeholders for helper probe, node rejoin notes, and optional GPU health output
+
+Important:
+
+- this wrapper is for operator rehearsal on the real Headscale VPS; it does not claim the repo has already proven blank-VPS recovery
+- the LMS-side helper probe still needs to be run from the LMS host and attached to the artifact
+- do not treat the Headscale VPS as a place to test public LMS routing; keep public browser traffic on the public LMS path
 
 ### Staff-only remote helper compute lease
 

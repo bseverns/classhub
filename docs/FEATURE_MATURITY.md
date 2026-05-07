@@ -68,7 +68,7 @@ For the remote helper compute path, the current posture is:
 2. honest readiness semantics are live (`ready` only after helper-side warm/probe success)
 3. small durable operator metrics are live (activations, time-to-ready, fallbacks, degraded transitions, leased minutes, optional approximate cost)
 4. bridge idempotency/correlation is now live in bounded form (duplicate same-class activate/deactivate requests are no-op safe and the bridge receives explicit control-request/idempotency metadata)
-5. unattended remote-compute webhook alerts are now available in bounded form; the next hardening priorities remain provisioning codification depth and blank-VPS restore evidence
+5. unattended remote-compute webhook alerts are now available in bounded form, and the Headscale control-plane bundle now includes a replacement-host rehearsal wrapper; the remaining hardening proof step is running and logging a real blank-VPS restore drill
 
 ## Related docs
 - [CURRENT_STATE.md](CURRENT_STATE.md)

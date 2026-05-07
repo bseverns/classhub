@@ -28,6 +28,7 @@ Operator shortcut:
 | `backup_minio.sh` | Syncs MinIO (if used) object storage. |
 | `backup_uploads.sh` | Creates a tarball of user-uploaded files for safe keeping. |
 | `backup_restore_rehearsal.sh`| Automated script for rehearsing and verifying disaster recovery. |
+| `headscale_restore_rehearsal_evidence.sh` | Runs a Headscale replacement-host restore rehearsal wrapper and captures control-plane recovery evidence plus LMS/GPU manual-check placeholders. |
 | `restore_rehearsal_evidence.sh` | Runs restore rehearsal and writes evidence artifacts (log, metrics, checksums, summary). |
 | `retention_maintenance.sh` | Automates execution of data retention policies (deleting old submissions/events). |
 | `retention_health_snapshot.sh` | Captures timer status, recent retention logs, and a retention dry-run in one evidence-ready report. |

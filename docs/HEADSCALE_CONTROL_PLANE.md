@@ -69,6 +69,7 @@ This repo now ships a narrow Headscale ops bundle in `ops/headscale/`:
 - canonical Compose stack via `ops/headscale/docker-compose.yml`
 - backup via `ops/headscale/backup.sh`
 - restore via `ops/headscale/restore.sh`
+- restore rehearsal evidence wrapper via `scripts/headscale_restore_rehearsal_evidence.sh`
 - systemd wrappers via `ops/headscale/classhub-headscale.service` and `ops/headscale/classhub-headscale-backup.timer`
 
 The ClassHub app still does not depend on Headscale internals at runtime.
@@ -228,7 +229,32 @@ sudo /usr/local/bin/classhub-headscale-restore \
   --start-stack
 ```
 
+Canonical repo-side rehearsal wrapper for a fresh/replacement host:
+
+```bash
+cd /srv/headscale/app
+sudo bash scripts/headscale_restore_rehearsal_evidence.sh \
+  --backup /srv/headscale/backups/headscale_<STAMP>.tgz \
+  --host-class replacement-host \
+  --host-label hs-replacement-01
+```
+
+That wrapper:
+
+- can bootstrap the fresh Ubuntu VPS with `ops/headscale/install.sh`
+- runs the shipped restore path against one backup archive
+- re-enables the Headscale stack and backup timer
+- captures local `systemctl`, `docker compose ps`, metrics, logs, and node-list evidence
+- writes manual placeholders for the LMS-host helper probe and optional GPU-host follow-up
+- produces a markdown summary suitable for `artifacts/stability/<date>/headscale_restore_rehearsal/<timestamp>/`
+
 The public LMS and model service remain separate concerns. Replacing the control plane should not require changing application code.
+
+What this does not mean:
+
+- the repo has not already proven blank-VPS recovery on your infrastructure
+- node enrollment, DNS ownership, and LMS-host helper probing are still operator-reviewed steps
+- Headscale is still coordination only, not a request proxy or public LMS dependency
 
 ## Operator checks
 

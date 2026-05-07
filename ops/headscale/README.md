@@ -57,6 +57,7 @@ Runtime root contents after bootstrap:
 - `classhub-headscale.service`: systemd wrapper for the Headscale Compose stack
 - `classhub-headscale-backup.service`: systemd wrapper for periodic backups
 - `classhub-headscale-backup.timer`: daily backup timer
+- `../../scripts/headscale_restore_rehearsal_evidence.sh`: replacement-host rehearsal wrapper that captures recovery evidence artifacts
 
 ## Fresh bootstrap
 
@@ -169,6 +170,39 @@ Then verify node membership and helper path from the LMS host:
 cd /srv/lms/app
 bash scripts/check_llm_backend.sh --probe-chat
 ```
+
+## Replacement-host rehearsal wrapper
+
+When you want evidence instead of just a successful shell session, use the repo wrapper:
+
+```bash
+cd /srv/headscale/app
+sudo bash scripts/headscale_restore_rehearsal_evidence.sh \
+  --backup /srv/headscale/backups/headscale_<STAMP>.tgz \
+  --host-class replacement-host \
+  --host-label hs-replacement-01
+```
+
+Default artifact location:
+
+- `artifacts/stability/<date>/headscale_restore_rehearsal/<timestamp>/`
+
+What the wrapper captures automatically on the Headscale VPS:
+
+- bootstrap/install output when not skipped
+- restore output
+- `systemctl status classhub-headscale --no-pager`
+- `systemctl status classhub-headscale-backup.timer --no-pager`
+- `docker compose ps`
+- a small `http://127.0.0.1:9090/metrics` sample
+- compose logs
+- `headscale nodes list`
+
+What still needs operator review:
+
+- LMS-host helper probe output (`bash scripts/check_llm_backend.sh --probe-chat`)
+- confirmation that the LMS host and GPU/model host rejoined cleanly
+- optional GPU-host local checks when the LMS helper probe fails
 
 ## Recovery expectations
 

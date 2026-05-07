@@ -1,4 +1,4 @@
-# Current State (April 10, 2026)
+# Current State (May 7, 2026)
 
 ## Summary
 This page is the live snapshot of what ClassHub currently ships on `main`.
@@ -22,6 +22,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Remote helper control now emits explicit bridge correlation/idempotency metadata and treats duplicate same-class activate/deactivate requests as calm bounded no-op control actions.
 - `/teach/class/<id>` now surfaces a tighter remote-compute evidence slice for staff: recent lease sessions, recent events, and a simple cost-risk state alongside the existing control/export path.
 - Repo now ships a narrow Headscale control-plane ops bundle for createMPLS-style deployments: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`.
+- Repo now also ships a Headscale replacement-host rehearsal wrapper (`bash scripts/headscale_restore_rehearsal_evidence.sh --backup ...`) that captures control-plane restore artifacts plus LMS/GPU-side verification placeholders.
 - Helper classroom-quality eval tooling is live (`scripts/run_helper_classroom_eval.sh` + classroom prompt pack in `services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl`).
 - Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts).
 - Teacher syllabus zip import now maps session-prefixed support images into lesson assets.

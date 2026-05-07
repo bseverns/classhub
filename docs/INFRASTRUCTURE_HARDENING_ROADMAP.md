@@ -163,7 +163,8 @@ The architecture is already good. The remaining risk is operator drift around bo
 Current status:
 
 - the repo now ships a narrow Headscale bundle in `ops/headscale/` for bootstrap, Compose/systemd, backup, and restore
-- the next step is proving that bundle with a blank-VPS restore rehearsal and recording the evidence
+- the repo now also ships `scripts/headscale_restore_rehearsal_evidence.sh` so a replacement-host drill can produce one canonical artifact set instead of relying on operator memory
+- the remaining proof step is to run that rehearsal on a real blank VPS and record the resulting evidence
 
 ### Done looks like
 
