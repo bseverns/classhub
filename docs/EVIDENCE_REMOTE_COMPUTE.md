@@ -142,6 +142,38 @@ An operator can now produce a class-scoped snapshot that shows:
 
 That is enough to support a technical talk or evaluator review without exposing provider internals.
 
+## Remote Compute Signal Semantics
+
+The derived signal layer is intentionally small. It is meant to tell an operator whether the remote path is calm enough to ignore, worth watching, or worth intervening on.
+
+| Level | Meaning | Current threshold shape | What the operator should do |
+| --- | --- | --- | --- |
+| `quiet` | No useful trend history yet | No activation history for the class | No intervention needed. Treat this as “not enough evidence yet,” not as a health claim. |
+| `calm` | Evidence is bounded and below current warning thresholds | Activation history exists, but no warning or notice thresholds are crossed | No urgent action. Keep the class on the normal staff workflow and stop the lease when class ends. |
+| `watch` | The remote path is not calm yet, but the repo has not crossed a warning threshold | Notice-only thresholds crossed, currently: degraded transitions `>= 2` or average ready time `>= 30s` | Review the snapshot/export when convenient. If the class is live, remind staff that local/default helper remains available. |
+| `attention` | The path needs operator attention because instability, waste, or provider reachability crossed warning thresholds | Warning thresholds crossed, currently: unused activation rate `>= 50%`, fallback rate `>= 25%` once remote attempts `>= 4`, or provider-unreachable count `> 0` | Check recent sessions/events, verify provider reachability, and decide whether to keep using the remote path. Tell teachers the local/default helper path remains available. |
+| `unavailable` | The signal layer itself cannot judge the path | Helper status/evidence response was not usable enough to classify the path | Verify the helper internal status path first. Do not treat this as proof that the class is blocked. |
+
+### Threshold table
+
+| Signal input | Threshold | Result |
+| --- | --- | --- |
+| Unused activation rate | `>= 50%` with at least one activation | `attention` |
+| Fallback rate | `>= 25%` with at least four remote attempts | `attention` |
+| Provider-unreachable count | `> 0` | `attention` |
+| Degraded transitions | `>= 2` and no warning-level signal already present | `watch` |
+| Average time to ready | `>= 30` seconds and no warning-level signal already present | `watch` |
+| No activation history | `0` activations | `quiet` |
+| Activation history with no thresholds crossed | below all thresholds | `calm` |
+
+### Operator interpretation
+
+- `quiet` means the class has not built enough trend history yet.
+- `calm` means the remote path has recent evidence and has stayed inside the current bounds.
+- `watch` means the remote path is not calm, but the system is still behaving within notice-level degradation.
+- `attention` means an operator should look at the path before trusting it for more class time.
+- `unavailable` means the signal channel failed; it does not mean the classroom failed.
+
 ## What this makes more defensible
 
 The repo can now support these claims with durable artifacts:

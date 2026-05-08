@@ -44,6 +44,7 @@ Operator shortcut:
 | `render_telemetry_slo_summary.py` | Renders the telemetry Slice 7 SLO summary from explicit baseline/observed metric inputs and can enforce complete/pass-only closeout. |
 | `stability_release_evidence.sh` | Captures Day 0-30 stability evidence pack artifacts (guardrails, smoke, a11y, restore, kiosk, release lint + scorecard + evidence index), with optional skip flags for non-docker environments. |
 | `stability_phase1_closeout.sh` | Runs one full closeout cycle for stability Phase 1 + telemetry Slice 7, enforces the runtime lock `release` profile, validates required artifacts, and writes cycle summary output. |
+| `init_operator_onboarding_drill.py` | Creates a dated operator-onboarding drill evidence pack with a prefilled markdown log, stub files for expected outputs, and an optional guarded append into `docs/TURNOVER_DRILL_LOG.md`. |
 | `remote_compute_operator_watch.py` | Captures remote-compute operator evidence from `classhub_web` and optionally posts webhook alerts when derived trend signals need attention. |
 | `ops_readiness_check.sh` | Fast operator readiness gate (runtime lock profile + CSP rollout contract + teach-class contracts + policy-mode guard + docs/inventory/backlog truth checks + posture snapshot). |
 | `security_posture_snapshot.py` | Renders a compact operator-facing snapshot of active security posture, transitional items, and critical flags from an env file. |

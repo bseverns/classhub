@@ -1,0 +1,54 @@
+<p class="muted mini">
+  State: <strong>{{ helper_remote_compute.state }}</strong>.
+  {% if helper_remote_compute.state == "ready" and helper_remote_compute.active_for_class %}
+    Remote helper compute is ready for this class and helper traffic may use it.
+  {% elif helper_remote_compute.state == "starting" or helper_remote_compute.state == "requested" %}
+    Remote helper compute is not ready yet. Helper stays on local/default mode until readiness checks pass.
+  {% elif helper_remote_compute.state == "degraded" %}
+    Remote helper compute is degraded. Helper is staying on local/default mode.
+  {% elif helper_remote_compute.state == "stopping" %}
+    Remote helper compute is shutting down. Helper is returning to local/default mode.
+  {% elif helper_remote_compute.active and not helper_remote_compute.active_for_class %}
+    Remote helper compute is currently leased by another class.
+  {% else %}
+    Local/default helper compute remains the baseline path.
+  {% endif %}
+</p>
+<p class="muted mini">
+  Classroom impact:
+  {% if helper_remote_compute.state == "ready" and helper_remote_compute.active_for_class %}
+    Students are not blocked. This class may use the remote helper path.
+  {% elif helper_remote_compute.state == "starting" or helper_remote_compute.state == "requested" %}
+    Students are not blocked. Local/default helper remains available while the remote path warms.
+  {% elif helper_remote_compute.state == "degraded" or helper_remote_compute.state == "error" %}
+    Students are not blocked. Local/default helper remains available while this path needs operator attention.
+  {% elif helper_remote_compute.state == "stopping" %}
+    Students are not blocked. Local/default helper remains available while the remote path shuts down.
+  {% elif helper_remote_compute.active and not helper_remote_compute.active_for_class %}
+    Another class currently holds the remote lease. This class stays on local/default helper.
+  {% else %}
+    Students are on the local/default helper path.
+  {% endif %}
+</p>
+<p class="muted mini">
+  What to do now:
+  {% if helper_remote_compute.state == "ready" and helper_remote_compute.active_for_class %}
+    Use the class normally and stop the remote path when the session ends.
+  {% elif helper_remote_compute.state == "starting" or helper_remote_compute.state == "requested" %}
+    Wait for readiness if you still want remote compute. No student action is needed.
+  {% elif helper_remote_compute.state == "degraded" or helper_remote_compute.state == "error" %}
+    Continue on local/default helper and ask an operator to review the remote path.
+  {% elif helper_remote_compute.state == "stopping" %}
+    Let the remote path finish shutting down. No student action is needed.
+  {% elif helper_remote_compute.active and not helper_remote_compute.active_for_class %}
+    Wait for the other class lease to end or stay on local/default helper.
+  {% else %}
+    Leave remote compute off unless you have a live class reason to request it.
+  {% endif %}
+  {% if helper_remote_compute.expires_at %}
+    Lease ends: <strong>{{ helper_remote_compute.expires_at }}</strong>.
+  {% endif %}
+  {% if helper_remote_compute.remaining_minutes %}
+    Remaining window: <strong>{{ helper_remote_compute.remaining_minutes }} minute(s)</strong>.
+  {% endif %}
+</p>

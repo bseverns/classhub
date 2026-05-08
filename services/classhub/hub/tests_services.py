@@ -795,6 +795,28 @@ class TeacherRosterClassServiceTests(SimpleTestCase):
 
 
 class RemoteComputeSignalServiceTests(SimpleTestCase):
+    def test_build_remote_compute_signal_summary_returns_unavailable_when_status_is_not_ok(self):
+        summary = build_remote_compute_signal_summary(
+            status_result=HelperRemoteComputeStatusResult(ok=False, error_code="helper_unreachable"),
+            evidence_result=HelperRemoteComputeEvidenceResult(ok=False),
+        )
+        self.assertEqual(summary["level"], "unavailable")
+        self.assertEqual(summary["remote_attempt_count"], 0)
+        self.assertIn("Local/default helper remains available", summary["detail"])
+
+    def test_build_remote_compute_signal_summary_returns_quiet_without_activation_history(self):
+        summary = build_remote_compute_signal_summary(
+            status_result=HelperRemoteComputeStatusResult(
+                ok=True,
+                activation_count=0,
+                remote_route_count=0,
+                fallback_local_count=0,
+            ),
+            evidence_result=HelperRemoteComputeEvidenceResult(ok=True),
+        )
+        self.assertEqual(summary["level"], "quiet")
+        self.assertEqual(summary["alerts"], [])
+
     def test_build_remote_compute_signal_summary_returns_calm_when_metrics_are_bounded(self):
         summary = build_remote_compute_signal_summary(
             status_result=HelperRemoteComputeStatusResult(
@@ -814,6 +836,77 @@ class RemoteComputeSignalServiceTests(SimpleTestCase):
         self.assertEqual(summary["unused_activation_rate_pct"], 0)
         self.assertEqual(summary["alerts"], [])
 
+    def test_build_remote_compute_signal_summary_returns_watch_at_degraded_threshold(self):
+        summary = build_remote_compute_signal_summary(
+            status_result=HelperRemoteComputeStatusResult(
+                ok=True,
+                activation_count=2,
+                avg_ready_seconds=18,
+                remote_route_count=2,
+                fallback_local_count=0,
+                degraded_transition_count=2,
+                provider_unreachable_count=0,
+                unused_activation_count=0,
+            ),
+            evidence_result=HelperRemoteComputeEvidenceResult(ok=True),
+        )
+        self.assertEqual(summary["level"], "watch")
+        self.assertEqual(summary["summary"], "Remote path is not calm")
+        self.assertEqual(len(summary["alerts"]), 1)
+        self.assertEqual(summary["alerts"][0]["summary"], "Remote path has repeated degraded transitions")
+
+    def test_build_remote_compute_signal_summary_returns_watch_at_slow_ready_threshold(self):
+        summary = build_remote_compute_signal_summary(
+            status_result=HelperRemoteComputeStatusResult(
+                ok=True,
+                activation_count=1,
+                avg_ready_seconds=30,
+                remote_route_count=1,
+                fallback_local_count=0,
+                degraded_transition_count=0,
+                provider_unreachable_count=0,
+                unused_activation_count=0,
+            ),
+            evidence_result=HelperRemoteComputeEvidenceResult(ok=True),
+        )
+        self.assertEqual(summary["level"], "watch")
+        self.assertEqual(summary["alerts"][0]["summary"], "Warm-up is slow for class use")
+
+    def test_build_remote_compute_signal_summary_returns_attention_at_fallback_threshold(self):
+        summary = build_remote_compute_signal_summary(
+            status_result=HelperRemoteComputeStatusResult(
+                ok=True,
+                activation_count=2,
+                avg_ready_seconds=18,
+                remote_route_count=3,
+                fallback_local_count=1,
+                degraded_transition_count=0,
+                provider_unreachable_count=0,
+                unused_activation_count=0,
+            ),
+            evidence_result=HelperRemoteComputeEvidenceResult(ok=True),
+        )
+        self.assertEqual(summary["level"], "attention")
+        self.assertEqual(summary["fallback_rate_pct"], 25)
+        self.assertEqual(summary["summary"], "Needs operator attention")
+
+    def test_build_remote_compute_signal_summary_returns_attention_at_unused_activation_threshold(self):
+        summary = build_remote_compute_signal_summary(
+            status_result=HelperRemoteComputeStatusResult(
+                ok=True,
+                activation_count=2,
+                avg_ready_seconds=18,
+                remote_route_count=1,
+                fallback_local_count=0,
+                degraded_transition_count=0,
+                provider_unreachable_count=0,
+                unused_activation_count=1,
+            ),
+            evidence_result=HelperRemoteComputeEvidenceResult(ok=True),
+        )
+        self.assertEqual(summary["level"], "attention")
+        self.assertEqual(summary["unused_activation_rate_pct"], 50)
+
     def test_build_remote_compute_signal_summary_returns_attention_for_waste_and_instability(self):
         summary = build_remote_compute_signal_summary(
             status_result=HelperRemoteComputeStatusResult(
@@ -829,6 +922,7 @@ class RemoteComputeSignalServiceTests(SimpleTestCase):
             evidence_result=HelperRemoteComputeEvidenceResult(ok=True),
         )
         self.assertEqual(summary["level"], "attention")
+        self.assertEqual(summary["summary"], "Needs operator attention")
         self.assertEqual(summary["fallback_rate_pct"], 33)
         self.assertEqual(summary["unused_activation_rate_pct"], 50)
         self.assertGreaterEqual(len(summary["alerts"]), 3)

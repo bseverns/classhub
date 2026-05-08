@@ -1,195 +1,23 @@
-        <div class="card">
-          <details class="section-toggle" id="section-helper-signals">
-            <summary>
-              <span class="section-title">Helper Signals</span>
-              <span class="section-subtitle">Class helper usage insights from the last {{ helper_signals.window_hours }} hours</span>
-            </summary>
-            <div class="section-body">
-              <div class="signal-kpis">
-                <div class="signal-kpi"><strong>{{ helper_signals.total_events }}</strong> helper chats</div>
-                <div class="signal-kpi"><strong>{{ helper_signals.compacted_events }}</strong> compacted conversations</div>
-                <div class="signal-kpi">Avg follow-up suggestions <strong>{{ helper_signals.avg_follow_up_suggestions }}</strong></div>
-              </div>
-              {% if can_manage_helper_remote_compute %}
-                <div class="signal-panel">
-                  <strong>Remote helper compute</strong>
-                  <p class="muted mini">For live partner-site or on-site class windows only. This path is cost-aware, off by default, and never exposed to student browsers.</p>
-                  {% if helper_remote_compute.ok %}
-                    <p class="muted mini">
-                      State: <strong>{{ helper_remote_compute.state }}</strong>.
-                      {% if helper_remote_compute.state == "ready" and helper_remote_compute.active_for_class %}
-                        Remote helper compute is ready for this class and helper traffic may use it.
-                      {% elif helper_remote_compute.state == "starting" or helper_remote_compute.state == "requested" %}
-                        Remote helper compute is not ready yet. Helper stays on local/default mode until readiness checks pass.
-                      {% elif helper_remote_compute.state == "degraded" %}
-                        Remote helper compute is degraded. Helper is staying on local/default mode.
-                      {% elif helper_remote_compute.state == "stopping" %}
-                        Remote helper compute is shutting down. Helper is returning to local/default mode.
-                      {% elif helper_remote_compute.active and not helper_remote_compute.active_for_class %}
-                        Remote helper compute is currently leased by another class.
-                      {% else %}
-                        Local/default helper compute remains the baseline path.
-                      {% endif %}
-                    </p>
-                    <ul class="signal-list">
-                      <li>Feature enabled: <strong>{% if helper_remote_compute.feature_enabled %}Yes{% else %}No{% endif %}</strong></li>
-                      <li>Paid remote usage acknowledged: <strong>{% if helper_remote_compute.paid_usage_acknowledged %}Yes{% else %}No{% endif %}</strong></li>
-                      <li>Remote backend configured: <strong>{% if helper_remote_compute.backend_configured %}Yes{% else %}No{% endif %}</strong></li>
-                      <li>Control path configured: <strong>{% if helper_remote_compute.control_url_configured %}Yes{% else %}No{% endif %}</strong></li>
-                      <li>Healthcheck configured: <strong>{% if helper_remote_compute.healthcheck_url_configured %}Yes{% else %}No{% endif %}</strong></li>
-                      <li>Helper will use remote backend: <strong>{% if helper_remote_compute.use_remote_backend %}Yes{% else %}No{% endif %}</strong></li>
-                      <li>Provider label: <strong>{{ helper_remote_compute.provider_label|default:"operator_webhook" }}</strong></li>
-                      <li>Recorded activations: <strong>{{ helper_remote_compute.activation_count }}</strong></li>
-                      <li>Requested lease minutes total: <strong>{{ helper_remote_compute.requested_duration_minutes_total }}</strong></li>
-                      <li>Approximate leased minutes consumed: <strong>{{ helper_remote_compute.leased_minutes_total }}</strong></li>
-                      <li>Average time to ready: <strong>{{ helper_remote_compute.avg_ready_seconds }} second(s)</strong></li>
-                      <li>Time spent starting: <strong>{{ helper_remote_compute.starting_seconds_total }} second(s)</strong></li>
-                      <li>Time spent ready: <strong>{{ helper_remote_compute.ready_seconds_total }} second(s)</strong></li>
-                      <li>Time spent degraded: <strong>{{ helper_remote_compute.degraded_seconds_total }} second(s)</strong></li>
-                      <li>Remote-routed helper chats: <strong>{{ helper_remote_compute.remote_route_count }}</strong></li>
-                      <li>Remote fallbacks to local/default: <strong>{{ helper_remote_compute.fallback_local_count }}</strong></li>
-                      <li>Degraded transitions: <strong>{{ helper_remote_compute.degraded_transition_count }}</strong></li>
-                      <li>Provider unreachable events: <strong>{{ helper_remote_compute.provider_unreachable_count }}</strong></li>
-                      <li>Activations never used remotely: <strong>{{ helper_remote_compute.unused_activation_count }}</strong></li>
-                      <li>Manual stops: <strong>{{ helper_remote_compute.manual_stop_count_total }}</strong></li>
-                      <li>Auto-stops: <strong>{{ helper_remote_compute.auto_stop_count_total }}</strong></li>
-                      {% if helper_remote_compute.approximate_cost_usd_total %}<li>Approximate leased cost: <strong>${{ helper_remote_compute.approximate_cost_usd_total }}</strong></li>{% endif %}
-                      {% if helper_remote_compute.requested_by %}<li>Requested by: <strong>{{ helper_remote_compute.requested_by }}</strong></li>{% endif %}
-                      {% if helper_remote_compute.last_activation_at %}<li>Last activation: <strong>{{ helper_remote_compute.last_activation_at }}</strong></li>{% endif %}
-                      {% if helper_remote_compute.last_ready_at %}<li>Last ready: <strong>{{ helper_remote_compute.last_ready_at }}</strong></li>{% endif %}
-                      {% if helper_remote_compute.last_fallback_at %}<li>Last fallback: <strong>{{ helper_remote_compute.last_fallback_at }}</strong></li>{% endif %}
-                      {% if helper_remote_compute.expires_at %}<li>Lease ends: <strong>{{ helper_remote_compute.expires_at }}</strong></li>{% endif %}
-                      {% if helper_remote_compute.remaining_minutes %}<li>Remaining window: <strong>{{ helper_remote_compute.remaining_minutes }} minute(s)</strong></li>{% endif %}
-                      {% if helper_remote_compute.auto_stop_on_idle %}<li>Idle auto-stop: <strong>{{ helper_remote_compute.idle_timeout_seconds }} second(s)</strong></li>{% endif %}
-                      {% if helper_remote_compute.last_readiness_reason_code %}<li>Last readiness block: <strong>{{ helper_remote_compute.last_readiness_reason_code }}</strong></li>{% endif %}
-                      {% if helper_remote_compute.status_detail %}<li>Status detail: <strong>{{ helper_remote_compute.status_detail }}</strong></li>{% endif %}
-                      {% if helper_remote_compute.last_error_code %}<li>Last error: <strong>{{ helper_remote_compute.last_error_code }}</strong></li>{% endif %}
-                    </ul>
-                  {% else %}
-                    <p class="muted mini">
-                      Remote helper compute status unavailable{% if helper_remote_compute.error_code %} ({{ helper_remote_compute.error_code }}){% endif %}.
-                    </p>
-                  {% endif %}
-                  <p class="muted mini">Staff-only, server-side, and bounded. Browser traffic still goes to the public LMS, and Homework Helper only uses the remote backend when the state is <strong>ready</strong>.</p>
-                  {% if helper_remote_compute_cost_risk %}
-                    <p class="muted mini">
-                      Cost risk state: <strong>{{ helper_remote_compute_cost_risk.summary }}</strong>.
-                      {{ helper_remote_compute_cost_risk.detail }}
-                    </p>
-                  {% endif %}
-                  {% if helper_remote_compute_signal_summary %}
-                    <p class="muted mini">
-                      Trend state: <strong>{{ helper_remote_compute_signal_summary.summary }}</strong>.
-                      {{ helper_remote_compute_signal_summary.detail }}
-                    </p>
-                    {% if helper_remote_compute_signal_summary.remote_attempt_count %}
-                      <p class="muted mini">
-                        Remote attempts tracked: <strong>{{ helper_remote_compute_signal_summary.remote_attempt_count }}</strong>.
-                        Fallback rate: <strong>{{ helper_remote_compute_signal_summary.fallback_rate_pct }}%</strong>.
-                        Unused activation rate: <strong>{{ helper_remote_compute_signal_summary.unused_activation_rate_pct }}%</strong>.
-                      </p>
-                    {% endif %}
-                    {% if helper_remote_compute_signal_summary.alerts %}
-                      <ul class="signal-list">
-                        {% for alert in helper_remote_compute_signal_summary.alerts %}
-                          <li><strong>{{ alert.summary }}</strong> · {{ alert.detail }}</li>
-                        {% endfor %}
-                      </ul>
-                    {% endif %}
-                  {% endif %}
-                  <p class="muted mini">
-                    Export remote helper snapshot:
-                    <a href="/teach/class/{{ classroom.id }}/export-helper-remote-snapshot?format=json">JSON</a>
-                    ·
-                    <a href="/teach/class/{{ classroom.id }}/export-helper-remote-snapshot?format=csv">CSV</a>
-                  </p>
-                  <div class="btnline btnline--compact">
-                    <form method="post" action="/teach/class/{{ classroom.id }}/remote-helper-compute" class="helper-grid">
-                      {% csrf_token %}
-                      <input type="hidden" name="action" value="activate" />
-                      <label class="mini" for="remote-compute-duration-{{ classroom.id }}">Activation window</label>
-                      <select id="remote-compute-duration-{{ classroom.id }}" name="duration_minutes">
-                        {% for minutes in helper_remote_compute_duration_choices %}
-                          <option value="{{ minutes }}"{% if minutes == 90 %} selected{% endif %}>{{ minutes }} min</option>
-                        {% endfor %}
-                      </select>
-                      <button type="submit">Request remote helper compute</button>
-                    </form>
-                    <form method="post" action="/teach/class/{{ classroom.id }}/remote-helper-compute">
-                      {% csrf_token %}
-                      <input type="hidden" name="action" value="deactivate" />
-                      <input type="hidden" name="stop_reason" value="manual_stop" />
-                      <button type="submit">Stop remote helper compute</button>
-                    </form>
-                  </div>
-                  {% if helper_remote_compute_evidence.ok %}
-                    <div class="signal-grid">
-                      <div class="signal-panel">
-                        <strong>Recent remote-compute sessions</strong>
-                        {% if helper_remote_compute_evidence.recent_sessions %}
-                          <ul class="signal-list">
-                            {% for session in helper_remote_compute_evidence.recent_sessions|slice:":3" %}
-                              <li>
-                                <strong>{{ session.current_state|default:"off" }}</strong>
-                                · leased {{ session.leased_minutes|default:0 }} min
-                                · remote chats {{ session.remote_route_count|default:0 }}
-                                {% if session.fallback_local_count %} · fallbacks {{ session.fallback_local_count }}{% endif %}
-                              </li>
-                            {% endfor %}
-                          </ul>
-                        {% else %}
-                          <p class="muted mini section-empty-note">No recent remote-compute lease sessions recorded for this class.</p>
-                        {% endif %}
-                      </div>
-                      <div class="signal-panel">
-                        <strong>Recent remote-compute events</strong>
-                        {% if helper_remote_compute_evidence.recent_events %}
-                          <ul class="signal-list">
-                            {% for event in helper_remote_compute_evidence.recent_events|slice:":5" %}
-                              <li>
-                                <strong>{{ event.event_type }}</strong>
-                                {% if event.reason_code %} · {{ event.reason_code }}{% endif %}
-                                {% if event.to_state %} · {{ event.to_state }}{% endif %}
-                              </li>
-                            {% endfor %}
-                          </ul>
-                        {% else %}
-                          <p class="muted mini section-empty-note">No recent remote-compute events recorded for this class.</p>
-                        {% endif %}
-                      </div>
-                    </div>
-                  {% elif helper_remote_compute.ok %}
-                    <p class="muted mini section-empty-note">
-                      Remote-compute evidence detail is unavailable{% if helper_remote_compute_evidence.error_code %} ({{ helper_remote_compute_evidence.error_code }}){% endif %}.
-                    </p>
-                  {% endif %}
-                </div>
-              {% endif %}
-              {% if helper_signals.total_events %}
-                <div class="signal-grid">
-                  <div class="signal-panel">
-                    <strong>Intent mix</strong>
-                    <ul class="signal-list">
-                      {% for row in helper_signals.intent_rows %}
-                        <li><span class="pill">{{ row.intent }}</span> {{ row.count }}</li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                  <div class="signal-panel">
-                    <strong>Busiest students</strong>
-                    <ul class="signal-list">
-                      {% for row in helper_signals.busiest_students %}
-                        <li>
-                          <strong>{{ row.display_name }}</strong> · {{ row.chat_count }} chats
-                          {% if row.primary_intent %} · {{ row.primary_intent }}{% endif %}
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                </div>
-              {% else %}
-                <p class="muted mini section-empty-note">No helper activity in this window yet.</p>
-              {% endif %}
-            </div>
-          </details>
-        </div>
+<div class="card">
+  <details class="section-toggle" id="section-helper-signals">
+    <summary>
+      <span class="section-title">Helper Signals</span>
+      <span class="section-subtitle">Class helper usage insights from the last {{ helper_signals.window_hours }} hours</span>
+    </summary>
+    <div class="section-body">
+      <div class="signal-kpis">
+        <div class="signal-kpi"><strong>{{ helper_signals.total_events }}</strong> helper chats</div>
+        <div class="signal-kpi"><strong>{{ helper_signals.compacted_events }}</strong> compacted conversations</div>
+        <div class="signal-kpi">Avg follow-up suggestions <strong>{{ helper_signals.avg_follow_up_suggestions }}</strong></div>
+      </div>
+      {% if can_manage_helper_remote_compute %}
+        {% include "includes/teach_class/helper_signals/remote_compute_panel.html" %}
+      {% endif %}
+      {% if helper_signals.total_events %}
+        {% include "includes/teach_class/helper_signals/activity_grid.html" %}
+      {% else %}
+        <p class="muted mini section-empty-note">No helper activity in this window yet.</p>
+      {% endif %}
+    </div>
+  </details>
+</div>

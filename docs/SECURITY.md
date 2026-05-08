@@ -265,6 +265,7 @@ Current posture:
 - Strict CSP is the intended end state.
 - Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
 - Treat `relaxed` as fallback behavior, not as a production posture recommendation.
+- The explicit movement plan from `report-only` to `strict` lives in [CSP_STRICT_MIGRATION_PLAN.md](CSP_STRICT_MIGRATION_PLAN.md).
 
 Rollout strategy:
 

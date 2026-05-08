@@ -4006,3 +4006,35 @@ Execution ownership and gates:
 - Closes the “broader trend/alerting signals” gap in a bounded way without pretending the repo ships a full observability platform.
 - Preserves the internal-only helper topology and avoids turning alerting into a reason to publish sensitive control endpoints.
 - Produces durable unattended evidence artifacts even when no human is logged into `/teach/data-lifespan`.
+
+## Remote-compute signal thresholds + operator drill + calm teacher copy (2026-05-08)
+
+**Current decision:**
+- Treat the derived remote-compute signal levels as a small explicit contract, not as ad hoc UI wording:
+  - `quiet`
+  - `calm`
+  - `watch`
+  - `attention`
+  - `unavailable`
+- Keep the current thresholds bounded and test them directly in `hub.tests_services` rather than relying on prose alone.
+- Change the warning-level teacher/admin summary text from `Needs attention` to `Needs operator attention`, and explicitly state that local/default helper remains available while the remote path is reviewed.
+- Split the `/teach/class` helper-signals card into smaller nested partials so the class dashboard keeps its section-budget discipline while still carrying the richer remote-compute evidence.
+- Add a first-pass [OPERATOR_ONBOARDING_DRILL.md](OPERATOR_ONBOARDING_DRILL.md) so a new operator can prove:
+  - system doctor,
+  - smoke,
+  - remote-compute snapshot export,
+  - retention evidence,
+  - token-rotation lookup,
+  - degraded-helper triage,
+  without needing the original maintainer in the room.
+- Add `python3 scripts/init_operator_onboarding_drill.py` so the drill creates a dated evidence pack by command instead of relying on the operator to assemble directories and markdown by hand, and allow a guarded `--append-turnover-log` mode for updating [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md) without retyping the dated row.
+- Add [CSP_STRICT_MIGRATION_PLAN.md](CSP_STRICT_MIGRATION_PLAN.md) to separate:
+  - repo-shipped env posture,
+  - Django fallback posture,
+  - recommended current production posture,
+  - strict end state.
+
+**Why this remains active:**
+- Makes remote-compute signal claims and operator actions testable, not just descriptive.
+- Keeps the teacher-facing `/teach/class` surface calmer by answering state, impact, and next action before exposing lower-level counters.
+- Reduces staff-turnover risk by turning common operator knowledge into a repeatable drill and a named CSP migration map.

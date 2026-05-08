@@ -8,7 +8,10 @@ def build_remote_compute_signal_summary(*, status_result, evidence_result) -> di
         return {
             "level": "unavailable",
             "summary": "Trend signals unavailable",
-            "detail": "The helper status path did not return enough evidence to judge remote-compute health for this class.",
+            "detail": (
+                "The helper status path did not return enough evidence to judge remote-compute health for this class."
+                " Local/default helper remains available while operators verify the status path."
+            ),
             "remote_attempt_count": 0,
             "fallback_rate_pct": 0,
             "unused_activation_rate_pct": 0,
@@ -81,8 +84,11 @@ def build_remote_compute_signal_summary(*, status_result, evidence_result) -> di
 
     if alerts:
         level = "attention" if any(alert["level"] == "warning" for alert in alerts) else "watch"
-        summary = "Needs attention" if level == "attention" else "Watch this path"
-        detail = "Recent remote-compute evidence shows instability, waste, or slow readiness."
+        summary = "Needs operator attention" if level == "attention" else "Remote path is not calm"
+        detail = (
+            "Recent remote-compute evidence shows instability, waste, or slow readiness."
+            " Local/default helper remains available while this path is reviewed."
+        )
     elif activation_count > 0:
         level = "calm"
         summary = "Trend signals are calm"

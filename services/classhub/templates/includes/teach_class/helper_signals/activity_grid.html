@@ -1,0 +1,21 @@
+<div class="signal-grid">
+  <div class="signal-panel">
+    <strong>Intent mix</strong>
+    <ul class="signal-list">
+      {% for row in helper_signals.intent_rows %}
+        <li><span class="pill">{{ row.intent }}</span> {{ row.count }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="signal-panel">
+    <strong>Busiest students</strong>
+    <ul class="signal-list">
+      {% for row in helper_signals.busiest_students %}
+        <li>
+          <strong>{{ row.display_name }}</strong> · {{ row.chat_count }} chats
+          {% if row.primary_intent %} · {{ row.primary_intent }}{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

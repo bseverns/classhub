@@ -121,6 +121,7 @@ This register names the five highest long-term maintenance risks visible in the 
   - standardize a turnover packet and recurring rituals
   - keep policy choices in docs, not in chat history or memory
   - make every critical ritual runnable by command, then documented in plain language
+  - require a new operator to complete [OPERATOR_ONBOARDING_DRILL.md](OPERATOR_ONBOARDING_DRILL.md) and keep the resulting evidence log
   - explicitly separate what must be automated from what must stay manual and reviewed
 - Owner role: Executive Director + Ops Director + Maintainer
 - Cadence: Quarterly

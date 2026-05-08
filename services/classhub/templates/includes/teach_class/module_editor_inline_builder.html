@@ -1,0 +1,46 @@
+<details class="module-inline-builder">
+  <summary>Add to this session now</summary>
+  <div class="module-inline-builder-grid">
+    <form method="post" action="/teach/module/{{ m.id }}/add-material" class="module-inline-builder-form">
+      {% csrf_token %}
+      <input type="hidden" name="type" value="text" />
+      <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
+      <label for="module-{{ m.id }}-note-title">Quick note title</label>
+      <input id="module-{{ m.id }}-note-title" name="title" value="Today at a glance" />
+      <label for="module-{{ m.id }}-note-body">Note</label>
+      <textarea id="module-{{ m.id }}-note-body" name="body" placeholder="Add instructions, pivots, or student-interest follow-ups."></textarea>
+      <button type="submit">Add note</button>
+    </form>
+    <form method="post" action="/teach/module/{{ m.id }}/add-material" class="module-inline-builder-form">
+      {% csrf_token %}
+      <input type="hidden" name="type" value="link" />
+      <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
+      <label for="module-{{ m.id }}-link-title">Lesson or resource title</label>
+      <input id="module-{{ m.id }}-link-title" name="title" placeholder="e.g., Bonus lesson link" />
+      <label for="module-{{ m.id }}-link-url">URL</label>
+      <input id="module-{{ m.id }}-link-url" name="url" placeholder="https://…" />
+      <button type="submit">Add link</button>
+    </form>
+    <form method="post" action="/teach/module/{{ m.id }}/add-material" class="module-inline-builder-form" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="type" value="link" />
+      <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
+      <label for="module-{{ m.id }}-image-title">Image title</label>
+      <input id="module-{{ m.id }}-image-title" name="title" placeholder="e.g., Reference image" />
+      <label for="module-{{ m.id }}-image-file">Image file</label>
+      <input id="module-{{ m.id }}-image-file" name="asset_file" type="file" accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp" />
+      <button type="submit">Add image</button>
+    </form>
+    <form method="post" action="/teach/module/{{ m.id }}/add-material" class="module-inline-builder-form">
+      {% csrf_token %}
+      <input type="hidden" name="type" value="upload" />
+      <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
+      <input type="hidden" name="accepted_extensions" value=".sb3" />
+      <input type="hidden" name="max_upload_mb" value="50" />
+      <label for="module-{{ m.id }}-upload-title">Dropbox title</label>
+      <input id="module-{{ m.id }}-upload-title" name="title" value="Upload your project file" />
+      <div class="muted mini">Uses the default Scratch upload policy so you can add a dropbox mid-class in one click.</div>
+      <button type="submit">Add dropbox</button>
+    </form>
+  </div>
+</details>

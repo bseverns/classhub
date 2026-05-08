@@ -4,6 +4,7 @@ This is the operator playbook for running the stack safely in production.
 
 If you are new, start with [START_HERE.md](START_HERE.md) and [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md) first.
 If you need the exact operator skill floor first, read [MINIMUM_VIABLE_OPERATOR.md](MINIMUM_VIABLE_OPERATOR.md).
+If you are onboarding a new operator, run [OPERATOR_ONBOARDING_DRILL.md](OPERATOR_ONBOARDING_DRILL.md) instead of relying on oral walkthroughs.
 If docs seem to overlap, resolve policy-source questions with [CANONICAL_TRUTHS.md](CANONICAL_TRUTHS.md).
 
 ```mermaid

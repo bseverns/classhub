@@ -1,0 +1,35 @@
+<div class="signal-grid">
+  <div class="signal-panel">
+    <strong>Recent remote-compute sessions</strong>
+    {% if helper_remote_compute_evidence.recent_sessions %}
+      <ul class="signal-list">
+        {% for session in helper_remote_compute_evidence.recent_sessions|slice:":3" %}
+          <li>
+            <strong>{{ session.current_state|default:"off" }}</strong>
+            · leased {{ session.leased_minutes|default:0 }} min
+            · remote chats {{ session.remote_route_count|default:0 }}
+            {% if session.fallback_local_count %} · fallbacks {{ session.fallback_local_count }}{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted mini section-empty-note">No recent remote-compute lease sessions recorded for this class.</p>
+    {% endif %}
+  </div>
+  <div class="signal-panel">
+    <strong>Recent remote-compute events</strong>
+    {% if helper_remote_compute_evidence.recent_events %}
+      <ul class="signal-list">
+        {% for event in helper_remote_compute_evidence.recent_events|slice:":5" %}
+          <li>
+            <strong>{{ event.event_type }}</strong>
+            {% if event.reason_code %} · {{ event.reason_code }}{% endif %}
+            {% if event.to_state %} · {{ event.to_state }}{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted mini section-empty-note">No recent remote-compute events recorded for this class.</p>
+    {% endif %}
+  </div>
+</div>
