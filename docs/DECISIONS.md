@@ -218,6 +218,18 @@ Historical implementation logs and superseded decisions are archived by month in
 
 ## Bounded remote helper compute lease control (2026-04-08)
 
+## Django upload header bypass patch level (2026-05-13)
+
+**Current decision:**
+- Pin ClassHub to `Django==5.2.14` or newer patch releases on the `5.2.x` line.
+- Do not treat `FILE_UPLOAD_MAX_MEMORY_SIZE` as a sufficient standalone control.
+- Require request body size limits at the web server/edge layer (Caddy or upstream proxy) for defense in depth.
+
+**Why this remains active:**
+- `Django==5.2.13` is in the affected advisory range for ASGI upload requests with missing or understated `Content-Length`.
+- Patch-level upgrade removes the known bypass class in supported branches.
+- Edge request-size limits prevent oversized body abuse even when app-layer checks are bypassed or misconfigured.
+
 **Current decision:**
 - Keep remote helper compute off by default.
 - Add a staff-only, class-scoped activation lease so teachers/admins can enable expensive remote compute for a bounded live-session window.
