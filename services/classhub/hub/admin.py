@@ -1,13 +1,18 @@
 from django.contrib import admin
 from django import forms
 from django.contrib import messages
+from django.http import HttpResponseForbidden
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 
 from .services.audit import log_audit_event
-from .services.coursepack_import import CoursepackImportError, import_coursepack_zip
+from .services.coursepack_import import (
+    CoursepackImportError,
+    import_content_upload_to_class,
+    import_coursepack_zip,
+)
 from .models import (
     AuditEvent,
     CertificateIssuance,
@@ -38,8 +43,20 @@ from .models import (
 
 class CoursepackZipImportForm(forms.Form):
     coursepack_zip = forms.FileField(
-        label="Coursepack ZIP",
-        help_text="Upload a repo-style coursepack ZIP containing one course.yaml.",
+        label="Content import file",
+        help_text="Upload a repo-style coursepack ZIP, or a .md/.docx/.zip source file that can be compiled into one.",
+    )
+    course_slug = forms.CharField(
+        label="Course slug override",
+        required=False,
+        max_length=120,
+        help_text="Optional for .md/.docx/source ZIP imports. Coursepack ZIPs use course.yaml.",
+    )
+    course_title = forms.CharField(
+        label="Course title override",
+        required=False,
+        max_length=200,
+        help_text="Optional for .md/.docx/source ZIP imports.",
     )
     class_code = forms.CharField(
         label="Existing class code",
@@ -73,6 +90,18 @@ class CoursepackZipImportForm(forms.Form):
         required=False,
         help_text="Required when CONTENT_ROOT already contains this course slug.",
     )
+    default_ui_level = forms.ChoiceField(
+        label="Default UI level",
+        required=False,
+        choices=(("secondary", "secondary"), ("elementary", "elementary"), ("advanced", "advanced")),
+        initial="secondary",
+    )
+    session_parse_mode = forms.ChoiceField(
+        label="Session parser mode",
+        required=False,
+        choices=(("auto", "auto"), ("template", "template"), ("verbose", "verbose")),
+        initial="auto",
+    )
 
     def clean(self):
         cleaned = super().clean()
@@ -81,8 +110,10 @@ class CoursepackZipImportForm(forms.Form):
         if class_code and class_name:
             raise forms.ValidationError("Use class code or class name, not both.")
         upload = cleaned.get("coursepack_zip")
-        if upload and not str(getattr(upload, "name", "") or "").lower().endswith(".zip"):
-            raise forms.ValidationError("Upload a .zip coursepack.")
+        if upload:
+            source_name = str(getattr(upload, "name", "") or "").lower()
+            if not source_name.endswith((".zip", ".docx", ".md")):
+                raise forms.ValidationError("Upload a .zip, .docx, or .md source file.")
         return cleaned
 
 @admin.register(Organization)
@@ -250,20 +281,43 @@ class ClassAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def import_coursepack_view(self, request):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden("Superuser access required.")
+
         if request.method == "POST":
             form = CoursepackZipImportForm(request.POST, request.FILES)
             if form.is_valid():
                 try:
-                    result = import_coursepack_zip(
-                        source_upload=form.cleaned_data["coursepack_zip"],
-                        class_code=form.cleaned_data.get("class_code") or "",
-                        class_name=form.cleaned_data.get("class_name") or "",
-                        create_class=bool(form.cleaned_data.get("create_class")),
-                        replace=bool(form.cleaned_data.get("replace")),
-                        overwrite_content=bool(form.cleaned_data.get("overwrite_content")),
-                        organization=form.cleaned_data.get("organization"),
-                    )
+                    source_upload = form.cleaned_data["coursepack_zip"]
+                    class_code = form.cleaned_data.get("class_code") or ""
+                    class_name = form.cleaned_data.get("class_name") or ""
+                    target_classroom = None
+                    target_created = False
+                    if class_code or class_name:
+                        target_classroom, target_created = self._resolve_admin_import_classroom(form)
+                        result = import_content_upload_to_class(
+                            source_upload=source_upload,
+                            classroom=target_classroom,
+                            course_slug=form.cleaned_data.get("course_slug") or "",
+                            course_title=form.cleaned_data.get("course_title") or "",
+                            default_ui_level=form.cleaned_data.get("default_ui_level") or "secondary",
+                            session_parse_mode=form.cleaned_data.get("session_parse_mode") or "auto",
+                            replace=bool(form.cleaned_data.get("replace")),
+                            overwrite_content=bool(form.cleaned_data.get("overwrite_content")),
+                        )
+                    else:
+                        result = import_coursepack_zip(
+                            source_upload=source_upload,
+                            class_code="",
+                            class_name="",
+                            create_class=bool(form.cleaned_data.get("create_class")),
+                            replace=bool(form.cleaned_data.get("replace")),
+                            overwrite_content=bool(form.cleaned_data.get("overwrite_content")),
+                            organization=form.cleaned_data.get("organization"),
+                        )
                 except CoursepackImportError as exc:
+                    if target_classroom is not None and target_created:
+                        target_classroom.delete()
                     form.add_error(None, str(exc))
                 else:
                     log_audit_event(
@@ -283,6 +337,8 @@ class ClassAdmin(admin.ModelAdmin):
                             "created_materials": result.created_materials,
                             "created_assets": result.created_assets,
                             "extracted_files": result.extracted_files,
+                            "source_kind": result.source_kind,
+                            "source_files": list(result.source_files),
                             "replace": bool(form.cleaned_data.get("replace")),
                             "overwrite_content": bool(form.cleaned_data.get("overwrite_content")),
                         },
@@ -303,11 +359,38 @@ class ClassAdmin(admin.ModelAdmin):
         context = {
             **self.admin_site.each_context(request),
             "opts": self.model._meta,
-            "title": "Import coursepack ZIP",
+            "title": "Import course content",
             "form": form,
             "changelist_url": reverse("admin:hub_class_changelist"),
         }
         return TemplateResponse(request, "admin/hub/class/import_coursepack.html", context)
+
+    def _resolve_admin_import_classroom(self, form) -> tuple[Class, bool]:
+        class_code = str(form.cleaned_data.get("class_code") or "").strip().upper()
+        class_name = str(form.cleaned_data.get("class_name") or "").strip()
+        create_class = bool(form.cleaned_data.get("create_class"))
+        organization = form.cleaned_data.get("organization")
+
+        if class_code:
+            classroom = Class.objects.filter(join_code=class_code).first()
+            if not classroom:
+                raise CoursepackImportError("No class found for that code.")
+            created = False
+        elif class_name:
+            classroom = Class.objects.filter(name=class_name).first()
+            created = False
+            if not classroom and not create_class:
+                raise CoursepackImportError("No class found for that name. Enable create class to create it.")
+            if not classroom:
+                classroom = Class.objects.create(name=class_name, organization=organization)
+                created = True
+        else:
+            raise CoursepackImportError("Choose an existing class code or class name for this import.")
+
+        if organization and classroom.organization_id is None:
+            classroom.organization = organization
+            classroom.save(update_fields=["organization"])
+        return classroom, created
 
 
 @admin.register(ClassStaffAssignment)

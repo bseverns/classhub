@@ -1,8 +1,10 @@
 {% extends "admin/change_list.html" %}
 
 {% block object-tools-items %}
+  {% if request.user.is_superuser %}
   <li>
-    <a href="{% url 'admin:hub_class_import_coursepack' %}" class="addlink">Import coursepack ZIP</a>
+    <a href="{% url 'admin:hub_class_import_coursepack' %}" class="addlink">Import course content</a>
   </li>
+  {% endif %}
   {{ block.super }}
 {% endblock %}

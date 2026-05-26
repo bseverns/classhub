@@ -4051,19 +4051,20 @@ Execution ownership and gates:
 - Keeps the teacher-facing `/teach/class` surface calmer by answering state, impact, and next action before exposing lower-level counters.
 - Reduces staff-turnover risk by turning common operator knowledge into a repeatable drill and a named CSP migration map.
 
-## Admin coursepack ZIP live import (2026-05-26)
+## Admin live course content import (2026-05-26)
 
 **Current decision:**
-- Add a superuser-only Django admin tool on the Class changelist for importing a repo-style coursepack `.zip`.
+- Add a superuser-only live import path for Class creation and the Django admin Class changelist.
+- Accept reviewed repo-style coursepack `.zip` files directly, and accept `.md`, `.docx`, or source `.zip` files by first compiling them into a live coursepack under `CONTENT_ROOT/courses/<slug>/`.
 - Keep the existing teacher `/teach/import-syllabus-source` flow as a scratch compiler that returns a downloadable ZIP and does not mutate live content.
-- Make the admin import the explicit live-content path: safely extract one `course.yaml` course into `CONTENT_ROOT/courses/<slug>/`, then create modules/materials in the selected or newly-created class.
+- Make superuser import the explicit live-content path: safely write one course into `CONTENT_ROOT/courses/<slug>/`, then create modules/materials in the selected or newly-created class.
 - Reuse the same coursepack-to-class importer for both the admin GUI and `import_coursepack` management command.
-- Emit `admin.coursepack_zip.import` audit events with course slug, target class, extracted file count, and module/material/asset counts.
+- Emit `admin.coursepack_zip.import` and `class.content_import` audit events with course slug, target class, source kind/files, and module/material/asset counts.
 - Keep the ClassHub container root filesystem read-only while mounting `CLASSHUB_CONTENT_ROOT=/content` from `data/classhub_content`.
 - Seed bundled repo coursepacks from the image into the mounted content root at container startup when they are missing, so an empty writable content volume does not hide shipped courses.
 
 **Why this remains active:**
-- Separates low-risk teacher authoring from operator-controlled live curriculum mutation.
+- Separates low-risk teacher authoring from operator-controlled live curriculum mutation; non-superuser staff cannot use the live import fields even when they can create classes.
 - Gives operators a browser path for importing reviewed coursepack artifacts without shell access.
 - Keeps command-line and admin imports aligned so support images, dropboxes, and lesson links behave the same way.
 - Preserves the read-only-root hardening posture by making curriculum mutation explicit and isolated to one mounted data directory.

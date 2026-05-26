@@ -114,8 +114,24 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, 'name="student_landing_title"', html=False)
         self.assertContains(resp, 'name="student_landing_message"', html=False)
         self.assertContains(resp, 'name="first_module_title"', html=False)
+        self.assertContains(resp, 'name="class_content_import"', html=False)
         self.assertContains(resp, 'name="open_after_create"', html=False)
         self.assertContains(resp, "Create class workspace")
+
+    @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=False)
+    def test_non_superuser_teach_home_hides_live_content_import_fields(self):
+        staff_user = get_user_model().objects.create_user(
+            username="non_super_setup",
+            password="pw12345",
+            is_staff=True,
+        )
+        _force_login_staff_verified(self.client, staff_user)
+
+        resp = self.client.get("/teach?portal_mode=setup")
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Create a class workspace")
+        self.assertNotContains(resp, 'name="class_content_import"', html=False)
 
     def test_teach_home_admin_mode_shows_operator_snapshot_and_org_controls(self):
         _force_login_staff_verified(self.client, self.staff)
@@ -346,6 +362,80 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         module = Module.objects.filter(classroom=created).order_by("order_index", "id").first()
         self.assertIsNotNone(module)
         self.assertEqual(module.title, "Session 1 - Warm-up + Build")
+
+    def test_superuser_teach_create_class_can_import_markdown_course_content(self):
+        _force_login_staff_verified(self.client, self.staff)
+        source = b"""# Imported Markdown Studio
+
+Session 01: First Build
+
+Mission: Make a small prototype.
+
+## Checkpoints
+- The prototype opens.
+
+Session 02: Share + Reflect
+
+Mission: Explain the design choice.
+"""
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/create-class",
+                    {
+                        "name": "Imported Markdown Cohort",
+                        "student_landing_title": "Imported kickoff",
+                        "import_course_slug": "imported_markdown_studio",
+                        "import_course_title": "Imported Markdown Studio",
+                        "class_content_import": SimpleUploadedFile(
+                            "studio.md",
+                            source,
+                            content_type="text/markdown",
+                        ),
+                        "open_after_create": "1",
+                    },
+                )
+
+                self.assertEqual(resp.status_code, 302)
+                self.assertTrue((content_root / "courses" / "imported_markdown_studio" / "course.yaml").exists())
+
+        classroom = Class.objects.get(name="Imported Markdown Cohort")
+        self.assertIn(f"/teach/class/{classroom.id}", resp["Location"])
+        self.assertEqual(classroom.modules.count(), 2)
+        self.assertEqual(
+            Material.objects.filter(module__classroom=classroom, title="Open lesson").count(),
+            2,
+        )
+        event = AuditEvent.objects.filter(action="class.content_import", classroom=classroom).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.target_id, "imported_markdown_studio")
+        self.assertEqual(event.metadata["source_kind"], "md")
+
+    @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=False)
+    def test_non_superuser_teach_create_class_cannot_import_live_content(self):
+        staff_user = get_user_model().objects.create_user(
+            username="non_super_create",
+            password="pw12345",
+            is_staff=True,
+        )
+        _force_login_staff_verified(self.client, staff_user)
+
+        resp = self.client.post(
+            "/teach/create-class",
+            {
+                "name": "Blocked Import Cohort",
+                "class_content_import": SimpleUploadedFile(
+                    "studio.md",
+                    b"# Studio\n\nSession 01: Build\n",
+                    content_type="text/markdown",
+                ),
+            },
+        )
+
+        self.assertEqual(resp.status_code, 403)
+        self.assertFalse(Class.objects.filter(name="Blocked Import Cohort").exists())
 
     def test_teach_class_can_create_student_invite_link(self):
         classroom = Class.objects.create(name="Paid Cohort", join_code="INV12345")

@@ -5,7 +5,7 @@
     <a href="{% url 'admin:index' %}">Home</a>
     &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
     &rsaquo; <a href="{{ changelist_url }}">{{ opts.verbose_name_plural|capfirst }}</a>
-    &rsaquo; Import coursepack ZIP
+    &rsaquo; Import course content
   </div>
 {% endblock %}
 
@@ -33,7 +33,7 @@
       </fieldset>
 
       <div class="submit-row">
-        <input type="submit" class="default" value="Import coursepack ZIP">
+        <input type="submit" class="default" value="Import course content">
         <a class="closelink" href="{{ changelist_url }}">Cancel</a>
       </div>
     </form>

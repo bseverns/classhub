@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.test import RequestFactory
 
 from ..admin import (
+    ClassAdmin,
     ClassStaffModuleScopeGrantAdmin,
     OrganizationCustomRoleAdmin,
     OrganizationCustomRoleAssignmentAdmin,
@@ -199,8 +200,22 @@ title: "Second Build"
         resp = self.client.get("/admin/hub/class/")
 
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Import coursepack ZIP")
+        self.assertContains(resp, "Import course content")
         self.assertContains(resp, "/admin/hub/class/import-coursepack/")
+
+    def test_non_superuser_cannot_use_live_course_import_tool(self):
+        staff_user = get_user_model().objects.create_user(
+            username="coursepack_staff",
+            password="pw12345",
+            is_staff=True,
+        )
+        request = RequestFactory().get("/admin/hub/class/import-coursepack/")
+        request.user = staff_user
+        model_admin = ClassAdmin(Class, admin.site)
+
+        resp = model_admin.import_coursepack_view(request)
+
+        self.assertEqual(resp.status_code, 403)
 
     def test_superuser_can_import_coursepack_zip_from_admin(self):
         _force_login_staff_verified(self.client, self.admin_user)
@@ -238,7 +253,7 @@ title: "Second Build"
         self.assertEqual(event.target_id, "admin_zip_course")
         self.assertEqual(event.metadata["created_modules"], 2)
 
-    def test_coursepack_zip_import_rejects_non_zip_upload(self):
+    def test_course_content_import_rejects_unsupported_upload(self):
         _force_login_staff_verified(self.client, self.admin_user)
 
         resp = self.client.post(
@@ -251,5 +266,5 @@ title: "Second Build"
         )
 
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Upload a .zip coursepack.")
+        self.assertContains(resp, "Upload a .zip, .docx, or .md source file.")
         self.assertFalse(Class.objects.filter(name="Bad Upload").exists())

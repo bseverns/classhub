@@ -1,7 +1,7 @@
 {% load i18n %}
           <section class="top-tab-panel" id="panel-quick-actions" role="tabpanel" aria-labelledby="tab-quick-actions">
             <h2 class="section-title">{% trans "Create a class workspace" %}</h2>
-            <form method="post" action="/teach/create-class">
+            <form method="post" action="/teach/create-class" enctype="multipart/form-data">
               {% csrf_token %}
               <div class="create-class-name-wrap">
                 <label for="class-name">{% trans "Class name" %}</label>
@@ -37,6 +37,54 @@
                   placeholder="{% trans 'Tell students where to start as soon as they join.' %}"
                 ></textarea>
               </div>
+              {% if request.user.is_superuser %}
+              <details class="support-collapsible">
+                <summary class="support-summary">
+                  <span class="support-summary-text">
+                    <span class="support-summary-title">{% trans "Import content into this class" %}</span>
+                    <span class="support-summary-note muted">{% trans "Optional. Accepts a coursepack ZIP or a `.md`, `.docx`, or source ZIP file and writes it to live course content." %}</span>
+                  </span>
+                </summary>
+                <div class="support-collapsible-body">
+                  <div class="grid-2">
+                    <div>
+                      <label for="class-import-course-slug">{% trans "Course slug override (optional)" %}</label>
+                      <input id="class-import-course-slug" name="import_course_slug" placeholder="scratch_intro_lab" />
+                    </div>
+                    <div>
+                      <label for="class-import-course-title">{% trans "Course title override (optional)" %}</label>
+                      <input id="class-import-course-title" name="import_course_title" placeholder="Scratch Intro Lab" />
+                    </div>
+                    <div>
+                      <label for="class-import-default-ui-level">{% trans "Default UI level" %}</label>
+                      <select id="class-import-default-ui-level" name="import_default_ui_level">
+                        <option value="secondary" selected>{% trans "secondary" %}</option>
+                        <option value="elementary">{% trans "elementary" %}</option>
+                        <option value="advanced">{% trans "advanced" %}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="class-import-session-parse-mode">{% trans "Session parser mode" %}</label>
+                      <select id="class-import-session-parse-mode" name="import_session_parse_mode">
+                        <option value="auto" selected>{% trans "auto" %}</option>
+                        <option value="template">{% trans "template" %}</option>
+                        <option value="verbose">{% trans "verbose" %}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="class-content-import">{% trans "Source file (.zip, .docx, or .md)" %}</label>
+                      <input id="class-content-import" name="class_content_import" type="file" accept=".zip,.docx,.md" />
+                    </div>
+                    <div>
+                      <label class="inline-check-label" for="class-import-overwrite-content">
+                        <input id="class-import-overwrite-content" name="import_overwrite_content" type="checkbox" value="1" />
+                        {% trans "Overwrite existing live course folder" %}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              {% endif %}
               <input type="hidden" name="open_after_create" value="1" />
               <div class="submit-wrap">
                 <button type="submit">{% trans "Create class workspace" %}</button>

@@ -17,6 +17,7 @@ from django.utils._os import safe_join
 
 from hub.models import Class, LessonAsset, LessonAssetFolder, Material, Module, Organization
 from hub.services.syllabus_ingest_contracts import COURSE_SLUG_RE
+from hub.services.syllabus_ingest import SyllabusIngestError, ingest_uploaded_syllabus
 
 _SUPPORT_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 _MAX_ZIP_FILES = 500
@@ -37,6 +38,8 @@ class CoursepackImportResult:
     created_materials: int
     created_assets: int
     extracted_files: int = 0
+    source_kind: str = "coursepack_zip"
+    source_files: tuple[str, ...] = ()
 
 
 def courses_dir() -> Path:
@@ -449,6 +452,15 @@ def _safe_extract_coursepack_zip(*, source_bytes: bytes, overwrite_content: bool
     return course_slug, destination, extracted_files
 
 
+def _zip_contains_coursepack_manifest(source_bytes: bytes) -> bool:
+    try:
+        with zipfile.ZipFile(BytesIO(source_bytes)) as archive:
+            infos = [info for info in archive.infolist() if not info.is_dir()]
+            return any((_zip_member_path(info.filename) or PurePosixPath()).name == "course.yaml" for info in infos)
+    except zipfile.BadZipFile:
+        return False
+
+
 @transaction.atomic
 def import_coursepack_zip(
     *,
@@ -484,6 +496,86 @@ def import_coursepack_zip(
         created_materials=result.created_materials,
         created_assets=result.created_assets,
         extracted_files=extracted_files,
+        source_kind="coursepack_zip",
+        source_files=(source_name,),
+    )
+
+
+@transaction.atomic
+def import_content_upload_to_class(
+    *,
+    source_upload,
+    classroom: Class,
+    course_slug: str = "",
+    course_title: str = "",
+    default_ui_level: str = "secondary",
+    session_parse_mode: str = "auto",
+    replace: bool = True,
+    overwrite_content: bool = False,
+) -> CoursepackImportResult:
+    source_name = str(getattr(source_upload, "name", "") or "").strip()
+    source_bytes = source_upload.read()
+    source_suffix = Path(source_name).suffix.lower()
+    if source_suffix not in {".zip", ".md", ".docx"}:
+        raise CoursepackImportError("Upload a .zip, .docx, or .md source file.")
+
+    if source_suffix == ".zip" and _zip_contains_coursepack_manifest(source_bytes):
+        course_slug, course_dir, extracted_files = _safe_extract_coursepack_zip(
+            source_bytes=source_bytes,
+            overwrite_content=overwrite_content,
+        )
+        result = import_coursepack_to_class(
+            course_slug=course_slug,
+            class_code=classroom.join_code,
+            create_class=False,
+            replace=replace,
+            organization=classroom.organization,
+        )
+        return CoursepackImportResult(
+            course_slug=result.course_slug,
+            course_title=result.course_title,
+            classroom=result.classroom,
+            course_dir=course_dir,
+            created_modules=result.created_modules,
+            created_materials=result.created_materials,
+            created_assets=result.created_assets,
+            extracted_files=extracted_files,
+            source_kind="coursepack_zip",
+            source_files=(source_name,),
+        )
+
+    try:
+        syllabus_result = ingest_uploaded_syllabus(
+            source_name=source_name,
+            source_bytes=source_bytes,
+            course_slug=course_slug,
+            course_title=course_title,
+            default_ui_level=default_ui_level,
+            session_parse_mode=session_parse_mode,
+            overwrite=overwrite_content,
+            courses_root=courses_dir(),
+        )
+    except SyllabusIngestError as exc:
+        raise CoursepackImportError(str(exc)) from exc
+
+    result = import_coursepack_to_class(
+        course_slug=syllabus_result.course_slug,
+        class_code=classroom.join_code,
+        create_class=False,
+        replace=replace,
+        organization=classroom.organization,
+    )
+    return CoursepackImportResult(
+        course_slug=result.course_slug,
+        course_title=result.course_title,
+        classroom=result.classroom,
+        course_dir=syllabus_result.course_dir,
+        created_modules=result.created_modules,
+        created_materials=result.created_materials,
+        created_assets=result.created_assets,
+        extracted_files=syllabus_result.lesson_count,
+        source_kind=syllabus_result.source_kind,
+        source_files=tuple(syllabus_result.source_files),
     )
 
 
@@ -491,6 +583,7 @@ __all__ = [
     "CoursepackImportError",
     "CoursepackImportResult",
     "courses_dir",
+    "import_content_upload_to_class",
     "import_coursepack_to_class",
     "import_coursepack_zip",
 ]
