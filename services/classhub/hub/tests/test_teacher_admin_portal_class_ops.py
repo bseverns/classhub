@@ -413,6 +413,59 @@ Mission: Explain the design choice.
         self.assertEqual(event.target_id, "imported_markdown_studio")
         self.assertEqual(event.metadata["source_kind"], "md")
 
+    def test_superuser_teach_create_class_can_import_coursepack_zip(self):
+        _force_login_staff_verified(self.client, self.staff)
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr(
+                "zip_import_course/course.yaml",
+                """slug: zip_import_course
+title: "ZIP Import Course"
+sessions: 1
+default_duration_minutes: 75
+lessons:
+  - session: 1
+    slug: s01-build
+    title: "Build"
+    file: lessons/01-build.md
+""",
+            )
+            archive.writestr(
+                "zip_import_course/lessons/01-build.md",
+                """---
+course: zip_import_course
+session: 1
+slug: s01-build
+title: "Build"
+---
+# Build
+""",
+            )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/create-class",
+                    {
+                        "name": "ZIP Import Cohort",
+                        "class_content_import": SimpleUploadedFile(
+                            "zip_import_course.zip",
+                            zip_buffer.getvalue(),
+                            content_type="application/zip",
+                        ),
+                        "open_after_create": "1",
+                    },
+                )
+
+                self.assertEqual(resp.status_code, 302)
+                self.assertTrue((content_root / "courses" / "zip_import_course" / "course.yaml").exists())
+
+        classroom = Class.objects.get(name="ZIP Import Cohort")
+        self.assertIn(f"/teach/class/{classroom.id}", resp["Location"])
+        self.assertEqual(classroom.modules.count(), 1)
+        self.assertTrue(Material.objects.filter(module__classroom=classroom, title="Open lesson").exists())
+
     @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=False)
     def test_non_superuser_teach_create_class_cannot_import_live_content(self):
         staff_user = get_user_model().objects.create_user(
