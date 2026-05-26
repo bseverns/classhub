@@ -1,4 +1,22 @@
+  @font-face {
+    font-family: "InterVariable";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../fonts/inter/InterVariable.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "InterVariable";
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../fonts/inter/InterVariable-Italic.woff2") format("woff2");
+  }
+
   :root {
+    --font-sans: "InterVariable", "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --font-heading: "InterVariable", "Inter", "Trebuchet MS", "Segoe UI", sans-serif;
     --ink: #143244;
     --muted: #294a5f;
     --line: rgba(22, 59, 80, 0.2);
@@ -24,7 +42,7 @@
     min-height: 100vh;
     padding: 34px 16px 44px;
     color: var(--ink);
-    font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-family: var(--font-sans);
     font-size: 16px;
     line-height: 1.52;
     background:
@@ -103,8 +121,8 @@
   h1,
   h2,
   h3 {
-    font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
-    letter-spacing: -0.02em;
+    font-family: var(--font-heading);
+    letter-spacing: 0;
     color: #0f2f42;
   }
 
@@ -177,7 +195,7 @@
     background: var(--glass-strong);
     color: var(--ink);
     font-size: 15px;
-    font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-family: var(--font-sans);
     transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
   }
 
@@ -190,7 +208,6 @@
   select:focus {
     border-color: var(--focus);
     box-shadow: 0 0 0 3px rgba(15, 124, 139, 0.16);
-    outline: none;
     background: rgba(255, 255, 255, 0.88);
   }
 
@@ -226,6 +243,30 @@
   .btn:active,
   .quick:active {
     transform: translateY(0);
+  }
+
+  .btn--secondary,
+  .btn-secondary,
+  button.btn--secondary,
+  button.btn-secondary {
+    border-color: rgba(15, 52, 72, 0.24);
+    background: rgba(255, 255, 255, 0.76);
+    color: #20455c;
+  }
+
+  .btn--ghost,
+  button.btn--ghost {
+    border-color: transparent;
+    background: transparent;
+    color: #0d5e78;
+    box-shadow: none;
+  }
+
+  .btn--danger,
+  button.btn--danger {
+    border-color: rgba(125, 32, 32, 0.44);
+    background: linear-gradient(155deg, #7d2020, #631717);
+    color: #fff6f6;
   }
 
   button:disabled,
@@ -311,16 +352,34 @@
     color: #1b5e3d;
   }
 
+  .state-pill--open::before {
+    content: "▶";
+    font-size: 0.95em;
+    line-height: 1;
+  }
+
   .state-pill--locked {
     border-color: rgba(133, 84, 23, 0.34);
     background: rgba(255, 241, 221, 0.86);
     color: #744412;
   }
 
+  .state-pill--locked::before {
+    content: "⊘";
+    font-size: 0.95em;
+    line-height: 1;
+  }
+
   .state-pill--done {
     border-color: rgba(19, 96, 80, 0.36);
     background: rgba(216, 248, 243, 0.85);
     color: #17594a;
+  }
+
+  .state-pill--done::before {
+    content: "✓";
+    font-size: 0.95em;
+    line-height: 1;
   }
 
   @media (max-width: 780px) {
@@ -332,6 +391,25 @@
     }
     .row {
       align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 480px) {
+    body.glass-theme {
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+    .navline {
+      line-height: 1.7;
+    }
+    .row {
+      align-items: stretch;
+    }
+    .state-pill {
+      white-space: nowrap;
+    }
+    table {
+      min-width: 640px;
     }
   }
 

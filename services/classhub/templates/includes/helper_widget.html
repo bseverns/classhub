@@ -39,21 +39,6 @@
     </div>
     <p class="helper-description">{{ helper_description|default:"Ask the helper for hints, steps, or feedback." }}</p>
     <p class="helper-context-note">{% trans "Follow-up questions stay in one lesson thread in this browser session until you reset chat." %}</p>
-    <div class="helper-privacy">
-      <p class="muted helper-privacy-line">Stored: helper access timestamps, lesson-scope metadata, and short-lived chat context used for follow-up help.</p>
-      <p class="muted helper-privacy-line">If teachers reset helper conversations, a class snapshot may be exported for internal research and quality review before cache clear.</p>
-      <p class="muted helper-privacy-line">Access: only your teachers and createMPLS administrators can access helper records and exports.</p>
-      <p class="muted helper-privacy-line">Storage location: {{ operator_profile.storage_location_text|default:"this server is hosted locally by your school or organization." }}</p>
-      <p class="muted helper-privacy-line">
-        Retention:
-        {% if student_event_retention_days %}
-          helper access events are kept up to {{ student_event_retention_days }} day{{ student_event_retention_days|pluralize }}.
-        {% else %}
-          helper access events stay until admin retention cleanup is run.
-        {% endif %}
-      </p>
-      <p class="muted helper-privacy-line">Delete now: <a href="{{ helper_delete_url|default:'/student/my-data' }}">My Data</a>. {{ operator_profile.privacy_promise_text|default:"No tracking. No ads. No data broker sharing." }}</p>
-    </div>
     <div class="helper-quick-wrap">
       <div class="helper-quick-title">{% trans "Quick asks (tap to send):" %}</div>
       <div class="helper-quick-actions" role="group" aria-label="{% trans 'Quick helper prompts' %}"></div>
@@ -65,8 +50,40 @@
       <button class="helper-submit" type="button">{% if helper_button_label %}{{ helper_button_label }}{% else %}{% trans "Ask" %}{% endif %}</button>
       <button class="helper-reset" type="button">{% trans "Reset chat" %}</button>
     </div>
+    <details class="helper-privacy">
+      <summary>{% trans "Privacy and data" %}</summary>
+      <div class="helper-privacy-body">
+        <p class="muted helper-privacy-line">{% trans "Stored: helper access timestamps, lesson-scope metadata, and short-lived chat context used for follow-up help." %}</p>
+        <p class="muted helper-privacy-line">{% trans "If teachers reset helper conversations, a class snapshot may be exported for internal research and quality review before cache clear." %}</p>
+        <p class="muted helper-privacy-line">{% trans "Access: only your teachers and createMPLS administrators can access helper records and exports." %}</p>
+        <p class="muted helper-privacy-line">
+          {% trans "Storage location:" %}
+          {% if operator_profile.storage_location_text %}
+            {{ operator_profile.storage_location_text }}
+          {% else %}
+            {% trans "this server is hosted locally by your school or organization." %}
+          {% endif %}
+        </p>
+        <p class="muted helper-privacy-line">
+          {% trans "Retention:" %}
+          {% if student_event_retention_days %}
+            {% blocktrans count days=student_event_retention_days %}helper access events are kept up to {{ days }} day.{% plural %}helper access events are kept up to {{ days }} days.{% endblocktrans %}
+          {% else %}
+            {% trans "helper access events stay until admin retention cleanup is run." %}
+          {% endif %}
+        </p>
+        <p class="muted helper-privacy-line">
+          {% trans "Delete now:" %} <a href="{{ helper_delete_url|default:'/student/my-data' }}">{% trans "My Data" %}</a>.
+          {% if operator_profile.privacy_promise_text %}
+            {{ operator_profile.privacy_promise_text }}
+          {% else %}
+            {% trans "No tracking. No ads. No data broker sharing." %}
+          {% endif %}
+        </p>
+      </div>
+    </details>
     <div class="helper-transcript" role="log" aria-live="polite" aria-relevant="additions text" aria-atomic="false"></div>
-    <pre class="helper-output" role="status" aria-live="polite"></pre>
+    <div class="helper-output" role="status" aria-live="polite"></div>
     <div class="helper-citations" hidden>
       <div class="helper-citations-title">{% trans "Lesson references used" %}</div>
       <ul class="helper-citations-list"></ul>

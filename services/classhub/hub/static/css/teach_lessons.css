@@ -39,6 +39,15 @@
 .lesson-cell {
   min-width: 360px;
 }
+.lesson-slug-detail {
+  margin-top: 6px;
+}
+.lesson-slug-detail summary {
+  cursor: pointer;
+  color: #42697d;
+  font-size: 13px;
+  font-weight: 700;
+}
 .dropbox-cell {
   min-width: 300px;
 }

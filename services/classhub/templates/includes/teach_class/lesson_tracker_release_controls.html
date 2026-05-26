@@ -1,18 +1,19 @@
+{% load i18n %}
 {% with release=row.release_state %}
   <div class="release-status">
-    Release:
+    {% trans "Release:" %}
     {% if release.is_locked %}
-      <span class="state-pill state-pill--locked">Locked</span>
+      <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
     {% else %}
-      <span class="state-pill state-pill--open">Open</span>
+      <span class="state-pill state-pill--open">{% trans "Open" %}</span>
     {% endif %}
     {% if release.available_on %}
-      · Date <strong>{{ release.available_on|date:"M j, Y" }}</strong>
+      · {% trans "Date" %} <strong>{{ release.available_on|date:"M j, Y" }}</strong>
     {% endif %}
     {% if release.has_override %}
-      · Override active
+      · {% trans "Override active" %}
     {% else %}
-      · Content default
+      · {% trans "Content default" %}
     {% endif %}
   </div>
   <div class="release-actions">
@@ -24,7 +25,7 @@
       <input type="hidden" name="action" value="set_date" />
       <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
       <label class="visually-hidden" for="release-date-class-{{ row.module.id }}">
-        Availability date for {{ row.lesson_title }}
+        {% blocktrans with lesson_title=row.lesson_title %}Availability date for {{ lesson_title }}{% endblocktrans %}
       </label>
       <input
         id="release-date-class-{{ row.module.id }}"
@@ -32,7 +33,7 @@
         name="available_on"
         value="{% if release.override_available_on %}{{ release.override_available_on|date:'Y-m-d' }}{% endif %}"
       />
-      <button type="submit">Set date</button>
+      <button type="submit">{% trans "Set date" %}</button>
     </form>
     <form method="post" action="/teach/lessons/release">
       {% csrf_token %}
@@ -41,7 +42,7 @@
       <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
       <input type="hidden" name="action" value="toggle_lock" />
       <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
-      <button type="submit">Toggle lock</button>
+      <button type="submit">{% if release.is_locked %}{% trans "Unlock lesson" %}{% else %}{% trans "Lock lesson" %}{% endif %}</button>
     </form>
     <form method="post" action="/teach/lessons/release">
       {% csrf_token %}
@@ -50,7 +51,7 @@
       <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
       <input type="hidden" name="action" value="unlock_now" />
       <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
-      <button type="submit">Open now</button>
+      <button type="submit">{% trans "Open now" %}</button>
     </form>
     <form method="post" action="/teach/lessons/release">
       {% csrf_token %}
@@ -59,7 +60,7 @@
       <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
       <input type="hidden" name="action" value="reset_default" />
       <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
-      <button type="submit">Reset default</button>
+      <button type="submit">{% trans "Reset default" %}</button>
     </form>
   </div>
 {% endwith %}

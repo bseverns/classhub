@@ -69,7 +69,10 @@
                         <th scope="row" class="module-cell"><strong>{{ row.module.title }}</strong></th>
                         <td class="lesson-cell">
                           <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
-                          <div class="muted">{{ row.course_slug }} / {{ row.lesson_slug }}</div>
+                          <details class="lesson-slug-detail">
+                            <summary>{% trans "Technical IDs" %}</summary>
+                            <div class="muted">{{ row.course_slug }} / {{ row.lesson_slug }}</div>
+                          </details>
                           <a class="quick" href="/teach/videos?class_id={{ group.classroom.id }}&course_slug={{ row.course_slug }}&lesson_slug={{ row.lesson_slug }}">Manage videos</a>
                           <a class="quick" href="/teach/assets?folder_id=0&course_slug={{ row.course_slug }}&lesson_slug={{ row.lesson_slug }}&status=all">Manage assets</a>
                           {% if row.review_url %}
@@ -125,7 +128,7 @@
                                   <input type="hidden" name="lesson_slug" value="{{ row.lesson_slug }}" />
                                   <input type="hidden" name="action" value="toggle_lock" />
                                   <input type="hidden" name="return_to" value="/teach/lessons?class_id={{ group.classroom.id }}" />
-                                  <button type="submit">{% trans "Toggle lock" %}</button>
+                                  <button type="submit">{% if release.is_locked %}{% trans "Unlock lesson" %}{% else %}{% trans "Lock lesson" %}{% endif %}</button>
                                 </form>
                                 <form method="post" action="/teach/lessons/release">
                                   {% csrf_token %}
@@ -162,7 +165,7 @@
                                 <div class="actions">
                                   <a href="/teach/material/{{ dropbox.id }}/submissions">Review submissions</a>
                                   <a href="/teach/material/{{ dropbox.id }}/submissions?show=missing">{% trans "Review missing" %}</a>
-                                  <a href="/teach/material/{{ dropbox.id }}/submissions?download=zip_latest">ZIP latest</a>
+                                  <a class="quick btn--secondary" href="/teach/material/{{ dropbox.id }}/submissions?download=zip_latest">{% trans "ZIP latest" %}</a>
                                 </div>
                               </div>
                             {% endfor %}

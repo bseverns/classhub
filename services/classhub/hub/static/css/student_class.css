@@ -163,6 +163,16 @@
 .done-guide p:last-child {
   margin-bottom: 0;
 }
+.done-guide:hover,
+.account-card:hover,
+.micro-check-card:hover,
+.studio-handles:hover {
+  transform: none;
+  box-shadow: var(--shadow);
+}
+.account-card h2 {
+  margin-top: 0;
+}
 .inline-copy {
   margin-left: 8px;
   padding: 4px 8px;
@@ -200,6 +210,8 @@
 }
 .text-material-preview {
   margin-top: 8px;
+  white-space: pre-wrap;
+  font-family: inherit;
 }
 .mat-image-wrap {
   margin-top: 10px;

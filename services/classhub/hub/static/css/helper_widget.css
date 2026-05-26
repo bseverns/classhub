@@ -62,7 +62,6 @@
     font-family: inherit;
   }
   .helper-widget textarea:focus {
-    outline: none;
     border-color: var(--focus, #0f7c8b);
     box-shadow: 0 0 0 3px rgba(15, 124, 139, 0.16);
   }
@@ -180,7 +179,6 @@
     background: rgba(255, 255, 255, 0.96);
   }
   .helper-followup-action:focus {
-    outline: none;
     border-color: var(--focus, #0f7c8b);
     box-shadow: 0 0 0 3px rgba(15, 124, 139, 0.16);
   }
@@ -196,7 +194,7 @@
     filter: grayscale(0.25);
     opacity: 0.86;
   }
-  .helper-widget pre {
+  .helper-output {
     white-space: pre-wrap;
     margin-top: 12px;
     color: #26495d;
@@ -239,12 +237,24 @@
     background: rgba(255, 255, 255, 0.72);
   }
   .helper-privacy {
-    margin-top: -4px;
+    margin-top: 12px;
     margin-bottom: 12px;
     border: 1px solid rgba(169, 46, 66, 0.35);
     border-radius: 10px;
-    padding: 10px;
     background: linear-gradient(180deg, rgba(255, 240, 242, 0.84), rgba(255, 248, 249, 0.72));
+  }
+  .helper-privacy summary {
+    cursor: pointer;
+    padding: 10px;
+    color: #7b2a39;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .helper-privacy-body {
+    border-top: 1px solid rgba(169, 46, 66, 0.18);
+    padding: 10px;
   }
   .helper-privacy-line {
     margin: 0 0 6px 0;
@@ -319,7 +329,6 @@
     background: rgba(255, 255, 255, 0.92);
   }
   .helper-quick-action:focus {
-    outline: none;
     border-color: var(--focus, #0f7c8b);
     box-shadow: 0 0 0 3px rgba(15, 124, 139, 0.16);
   }

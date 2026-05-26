@@ -103,6 +103,7 @@
   };
 
   widgets.forEach((widget, idx) => {
+    const shell = widget.querySelector(".helper-shell");
     const summaryHint = widget.querySelector(".helper-shell-summary-hint");
     const label = widget.querySelector(".helper-label");
     const textarea = widget.querySelector(".helper-input");
@@ -188,6 +189,7 @@
             turns: transcriptTurns,
             citations: latestCitations,
             draft: textarea.value || "",
+            open: shell ? Boolean(shell.open) : false,
           })
         );
       } catch (_err) {
@@ -453,6 +455,9 @@
     }
 
     const restored = loadState();
+    if (shell && restored && typeof restored.open === "boolean") {
+      shell.open = restored.open;
+    }
     if (restored && typeof restored.conversationId === "string" && restored.conversationId.trim()) {
       conversationId = restored.conversationId.trim();
     }
@@ -478,6 +483,12 @@
     textarea.addEventListener("input", () => {
       saveState();
     });
+
+    if (shell) {
+      shell.addEventListener("toggle", () => {
+        saveState();
+      });
+    }
 
     button.addEventListener("click", async () => {
       await sendMessage(textarea.value || "");

@@ -4068,3 +4068,36 @@ Execution ownership and gates:
 - Gives operators a browser path for importing reviewed coursepack artifacts without shell access.
 - Keeps command-line and admin imports aligned so support images, dropboxes, and lesson links behave the same way.
 - Preserves the read-only-root hardening posture by making curriculum mutation explicit and isolated to one mounted data directory.
+
+## UX assessment quick-win pass (2026-05-26)
+
+**Current decision:**
+- Treat the May 2026 UX assessment as a staged cleanup, starting with low-risk changes in the shared design system and heavily reused templates.
+- Keep the existing glass-theme token system as the source of truth, and add missing primitives there first:
+  - font-family variables,
+  - secondary/ghost/danger button variants,
+  - non-color symbols on open/locked/done state pills,
+  - a small-phone breakpoint for denser nav/table surfaces.
+- Move Homework Helper privacy detail below the ask controls in a disclosure, keep its status output as a normal live `<div>`, and persist the widget open/closed state in `sessionStorage`.
+- Keep teacher portal warning text stable for operators and tests, but make it translatable; replace “Staff-only cockpit” with the less internal “Staff workspace.”
+- Hide lesson/course slugs behind a disclosure in the lesson tracker and make the lock button state-aware (`Lock lesson` / `Unlock lesson`) without changing the release endpoint contract.
+
+**Why this remains active:**
+- These changes remove misleading affordances and reduce visual noise without changing database shape or teacher/student workflow contracts.
+- The assessment includes larger structural recommendations; those should follow as separate, reviewable passes after the low-risk polish lands.
+- Full dark mode still needs a palette decision rather than a partial CSS-only patch.
+
+## Self-hosted Inter font (2026-05-26)
+
+**Current decision:**
+- Vendor Inter 4.1 web variable fonts from the official `rsms/inter` GitHub release into Django static files:
+  - `services/classhub/hub/static/fonts/inter/InterVariable.woff2`
+  - `services/classhub/hub/static/fonts/inter/InterVariable-Italic.woff2`
+  - `services/classhub/hub/static/fonts/inter/LICENSE.txt`
+- Load the files from `glass_theme.css` with `@font-face`, `font-display: swap`, and the existing `--font-sans` / `--font-heading` tokens.
+- Keep the normal system stack after Inter as fallback for old browsers, missing static assets, or restricted static serving.
+
+**Why this remains active:**
+- Removes the prior platform-dependent “Avenir Next when present, Segoe/Arial otherwise” behavior without adding an external font CDN.
+- Keeps CSP and privacy posture clean because font files are served by the app itself.
+- Uses only the two variable WOFF2 files needed for UI text instead of vendoring the full release archive.
