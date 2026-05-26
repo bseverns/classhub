@@ -204,6 +204,9 @@
     padding: 10px;
     background: rgba(255, 255, 255, 0.44);
   }
+  .helper-output:empty {
+    display: none;
+  }
   .helper-description {
     color: var(--muted, #4e6f80);
     font-size: 14px;

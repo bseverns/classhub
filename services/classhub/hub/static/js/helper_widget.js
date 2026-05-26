@@ -435,8 +435,9 @@
     if (citationsTitle) {
       citationsTitle.textContent = chromeCopy.citationsTitle;
     }
-    if (quickActions && promptSet.length) {
+    if (quickActions && Array.isArray(promptSet) && promptSet.length) {
       promptSet.forEach((item) => {
+        if (!item || !item.label || !item.prompt) return;
         const quickBtn = document.createElement("button");
         quickBtn.type = "button";
         quickBtn.className = "helper-quick-action";
@@ -450,7 +451,8 @@
         });
         quickActions.appendChild(quickBtn);
       });
-    } else if (quickWrap) {
+    }
+    if (quickWrap && (!quickActions || !quickActions.childElementCount)) {
       quickWrap.hidden = true;
     }
 
