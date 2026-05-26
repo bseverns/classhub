@@ -1,2 +1,2 @@
 mkdocs-material==9.6.9
-pymdown-extensions==10.16.1
+pymdown-extensions==10.21.3
