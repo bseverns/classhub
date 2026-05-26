@@ -35,10 +35,11 @@ RUN DJANGO_SECRET_KEY=build-time-static-secret-key-aaaaaaaaaaaaaaaa \
   CLASSHUB_USE_MANIFEST_STATICFILES=1 \
   python manage.py collectstatic --noinput
 
-RUN mkdir -p /uploads/authoring_templates \
-  && chown -R app:app /app /uploads
+RUN mkdir -p /uploads/authoring_templates /content /content_seed \
+  && cp -a /app/content/. /content_seed/ \
+  && chmod 755 /app/docker-entrypoint.sh \
+  && chown -R app:app /app /uploads /content /content_seed
 
 USER app
 
-# Default keeps Day-1 behavior; set RUN_MIGRATIONS_ON_START=0 once migrations are moved to deploy step.
-CMD ["bash", "-lc", "if [ \"${RUN_MIGRATIONS_ON_START:-1}\" = \"1\" ]; then python manage.py migrate --noinput; fi; exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers ${CLASSHUB_GUNICORN_WORKERS:-2} --timeout ${CLASSHUB_GUNICORN_TIMEOUT_SECONDS:-1200}"]
+CMD ["/app/docker-entrypoint.sh"]

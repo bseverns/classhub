@@ -4,6 +4,7 @@ services:
       - ../services/classhub:/app
       - ../services/common:/app/common
       - ../data/classhub_uploads:/uploads
+      - ../services/classhub/content:/content
     command: bash -lc "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     environment:
       DJANGO_DEBUG: "1"

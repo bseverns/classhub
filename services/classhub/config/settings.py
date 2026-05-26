@@ -36,7 +36,11 @@ env = environ.Env(
 
 # Repo-authored content packs live under:
 #   services/classhub/content/courses/<course_slug>/...
-CONTENT_ROOT = BASE_DIR / "content"
+#
+# Production Compose may mount a writable content root at /content so admin
+# coursepack imports can mutate live curriculum without disabling the
+# container's read-only root filesystem.
+CONTENT_ROOT = Path(env("CLASSHUB_CONTENT_ROOT", default=str(BASE_DIR / "content"))).resolve()
 CONTENT_COURSES_ROOT = CONTENT_ROOT / "courses"
 
 DEBUG = env.bool("DJANGO_DEBUG", default=False)

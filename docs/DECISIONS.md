@@ -4059,9 +4059,11 @@ Execution ownership and gates:
 - Make the admin import the explicit live-content path: safely extract one `course.yaml` course into `CONTENT_ROOT/courses/<slug>/`, then create modules/materials in the selected or newly-created class.
 - Reuse the same coursepack-to-class importer for both the admin GUI and `import_coursepack` management command.
 - Emit `admin.coursepack_zip.import` audit events with course slug, target class, extracted file count, and module/material/asset counts.
-- Production deployments that run the ClassHub container with a read-only root filesystem must provide a writable/mounted `CONTENT_ROOT` before using this live admin import.
+- Keep the ClassHub container root filesystem read-only while mounting `CLASSHUB_CONTENT_ROOT=/content` from `data/classhub_content`.
+- Seed bundled repo coursepacks from the image into the mounted content root at container startup when they are missing, so an empty writable content volume does not hide shipped courses.
 
 **Why this remains active:**
 - Separates low-risk teacher authoring from operator-controlled live curriculum mutation.
 - Gives operators a browser path for importing reviewed coursepack artifacts without shell access.
 - Keeps command-line and admin imports aligned so support images, dropboxes, and lesson links behave the same way.
+- Preserves the read-only-root hardening posture by making curriculum mutation explicit and isolated to one mounted data directory.

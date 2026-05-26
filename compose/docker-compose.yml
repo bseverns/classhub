@@ -114,9 +114,11 @@ services:
       DJANGO_DEBUG: ${DJANGO_DEBUG}
       CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
       CLASSHUB_UPLOAD_ROOT: /uploads
+      CLASSHUB_CONTENT_ROOT: ${CLASSHUB_CONTENT_ROOT:-/content}
       HELPER_LLM_BACKEND: ${HELPER_LLM_BACKEND}
     volumes:
       - ../data/classhub_uploads:/uploads
+      - ../data/classhub_content:/content
     depends_on:
       postgres:
         condition: service_healthy
