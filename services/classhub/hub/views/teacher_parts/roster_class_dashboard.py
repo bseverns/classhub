@@ -59,6 +59,13 @@ def _class_content_import_upload(request):
     return request.FILES.get("class_content_import")
 
 
+def _class_content_import_requested(request) -> bool:
+    raw = (request.POST.get("class_content_import_intent") or "").strip().lower()
+    if raw in {"1", "true", "yes", "on"}:
+        return True
+    return _class_content_import_upload(request) is not None
+
+
 def _class_content_import_options(request) -> dict:
     return {
         "course_slug": _clean_class_seed_value(request.POST.get("import_course_slug"), limit=120).lower(),
@@ -76,12 +83,23 @@ def teach_create_class(request):
     if not staff_can_create_classes(request.user):
         return HttpResponse("Forbidden", status=403)
     source_upload = _class_content_import_upload(request)
-    if source_upload is not None and not request.user.is_superuser:
+    import_requested = _class_content_import_requested(request)
+    if import_requested and not request.user.is_superuser:
         return HttpResponse("Forbidden", status=403)
 
     name = _clean_class_seed_value(request.POST.get("name"), limit=200)
     if not name:
         return redirect("/teach")
+    if import_requested and source_upload is None:
+        return redirect(
+            _with_notice(
+                "/teach",
+                error=(
+                    "Class content import was requested, but no file reached the server. "
+                    "Reopen the import section, choose the file again, and submit once the filename is visible."
+                ),
+            )
+        )
 
     landing_title = _clean_class_seed_value(request.POST.get("student_landing_title"), limit=200)
     landing_message = _clean_class_seed_value(request.POST.get("student_landing_message"), limit=4000)

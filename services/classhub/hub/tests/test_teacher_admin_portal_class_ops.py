@@ -115,6 +115,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, 'name="student_landing_message"', html=False)
         self.assertContains(resp, 'name="first_module_title"', html=False)
         self.assertContains(resp, 'name="class_content_import"', html=False)
+        self.assertContains(resp, 'name="class_content_import_intent"', html=False)
         self.assertContains(resp, 'name="open_after_create"', html=False)
         self.assertContains(resp, "Create class workspace")
 
@@ -466,6 +467,22 @@ title: "Build"
         self.assertEqual(classroom.modules.count(), 1)
         self.assertTrue(Material.objects.filter(module__classroom=classroom, title="Open lesson").exists())
 
+    def test_superuser_teach_create_class_reports_import_intent_without_file(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            "/teach/create-class",
+            {
+                "name": "Missing File Import Cohort",
+                "class_content_import_intent": "1",
+                "open_after_create": "1",
+            },
+        )
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("error=", resp["Location"])
+        self.assertFalse(Class.objects.filter(name="Missing File Import Cohort").exists())
+
     @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=False)
     def test_non_superuser_teach_create_class_cannot_import_live_content(self):
         staff_user = get_user_model().objects.create_user(
@@ -479,6 +496,7 @@ title: "Build"
             "/teach/create-class",
             {
                 "name": "Blocked Import Cohort",
+                "class_content_import_intent": "1",
                 "class_content_import": SimpleUploadedFile(
                     "studio.md",
                     b"# Studio\n\nSession 01: Build\n",
