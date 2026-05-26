@@ -79,6 +79,7 @@ class AdminRBACAuditTests(TestCase):
         delete_event = AuditEvent.objects.filter(action="rbac.scope_grant.delete", target_id=str(grant_id)).first()
         self.assertIsNotNone(delete_event)
 
+
     def test_custom_role_create_update_delete_writes_audit_events(self):
         request = self._request()
         role = OrganizationCustomRole(
@@ -131,3 +132,124 @@ class AdminRBACAuditTests(TestCase):
             target_id=str(assignment_id),
         ).first()
         self.assertIsNotNone(delete_event)
+
+
+class AdminCoursepackZipImportTests(TestCase):
+    def setUp(self):
+        self.admin_user = get_user_model().objects.create_user(
+            username="coursepack_admin",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=True,
+        )
+
+    def _coursepack_zip(self, *, slug: str = "admin_zip_course") -> bytes:
+        buffer = BytesIO()
+        with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr(
+                f"{slug}/course.yaml",
+                f"""slug: {slug}
+title: "Admin ZIP Course"
+sessions: 2
+default_duration_minutes: 75
+lessons:
+  - session: 1
+    slug: s01-first-build
+    title: "First Build"
+    file: lessons/01-first-build.md
+  - session: 2
+    slug: s02-second-build
+    title: "Second Build"
+    file: lessons/02-second-build.md
+""",
+            )
+            archive.writestr(
+                f"{slug}/lessons/01-first-build.md",
+                """---
+course: admin_zip_course
+session: 1
+slug: s01-first-build
+title: "First Build"
+makes: "A first prototype"
+submission:
+  type: file
+  naming: first_build.sb3
+  accepted:
+    - .sb3
+---
+# First Build
+""",
+            )
+            archive.writestr(
+                f"{slug}/lessons/02-second-build.md",
+                """---
+course: admin_zip_course
+session: 2
+slug: s02-second-build
+title: "Second Build"
+---
+# Second Build
+""",
+            )
+        return buffer.getvalue()
+
+    def test_class_changelist_links_coursepack_import_tool(self):
+        _force_login_staff_verified(self.client, self.admin_user)
+
+        resp = self.client.get("/admin/hub/class/")
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Import coursepack ZIP")
+        self.assertContains(resp, "/admin/hub/class/import-coursepack/")
+
+    def test_superuser_can_import_coursepack_zip_from_admin(self):
+        _force_login_staff_verified(self.client, self.admin_user)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/admin/hub/class/import-coursepack/",
+                    {
+                        "class_name": "Admin ZIP Cohort",
+                        "create_class": "on",
+                        "coursepack_zip": SimpleUploadedFile(
+                            "admin_zip_course.zip",
+                            self._coursepack_zip(),
+                            content_type="application/zip",
+                        ),
+                    },
+                    follow=True,
+                )
+
+                self.assertEqual(resp.status_code, 200)
+                self.assertTrue((content_root / "courses" / "admin_zip_course" / "course.yaml").exists())
+
+        classroom = Class.objects.get(name="Admin ZIP Cohort")
+        self.assertEqual(classroom.modules.count(), 2)
+        self.assertEqual(
+            Material.objects.filter(module__classroom=classroom, title="Open lesson").count(),
+            2,
+        )
+        self.assertTrue(Material.objects.filter(module__classroom=classroom, title="Homework dropbox").exists())
+
+        event = AuditEvent.objects.filter(action="admin.coursepack_zip.import").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.admin_user.id)
+        self.assertEqual(event.target_id, "admin_zip_course")
+        self.assertEqual(event.metadata["created_modules"], 2)
+
+    def test_coursepack_zip_import_rejects_non_zip_upload(self):
+        _force_login_staff_verified(self.client, self.admin_user)
+
+        resp = self.client.post(
+            "/admin/hub/class/import-coursepack/",
+            {
+                "class_name": "Bad Upload",
+                "create_class": "on",
+                "coursepack_zip": SimpleUploadedFile("coursepack.txt", b"not a zip"),
+            },
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Upload a .zip coursepack.")
+        self.assertFalse(Class.objects.filter(name="Bad Upload").exists())

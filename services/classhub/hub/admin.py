@@ -1,7 +1,13 @@
 from django.contrib import admin
+from django import forms
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
 from django.utils.html import format_html
 
 from .services.audit import log_audit_event
+from .services.coursepack_import import CoursepackImportError, import_coursepack_zip
 from .models import (
     AuditEvent,
     CertificateIssuance,
@@ -28,6 +34,56 @@ from .models import (
     StudentOutcomeEvent,
     Submission,
 )
+
+
+class CoursepackZipImportForm(forms.Form):
+    coursepack_zip = forms.FileField(
+        label="Coursepack ZIP",
+        help_text="Upload a repo-style coursepack ZIP containing one course.yaml.",
+    )
+    class_code = forms.CharField(
+        label="Existing class code",
+        required=False,
+        max_length=16,
+        help_text="Optional. Use this to import into an existing class.",
+    )
+    class_name = forms.CharField(
+        label="Class name",
+        required=False,
+        max_length=200,
+        help_text="Optional. Used to find or create the class when class code is blank.",
+    )
+    organization = forms.ModelChoiceField(
+        queryset=Organization.objects.filter(is_active=True).order_by("name", "id"),
+        required=False,
+        help_text="Optional. Applied when creating a new class, or filling an unassigned existing class.",
+    )
+    create_class = forms.BooleanField(
+        label="Create class if needed",
+        required=False,
+        initial=True,
+    )
+    replace = forms.BooleanField(
+        label="Replace existing modules/materials in target class",
+        required=False,
+        help_text="Deletes current modules/materials for the target class before importing.",
+    )
+    overwrite_content = forms.BooleanField(
+        label="Overwrite existing live course content folder",
+        required=False,
+        help_text="Required when CONTENT_ROOT already contains this course slug.",
+    )
+
+    def clean(self):
+        cleaned = super().clean()
+        class_code = (cleaned.get("class_code") or "").strip()
+        class_name = (cleaned.get("class_name") or "").strip()
+        if class_code and class_name:
+            raise forms.ValidationError("Use class code or class name, not both.")
+        upload = cleaned.get("coursepack_zip")
+        if upload and not str(getattr(upload, "name", "") or "").lower().endswith(".zip"):
+            raise forms.ValidationError("Upload a .zip coursepack.")
+        return cleaned
 
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
@@ -177,9 +233,81 @@ class OrganizationCustomRoleAssignmentAdmin(admin.ModelAdmin):
 
 @admin.register(Class)
 class ClassAdmin(admin.ModelAdmin):
+    change_list_template = "admin/hub/class/change_list.html"
     list_display = ("name", "organization", "join_code", "enrollment_mode", "is_locked")
     search_fields = ("name", "join_code", "organization__name")
     list_filter = ("organization", "enrollment_mode", "is_locked")
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "import-coursepack/",
+                self.admin_site.admin_view(self.import_coursepack_view),
+                name="hub_class_import_coursepack",
+            )
+        ]
+        return custom_urls + urls
+
+    def import_coursepack_view(self, request):
+        if request.method == "POST":
+            form = CoursepackZipImportForm(request.POST, request.FILES)
+            if form.is_valid():
+                try:
+                    result = import_coursepack_zip(
+                        source_upload=form.cleaned_data["coursepack_zip"],
+                        class_code=form.cleaned_data.get("class_code") or "",
+                        class_name=form.cleaned_data.get("class_name") or "",
+                        create_class=bool(form.cleaned_data.get("create_class")),
+                        replace=bool(form.cleaned_data.get("replace")),
+                        overwrite_content=bool(form.cleaned_data.get("overwrite_content")),
+                        organization=form.cleaned_data.get("organization"),
+                    )
+                except CoursepackImportError as exc:
+                    form.add_error(None, str(exc))
+                else:
+                    log_audit_event(
+                        request=request,
+                        action="admin.coursepack_zip.import",
+                        classroom=result.classroom,
+                        target_type="Coursepack",
+                        target_id=result.course_slug,
+                        summary=f"Imported coursepack ZIP for {result.course_slug}",
+                        metadata={
+                            "course_slug": result.course_slug,
+                            "course_title": result.course_title,
+                            "classroom_id": result.classroom.id,
+                            "join_code": result.classroom.join_code,
+                            "course_dir": str(result.course_dir),
+                            "created_modules": result.created_modules,
+                            "created_materials": result.created_materials,
+                            "created_assets": result.created_assets,
+                            "extracted_files": result.extracted_files,
+                            "replace": bool(form.cleaned_data.get("replace")),
+                            "overwrite_content": bool(form.cleaned_data.get("overwrite_content")),
+                        },
+                    )
+                    messages.success(
+                        request,
+                        (
+                            f"Imported {result.course_slug} into {result.classroom.name} "
+                            f"({result.classroom.join_code}). "
+                            f"Modules: {result.created_modules}; materials: {result.created_materials}; "
+                            f"support assets: {result.created_assets}."
+                        ),
+                    )
+                    return redirect(reverse("admin:hub_class_changelist"))
+        else:
+            form = CoursepackZipImportForm()
+
+        context = {
+            **self.admin_site.each_context(request),
+            "opts": self.model._meta,
+            "title": "Import coursepack ZIP",
+            "form": form,
+            "changelist_url": reverse("admin:hub_class_changelist"),
+        }
+        return TemplateResponse(request, "admin/hub/class/import_coursepack.html", context)
 
 
 @admin.register(ClassStaffAssignment)

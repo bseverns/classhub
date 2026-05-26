@@ -4050,3 +4050,18 @@ Execution ownership and gates:
 - Makes remote-compute signal claims and operator actions testable, not just descriptive.
 - Keeps the teacher-facing `/teach/class` surface calmer by answering state, impact, and next action before exposing lower-level counters.
 - Reduces staff-turnover risk by turning common operator knowledge into a repeatable drill and a named CSP migration map.
+
+## Admin coursepack ZIP live import (2026-05-26)
+
+**Current decision:**
+- Add a superuser-only Django admin tool on the Class changelist for importing a repo-style coursepack `.zip`.
+- Keep the existing teacher `/teach/import-syllabus-source` flow as a scratch compiler that returns a downloadable ZIP and does not mutate live content.
+- Make the admin import the explicit live-content path: safely extract one `course.yaml` course into `CONTENT_ROOT/courses/<slug>/`, then create modules/materials in the selected or newly-created class.
+- Reuse the same coursepack-to-class importer for both the admin GUI and `import_coursepack` management command.
+- Emit `admin.coursepack_zip.import` audit events with course slug, target class, extracted file count, and module/material/asset counts.
+- Production deployments that run the ClassHub container with a read-only root filesystem must provide a writable/mounted `CONTENT_ROOT` before using this live admin import.
+
+**Why this remains active:**
+- Separates low-risk teacher authoring from operator-controlled live curriculum mutation.
+- Gives operators a browser path for importing reviewed coursepack artifacts without shell access.
+- Keeps command-line and admin imports aligned so support images, dropboxes, and lesson links behave the same way.
