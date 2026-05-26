@@ -74,7 +74,6 @@
                     <div>
                       <label for="class-content-import">{% trans "Source file (.zip, .docx, or .md)" %}</label>
                       <input id="class-content-import" name="class_content_import" type="file" accept=".zip,.docx,.md" />
-                      <input id="class-content-import-intent" name="class_content_import_intent" type="hidden" value="0" />
                     </div>
                     <div>
                       <label class="inline-check-label" for="class-import-overwrite-content">
@@ -82,6 +81,11 @@
                         {% trans "Overwrite existing live course folder" %}
                       </label>
                     </div>
+                  </div>
+                  <div class="submit-wrap">
+                    <button type="submit" name="class_content_import_intent" value="1">
+                      {% trans "Create class and import content" %}
+                    </button>
                   </div>
                 </div>
               </details>

@@ -116,6 +116,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, 'name="first_module_title"', html=False)
         self.assertContains(resp, 'name="class_content_import"', html=False)
         self.assertContains(resp, 'name="class_content_import_intent"', html=False)
+        self.assertContains(resp, "Create class and import content")
         self.assertContains(resp, 'name="open_after_create"', html=False)
         self.assertContains(resp, "Create class workspace")
 
@@ -388,6 +389,7 @@ Mission: Explain the design choice.
                     {
                         "name": "Imported Markdown Cohort",
                         "student_landing_title": "Imported kickoff",
+                        "class_content_import_intent": "1",
                         "import_course_slug": "imported_markdown_studio",
                         "import_course_title": "Imported Markdown Studio",
                         "class_content_import": SimpleUploadedFile(
@@ -450,6 +452,7 @@ title: "Build"
                     "/teach/create-class",
                     {
                         "name": "ZIP Import Cohort",
+                        "class_content_import_intent": "1",
                         "class_content_import": SimpleUploadedFile(
                             "zip_import_course.zip",
                             zip_buffer.getvalue(),

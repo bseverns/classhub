@@ -44,14 +44,6 @@
     });
   }
 
-  const classContentImportInput = document.getElementById("class-content-import");
-  const classContentImportIntent = document.getElementById("class-content-import-intent");
-  if (classContentImportInput && classContentImportIntent) {
-    classContentImportInput.addEventListener("change", () => {
-      classContentImportIntent.value = classContentImportInput.files && classContentImportInput.files.length ? "1" : "0";
-    });
-  }
-
   const status = document.getElementById("copy-status");
   const buttons = document.querySelectorAll("[data-copy-value]");
   if (!status || !buttons.length) return;
