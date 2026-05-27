@@ -1,0 +1,52 @@
+{
+  // Narrow Headscale policy for ClassHub Homework Helper using lab_mind Jetson-B.
+  //
+  // Expected nodes:
+  // - ClassHub LMS/helper host: tag:classhub-lms
+  // - lab_mind Jetson-B helper model host: tag:lab-mind-jetson-b
+  // - optional operator workstation: tag:ops
+  //
+  // Data plane:
+  // - Headscale coordinates reachability only.
+  // - Helper model traffic goes directly LMS -> Jetson over the tailnet.
+  // - Student/teacher browsers never talk to the Jetson node.
+  //
+  // Preferred Jetson-B publishing shape:
+  // - a small llama.cpp profile listens inside lab_mind compose on 8080.
+  // - a localhost-only auth proxy listens on 127.0.0.1:18080.
+  // - Tailscale Serve exposes the proxy as HTTPS on the Jetson tailnet name.
+  // - ClassHub uses LLM_BASE_URL=https://jetson-b.tail.creatempls.org.
+  "groups": {
+    "group:ops": [
+      "ops@creatempls.org"
+    ]
+  },
+
+  "tagOwners": {
+    "tag:classhub-lms": ["group:ops"],
+    "tag:lab-mind-jetson-b": ["group:ops"],
+    "tag:ops": ["group:ops"]
+  },
+
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["tag:classhub-lms"],
+      "dst": [
+        "tag:lab-mind-jetson-b:443"
+      ]
+    },
+    {
+      "action": "accept",
+      "src": ["tag:ops"],
+      "dst": [
+        "tag:classhub-lms:*",
+        "tag:lab-mind-jetson-b:22,443,18080"
+      ]
+    }
+  ],
+
+  "autoApprovers": {
+    "routes": {}
+  }
+}

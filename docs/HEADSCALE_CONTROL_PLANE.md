@@ -17,7 +17,7 @@ Headscale is coordinating the private path. It is not serving the model and it i
 
 Use the Headscale VPS for one job only:
 
-- coordinate private tailnet membership for the LMS host and the GPU/model host
+- coordinate private tailnet membership for the LMS host and the private model host
 
 Do not treat it as:
 
@@ -53,7 +53,7 @@ Recommended hostname/subdomain:
 Keep it distinct from:
 
 - public LMS: `lms.creatempls.org`
-- private model endpoint: for example `llm-gpu.tail.creatempls.org`
+- private model endpoint: for example `llm-gpu.tail.creatempls.org`, or `jetson-b.tail.creatempls.org` for the bounded `lab_mind` Jetson-B route
 
 ## Ubuntu-first assumptions
 
@@ -61,7 +61,7 @@ Assume:
 
 - Ubuntu LTS on the Headscale VPS
 - Ubuntu or another Linux distribution on the LMS host
-- Ubuntu or another Linux distribution on the GPU/model host
+- Ubuntu or another Linux distribution on the private model host
 
 This repo now ships a narrow Headscale ops bundle in `ops/headscale/`:
 
@@ -105,7 +105,9 @@ This keeps the Headscale VPS deployment path aligned with the rest of the repo's
 Default nodes:
 
 - LMS application host running ClassHub + Homework Helper
-- GPU/model host running the private model server and optional auth proxy
+- private model host running the model server and optional auth proxy
+
+For the current `lab_mind` integration, that private model host is Jetson-B only by explicit ClassHub exception. The refreshed `lab_mind` role map still treats Jetson-A Orin Nano as the normal assistant/model node, Jetson-B/C as edge/support nodes, R900 as the infrastructure spine, and Raspberry Pis as disposable edge appliances.
 
 Optional, narrow-use nodes:
 
@@ -125,8 +127,8 @@ If you add more nodes, document the reason first. The default mental model is tw
 
 Allowed/default:
 
-- Homework Helper on the LMS host to the model endpoint on the GPU host
-- operator/admin troubleshooting between the LMS host and GPU host
+- Homework Helper on the LMS host to the endpoint on the private model host
+- operator/admin troubleshooting between the LMS host and private model host
 - narrow admin checks against tailnet state when debugging the helper path
 
 ## What traffic must never use the tailnet
@@ -147,14 +149,14 @@ flowchart LR
   Browser["Browser"]
   LMS["Public LMS<br/>lms.creatempls.org"]
   Helper["Homework Helper"]
-  GPU["Private GPU/model host<br/>llm-gpu.tail.creatempls.org"]
+  Model["Private model host<br/>llm-gpu.tail.creatempls.org or jetson-b.tail.creatempls.org"]
   HS["Headscale VPS<br/>hs.creatempls.org"]
 
   Browser -->|HTTPS| LMS
   LMS --> Helper
-  Helper -->|HTTPS over tailnet| GPU
+  Helper -->|HTTPS over tailnet| Model
   HS -. coordinates node identity and reachability .- LMS
-  HS -. control plane only .- GPU
+  HS -. control plane only .- Model
 ```
 
 Important:
@@ -217,7 +219,7 @@ Treat the Headscale VPS as important but replaceable:
 
 1. restore Headscale config/state onto a fresh tiny Ubuntu VPS
 2. keep the same hostname if possible (`hs.creatempls.org`)
-3. confirm the LMS host and GPU host rejoin cleanly
+3. confirm the LMS host and private model host rejoin cleanly
 4. rerun helper probing from the LMS host
 
 Canonical repo-side restore command:
@@ -245,7 +247,7 @@ That wrapper:
 - runs the shipped restore path against one backup archive
 - re-enables the Headscale stack and backup timer
 - captures local `systemctl`, `docker compose ps`, metrics, logs, and node-list evidence
-- writes manual placeholders for the LMS-host helper probe and optional GPU-host follow-up
+- writes manual placeholders for the LMS-host helper probe and optional model-host follow-up
 - produces a markdown summary suitable for `artifacts/stability/<date>/headscale_restore_rehearsal/<timestamp>/`
 
 The public LMS and model service remain separate concerns. Replacing the control plane should not require changing application code.
@@ -266,11 +268,13 @@ bash scripts/check_llm_backend.sh --probe-chat
 curl -fsS https://lms.creatempls.org/healthz
 ```
 
-From the GPU host:
+From the private model host:
 
 ```bash
 curl -fsS http://127.0.0.1:11434/api/tags
 ```
+
+For the Jetson-B llama.cpp route, use [JETSON_B_HELPER_BACKEND.md](JETSON_B_HELPER_BACKEND.md) and `bash scripts/check_jetson_b_route.sh --probe-chat` from the LMS host instead of the Ollama `/api/tags` check.
 
 From the Headscale VPS:
 
@@ -289,5 +293,6 @@ Use the Headscale VPS to confirm control-plane health, not to test public site r
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [RUNBOOK.md](RUNBOOK.md)
 - [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
+- [JETSON_B_HELPER_BACKEND.md](JETSON_B_HELPER_BACKEND.md)
 - repo ops bundle: `ops/headscale/README.md`
 - repo ops bundle: `ops/llm-server/README.md`

@@ -14,7 +14,7 @@ This bundle is intentionally narrow.
 
 It is for the Headscale control plane only.
 It is not for the public LMS.
-It is not for the GPU/model service.
+It is not for the model service.
 It is not for general office VPN routing.
 
 ## Recommended host
@@ -201,8 +201,8 @@ What the wrapper captures automatically on the Headscale VPS:
 What still needs operator review:
 
 - LMS-host helper probe output (`bash scripts/check_llm_backend.sh --probe-chat`)
-- confirmation that the LMS host and GPU/model host rejoined cleanly
-- optional GPU-host local checks when the LMS helper probe fails
+- confirmation that the LMS host and private model host rejoined cleanly
+- optional model-host local checks when the LMS helper probe fails
 
 ## Recovery expectations
 

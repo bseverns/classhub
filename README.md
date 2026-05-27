@@ -61,7 +61,7 @@ flowchart LR
   Hub --> Data
   Helper --> Data
   Helper --> Model
-  Control -. coordinates LMS/GPU tailnet nodes .- Helper
+  Control -. coordinates LMS/model tailnet nodes .- Helper
   Control -. control plane only .- Model
 ```
 
@@ -95,6 +95,7 @@ The quickstart and deploy scripts now default to a bundled CPU-local helper smok
 - Runbook and operations: [`docs/RUNBOOK.md`](docs/RUNBOOK.md)
 - Private LLM topology: [`docs/PRIVATE_LLM_BACKEND.md`](docs/PRIVATE_LLM_BACKEND.md)
 - Headscale operator guide: [`docs/HEADSCALE_CONTROL_PLANE.md`](docs/HEADSCALE_CONTROL_PLANE.md)
+- Jetson-B helper route: [`docs/JETSON_B_HELPER_BACKEND.md`](docs/JETSON_B_HELPER_BACKEND.md)
 - Remote compute lease control: [`docs/REMOTE_HELPER_COMPUTE_CONTROL.md`](docs/REMOTE_HELPER_COMPUTE_CONTROL.md)
 - Remote compute evidence: [`docs/EVIDENCE_REMOTE_COMPUTE.md`](docs/EVIDENCE_REMOTE_COMPUTE.md)
 - Infrastructure hardening roadmap: [`docs/INFRASTRUCTURE_HARDENING_ROADMAP.md`](docs/INFRASTRUCTURE_HARDENING_ROADMAP.md)

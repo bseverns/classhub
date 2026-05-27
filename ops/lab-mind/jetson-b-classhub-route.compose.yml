@@ -1,0 +1,41 @@
+# Jetson-B route adapter for ClassHub Homework Helper.
+#
+# Use this as an extra overlay with the lab_mind Jetson-B compose file.
+# It adds a small llama.cpp backend plus a localhost-only auth proxy.
+# Publish the localhost proxy to the tailnet with Tailscale Serve; do not
+# publish it on the public network.
+#
+# Example from the lab_mind checkout:
+#   CLASSHUB_LAB_MIND_ROUTE_ROOT=/srv/classhub/app/ops/lab-mind \
+#   CLASSHUB_JETSON_LLM_API_KEY=REPLACE_ME_STRONG \
+#   CLASSHUB_JETSON_MODEL=/models/classhub/REPLACE_ME-small.gguf \
+#   docker compose \
+#     -f compose/jetson-b.compose.yml \
+#     -f /srv/classhub/app/ops/lab-mind/jetson-b-classhub-route.compose.yml \
+#     up -d
+
+services:
+  classhub_llamacpp:
+    image: ${CLASSHUB_JETSON_LLAMA_IMAGE:-ghcr.io/ggml-org/llama.cpp:server-cuda12-b8840}
+    restart: unless-stopped
+    environment:
+      LLAMA_ARG_MODEL: ${CLASSHUB_JETSON_MODEL:?set CLASSHUB_JETSON_MODEL}
+      LLAMA_ARG_CTX_SIZE: ${CLASSHUB_JETSON_CTX_SIZE:-1024}
+      LLAMA_ARG_N_GPU_LAYERS: ${CLASSHUB_JETSON_N_GPU_LAYERS:-0}
+      LLAMA_ARG_HOST: 0.0.0.0
+      LLAMA_ARG_PORT: 8080
+    volumes:
+      - /srv/labbrain/models:/models
+      - /srv/labbrain/data/classhub-llamacpp:/root/.cache
+
+  classhub_llm_proxy:
+    image: caddy:2.10.2
+    restart: unless-stopped
+    environment:
+      CLASSHUB_JETSON_LLM_API_KEY: ${CLASSHUB_JETSON_LLM_API_KEY:?set CLASSHUB_JETSON_LLM_API_KEY}
+    ports:
+      - "127.0.0.1:18080:18080"
+    volumes:
+      - ${CLASSHUB_LAB_MIND_ROUTE_ROOT:-/srv/classhub/app/ops/lab-mind}/Caddyfile.classhub-llm:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - classhub_llamacpp

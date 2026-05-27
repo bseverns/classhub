@@ -32,7 +32,7 @@ What it does:
 2) restores one Headscale backup archive
 3) re-enables the runtime stack and backup timer when systemd units are installed
 4) captures local status evidence from the Headscale VPS
-5) creates manual verification placeholders for LMS/GPU-side checks
+5) creates manual verification placeholders for LMS/model-host checks
 6) writes log, metrics JSON, checklist, and markdown summary artifacts
 
 Options:
@@ -370,24 +370,24 @@ Paste the command output here and note whether helper-private-path readiness rec
 copy_or_template \
   "${MANUAL_DIR}/node_rejoin_notes.txt" \
   "${NODE_MEMBERSHIP_OUTPUT}" \
-"Record whether the LMS host and GPU/model host rejoined cleanly after the restore.
+"Record whether the LMS host and private model host rejoined cleanly after the restore.
 
 Suggested command from the Headscale VPS:
 cd ${HEADSCALE_ROOT} && docker compose exec -T headscale headscale nodes list
 
 Expected outcome:
 - LMS host present
-- GPU/model host present
+- private model host present
 - no improvised enrollment flow required"
 
 copy_or_template \
   "${MANUAL_DIR}/gpu_health_check.txt" \
   "${GPU_HEALTH_OUTPUT}" \
-"Optional GPU-host follow-up if the LMS helper probe fails:
+"Optional model-host follow-up if the LMS helper probe fails:
 
 curl -fsS http://127.0.0.1:11434/api/tags
 
-Paste the output here or explain why the GPU-side check was not needed."
+Paste the output here or explain why the model-host check was not needed."
 
 cat > "${CHECKLIST_PATH}" <<EOF
 # Headscale Restore Rehearsal Manual Checklist
@@ -407,7 +407,7 @@ Fill this in during or immediately after the rehearsal.
 | Tailnet nodes rejoined | See \`manual/node_rejoin_notes.txt\` |  |  |
 | LMS helper probe recovered | See \`manual/lms_helper_probe.txt\` |  |  |
 | Public LMS still healthy | \`curl -fsS https://lms.creatempls.org/healthz\` from LMS host or public edge |  |  |
-| GPU host only checked if needed | See \`manual/gpu_health_check.txt\` |  |  |
+| Model host only checked if needed | See \`manual/gpu_health_check.txt\` |  |  |
 
 ## Operator got stuck here
 

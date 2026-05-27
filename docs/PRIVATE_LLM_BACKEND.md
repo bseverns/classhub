@@ -20,6 +20,16 @@ Current deploy/test default:
 - treat remote private-backend validation as optional pass/fail evidence, not as a blocker for the rest of the stack
 - for the serious private backend, prefer a Gemma-family model on the private GPU host, served through Ollama or another compatible private backend
 
+Current `lab_mind` placement truth:
+
+- R900 is the infrastructure spine for storage, backups, monitoring, dashboards, docs mirror, and operational memory.
+- Jetson-A Orin Nano is the normal assistant/model node.
+- Jetson-B and Jetson-C are edge/support nodes, not the canonical assistant/model hosts.
+- Raspberry Pis stay disposable edge appliances.
+- Headscale is the private control plane only.
+
+For this ClassHub deployment, [JETSON_B_HELPER_BACKEND.md](JETSON_B_HELPER_BACKEND.md) prepares a bounded Jetson-B helper route as an explicit exception to that map. Do not read the Jetson-B route as a general instruction to move `lab_mind` model serving off Jetson-A.
+
 ```mermaid
 flowchart TD
   B[Browsers] -->|HTTPS| C[Public LMS edge<br/>lms.creatempls.org]
@@ -29,7 +39,7 @@ flowchart TD
   P --> M[Model server on 127.0.0.1]
   HS[Headscale VPS<br/>hs.creatempls.org<br/>control plane only]
 
-  HS -. coordinates LMS and GPU nodes .- H
+  HS -. coordinates LMS and model nodes .- H
   HS -. does not proxy request traffic .- M
 ```
 
@@ -41,7 +51,7 @@ The student-facing flow is:
 2. The helper widget submits to `/helper/chat` on the same public LMS site.
 3. Homework Helper applies policy, redaction, scope checks, and rate limits.
 4. Homework Helper reaches the remote model host over the private tailnet, not over the public internet.
-5. The GPU-side auth proxy forwards only authorized requests to the loopback-bound model server.
+5. The model-host auth proxy forwards only authorized requests to the loopback-bound model server.
 6. The model response returns to Homework Helper, then back into the student LMS view.
 
 Keep this topology in mind:
@@ -49,8 +59,8 @@ Keep this topology in mind:
 - browser -> public LMS
 - public LMS -> Homework Helper
 - Homework Helper -> private tailnet
-- private tailnet -> private GPU host
-- GPU host -> private tailnet -> Homework Helper
+- private tailnet -> private model host
+- private model host -> private tailnet -> Homework Helper
 - Homework Helper -> public LMS response
 
 See also [ARCHITECTURE.md](ARCHITECTURE.md) for the broader Class Hub / Homework Helper split.
@@ -84,7 +94,7 @@ For createMPLS-style production deployments, recommend:
 
 - a self-hosted Headscale server on a tiny Ubuntu VPS
 - a separate public hostname such as `hs.creatempls.org`
-- only the LMS host and GPU host joined by default
+- only the LMS host and private model host joined by default
 
 Important:
 

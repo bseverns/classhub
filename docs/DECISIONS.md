@@ -4114,3 +4114,30 @@ Execution ownership and gates:
 - `scripts/migration_gate.sh` validates committed migrations before the full stack is brought up, so helper one-off commands must not be trapped behind entrypoint database readiness checks.
 - The inventory guard is meant to preserve critical flow coverage, not block legitimate test-suite decomposition.
 - The ClassHub image still runs with a read-only root filesystem; writable curriculum state remains isolated to the explicit content bind mount.
+
+## Jetson-B private helper route (2026-05-27)
+
+**Current decision:**
+- Prepare a Headscale-only private route for ClassHub Homework Helper to use `lab_mind` Jetson-B as a small helper-model endpoint.
+- Treat Jetson-B usage as an explicit exception to the current `lab_mind` role map, where Jetson-B is normally an edge/support node rather than the primary assistant/model host.
+- Use a tailnet-only HTTPS endpoint (`https://jetson-b.tail.creatempls.org`) with `LLM_BACKEND=openai_compatible`, because the prepared Jetson-B route serves llama.cpp's OpenAI-compatible `/v1` API.
+- Add a Jetson-B lab overlay that runs a small llama.cpp service plus a localhost-only Caddy bearer-token proxy, then publish only that proxy through Tailscale Serve.
+- Keep Headscale as the control plane only; student/teacher browsers still never talk directly to Jetson-B.
+
+**Why this remains active:**
+- This gives the site a concrete, testable route to lab compute without widening the public LMS boundary.
+- The explicit exception note prevents Jetson-B from silently becoming general-purpose infrastructure.
+- The auth proxy keeps ClassHub's helper provider contract (`LLM_API_KEY`) intact even when the underlying lab model server is simple.
+
+## Lab Mind machine-map docs truth (2026-05-27)
+
+**Current decision:**
+- Treat the refreshed `lab_mind` docs as the source of truth for lab machine roles when documenting ClassHub helper routing.
+- Describe R900 as the infrastructure spine, Jetson-A Orin Nano as the normal assistant/model node, Jetson-B/C as edge/support nodes, Raspberry Pis as disposable edge appliances, and Headscale as private control plane only.
+- Keep the Jetson-B helper backend documented as a bounded ClassHub-specific exception, not as a rewrite of the canonical `lab_mind` placement matrix.
+- Use "private model host" in route-agnostic Headscale docs, and reserve Jetson-B wording for the explicit ClassHub lab route.
+
+**Why this remains active:**
+- Prevents stale "GPU host" shorthand from making Jetson-B look like the lab's primary assistant/model node.
+- Lets ClassHub prepare the requested Jetson-B route while preserving the lab's current operational ownership map.
+- Keeps Headscale's role clear: reachability control, not public LMS routing or request proxying.

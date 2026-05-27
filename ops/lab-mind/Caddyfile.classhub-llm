@@ -1,0 +1,9 @@
+:18080 {
+  @authorized header Authorization "Bearer {$CLASSHUB_JETSON_LLM_API_KEY}"
+
+  handle @authorized {
+    reverse_proxy classhub_llamacpp:8080
+  }
+
+  respond "unauthorized\n" 401
+}
