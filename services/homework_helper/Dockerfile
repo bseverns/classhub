@@ -30,5 +30,4 @@ RUN chown -R app:app /app && chmod +x /app/docker-entrypoint.sh
 
 USER app
 
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-
+CMD ["/app/docker-entrypoint.sh"]

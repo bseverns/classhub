@@ -63,9 +63,15 @@ FILE_CONTRACTS: dict[str, dict] = {
         "required_tests": (
             "test_teach_class_shows_facilitator_support_board",
             "test_teacher_can_resolve_delete_request",
-            "test_teacher_can_merge_students",
         ),
         "tokens": ("TeacherPortalClassOpsTests", "/teach/material/"),
+    },
+    "services/classhub/hub/tests/test_teacher_admin_portal_roster_ops.py": {
+        "required_tests": (
+            "test_teacher_can_merge_students",
+            "test_teacher_can_rename_student",
+        ),
+        "tokens": ("TeacherPortalRosterOpsTests", "/teach/class/", "/merge-students"),
     },
     "services/classhub/hub/tests/test_teacher_admin_portal_module_ops.py": {
         "required_tests": (

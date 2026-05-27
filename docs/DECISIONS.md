@@ -4101,3 +4101,14 @@ Execution ownership and gates:
 - Removes the prior platform-dependent “Avenir Next when present, Segoe/Arial otherwise” behavior without adding an external font CDN.
 - Keeps CSP and privacy posture clean because font files are served by the app itself.
 - Uses only the two variable WOFF2 files needed for UI text instead of vendoring the full release archive.
+
+## CI one-off command contracts (2026-05-27)
+
+**Current decision:**
+- Keep service images runnable for both normal boot and one-off Django management commands under `docker compose run`.
+- Use `CMD ["/app/docker-entrypoint.sh"]` for Django service boot scripts so commands like `python manage.py makemigrations --check --dry-run` bypass startup database waits when compose intentionally runs them with `--no-deps`.
+- Keep the test inventory guard pointed at the suite that owns the flow after test refactors, rather than forcing flow tests to stay in their old files.
+
+**Why this remains active:**
+- `scripts/migration_gate.sh` validates committed migrations before the full stack is brought up, so helper one-off commands must not be trapped behind entrypoint database readiness checks.
+- The inventory guard is meant to preserve critical flow coverage, not block legitimate test-suite decomposition.

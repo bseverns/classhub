@@ -26,7 +26,7 @@
       <label class="mini" for="remote-compute-duration-{{ classroom.id }}">Activation window</label>
       <select id="remote-compute-duration-{{ classroom.id }}" name="duration_minutes">
         {% for minutes in helper_remote_compute_duration_choices %}
-        <option value="{{ minutes }}" {% if minutes==90 %} selected{% endif %}>{{ minutes }} min</option>
+        <option value="{{ minutes }}" {% if minutes == 90 %} selected{% endif %}>{{ minutes }} min</option>
         {% endfor %}
       </select>
       <button type="submit">Request remote helper compute</button>
