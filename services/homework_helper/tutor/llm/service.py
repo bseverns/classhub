@@ -250,6 +250,8 @@ def healthcheck_provider(
     request_id: str = "healthcheck",
     getenv: Callable[[str, str], str] = helper_getenv,
 ) -> LLMHealthStatus:
+    from .tailnet_utils import is_tailnet_peer_reachable
+    
     provider = build_provider(provider_name, getenv=getenv)
     if not provider.config.enabled:
         return LLMHealthStatus(
@@ -258,6 +260,16 @@ def healthcheck_provider(
             model=provider.config.model,
             detail="llm_disabled",
         )
+    
+    # Pre-check tailnet connectivity for non-local hosts
+    if not is_tailnet_peer_reachable(provider.config.base_url):
+        return LLMHealthStatus(
+            ok=False,
+            provider=provider.config.provider,
+            model=provider.config.model,
+            detail="tailnet_peer_unreachable",
+        )
+
     if not provider.config.healthcheck_enabled:
         return LLMHealthStatus(
             ok=True,

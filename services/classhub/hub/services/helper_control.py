@@ -78,6 +78,10 @@ class HelperRemoteComputeStatusResult:
     last_activation_at: str = ""
     last_ready_at: str = ""
     last_fallback_at: str = ""
+    gpu_utilization: int = 0
+    gpu_memory_used_mb: int = 0
+    gpu_memory_total_mb: int = 0
+    last_telemetry_at: str = ""
     requested_duration_minutes_total: int = 0
     starting_seconds_total: int = 0
     ready_seconds_total: int = 0
@@ -390,6 +394,10 @@ def fetch_remote_compute_status(
         last_activation_at=str(payload.get("last_activation_at") or "").strip()[:64],
         last_ready_at=str(payload.get("last_ready_at") or "").strip()[:64],
         last_fallback_at=str(payload.get("last_fallback_at") or "").strip()[:64],
+        gpu_utilization=_safe_non_negative_int(payload.get("gpu_utilization")),
+        gpu_memory_used_mb=_safe_non_negative_int(payload.get("gpu_memory_used_mb")),
+        gpu_memory_total_mb=_safe_non_negative_int(payload.get("gpu_memory_total_mb")),
+        last_telemetry_at=str(payload.get("last_telemetry_at") or "").strip()[:64],
         requested_duration_minutes_total=_safe_non_negative_int(payload.get("requested_duration_minutes_total")),
         starting_seconds_total=_safe_non_negative_int(payload.get("starting_seconds_total")),
         ready_seconds_total=_safe_non_negative_int(payload.get("ready_seconds_total")),

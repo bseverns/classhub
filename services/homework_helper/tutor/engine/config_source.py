@@ -124,32 +124,69 @@ def helper_getenv(name: str, default: str = "") -> str:
     if not path:
         return default
 
-    config_file = (os.getenv("HELPER_CONFIG_FILE", "") or "").strip()
-    if not config_file:
+    # HELPER_CONFIG_FILE can now be a comma-separated list of files (Base -> Secret -> Override)
+    config_filenames = [f.strip() for f in (os.getenv("HELPER_CONFIG_FILE", "") or "").split(",") if f.strip()]
+    if not config_filenames:
         return default
 
-    yaml_doc = _load_yaml_config(config_file)
-    raw_value = _nested_get(yaml_doc, path)
+    # Load and merge config documents in order
+    merged_config = {}
+    for filename in config_filenames:
+        yaml_doc = _load_yaml_config(filename)
+        if isinstance(yaml_doc, dict):
+            _deep_merge(merged_config, yaml_doc)
+
+    raw_value = _nested_get(merged_config, path)
     rendered = _render_scalar(raw_value)
     if rendered == "":
         return default
     return rendered
 
 
-@lru_cache(maxsize=8)
+@lru_cache(maxsize=16)
 def _load_yaml_config(config_file: str) -> dict:
     if yaml is None:
         return {}
     path = Path(config_file)
     if not path.is_file():
         return {}
+
     try:
-        parsed = yaml.safe_load(path.read_text(encoding="utf-8"))
+        content = ""
+        # Support GPG-encrypted secrets
+        if config_file.lower().endswith(".gpg"):
+            import subprocess
+            result = subprocess.run(
+                ["gpg", "--decrypt", "--quiet", "--batch", config_file],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if result.returncode == 0:
+                content = result.stdout
+            else:
+                # Fallback to plain read if GPG fails (might just be unencrypted with .gpg extension)
+                content = path.read_text(encoding="utf-8")
+        else:
+            content = path.read_text(encoding="utf-8")
+
+        if not content:
+            return {}
+
+        parsed = yaml.safe_load(content)
+        if not isinstance(parsed, dict):
+            return {}
+        return parsed
     except Exception:
         return {}
-    if not isinstance(parsed, dict):
-        return {}
-    return parsed
+
+
+def _deep_merge(target: dict, source: dict) -> None:
+    for key, value in source.items():
+        if isinstance(value, dict) and key in target and isinstance(target[key], dict):
+            _deep_merge(target[key], value)
+        else:
+            target[key] = value
 
 
 def _nested_get(source: dict, keys: tuple[str, ...]):

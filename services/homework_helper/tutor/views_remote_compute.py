@@ -413,9 +413,45 @@ def internal_remote_compute_control(request):
     )
 
 
+@csrf_exempt
+@require_POST
+def internal_remote_compute_telemetry(request):
+    request_id = _request_id(request)
+    ok, response = _authorized(request, request_id=request_id, event_prefix="internal_remote_compute_telemetry")
+    if not ok:
+        return response
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        return _json_response({"error": "bad_json"}, request_id=request_id, status=400)
+
+    from .remote_compute_control import update_remote_compute_telemetry
+
+    try:
+        class_id = int(payload.get("class_id") or 0)
+    except Exception:
+        class_id = 0
+
+    if class_id <= 0:
+        return _json_response({"error": "invalid_class_id"}, request_id=request_id, status=400)
+
+    update_remote_compute_telemetry(
+        class_id=class_id,
+        gpu_utilization=int(payload.get("gpu_utilization") or 0),
+        gpu_memory_used_mb=int(payload.get("gpu_memory_used_mb") or 0),
+        gpu_memory_total_mb=int(payload.get("gpu_memory_total_mb") or 0),
+    )
+
+    return _json_response(
+        {"ok": True, "detail": "telemetry_received"},
+        request_id=request_id,
+    )
+
+
 __all__ = [
     "internal_remote_compute_control",
     "internal_remote_compute_evidence",
     "internal_remote_compute_operator_snapshot",
     "internal_remote_compute_status",
+    "internal_remote_compute_telemetry",
 ]

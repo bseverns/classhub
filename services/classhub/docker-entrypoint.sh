@@ -8,6 +8,10 @@ seed_content() {
   if [[ ! -d "${CONTENT_SEED_ROOT}/courses" ]]; then
     return 0
   fi
+  if [[ ! -w "$(dirname "${CONTENT_ROOT}")" ]] && [[ ! -w "${CONTENT_ROOT}" ]]; then
+    echo "Warning: CONTENT_ROOT ${CONTENT_ROOT} is not writable. Skipping seed_content."
+    return 0
+  fi
   mkdir -p "${CONTENT_ROOT}/courses"
   for seed_course in "${CONTENT_SEED_ROOT}"/courses/*; do
     [[ -d "${seed_course}" ]] || continue

@@ -75,6 +75,10 @@ class RemoteComputeLease:
     last_activation_at: str = ""
     last_ready_at: str = ""
     last_fallback_at: str = ""
+    gpu_utilization: int = 0
+    gpu_memory_used_mb: int = 0
+    gpu_memory_total_mb: int = 0
+    last_telemetry_at: str = ""
 
 
 @dataclass(frozen=True)
@@ -484,6 +488,33 @@ def mark_remote_compute_routed(*, class_id: int) -> None:
     _record_remote_route(class_id=class_id)
 
 
+def update_remote_compute_telemetry(
+    *,
+    class_id: int,
+    gpu_utilization: int,
+    gpu_memory_used_mb: int,
+    gpu_memory_total_mb: int,
+) -> None:
+    payload = _load_cached_state()
+    if not payload or _safe_int(payload.get("class_id")) != int(class_id):
+        return
+    payload.update(
+        {
+            "gpu_utilization": max(0, min(int(gpu_utilization), 100)),
+            "gpu_memory_used_mb": max(0, int(gpu_memory_used_mb)),
+            "gpu_memory_total_mb": max(0, int(gpu_memory_total_mb)),
+            "last_telemetry_at": _utc_now().isoformat(),
+        }
+    )
+    _persist_state(payload, timeout_seconds=_state_timeout_seconds(payload))
+    sync_session_from_payload(
+        payload=payload,
+        reason_code="telemetry_push",
+        event_type="telemetry_update",
+        detail=f"vGPU Load: {gpu_utilization}%, Mem: {gpu_memory_used_mb}MB",
+    )
+
+
 def _load_cached_state() -> dict:
     return load_state()
 
@@ -772,6 +803,10 @@ def _lease_from_payload(payload: dict, *, class_id: int) -> RemoteComputeLease:
         last_activation_at=str(metrics.get("last_activation_at") or "").strip()[:64],
         last_ready_at=str(metrics.get("last_ready_at") or "").strip()[:64],
         last_fallback_at=str(metrics.get("last_fallback_at") or "").strip()[:64],
+        gpu_utilization=_safe_int(payload.get("gpu_utilization")),
+        gpu_memory_used_mb=_safe_int(payload.get("gpu_memory_used_mb")),
+        gpu_memory_total_mb=_safe_int(payload.get("gpu_memory_total_mb")),
+        last_telemetry_at=str(payload.get("last_telemetry_at") or "").strip()[:64],
     )
 
 
@@ -984,4 +1019,5 @@ __all__ = [
     "mark_remote_compute_routed",
     "reconcile_remote_compute_state",
     "remote_compute_duration_minutes",
+    "update_remote_compute_telemetry",
 ]

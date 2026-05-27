@@ -1,0 +1,54 @@
+<div class="distributed-path-viz">
+    <div class="path-header mini">Distributed Path Status</div>
+    <div class="path-sequence">
+        <!-- Node 1: LMS -->
+        <div class="path-node active">
+            <div class="node-icon">🏠</div>
+            <div class="node-label">LMS Node</div>
+        </div>
+
+        <div class="path-link active"></div>
+
+        <!-- Node 2: VPS (Headscale) -->
+        <div class="path-node active">
+            <div class="node-icon">🌌</div>
+            <div class="node-label">Control Plane (VPS)</div>
+        </div>
+
+        <div class="path-link {% if helper_remote_compute.state == 'ready' %}active{% endif %}"></div>
+
+        <!-- Node 3: Inference Node -->
+        <div class="path-node {% if helper_remote_compute.state == 'ready' %}active{% endif %}">
+            <div class="node-icon">🧠</div>
+            <div class="node-label">Inference Node</div>
+        </div>
+    </div>
+
+    {% if helper_remote_compute.gpu_utilization > 0 or helper_remote_compute.gpu_memory_used_mb > 0 %}
+    <div class="path-telemetry mini">
+        <div class="telemetry-item">
+            <span>vGPU Load:</span>
+            <span class="value">{{ helper_remote_compute.gpu_utilization }}%</span>
+        </div>
+        <div class="telemetry-item">
+            <span>vGPU Memory:</span>
+            <span class="value">{{ helper_remote_compute.gpu_memory_used_mb }} / {{ helper_remote_compute.gpu_memory_total_mb }} MB</span>
+        </div>
+        {% if helper_remote_compute.last_telemetry_at %}
+        <div class="telemetry-footer muted">
+            Last seen: {{ helper_remote_compute.last_telemetry_at }}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if helper_remote_compute.state == 'ready' %}
+    <div class="btnline btnline--compact" style="margin-top: 8px;">
+        <form method="post" action="/teach/class/{{ classroom.id }}/remote-helper-compute">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reconcile" />
+            <button type="submit" class="mini ghost">Re-sync Mesh</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
