@@ -21,6 +21,9 @@ jobs:
       - name: Prepare compose env for CI doctor run
         run: |
           cp compose/.env.example compose/.env
+          mkdir -p data/postgres data/minio data/classhub_uploads data/classhub_content
+          sed -i "s/^APP_UID=.*/APP_UID=$(id -u)/" compose/.env
+          sed -i "s/^APP_GID=.*/APP_GID=$(id -g)/" compose/.env
           # Append CI overrides so env guardrails stay stable even if .env.example formatting changes.
           {
             echo "CADDYFILE_TEMPLATE=Caddyfile.local"

@@ -4108,7 +4108,9 @@ Execution ownership and gates:
 - Keep service images runnable for both normal boot and one-off Django management commands under `docker compose run`.
 - Use `CMD ["/app/docker-entrypoint.sh"]` for Django service boot scripts so commands like `python manage.py makemigrations --check --dry-run` bypass startup database waits when compose intentionally runs them with `--no-deps`.
 - Keep the test inventory guard pointed at the suite that owns the flow after test refactors, rather than forcing flow tests to stay in their old files.
+- In CI stack-smoke runs, create bind-mounted data directories before `docker compose up` and set `APP_UID`/`APP_GID` to the GitHub runner identity so seeded course content can be copied into `data/classhub_content`.
 
 **Why this remains active:**
 - `scripts/migration_gate.sh` validates committed migrations before the full stack is brought up, so helper one-off commands must not be trapped behind entrypoint database readiness checks.
 - The inventory guard is meant to preserve critical flow coverage, not block legitimate test-suite decomposition.
+- The ClassHub image still runs with a read-only root filesystem; writable curriculum state remains isolated to the explicit content bind mount.

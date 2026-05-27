@@ -31,7 +31,7 @@ seed_content() {
         return 0
     fi
     echo "Warning: CONTENT_ROOT ${CONTENT_ROOT} is not writable and content is missing. Seeding will likely fail."
-    echo "Operator: if using volume mounts, ensure host directory permissions match container UID/GID."
+    echo "Operator: if using volume mounts, ensure host directory permissions match container UID/GID (${APP_UID:-unknown}:${APP_GID:-unknown})."
   fi
 
   for seed_course in "${CONTENT_SEED_ROOT}"/courses/*; do

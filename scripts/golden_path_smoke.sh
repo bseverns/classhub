@@ -260,10 +260,14 @@ run_compose exec -T helper_web python manage.py migrate --noinput
 echo "[golden-smoke] upserting course/class fixtures"
 COURSE_MANIFEST="/content/courses/${COURSE_SLUG}/course.yaml"
 if ! run_compose exec -T classhub_web ls "${COURSE_MANIFEST}" >/dev/null 2>&1; then
+  APP_UID_VALUE="$(env_file_value APP_UID)"
+  APP_GID_VALUE="$(env_file_value APP_GID)"
+  APP_UID_VALUE="${APP_UID_VALUE:-1000}"
+  APP_GID_VALUE="${APP_GID_VALUE:-1000}"
   echo "[golden-smoke] ERROR: Course manifest not found: ${COURSE_MANIFEST}" >&2
   echo "[golden-smoke] This usually means content seeding was skipped due to volume permissions." >&2
-  echo "[golden-smoke] FIX: Ensure the host directory for the content volume is writable by UID 1000." >&2
-  echo "[golden-smoke] (e.g., sudo chown -R 1000:1000 ../data/classhub_content)" >&2
+  echo "[golden-smoke] FIX: Ensure the host directory for the content volume is writable by UID ${APP_UID_VALUE}." >&2
+  echo "[golden-smoke] (e.g., sudo chown -R ${APP_UID_VALUE}:${APP_GID_VALUE} ../data/classhub_content)" >&2
   fail "Course manifest missing"
 fi
 
