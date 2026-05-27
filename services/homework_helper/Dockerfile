@@ -26,8 +26,9 @@ COPY homework_helper /app
 
 EXPOSE 8000
 
-RUN chown -R app:app /app
+RUN chown -R app:app /app && chmod +x /app/docker-entrypoint.sh
 
 USER app
 
-CMD ["bash", "-lc", "if [ \"${RUN_MIGRATIONS_ON_START:-1}\" = \"1\" ]; then python manage.py migrate --noinput; fi; if [ \"${RUN_REMOTE_COMPUTE_RECONCILE_ON_START:-1}\" = \"1\" ]; then python manage.py reconcile_remote_compute_state --quiet || true; fi; exec gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --workers ${HELPER_GUNICORN_WORKERS:-2} --timeout ${HELPER_GUNICORN_TIMEOUT_SECONDS:-180}"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+

@@ -32,7 +32,8 @@
         </div>
         <div class="telemetry-item">
             <span>vGPU Memory:</span>
-            <span class="value">{{ helper_remote_compute.gpu_memory_used_mb }} / {{ helper_remote_compute.gpu_memory_total_mb }} MB</span>
+            <span class="value">{{ helper_remote_compute.gpu_memory_used_mb }} / {{
+                helper_remote_compute.gpu_memory_total_mb }} MB</span>
         </div>
         {% if helper_remote_compute.last_telemetry_at %}
         <div class="telemetry-footer muted">
@@ -43,7 +44,7 @@
     {% endif %}
 
     {% if helper_remote_compute.state == 'ready' %}
-    <div class="btnline btnline--compact" style="margin-top: 8px;">
+    <div class="btnline btnline--compact btnline--top-spaced">
         <form method="post" action="/teach/class/{{ classroom.id }}/remote-helper-compute">
             {% csrf_token %}
             <input type="hidden" name="action" value="reconcile" />
