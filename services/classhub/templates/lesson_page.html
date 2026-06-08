@@ -16,12 +16,19 @@
     <main id="main-content">
       <div class="top">
         <div>
-          <div class="muted">Course: <a href="/course/{{ course_slug }}">{{ course.title|default:course_slug }}</a>
+          <div class="muted">Course: <a href="/course/{{ course_slug }}?reading_level={{ selected_reading_level }}">{{ course.title|default:course_slug }}</a>
           </div>
           <h1>{{ front_matter.title|default:lesson_slug }}</h1>
+          <div class="muted">
+            <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple">Simple</a>
+            · <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard">Standard</a>
+            · Reading level: {{ selected_reading_level|title }}
+          </div>
           {% if front_matter.makes %}
           <div class="muted">
-            {% if ui_density_mode == "compact" %}
+            {% if selected_reading_level == "simple" %}
+            Today you will: {{ front_matter.makes }}
+            {% elif ui_density_mode == "compact" %}
             Goal: {{ front_matter.makes }}
             {% else %}
             Makes: {{ front_matter.makes }}
@@ -41,9 +48,9 @@
           </div>
         </div>
         <div class="nav">
-          <a class="btn" href="/student">Back to class</a>
-          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout?reading_level={{ selected_reading_level }}">Print handout</a>
-          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout.pdf?reading_level={{ selected_reading_level }}">Download handout PDF</a>
+          <a class="btn" href="/student?reading_level={{ selected_reading_level }}">Back to class</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}Open handout{% else %}Print handout{% endif %}</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout.pdf?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}Download handout{% else %}Download handout PDF{% endif %}</a>
           {% if can_edit_lesson_override and classroom %}
           <a class="btn" href="/teach/course/{{ course_slug }}/lesson/{{ lesson_slug }}/edit?class_id={{ classroom.id }}">Edit Markdown</a>
           {% endif %}
@@ -51,17 +58,17 @@
           <a class="btn" href="/student/portfolio-export">Export portfolio</a>
           {% endif %}
           {% if prev %}
-          <a class="btn" href="/course/{{ course_slug }}/{{ prev.slug }}">← Prev</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ prev.slug }}?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}← Back{% else %}← Prev{% endif %}</a>
           {% endif %}
           {% if next %}
-          <a class="btn" href="/course/{{ course_slug }}/{{ next.slug }}">Next →</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ next.slug }}?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}Next lesson →{% else %}Next →{% endif %}</a>
           {% endif %}
         </div>
       </div>
 
       {% if lesson_locked %}
       <div class="card">
-        <h2 class="card-title">Lesson schedule</h2>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}When this opens{% else %}Lesson schedule{% endif %}</h2>
         <p><span class="state-pill state-pill--locked">Intro-only mode</span></p>
         <p class="muted">
           Full activities and submissions unlock on
@@ -114,7 +121,7 @@
 
       {% if not lesson_locked and lesson_submission.type == "file" %}
       <div class="card">
-        <h2 class="card-title">Homework dropbox</h2>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}Turn in your work{% else %}Homework dropbox{% endif %}</h2>
         <p class="muted dropbox-detail"><span class="state-pill state-pill--open">Submissions open</span></p>
         <p class="muted dropbox-detail">
           {% if lesson_submission.accepted_exts %}
@@ -136,7 +143,7 @@
           {% endif %}
         </p>
         <div class="nav dropbox-actions">
-          <a class="btn" href="/material/{{ lesson_upload_material.id }}/upload">Open dropbox</a>
+          <a class="btn" href="/material/{{ lesson_upload_material.id }}/upload?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}Open upload page{% else %}Open dropbox{% endif %}</a>
           {% if lesson_upload_status %}
           <span class="muted">Uploaded {{ lesson_upload_status.count }} file{{ lesson_upload_status.count|pluralize }} ·
             latest {{ lesson_upload_status.last_uploaded_at }}</span>
@@ -178,7 +185,7 @@
 
       {% if lesson_handout %}
       <div class="card">
-        <h2 class="card-title">Do this now</h2>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}Start here{% else %}Do this now{% endif %}</h2>
         <div class="nav">
           <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple">Simple</a>
           <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard">Standard</a>
@@ -193,7 +200,7 @@
           {% endfor %}
         </ul>
         {% if lesson_handout.submit %}
-        <h3 class="card-title">Submit</h3>
+        <h3 class="card-title">{% if selected_reading_level == "simple" %}Turn in{% else %}Submit{% endif %}</h3>
         <ul>
           {% for item in lesson_handout.submit %}
           <li>{{ item }}</li>
@@ -201,7 +208,7 @@
         </ul>
         {% endif %}
         {% if lesson_handout.safety %}
-        <h3 class="card-title">Safety</h3>
+        <h3 class="card-title">{% if selected_reading_level == "simple" %}Stay safe{% else %}Safety{% endif %}</h3>
         <ul>
           {% for item in lesson_handout.safety %}
           <li>{{ item }}</li>
@@ -213,7 +220,7 @@
 
       {% if local_anchors %}
       <div class="card">
-        <h2 class="card-title">Local anchors</h2>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}Around you{% else %}Local anchors{% endif %}</h2>
         <ul>
           {% for item in local_anchors %}
           <li>{{ item }}</li>
@@ -224,7 +231,7 @@
 
       {% if example_variants %}
       <div class="card">
-        <h2 class="card-title">Example variants</h2>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}Other versions{% else %}Example variants{% endif %}</h2>
         <ul>
           {% for item in example_variants %}
           <li>{{ item }}</li>
@@ -235,7 +242,7 @@
 
       {% if community_glossary %}
       <div class="card">
-        <h2 class="card-title">Community glossary</h2>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}Words for this lesson{% else %}Community glossary{% endif %}</h2>
         <ul>
           {% for row in community_glossary %}
           <li><strong>{{ row.term }}</strong>: {{ row.definition }}</li>
@@ -255,7 +262,9 @@
       {% endif %}
 
       <p class="muted">
-        {% if ui_density_mode == "compact" %}
+        {% if selected_reading_level == "simple" %}
+        If something feels private, leave it out and tell your teacher.
+        {% elif ui_density_mode == "compact" %}
         If something feels unsafe to share, keep it private and tell your teacher.
         {% else %}
         If something feels unsafe to share, keep your work private and submit only the file. You control what leaves

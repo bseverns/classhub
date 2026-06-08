@@ -52,7 +52,7 @@ from ...services.zip_exports import (
     temporary_zip_archive as _temporary_zip_archive,
     write_submission_file_to_archive as _write_submission_file_to_archive,
 )
-from ..content import iter_course_lesson_options
+from ..content_catalog import iter_course_lesson_options
 from .shared_auth import (
     _AUTHORING_TEMPLATE_SUFFIXES,
     _TEMPLATE_SLUG_RE,

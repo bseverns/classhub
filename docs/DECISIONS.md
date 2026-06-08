@@ -55,6 +55,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Registry-backed docs truth spine (2026-04-04)](#registry-backed-docs-truth-spine-2026-04-04)
 - [Teacher docs journey layering](#teacher-docs-journey-layering)
 - [Public docs plain-language default](#public-docs-plain-language-default)
+- [Family-visible reading-level controls](#family-visible-reading-level-controls)
 - [Spanish/Somali localization parity](#spanishsomali-localization-parity)
 - [Feature maturity ledger and evaluator quickstart](#feature-maturity-ledger-and-evaluator-quickstart)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
@@ -223,14 +224,27 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Django upload header bypass patch level (2026-05-13)
 
 **Current decision:**
-- Pin ClassHub to `Django==5.2.14` or newer patch releases on the `5.2.x` line.
+- Pin both Django services to `Django==5.2.15` and continue taking patch releases on the `5.2.x` line as advisories land.
 - Do not treat `FILE_UPLOAD_MAX_MEMORY_SIZE` as a sufficient standalone control.
 - Require request body size limits at the web server/edge layer (Caddy or upstream proxy) for defense in depth.
 
 **Why this remains active:**
 - `Django==5.2.13` is in the affected advisory range for ASGI upload requests with missing or understated `Content-Length`.
-- Patch-level upgrade removes the known bypass class in supported branches.
+- `Django==5.2.14` now also carries 2026 advisory fixes that land in `5.2.15`.
+- Patch-level upgrades remove the known bypass/vulnerability classes in supported branches.
 - Edge request-size limits prevent oversized body abuse even when app-layer checks are bypassed or misconfigured.
+
+## Student/content view budget follow-up (2026-06-08)
+
+**Current decision:**
+- Treat `scripts/check_view_size_budgets.py` failures in learner/content views as a refactor signal first, not a budget-raise signal.
+- Keep route wiring stable while splitting public pages, join-page rendering, and lesson handout endpoints into smaller view modules.
+- Only add or raise learner-view budget entries after the split seams are exhausted and documented.
+
+**Why this remains active:**
+- The current stack now has richer handouts, privacy/trust pages, and join-flow affordances, but those features do not require a single large endpoint file.
+- Smaller modules keep review scope inspectable and make later reading-level and ingestion work less risky.
+- Preserves the existing dense-view guard as an active control instead of turning it into paperwork.
 
 **Current decision:**
 - Keep remote helper compute off by default.
@@ -971,6 +985,31 @@ Execution ownership and gates:
 - Plain language improves trust and reduces onboarding friction in school/community contexts.
 - Labeled advanced sections preserve technical accuracy without overwhelming non-technical readers.
 
+## Family-visible reading-level controls
+
+**Current decision:**
+- Keep reading-level support deterministic and query-based on family-visible routes:
+  - `reading_level=simple|standard`
+- Apply that control to trust-critical pages before broader curriculum prose:
+  - `/`
+  - `/privacy`
+  - `/trust`
+  - `/material/<id>/upload`
+- Extend that same control through curriculum and self-service learner routes so students do not lose the chosen wording level when moving between lesson discovery, lesson execution, handouts, and My Data:
+  - `/course/<slug>`
+  - `/course/<slug>/<lesson_slug>`
+  - `/course/<slug>/<lesson_slug>/handout`
+  - `/student`
+  - `/student/my-data`
+- Use authored/simple copy variants in templates and views instead of runtime rewriting.
+- Preserve the same storage, deletion, and retention semantics across reading levels; only the wording changes.
+
+**Why this remains active:**
+- Trust and join flows are where reading complexity most directly blocks classroom access.
+- Lesson and self-service flows are the next highest-friction surfaces once a student has joined.
+- Deterministic copy keeps operator review and translation follow-up tractable.
+- The feature improves accessibility without introducing a new content management system.
+
 ## Spanish/Somali localization parity
 
 **Current decision:**
@@ -1631,6 +1670,7 @@ Execution ownership and gates:
   - `example_variants`
   - `community_glossary`
   - `offline_handout`
+- Preserve those sections through teacher syllabus import so Markdown, DOCX, and ZIP-based coursepack compilation do not drop them on ingest.
 - Expose a print-friendly lesson handout surface at:
   - `/course/<course_slug>/<lesson_slug>/handout`
   - `/course/<course_slug>/<lesson_slug>/handout.pdf`

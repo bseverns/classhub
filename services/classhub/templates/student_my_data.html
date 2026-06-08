@@ -15,8 +15,13 @@
   <div class="shell">
     <main id="main-content">
       <div class="top">
-        <div class="muted"><a href="/student">{% trans "Back to class" %}</a> · <a href="/privacy">{% trans "Privacy" %}</a> · <a href="/trust">{% trans "Trust notes" %}</a> · <a href="/student/portfolio">{% trans "What I made" %}</a> · <a href="/logout">{% trans "Log out" %}</a></div>
+        <div class="muted"><a href="/student?reading_level={{ selected_reading_level }}">{% trans "Back to class" %}</a> · <a href="/privacy?reading_level={{ selected_reading_level }}">{% trans "Privacy" %}</a> · <a href="/trust?reading_level={{ selected_reading_level }}">{% trans "Trust notes" %}</a> · <a href="/student/portfolio">{% trans "What I made" %}</a> · <a href="/logout">{% trans "Log out" %}</a></div>
         <h1>{% trans "My Data" %}</h1>
+        <div class="muted">
+          <a href="/student/my-data?reading_level=simple">{% trans "Simple" %}</a> ·
+          <a href="/student/my-data?reading_level=standard">{% trans "Standard" %}</a> ·
+          {% trans "Reading level:" %} {{ selected_reading_level|title }}
+        </div>
         <div class="muted">{% trans "Signed in as" %} <strong>{{ student.display_name }}</strong> · {{ classroom.name }}
         </div>
       </div>
@@ -28,7 +33,11 @@
       <div class="card">
         <h2 class="section-title-tight">{% trans "Privacy at a glance" %}</h2>
         <div class="privacy-note">
+          {% if selected_reading_level == "simple" %}
+          <p class="muted">{% trans "Stored data: your class name, your uploads, and basic class timestamps." %}</p>
+          {% else %}
           <p class="muted">{% trans "Stored data: your display name, submissions, and class event timestamps." %}</p>
+          {% endif %}
           {% if operator_profile.storage_location_text %}
           <p class="muted">{% blocktrans with location=operator_profile.storage_location_text %}Storage location: {{ location }}{% endblocktrans %}</p>
           {% else %}
@@ -81,9 +90,17 @@
         </div>
         <p class="muted top-gap-10">
           {% if student_self_delete_mode == "request" %}
+          {% if selected_reading_level == "simple" %}
+          {% trans "A teacher reviews deletion requests before your work is removed." %}
+          {% else %}
           {% trans "Your program requires staff review before deletion. Your request appears on your teacher dashboard." %}
+          {% endif %}
+          {% else %}
+          {% if selected_reading_level == "simple" %}
+          {% trans "Delete now removes your uploads, class responses, and class activity history for this class." %}
           {% else %}
           {% trans "Deletion is immediate for your submissions, checklist/rubric/reflection responses, and your class activity events in this class." %}
+          {% endif %}
           {% endif %}
         </p>
       </div>

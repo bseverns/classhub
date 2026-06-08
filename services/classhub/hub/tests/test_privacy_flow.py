@@ -26,10 +26,26 @@ class PrivacyPageTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'href="/trust"')
 
+    def test_join_page_simple_reading_level_uses_simpler_copy(self):
+        resp = self.client.get("/?reading_level=simple")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Type your class code. Pick a name for class.")
+        self.assertContains(resp, "Reading level: Simple")
+
     def test_privacy_page_links_to_trust_page(self):
         resp = self.client.get("/privacy")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'href="/trust"')
+
+    def test_privacy_page_simple_reading_level_uses_simpler_copy(self):
+        resp = self.client.get("/privacy?reading_level=simple")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "We try to collect only what the class needs.")
+
+    def test_trust_page_simple_reading_level_uses_simpler_copy(self):
+        resp = self.client.get("/trust?reading_level=simple")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "We save the class name you choose so your teacher can find your work.")
 
     @override_settings(CLASSHUB_STUDENT_SELF_DELETE_MODE="request")
     def test_privacy_page_mentions_request_mode_when_enabled(self):

@@ -1,4 +1,4 @@
-"""Course/markdown rendering endpoint callables."""
+"""Course lesson rendering endpoint callables."""
 
 import logging
 from urllib.parse import urlsplit
@@ -16,7 +16,6 @@ from config.localization import localization_from_request
 from ..models import LessonVideo, Material, Module, Submission
 from ..services.content_links import (
     build_asset_url,
-    courses_dir,
     extract_youtube_id,
     is_probably_video_url,
     normalize_lesson_videos,
@@ -37,8 +36,6 @@ from ..services.helper_topics import (
 from ..services.helper_widget import build_helper_prompt_sets_json
 from ..services.lesson_handouts import (
     build_handout_context,
-    build_handout_pdf_bytes,
-    build_handout_qr_svg,
     resolve_community_glossary,
     resolve_example_variants,
     resolve_local_anchors,
@@ -89,29 +86,6 @@ def _staff_preview_classroom(request):
     except Exception:
         return None
     return staff_classroom_or_none(request.user, class_id)
-
-
-def course_overview(request, course_slug: str):
-    """Tiny course landing page."""
-    manifest = load_course_manifest(course_slug)
-    if not manifest:
-        return HttpResponse("Course not found", status=404)
-
-    ui_density_mode = resolve_ui_density_mode(
-        program_profile=getattr(settings, "CLASSHUB_PROGRAM_PROFILE", "secondary"),
-        course_manifest=manifest,
-    )
-
-    return render(
-        request,
-        "course_overview.html",
-        {
-            "course_slug": course_slug,
-            "course": manifest,
-            "lessons": manifest.get("lessons") or [],
-            "ui_density_mode": ui_density_mode,
-        },
-    )
 
 
 def _intro_only_markdown(learner_markdown: str) -> str:
@@ -398,125 +372,6 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
             "lesson_handout": handout,
         },
     )
-
-
-def course_lesson_handout(request, course_slug: str, lesson_slug: str):
-    localization = localization_from_request(request)
-    manifest = load_course_manifest(course_slug)
-    if not manifest:
-        return HttpResponse("Course not found", status=404)
-
-    try:
-        fm, body_md, _lesson_meta = load_lesson_markdown(course_slug, lesson_slug)
-    except ValueError:
-        logger.warning(
-            "lesson_handout_metadata_invalid course_slug=%s lesson_slug=%s",
-            course_slug,
-            lesson_slug,
-            exc_info=True,
-        )
-        return HttpResponse("Lesson metadata invalid.", status=500)
-    if not body_md:
-        return HttpResponse("Lesson not found", status=404)
-
-    selected_reading_level = resolve_reading_level(request.GET.get("reading_level"))
-    lesson_path = f"/course/{course_slug}/{lesson_slug}"
-    handout = build_handout_context(
-        course_slug=course_slug,
-        lesson_slug=lesson_slug,
-        course_manifest=manifest,
-        front_matter=fm,
-        request=request,
-        reading_level=selected_reading_level,
-        online_path=lesson_path,
-        language_code=localization.code,
-    )
-    response = render(
-        request,
-        "lesson_handout.html",
-        {
-            "course_slug": course_slug,
-            "lesson_slug": lesson_slug,
-            "course": manifest,
-            "front_matter": fm,
-            "selected_reading_level": selected_reading_level,
-            "lesson_handout": handout,
-            "handout_qr_svg": build_handout_qr_svg(handout["online_url"]),
-        },
-    )
-    return response
-
-
-def course_lesson_handout_pdf(request, course_slug: str, lesson_slug: str):
-    localization = localization_from_request(request)
-    manifest = load_course_manifest(course_slug)
-    if not manifest:
-        return HttpResponse("Course not found", status=404)
-
-    try:
-        fm, body_md, _lesson_meta = load_lesson_markdown(course_slug, lesson_slug)
-    except ValueError:
-        logger.warning(
-            "lesson_handout_pdf_metadata_invalid course_slug=%s lesson_slug=%s",
-            course_slug,
-            lesson_slug,
-            exc_info=True,
-        )
-        return HttpResponse("Lesson metadata invalid.", status=500)
-    if not body_md:
-        return HttpResponse("Lesson not found", status=404)
-
-    selected_reading_level = resolve_reading_level(request.GET.get("reading_level"))
-    lesson_path = f"/course/{course_slug}/{lesson_slug}"
-    handout = build_handout_context(
-        course_slug=course_slug,
-        lesson_slug=lesson_slug,
-        course_manifest=manifest,
-        front_matter=fm,
-        request=request,
-        reading_level=selected_reading_level,
-        online_path=lesson_path,
-        language_code=localization.code,
-    )
-    response = HttpResponse(build_handout_pdf_bytes(handout), content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="{course_slug}-{lesson_slug}-handout.pdf"'
-    return response
-
-
-def iter_course_lesson_options() -> list[dict]:
-    """Enumerate lesson options from course manifests for teacher tooling."""
-    options: list[dict] = []
-    root = courses_dir()
-    if not root.exists():
-        return options
-
-    for manifest_path in sorted(root.glob("*/course.yaml")):
-        course_slug = manifest_path.parent.name
-        manifest = load_course_manifest(course_slug)
-        course_title = str(manifest.get("title") or course_slug).strip()
-        lessons = manifest.get("lessons") or []
-        for lesson in lessons:
-            lesson_slug = str(lesson.get("slug") or "").strip()
-            if not lesson_slug:
-                continue
-            lesson_title = str(lesson.get("title") or lesson_slug).strip()
-            session = lesson.get("session")
-            options.append(
-                {
-                    "course_slug": course_slug,
-                    "course_title": course_title,
-                    "lesson_slug": lesson_slug,
-                    "lesson_title": lesson_title,
-                    "session": session,
-                }
-            )
-    return options
-
-
 __all__ = [
-    "course_overview",
     "course_lesson",
-    "course_lesson_handout",
-    "course_lesson_handout_pdf",
-    "iter_course_lesson_options",
 ]

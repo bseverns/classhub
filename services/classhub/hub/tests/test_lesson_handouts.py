@@ -62,11 +62,12 @@ Draw, test, and explain one loop.
             with override_settings(CONTENT_ROOT=content_root):
                 resp = self.client.get("/course/neighborhood_circuits/s01-neighborhood-circuits?reading_level=simple")
                 self.assertEqual(resp.status_code, 200)
-                self.assertContains(resp, "Local anchors")
-                self.assertContains(resp, "Community glossary")
+                self.assertContains(resp, "Around you")
+                self.assertContains(resp, "Words for this lesson")
                 self.assertContains(resp, "Reading level: Simple")
+                self.assertContains(resp, "Start here")
                 self.assertContains(resp, "Draw one circuit.")
-                self.assertContains(resp, "Download handout PDF")
+                self.assertContains(resp, "Download handout")
 
                 handout = self.client.get(
                     "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple"
@@ -74,6 +75,7 @@ Draw, test, and explain one loop.
                 self.assertEqual(handout.status_code, 200)
                 self.assertContains(handout, "Open online")
                 self.assertContains(handout, "<svg", html=False)
+                self.assertContains(handout, "Turn in")
                 self.assertContains(handout, "Upload one PDF page.")
 
                 pdf = self.client.get(

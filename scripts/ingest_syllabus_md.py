@@ -38,6 +38,7 @@ AGE_RANGE_RE = re.compile(r"\bages?\s*(\d{1,2})\s*(?:-|to|through|–|—)\s*(\d
 SESSION_COUNT_RE = re.compile(r"(\d{1,2})\s*(?:sessions?|meetings?|weeks?)\b", re.IGNORECASE)
 
 UI_LEVEL_VALUES = {"elementary", "secondary", "advanced"}
+HANDOUT_READING_LEVELS = ("simple", "standard")
 UI_LEVEL_ALIASES = {
     "elementary": "elementary",
     "primary": "elementary",
@@ -85,6 +86,10 @@ SECTION_NAMES = {
     "common stuck points",
     "stuck points",
     "extensions",
+    "local anchors",
+    "example variants",
+    "community glossary",
+    "offline handout",
 }
 
 
@@ -107,6 +112,57 @@ def _yaml_list(key: str, items: list[str], indent: int = 0) -> str:
     out = f"{pad}{key}:\n"
     for item in items:
         out += f"{pad}  - {_yaml_quote(item)}\n"
+    return out
+
+
+def _yaml_mapping_list(key: str, rows: list[dict[str, str]], indent: int = 0) -> str:
+    if not rows:
+        return ""
+    pad = " " * indent
+    out = f"{pad}{key}:\n"
+    for row in rows:
+        term = str(row.get("term") or "").strip()
+        definition = str(row.get("definition") or "").strip()
+        if not term or not definition:
+            continue
+        out += f"{pad}  - term: {_yaml_quote(term)}\n"
+        out += f"{pad}    definition: {_yaml_quote(definition)}\n"
+    return out
+
+
+def _yaml_offline_handout_fields(offline_handout: dict[str, list[str] | str], *, indent: int) -> str:
+    pad = " " * indent
+    out = ""
+    for key in ("title", "subtitle", "goal"):
+        value = str(offline_handout.get(key) or "").strip()
+        if value:
+            out += f"{pad}{key}: {_yaml_quote(value)}\n"
+    for key in ("do_now", "safety", "submit", "comment"):
+        items = [str(item).strip() for item in (offline_handout.get(key) or []) if str(item).strip()]
+        if items:
+            out += _yaml_list(key, items, indent=indent)
+    return out
+
+
+def _yaml_offline_handout(offline_handout: dict[str, list[str] | str]) -> str:
+    if not offline_handout:
+        return ""
+    out = "offline_handout:\n"
+    out += _yaml_offline_handout_fields(offline_handout, indent=2)
+    reading_levels = offline_handout.get("reading_levels")
+    if isinstance(reading_levels, dict):
+        reading_level_lines = ""
+        for reading_level in HANDOUT_READING_LEVELS:
+            selected = reading_levels.get(reading_level)
+            if not isinstance(selected, dict):
+                continue
+            body = _yaml_offline_handout_fields(selected, indent=6)
+            if not body:
+                continue
+            reading_level_lines += f"    {reading_level}:\n{body}"
+        if reading_level_lines:
+            out += "  reading_levels:\n"
+            out += reading_level_lines
     return out
 
 
@@ -219,6 +275,91 @@ def _find_section(sections: dict[str, list[str]], keyword: str) -> list[str]:
         if keyword in key:
             return lines
     return []
+
+
+def _parse_glossary_entries(lines: list[str]) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for item in _extract_bullets(lines):
+        term, _, definition = item.partition(":")
+        term = term.strip()
+        definition = definition.strip()
+        if not term or not definition:
+            continue
+        rows.append({"term": term, "definition": definition})
+    return rows
+
+
+def _parse_offline_handout(lines: list[str]) -> dict[str, list[str] | str]:
+    parsed: dict[str, list[str] | str] = {}
+    scalar_fields = {"title", "subtitle", "goal"}
+    list_fields = {"do_now", "safety", "submit", "comment"}
+    for item in _extract_bullets(lines):
+        key_raw, _, value = item.partition(":")
+        key = _normalize_meta_key(key_raw)
+        text = value.strip()
+        if not key or not text:
+            continue
+        reading_level = ""
+        for candidate in HANDOUT_READING_LEVELS:
+            prefix = f"{candidate}_"
+            if key.startswith(prefix):
+                reading_level = candidate
+                key = key[len(prefix) :]
+                break
+        if key not in scalar_fields and key not in list_fields:
+            continue
+        target = parsed
+        if reading_level:
+            reading_levels = parsed.setdefault("reading_levels", {})
+            if not isinstance(reading_levels, dict):
+                continue
+            target = reading_levels.setdefault(reading_level, {})
+            if not isinstance(target, dict):
+                continue
+        if key in scalar_fields:
+            target[key] = text
+            continue
+        target.setdefault(key, [])
+        cast_list = target[key]
+        if isinstance(cast_list, list):
+            cast_list.append(text)
+    return parsed
+
+
+_METADATA_ONLY_SECTIONS = {
+    "local anchors",
+    "example variants",
+    "community glossary",
+    "offline handout",
+}
+
+
+def _strip_front_matter_sections(body_lines: list[str]) -> list[str]:
+    cleaned: list[str] = []
+    current_chunk: list[str] = []
+    current_is_metadata = False
+
+    def flush_chunk() -> None:
+        if current_chunk and not current_is_metadata:
+            cleaned.extend(current_chunk)
+        current_chunk.clear()
+
+    for line in body_lines:
+        heading = HEADING_RE.match(line)
+        stripped = line.strip().rstrip(":").lower()
+        section_name = ""
+        if heading:
+            section_name = heading.group(2).strip().lower()
+        elif stripped in _METADATA_ONLY_SECTIONS:
+            section_name = stripped
+        if section_name:
+            flush_chunk()
+            current_is_metadata = section_name in _METADATA_ONLY_SECTIONS
+            current_chunk.append(line)
+            continue
+        current_chunk.append(line)
+    flush_chunk()
+    return cleaned
 
 
 def _parse_sessions(raw: str, *, session_parse_mode: str = "auto") -> list[dict]:
@@ -417,6 +558,10 @@ def _build_lesson_front_matter(
     extensions: list[str],
     teacher_prep: list[str],
     ui_level_override: str = "",
+    local_anchors: list[str] | None = None,
+    example_variants: list[str] | None = None,
+    community_glossary: list[dict[str, str]] | None = None,
+    offline_handout: dict[str, list[str] | str] | None = None,
 ) -> str:
     out = "---\n"
     out += f"course: {course_slug}\n"
@@ -437,6 +582,10 @@ def _build_lesson_front_matter(
     if teacher_prep:
         out += "teacher_panel:\n"
         out += _yaml_list("prep", teacher_prep, indent=2)
+    out += _yaml_list("local_anchors", local_anchors or [])
+    out += _yaml_list("example_variants", example_variants or [])
+    out += _yaml_mapping_list("community_glossary", community_glossary or [])
+    out += _yaml_offline_handout(offline_handout or {})
     out += "---\n"
     return out
 
@@ -507,6 +656,10 @@ def _build_lesson_payload(course_slug: str, session: dict, duration: int) -> dic
         quick_fixes = _extract_bullets(_find_section(sections, "stuck points"))
     extensions = _extract_bullets(_find_section(sections, "extensions"))
     teacher_prep = _extract_bullets(_find_section(sections, "teacher prep"))
+    local_anchors = _extract_bullets(_find_section(sections, "local anchors"))
+    example_variants = _extract_bullets(_find_section(sections, "example variants"))
+    community_glossary = _parse_glossary_entries(_find_section(sections, "community glossary"))
+    offline_handout = _parse_offline_handout(_find_section(sections, "offline handout"))
 
     ui_level_override = str(session.get("ui_level_override") or "").strip()
     front_matter = _build_lesson_front_matter(
@@ -521,8 +674,12 @@ def _build_lesson_payload(course_slug: str, session: dict, duration: int) -> dic
         extensions,
         teacher_prep,
         ui_level_override=ui_level_override,
+        local_anchors=local_anchors,
+        example_variants=example_variants,
+        community_glossary=community_glossary,
+        offline_handout=offline_handout,
     )
-    cleaned_body = "\n".join(_strip_session_config_lines(body_lines)).strip()
+    cleaned_body = "\n".join(_strip_front_matter_sections(_strip_session_config_lines(body_lines))).strip()
     if not cleaned_body:
         cleaned_body = f"# {lesson_title}\n\n(Write lesson body.)"
     return {

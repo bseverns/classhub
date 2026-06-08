@@ -46,16 +46,26 @@
     <main id="main-content">
       <div class="hero">
         <h1>{% trans "Join your class" %}</h1>
+        <p class="muted">
+          <a href="?reading_level=simple">{% trans "Simple" %}</a> ·
+          <a href="?reading_level=standard">{% trans "Standard" %}</a> ·
+          {% trans "Reading level:" %} {{ selected_reading_level|title }}
+        </p>
         {% if invite_join_classroom %}
         <p class="muted">{% blocktrans with class_name=invite_join_classroom.name %}You are joining <strong>{{ class_name }}</strong> by invite link.{% endblocktrans %}</p>
         {% else %}
-        {% if ui_density_mode == "compact" %}
+        {% if selected_reading_level == "simple" %}
+        <p class="muted">{% trans "Type your class code. Pick a name for class." %}</p>
+        {% elif ui_density_mode == "compact" %}
         <p class="muted">{% trans "Enter your class code and pick a display name." %}</p>
         {% else %}
         <p class="muted">{% trans "Enter the class code from your teacher. Pick any display name you like." %}</p>
         {% endif %}
         {% endif %}
-        {% if ui_density_mode == "compact" %}
+        {% if selected_reading_level == "simple" %}
+        <p class="muted">{% trans "If this device is shared, use your own return code." %}</p>
+        <p class="muted">{% trans "That helps you get back to your work and not someone else's." %}</p>
+        {% elif ui_density_mode == "compact" %}
         <p class="muted">{% trans "On shared devices, enter your return code so you do not join as another student." %}
         </p>
         {% else %}
@@ -107,7 +117,11 @@
 
         <div class="privacy-note" aria-live="polite">
           <p class="muted"><strong>{% trans "Privacy at a glance:" %}</strong></p>
+          {% if selected_reading_level == "simple" %}
+          <p class="muted">{% trans "We save your class name, your uploads, and the time you joined or uploaded." %}</p>
+          {% else %}
           <p class="muted">{% trans "We store your display name, class submissions, and event timestamps." %}</p>
+          {% endif %}
           <p class="muted">
             {% trans "Storage location:" %}
             {% if operator_profile.storage_location_text %}
@@ -116,7 +130,9 @@
               {% trans "hosted locally" %}
             {% endif %}
           </p>
-          {% if ui_density_mode != "compact" %}
+          {% if selected_reading_level == "simple" %}
+          <p class="muted">{% trans "We do not ask students for email or a password to join class." %}</p>
+          {% elif ui_density_mode != "compact" %}
           <p class="muted">{% trans "Retention:" %}
             {% if submission_retention_days %}
             {{ submission_retention_days }} {% trans "day(s). Deleted sooner on request." %}

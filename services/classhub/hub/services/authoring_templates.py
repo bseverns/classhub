@@ -95,10 +95,17 @@ Community glossary
 - <term>: <local or family-friendly definition>
 
 Offline handout
+- Title: <optional one-line handout title>
+- Subtitle: <optional one-line task summary>
+- Goal: <optional short outcome sentence>
 - Do now: <three short action steps>
 - Safety: <privacy or physical-safety reminder>
 - Submit: <what to turn in or show before leaving>
 - Comment: <peer feedback starter>
+- Simple goal: <simpler wording for the goal>
+- Simple do now: <simpler wording for a task step>
+- Simple submit: <simpler wording for the hand-in step>
+- Standard do now: <explicit standard-language wording if it differs>
 
 Extensions
 - <optional stretch for early finishers>

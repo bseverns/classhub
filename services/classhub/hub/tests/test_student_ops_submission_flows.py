@@ -120,6 +120,13 @@ class StudentEventSubmissionTests(TestCase):
         self.assertEqual(int((error_event.details or {}).get("material_id") or 0), self.material.id)
         self.assertEqual((error_event.details or {}).get("reason_code"), "content_validation_failed")
 
+    def test_material_upload_page_simple_reading_level_uses_simpler_privacy_copy(self):
+        self._login_student()
+        resp = self.client.get(f"/material/{self.material.id}/upload?reading_level=simple")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Reading level: Simple")
+        self.assertContains(resp, "Need to remove your work?")
+
     def test_gallery_upload_can_opt_in_to_class_sharing(self):
         gallery = Material.objects.create(
             module=self.module,

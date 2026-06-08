@@ -16,11 +16,21 @@
     <main id="main-content">
       <div class="top heading">
         <div>
-          <div class="muted"><a href="/">{% trans "Join page" %}</a> · <a href="/student">{% trans "Student home" %}</a>
+          <div class="muted"><a href="/">{% trans "Join page" %}</a> · <a href="/student?reading_level={{ selected_reading_level }}">{% trans "Student home" %}</a>
           </div>
           <h1>{{ course.title|default:course_slug }}</h1>
+          <p class="muted">
+            <a href="?reading_level=simple">{% trans "Simple" %}</a> ·
+            <a href="?reading_level=standard">{% trans "Standard" %}</a> ·
+            {% trans "Reading level:" %} {{ selected_reading_level|title }}
+          </p>
           {% if course.privacy %}
           <p class="muted">{{ course.privacy|join:" · " }}</p>
+          {% endif %}
+          {% if selected_reading_level == "simple" %}
+          <p class="muted">{% trans "Open a lesson to see what to do next." %}</p>
+          {% elif ui_density_mode == "compact" %}
+          <p class="muted">{% trans "Open one lesson at a time for simpler student instructions." %}</p>
           {% endif %}
           {% if ui_density_mode == "compact" %}
           <p class="muted">Elementary mode: simpler student language and fewer simultaneous controls.</p>
@@ -35,12 +45,16 @@
         <ul class="lesson-list">
           {% for l in lessons %}
           <li>
-            <a href="/course/{{ course_slug }}/{{ l.slug }}">Session {{ l.session }}: {{ l.title }}</a>
+            <a href="/course/{{ course_slug }}/{{ l.slug }}?reading_level={{ selected_reading_level }}">Session {{ l.session }}: {{ l.title }}</a>
           </li>
           {% endfor %}
         </ul>
+        {% if selected_reading_level == "simple" %}
+        <p class="muted">{% trans "Students usually join with a class code and open lessons from student home." %}</p>
+        {% else %}
         <p class="muted">This page is mainly for direct lesson link verification. Students usually enter via class code
           and land on <code>/student</code>.</p>
+        {% endif %}
       </div>
 
       <p class="muted"><a href="/">{% trans "Back to join" %}</a></p>

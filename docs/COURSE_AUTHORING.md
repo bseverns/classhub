@@ -187,7 +187,9 @@ community_glossary:
   - term: <local term>
     definition: <family-friendly explanation>
 offline_handout:
+  title: <optional handout title>
   subtitle: <one-line task summary>
+  goal: <short outcome sentence>
   do_now:
     - <short action step>
   safety:
@@ -198,8 +200,11 @@ offline_handout:
     - <peer feedback starter>
   reading_levels:
     simple:
+      goal: <simpler wording for the goal>
       do_now:
         - <simpler wording for task steps>
+      submit:
+        - <simpler wording for the hand-in step>
     standard:
       do_now:
         - <default wording for task steps>
@@ -243,6 +248,8 @@ Offline handout export:
 - PDF export is available at `/course/<course_slug>/<lesson_slug>/handout.pdf`.
 - The handout uses `offline_handout` front matter when present and otherwise falls back to existing lesson metadata.
 - Reading-level selection is deterministic and query-based: `?reading_level=simple` or `?reading_level=standard`.
+- The syllabus ingest path preserves `Local anchors`, `Example variants`, `Community glossary`, and `Offline handout` sections from teacher-authored `.md`, `.docx`, or `.zip` sources by compiling them into lesson front matter.
+- In teacher-authored source files, use bullet labels like `Goal:`, `Do now:`, `Simple goal:`, `Simple do now:`, and `Standard do now:` inside the `Offline handout` section when you want distinct simple/standard wording to survive import.
 
 ## Homework dropbox behavior
 

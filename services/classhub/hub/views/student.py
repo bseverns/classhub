@@ -29,6 +29,7 @@ from ..models import (
 )
 from ..services.export_service import build_student_portfolio_export_response
 from ..services.helper_widget import build_helper_prompt_sets_json
+from ..services.lesson_handouts import resolve_reading_level
 from ..services.ip_privacy import minimize_student_event_ip
 from ..services.join_flow_service import clear_device_hint_cookie
 from ..services.org_access import staff_can_view_submissions
@@ -100,35 +101,6 @@ def _end_student_session_response(request):
     response = redirect("/")
     clear_device_hint_cookie(response)
     return response
-
-
-def healthz(request):
-    # Used by Caddy/ops checks to confirm the app process is alive.
-    return HttpResponse("ok", content_type="text/plain")
-
-
-@require_GET
-def privacy_policy(request):
-    response = render(
-        request,
-        "privacy.html",
-        {**privacy_meta_context(classroom=getattr(request, "classroom", None))},
-    )
-    apply_no_store(response, private=False, pragma=True)
-    return response
-
-
-@require_GET
-def trust_page(request):
-    response = render(
-        request,
-        "trust.html",
-        {**privacy_meta_context(classroom=getattr(request, "classroom", None))},
-    )
-    apply_no_store(response, private=False, pragma=True)
-    return response
-
-
 def _student_home_helper_widget(*, request, classroom: Class, ui_density_mode: str, privacy_meta: dict) -> str:
     localization = localization_from_request(request)
     helper_description = _("This is a Day-1 wire-up. It will become smarter once it can cite your class materials.")
@@ -187,6 +159,7 @@ def student_home(request):
     helper_widget = _student_home_helper_widget(request=request, classroom=classroom, ui_density_mode=ui_density_mode, privacy_meta=privacy_meta)
     micro_check_state = latest_micro_check_state(classroom=classroom, student=request.student, modules=modules)
     checkin_notice = (request.GET.get("checkin_notice") or "").strip()
+    selected_reading_level = resolve_reading_level(request.GET.get("reading_level"))
     get_token(request)
     response = render(
         request,
@@ -208,6 +181,7 @@ def student_home(request):
             "ui_density_mode": ui_density_mode,
             "micro_check_state": micro_check_state,
             "checkin_notice": checkin_notice,
+            "selected_reading_level": selected_reading_level,
             **privacy_meta,
         },
     )
@@ -255,6 +229,7 @@ def student_my_data(request):
             "classroom": request.classroom,
             "submissions": submissions,
             "notice": notice,
+            "selected_reading_level": resolve_reading_level(request.GET.get("reading_level")),
             **privacy_meta_context(classroom=request.classroom),
         },
     )
@@ -338,6 +313,7 @@ def material_upload(request, material_id: int):
     form = SubmissionUploadForm()
     notice = (request.GET.get("notice") or "").strip()
     process_note_starters = resolve_peer_feedback_starters(language_code=localization.code, course_manifest={})
+    selected_reading_level = resolve_reading_level(request.GET.get("reading_level"))
     remix_source = resolve_remix_source_submission(
         request=request,
         material=material,
@@ -401,6 +377,7 @@ def material_upload(request, material_id: int):
             "upload_locked": bool(release_state.get("is_locked")),
             "upload_available_on": release_state.get("available_on"),
             "remix_source": remix_source,
+            "selected_reading_level": selected_reading_level,
             **privacy_meta_context(classroom=request.classroom),
         },
         status=response_status,
@@ -453,12 +430,13 @@ def submission_download(request, submission_id: int):
     apply_download_safety(response)
     apply_no_store(response, private=True, pragma=True)
     return response
+
+
 def student_logout(request):
     return _end_student_session_response(request)
+
+
 __all__ = [
-    "healthz",
-    "privacy_policy",
-    "trust_page",
     "student_home",
     "student_return_code",
     "student_portfolio_export",

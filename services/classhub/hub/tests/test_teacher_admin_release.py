@@ -354,6 +354,15 @@ class LessonReleaseTests(TestCase):
         self.assertNotContains(resp, "<style>", html=False)
         self.assertNotContains(resp, 'style="margin:0"', html=False)
 
+    def test_course_overview_simple_reading_level_preserves_lesson_links(self):
+        self._login_student()
+
+        resp = self.client.get("/course/piper_scratch_12_session?reading_level=simple")
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Reading level: Simple")
+        self.assertContains(resp, "Open a lesson to see what to do next.")
+        self.assertContains(resp, "?reading_level=simple")
+
     @override_settings(CLASSHUB_PROGRAM_PROFILE="advanced")
     def test_student_home_prefers_course_ui_level_over_global_profile(self):
         self._login_student()

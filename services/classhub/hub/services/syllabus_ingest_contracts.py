@@ -10,6 +10,7 @@ _SESSION_CONNECTORS_TEMPLATE = {":"}
 _SESSION_CONNECTORS_VERBOSE = {":", "-", "–", "—"}
 _GRADE_RANGE_CONNECTORS = {"-", "to", "through"}
 _SESSION_COUNT_UNITS = {"session", "sessions", "meeting", "meetings", "week", "weeks"}
+HANDOUT_READING_LEVELS = ("simple", "standard")
 
 UI_LEVEL_VALUES = {"elementary", "secondary", "advanced"}
 UI_LEVEL_ALIASES = {
@@ -59,6 +60,10 @@ SECTION_NAMES = {
     "common stuck points",
     "stuck points",
     "extensions",
+    "local anchors",
+    "example variants",
+    "community glossary",
+    "offline handout",
 }
 
 SUPPORTED_EXTENSIONS = {".md", ".docx", ".zip"}
@@ -102,6 +107,7 @@ class _ZipLessonImage:
 
 __all__ = [
     "COURSE_SLUG_RE",
+    "HANDOUT_READING_LEVELS",
     "IMAGE_EXTENSIONS",
     "META_KEY_ALIASES",
     "SECTION_NAMES",

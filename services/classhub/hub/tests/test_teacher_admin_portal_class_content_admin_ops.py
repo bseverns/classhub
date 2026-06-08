@@ -101,6 +101,70 @@ Session 02: Drift Tests
         self.assertFalse(event.metadata["writes_live_content"])
         self.assertFalse((content_root / "courses" / "field_systems_studio").exists())
 
+    def test_teacher_import_preserves_belonging_and_handout_sections(self):
+        _force_login_staff_verified(self.client, self.staff)
+        source_md = """# Community Circuits
+
+Session 01: Community Circuits
+Mission: Build one circuit idea you can explain.
+
+## Local anchors
+- Where might students see this in their neighborhood?
+- Who uses this around here?
+
+## Example variants
+- kitchen timer
+- transit signal
+
+## Community glossary
+- resistor: part that slows electricity down
+
+## Offline handout
+- Goal: Build one page you can explain.
+- Do now: Sketch one circuit.
+- Submit: Upload one PDF page.
+- Safety: Keep private names out of the file.
+- Comment: I noticed...
+- Simple goal: Make one page you can explain.
+- Simple do now: Draw one circuit.
+- Simple submit: Upload one page.
+- Standard do now: Sketch one circuit and label the path.
+
+## Materials
+- battery
+- tape
+"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/import-syllabus-source",
+                    {
+                        "import_course_slug": "community_circuits",
+                        "import_course_title": "",
+                        "import_default_ui_level": "secondary",
+                        "import_session_parse_mode": "auto",
+                        "syllabus_source": SimpleUploadedFile("community_circuits.md", source_md.encode("utf-8")),
+                    },
+                )
+
+        self.assertEqual(resp.status_code, 200)
+        buffer = b"".join(resp.streaming_content)
+        with zipfile.ZipFile(BytesIO(buffer)) as zf:
+            lesson_text = zf.read("community_circuits/lessons/01-community-circuits.md").decode("utf-8")
+            self.assertIn("local_anchors:", lesson_text)
+            self.assertIn("example_variants:", lesson_text)
+            self.assertIn("community_glossary:", lesson_text)
+            self.assertIn("offline_handout:", lesson_text)
+            self.assertIn('goal: "Build one page you can explain."', lesson_text)
+            self.assertIn("reading_levels:", lesson_text)
+            self.assertIn("simple:", lesson_text)
+            self.assertIn('goal: "Make one page you can explain."', lesson_text)
+            self.assertIn('do_now:', lesson_text)
+            self.assertIn('submit:', lesson_text)
+            self.assertNotIn("## Local anchors", lesson_text)
+            self.assertNotIn("## Offline handout", lesson_text)
+
     def test_generate_authoring_templates_include_belonging_and_handout_sections(self):
         from ..services.authoring_templates import generate_authoring_templates
 

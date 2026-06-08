@@ -18,10 +18,23 @@
                 <div class="muted"><a href="javascript:history.back()">&larr; Back</a></div>
                 <h1>{% trans "Privacy Information" %}</h1>
                 <p class="muted">{% trans "How we handle your data on" %} {{ operator_profile.product_name }}.</p>
+                <p class="muted">
+                    <a href="?reading_level=simple">{% trans "Simple" %}</a> ·
+                    <a href="?reading_level=standard">{% trans "Standard" %}</a> ·
+                    {% trans "Reading level:" %} {{ selected_reading_level|title }}
+                </p>
             </div>
 
             <section class="section-box">
                 <h2>{% trans "1. What data is collected" %}</h2>
+                {% if selected_reading_level == "simple" %}
+                <p>{% trans "We try to collect only what the class needs." %}</p>
+                <ul>
+                    <li><strong>{% trans "No student account:" %}</strong> {% trans "You use a class code and a name you choose." %}</li>
+                    <li><strong>{% trans "Your class work:" %}</strong> {% trans "We save uploads and class responses so your teacher can see them." %}</li>
+                    <li><strong>{% trans "Basic timestamps:" %}</strong> {% trans "We save when you join or upload." %}</li>
+                </ul>
+                {% else %}
                 <p>{% trans "We design this platform to collect as little about you as possible." %}</p>
                 <ul>
                     <li><strong>No Accounts:</strong> You don't create an account or provide an email. You log in using
@@ -31,6 +44,7 @@
                     <li><strong>System Logs:</strong> We keep minimal system logs (like basic diagnostic events when
                         joining/uploading). These are metadata only and do not contain student identifying details.</li>
                 </ul>
+                {% endif %}
             </section>
 
             <section class="section-box warning-box">
@@ -44,7 +58,11 @@
 
             <section class="section-box">
                 <h2>{% trans "2. How to export or delete your work" %}</h2>
+                {% if selected_reading_level == "simple" %}
+                <p>{% trans "You can download or delete your work." %}</p>
+                {% else %}
                 <p>{% trans "You own your artifacts. While in an active session, you can export or delete your files at any time." %}</p>
+                {% endif %}
                 <ol>
                     <li>From the classroom dashboard, click the <strong>"My Data"</strong> link or navigate to
                         <code>/student/my-data</code>.
@@ -62,7 +80,11 @@
 
             <section class="section-box">
                 <h2>{% trans "3. What gets deleted and when" %}</h2>
+                {% if selected_reading_level == "simple" %}
+                <p>{% trans "We do not keep class data forever." %}</p>
+                {% else %}
                 <p>{% trans "We don't hold on to your data forever." %}</p>
+                {% endif %}
                 <ul>
                     <li><strong>Automated Cleanup:</strong> If enabled by the operator, student submissions and system
                         events are automatically deleted after a specified retention period (often 90 to 180 days after

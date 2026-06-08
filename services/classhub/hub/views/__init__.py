@@ -18,24 +18,21 @@ from .api_teacher import (
     api_teacher_toggle_lock,
 )
 from .api_teacher_rbac import api_teacher_rbac_simulate
-from .content import (
-    course_lesson,
-    course_lesson_handout,
-    course_lesson_handout_pdf,
-    course_overview,
-    iter_course_lesson_options,
-)
+from .content import course_lesson
+from .content_catalog import course_overview, iter_course_lesson_options
+from .content_handouts import course_lesson_handout, course_lesson_handout_pdf
 from .internal import internal_helper_chat_access_event
 from .media import lesson_asset_download, lesson_video_stream
-from .student_join import index, invite_join, join_class
+from .student_join import join_class
+from .student_join_landing import index, invite_join
 from .student_identity import student_rename_display_name
 from .student_artifacts import (
     student_gallery_wall,
     student_portfolio,
     student_set_submission_publish,
 )
+from .student_public import healthz, privacy_policy, trust_page
 from .student import (
-    healthz,
     material_upload,
     student_delete_work,
     student_end_session,
@@ -45,8 +42,6 @@ from .student import (
     student_portfolio_export,
     student_return_code,
     submission_download,
-    privacy_policy,
-    trust_page,
 )
 from .student_micro_checks import student_micro_check
 from .student_materials import material_checklist, material_reflection, material_rubric

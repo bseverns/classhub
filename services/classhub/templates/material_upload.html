@@ -52,6 +52,11 @@
             </div>
             <h1>{{ material.title }}</h1>
             <div class="muted">{% trans "Signed in as" %} <strong>{{ student.display_name }}</strong> · {{ classroom.name }}</div>
+            <div class="muted">
+              <a href="?reading_level=simple">{% trans "Simple" %}</a> ·
+              <a href="?reading_level=standard">{% trans "Standard" %}</a> ·
+              {% trans "Reading level:" %} {{ selected_reading_level|title }}
+            </div>
           </div>
         </div>
 
@@ -73,7 +78,11 @@
           <div class="privacy-note">
             <p class="muted">
               <strong>{% trans "Privacy at a glance:" %}</strong>
-              {% trans "we store your display name, uploaded files, and upload timestamps for class progress." %}
+              {% if selected_reading_level == "simple" %}
+                {% trans "we save your class name, your uploaded files, and the time you uploaded them." %}
+              {% else %}
+                {% trans "we store your display name, uploaded files, and upload timestamps for class progress." %}
+              {% endif %}
             </p>
             <p class="muted">
               {% trans "Storage location:" %}
@@ -84,14 +93,24 @@
               {% endif %}
             </p>
             <p class="muted">
-              {% trans "Retention:" %}
+              {% if selected_reading_level == "simple" %}
+                {% trans "How long we keep uploads:" %}
+              {% else %}
+                {% trans "Retention:" %}
+              {% endif %}
               {% if submission_retention_days %}
                 {% blocktrans with days=submission_retention_days %}uploads are kept up to {{ days }} day(s) unless deleted sooner.{% endblocktrans %}
               {% else %}
                 {% trans "uploads stay until a teacher or admin removes them." %}
               {% endif %}
             </p>
-            <p class="muted">{% blocktrans %}Delete now: open <a href="/student/my-data">My Data</a>.{% endblocktrans %}</p>
+            <p class="muted">
+              {% if selected_reading_level == "simple" %}
+                {% blocktrans %}Need to remove your work? Open <a href="/student/my-data">My Data</a>.{% endblocktrans %}
+              {% else %}
+                {% blocktrans %}Delete now: open <a href="/student/my-data">My Data</a>.{% endblocktrans %}
+              {% endif %}
+            </p>
             <p class="muted">
               {% if operator_profile.privacy_promise_text %}
                 {{ operator_profile.privacy_promise_text }}

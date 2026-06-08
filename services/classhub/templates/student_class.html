@@ -43,14 +43,14 @@
             · <a href="/student/portfolio" data-kiosk-hide>{% trans "What I made" %}</a>
             · <a href="/student/gallery" data-kiosk-hide>{% trans "Session gallery" %}</a>
             · <a href="/student/portfolio-export" data-kiosk-hide>{% trans "Export my portfolio" %}</a>
-            · <a href="/privacy" data-kiosk-hide>{% trans "Privacy" %}</a>
-            · <a href="/trust" data-kiosk-hide>{% trans "Trust notes" %}</a>
+            · <a href="/privacy?reading_level={{ selected_reading_level }}" data-kiosk-hide>{% trans "Privacy" %}</a>
+            · <a href="/trust?reading_level={{ selected_reading_level }}" data-kiosk-hide>{% trans "Trust notes" %}</a>
             {% if ui_density_mode == "expanded" %}
             · <a href="#studio-handles" data-kiosk-hide>{% trans "Studio handles" %}</a>
             {% endif %}
             {% else %}
-            · <a href="/privacy" data-kiosk-hide>{% trans "Privacy" %}</a>
-            · <a href="/trust" data-kiosk-hide>{% trans "Trust notes" %}</a>
+            · <a href="/privacy?reading_level={{ selected_reading_level }}" data-kiosk-hide>{% trans "Privacy" %}</a>
+            · <a href="/trust?reading_level={{ selected_reading_level }}" data-kiosk-hide>{% trans "Trust notes" %}</a>
             {% endif %}
             {% if student_kiosk_pwa_enabled %}
             {% if request.classhub_kiosk_mode %}
@@ -61,6 +61,11 @@
             {% endif %}
           </div>
           <h1>{{ classroom.name }}</h1>
+          <div class="muted">
+            <a href="/student?reading_level=simple">Simple</a> ·
+            <a href="/student?reading_level=standard">Standard</a> ·
+            {% trans "Reading level:" %} {{ selected_reading_level|title }}
+          </div>
           <div class="muted">
             {% trans "Signed in as" %} <strong>{{ student.display_name }}</strong>
             · {% trans "Code" %} <span class="pill">{{ classroom.join_code }}</span>
@@ -109,12 +114,12 @@
               {% endif %}
             </div>
             <p class="landing-highlight-title">
-              <a href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank" rel="noopener">
+              <a href="{{ class_landing.highlight_lesson.lesson_url }}?reading_level={{ selected_reading_level }}" target="_blank" rel="noopener">
                 {{ class_landing.highlight_lesson.module_title }}
               </a>
             </p>
             <p class="landing-primary-action-wrap">
-              <a class="landing-primary-action" href="{{ class_landing.highlight_lesson.lesson_url }}" target="_blank"
+              <a class="landing-primary-action" href="{{ class_landing.highlight_lesson.lesson_url }}?reading_level={{ selected_reading_level }}" target="_blank"
                 rel="noopener">
                 {% trans "Start this week's lesson" %}
               </a>
@@ -144,7 +149,7 @@
             <ul>
               {% for row in class_landing.course_lesson_links %}
               <li>
-                <a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.module_title }}</a>
+                <a href="{{ row.lesson_url }}?reading_level={{ selected_reading_level }}" target="_blank" rel="noopener">{{ row.module_title }}</a>
                 {% if row.is_highlight %}
                 <span class="muted">({% trans "highlighted" %})</span>
                 {% endif %}
@@ -168,7 +173,11 @@
 
       <div class="card micro-check-card">
         <h2>{% trans "Quick check-in" %}</h2>
+        {% if selected_reading_level == "simple" %}
+        <p class="muted">{% trans "Pick the button that best matches how class feels right now." %}</p>
+        {% else %}
         <p class="muted">{% trans "Share how this session feels right now. These signals help your facilitator support you." %}</p>
+        {% endif %}
         {% if checkin_notice %}
         <p class="notice flash-banner">{{ checkin_notice }}</p>
         {% endif %}
@@ -229,7 +238,9 @@
 
       <div class="card done-guide">
         <h2>{% trans "How to tell you are done" %}</h2>
-        {% if ui_density_mode == "compact" %}
+        {% if selected_reading_level == "simple" %}
+        <p class="muted">{% trans "Done means your work is saved. Open means you can work now. Locked means wait for the date shown." %}</p>
+        {% elif ui_density_mode == "compact" %}
         <p class="muted"><span class="state-pill state-pill--done">{% trans "Done" %}</span> {% trans "saved" %} · <span
             class="state-pill state-pill--open">{% trans "Open" %}</span> {% trans "do now" %} · <span
             class="state-pill state-pill--locked">{% trans "Locked" %}</span> {% trans "wait" %}</p>
