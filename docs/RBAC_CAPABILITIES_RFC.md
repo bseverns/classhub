@@ -1,5 +1,19 @@
 # Granular RBAC Capabilities RFC
 
+## Status
+
+- This RFC is mostly implemented on `main`.
+- The evaluator, scoped grants, simulation tools, policy import/export, custom role persistence, and delegated approval queue foundation are all real.
+- The remaining work is not core RBAC existence; it is operational polish for district-scale approval routing and higher-level administration UX.
+
+## Closure recommendation
+
+Treat this RFC as effectively closed for architecture. Ongoing work should move under implementation docs and maturity tracking:
+
+- keep [RBAC_GUIDE.md](RBAC_GUIDE.md) as the operator/how-to source,
+- keep [FEATURE_MATURITY.md](FEATURE_MATURITY.md) as the rollout truth,
+- reserve this RFC for historical architecture rationale plus the small list of remaining non-shipped items.
+
 ## Summary
 ClassHub currently uses organization roles (`owner`, `admin`, `teacher`, `viewer`) with coarse permissions. This RFC defines a capability-driven RBAC model that supports district-grade policy needs while preserving current behavior during rollout.
 
@@ -10,9 +24,11 @@ Core outcomes:
 
 ## What to do now
 1. Keep role-template + scoped-grant policies stable and audited in production.
-2. Decide whether district deployments need true custom role entities (beyond org role templates).
-3. If needed, implement custom role persistence as a separate phase with migration and rollback plan.
-4. Keep endpoint-level RBAC guard CI checks aligned as new teacher/API routes are added.
+2. Keep endpoint-level RBAC guard CI checks aligned as new teacher/API routes are added.
+3. Narrow remaining work to:
+   - district-scale approval routing polish,
+   - custom-role administration UX polish,
+   - clearer operator lifecycle/runbook guidance.
 
 ## Verification signal
 A staff user with role `viewer` can load class data but cannot perform manage/delete actions, and a `teacher` can still perform current class operations with no regression.
@@ -53,6 +69,7 @@ Implemented on `main`:
 
 Still RFC/pending:
 - Hardened district-scale approval routing (multi-step approvers, notification routing, SLA escalation).
+- More polished custom-role administration UX beyond the current operator tooling surface.
 
 ## Problem statement
 Current model is strong for early-stage operations but too coarse for larger institutions. It cannot express policy variants like:
@@ -126,7 +143,7 @@ Current implementation note:
 - Current policy model supports additive custom role capabilities per user/org.
 - Destructive migration from role templates to pure custom-role policy records remains future work.
 
-## Rollout plan
+## Remaining rollout work
 
 ### Phase 1: Evaluator + wrappers
 - keep existing helper function signatures,
@@ -158,6 +175,18 @@ Current implementation note:
   - teacher portal bulk matrix simulation: `GET /teach?rbac_tools=1&rbac_bulk_class_id=<id>&rbac_bulk_capability=<capability>`
 
 Status: simulation/policy tools are shipped; custom-role entity persistence is shipped; custom-role policy UX/automation remains future work.
+
+## What should now be treated as done
+
+- Capability-driven evaluator contract
+- Compatibility wrappers around legacy role semantics
+- Scoped allow/deny grant persistence and precedence
+- RBAC simulation surfaces
+- Policy-as-code import/export
+- Custom role persistence model
+- Delegated approval queue foundation
+
+These should no longer be described elsewhere as hypothetical architecture.
 
 ## Risks and mitigations
 - Risk: policy drift during migration.

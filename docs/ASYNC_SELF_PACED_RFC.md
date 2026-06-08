@@ -1,5 +1,19 @@
 # Async Self-Paced Learning Workflows RFC
 
+## Status
+
+- This is still an RFC, not a shipped feature.
+- No progression policy model, no per-student unlock graph, and no background unlock commands are live on `main`.
+- The only adjacent shipped primitive is resilient student upload queue/retry behavior for intermittent connectivity.
+
+## Closure recommendation
+
+Do not keep this as a broad multi-phase wish list. Narrow it to one real implementation gate:
+
+1. If self-paced support is still desired, ship only prerequisite-based unlocks first.
+2. Explicitly defer drip scheduling and spaced review until prerequisite unlocks exist and are stable.
+3. If prerequisite unlocks are not planned for the next concrete build cycle, move this RFC to parked status instead of implying near-term delivery.
+
 ## Summary
 ClassHub currently centers synchronous, teacher-led sessions. This RFC defines a staged path to support evergreen, self-paced delivery without breaking existing live-classroom workflows.
 
@@ -9,8 +23,8 @@ Core outcomes:
 - add optional spaced-review prompts without surveillance-heavy scoring.
 
 ## What to do now
-1. Keep this RFC as planning guidance; do not imply these flows are live yet.
-2. Decide a smallest Phase 1 slice (recommended: prerequisite-only unlocks before drip scheduling).
+1. Treat prerequisite-only unlocks as the sole candidate Phase 1 slice.
+2. Do not begin drip scheduling or spaced-review work before prerequisite unlocks are implemented and exercised.
 3. Add a feature-flagged data model + evaluator design review before migrations.
 4. Define operator runbook updates (`doctor`, smoke, rollback) before rollout.
 
@@ -31,6 +45,8 @@ Current `main` behavior:
 
 Planning status:
 - This document remains an RFC roadmap, not an implemented feature record.
+- Only the prerequisite-unlock slice should be treated as execution-eligible.
+- Drip release and spaced repetition should be considered explicitly deferred.
 - See [CURRENT_STATE.md](CURRENT_STATE.md) for shipped capability snapshot.
 
 ## Problem statement
@@ -121,16 +137,20 @@ Implementation status:
 
 ## Rollout plan
 
-### Phase 1: Prerequisite and drip unlocks
+### Phase 1: Prerequisite unlocks only
 - add policy fields + progression table,
 - compute unlock states in read path,
-- support commands + manual trigger.
+- support commands + manual trigger,
+- explain lock reason clearly on student surfaces.
 
 ### Phase 2: Completion thresholds
 - link rubric/checklist/quiz-like outcomes to prerequisite satisfaction,
 - add threshold editor in teacher module controls.
 
-### Phase 3: Spaced repetition
+### Phase 3: Drip scheduling
+- add delay-based unlock policies only after prerequisite flows are stable.
+
+### Phase 4: Spaced repetition
 - add `review_due_at` scheduling and learner reminders,
 - keep notifications low-noise and optional.
 
@@ -154,3 +174,7 @@ Implementation status:
 - Add migration defaults that preserve current behavior (`immediate`).
 - Backfill progression rows lazily on first access or by batch command.
 - Keep command runtime bounded by class/module batches.
+
+## Parking rule
+
+If the repo does not begin the prerequisite-unlock slice in the next concrete implementation batch, this RFC should be reclassified from active roadmap guidance to parked future work.

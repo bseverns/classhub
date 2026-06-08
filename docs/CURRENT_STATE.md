@@ -28,7 +28,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Repo now ships a narrow Headscale control-plane ops bundle for createMPLS-style deployments: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`.
 - Repo now also ships a Headscale replacement-host rehearsal wrapper (`bash scripts/headscale_restore_rehearsal_evidence.sh --backup ...`) that captures control-plane restore artifacts plus LMS/GPU-side verification placeholders.
 - Helper classroom-quality eval tooling is live (`scripts/run_helper_classroom_eval.sh` + classroom prompt pack in `services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl`).
-- Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts).
+- Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts, checksum sidecars, static registry index create/validate/list/fetch flows), and ClassHub can now import directly from a static registry index via `manage.py import_coursepack_registry`.
 - Teacher syllabus zip import now maps session-prefixed support images into lesson assets.
 - Organization boundaries and RBAC capability checks are live.
 - Scoped RBAC grants are live behind `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED`.

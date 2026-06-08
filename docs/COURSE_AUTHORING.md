@@ -251,6 +251,58 @@ Offline handout export:
 - The syllabus ingest path preserves `Local anchors`, `Example variants`, `Community glossary`, and `Offline handout` sections from teacher-authored `.md`, `.docx`, or `.zip` sources by compiling them into lesson front matter.
 - In teacher-authored source files, use bullet labels like `Goal:`, `Do now:`, `Simple goal:`, `Simple do now:`, and `Standard do now:` inside the `Offline handout` section when you want distinct simple/standard wording to survive import.
 
+## Static registry workflow
+
+The coursepack SDK now supports a first real registry/index flow in addition to local ZIP builds.
+
+Build a validated artifact, emit a checksum sidecar, and update a static registry index:
+
+```bash
+python3 scripts/coursepack_sdk.py build \
+  --course-slug scratch_game_design \
+  --version 20260608T120000Z \
+  --source-url "https://github.com/example/classhub-curriculum/tree/main/scratch_game_design" \
+  --registry-index dist/coursepacks/index.json
+```
+
+What this writes:
+- the coursepack ZIP artifact,
+- a sibling `.sha256` checksum file,
+- a machine-readable registry index entry with:
+  - `slug`
+  - `version`
+  - `release_channel`
+  - `source_url`
+  - compatibility metadata (`ui_level`, `program_profile`)
+  - artifact URL/checksum/byte size metadata
+
+Validate a registry index:
+
+```bash
+python3 scripts/coursepack_sdk.py registry-validate --index dist/coursepacks/index.json
+```
+
+List registry entries:
+
+```bash
+python3 scripts/coursepack_sdk.py registry-list --index dist/coursepacks/index.json
+```
+
+Fetch and verify an artifact from a registry index:
+
+```bash
+python3 scripts/coursepack_sdk.py registry-fetch \
+  --index dist/coursepacks/index.json \
+  --course-slug scratch_game_design
+```
+
+Notes:
+- If `--registry-index` is set and `--artifact-url` is omitted, the SDK stores a relative artifact path from the index file to the ZIP artifact.
+- If `--source-url` is omitted, the SDK records a repo-local `repo://...` source URI so the entry still has a deterministic source locator.
+- Version tags remain operator-controlled. The SDK defaults to a UTC timestamp tag when `--version` is omitted, but you can also pass SemVer or other stable release labels.
+- The fetch command verifies both byte size and SHA-256 before writing the downloaded copy.
+- For operator publishing layout and server-side import examples, see [COURSEPACK_REGISTRY_PUBLISHING.md](COURSEPACK_REGISTRY_PUBLISHING.md).
+
 ## Homework dropbox behavior
 
 When you run `import_coursepack`, each lesson with:

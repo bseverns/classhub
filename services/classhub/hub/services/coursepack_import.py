@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import shutil
+import tempfile
 import uuid
 import zipfile
 from dataclasses import dataclass
@@ -12,10 +13,17 @@ from pathlib import Path, PurePosixPath
 import yaml
 from django.conf import settings
 from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
 from django.utils._os import safe_join
 
 from hub.models import Class, LessonAsset, LessonAssetFolder, Material, Module, Organization
+from hub.services.coursepack_registry import (
+    CoursepackRegistryError,
+    fetch_registry_artifact,
+    read_registry_document,
+    select_registry_entry,
+)
 from hub.services.syllabus_ingest_contracts import COURSE_SLUG_RE
 from hub.services.syllabus_ingest import SyllabusIngestError, ingest_uploaded_syllabus
 
@@ -502,6 +510,72 @@ def import_coursepack_zip(
 
 
 @transaction.atomic
+def import_coursepack_registry(
+    *,
+    index_location: str,
+    course_slug: str,
+    version: str = "",
+    class_code: str = "",
+    class_name: str = "",
+    create_class: bool = True,
+    replace: bool = False,
+    overwrite_content: bool = False,
+    organization: Organization | None = None,
+) -> CoursepackImportResult:
+    try:
+        payload, source = read_registry_document(index_location)
+        entry = select_registry_entry(payload, slug=course_slug, version=version)
+    except CoursepackRegistryError as exc:
+        raise CoursepackImportError(str(exc)) from exc
+
+    artifact = entry.get("artifact") or {}
+    filename = str(artifact.get("filename") or "").strip() or f"{course_slug}.zip"
+    if not filename.lower().endswith(".zip"):
+        raise CoursepackImportError(
+            f"Registry artifact for '{course_slug}' must be a .zip file (got '{filename}')."
+        )
+
+    with tempfile.TemporaryDirectory(prefix="coursepack-registry-import-") as tmp_dir:
+        fetch_path = Path(tmp_dir) / filename
+        try:
+            fetch_result = fetch_registry_artifact(source, entry, output_path=fetch_path)
+        except CoursepackRegistryError as exc:
+            raise CoursepackImportError(str(exc)) from exc
+
+        source_upload = SimpleUploadedFile(
+            fetch_path.name,
+            fetch_path.read_bytes(),
+            content_type="application/zip",
+        )
+        result = import_coursepack_zip(
+            source_upload=source_upload,
+            class_code=class_code,
+            class_name=class_name,
+            create_class=create_class,
+            replace=replace,
+            overwrite_content=overwrite_content,
+            organization=organization,
+        )
+
+    return CoursepackImportResult(
+        course_slug=result.course_slug,
+        course_title=result.course_title,
+        classroom=result.classroom,
+        course_dir=result.course_dir,
+        created_modules=result.created_modules,
+        created_materials=result.created_materials,
+        created_assets=result.created_assets,
+        extracted_files=result.extracted_files,
+        source_kind="coursepack_registry",
+        source_files=(
+            str(index_location),
+            str(fetch_result.get("source_artifact_url") or fetch_path.name),
+            str(entry.get("version") or "").strip(),
+        ),
+    )
+
+
+@transaction.atomic
 def import_content_upload_to_class(
     *,
     source_upload,
@@ -584,6 +658,7 @@ __all__ = [
     "CoursepackImportResult",
     "courses_dir",
     "import_content_upload_to_class",
+    "import_coursepack_registry",
     "import_coursepack_to_class",
     "import_coursepack_zip",
 ]

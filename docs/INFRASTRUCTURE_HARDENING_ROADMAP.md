@@ -1,5 +1,26 @@
 # Infrastructure Hardening Roadmap
 
+## Status
+
+This is no longer a broad exploratory roadmap. Large parts of the hardening pass are already real on `main`.
+
+Current state by priority:
+
+- Priority 1: Lease governance
+  - largely shipped in bounded form (`TTL`, expiry display, explicit stop path, unused-activation accounting)
+- Priority 2: Honest readiness
+  - largely shipped in bounded form (`ready` depends on warm probe / usable remote path, not only instance existence)
+- Priority 3: Minimal durable metrics
+  - shipped in bounded form (durable lease/accounting state, snapshot/export, operator watch path)
+- Priority 4: Provisioning codification
+  - mostly shipped in repo artifacts; still needs real blank-host restore evidence capture
+- Priority 5: Bridge idempotency and audit trail
+  - partially shipped; still the main remaining hardening lane
+
+## Closure recommendation
+
+Treat Priorities 1-3 as effectively complete for this release line, keep Priority 4 open only for proof-by-rehearsal, and focus active implementation on finishing Priority 5.
+
 ## Summary
 
 This roadmap turns the current infrastructure review into a bounded next-step plan for the createMPLS deployment style:
@@ -32,9 +53,11 @@ The remaining work is mostly about making the system more self-calming:
 
 ## Hardening Order
 
-Do this work in order. Earlier items reduce more real risk than later ones.
+Use this as the closeout order, not as a speculative backlog.
 
 ## Priority 1: Lease Governance
+
+Status: Mostly closed on `main`.
 
 ### Goal
 
@@ -70,6 +93,8 @@ This is the cheapest way to reduce both financial risk and operator anxiety.
 
 ## Priority 2: Honest Readiness
 
+Status: Mostly closed on `main`.
+
 ### Goal
 
 Only call the remote path `ready` when it is actually usable for helper traffic.
@@ -103,6 +128,8 @@ Anything weaker should remain `starting`, `degraded`, or `error`.
 - remote activation failures degrade cleanly without confusing status language
 
 ## Priority 3: Minimal Durable Metrics
+
+Status: Closed in bounded form on `main`.
 
 ### Goal
 
@@ -138,6 +165,8 @@ Current status:
 
 ## Priority 4: Provisioning Codification
 
+Status: Repo artifacts shipped; proof rehearsal still open.
+
 ### Goal
 
 Turn more of the Headscale and remote bridge story into reproducible artifacts.
@@ -171,6 +200,8 @@ Current status:
 - replacing the Headscale VPS or bridge host does not require improvisation
 
 ## Priority 5: Bridge Idempotency And Audit Trail
+
+Status: Still active and should be treated as the primary remaining hardening slice.
 
 ### Goal
 
@@ -211,11 +242,10 @@ Once the lease lifecycle is real production behavior, duplicate clicks and repea
 
 ## Recommended Sequence
 
-1. Finish lease governance.
-2. Tighten honest readiness semantics.
-3. Add a small operator evidence surface for remote lifecycle metrics.
-4. Codify Headscale and bridge bootstrap/restore artifacts.
-5. Add bridge idempotency and stronger lease audit trails.
+1. Record one real blank-host Headscale restore rehearsal artifact set.
+2. Finish bridge idempotency and stronger lease audit-trail correlation.
+3. Re-run one boring remote lease lifecycle from activate to stop and archive the evidence.
+4. Reclassify this roadmap to historical hardening record once those proofs exist.
 
 ## Two-Year Quiet-Durability Check
 

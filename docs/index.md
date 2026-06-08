@@ -22,6 +22,7 @@ Current platform snapshot: [CURRENT_STATE.md](CURRENT_STATE.md).
 - [Current State](CURRENT_STATE.md)
 - [Canonical Truths](CANONICAL_TRUTHS.md)
 - [Feature Maturity](FEATURE_MATURITY.md)
+- [Coursepack Registry Publishing Guide](COURSEPACK_REGISTRY_PUBLISHING.md)
 - [Start Here Overview](START_HERE.md)
 - [Teacher Docs Journey](TEACHER_DOCS_JOURNEY.md)
 - [Start Here Evaluator](START_HERE_EVALUATOR.md)

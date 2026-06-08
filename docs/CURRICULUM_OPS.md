@@ -28,6 +28,26 @@ cd /srv/lms/app/compose
 docker compose exec classhub_web python manage.py import_coursepack --course-slug swarm_aesthetics --create-class
 ```
 
+### Registry-backed imports
+
+If your operator workflow publishes reviewed coursepack artifacts to a static registry index, you can import directly from that index instead of from a checked-out local course folder:
+
+```bash
+cd /srv/lms/app/compose
+docker compose exec classhub_web python manage.py import_coursepack_registry \
+  --index https://example.org/classhub-coursepacks/index.json \
+  --course-slug swarm_aesthetics \
+  --class-name "Swarm Aesthetics Cohort" \
+  --create-class
+```
+
+Optional flags:
+- `--registry-version <tag>` to pin a specific registry entry version
+- `--overwrite-content` to replace existing extracted course files under `CONTENT_ROOT/courses/<slug>`
+- `--replace` to rebuild the class's module/material layout from the imported artifact
+
+Static registry publishing layout and examples are documented in [COURSEPACK_REGISTRY_PUBLISHING.md](COURSEPACK_REGISTRY_PUBLISHING.md).
+
 ## 2. Pushing curriculum updates
 
 If you modify the markdown files or `course.yaml` manifest in `content/courses` safely update the existing classroom to reflect the latest module structure without losing student data:

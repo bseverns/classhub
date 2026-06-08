@@ -1531,6 +1531,29 @@ Execution ownership and gates:
 - Gives schools a practical content-as-code workflow without requiring immediate desktop app investment.
 - Creates a direct path to future registry/index distribution while preserving current self-hosted simplicity.
 
+## Static coursepack registry index first slice (2026-06-08)
+
+**Current decision:**
+- Ship the first decentralized registry slice through the existing SDK rather than a new service.
+- `scripts/coursepack_sdk.py build` and `package` now emit sibling `.sha256` files for every built ZIP artifact.
+- The SDK can create/update a static JSON registry index with per-entry:
+  - `slug`
+  - `version`
+  - `release_channel`
+  - `source_url`
+  - compatibility metadata (`ui_level`, `program_profile`)
+  - artifact metadata (`url`, `sha256`, `bytes`, `checksum_url`)
+- The SDK also provides `registry-validate`, `registry-list`, and `registry-fetch` commands so the index is directly consumable.
+- When operators do not pass `--version`, the SDK defaults to a UTC timestamp tag; when they do not pass `--source-url`, the SDK records a deterministic local `repo://...` source URI.
+- Relative artifact URLs are the default when updating a local registry index so the same tree can be served from Git-backed static hosting or object storage without rewriting entries.
+- Document the operator publishing contract in `docs/COURSEPACK_REGISTRY_PUBLISHING.md` with one recommended static tree layout.
+- Import from published registry indexes through `python manage.py import_coursepack_registry`, which verifies the artifact first and then reuses the existing safe ZIP import path.
+
+**Why this remains active:**
+- Makes the RFC real without introducing a hosted registry service before there is evidence that one is needed.
+- Gives operators a low-friction, auditable content distribution primitive that works offline from local files and online from static hosting.
+- Keeps trust posture simple in the first slice: explicit checksum files plus fetch-time digest and byte-size verification.
+
 ## Redirect target validation
 
 **Current decision:**
@@ -4228,3 +4251,19 @@ Execution ownership and gates:
 - Prevents stale "GPU host" shorthand from making Jetson-B look like the lab's primary assistant/model node.
 - Lets ClassHub prepare the requested Jetson-B route while preserving the lab's current operational ownership map.
 - Keeps Headscale's role clear: reachability control, not public LMS routing or request proxying.
+
+## RFC and roadmap closeout posture (2026-06-08)
+
+**Current decision:**
+- RFC and roadmap docs in `docs/` must explicitly classify work as one of:
+  - shipped and effectively closed,
+  - the active next implementation slice,
+  - parked future work.
+- Do not leave major planning documents as mixed-status wish lists once the codebase has moved.
+- When a capability is materially live on `main`, the relevant RFC should become historical rationale plus the bounded list of remaining non-shipped items.
+- When a capability is not started, keep only the smallest execution-eligible slice marked active and explicitly park the rest.
+
+**Why this remains active:**
+- Reduces drift between repo documentation and actual platform behavior.
+- Makes it easier to decide what should be built next versus what should stop pretending to be near-term.
+- Keeps roadmap language honest for operators, contributors, and future product decisions.
