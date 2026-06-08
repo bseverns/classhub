@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ClassHub 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 13:30-0600\n"
+"POT-Creation-Date: 2026-06-08 12:20-0500\n"
 "PO-Revision-Date: 2026-02-28 13:30-0600\n"
 "Last-Translator: ClassHub Contributors\n"
 "Language-Team: Spanish\n"
@@ -16,1391 +16,3818 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#
-# ── Join page ────────────────────────────────────────────────────────
-#
+#: site/LOCALIZATION/index.html:1385
+msgid "..."
+msgstr "..."
 
-msgid "Join Class"
-msgstr "Unirse a la clase"
-
-msgid "Skip to main content"
-msgstr "Ir al contenido principal"
-
-msgid "Join your class"
-msgstr "Únete a tu clase"
-
-msgid "Enter your class code and pick a display name."
-msgstr "Ingresa tu código de clase y elige un nombre para mostrar."
-
-msgid "Enter the class code from your teacher. Pick any display name you like."
-msgstr "Ingresa el código de clase de tu maestro. Elige el nombre que quieras."
-
-msgid "On shared devices, enter your return code so you do not join as another student."
-msgstr "En dispositivos compartidos, ingresa tu código de retorno para no unirte como otro estudiante."
-
-msgid "Same classroom device? You can usually leave return code blank."
-msgstr "¿Mismo dispositivo del salón? Generalmente puedes dejar el código de retorno en blanco."
-
-msgid "On shared devices, use your own return code to avoid signing in as someone else."
-msgstr "En dispositivos compartidos, usa tu propio código de retorno para no iniciar sesión como otra persona."
-
-msgid "Class code"
-msgstr "Código de clase"
-
-msgid "Your display name"
-msgstr "Tu nombre para mostrar"
-
-msgid "A nickname or made-up name is fine — no need to use your real name."
-msgstr "Un apodo o nombre inventado está bien — no necesitas usar tu nombre real."
-
-msgid "Return code (optional)"
-msgstr "Código de retorno (opcional)"
-
-msgid "If your class uses icon codes, use the icon keypad below."
-msgstr "Si tu clase usa códigos de íconos, usa el teclado de íconos de abajo."
-
-msgid "Show icon keypad"
-msgstr "Mostrar teclado de íconos"
-
-msgid "Clear return code"
-msgstr "Borrar código de retorno"
-
-msgid "Return code icon keypad"
-msgstr "Teclado de íconos de código de retorno"
-
-msgid "Join class"
-msgstr "Unirse a la clase"
-
-msgid "Privacy at a glance:"
-msgstr "Privacidad en resumen:"
-
-msgid "We store your display name, class submissions, and event timestamps."
-msgstr "Almacenamos tu nombre para mostrar, entregas de clase y marcas de tiempo."
-
+#: services/classhub/config/context_processors.py:53
 #, python-format
-msgid "Storage location: %(location)s"
-msgstr "Ubicación del almacenamiento: %(location)s"
+msgid "this server is hosted by %(operator_name)s, %(operator_descriptor)s."
+msgstr "this server is hosted by %(operator_name)s, %(operator_descriptor)s."
 
-msgid "Retention:"
-msgstr "Retención:"
+#: services/classhub/hub/forms.py:15
+#, fuzzy
+#| msgid "Optional feedback"
+msgid "Optional station"
+msgstr "Comentarios opcionales"
 
-msgid "submissions are kept up to %(counter)s day unless deleted sooner."
-msgid_plural "submissions are kept up to %(counter)s days unless deleted sooner."
-msgstr[0] "las entregas se conservan hasta %(counter)s día a menos que se eliminen antes."
-msgstr[1] "las entregas se conservan hasta %(counter)s días a menos que se eliminen antes."
+#: services/classhub/hub/forms.py:20
+msgid "What did you try? What did you change? (optional)"
+msgstr "What did you try? What did you change? (optional)"
 
-msgid "submissions stay until a teacher or admin removes them."
-msgstr "las entregas permanecen hasta que un maestro o administrador las elimine."
+#: services/classhub/hub/services/helper_widget.py:14
+msgid "Jump not working"
+msgstr "Salto no funciona"
 
-msgid "Delete now: after joining, open <a href=\"/student/my-data\">My Data</a> to delete your work or end this device session."
-msgstr "Eliminar ahora: después de unirte, abre <a href=\"/student/my-data\">Mis datos</a>."
+#: services/classhub/hub/services/helper_widget.py:16
+msgid ""
+"In StoryMode, left/right work but jump does not work in Cheeseteroid. Help "
+"me troubleshoot one step at a time."
+msgstr ""
+"En StoryMode, izquierda y derecha funcionan pero saltar no funciona en "
+"Cheeseteroid. Ayudame a revisar un paso a la vez."
 
-msgid "Teacher? Use <a href=\"/teach\">/teach</a>."
-msgstr "¿Maestro? Usa <a href=\"/teach\">/teach</a>."
+#: services/classhub/hub/services/helper_widget.py:20
+msgid "No buttons respond"
+msgstr "Ningun boton responde"
 
-#
-# ── Teacher login page ───────────────────────────────────────────────
-#
+#: services/classhub/hub/services/helper_widget.py:22
+msgid ""
+"None of my StoryMode breadboard buttons are responding. Give me one check at "
+"a time and ask me to retest."
+msgstr ""
+"Ninguno de mis botones del breadboard en StoryMode responde. Dame una "
+"comprobacion a la vez y pideme volver a probar."
 
-msgid "Teacher Login"
-msgstr "Inicio de sesión del maestro"
+#: services/classhub/hub/services/helper_widget.py:26
+msgid "One direction fails"
+msgstr "Una direccion falla"
 
-msgid "Home"
-msgstr "Inicio"
+#: services/classhub/hub/services/helper_widget.py:28
+msgid ""
+"Only one movement direction fails on my Piper controls. What should I "
+"compare first in my jumper wiring path?"
+msgstr ""
+"Solo falla una direccion de movimiento en mis controles de Piper. Que debo "
+"comparar primero en la ruta de cableado de mis jumpers?"
 
-msgid "Sign in to your account"
-msgstr "Inicia sesión en tu cuenta"
+#: services/classhub/hub/services/helper_widget.py:32
+msgid "Mouse-only path"
+msgstr "Ruta solo con mouse"
 
-msgid "Log in"
-msgstr "Iniciar sesión"
+#: services/classhub/hub/services/helper_widget.py:33
+msgid ""
+"I only have a mouse right now, no keyboard. What is the mouse-first path for "
+"this lesson?"
+msgstr ""
+"Solo tengo un mouse ahora, no teclado. Cual es la ruta pensada para mouse en "
+"esta leccion?"
 
-#
-# ── Language chooser ─────────────────────────────────────────────────
-#
+#: services/classhub/hub/services/helper_widget.py:36
+msgid "Upload .sb3 help"
+msgstr "Ayuda con .sb3"
 
-msgid "Language"
-msgstr "Idioma"
+#: services/classhub/hub/services/helper_widget.py:37
+msgid ""
+"I finished but cannot find my .sb3 file to upload. Walk me through check -> "
+"retest steps."
+msgstr ""
+"Ya termine pero no encuentro mi archivo .sb3 para subirlo. Guiame con pasos "
+"de revisar y volver a probar."
 
-msgid "Switch"
-msgstr "Cambiar"
+#: services/classhub/hub/services/helper_widget.py:42
+msgid "Sprite won't move"
+msgstr "El sprite no se mueve"
 
-#
-# ── Invite error messages (Python) ───────────────────────────────────
-#
+#: services/classhub/hub/services/helper_widget.py:43
+msgid ""
+"My sprite does not move when I click the green flag. Please give me one "
+"Scratch block check at a time."
+msgstr ""
+"Mi sprite no se mueve cuando hago clic en la bandera verde. Dame una sola "
+"comprobacion de bloques de Scratch a la vez."
 
-msgid "That invite link is not valid."
-msgstr "Ese enlace de invitación no es válido."
+#: services/classhub/hub/services/helper_widget.py:46
+msgid "Backdrop won't change"
+msgstr "El fondo no cambia"
 
-msgid "That invite link has been disabled."
-msgstr "Ese enlace de invitación ha sido desactivado."
+#: services/classhub/hub/services/helper_widget.py:47
+msgid ""
+"My backdrop never changes. What is one specific Scratch block check I should "
+"do first?"
+msgstr ""
+"Mi fondo nunca cambia. Cual es una comprobacion especifica de Scratch que "
+"debo hacer primero?"
 
-msgid "That invite link has expired."
-msgstr "Ese enlace de invitación ha expirado."
+#: services/classhub/hub/services/helper_widget.py:50
+msgid "Score not updating"
+msgstr "La puntuacion no cambia"
 
-msgid "This invite is full right now. Ask your teacher for a new invite link."
-msgstr "Esta invitación está llena en este momento. Pide a tu maestro un nuevo enlace de invitación."
+#: services/classhub/hub/services/helper_widget.py:51
+msgid ""
+"My score is not updating correctly. Help me debug in small steps and retest "
+"after each change."
+msgstr ""
+"Mi puntuacion no se actualiza bien. Ayudame a depurarlo en pasos pequenos y "
+"a volver a probar despues de cada cambio."
 
-msgid "That invite link is not usable right now."
-msgstr "Ese enlace de invitación no se puede usar en este momento."
+#: services/classhub/hub/services/helper_widget.py:54
+msgid "Game over missing"
+msgstr "Falta game over"
+
+#: services/classhub/hub/services/helper_widget.py:55
+msgid ""
+"My game over condition does not trigger. Give me one event/broadcast check "
+"and then ask me to retest."
+msgstr ""
+"Mi condicion de game over no se activa. Dame una comprobacion de evento o "
+"broadcast y luego pideme volver a probar."
+
+#: services/classhub/hub/services/helper_widget.py:58
+msgid "Save and upload"
+msgstr "Guardar y subir"
+
+#: services/classhub/hub/services/helper_widget.py:59
+msgid ""
+"Please walk me through saving my Scratch project as .sb3 and uploading it "
+"privately."
+msgstr ""
+"Guiame para guardar mi proyecto de Scratch como .sb3 y subirlo de forma "
+"privada."
+
+#: services/classhub/hub/services/helper_widget.py:64
+msgid "What is today's goal?"
+msgstr "Cual es la meta de hoy?"
+
+#: services/classhub/hub/services/helper_widget.py:65
+msgid "What is the goal for this lesson, and what should be done first?"
+msgstr "Cual es la meta de esta leccion y que deberia hacer primero?"
+
+#: services/classhub/hub/services/helper_widget.py:68
+msgid "I am stuck"
+msgstr "Estoy atorado"
+
+#: services/classhub/hub/services/helper_widget.py:69
+msgid ""
+"I am stuck. Ask me one clarifying question, then give me one small next step."
+msgstr ""
+"Estoy atorado. Hazme una pregunta de aclaracion y luego dame un siguiente "
+"paso pequeno."
+
+#: services/classhub/hub/services/helper_widget.py:72
+msgid "How to ask better"
+msgstr "Como pedir mejor ayuda"
+
+#: services/classhub/hub/services/helper_widget.py:73
+msgid ""
+"Help me write a clear help request: what I expected, what happened, and what "
+"I already tried."
+msgstr ""
+"Ayudame a escribir una solicitud de ayuda clara: que esperaba, que paso y "
+"que ya intente."
+
+#: services/classhub/hub/services/student_home.py:63
+#: services/classhub/hub/services/student_home.py:65
+#: services/classhub/hub/views/content.py:62
+#: services/classhub/hub/views/content.py:64
+msgid "Private remote model"
+msgstr "Private remote model"
+
+#: services/classhub/hub/services/student_home.py:67
+#: services/classhub/hub/views/content.py:66
+msgid "Local model (Ollama)"
+msgstr "Local model (Ollama)"
+
+#: services/classhub/hub/services/student_home.py:69
+#: services/classhub/hub/views/content.py:68
+msgid "Mock model (Test mode)"
+msgstr "Mock model (Test mode)"
+
+#: services/classhub/hub/services/student_home.py:70
+#: services/classhub/hub/views/content.py:69
+msgid "Model backend (Unknown)"
+msgstr "Model backend (Unknown)"
+
+#: services/classhub/hub/views/content.py:261
+msgid ""
+"Need a hint for this lesson? Ask the helper to guide you without handing out "
+"answers."
+msgstr ""
+
+#: services/classhub/hub/views/content.py:263
+#: services/classhub/hub/views/student.py:108
+msgid "Need help? Ask for one small next step at a time."
+msgstr "Need help? Ask for one small next step at a time."
+
+#: services/classhub/hub/views/content.py:265
+msgid ""
+"Ask for strategy, debugging, or extension ideas without asking for direct "
+"answers."
+msgstr ""
+
+#: services/classhub/hub/views/content.py:269
+#, fuzzy
+#| msgid "Open helper"
+msgid "Lesson helper"
+msgstr "Abrir ayudante"
+
+#: services/classhub/hub/views/student.py:106
+msgid ""
+"This is a Day-1 wire-up. It will become smarter once it can cite your class "
+"materials."
+msgstr ""
+
+#: services/classhub/hub/views/student.py:110
+msgid ""
+"Use studio mode: ask for strategy, code-reading checks, and release-quality "
+"feedback."
+msgstr ""
+
+#: services/classhub/hub/views/student.py:116
+#, fuzzy
+#| msgid "Class setup"
+msgid "Class helper"
+msgstr "Configuración de la clase"
+
+#: services/classhub/hub/views/student.py:253
+#, fuzzy
+#| msgid "Short note to your teacher (optional)."
+msgid "Deletion request sent to your teacher."
+msgstr "Nota breve para tu maestro (opcional)."
+
+#: services/classhub/hub/views/student.py:280
+#, python-format
+msgid ""
+"Deleted %(submissions)s submission(s), %(events)s class event record(s), and "
+"%(outcomes)s outcome record(s)."
+msgstr ""
+
+#: services/classhub/hub/views/student_artifacts.py:63
+#: services/classhub/hub/views/student_artifacts.py:70
+msgid "Tombstoned"
+msgstr "Tombstoned"
+
+#: services/classhub/hub/views/student_artifacts.py:65
+#: services/classhub/hub/views/student_artifacts.py:70
+#: services/classhub/templates/student_portfolio.html:62
+msgid "Available"
+msgstr "Disponible"
+
+#: services/classhub/hub/views/student_artifacts.py:134
+msgid "Removed from gallery."
+msgstr "Removed from gallery."
+
+#: services/classhub/hub/views/student_artifacts.py:136
+#, fuzzy
+#| msgid "Shared gallery"
+msgid "Published to gallery."
+msgstr "Galería compartida"
+
+#: services/classhub/hub/views/student_artifacts.py:137
+msgid "Published. Waiting for teacher approval."
+msgstr "Published. Waiting for teacher approval."
+
+#: services/classhub/hub/views/student_artifacts.py:279
+msgid "Session gallery is disabled by your teacher."
+msgstr "Session gallery is disabled by your teacher."
+
+#: services/classhub/hub/views/student_identity.py:24
+msgid "Display name cannot be empty."
+msgstr "Display name cannot be empty."
+
+#: services/classhub/hub/views/student_identity.py:28
+msgid "Display name unchanged."
+msgstr "Display name unchanged."
 
 #
 # ── Name-safety messages (Python) ────────────────────────────────────
 #
+#: services/classhub/hub/views/student_identity.py:37
+#: services/classhub/hub/views/student_join.py:235
+msgid ""
+"That looks like an email address. Please use a nickname or display name "
+"instead."
+msgstr ""
+"Eso parece una dirección de correo electrónico. Por favor, usa un apodo o "
+"nombre para mostrar."
 
-msgid "That looks like an email address. Please use a nickname or display name instead."
-msgstr "Eso parece una dirección de correo electrónico. Por favor, usa un apodo o nombre para mostrar."
+#: services/classhub/hub/views/student_identity.py:38
+#: services/classhub/hub/views/student_join.py:236
+msgid ""
+"That looks like a phone number. Please use a nickname or display name "
+"instead."
+msgstr ""
+"Eso parece un número de teléfono. Por favor, usa un apodo o nombre para "
+"mostrar."
 
-msgid "That looks like a phone number. Please use a nickname or display name instead."
-msgstr "Eso parece un número de teléfono. Por favor, usa un apodo o nombre para mostrar."
-
+#: services/classhub/hub/views/student_identity.py:39
+#: services/classhub/hub/views/student_join.py:237
+#: services/classhub/templates/student_join.html:32
 msgid "Please use a nickname or display name instead of personal information."
-msgstr "Por favor, usa un apodo o nombre para mostrar en lugar de información personal."
+msgstr "Please use a nickname or display name instead of personal information."
 
-msgid "Heads-up: that looks like an email address. A nickname is safer."
-msgstr "Aviso: eso parece una dirección de correo electrónico. Un apodo es más seguro."
+#: services/classhub/hub/views/student_identity.py:61
+msgid "Display name updated."
+msgstr "Display name updated."
 
-msgid "Heads-up: that looks like a phone number. A nickname is safer."
+#: services/classhub/hub/views/student_identity.py:64
+#, fuzzy
+#| msgid "Heads-up: that looks like an email address. A nickname is safer."
+msgid "Heads-up: this looks like an email address. A nickname is safer."
+msgstr "Heads-up: this looks like an email address. A nickname is safer."
+
+#: services/classhub/hub/views/student_identity.py:65
+#, fuzzy
+#| msgid "Heads-up: that looks like a phone number. A nickname is safer."
+msgid "Heads-up: this looks like a phone number. A nickname is safer."
 msgstr "Aviso: eso parece un número de teléfono. Un apodo es más seguro."
 
+#: services/classhub/hub/views/student_identity.py:66
+#: services/classhub/hub/views/student_join.py:243
 msgid "Consider using a nickname instead of personal information."
 msgstr "Considera usar un apodo en lugar de información personal."
 
+#: services/classhub/hub/views/student_join.py:241
+msgid "Heads-up: that looks like an email address. A nickname is safer."
+msgstr "Heads-up: that looks like an email address. A nickname is safer."
+
+#: services/classhub/hub/views/student_join.py:242
+msgid "Heads-up: that looks like a phone number. A nickname is safer."
+msgstr "Aviso: eso parece un número de teléfono. Un apodo es más seguro."
+
 #
-# ── Invite join (blocktrans) ─────────────────────────────────────────
+# ── Invite error messages (Python) ───────────────────────────────────
 #
+#: services/classhub/hub/views/student_join_landing.py:17
+#: services/classhub/templates/student_join.html:33
+msgid "That invite link is not valid."
+msgstr "Ese enlace de invitación no es válido."
 
-#, python-format
-msgid "You are joining <strong>%(class_name)s</strong> by invite link."
-msgstr "Te estás uniendo a <strong>%(class_name)s</strong> por enlace de invitación."
+#: services/classhub/hub/views/student_join_landing.py:18
+msgid "That invite link has been disabled."
+msgstr "Ese enlace de invitación ha sido desactivado."
 
-msgid "Storage location:"
-msgstr "Ubicación del almacenamiento:"
+#: services/classhub/hub/views/student_join_landing.py:19
+#: services/classhub/templates/student_join.html:35
+msgid "That invite link has expired."
+msgstr "Ese enlace de invitación ha expirado."
 
-msgid "day(s). Deleted sooner on request."
-msgstr "día(s). Se eliminan antes si se solicita."
+#: services/classhub/hub/views/student_join_landing.py:20
+#: services/classhub/templates/student_join.html:36
+msgid "This invite is full right now. Ask your teacher for a new invite link."
+msgstr "This invite is full right now. Ask your teacher for a new invite link."
 
-msgid "Delete now:"
-msgstr "Eliminar ahora:"
+#: services/classhub/hub/views/student_join_landing.py:22
+msgid "That invite link is not usable right now."
+msgstr "Ese enlace de invitación no se puede usar en este momento."
 
-msgid "My Data"
-msgstr "Mis datos"
+#: services/classhub/hub/views/student_micro_checks.py:24
+#: services/classhub/templates/student_class.html:189
+msgid "I can do this"
+msgstr "Puedo hacerlo"
 
-msgid "delete your work or end session."
-msgstr "eliminar tu trabajo o terminar sesión."
+#: services/classhub/hub/views/student_micro_checks.py:25
+msgid "Saved. Keep going, and ask for help any time."
+msgstr "Saved. Keep going, and ask for help any time."
+
+#: services/classhub/hub/views/student_micro_checks.py:29
+#: services/classhub/templates/student_class.html:190
+msgid "I'm stuck"
+msgstr "Estoy atascado"
+
+#: services/classhub/hub/views/student_micro_checks.py:30
+msgid "Saved. Your facilitator can see you asked for help."
+msgstr "Saved. Your facilitator can see you asked for help."
+
+#: services/classhub/hub/views/student_micro_checks.py:34
+#: services/classhub/templates/student_class.html:191
+msgid "I taught someone"
+msgstr "Le enseñé a alguien"
+
+#: services/classhub/hub/views/student_micro_checks.py:35
+msgid "Saved. Thanks for helping a classmate."
+msgstr "Saved. Thanks for helping a classmate."
+
+#: services/classhub/templates/admin/login.html:26
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] "Please correct the error below."
+msgstr[1] "Please correct the errors below."
+
+#: services/classhub/templates/admin/login.html:58
+#, fuzzy
+#| msgid "Current password"
+msgid "Forgotten your password?"
+msgstr "Contraseña actual"
+
+#: services/classhub/templates/admin/login.html:62
+#: services/classhub/templates/teach_login.html:75
+msgid "Log in"
+msgstr "Iniciar sesión"
+
+#: services/classhub/templates/course_overview.html:14
+#: services/classhub/templates/material_upload.html:35
+#: services/classhub/templates/privacy.html:14
+#: services/classhub/templates/student_class.html:34
+#: services/classhub/templates/student_gallery.html:14
+#: services/classhub/templates/student_join.html:44
+#: services/classhub/templates/student_my_data.html:14
+#: services/classhub/templates/student_portfolio.html:14
+#: services/classhub/templates/teach_certificate_eligibility.html:12
+#: services/classhub/templates/teach_class.html:12
+#: services/classhub/templates/teach_home.html:12
+#: services/classhub/templates/teach_lessons.html:12
+#: services/classhub/templates/teach_login.html:15
+#: services/classhub/templates/teach_material_submissions.html:12
+#: services/classhub/templates/teacher/teach_lesson_edit.html:12
+#: services/classhub/templates/trust.html:14
+msgid "Skip to main content"
+msgstr "Ir al contenido principal"
+
+#: services/classhub/templates/course_overview.html:19
+#: services/classhub/templates/student_class.html:42
+#: services/classhub/templates/trust.html:18
+msgid "Join page"
+msgstr "Página de unirse"
 
 #
 # ── Student class dashboard ──────────────────────────────────────────
 #
-
+#: services/classhub/templates/course_overview.html:19
+#: services/classhub/templates/student_class.html:40
 msgid "Student home"
 msgstr "Inicio del estudiante"
 
-msgid "Join page"
-msgstr "Página de unirse"
-
-msgid "Export my portfolio"
-msgstr "Exportar mi portafolio"
-
-msgid "Privacy"
-msgstr "Privacidad"
-
-msgid "Signed in as"
-msgstr "Conectado como"
-
-msgid "Code"
-msgstr "Código"
-
-msgid "Copy class code"
-msgstr "Copiar código de clase"
-
-msgid "Your return code:"
-msgstr "Tu código de retorno:"
-
-msgid "Show return code"
-msgstr "Mostrar código de retorno"
-
-msgid "Hide return code"
-msgstr "Ocultar código de retorno"
-
-msgid "Show"
-msgstr "Mostrar"
-
-msgid "Copy return code"
-msgstr "Copiar código de retorno"
-
-msgid "for rejoin"
-msgstr "para reunirse"
-
-msgid "Log out"
-msgstr "Cerrar sesión"
-
-msgid "This week"
-msgstr "Esta semana"
-
-msgid "This week's highlighted lesson"
-msgstr "Lección destacada de esta semana"
-
-msgid "Highlighted lesson"
-msgstr "Lección destacada"
-
-msgid "Start this week's lesson"
-msgstr "Comenzar la lección de esta semana"
-
-msgid "Locked"
-msgstr "Bloqueado"
-
-msgid "Open"
-msgstr "Abierto"
-
-msgid "No calendar-linked lessons yet. Ask your teacher when your first lesson opens."
-msgstr "Aún no hay lecciones vinculadas al calendario. Pregunta a tu maestro cuándo abre tu primera lección."
-
-msgid "Course links"
-msgstr "Enlaces del curso"
-
-msgid "View full course lesson links"
-msgstr "Ver todos los enlaces de lecciones del curso"
-
-msgid "Course lesson links will appear here after your teacher connects a course."
-msgstr "Los enlaces de lecciones del curso aparecerán aquí después de que tu maestro conecte un curso."
-
-msgid "How to tell you are done"
-msgstr "Cómo saber que terminaste"
-
-msgid "Open lesson"
-msgstr "Abrir lección"
-
-msgid "Upload / view submissions"
-msgstr "Subir / ver entregas"
-
-msgid "Upload / manage gallery"
-msgstr "Subir / administrar galería"
-
-msgid "Save checklist"
-msgstr "Guardar lista de verificación"
-
-msgid "Save reflection"
-msgstr "Guardar reflexión"
-
-msgid "Save rubric"
-msgstr "Guardar rúbrica"
-
-msgid "Account"
-msgstr "Cuenta"
-
-msgid "End my session on this device"
-msgstr "Terminar mi sesión en este dispositivo"
-
-msgid "Studio handles"
-msgstr "Controles de estudio"
-
-msgid "highlighted"
-msgstr "destacado"
-
-msgid "Advanced mode keeps core controls visible for autonomy and accountability."
-msgstr "El modo avanzado mantiene visibles los controles principales para autonomía y responsabilidad."
-
-msgid "Export portfolio snapshot"
-msgstr "Exportar instantánea del portafolio"
-
-msgid "Rubric links"
-msgstr "Enlaces de rúbrica"
-
-msgid "Gallery share toggles"
-msgstr "Controles de compartir en galería"
-
-msgid "Done"
-msgstr "Hecho"
-
-msgid "saved"
-msgstr "guardado"
-
-msgid "do now"
-msgstr "hacer ahora"
-
-msgid "wait"
-msgstr "espera"
-
-msgid "saved and reviewable"
-msgstr "guardado y revisable"
-
-msgid "active now"
-msgstr "activo ahora"
-
-msgid "date-gated"
-msgstr "con fecha de apertura"
-
-msgid "Studio accountability: add design-log notes, a short changelog, and release notes for finished builds."
-msgstr "Responsabilidad de estudio: agrega notas del registro de diseño, un changelog breve y notas de versión para los trabajos terminados."
-
-msgid "saved and visible"
-msgstr "guardado y visible"
-
-msgid "ready now"
-msgstr "listo ahora"
-
-msgid "opens on date shown"
-msgstr "se abre en la fecha mostrada"
-
-msgid "Preview intro-only page"
-msgstr "Ver página solo de introducción"
-
-msgid "Full lesson unlocks on <strong>{{ open_date }}</strong>."
-msgstr "La lección completa se desbloquea el <strong>{{ open_date }}</strong>."
-
-msgid "Accepted: {{ exts }} · Max {{ max_mb }}MB"
-msgstr "Aceptado: {{ exts }} · Máx {{ max_mb }}MB"
-
-msgid "Submissions open on <strong>{{ open_date }}</strong>."
-msgstr "Las entregas se abren el <strong>{{ open_date }}</strong>."
-
-msgid "· {{ upload_count }} uploaded (latest saved)"
-msgstr "· {{ upload_count }} subido(s) (último guardado)"
-
-msgid "Gallery opens on <strong>{{ open_date }}</strong>."
-msgstr "La galería se abre el <strong>{{ open_date }}</strong>."
-
-msgid "· {{ upload_count }} uploaded"
-msgstr "· {{ upload_count }} subido(s)"
-
-msgid "Shared gallery"
-msgstr "Galería compartida"
-
-msgid "you"
-msgstr "tú"
-
-msgid "Checklist opens on <strong>{{ open_date }}</strong>."
-msgstr "La lista de verificación se abre el <strong>{{ open_date }}</strong>."
-
-msgid "Review checklist"
-msgstr "Revisar lista de verificación"
-
-msgid "Open checklist"
-msgstr "Abrir lista de verificación"
-
-msgid "Checklist has no items yet."
-msgstr "La lista de verificación aún no tiene elementos."
-
-msgid "Reflection opens on <strong>{{ open_date }}</strong>."
-msgstr "La reflexión se abre el <strong>{{ open_date }}</strong>."
-
-msgid "Design log prompt: note what you changed, why you changed it, and what evidence shows improvement."
-msgstr "Indicador del registro de diseño: anota qué cambiaste, por qué lo cambiaste y qué evidencia muestra mejora."
-
-msgid "Review reflection"
-msgstr "Revisar reflexión"
-
-msgid "Open reflection"
-msgstr "Abrir reflexión"
-
-msgid "Your private reflection"
-msgstr "Tu reflexión privada"
-
-msgid "Write a short reflection."
-msgstr "Escribe una reflexión breve."
-
-msgid "Rubric opens on <strong>{{ open_date }}</strong>."
-msgstr "La rúbrica se abre el <strong>{{ open_date }}</strong>."
-
-msgid "Review rubric"
-msgstr "Revisar rúbrica"
-
-msgid "Open rubric"
-msgstr "Abrir rúbrica"
-
-msgid "Rate each criterion from 1 to {{ scale_max }}."
-msgstr "Califica cada criterio del 1 al {{ scale_max }}."
-
-msgid "Studio expectation: scores should line up with your changelog and release-note claims."
-msgstr "Expectativa de estudio: las puntuaciones deben coincidir con tu changelog y con lo indicado en las notas de versión."
-
-msgid "Not scored"
-msgstr "Sin puntuar"
-
-msgid "Optional feedback"
-msgstr "Comentarios opcionales"
-
-msgid "Short note to your teacher (optional)."
-msgstr "Nota breve para tu maestro (opcional)."
-
-msgid "Rubric criteria not configured yet."
-msgstr "Los criterios de rúbrica aún no están configurados."
-
-msgid "Empty material — teacher will fill this in."
-msgstr "Material vacío: el maestro lo completará."
-
-msgid "No materials yet."
-msgstr "Aún no hay materiales."
-
-msgid "No modules yet. A teacher/admin can add them in /admin."
-msgstr "Aún no hay módulos. Un maestro/admin puede agregarlos en /admin."
-
-msgid "Open My Data for account controls."
-msgstr "Abre Mis datos para controles de cuenta."
-
-msgid "Open My Data"
-msgstr "Abrir Mis datos"
-
-msgid "Manage account + device data."
-msgstr "Administrar cuenta y datos del dispositivo."
-
-msgid "What I made"
-msgstr "Lo que hice"
-
-msgid "Session gallery"
-msgstr "Galería de la sesión"
-
-msgid "Quick check-in"
-msgstr "Registro rápido"
-
-msgid "Share how this session feels right now. These signals help your facilitator support you."
-msgstr "Comparte cómo se siente esta sesión ahora mismo. Estas señales ayudan a tu facilitador a apoyarte."
-
-msgid "I can do this"
-msgstr "Puedo hacerlo"
-
-msgid "I'm stuck"
-msgstr "Estoy atascado"
-
-msgid "I taught someone"
-msgstr "Le enseñé a alguien"
-
-msgid "Last check-in:"
-msgstr "Último registro:"
-
-msgid "Class return image"
-msgstr "Imagen de regreso de la clase"
-
-msgid "Return image: look for this picture when you come back to class."
-msgstr "Imagen de regreso: busca esta imagen cuando vuelvas a clase."
-
-msgid "Enable kiosk mode"
-msgstr "Activar modo quiosco"
-
-msgid "Exit kiosk mode"
-msgstr "Salir del modo quiosco"
-
-msgid "Kiosk mode keeps navigation inside the student class flow."
-msgstr "El modo quiosco mantiene la navegación dentro del flujo de clase del estudiante."
-
-msgid "Hide"
-msgstr "Ocultar"
-
-msgid "Return code hidden."
-msgstr "Código de retorno oculto."
-
-msgid "Return code shown."
-msgstr "Código de retorno mostrado."
-
-msgid "Could not load return code. Refresh and try again."
-msgstr "No se pudo cargar el código de retorno. Actualiza e inténtalo de nuevo."
-
-msgid "Copied to clipboard."
-msgstr "Copiado al portapapeles."
-
-msgid "Copy failed. Please copy manually."
-msgstr "Falló la copia. Copia manualmente, por favor."
-
-msgid "Sentence starter added."
-msgstr "Inicio de oración agregado."
-
-msgid "Sentence starters (optional)"
-msgstr "Inicios de oración (opcional)"
-
-msgid "Icon code: "
-msgstr "Código de icono: "
-
-msgid "Trust notes"
-msgstr "Notas de confianza"
-
-#
-# ── Teacher day-of-class portal (family-visible first tranche) ──────
-#
-
-msgid "Classes"
-msgstr "Clases"
-
-msgid "Start here: open class, share join code, then review submissions. Assigned classes appear first."
-msgstr "Empieza aquí: abre la clase, comparte el código de acceso y luego revisa entregas. Las clases asignadas aparecen primero."
-
-msgid "Classes available in the teacher portal"
-msgstr "Clases disponibles en el portal del maestro"
-
-msgid "Class"
-msgstr "Clase"
-
-msgid "Join code"
-msgstr "Código de acceso"
-
-msgid "Actions"
-msgstr "Acciones"
-
-msgid "Assigned"
-msgstr "Asignada"
-
-msgid "Copy"
-msgstr "Copiar"
-
-msgid "Open class"
-msgstr "Abrir clase"
-
-msgid "Lesson tracker"
-msgstr "Seguimiento de lecciones"
-
-msgid "Print join card"
-msgstr "Imprimir tarjeta de acceso"
-
-msgid "Assign teacher"
-msgstr "Asignar maestro"
-
-msgid "Set organization"
-msgstr "Definir organización"
-
-msgid "No classes yet."
-msgstr "Aún no hay clases."
-
-msgid "What Changed Since Yesterday"
-msgstr "¿Qué cambió desde ayer?"
-
-#, python-format
-msgid "Window started %(window_start)s"
-msgstr "Ventana iniciada %(window_start)s"
-
-msgid "Daily class activity digest"
-msgstr "Resumen diario de actividad por clase"
-
-msgid "New students"
-msgstr "Estudiantes nuevos"
-
-msgid "Uploads"
-msgstr "Subidas"
-
-msgid "Helper chats"
-msgstr "Chats con el asistente"
-
-msgid "Need first upload"
-msgstr "Necesitan primera subida"
-
-msgid "Last upload"
-msgstr "Última subida"
-
-msgid "No uploads yet"
-msgstr "Aún no hay subidas"
-
-msgid "End-of-Class Closeout"
-msgstr "Cierre de fin de clase"
-
-msgid "Keep this collapsed until you need actions."
-msgstr "Mantén esto cerrado hasta que necesites acciones."
-
-#, python-format
-msgid "%(class_name)s · %(student_total)s students"
-msgstr "%(class_name)s · %(student_total)s estudiantes"
-
-#, python-format
-msgid "%(pending_count)s still need a first upload."
-msgstr "%(pending_count)s aún necesitan una primera subida."
-
-msgid "Class already locked"
-msgstr "La clase ya está bloqueada"
-
-msgid "Lock class"
-msgstr "Bloquear clase"
-
-msgid "Export today's submissions"
-msgstr "Exportar entregas de hoy"
-
-msgid "Recent submissions"
-msgstr "Entregas recientes"
-
-msgid "Latest uploads across all classes"
-msgstr "Subidas más recientes en todas las clases"
-
-msgid "Recent submissions across classes"
-msgstr "Entregas recientes entre clases"
-
-msgid "Review submissions"
-msgstr "Revisar entregas"
-
-#
-# ── Student My Data page ─────────────────────────────────────────────
-#
-
-msgid "Back to class"
-msgstr "Volver a la clase"
-
-msgid "Privacy at a glance"
-msgstr "Privacidad en resumen"
-
-msgid "Stored data: your display name, submissions, and class event timestamps."
-msgstr "Datos almacenados: tu nombre para mostrar, entregas y marcas de tiempo de clase."
-
-msgid "Download my work"
-msgstr "Descargar mi trabajo"
-
-msgid "Delete all of your submissions now?"
-msgstr "¿Eliminar todas tus entregas ahora?"
-
-msgid "Delete my work now"
-msgstr "Eliminar mi trabajo ahora"
-
-msgid "My submissions"
-msgstr "Mis entregas"
-
-msgid "When"
-msgstr "Cuándo"
-
-msgid "Module"
-msgstr "Módulo"
-
-msgid "Material"
-msgstr "Material"
-
-msgid "File"
-msgstr "Archivo"
-
-msgid "Download"
-msgstr "Descargar"
-
-msgid "No submissions stored yet."
-msgstr "Aún no hay entregas almacenadas."
-
-msgid "Storage location: this server is hosted locally by your school or organization."
-msgstr "Ubicación de almacenamiento: este servidor está alojado localmente por tu escuela u organización."
-
-msgid "No tracking. No ads. No data broker sharing."
-msgstr "Sin rastreo. Sin anuncios. Sin intercambio con corredores de datos."
-
-msgid "Stored submissions for %(student_name)s"
-msgstr "Entregas guardadas de %(student_name)s"
-
-#
-# ── Student portfolio pages ──────────────────────────────────────────
-#
-
-msgid "Filters"
-msgstr "Filtros"
-
-msgid "Available"
-msgstr "Disponible"
-
-msgid "%(display_name)s Portfolio"
-msgstr "Portafolio de %(display_name)s"
-
-msgid "%(display_name)s Portfolio Export"
-msgstr "Exportación del portafolio de %(display_name)s"
-
-msgid "Class: %(classroom_name)s"
-msgstr "Clase: %(classroom_name)s"
-
-msgid "Generated: %(generated_at)s"
-msgstr "Generado: %(generated_at)s"
-
-msgid "Submissions: %(included_count)s included / %(submission_count)s total"
-msgstr "Entregas: %(included_count)s incluidas / %(submission_count)s en total"
-
-msgid "Submission export rows for %(display_name)s"
-msgstr "Filas de exportación de entregas para %(display_name)s"
-
-msgid "Original file"
-msgstr "Archivo original"
-
-msgid "Archive path"
-msgstr "Ruta del archivo"
-
-msgid "Status"
-msgstr "Estado"
-
-msgid "Note"
-msgstr "Nota"
-
-msgid "Included"
-msgstr "Incluido"
-
-msgid "Missing source file"
-msgstr "Falta el archivo de origen"
-
-msgid "No submissions yet."
-msgstr "Aún no hay entregas."
-
-#
-# ── Privacy page ─────────────────────────────────────────────────────
-#
-
-msgid "Privacy Information"
-msgstr "Información de privacidad"
-
-msgid "How we handle your data on"
-msgstr "Cómo manejamos tus datos en"
-
-msgid "1. What data is collected"
-msgstr "1. Qué datos se recopilan"
-
-msgid "We design this platform to collect as little about you as possible."
-msgstr "Diseñamos esta plataforma para recopilar lo menos posible sobre ti."
-
-msgid "Don't upload sensitive documents"
-msgstr "No subas documentos confidenciales"
-
-msgid "2. How to export or delete your work"
-msgstr "2. Cómo exportar o eliminar tu trabajo"
-
-msgid "You own your artifacts. While in an active session, you can export or delete your files at any time."
-msgstr "Eres dueño de tus archivos. Mientras tengas una sesión activa, puedes exportar o eliminar tus archivos en cualquier momento."
-
-msgid "3. What gets deleted and when"
-msgstr "3. Qué se elimina y cuándo"
-
-msgid "We don't hold on to your data forever."
-msgstr "No guardamos tus datos para siempre."
+#: services/classhub/templates/course_overview.html:23
+#: services/classhub/templates/material_upload.html:56
+#: services/classhub/templates/privacy.html:22
+#: services/classhub/templates/student_join.html:50
+#: services/classhub/templates/student_my_data.html:21
+#: services/classhub/templates/trust.html:22
+msgid "Simple"
+msgstr "Sencillo"
+
+#: services/classhub/templates/course_overview.html:24
+#: services/classhub/templates/material_upload.html:57
+#: services/classhub/templates/privacy.html:23
+#: services/classhub/templates/student_join.html:51
+#: services/classhub/templates/student_my_data.html:22
+#: services/classhub/templates/trust.html:23
+msgid "Standard"
+msgstr "Estándar"
+
+#: services/classhub/templates/course_overview.html:25
+#: services/classhub/templates/lesson_handout.html:25
+#: services/classhub/templates/lesson_page.html:25
+#: services/classhub/templates/lesson_page.html:189
+#: services/classhub/templates/material_upload.html:58
+#: services/classhub/templates/privacy.html:24
+#: services/classhub/templates/student_class.html:67
+#: services/classhub/templates/student_join.html:52
+#: services/classhub/templates/student_my_data.html:23
+#: services/classhub/templates/trust.html:24
+msgid "Reading level:"
+msgstr "Nivel de lectura:"
+
+#: services/classhub/templates/course_overview.html:31
+msgid "Open a lesson to see what to do next."
+msgstr "Abre una lección para ver qué hacer después."
+
+#: services/classhub/templates/course_overview.html:33
+msgid "Open one lesson at a time for simpler student instructions."
+msgstr "Abre una lección a la vez para ver instrucciones más sencillas para estudiantes."
+
+#: services/classhub/templates/course_overview.html:36
+msgid ""
+"Elementary mode: simpler student language and fewer simultaneous controls."
+msgstr ""
+
+#: services/classhub/templates/course_overview.html:38
+msgid "Advanced mode: denser controls and richer helper guidance."
+msgstr "Modo avanzado: controles más densos y orientación más completa del asistente."
 
 #
 # ── Course overview page ─────────────────────────────────────────────
 #
-
+#: services/classhub/templates/course_overview.html:44
 msgid "Lessons"
 msgstr "Lecciones"
 
+#: services/classhub/templates/course_overview.html:53
+msgid ""
+"Students usually join with a class code and open lessons from student home."
+msgstr ""
+
+#: services/classhub/templates/course_overview.html:55
+msgid ""
+"This page is mainly for direct lesson link verification. Students usually "
+"enter via class code and land on /student."
+msgstr ""
+
+#: services/classhub/templates/course_overview.html:59
 msgid "Back to join"
 msgstr "Volver a unirse"
 
+#: services/classhub/templates/includes/helper_widget.html:9
+#: services/classhub/templates/includes/helper_widget.html:33
 msgid "Open helper"
 msgstr "Abrir ayudante"
 
+#: services/classhub/templates/includes/helper_widget.html:10
 msgid "Resume helper"
 msgstr "Continuar ayudante"
 
-msgid "Follow-up questions stay in one lesson thread in this browser session until you reset chat."
-msgstr "Las preguntas de seguimiento se quedan en un solo hilo de esta leccion en esta sesion del navegador hasta que reinicies el chat."
+#: services/classhub/templates/includes/helper_widget.html:11
+#: services/classhub/templates/includes/helper_widget.html:41
+msgid ""
+"Follow-up questions stay in one lesson thread in this browser session until "
+"you reset chat."
+msgstr ""
+"Las preguntas de seguimiento se quedan en un solo hilo de esta leccion en "
+"esta sesion del navegador hasta que reinicies el chat."
 
-msgid "Conversation context is saved for this lesson in this browser session until you reset chat."
-msgstr "El contexto de la conversacion se guarda para esta leccion en esta sesion del navegador hasta que reinicies el chat."
+#: services/classhub/templates/includes/helper_widget.html:12
+msgid ""
+"Conversation context is saved for this lesson in this browser session until "
+"you reset chat."
+msgstr ""
+"El contexto de la conversacion se guarda para esta leccion en esta sesion "
+"del navegador hasta que reinicies el chat."
 
+#: services/classhub/templates/includes/helper_widget.html:13
 msgid "You"
 msgstr "Tu"
 
+#: services/classhub/templates/includes/helper_widget.html:14
 msgid "Helper"
 msgstr "Ayudante"
 
+#: services/classhub/templates/includes/helper_widget.html:15
 msgid "Try next:"
 msgstr "Prueba despues:"
 
+#: services/classhub/templates/includes/helper_widget.html:16
 msgid "Conversation reset."
 msgstr "Conversacion reiniciada."
 
+#: services/classhub/templates/includes/helper_widget.html:17
 msgid "Type a question before asking."
 msgstr "Escribe una pregunta antes de pedir ayuda."
 
+#: services/classhub/templates/includes/helper_widget.html:18
 msgid "Thinking..."
 msgstr "Pensando..."
 
+#: services/classhub/templates/includes/helper_widget.html:19
 msgid "(no output)"
 msgstr "(sin respuesta)"
 
+#: services/classhub/templates/includes/helper_widget.html:20
 msgid "Helper error: network_failure"
 msgstr "Error del ayudante: network_failure"
 
+#: services/classhub/templates/includes/helper_widget.html:21
+#: services/classhub/templates/includes/helper_widget.html:43
 msgid "Quick asks (tap to send):"
 msgstr "Preguntas rapidas (toca para enviar):"
 
+#: services/classhub/templates/includes/helper_widget.html:22
+#: services/classhub/templates/includes/helper_widget.html:44
 msgid "Quick helper prompts"
 msgstr "Preguntas rapidas del ayudante"
 
+#: services/classhub/templates/includes/helper_widget.html:23
+#: services/classhub/templates/includes/helper_widget.html:47
 msgid "Question for helper"
 msgstr "Pregunta para el ayudante"
 
+#: services/classhub/templates/includes/helper_widget.html:24
+#: services/classhub/templates/includes/helper_widget.html:48
 msgid "Ask for help..."
 msgstr "Pide ayuda..."
 
+#: services/classhub/templates/includes/helper_widget.html:25
+#: services/classhub/templates/includes/helper_widget.html:50
 msgid "Ask"
 msgstr "Preguntar"
 
+#: services/classhub/templates/includes/helper_widget.html:26
+#: services/classhub/templates/includes/helper_widget.html:51
 msgid "Reset chat"
 msgstr "Reiniciar chat"
 
+#: services/classhub/templates/includes/helper_widget.html:27
+#: services/classhub/templates/includes/helper_widget.html:88
 msgid "Lesson references used"
 msgstr "Referencias de la leccion usadas"
 
+#: services/classhub/templates/includes/helper_widget.html:28
 msgid "Helper error"
 msgstr "Error del ayudante"
 
-msgid "Jump not working"
-msgstr "Salto no funciona"
-
-msgid "In StoryMode, left/right work but jump does not work in Cheeseteroid. Help me troubleshoot one step at a time."
-msgstr "En StoryMode, izquierda y derecha funcionan pero saltar no funciona en Cheeseteroid. Ayudame a revisar un paso a la vez."
-
-msgid "No buttons respond"
-msgstr "Ningun boton responde"
-
-msgid "None of my StoryMode breadboard buttons are responding. Give me one check at a time and ask me to retest."
-msgstr "Ninguno de mis botones del breadboard en StoryMode responde. Dame una comprobacion a la vez y pideme volver a probar."
-
-msgid "One direction fails"
-msgstr "Una direccion falla"
-
-msgid "Only one movement direction fails on my Piper controls. What should I compare first in my jumper wiring path?"
-msgstr "Solo falla una direccion de movimiento en mis controles de Piper. Que debo comparar primero en la ruta de cableado de mis jumpers?"
-
-msgid "Mouse-only path"
-msgstr "Ruta solo con mouse"
-
-msgid "I only have a mouse right now, no keyboard. What is the mouse-first path for this lesson?"
-msgstr "Solo tengo un mouse ahora, no teclado. Cual es la ruta pensada para mouse en esta leccion?"
-
-msgid "Upload .sb3 help"
-msgstr "Ayuda con .sb3"
-
-msgid "I finished but cannot find my .sb3 file to upload. Walk me through check -> retest steps."
-msgstr "Ya termine pero no encuentro mi archivo .sb3 para subirlo. Guiame con pasos de revisar y volver a probar."
-
-msgid "Sprite won't move"
-msgstr "El sprite no se mueve"
-
-msgid "My sprite does not move when I click the green flag. Please give me one Scratch block check at a time."
-msgstr "Mi sprite no se mueve cuando hago clic en la bandera verde. Dame una sola comprobacion de bloques de Scratch a la vez."
-
-msgid "Backdrop won't change"
-msgstr "El fondo no cambia"
-
-msgid "My backdrop never changes. What is one specific Scratch block check I should do first?"
-msgstr "Mi fondo nunca cambia. Cual es una comprobacion especifica de Scratch que debo hacer primero?"
-
-msgid "Score not updating"
-msgstr "La puntuacion no cambia"
-
-msgid "My score is not updating correctly. Help me debug in small steps and retest after each change."
-msgstr "Mi puntuacion no se actualiza bien. Ayudame a depurarlo en pasos pequenos y a volver a probar despues de cada cambio."
-
-msgid "Game over missing"
-msgstr "Falta game over"
-
-msgid "My game over condition does not trigger. Give me one event/broadcast check and then ask me to retest."
-msgstr "Mi condicion de game over no se activa. Dame una comprobacion de evento o broadcast y luego pideme volver a probar."
-
-msgid "Save and upload"
-msgstr "Guardar y subir"
-
-msgid "Please walk me through saving my Scratch project as .sb3 and uploading it privately."
-msgstr "Guiame para guardar mi proyecto de Scratch como .sb3 y subirlo de forma privada."
-
-msgid "What is today's goal?"
-msgstr "Cual es la meta de hoy?"
-
-msgid "What is the goal for this lesson, and what should be done first?"
-msgstr "Cual es la meta de esta leccion y que deberia hacer primero?"
-
-msgid "I am stuck"
-msgstr "Estoy atorado"
-
-msgid "I am stuck. Ask me one clarifying question, then give me one small next step."
-msgstr "Estoy atorado. Hazme una pregunta de aclaracion y luego dame un siguiente paso pequeno."
-
-msgid "How to ask better"
-msgstr "Como pedir mejor ayuda"
-
-msgid "Help me write a clear help request: what I expected, what happened, and what I already tried."
-msgstr "Ayudame a escribir una solicitud de ayuda clara: que esperaba, que paso y que ya intente."
-
-# Teacher shell tranche (2026-04-11)
-
-msgid "Teacher Portal"
-msgstr "Portal del maestro"
-
-msgid "Teacher portal links"
-msgstr "enlaces del portal del maestro"
-
-msgid "Staff-only cockpit"
-msgstr "panel solo para personal"
-
-msgid "Lesson videos"
-msgstr "videos de lecciones"
-
-msgid "Lesson assets"
-msgstr "recursos de lecciones"
-
-msgid "Data lifespan"
-msgstr "ciclo de vida de los datos"
-
-msgid "Student join page"
-msgstr "pagina de acceso para estudiantes"
-
-msgid "Portal modes"
-msgstr "modos del portal"
-
-msgid "Choose a focused surface for this session."
-msgstr "Elige una vista enfocada para esta sesion."
-
-msgid "Hide operator tools"
-msgstr "Ocultar herramientas del operador"
-
-msgid "Show operator tools"
-msgstr "Mostrar herramientas del operador"
-
-msgid "Class dashboard links"
-msgstr "enlaces del panel de la clase"
-
-msgid "Teacher"
-msgstr "Maestro"
-
-msgid "Printable join card"
-msgstr "tarjeta de acceso imprimible"
-
-msgid "Students"
-msgstr "estudiantes"
-
-msgid "Join flow"
-msgstr "flujo de acceso"
-
-msgid "Invite only"
-msgstr "solo por invitacion"
-
-msgid "Closed"
-msgstr "cerrado"
-
-msgid "Unlocked"
-msgstr "desbloqueada"
-
-msgid "Class actions"
-msgstr "acciones de la clase"
-
-msgid "Join card"
-msgstr "tarjeta de acceso"
-
-msgid "Summary CSV"
-msgstr "CSV de resumen"
-
-msgid "Start Here In This Class"
-msgstr "Empieza aqui en esta clase"
-
-msgid "The unified workspace above handles the common path. Use these anchors when you need a deeper panel."
-msgstr "El espacio de trabajo unificado de arriba cubre el camino comun. Usa estos atajos cuando necesites un panel mas profundo."
-
-msgid "Run class now"
-msgstr "Dirigir la clase ahora"
-
-msgid "Print or share join card"
-msgstr "Imprimir o compartir tarjeta de acceso"
-
-msgid "Open lesson tracker + release controls"
-msgstr "Abrir seguimiento de lecciones y controles de publicacion"
-
-msgid "Check facilitator support board"
-msgstr "Revisar tablero de apoyo del facilitador"
-
-msgid "Check outcomes snapshot"
-msgstr "Revisar resumen de resultados"
-
-msgid "Setup + cleanup"
-msgstr "preparacion y cierre"
-
-msgid "Manage invite links + seat caps"
-msgstr "Gestionar enlaces de invitacion y limites de cupo"
-
-msgid "Fix roster identity issues"
-msgstr "Corregir problemas de identidad del roster"
-
-msgid "Review helper signal trends"
-msgstr "Revisar tendencias de senales del asistente"
-
-msgid "Edit module order/content"
-msgstr "Editar orden y contenido de modulos"
-
-msgid "Certificate eligibility links"
-msgstr "enlaces de elegibilidad de certificados"
-
-msgid "Certificate Eligibility"
-msgstr "Elegibilidad de certificados"
-
-msgid "Eligible students"
-msgstr "estudiantes elegibles"
-
-msgid "Threshold:"
-msgstr "umbral:"
-
-msgid "sessions"
-msgstr "sesiones"
-
-msgid "artifacts"
-msgstr "artefactos"
-
-msgid "Export outcomes CSV"
-msgstr "Exportar CSV de resultados"
-
-msgid "Mark Session Completed"
-msgstr "Marcar sesion completada"
-
-msgid "Use this only when completion happened offline and no artifact upload was submitted."
-msgstr "Usa esto solo cuando la finalizacion ocurrio fuera de linea y no se envio ningun artefacto."
-
-msgid "Select student"
-msgstr "Selecciona estudiante"
-
-msgid "Select module"
-msgstr "Selecciona modulo"
-
-msgid "Mark completed"
-msgstr "Marcar completado"
-
-msgid "Read-only role: session completion updates are limited to teacher/admin roles."
-msgstr "Rol de solo lectura: las actualizaciones de finalizacion de sesion se limitan a roles de maestro o admin."
-
-msgid "All Students"
-msgstr "Todos los estudiantes"
-
-msgid "Sessions"
-msgstr "Sesiones"
-
-msgid "Artifacts"
-msgstr "Artefactos"
-
-msgid "Milestones"
-msgstr "Hitos"
-
-msgid "Certificate"
-msgstr "Certificado"
-
-msgid "Eligible"
-msgstr "Elegible"
-
-msgid "In progress"
-msgstr "En progreso"
-
-msgid "Download PDF"
-msgstr "Descargar PDF"
-
-msgid "Not issued"
-msgstr "No emitido"
-
-msgid "Not eligible"
-msgstr "No elegible"
-
-msgid "Re-issue"
-msgstr "Volver a emitir"
-
-msgid "Issue"
-msgstr "Emitir"
-
-msgid "No students in this class yet."
-msgstr "No hay estudiantes en esta clase todavia."
-
-msgid "Teacher · Lessons"
-msgstr "Maestro · Lecciones"
-
-msgid "Lesson tracker links"
-msgstr "enlaces del seguimiento de lecciones"
-
-msgid "Focus on lesson links and submission progress."
-msgstr "Enfocate en los enlaces de lecciones y el progreso de entregas."
-
-msgid "All classes"
-msgstr "Todas las clases"
-
-msgid "Apply"
-msgstr "Aplicar"
-
-msgid "Open class dashboard"
-msgstr "Abrir panel de clase"
-
-msgid "Lesson"
-msgstr "Leccion"
-
-msgid "Dropboxes"
-msgstr "Buzones de entrega"
-
-msgid "Teacher notes"
-msgstr "Notas del maestro"
-
+#: services/classhub/templates/includes/helper_widget.html:54
+#, fuzzy
+#| msgid "Privacy at a glance"
+msgid "Privacy and data"
+msgstr "Privacidad en resumen"
+
+#: services/classhub/templates/includes/helper_widget.html:56
+msgid ""
+"Stored: helper access timestamps, lesson-scope metadata, and short-lived "
+"chat context used for follow-up help."
+msgstr ""
+
+#: services/classhub/templates/includes/helper_widget.html:57
+msgid ""
+"If teachers reset helper conversations, a class snapshot may be exported for "
+"internal research and quality review before cache clear."
+msgstr ""
+
+#: services/classhub/templates/includes/helper_widget.html:58
+msgid ""
+"Access: only your teachers and createMPLS administrators can access helper "
+"records and exports."
+msgstr ""
+
+#: services/classhub/templates/includes/helper_widget.html:60
+#: services/classhub/templates/material_upload.html:88
+#: services/classhub/templates/student_join.html:126
+msgid "Storage location:"
+msgstr "Ubicación del almacenamiento:"
+
+#: services/classhub/templates/includes/helper_widget.html:64
+#: services/classhub/templates/material_upload.html:92
+#, fuzzy
+#| msgid ""
+#| "Storage location: this server is hosted locally by your school or "
+#| "organization."
+msgid "this server is hosted locally by your school or organization."
+msgstr "this server is hosted locally by your school or organization."
+
+#: services/classhub/templates/includes/helper_widget.html:68
+#: services/classhub/templates/material_upload.html:99
+#: services/classhub/templates/student_join.html:136
+#: services/classhub/templates/student_my_data.html:47
+msgid "Retention:"
+msgstr "Retención:"
+
+#: services/classhub/templates/includes/helper_widget.html:70
+#, python-format
+msgid "helper access events are kept up to %(days)s day."
+msgid_plural "helper access events are kept up to %(days)s days."
+msgstr[0] "helper access events are kept up to %(days)s day."
+msgstr[1] "helper access events are kept up to %(days)s days."
+
+#: services/classhub/templates/includes/helper_widget.html:72
+msgid "helper access events stay until admin retention cleanup is run."
+msgstr "helper access events stay until admin retention cleanup is run."
+
+#: services/classhub/templates/includes/helper_widget.html:76
+#: services/classhub/templates/student_join.html:144
+msgid "Delete now:"
+msgstr "Eliminar ahora:"
+
+#: services/classhub/templates/includes/helper_widget.html:76
+#: services/classhub/templates/student_gallery.html:21
+#: services/classhub/templates/student_join.html:145
+#: services/classhub/templates/student_my_data.html:8
+#: services/classhub/templates/student_my_data.html:19
+#: services/classhub/templates/student_portfolio.html:20
+msgid "My Data"
+msgstr "Mis datos"
+
+#: services/classhub/templates/includes/helper_widget.html:80
+#: services/classhub/templates/material_upload.html:118
+#: services/classhub/templates/student_my_data.html:57
+msgid "No tracking. No ads. No data broker sharing."
+msgstr "Sin rastreo. Sin anuncios. Sin intercambio con corredores de datos."
+
+#
+# ── Language chooser ─────────────────────────────────────────────────
+#
+#: services/classhub/templates/includes/language_chooser.html:5
+msgid "Language"
+msgstr "Idioma"
+
+#: services/classhub/templates/includes/language_chooser.html:13
+msgid "Switch"
+msgstr "Cambiar"
+
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:4
+#: services/classhub/templates/teach_lessons.html:90
 msgid "Release:"
 msgstr "Publicacion:"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:6
+#: services/classhub/templates/includes/teach_home/day_sections.html:37
+#: services/classhub/templates/student_class.html:129
+#: services/classhub/templates/student_class.html:157
+#: services/classhub/templates/student_class.html:246
+#: services/classhub/templates/student_class.html:250
+#: services/classhub/templates/student_class.html:255
+#: services/classhub/templates/student_class.html:267
+#: services/classhub/templates/student_class.html:284
+#: services/classhub/templates/student_class.html:302
+#: services/classhub/templates/student_class.html:310
+#: services/classhub/templates/student_class.html:326
+#: services/classhub/templates/student_class.html:356
+#: services/classhub/templates/student_class.html:399
+#: services/classhub/templates/student_class.html:431
+#: services/classhub/templates/student_class.html:474
+#: services/classhub/templates/teach_class.html:28
+#: services/classhub/templates/teach_lessons.html:92
+msgid "Locked"
+msgstr "Bloqueado"
+
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:8
+#: services/classhub/templates/includes/teach_home/day_sections.html:39
+#: services/classhub/templates/lesson_page.html:142
+#: services/classhub/templates/student_class.html:131
+#: services/classhub/templates/student_class.html:159
+#: services/classhub/templates/student_class.html:245
+#: services/classhub/templates/student_class.html:249
+#: services/classhub/templates/student_class.html:254
+#: services/classhub/templates/student_class.html:269
+#: services/classhub/templates/student_class.html:306
+#: services/classhub/templates/student_class.html:330
+#: services/classhub/templates/student_class.html:341
+#: services/classhub/templates/student_class.html:360
+#: services/classhub/templates/student_class.html:371
+#: services/classhub/templates/student_class.html:407
+#: services/classhub/templates/student_class.html:445
+#: services/classhub/templates/student_class.html:482
+#: services/classhub/templates/teach_class.html:27
+#: services/classhub/templates/teach_lessons.html:94
+msgid "Open"
+msgstr "Abierto"
+
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:11
+#: services/classhub/templates/student_portfolio.html:44
+#: services/classhub/templates/teach_lessons.html:97
 msgid "Date"
 msgstr "Fecha"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:14
+#: services/classhub/templates/teach_lessons.html:100
 msgid "Override active"
 msgstr "Sobrescritura activa"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:16
+#: services/classhub/templates/teach_lessons.html:102
 msgid "Content default"
 msgstr "Contenido predeterminado"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:28
+#: services/classhub/templates/teach_lessons.html:114
 #, python-format
 msgid "Availability date for %(lesson_title)s"
 msgstr "Fecha de disponibilidad para %(lesson_title)s"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:36
+#: services/classhub/templates/teach_lessons.html:122
 msgid "Set date"
 msgstr "Fijar fecha"
 
-msgid "Toggle lock"
-msgstr "Cambiar bloqueo"
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:45
+#: services/classhub/templates/teach_lessons.html:131
+#, fuzzy
+#| msgid "Open lesson"
+msgid "Unlock lesson"
+msgstr "Abrir lección"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:45
+#: services/classhub/templates/teach_lessons.html:131
+#, fuzzy
+#| msgid "Lock class"
+msgid "Lock lesson"
+msgstr "Bloquear clase"
+
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:54
+#: services/classhub/templates/teach_lessons.html:140
 msgid "Open now"
 msgstr "Abrir ahora"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:63
+#: services/classhub/templates/teach_lessons.html:149
 msgid "Reset default"
 msgstr "Restablecer predeterminado"
 
-msgid "Submitted"
-msgstr "Entregados"
+#
+# ── Teacher day-of-class portal (family-visible first tranche) ──────
+#
+#: services/classhub/templates/includes/teach_home/day_sections.html:5
+msgid "Classes"
+msgstr "Clases"
 
-msgid "Missing"
-msgstr "Faltantes"
+#: services/classhub/templates/includes/teach_home/day_sections.html:6
+msgid ""
+"Start here: open class, share join code, then review submissions. Assigned "
+"classes appear first."
+msgstr ""
+"Empieza aquí: abre la clase, comparte el código de acceso y luego revisa "
+"entregas. Las clases asignadas aparecen primero."
 
-msgid "Latest"
-msgstr "Mas reciente"
+#: services/classhub/templates/includes/teach_home/day_sections.html:13
+msgid "Classes available in the teacher portal"
+msgstr "Clases disponibles en el portal del maestro"
 
-msgid "Review missing"
-msgstr "Revisar faltantes"
+#: services/classhub/templates/includes/teach_home/day_sections.html:16
+#: services/classhub/templates/includes/teach_home/day_sections.html:75
+#: services/classhub/templates/includes/teach_home/day_sections.html:155
+#: services/classhub/templates/teach_class.html:28
+#: services/classhub/templates/teach_lessons.html:34
+msgid "Class"
+msgstr "Clase"
 
-msgid "No upload dropbox in this module."
-msgstr "No hay buzon de entrega en este modulo."
+#: services/classhub/templates/includes/teach_home/day_sections.html:17
+#: services/classhub/templates/teach_class.html:23
+#: services/classhub/templates/teach_lessons.html:50
+msgid "Join code"
+msgstr "Código de acceso"
 
-msgid "No lesson links found in this class yet."
-msgstr "Aun no se encontraron enlaces de lecciones en esta clase."
+#: services/classhub/templates/includes/teach_home/day_sections.html:18
+#: services/classhub/templates/student_portfolio.html:74
+#: services/classhub/templates/student_portfolio_index.html:26
+#: services/classhub/templates/teach_certificate_eligibility.html:79
+msgid "Status"
+msgstr "Estado"
 
-msgid "No classes available."
-msgstr "No hay clases disponibles."
+#: services/classhub/templates/includes/teach_home/day_sections.html:19
+#: services/classhub/templates/includes/teach_home/day_sections.html:157
+#: services/classhub/templates/teach_material_submissions.html:67
+msgid "Actions"
+msgstr "Acciones"
 
+#: services/classhub/templates/includes/teach_home/day_sections.html:28
+msgid "Assigned"
+msgstr "Asignada"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:33
+#: services/classhub/templates/teach_class.html:24
+msgid "Copy"
+msgstr "Copiar"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:43
+msgid "Open class"
+msgstr "Abrir clase"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:44
+#: services/classhub/templates/teach_certificate_eligibility.html:18
+#: services/classhub/templates/teach_class.html:18
+#: services/classhub/templates/teach_class.html:34
+#: services/classhub/templates/teach_home.html:19
+#: services/classhub/templates/teach_material_submissions.html:17
+msgid "Lesson tracker"
+msgstr "Seguimiento de lecciones"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:45
+#: services/classhub/templates/includes/teach_home/day_sections.html:131
+msgid "Print join card"
+msgstr "Imprimir tarjeta de acceso"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:47
+msgid "Assign teacher"
+msgstr "Asignar maestro"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:48
+msgid "Set organization"
+msgstr "Definir organización"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:57
+#: services/classhub/templates/includes/teach_home/day_sections.html:104
+#: services/classhub/templates/includes/teach_home/day_sections.html:137
+msgid "No classes yet."
+msgstr "Aún no hay clases."
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:63
+msgid "What Changed Since Yesterday"
+msgstr "¿Qué cambió desde ayer?"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:65
+#, python-format
+msgid "Window started %(window_start)s"
+msgstr "Ventana iniciada %(window_start)s"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:72
+msgid "Daily class activity digest"
+msgstr "Resumen diario de actividad por clase"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:76
+msgid "New students"
+msgstr "Estudiantes nuevos"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:77
+msgid "Uploads"
+msgstr "Subidas"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:78
+msgid "Helper chats"
+msgstr "Chats con el asistente"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:79
+msgid "Need first upload"
+msgstr "Necesitan primera subida"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:80
+msgid "Last upload"
+msgstr "Última subida"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:95
+msgid "No uploads yet"
+msgstr "Aún no hay subidas"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:110
+msgid "End-of-Class Closeout"
+msgstr "Cierre de fin de clase"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:111
+msgid "Keep this collapsed until you need actions."
+msgstr "Mantén esto cerrado hasta que necesites acciones."
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:118
+#, python-format
+msgid "%(class_name)s · %(student_total)s students"
+msgstr "%(class_name)s · %(student_total)s estudiantes"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:121
+#, python-format
+msgid "%(pending_count)s still need a first upload."
+msgstr "%(pending_count)s aún necesitan una primera subida."
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:127
+msgid "Class already locked"
+msgstr "La clase ya está bloqueada"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:127
+msgid "Lock class"
+msgstr "Bloquear clase"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:130
+msgid "Export today's submissions"
+msgstr "Exportar entregas de hoy"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:143
+msgid "Recent submissions"
+msgstr "Entregas recientes"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:144
+msgid "Latest uploads across all classes"
+msgstr "Subidas más recientes en todas las clases"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:150
+msgid "Recent submissions across classes"
+msgstr "Entregas recientes entre clases"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:153
+#: services/classhub/templates/material_upload.html:197
+#: services/classhub/templates/student_my_data.html:115
+#: services/classhub/templates/student_portfolio.html:68
+#: services/classhub/templates/student_portfolio_index.html:21
+msgid "When"
+msgstr "Cuándo"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:154
+#: services/classhub/templates/teach_certificate_eligibility.html:46
+#: services/classhub/templates/teach_certificate_eligibility.html:75
+#: services/classhub/templates/teach_material_submissions.html:60
+#, fuzzy
+#| msgid "Students"
+msgid "Student"
+msgstr "estudiantes"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:156
+#: services/classhub/templates/student_my_data.html:117
+#: services/classhub/templates/student_portfolio.html:70
+#: services/classhub/templates/student_portfolio_index.html:23
+msgid "Material"
+msgstr "Material"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:167
+msgid "Review submissions"
+msgstr "Revisar entregas"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:167
+#: services/classhub/templates/material_upload.html:205
+#: services/classhub/templates/material_upload.html:227
+#: services/classhub/templates/student_gallery.html:72
+#: services/classhub/templates/student_my_data.html:119
+#: services/classhub/templates/student_my_data.html:129
+#: services/classhub/templates/student_portfolio.html:75
+#: services/classhub/templates/student_portfolio.html:89
+msgid "Download"
+msgstr "Descargar"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:174
+#: services/classhub/templates/student_portfolio_index.html:45
+msgid "No submissions yet."
+msgstr "Aún no hay entregas."
+
+#: services/classhub/templates/includes/teach_home/setup_sections.html:4
 msgid "Portal setup + account tools"
 msgstr "Configuración del portal y herramientas de cuenta"
 
-msgid "Start with Class setup first. Superuser operator + policy workflows live behind Show operator tools."
-msgstr "Empieza primero con la configuración de la clase. Los flujos de operador superusuario y de políticas están detrás de Mostrar herramientas de operador."
+#: services/classhub/templates/includes/teach_home/setup_sections.html:6
+msgid ""
+"Start with Class setup first. Superuser operator + policy workflows live "
+"behind Show operator tools."
+msgstr ""
+"Empieza primero con la configuración de la clase. Los flujos de operador "
+"superusuario y de políticas están detrás de Mostrar herramientas de operador."
 
+#: services/classhub/templates/includes/teach_home/setup_sections.html:8
 msgid "Teacher top actions"
 msgstr "Acciones principales del maestro"
 
+#: services/classhub/templates/includes/teach_home/setup_sections.html:10
 msgid "Class setup"
 msgstr "Configuración de la clase"
 
+#: services/classhub/templates/includes/teach_home/setup_sections.html:13
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:3
 msgid "My profile"
 msgstr "Mi perfil"
 
+#: services/classhub/templates/includes/teach_home/setup_sections.html:22
 msgid "Invite teacher"
 msgstr "Invitar maestro"
 
+#: services/classhub/templates/includes/teach_home/setup_sections.html:25
 msgid "Organizations"
 msgstr "Organizaciones"
 
-msgid "Create a class workspace"
-msgstr "Crear un espacio de clase"
-
-msgid "Class name"
-msgstr "Nombre de la clase"
-
-msgid "e.g., Piper + Scratch (Period 3)"
-msgstr "p. ej., Piper + Scratch (Periodo 3)"
-
-msgid "Student landing title (optional)"
-msgstr "Título de inicio del estudiante (opcional)"
-
-msgid "e.g., Week 3: Story + Motion"
-msgstr "p. ej., Semana 3: Historia + Movimiento"
-
-msgid "First session/module (optional)"
-msgstr "Primera sesión/módulo (opcional)"
-
-msgid "e.g., Session 1 — Warm-up + Build"
-msgstr "p. ej., Sesión 1 - Calentamiento + Construcción"
-
-msgid "Student kickoff note (optional)"
-msgstr "Nota inicial para estudiantes (opcional)"
-
-msgid "Tell students where to start as soon as they join."
-msgstr "Diles a los estudiantes dónde empezar en cuanto se unan."
-
-msgid "Create class workspace"
-msgstr "Crear espacio de clase"
-
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:5
 msgid "Update your contact details and password for teacher sign-in."
-msgstr "Actualiza tus datos de contacto y tu contraseña para el inicio de sesión del maestro."
+msgstr "Update your contact details and password for teacher sign-in."
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:8
 msgid "Profile details"
 msgstr "Detalles del perfil"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:13
 msgid "First name"
 msgstr "Nombre"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:17
 msgid "Last name"
 msgstr "Apellido"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:21
 msgid "Email"
 msgstr "Correo electrónico"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:26
 msgid "Save profile"
 msgstr "Guardar perfil"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:30
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:48
 msgid "Change password"
 msgstr "Cambiar contraseña"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:35
 msgid "Current password"
 msgstr "Contraseña actual"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:39
 msgid "New password"
 msgstr "Nueva contraseña"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:43
 msgid "Confirm new password"
 msgstr "Confirmar nueva contraseña"
 
-msgid "Compile Coursepack ZIP"
-msgstr "Importar fuente del programa"
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:3
+msgid "Create a class workspace"
+msgstr "Crear un espacio de clase"
 
-msgid "Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`)."
-msgstr "Crea un curso con estilo de repositorio a partir de un archivo fuente del maestro (`.md`, `.docx` o `.zip`)."
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:7
+msgid "Class name"
+msgstr "Nombre de la clase"
 
-msgid "Course slug (optional)"
-msgstr "Slug del curso (opcional)"
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:8
+msgid "e.g., Piper + Scratch (Period 3)"
+msgstr "p. ej., Piper + Scratch (Periodo 3)"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:12
+msgid "Student landing title (optional)"
+msgstr "Título de inicio del estudiante (opcional)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:17
+msgid "e.g., Week 3: Story + Motion"
+msgstr "p. ej., Semana 3: Historia + Movimiento"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:21
+msgid "First session/module (optional)"
+msgstr "Primera sesión/módulo (opcional)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:26
+msgid "e.g., Session 1 — Warm-up + Build"
+msgstr "p. ej., Sesión 1 - Calentamiento + Construcción"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:31
+msgid "Student kickoff note (optional)"
+msgstr "Nota inicial para estudiantes (opcional)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:37
+msgid "Tell students where to start as soon as they join."
+msgstr "Diles a los estudiantes dónde empezar en cuanto se unan."
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:44
+#, fuzzy
+#| msgid "No students in this class yet."
+msgid "Import content into this class"
+msgstr "No hay estudiantes en esta clase todavia."
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:45
+msgid ""
+"Optional. Accepts a coursepack ZIP or a `.md`, `.docx`, or source ZIP file "
+"and writes it to live course content."
+msgstr ""
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:51
+#, fuzzy
+#| msgid "Course title override (optional)"
+msgid "Course slug override (optional)"
+msgstr "Reemplazo del título del curso (opcional)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:55
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:22
 msgid "Course title override (optional)"
 msgstr "Reemplazo del título del curso (opcional)"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:59
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:27
 msgid "Default UI level"
 msgstr "Nivel de interfaz predeterminado"
 
-msgid "elementary"
-msgstr "elemental"
-
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:61
 msgid "secondary"
 msgstr "secundaria"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:62
+msgid "elementary"
+msgstr "elemental"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:63
 msgid "advanced"
 msgstr "avanzado"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:67
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:38
 msgid "Session parser mode"
 msgstr "Modo del analizador de sesiones"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:69
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:40
 msgid "auto"
 msgstr "automático"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:70
 msgid "template"
 msgstr "plantilla"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:71
 msgid "verbose"
 msgstr "detallado"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:75
+#, fuzzy
+#| msgid "Source file (.md, .docx, or .zip)"
+msgid "Source file (.zip, .docx, or .md)"
+msgstr "Archivo fuente (.md, .docx o .zip)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:81
+msgid "Overwrite existing live course folder"
+msgstr "Overwrite existing live course folder"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:87
+#, fuzzy
+#| msgid "Create class workspace"
+msgid "Create class and import content"
+msgstr "Crear espacio de clase"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:95
+msgid "Create class workspace"
+msgstr "Crear espacio de clase"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:8
+msgid "Compile Coursepack ZIP"
+msgstr "Importar fuente del programa"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:9
+#, fuzzy
+#| msgid ""
+#| "Build a repo-style course from a teacher source file (`.md`, `.docx`, or "
+#| "`.zip`)."
+msgid ""
+"Build a downloadable repo-style coursepack from a teacher source file "
+"(`.md`, `.docx`, or `.zip`)."
+msgstr ""
+"Crea un curso con estilo de repositorio a partir de un archivo fuente del "
+"maestro (`.md`, `.docx` o `.zip`)."
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:17
+msgid "Course slug (optional)"
+msgstr "Slug del curso (opcional)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:49
 msgid "Source file (.md, .docx, or .zip)"
 msgstr "Archivo fuente (.md, .docx o .zip)"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:53
 msgid "Optional overview (.md or .docx)"
 msgstr "Resumen opcional (.md o .docx)"
 
-msgid "Import source"
-msgstr "Importar fuente"
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:58
+msgid ""
+"Compilation runs in temporary scratch space and returns a downloadable "
+"coursepack ZIP. It does not overwrite repository course folders or mutate "
+"live curriculum content."
+msgstr ""
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:61
+#, fuzzy
+#| msgid "Compile Coursepack ZIP"
+msgid "Compile coursepack ZIP"
+msgstr "Importar fuente del programa"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:73
 msgid "Generate Course Authoring Templates"
 msgstr "Generar plantillas de autoría del curso"
 
-msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
-msgstr "Crea archivos iniciales `.md` y `.docx` ya formateados para maestros."
-
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:83
 msgid "Course slug"
 msgstr "Slug del curso"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:88
 msgid "Course title"
 msgstr "Título del curso"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:93
+#: services/classhub/templates/teach_certificate_eligibility.html:76
+msgid "Sessions"
+msgstr "Sesiones"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:98
 msgid "Session duration (minutes)"
 msgstr "Duración de la sesión (minutos)"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:104
 #, python-format
 msgid "Files are written to %(template_output_dir)s."
 msgstr "Los archivos se escriben en %(template_output_dir)s."
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:107
 msgid "Generate templates"
 msgstr "Generar plantillas"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:112
 #, python-format
 msgid "Download files for %(template_slug)s"
 msgstr "Descargar archivos para %(template_slug)s"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:121
 #, python-format
 msgid "%(label)s (not generated yet)"
 msgstr "%(label)s (aún no generado)"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:137
 msgid "Syllabus Exports"
 msgstr "Exportaciones del programa"
 
-msgid "Admin/superuser backup and catalog downloads for repo-authored course syllabi."
-msgstr "Descargas de respaldo y catálogo para administradores o superusuarios de programas de curso escritos en el repositorio."
-
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:144
 msgid "Download catalog CSV"
 msgstr "Descargar catálogo CSV"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:145
 msgid "Download full backup ZIP"
 msgstr "Descargar ZIP de respaldo completo"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:149
 msgid "Single-course backup ZIP"
 msgstr "ZIP de respaldo de un solo curso"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:154
 msgid "Course"
 msgstr "Curso"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:158
 #, python-format
 msgid "%(title)s (%(slug)s) · %(lesson_count)s lessons"
 msgstr "%(title)s (%(slug)s) · %(lesson_count)s lecciones"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:165
 msgid "Download course ZIP"
 msgstr "Descargar ZIP del curso"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:169
 msgid "No syllabus courses found."
 msgstr "No se encontraron cursos de programa."
 
-msgid "What We Store"
-msgstr "Qué guardamos"
+#: services/classhub/templates/lesson_handout.html:26
+#, fuzzy
+#| msgid "Open lesson"
+msgid "Open online:"
+msgstr "Abrir lección"
 
-msgid "Privacy page"
-msgstr "Página de privacidad"
+#: services/classhub/templates/lesson_handout.html:26
+#, fuzzy
+#| msgid "Open lesson"
+msgid "Online lesson:"
+msgstr "Abrir lección"
 
+#: services/classhub/templates/lesson_handout.html:32
+#: services/classhub/templates/lesson_page.html:185
+msgid "Start here"
+msgstr "Empieza aquí"
+
+#: services/classhub/templates/lesson_handout.html:32
+#: services/classhub/templates/lesson_page.html:185
+msgid "Do this now"
+msgstr "Haz esto ahora"
+
+#: services/classhub/templates/lesson_handout.html:44
+#, fuzzy
+#| msgid "Open lesson"
+msgid "Open online"
+msgstr "Abrir lección"
+
+#: services/classhub/templates/lesson_handout.html:51
+#: services/classhub/templates/lesson_page.html:200
+msgid "Turn in"
+msgstr "Entregar"
+
+#: services/classhub/templates/lesson_handout.html:51
+#: services/classhub/templates/lesson_page.html:200
+#, fuzzy
+#| msgid "Submitted"
+msgid "Submit"
+msgstr "Entregados"
+
+#: services/classhub/templates/lesson_handout.html:62
+#: services/classhub/templates/lesson_page.html:208
+msgid "Stay safe"
+msgstr "Mantente seguro"
+
+#: services/classhub/templates/lesson_handout.html:62
+#: services/classhub/templates/lesson_page.html:208
+msgid "Safety"
+msgstr "Seguridad"
+
+#: services/classhub/templates/lesson_handout.html:73
+#: services/classhub/templates/lesson_page.html:220
+msgid "Around you"
+msgstr "A tu alrededor"
+
+#: services/classhub/templates/lesson_handout.html:73
+#: services/classhub/templates/lesson_page.html:220
+msgid "Local anchors"
+msgstr "Anclajes locales"
+
+#: services/classhub/templates/lesson_handout.html:84
+#: services/classhub/templates/lesson_page.html:231
+msgid "Other versions"
+msgstr "Otras versiones"
+
+#: services/classhub/templates/lesson_handout.html:84
+#: services/classhub/templates/lesson_page.html:231
+msgid "Example variants"
+msgstr "Variantes de ejemplo"
+
+#: services/classhub/templates/lesson_handout.html:95
+#: services/classhub/templates/lesson_page.html:242
+msgid "Words for this lesson"
+msgstr "Palabras para esta lección"
+
+#: services/classhub/templates/lesson_handout.html:95
+#: services/classhub/templates/lesson_page.html:242
+msgid "Community glossary"
+msgstr "Glosario comunitario"
+
+#: services/classhub/templates/lesson_handout.html:106
+msgid "Feedback starters"
+msgstr "Frases para empezar comentarios"
+
+#: services/classhub/templates/lesson_handout.html:106
+msgid "Peer feedback starters"
+msgstr "Frases para comentarios entre compañeros"
+
+#: services/classhub/templates/lesson_page.html:19
+#, fuzzy
+#| msgid "Course"
+msgid "Course:"
+msgstr "Curso"
+
+#: services/classhub/templates/lesson_page.html:30
+msgid "Today you will:"
+msgstr "Hoy vas a:"
+
+#: services/classhub/templates/lesson_page.html:32
+msgid "Goal:"
+msgstr "Meta:"
+
+#: services/classhub/templates/lesson_page.html:34
+msgid "Makes:"
+msgstr "Crea:"
+
+#: services/classhub/templates/lesson_page.html:44
+#, fuzzy
+#| msgid "Lesson tracker"
+msgid "Lesson locked"
+msgstr "Seguimiento de lecciones"
+
+#: services/classhub/templates/lesson_page.html:46
+#, fuzzy
+#| msgid "Lesson"
+msgid "Lesson open"
+msgstr "Leccion"
+
+#
+# ── Student My Data page ─────────────────────────────────────────────
+#
+#: services/classhub/templates/lesson_page.html:51
+#: services/classhub/templates/material_upload.html:41
+#: services/classhub/templates/student_gallery.html:19
+#: services/classhub/templates/student_my_data.html:18
+#: services/classhub/templates/student_portfolio.html:19
+msgid "Back to class"
+msgstr "Volver a la clase"
+
+#: services/classhub/templates/lesson_page.html:52
+#, fuzzy
+#| msgid "Open now"
+msgid "Open handout"
+msgstr "Abrir ahora"
+
+#: services/classhub/templates/lesson_page.html:52
+msgid "Print handout"
+msgstr "Imprimir guía"
+
+#: services/classhub/templates/lesson_page.html:53
+#, fuzzy
+#| msgid "Download"
+msgid "Download handout"
+msgstr "Descargar"
+
+#: services/classhub/templates/lesson_page.html:53
+#, fuzzy
+#| msgid "Download PDF"
+msgid "Download handout PDF"
+msgstr "Descargar PDF"
+
+#: services/classhub/templates/lesson_page.html:55
+msgid "Edit Markdown"
+msgstr "Editar Markdown"
+
+#: services/classhub/templates/lesson_page.html:58
+#, fuzzy
+#| msgid "Export my portfolio"
+msgid "Export portfolio"
+msgstr "Exportar mi portafolio"
+
+#: services/classhub/templates/lesson_page.html:61
+msgid "← Back"
+msgstr "← Volver"
+
+#: services/classhub/templates/lesson_page.html:61
+msgid "← Prev"
+msgstr "← Anterior"
+
+#: services/classhub/templates/lesson_page.html:64
+#, fuzzy
+#| msgid "Open lesson"
+msgid "Next lesson →"
+msgstr "Abrir lección"
+
+#: services/classhub/templates/lesson_page.html:64
+msgid "Next →"
+msgstr "Siguiente →"
+
+#: services/classhub/templates/lesson_page.html:71
+msgid "When this opens"
+msgstr "Cuándo se abre"
+
+#: services/classhub/templates/lesson_page.html:71
+#, fuzzy
+#| msgid "Lesson videos"
+msgid "Lesson schedule"
+msgstr "videos de lecciones"
+
+#: services/classhub/templates/lesson_page.html:72
+msgid "Intro-only mode"
+msgstr "Modo solo de introducción"
+
+#: services/classhub/templates/lesson_page.html:74
+msgid "Full activities and submissions unlock on"
+msgstr "Las actividades completas y las entregas se desbloquean el"
+
+#: services/classhub/templates/lesson_page.html:82
+#: services/classhub/templates/teach_home.html:19
+msgid "Lesson videos"
+msgstr "videos de lecciones"
+
+#: services/classhub/templates/lesson_page.html:102
+msgid "Your browser does not support this video. Use the open link below."
+msgstr "Tu navegador no admite este video. Usa el enlace de apertura de abajo."
+
+#: services/classhub/templates/lesson_page.html:105
+msgid "No inline video source is configured yet."
+msgstr "Todavía no hay una fuente de video integrada configurada."
+
+#: services/classhub/templates/lesson_page.html:110
+msgid "Open video in a new tab"
+msgstr "Abrir video en una pestaña nueva"
+
+#: services/classhub/templates/lesson_page.html:114
+msgid "After this you can:"
+msgstr "Después de esto puedes:"
+
+#: services/classhub/templates/lesson_page.html:124
+msgid "Turn in your work"
+msgstr "Entregar tu trabajo"
+
+#: services/classhub/templates/lesson_page.html:124
+msgid "Homework dropbox"
+msgstr "Buzón de tareas"
+
+#: services/classhub/templates/lesson_page.html:125
+#, fuzzy
+#| msgid "No submissions yet."
+msgid "Submissions open"
+msgstr "Aún no hay entregas."
+
+#: services/classhub/templates/lesson_page.html:128
+#: services/classhub/templates/lesson_page.html:130
+msgid "Accepted:"
+msgstr "Aceptado:"
+
+#: services/classhub/templates/lesson_page.html:133
+msgid "Suggested name:"
+msgstr "Nombre sugerido:"
+
+#: services/classhub/templates/lesson_page.html:140
+#: services/classhub/templates/material_upload.html:190
+#: services/classhub/templates/student_class.html:244
+#: services/classhub/templates/student_class.html:248
+#: services/classhub/templates/student_class.html:253
+#: services/classhub/templates/student_class.html:339
+#: services/classhub/templates/student_class.html:369
+#: services/classhub/templates/student_class.html:405
+#: services/classhub/templates/student_class.html:443
+#: services/classhub/templates/student_class.html:480
+msgid "Done"
+msgstr "Hecho"
+
+#: services/classhub/templates/lesson_page.html:140
+msgid "File saved. Re-upload to replace."
+msgstr "Archivo guardado. Vuelve a subirlo para reemplazarlo."
+
+#: services/classhub/templates/lesson_page.html:142
+msgid "Upload at least one file to finish."
+msgstr "Sube al menos un archivo para terminar."
+
+#: services/classhub/templates/lesson_page.html:146
+#, fuzzy
+#| msgid "No uploads yet"
+msgid "Open upload page"
+msgstr "Aún no hay subidas"
+
+#: services/classhub/templates/lesson_page.html:146
+#, fuzzy
+#| msgid "Open rubric"
+msgid "Open dropbox"
+msgstr "Abrir rúbrica"
+
+#: services/classhub/templates/lesson_page.html:148
+#, python-format
+msgid "Uploaded %(count)s file · latest %(last_uploaded_at)s"
+msgid_plural "Uploaded %(count)s files · latest %(last_uploaded_at)s"
+msgstr[0] "Uploaded %(count)s file · latest %(last_uploaded_at)s"
+msgstr[1] "Uploaded %(count)s files · latest %(last_uploaded_at)s"
+
+#: services/classhub/templates/lesson_page.html:152
+msgid ""
+"Dropbox is not configured for this lesson yet. A teacher can re-import the "
+"course pack to enable it."
+msgstr ""
+
+#: services/classhub/templates/lesson_page.html:155
+#, fuzzy
+#| msgid "Join your class"
+msgid "Join your class to upload homework"
+msgstr "Únete a tu clase"
+
+#: services/classhub/templates/lesson_page.html:163
+msgid "Design log prompt"
+msgstr "Consigna del registro de diseño"
+
+#: services/classhub/templates/lesson_page.html:164
+#, fuzzy
+#| msgid ""
+#| "Design log prompt: note what you changed, why you changed it, and what "
+#| "evidence shows improvement."
+msgid ""
+"Before you leave this session, record what changed, why you changed it, and "
+"what you would improve next."
+msgstr ""
+"Indicador del registro de diseño: anota qué cambiaste, por qué lo cambiaste "
+"y qué evidencia muestra mejora."
+
+#: services/classhub/templates/lesson_page.html:166
+msgid "Update your design log with one intentional decision and rationale."
+msgstr "Actualiza tu registro de diseño con una decisión intencional y su razón."
+
+#: services/classhub/templates/lesson_page.html:167
+msgid "Add a short changelog entry for this session."
+msgstr "Agrega una entrada breve de cambios para esta sesión."
+
+#: services/classhub/templates/lesson_page.html:168
+msgid "Draft release notes for what a tester should notice."
+msgstr "Escribe notas de versión sobre lo que una persona que prueba debería notar."
+
+#: services/classhub/templates/lesson_page.html:169
+msgid "Explain one block/script path in plain language."
+msgstr "Explica un recorrido de bloque o script con lenguaje sencillo."
+
+#: services/classhub/templates/lesson_page.html:172
+msgid "Challenge branches"
+msgstr "Ramas de desafío"
+
+#: services/classhub/templates/lesson_page.html:173
+msgid "Choose one branch and document why you picked it."
+msgstr "Elige una rama y documenta por qué la escogiste."
+
+#: services/classhub/templates/lesson_page.html:263
+msgid "If something feels private, leave it out and tell your teacher."
+msgstr "Si algo se siente privado, omítelo y avísale a tu maestro."
+
+#: services/classhub/templates/lesson_page.html:265
+msgid ""
+"If something feels unsafe to share, keep it private and tell your teacher."
+msgstr ""
+
+#: services/classhub/templates/lesson_page.html:267
+msgid ""
+"If something feels unsafe to share, keep your work private and submit only "
+"the file. You control what leaves your device."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:8
+#: services/classhub/templates/material_upload.html:182
+#, fuzzy
+#| msgid "Uploads"
+msgid "Upload"
+msgstr "Subidas"
+
+#: services/classhub/templates/material_upload.html:18
+#: services/classhub/templates/student_class.html:21
+#: services/classhub/templates/student_join.html:21
+msgid "Kiosk mode keeps navigation inside the student class flow."
+msgstr "Kiosk mode keeps navigation inside the student class flow."
+
+#: services/classhub/templates/material_upload.html:25
+#: services/classhub/templates/student_class.html:31
+msgid "Sentence starter added."
+msgstr "Inicio de oración agregado."
+
+#: services/classhub/templates/material_upload.html:26
+msgid "Upload queued. It will sync when connection returns."
+msgstr "Upload queued. It will sync when connection returns."
+
+#: services/classhub/templates/material_upload.html:27
+msgid "Syncing queued uploads..."
+msgstr "Syncing queued uploads..."
+
+#: services/classhub/templates/material_upload.html:28
+msgid "Queued upload synced."
+msgstr "Queued upload synced."
+
+#: services/classhub/templates/material_upload.html:29
+msgid "Queued upload still waiting for server connection."
+msgstr "Queued upload still waiting for server connection."
+
+#: services/classhub/templates/material_upload.html:30
+#: services/classhub/templates/material_upload.html:136
+msgid "Retry queued uploads now"
+msgstr "Retry queued uploads now"
+
+#: services/classhub/templates/material_upload.html:31
+#: services/classhub/templates/material_upload.html:135
+#, fuzzy
+#| msgid "Need first upload"
+msgid "No queued uploads."
+msgstr "Necesitan primera subida"
+
+#: services/classhub/templates/material_upload.html:32
+#, fuzzy
+#| msgid "Uploads"
+msgid "Upload saved."
+msgstr "Subidas"
+
+#: services/classhub/templates/material_upload.html:33
+msgid "Upload failed. Try again when connected."
+msgstr "Upload failed. Try again when connected."
+
+#: services/classhub/templates/material_upload.html:34
+msgid "Queued uploads pending: __COUNT__."
+msgstr "Queued uploads pending: __COUNT__."
+
+#: services/classhub/templates/material_upload.html:42
+#: services/classhub/templates/student_class.html:43
+#: services/classhub/templates/student_class.html:552
+#: services/classhub/templates/student_gallery.html:20
+#: services/classhub/templates/student_my_data.html:18
+#: services/classhub/templates/student_my_data.html:75
+#: services/classhub/templates/student_portfolio.html:8
+#: services/classhub/templates/student_portfolio.html:24
+msgid "What I made"
+msgstr "Lo que hice"
+
+#: services/classhub/templates/material_upload.html:43
+#: services/classhub/templates/student_class.html:44
+#: services/classhub/templates/student_class.html:554
+#: services/classhub/templates/student_gallery.html:8
+#: services/classhub/templates/student_gallery.html:24
+#: services/classhub/templates/student_portfolio.html:21
+msgid "Session gallery"
+msgstr "Galería de la sesión"
+
+#: services/classhub/templates/material_upload.html:46
+#: services/classhub/templates/student_class.html:57
+#: services/classhub/templates/student_join.html:163
+msgid "Exit kiosk mode"
+msgstr "Salir del modo quiosco"
+
+#: services/classhub/templates/material_upload.html:48
+#: services/classhub/templates/student_class.html:59
+#: services/classhub/templates/student_join.html:165
+msgid "Enable kiosk mode"
+msgstr "Activar modo quiosco"
+
+#: services/classhub/templates/material_upload.html:51
+#: services/classhub/templates/student_class.html:88
+#: services/classhub/templates/student_gallery.html:22
+#: services/classhub/templates/student_my_data.html:18
+#: services/classhub/templates/student_portfolio.html:22
+#: services/classhub/templates/teach_certificate_eligibility.html:19
+#: services/classhub/templates/teach_class.html:19
+#: services/classhub/templates/teach_home.html:22
+#: services/classhub/templates/teach_lessons.html:18
+#: services/classhub/templates/teach_material_submissions.html:17
+msgid "Log out"
+msgstr "Cerrar sesión"
+
+#: services/classhub/templates/material_upload.html:54
+#: services/classhub/templates/student_class.html:70
+#: services/classhub/templates/student_my_data.html:25
+#: services/classhub/templates/student_portfolio.html:26
+#: services/classhub/templates/teach_home.html:25
+msgid "Signed in as"
+msgstr "Conectado como"
+
+#: services/classhub/templates/material_upload.html:65
+#, fuzzy
+#| msgid "Upload / manage gallery"
+msgid "Upload to gallery"
+msgstr "Subir / administrar galería"
+
+#: services/classhub/templates/material_upload.html:67
+#, fuzzy
+#| msgid "Download my work"
+msgid "Upload your work"
+msgstr "Descargar mi trabajo"
+
+#: services/classhub/templates/material_upload.html:69
+msgid "Allowed:"
+msgstr "Allowed:"
+
+#: services/classhub/templates/material_upload.html:69
+msgid "Max"
+msgstr "Max"
+
+#: services/classhub/templates/material_upload.html:71
+msgid ""
+"Teacher-only by default. Only artifacts you explicitly publish appear in the "
+"session gallery wall."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:73
+msgid ""
+"Session gallery is currently disabled by your teacher. You can still upload "
+"work."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:76
+msgid "Done means your file appears in"
+msgstr "Done means your file appears in"
+
+#: services/classhub/templates/material_upload.html:76
+#: services/classhub/templates/material_upload.html:188
+#, fuzzy
+#| msgid "No uploads yet"
+msgid "Your uploads"
+msgstr "Aún no hay subidas"
+
+#: services/classhub/templates/material_upload.html:80
+#: services/classhub/templates/student_join.html:119
+msgid "Privacy at a glance:"
+msgstr "Privacidad en resumen:"
+
+#: services/classhub/templates/material_upload.html:82
+msgid ""
+"we save your class name, your uploaded files, and the time you uploaded them."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:84
+#, fuzzy
+#| msgid "We store your display name, class submissions, and event timestamps."
+msgid ""
+"we store your display name, uploaded files, and upload timestamps for class "
+"progress."
+msgstr ""
+"Almacenamos tu nombre para mostrar, entregas de clase y marcas de tiempo."
+
+#: services/classhub/templates/material_upload.html:97
+msgid "How long we keep uploads:"
+msgstr "How long we keep uploads:"
+
+#: services/classhub/templates/material_upload.html:102
+#, fuzzy, python-format
+#| msgid "submissions are kept up to %(counter)s day unless deleted sooner."
+#| msgid_plural ""
+#| "submissions are kept up to %(counter)s days unless deleted sooner."
+msgid "uploads are kept up to %(days)s day(s) unless deleted sooner."
+msgstr "uploads are kept up to %(days)s day(s) unless deleted sooner."
+
+#: services/classhub/templates/material_upload.html:104
+#, fuzzy
+#| msgid "submissions stay until a teacher or admin removes them."
+msgid "uploads stay until a teacher or admin removes them."
+msgstr "uploads stay until a teacher or admin removes them."
+
+#: services/classhub/templates/material_upload.html:109
+msgid ""
+"Need to remove your work? Open <a href=\"/student/my-data\">My Data</a>."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:111
+#, fuzzy
+#| msgid ""
+#| "Delete now: after joining, open <a href=\"/student/my-data\">My Data</a> "
+#| "to delete your work or end this device session."
+msgid "Delete now: open <a href=\"/student/my-data\">My Data</a>."
+msgstr "Delete now: open <a href=\"/student/my-data\">My Data</a>."
+
+#: services/classhub/templates/material_upload.html:124
+#, python-format
+msgid ""
+"Submissions open on <strong>%(available_on)s</strong>. Prior uploads are "
+"still listed below."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:146
+#, fuzzy
+#| msgid "Import source"
+msgid "Remix source:"
+msgstr "Importar fuente"
+
+#: services/classhub/templates/material_upload.html:147
+msgid "Based on work by"
+msgstr "Based on work by"
+
+#: services/classhub/templates/material_upload.html:149
+msgid "Their process note:"
+msgstr "Their process note:"
+
+#: services/classhub/templates/material_upload.html:154
+#: services/classhub/templates/student_portfolio.html:47
+#, fuzzy
+#| msgid "Student kickoff note (optional)"
+msgid "Station (optional)"
+msgstr "Nota inicial para estudiantes (opcional)"
+
+#: services/classhub/templates/material_upload.html:158
+#, fuzzy
+#| msgid "Return code (optional)"
+msgid "Process note (optional)"
+msgstr "Código de retorno (opcional)"
+
+#: services/classhub/templates/material_upload.html:159
+msgid "What did you try? What did you change?"
+msgstr "What did you try? What did you change?"
+
+#: services/classhub/templates/material_upload.html:162
+msgid "Starters:"
+msgstr "Starters:"
+
+#: services/classhub/templates/material_upload.html:178
+msgid "Publish to class gallery wall"
+msgstr "Publish to class gallery wall"
+
+#: services/classhub/templates/material_upload.html:180
+msgid "Teachers can approve or unapprove gallery visibility at any time."
+msgstr "Teachers can approve or unapprove gallery visibility at any time."
+
+#: services/classhub/templates/material_upload.html:190
+#, fuzzy
+#| msgid "Last upload"
+msgid "Latest upload is saved."
+msgstr "Última subida"
+
+#: services/classhub/templates/material_upload.html:194
+#, fuzzy
+#| msgid "No uploads yet"
+msgid "Your uploaded files"
+msgstr "Aún no hay subidas"
+
+#: services/classhub/templates/material_upload.html:198
+#: services/classhub/templates/student_my_data.html:118
+#: services/classhub/templates/student_portfolio.html:71
+msgid "File"
+msgstr "Archivo"
+
+#: services/classhub/templates/material_upload.html:199
+#: services/classhub/templates/student_portfolio.html:72
+#, fuzzy
+#| msgid "Status"
+msgid "Station"
+msgstr "Estado"
+
+#: services/classhub/templates/material_upload.html:201
+#: services/classhub/templates/student_portfolio.html:87
+msgid "Published"
+msgstr "Published"
+
+#: services/classhub/templates/material_upload.html:202
+#, fuzzy
+#| msgid "Teacher notes"
+msgid "Teacher approved"
+msgstr "Notas del maestro"
+
+#: services/classhub/templates/material_upload.html:203
+#, fuzzy
+#| msgid "Class actions"
+msgid "Publish action"
+msgstr "acciones de la clase"
+
+#: services/classhub/templates/material_upload.html:206
+#: services/classhub/templates/material_upload.html:228
+#: services/classhub/templates/student_gallery.html:73
+#: services/classhub/templates/student_portfolio.html:76
+#: services/classhub/templates/student_portfolio.html:90
+msgid "Remix"
+msgstr "Remix"
+
+#: services/classhub/templates/material_upload.html:216
+#: services/classhub/templates/material_upload.html:217
+#: services/classhub/templates/teach_material_submissions.html:86
+#: services/classhub/templates/teach_material_submissions.html:87
+msgid "Yes"
+msgstr "Yes"
+
+#: services/classhub/templates/material_upload.html:216
+#: services/classhub/templates/material_upload.html:217
+#: services/classhub/templates/teach_material_submissions.html:86
+#: services/classhub/templates/teach_material_submissions.html:87
+#, fuzzy
+#| msgid "Note"
+msgid "No"
+msgstr "Nota"
+
+#: services/classhub/templates/material_upload.html:223
+msgid "Unpublish"
+msgstr "Unpublish"
+
+#: services/classhub/templates/material_upload.html:223
+msgid "Publish"
+msgstr "Publish"
+
+#: services/classhub/templates/material_upload.html:235
+#: services/classhub/templates/student_gallery.html:69
+#: services/classhub/templates/student_portfolio.html:97
+msgid "Remix of:"
+msgstr "Remix of:"
+
+#: services/classhub/templates/material_upload.html:238
+#: services/classhub/templates/student_gallery.html:66
+#: services/classhub/templates/student_portfolio.html:100
+#: services/classhub/templates/teach_material_submissions.html:107
+#: services/classhub/templates/teach_material_submissions.html:109
+msgid "Process note:"
+msgstr "Process note:"
+
+#: services/classhub/templates/material_upload.html:247
+#, fuzzy
+#| msgid "No uploads yet"
+msgid "No uploads yet."
+msgstr "Aún no hay subidas"
+
+#
+# ── Privacy page ─────────────────────────────────────────────────────
+#
+#: services/classhub/templates/privacy.html:19
+msgid "Privacy Information"
+msgstr "Información de privacidad"
+
+#: services/classhub/templates/privacy.html:20
+msgid "How we handle your data on"
+msgstr "Cómo manejamos tus datos en"
+
+#: services/classhub/templates/privacy.html:29
+msgid "1. What data is collected"
+msgstr "1. Qué datos se recopilan"
+
+#: services/classhub/templates/privacy.html:31
+msgid "We try to collect only what the class needs."
+msgstr "We try to collect only what the class needs."
+
+#: services/classhub/templates/privacy.html:33
+msgid "No student account:"
+msgstr "No student account:"
+
+#: services/classhub/templates/privacy.html:33
+msgid "You use a class code and a name you choose."
+msgstr "You use a class code and a name you choose."
+
+#: services/classhub/templates/privacy.html:34
+#, fuzzy
+#| msgid "Create class workspace"
+msgid "Your class work:"
+msgstr "Crear espacio de clase"
+
+#: services/classhub/templates/privacy.html:34
+#, fuzzy
+#| msgid ""
+#| "We store your class display name so your teacher can identify your work."
+msgid "We save uploads and class responses so your teacher can see them."
+msgstr "We save uploads and class responses so your teacher can see them."
+
+#: services/classhub/templates/privacy.html:35
+msgid "Basic timestamps:"
+msgstr "Basic timestamps:"
+
+#: services/classhub/templates/privacy.html:35
+msgid "We save when you join or upload."
+msgstr "We save when you join or upload."
+
+#: services/classhub/templates/privacy.html:38
+msgid "We design this platform to collect as little about you as possible."
+msgstr "Diseñamos esta plataforma para recopilar lo menos posible sobre ti."
+
+#: services/classhub/templates/privacy.html:51
+msgid "Don't upload sensitive documents"
+msgstr "No subas documentos confidenciales"
+
+#: services/classhub/templates/privacy.html:60
+msgid "2. How to export or delete your work"
+msgstr "2. Cómo exportar o eliminar tu trabajo"
+
+#: services/classhub/templates/privacy.html:62
+#, fuzzy
+#| msgid "2. How to export or delete your work"
+msgid "You can download or delete your work."
+msgstr "2. Cómo exportar o eliminar tu trabajo"
+
+#: services/classhub/templates/privacy.html:64
+msgid ""
+"You own your artifacts. While in an active session, you can export or delete "
+"your files at any time."
+msgstr ""
+"Eres dueño de tus archivos. Mientras tengas una sesión activa, puedes "
+"exportar o eliminar tus archivos en cualquier momento."
+
+#: services/classhub/templates/privacy.html:82
+msgid "3. What gets deleted and when"
+msgstr "3. Qué se elimina y cuándo"
+
+#: services/classhub/templates/privacy.html:84
+#, fuzzy
+#| msgid "We don't hold on to your data forever."
+msgid "We do not keep class data forever."
+msgstr "No guardamos tus datos para siempre."
+
+#: services/classhub/templates/privacy.html:86
+msgid "We don't hold on to your data forever."
+msgstr "No guardamos tus datos para siempre."
+
+#: services/classhub/templates/privacy.html:107
+#: services/classhub/templates/trust.html:19
 msgid "What we store / what we never store"
 msgstr "Qué guardamos / qué nunca guardamos"
 
+#: services/classhub/templates/student_class.html:22
+#: services/classhub/templates/student_class.html:79
+#: services/classhub/templates/student_class.html:80
+msgid "Show return code"
+msgstr "Mostrar código de retorno"
+
+#: services/classhub/templates/student_class.html:23
+#: services/classhub/templates/student_class.html:79
+msgid "Hide return code"
+msgstr "Ocultar código de retorno"
+
+#: services/classhub/templates/student_class.html:24
+#: services/classhub/templates/student_class.html:80
+msgid "Show"
+msgstr "Mostrar"
+
+#: services/classhub/templates/student_class.html:25
+msgid "Hide"
+msgstr "Ocultar"
+
+#: services/classhub/templates/student_class.html:26
+msgid "Return code hidden."
+msgstr "Código de retorno oculto."
+
+#: services/classhub/templates/student_class.html:27
+msgid "Return code shown."
+msgstr "Código de retorno mostrado."
+
+#: services/classhub/templates/student_class.html:28
+msgid "Could not load return code. Refresh and try again."
+msgstr "Could not load return code. Refresh and try again."
+
+#: services/classhub/templates/student_class.html:29
+msgid "Copied to clipboard."
+msgstr "Copiado al portapapeles."
+
+#: services/classhub/templates/student_class.html:30
+msgid "Copy failed. Please copy manually."
+msgstr "Falló la copia. Copia manualmente, por favor."
+
+#: services/classhub/templates/student_class.html:32
+msgid "Icon code: "
+msgstr "Código de icono: "
+
+#: services/classhub/templates/student_class.html:45
+msgid "Export my portfolio"
+msgstr "Exportar mi portafolio"
+
+#: services/classhub/templates/student_class.html:46
+#: services/classhub/templates/student_class.html:52
+#: services/classhub/templates/student_my_data.html:18
+msgid "Privacy"
+msgstr "Privacidad"
+
+#: services/classhub/templates/student_class.html:47
+#: services/classhub/templates/student_class.html:53
+#: services/classhub/templates/student_join.html:160
+#: services/classhub/templates/student_my_data.html:18
+msgid "Trust notes"
+msgstr "Notas de confianza"
+
+#: services/classhub/templates/student_class.html:49
+#: services/classhub/templates/student_class.html:204
+msgid "Studio handles"
+msgstr "Controles de estudio"
+
+#: services/classhub/templates/student_class.html:71
+#: services/classhub/templates/teach_certificate_eligibility.html:100
+msgid "Code"
+msgstr "Código"
+
+#: services/classhub/templates/student_class.html:72
+msgid "Copy class code"
+msgstr "Copiar código de clase"
+
+#: services/classhub/templates/student_class.html:75
+msgid "Your return code:"
+msgstr "Tu código de retorno:"
+
+#: services/classhub/templates/student_class.html:82
+msgid "Copy return code"
+msgstr "Copiar código de retorno"
+
+#: services/classhub/templates/student_class.html:83
+msgid "for rejoin"
+msgstr "para reunirse"
+
+#: services/classhub/templates/student_class.html:95
+msgid "Class return image"
+msgstr "Imagen de regreso de la clase"
+
+#: services/classhub/templates/student_class.html:98
+msgid "Return image: look for this picture when you come back to class."
+msgstr "Imagen de regreso: busca esta imagen cuando vuelvas a clase."
+
+#: services/classhub/templates/student_class.html:106
+msgid "This week"
+msgstr "Esta semana"
+
+#: services/classhub/templates/student_class.html:111
+msgid "This week's highlighted lesson"
+msgstr "Lección destacada de esta semana"
+
+#: services/classhub/templates/student_class.html:113
+msgid "Highlighted lesson"
+msgstr "Lección destacada"
+
+#: services/classhub/templates/student_class.html:124
+msgid "Start this week's lesson"
+msgstr "Comenzar la lección de esta semana"
+
+#: services/classhub/templates/student_class.html:139
+msgid ""
+"No calendar-linked lessons yet. Ask your teacher when your first lesson "
+"opens."
+msgstr ""
+"Aún no hay lecciones vinculadas al calendario. Pregunta a tu maestro cuándo "
+"abre tu primera lección."
+
+#: services/classhub/templates/student_class.html:145
+msgid "Course links"
+msgstr "Enlaces del curso"
+
+#: services/classhub/templates/student_class.html:148
+msgid "View full course lesson links"
+msgstr "Ver todos los enlaces de lecciones del curso"
+
+#: services/classhub/templates/student_class.html:154
+msgid "highlighted"
+msgstr "destacado"
+
+#: services/classhub/templates/student_class.html:169
+msgid ""
+"Course lesson links will appear here after your teacher connects a course."
+msgstr ""
+"Los enlaces de lecciones del curso aparecerán aquí después de que tu maestro "
+"conecte un curso."
+
+#: services/classhub/templates/student_class.html:175
+msgid "Quick check-in"
+msgstr "Registro rápido"
+
+#: services/classhub/templates/student_class.html:177
+msgid "Pick the button that best matches how class feels right now."
+msgstr "Elige el botón que mejor describa cómo se siente la clase en este momento."
+
+#: services/classhub/templates/student_class.html:179
+msgid ""
+"Share how this session feels right now. These signals help your facilitator "
+"support you."
+msgstr ""
+"Comparte cómo se siente esta sesión ahora mismo. Estas señales ayudan a tu "
+"facilitador a apoyarte."
+
+#: services/classhub/templates/student_class.html:195
+msgid "Last check-in:"
+msgstr "Último registro:"
+
+#: services/classhub/templates/student_class.html:205
+msgid ""
+"Advanced mode keeps core controls visible for autonomy and accountability."
+msgstr ""
+"El modo avanzado mantiene visibles los controles principales para autonomía "
+"y responsabilidad."
+
+#: services/classhub/templates/student_class.html:207
+msgid "Export portfolio snapshot"
+msgstr "Exportar instantánea del portafolio"
+
+#: services/classhub/templates/student_class.html:212
+msgid "Rubric links"
+msgstr "Enlaces de rúbrica"
+
+#: services/classhub/templates/student_class.html:224
+msgid "Gallery share toggles"
+msgstr "Controles de compartir en galería"
+
+#: services/classhub/templates/student_class.html:240
+msgid "How to tell you are done"
+msgstr "Cómo saber que terminaste"
+
+#: services/classhub/templates/student_class.html:242
+msgid ""
+"Done means your work is saved. Open means you can work now. Locked means "
+"wait for the date shown."
+msgstr ""
+
+#: services/classhub/templates/student_class.html:244
+msgid "saved"
+msgstr "guardado"
+
+#: services/classhub/templates/student_class.html:245
+msgid "do now"
+msgstr "hacer ahora"
+
+#: services/classhub/templates/student_class.html:246
+msgid "wait"
+msgstr "espera"
+
+#: services/classhub/templates/student_class.html:248
+msgid "saved and reviewable"
+msgstr "guardado y revisable"
+
+#: services/classhub/templates/student_class.html:249
+msgid "active now"
+msgstr "activo ahora"
+
+#: services/classhub/templates/student_class.html:250
+msgid "date-gated"
+msgstr "con fecha de apertura"
+
+#: services/classhub/templates/student_class.html:251
+msgid ""
+"Studio accountability: add design-log notes, a short changelog, and release "
+"notes for finished builds."
+msgstr ""
+"Responsabilidad de estudio: agrega notas del registro de diseño, un "
+"changelog breve y notas de versión para los trabajos terminados."
+
+#: services/classhub/templates/student_class.html:253
+msgid "saved and visible"
+msgstr "guardado y visible"
+
+#: services/classhub/templates/student_class.html:254
+msgid "ready now"
+msgstr "listo ahora"
+
+#: services/classhub/templates/student_class.html:255
+msgid "opens on date shown"
+msgstr "se abre en la fecha mostrada"
+
+#: services/classhub/templates/student_class.html:286
+#, fuzzy, python-format
+#| msgid "Checklist opens on <strong>{{ open_date }}</strong>."
+msgid "This visual opens on <strong>%(open_date)s</strong>."
+msgstr "La lista de verificación se abre el <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:294
+#, fuzzy
+#| msgid "Open class"
+msgid "Open image"
+msgstr "Abrir clase"
+
+#: services/classhub/templates/student_class.html:311
+msgid "Preview intro-only page"
+msgstr "Ver página solo de introducción"
+
+#: services/classhub/templates/student_class.html:312
+#, fuzzy, python-format
+#| msgid "Full lesson unlocks on <strong>{{ open_date }}</strong>."
+msgid "Full lesson unlocks on <strong>%(open_date)s</strong>."
+msgstr "La lección completa se desbloquea el <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:314
+msgid "Open lesson"
+msgstr "Abrir lección"
+
+#: services/classhub/templates/student_class.html:333
+#: services/classhub/templates/student_class.html:363
+#, fuzzy, python-format
+#| msgid "Accepted: {{ exts }} · Max {{ max_mb }}MB"
+msgid "Accepted: %(exts)s · Max %(max_mb)sMB"
+msgstr "Aceptado: {{ exts }} · Máx {{ max_mb }}MB"
+
+#: services/classhub/templates/student_class.html:335
+#, fuzzy, python-format
+#| msgid "Submissions open on <strong>{{ open_date }}</strong>."
+msgid "Submissions open on <strong>%(open_date)s</strong>."
+msgstr "Las entregas se abren el <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:345
+msgid "Upload / view submissions"
+msgstr "Subir / ver entregas"
+
+#: services/classhub/templates/student_class.html:347
+#, fuzzy, python-format
+#| msgid "· {{ upload_count }} uploaded (latest saved)"
+msgid "· %(upload_count)s uploaded (latest saved)"
+msgstr "· {{ upload_count }} subido(s) (último guardado)"
+
+#: services/classhub/templates/student_class.html:365
+#, fuzzy, python-format
+#| msgid "Gallery opens on <strong>{{ open_date }}</strong>."
+msgid "Gallery opens on <strong>%(open_date)s</strong>."
+msgstr "La galería se abre el <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:375
+msgid "Upload / manage gallery"
+msgstr "Subir / administrar galería"
+
+#: services/classhub/templates/student_class.html:377
+#, fuzzy, python-format
+#| msgid "· {{ upload_count }} uploaded"
+msgid "· %(upload_count)s uploaded"
+msgstr "· {{ upload_count }} subido(s)"
+
+#: services/classhub/templates/student_class.html:383
+msgid "Shared gallery"
+msgstr "Galería compartida"
+
+#: services/classhub/templates/student_class.html:388
+msgid "you"
+msgstr "tú"
+
+#: services/classhub/templates/student_class.html:401
+#, fuzzy, python-format
+#| msgid "Checklist opens on <strong>{{ open_date }}</strong>."
+msgid "Checklist opens on <strong>%(open_date)s</strong>."
+msgstr "La lista de verificación se abre el <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:411
+msgid "Review checklist"
+msgstr "Revisar lista de verificación"
+
+#: services/classhub/templates/student_class.html:411
+msgid "Open checklist"
+msgstr "Abrir lista de verificación"
+
+#: services/classhub/templates/student_class.html:420
+msgid "Save checklist"
+msgstr "Guardar lista de verificación"
+
+#: services/classhub/templates/student_class.html:424
+msgid "Checklist has no items yet."
+msgstr "La lista de verificación aún no tiene elementos."
+
+#: services/classhub/templates/student_class.html:433
+#, fuzzy, python-format
+#| msgid "Reflection opens on <strong>{{ open_date }}</strong>."
+msgid "Reflection opens on <strong>%(open_date)s</strong>."
+msgstr "La reflexión se abre el <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:439
+msgid ""
+"Design log prompt: note what you changed, why you changed it, and what "
+"evidence shows improvement."
+msgstr ""
+"Indicador del registro de diseño: anota qué cambiaste, por qué lo cambiaste "
+"y qué evidencia muestra mejora."
+
+#: services/classhub/templates/student_class.html:449
+msgid "Review reflection"
+msgstr "Revisar reflexión"
+
+#: services/classhub/templates/student_class.html:449
+msgid "Open reflection"
+msgstr "Abrir reflexión"
+
+#: services/classhub/templates/student_class.html:452
+msgid "Your private reflection"
+msgstr "Tu reflexión privada"
+
+#: services/classhub/templates/student_class.html:455
+#: services/classhub/templates/student_class.html:507
+msgid "Sentence starters (optional)"
+msgstr "Inicios de oración (opcional)"
+
+#: services/classhub/templates/student_class.html:464
+msgid "Write a short reflection."
+msgstr "Escribe una reflexión breve."
+
+#: services/classhub/templates/student_class.html:465
+msgid "Save reflection"
+msgstr "Guardar reflexión"
+
+#: services/classhub/templates/student_class.html:476
+#, fuzzy, python-format
+#| msgid "Rubric opens on <strong>{{ open_date }}</strong>."
+msgid "Rubric opens on <strong>%(open_date)s</strong>."
+msgstr "La rúbrica se abre el <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:486
+msgid "Review rubric"
+msgstr "Revisar rúbrica"
+
+#: services/classhub/templates/student_class.html:486
+msgid "Open rubric"
+msgstr "Abrir rúbrica"
+
+#: services/classhub/templates/student_class.html:489
+#, fuzzy, python-format
+#| msgid "Rate each criterion from 1 to {{ scale_max }}."
+msgid "Rate each criterion from 1 to %(scale_max)s."
+msgstr "Califica cada criterio del 1 al {{ scale_max }}."
+
+#: services/classhub/templates/student_class.html:491
+msgid ""
+"Studio expectation: scores should line up with your changelog and release-"
+"note claims."
+msgstr ""
+"Expectativa de estudio: las puntuaciones deben coincidir con tu changelog y "
+"con lo indicado en las notas de versión."
+
+#: services/classhub/templates/student_class.html:497
+msgid "Not scored"
+msgstr "Sin puntuar"
+
+#: services/classhub/templates/student_class.html:504
+msgid "Optional feedback"
+msgstr "Comentarios opcionales"
+
+#: services/classhub/templates/student_class.html:516
+msgid "Short note to your teacher (optional)."
+msgstr "Nota breve para tu maestro (opcional)."
+
+#: services/classhub/templates/student_class.html:517
+msgid "Save rubric"
+msgstr "Guardar rúbrica"
+
+#: services/classhub/templates/student_class.html:521
+msgid "Rubric criteria not configured yet."
+msgstr "Los criterios de rúbrica aún no están configurados."
+
+#: services/classhub/templates/student_class.html:525
+msgid "Empty material — teacher will fill this in."
+msgstr "Material vacío: el maestro lo completará."
+
+#: services/classhub/templates/student_class.html:530
+msgid "No materials yet."
+msgstr "Aún no hay materiales."
+
+#: services/classhub/templates/student_class.html:537
+msgid "No modules yet. A teacher/admin can add them in /admin."
+msgstr "Aún no hay módulos. Un maestro/admin puede agregarlos en /admin."
+
+#: services/classhub/templates/student_class.html:542
+msgid "Account"
+msgstr "Cuenta"
+
+#: services/classhub/templates/student_class.html:544
+msgid "Open My Data for account controls."
+msgstr "Abre Mis datos para controles de cuenta."
+
+#: services/classhub/templates/student_class.html:546
+#: services/classhub/templates/student_class.html:551
+msgid "Open My Data"
+msgstr "Abrir Mis datos"
+
+#: services/classhub/templates/student_class.html:549
+msgid "Manage account + device data."
+msgstr "Administrar cuenta y datos del dispositivo."
+
+#: services/classhub/templates/student_class.html:553
+#: services/classhub/templates/student_my_data.html:76
+msgid "Download my work"
+msgstr "Descargar mi trabajo"
+
+#: services/classhub/templates/student_class.html:557
+#: services/classhub/templates/student_my_data.html:88
+msgid "End my session on this device"
+msgstr "Terminar mi sesión en este dispositivo"
+
+#: services/classhub/templates/student_gallery.html:26
+msgid "Shared inspiration for"
+msgstr "Shared inspiration for"
+
+#: services/classhub/templates/student_gallery.html:35
+#: services/classhub/templates/student_portfolio.html:36
+#: services/classhub/templates/student_portfolio.html:69
+#: services/classhub/templates/teach_lessons.html:62
+msgid "Lesson"
+msgstr "Leccion"
+
+#: services/classhub/templates/student_gallery.html:38
+#, fuzzy
+#| msgid "sessions"
+msgid "Choose session"
+msgstr "sesiones"
+
+#: services/classhub/templates/student_gallery.html:44
+msgid "View"
+msgstr "View"
+
+#: services/classhub/templates/student_gallery.html:47
+#, fuzzy
+#| msgid "No classes available."
+msgid "No gallery lessons are available yet."
+msgstr "No hay clases disponibles."
+
+#: services/classhub/templates/student_gallery.html:55
+msgid "This session gallery is disabled by your teacher right now."
+msgstr "This session gallery is disabled by your teacher right now."
+
+#: services/classhub/templates/student_gallery.html:79
+#, fuzzy
+#| msgid "Choose a focused surface for this session."
+msgid "No published artifacts for this session yet."
+msgstr "Elige una vista enfocada para esta sesion."
+
+#
+# ── Join page ────────────────────────────────────────────────────────
+#
+#: services/classhub/templates/student_join.html:9
+msgid "Join Class"
+msgstr "Unirse a la clase"
+
+#: services/classhub/templates/student_join.html:22
+#, fuzzy
+#| msgid "Icon code: "
+msgid "Icon code:"
+msgstr "Código de icono: "
+
+#: services/classhub/templates/student_join.html:23
+#: services/classhub/templates/student_join.html:105
+msgid "Show icon keypad"
+msgstr "Mostrar teclado de íconos"
+
+#: services/classhub/templates/student_join.html:24
+#, fuzzy
+#| msgid "Show icon keypad"
+msgid "Hide icon keypad"
+msgstr "Mostrar teclado de íconos"
+
+#: services/classhub/templates/student_join.html:25
+msgid "That class code is not recognized."
+msgstr "Ese código de clase no se reconoce."
+
+#: services/classhub/templates/student_join.html:26
+msgid "That return code is not valid for this class."
+msgstr "Ese código de retorno no es válido para esta clase."
+
+#: services/classhub/templates/student_join.html:27
+#, fuzzy
+#| msgid "Enter your class code and pick a display name."
+msgid "Enter your return code to rejoin this saved name."
+msgstr "Ingresa tu código de clase y elige un nombre para mostrar."
+
+#: services/classhub/templates/student_join.html:28
+#, fuzzy
+#| msgid "That invite link is not usable right now."
+msgid "This class is locked right now."
+msgstr "Ese enlace de invitación no se puede usar en este momento."
+
+#: services/classhub/templates/student_join.html:29
+msgid "Enrollment for this class is closed."
+msgstr "La inscripción para esta clase está cerrada."
+
+#: services/classhub/templates/student_join.html:30
+msgid "This class accepts joins by invite link only."
+msgstr "Esta clase solo acepta accesos por enlace de invitación."
+
+#: services/classhub/templates/student_join.html:31
+#, fuzzy
+#| msgid "Enter your class code and pick a display name."
+msgid "Please enter a class code and your name."
+msgstr "Ingresa tu código de clase y elige un nombre para mostrar."
+
+#: services/classhub/templates/student_join.html:34
+#, fuzzy
+#| msgid "That invite link has been disabled."
+msgid "That invite link is disabled."
+msgstr "Ese enlace de invitación ha sido desactivado."
+
+#: services/classhub/templates/student_join.html:37
+msgid "Too many join attempts. Wait a minute and try again."
+msgstr "Hay demasiados intentos de acceso. Espera un minuto e inténtalo de nuevo."
+
+#: services/classhub/templates/student_join.html:38
+msgid "Joining is temporarily unavailable."
+msgstr "Unirse no está disponible temporalmente."
+
+#: services/classhub/templates/student_join.html:39
+msgid "Your join session expired. Reload this page and try again."
+msgstr "Tu sesión de acceso expiró. Recarga esta página e inténtalo de nuevo."
+
+#: services/classhub/templates/student_join.html:40
+msgid "Security check blocked the join request. Reload and try again."
+msgstr "La verificación de seguridad bloqueó la solicitud de acceso. Recarga e inténtalo de nuevo."
+
+#: services/classhub/templates/student_join.html:41
+msgid "Server error while joining. Please try again in a moment."
+msgstr "Hubo un error del servidor al unirte. Vuelve a intentarlo en un momento."
+
+#: services/classhub/templates/student_join.html:42
+#, fuzzy
+#| msgid "Could not load return code. Refresh and try again."
+msgid "Could not join. Try again."
+msgstr "Could not join. Try again."
+
+#: services/classhub/templates/student_join.html:43
+msgid "Network error. Please try again."
+msgstr "Error de red. Vuelve a intentarlo."
+
+#: services/classhub/templates/student_join.html:48
+msgid "Join your class"
+msgstr "Únete a tu clase"
+
+#
+# ── Invite join (blocktrans) ─────────────────────────────────────────
+#
+#: services/classhub/templates/student_join.html:55
+#, python-format
+msgid "You are joining <strong>%(class_name)s</strong> by invite link."
+msgstr "You are joining <strong>%(class_name)s</strong> by invite link."
+
+#: services/classhub/templates/student_join.html:58
+#, fuzzy
+#| msgid "Enter your class code and pick a display name."
+msgid "Type your class code. Pick a name for class."
+msgstr "Ingresa tu código de clase y elige un nombre para mostrar."
+
+#: services/classhub/templates/student_join.html:60
+msgid "Enter your class code and pick a display name."
+msgstr "Ingresa tu código de clase y elige un nombre para mostrar."
+
+#: services/classhub/templates/student_join.html:62
+msgid "Enter the class code from your teacher. Pick any display name you like."
+msgstr "Ingresa el código de clase de tu maestro. Elige el nombre que quieras."
+
+#: services/classhub/templates/student_join.html:66
+msgid "If this device is shared, use your own return code."
+msgstr "Si este dispositivo se comparte, usa tu propio código de retorno."
+
+#: services/classhub/templates/student_join.html:67
+msgid "That helps you get back to your work and not someone else's."
+msgstr "Eso te ayuda a volver a tu trabajo y no al de otra persona."
+
+#: services/classhub/templates/student_join.html:69
+msgid ""
+"On shared devices, enter your return code so you do not join as another "
+"student."
+msgstr ""
+"En dispositivos compartidos, ingresa tu código de retorno para no unirte "
+"como otro estudiante."
+
+#: services/classhub/templates/student_join.html:72
+msgid "Same classroom device? You can usually leave return code blank."
+msgstr "¿Mismo dispositivo del salón? Generalmente puedes dejar el código de retorno en blanco."
+
+#: services/classhub/templates/student_join.html:73
+msgid ""
+"On shared devices, use your own return code to avoid signing in as someone "
+"else."
+msgstr ""
+"En dispositivos compartidos, usa tu propio código de retorno para no iniciar "
+"sesión como otra persona."
+
+#: services/classhub/templates/student_join.html:88
+msgid "Class code"
+msgstr "Código de clase"
+
+#: services/classhub/templates/student_join.html:93
+msgid "Your display name"
+msgstr "Tu nombre para mostrar"
+
+#: services/classhub/templates/student_join.html:96
+msgid "A nickname or made-up name is fine — no need to use your real name."
+msgstr "Un apodo o nombre inventado está bien — no necesitas usar tu nombre real."
+
+#: services/classhub/templates/student_join.html:99
+msgid "Return code (optional)"
+msgstr "Código de retorno (opcional)"
+
+#: services/classhub/templates/student_join.html:102
+msgid "If your class uses icon codes, use the icon keypad below."
+msgstr "Si tu clase usa códigos de íconos, usa el teclado de íconos de abajo."
+
+#: services/classhub/templates/student_join.html:106
+msgid "Clear return code"
+msgstr "Borrar código de retorno"
+
+#: services/classhub/templates/student_join.html:110
+msgid "Return code icon keypad"
+msgstr "Teclado de íconos de código de retorno"
+
+#: services/classhub/templates/student_join.html:113
+msgid "Join class"
+msgstr "Unirse a la clase"
+
+#: services/classhub/templates/student_join.html:121
+msgid ""
+"We save your class name, your uploads, and the time you joined or uploaded."
+msgstr ""
+
+#: services/classhub/templates/student_join.html:123
+msgid "We store your display name, class submissions, and event timestamps."
+msgstr "Almacenamos tu nombre para mostrar, entregas de clase y marcas de tiempo."
+
+#: services/classhub/templates/student_join.html:130
+msgid "hosted locally"
+msgstr "alojado localmente"
+
+#: services/classhub/templates/student_join.html:134
+#, fuzzy
+#| msgid ""
+#| "We never require student email or student password for normal class use."
+msgid "We do not ask students for email or a password to join class."
+msgstr "We do not ask students for email or a password to join class."
+
+#: services/classhub/templates/student_join.html:138
+#: services/classhub/templates/student_my_data.html:49
+msgid "day(s). Deleted sooner on request."
+msgstr "día(s). Se eliminan antes si se solicita."
+
+#: services/classhub/templates/student_join.html:140
+#: services/classhub/templates/student_my_data.html:51
+msgid "submissions stay until a teacher or admin removes them."
+msgstr "las entregas permanecen hasta que un maestro o administrador las elimine."
+
+#: services/classhub/templates/student_join.html:146
+msgid "delete your work or end session."
+msgstr "eliminar tu trabajo o terminar sesión."
+
+#: services/classhub/templates/student_join.html:148
+msgid "Learn more:"
+msgstr "Más información:"
+
+#: services/classhub/templates/student_join.html:148
+#, fuzzy
+#| msgid "What we store / what we never store"
+msgid "What we store / never store"
+msgstr "Qué guardamos / qué nunca guardamos"
+
+#: services/classhub/templates/student_join.html:153
+#, fuzzy
+#| msgid "No tracking. No ads. No data broker sharing."
+msgid "No tracking. No ads."
+msgstr "Sin rastreo. Sin anuncios. Sin intercambio con corredores de datos."
+
+#: services/classhub/templates/student_join.html:160
+msgid "Teacher? Use <a href=\"/teach\">/teach</a>."
+msgstr "¿Maestro? Usa <a href=\"/teach\">/teach</a>."
+
+#: services/classhub/templates/student_my_data.html:34
+msgid "Privacy at a glance"
+msgstr "Privacidad en resumen"
+
+#: services/classhub/templates/student_my_data.html:37
+#, fuzzy
+#| msgid ""
+#| "Stored data: your display name, submissions, and class event timestamps."
+msgid "Stored data: your class name, your uploads, and basic class timestamps."
+msgstr "Datos guardados: tu nombre de clase, tus archivos subidos y marcas de tiempo básicas de la clase."
+
+#: services/classhub/templates/student_my_data.html:39
+msgid ""
+"Stored data: your display name, submissions, and class event timestamps."
+msgstr ""
+"Datos almacenados: tu nombre para mostrar, entregas y marcas de tiempo de "
+"clase."
+
+#: services/classhub/templates/student_my_data.html:42
+#, python-format
+msgid "Storage location: %(location)s"
+msgstr "Ubicación del almacenamiento: %(location)s"
+
+#: services/classhub/templates/student_my_data.html:44
+msgid ""
+"Storage location: this server is hosted locally by your school or "
+"organization."
+msgstr ""
+"Ubicación de almacenamiento: este servidor está alojado localmente por tu "
+"escuela u organización."
+
+#: services/classhub/templates/student_my_data.html:62
+#, fuzzy
+#| msgid "Your display name"
+msgid "Display name"
+msgstr "Tu nombre para mostrar"
+
+#: services/classhub/templates/student_my_data.html:71
+#, fuzzy
+#| msgid "Your display name"
+msgid "Update display name"
+msgstr "Tu nombre para mostrar"
+
+#: services/classhub/templates/student_my_data.html:78
+msgid "Send a deletion request to your teacher?"
+msgstr "Send a deletion request to your teacher?"
+
+#: services/classhub/templates/student_my_data.html:78
+msgid "Delete all of your submissions now?"
+msgstr "¿Eliminar todas tus entregas ahora?"
+
+#: services/classhub/templates/student_my_data.html:81
+#, fuzzy
+#| msgid "Review reflection"
+msgid "Request deletion"
+msgstr "Revisar reflexión"
+
+#: services/classhub/templates/student_my_data.html:83
+msgid "Delete my work now"
+msgstr "Eliminar mi trabajo ahora"
+
+#: services/classhub/templates/student_my_data.html:94
+msgid "A teacher reviews deletion requests before your work is removed."
+msgstr "Un maestro revisa las solicitudes de eliminación antes de quitar tu trabajo."
+
+#: services/classhub/templates/student_my_data.html:96
+msgid ""
+"Your program requires staff review before deletion. Your request appears on "
+"your teacher dashboard."
+msgstr ""
+
+#: services/classhub/templates/student_my_data.html:100
+msgid ""
+"Delete now removes your uploads, class responses, and class activity history "
+"for this class."
+msgstr ""
+
+#: services/classhub/templates/student_my_data.html:102
+msgid ""
+"Deletion is immediate for your submissions, checklist/rubric/reflection "
+"responses, and your class activity events in this class."
+msgstr ""
+
+#: services/classhub/templates/student_my_data.html:109
+msgid "My submissions"
+msgstr "Mis entregas"
+
+#: services/classhub/templates/student_my_data.html:112
+#, python-format
+msgid "Stored submissions for %(student_name)s"
+msgstr "Entregas guardadas de %(student_name)s"
+
+#: services/classhub/templates/student_my_data.html:116
+#: services/classhub/templates/student_portfolio_index.html:22
+#: services/classhub/templates/teach_certificate_eligibility.html:53
+#: services/classhub/templates/teach_lessons.html:61
+msgid "Module"
+msgstr "Módulo"
+
+#: services/classhub/templates/student_my_data.html:135
+msgid "No submissions stored yet."
+msgstr "Aún no hay entregas almacenadas."
+
+#: services/classhub/templates/student_portfolio.html:29
+#, fuzzy
+#| msgid "Show"
+msgid "Showing"
+msgstr "Mostrar"
+
+#: services/classhub/templates/student_portfolio.html:29
+#, fuzzy
+#| msgid "artifacts"
+msgid "artifact(s) from"
+msgstr "artefactos"
+
+#: services/classhub/templates/student_portfolio.html:29
+#, fuzzy
+#| msgid "No uploads yet"
+msgid "total upload(s)."
+msgstr "Aún no hay subidas"
+
+#
+# ── Student portfolio pages ──────────────────────────────────────────
+#
+#: services/classhub/templates/student_portfolio.html:34
+msgid "Filters"
+msgstr "Filtros"
+
+#: services/classhub/templates/student_portfolio.html:38
+#, fuzzy
+#| msgid "All classes"
+msgid "All lessons"
+msgstr "Todas las clases"
+
+#: services/classhub/templates/student_portfolio.html:49
+#, fuzzy
+#| msgid "Class actions"
+msgid "All stations"
+msgstr "acciones de la clase"
+
+#
+# ── Student portfolio pages ──────────────────────────────────────────
+#
+#: services/classhub/templates/student_portfolio.html:55
+#, fuzzy
+#| msgid "Filters"
+msgid "Apply filters"
+msgstr "Filtros"
+
+#: services/classhub/templates/student_portfolio.html:56
+msgid "Clear"
+msgstr "Clear"
+
+#: services/classhub/templates/student_portfolio.html:61
+#: services/classhub/templates/teach_certificate_eligibility.html:77
+msgid "Artifacts"
+msgstr "Artefactos"
+
+#: services/classhub/templates/student_portfolio.html:65
+#, fuzzy
+#| msgid "artifacts"
+msgid "Portfolio artifacts"
+msgstr "artefactos"
+
+#: services/classhub/templates/student_portfolio.html:73
+#: services/classhub/templates/teach_material_submissions.html:65
+msgid "Gallery"
+msgstr "Gallery"
+
+#: services/classhub/templates/student_portfolio.html:87
+#, fuzzy
+#| msgid "Teacher"
+msgid "Teacher-only"
+msgstr "Maestro"
+
+#: services/classhub/templates/student_portfolio.html:109
+msgid "No artifacts match this filter yet."
+msgstr "No artifacts match this filter yet."
+
+#: services/classhub/templates/student_portfolio.html:110
+msgid "Older artifacts may have been removed by your class retention policy."
+msgstr "Older artifacts may have been removed by your class retention policy."
+
+#: services/classhub/templates/student_portfolio_index.html:7
+#, python-format
+msgid "%(display_name)s Portfolio"
+msgstr "Portafolio de %(display_name)s"
+
+#: services/classhub/templates/student_portfolio_index.html:11
+#, python-format
+msgid "%(display_name)s Portfolio Export"
+msgstr "Exportación del portafolio de %(display_name)s"
+
+#: services/classhub/templates/student_portfolio_index.html:12
+#, python-format
+msgid "Class: %(classroom_name)s"
+msgstr "Clase: %(classroom_name)s"
+
+#: services/classhub/templates/student_portfolio_index.html:13
+#, python-format
+msgid "Generated: %(generated_at)s"
+msgstr "Generado: %(generated_at)s"
+
+#: services/classhub/templates/student_portfolio_index.html:14
+#, python-format
+msgid "Submissions: %(included_count)s included / %(submission_count)s total"
+msgstr "Entregas: %(included_count)s incluidas / %(submission_count)s en total"
+
+#: services/classhub/templates/student_portfolio_index.html:18
+#, python-format
+msgid "Submission export rows for %(display_name)s"
+msgstr "Filas de exportación de entregas para %(display_name)s"
+
+#: services/classhub/templates/student_portfolio_index.html:24
+msgid "Original file"
+msgstr "Archivo original"
+
+#: services/classhub/templates/student_portfolio_index.html:25
+msgid "Archive path"
+msgstr "Ruta del archivo"
+
+#: services/classhub/templates/student_portfolio_index.html:27
+msgid "Note"
+msgstr "Nota"
+
+#: services/classhub/templates/student_portfolio_index.html:38
+msgid "Included"
+msgstr "Incluido"
+
+#: services/classhub/templates/student_portfolio_index.html:38
+msgid "Missing source file"
+msgstr "Falta el archivo de origen"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:7
+#: services/classhub/templates/teach_certificate_eligibility.html:18
+#: services/classhub/templates/teach_class.html:7
+#: services/classhub/templates/teach_class.html:18
+#: services/classhub/templates/teach_lessons.html:18
+#: services/classhub/templates/teach_material_submissions.html:17
+msgid "Teacher"
+msgstr "Maestro"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:7
+#: services/classhub/templates/teach_certificate_eligibility.html:21
+msgid "Certificate Eligibility"
+msgstr "Elegibilidad de certificados"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:17
+msgid "Certificate eligibility links"
+msgstr "enlaces de elegibilidad de certificados"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:18
+#, fuzzy
+#| msgid "Class dashboard links"
+msgid "Class dashboard"
+msgstr "enlaces del panel de la clase"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:23
+msgid "Eligible students"
+msgstr "estudiantes elegibles"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:24
+msgid "Threshold:"
+msgstr "umbral:"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:24
+msgid "sessions"
+msgstr "sesiones"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:24
+msgid "artifacts"
+msgstr "artefactos"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:28
+msgid "Export outcomes CSV"
+msgstr "Exportar CSV de resultados"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:39
+msgid "Mark Session Completed"
+msgstr "Marcar sesion completada"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:41
+msgid ""
+"Use this only when completion happened offline and no artifact upload was "
+"submitted."
+msgstr ""
+"Usa esto solo cuando la finalizacion ocurrio fuera de linea y no se envio "
+"ningun artefacto."
+
+#: services/classhub/templates/teach_certificate_eligibility.html:48
+msgid "Select student"
+msgstr "Selecciona estudiante"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:55
+msgid "Select module"
+msgstr "Selecciona modulo"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:60
+msgid "Mark completed"
+msgstr "Marcar completado"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:63
+msgid ""
+"Read-only role: session completion updates are limited to teacher/admin "
+"roles."
+msgstr ""
+"Rol de solo lectura: las actualizaciones de finalizacion de sesion se "
+"limitan a roles de maestro o admin."
+
+#: services/classhub/templates/teach_certificate_eligibility.html:68
+msgid "All Students"
+msgstr "Todos los estudiantes"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:72
+#, fuzzy, python-format
+#| msgid "Certificate eligibility links"
+msgid "Certificate eligibility status for %(class_name)s"
+msgstr "enlaces de elegibilidad de certificados"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:78
+msgid "Milestones"
+msgstr "Hitos"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:80
+msgid "Certificate"
+msgstr "Certificado"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:92
+msgid "Eligible"
+msgstr "Elegible"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:94
+msgid "In progress"
+msgstr "En progreso"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:103
+msgid "Download PDF"
+msgstr "Descargar PDF"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:107
+msgid "Not issued"
+msgstr "No emitido"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:109
+msgid "Not eligible"
+msgstr "No elegible"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:115
+msgid "Re-issue"
+msgstr "Volver a emitir"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:115
+msgid "Issue"
+msgstr "Emitir"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:125
+msgid "No students in this class yet."
+msgstr "No hay estudiantes en esta clase todavia."
+
+#: services/classhub/templates/teach_class.html:17
+msgid "Class dashboard links"
+msgstr "enlaces del panel de la clase"
+
+#: services/classhub/templates/teach_class.html:18
+#: services/classhub/templates/teach_home.html:19
+#: services/classhub/templates/teach_lessons.html:18
+#: services/classhub/templates/teach_material_submissions.html:17
+msgid "Lesson assets"
+msgstr "recursos de lecciones"
+
+#: services/classhub/templates/teach_class.html:25
+msgid "Printable join card"
+msgstr "tarjeta de acceso imprimible"
+
+#: services/classhub/templates/teach_class.html:26
+#: services/classhub/templates/teach_lessons.html:50
+msgid "Students"
+msgstr "estudiantes"
+
+#: services/classhub/templates/teach_class.html:27
+msgid "Join flow"
+msgstr "flujo de acceso"
+
+#: services/classhub/templates/teach_class.html:27
+msgid "Invite only"
+msgstr "solo por invitacion"
+
+#: services/classhub/templates/teach_class.html:27
+msgid "Closed"
+msgstr "cerrado"
+
+#: services/classhub/templates/teach_class.html:28
+msgid "Unlocked"
+msgstr "desbloqueada"
+
+#: services/classhub/templates/teach_class.html:32
+msgid "Class actions"
+msgstr "acciones de la clase"
+
+#: services/classhub/templates/teach_class.html:33
+msgid "Join card"
+msgstr "tarjeta de acceso"
+
+#: services/classhub/templates/teach_class.html:35
+msgid "Summary CSV"
+msgstr "CSV de resumen"
+
+#: services/classhub/templates/teach_class.html:43
+msgid "Start Here In This Class"
+msgstr "Empieza aqui en esta clase"
+
+#: services/classhub/templates/teach_class.html:44
+msgid ""
+"The unified workspace above handles the common path. Use these anchors when "
+"you need a deeper panel."
+msgstr ""
+"El espacio de trabajo unificado de arriba cubre el camino comun. Usa estos "
+"atajos cuando necesites un panel mas profundo."
+
+#: services/classhub/templates/teach_class.html:48
+msgid "Run class now"
+msgstr "Dirigir la clase ahora"
+
+#: services/classhub/templates/teach_class.html:50
+msgid "Print or share join card"
+msgstr "Imprimir o compartir tarjeta de acceso"
+
+#: services/classhub/templates/teach_class.html:51
+msgid "Open lesson tracker + release controls"
+msgstr "Abrir seguimiento de lecciones y controles de publicacion"
+
+#: services/classhub/templates/teach_class.html:52
+msgid "Check facilitator support board"
+msgstr "Revisar tablero de apoyo del facilitador"
+
+#: services/classhub/templates/teach_class.html:53
+msgid "Check outcomes snapshot"
+msgstr "Revisar resumen de resultados"
+
+#: services/classhub/templates/teach_class.html:57
+msgid "Setup + cleanup"
+msgstr "preparacion y cierre"
+
+#: services/classhub/templates/teach_class.html:59
+msgid "Manage invite links + seat caps"
+msgstr "Gestionar enlaces de invitacion y limites de cupo"
+
+#: services/classhub/templates/teach_class.html:60
+msgid "Fix roster identity issues"
+msgstr "Corregir problemas de identidad del roster"
+
+#: services/classhub/templates/teach_class.html:61
+msgid "Review helper signal trends"
+msgstr "Revisar tendencias de senales del asistente"
+
+#: services/classhub/templates/teach_class.html:62
+msgid "Edit module order/content"
+msgstr "Editar orden y contenido de modulos"
+
+# Teacher shell tranche (2026-04-11)
+#: services/classhub/templates/teach_home.html:7
+#: services/classhub/templates/teach_home.html:17
+msgid "Teacher Portal"
+msgstr "Portal del maestro"
+
+#: services/classhub/templates/teach_home.html:18
+msgid "Teacher portal links"
+msgstr "enlaces del portal del maestro"
+
+#: services/classhub/templates/teach_home.html:19
+#, fuzzy
+#| msgid "Create class workspace"
+msgid "Staff workspace"
+msgstr "Crear espacio de clase"
+
+#: services/classhub/templates/teach_home.html:20
+msgid "Data lifespan"
+msgstr "ciclo de vida de los datos"
+
+#: services/classhub/templates/teach_home.html:22
+msgid "Student join page"
+msgstr "pagina de acceso para estudiantes"
+
+#: services/classhub/templates/teach_home.html:36
+msgid ""
+"Org-boundary warning: strict org membership mode is currently off. Staff "
+"without organization memberships may retain legacy global class access."
+msgstr ""
+
+#: services/classhub/templates/teach_home.html:42
+msgid "Portal modes"
+msgstr "modos del portal"
+
+#: services/classhub/templates/teach_home.html:43
+msgid "Choose a focused surface for this session."
+msgstr "Elige una vista enfocada para esta sesion."
+
+#: services/classhub/templates/teach_home.html:47
+msgid "Hide operator tools"
+msgstr "Ocultar herramientas del operador"
+
+#: services/classhub/templates/teach_home.html:49
+msgid "Show operator tools"
+msgstr "Mostrar herramientas del operador"
+
+#: services/classhub/templates/teach_lessons.html:7
+msgid "Teacher · Lessons"
+msgstr "Maestro · Lecciones"
+
+#: services/classhub/templates/teach_lessons.html:17
+msgid "Lesson tracker links"
+msgstr "enlaces del seguimiento de lecciones"
+
+#: services/classhub/templates/teach_lessons.html:20
+#, fuzzy
+#| msgid "Lesson tracker"
+msgid "Lesson Tracker"
+msgstr "Seguimiento de lecciones"
+
+#: services/classhub/templates/teach_lessons.html:21
+msgid "Focus on lesson links and submission progress."
+msgstr "Enfocate en los enlaces de lecciones y el progreso de entregas."
+
+#: services/classhub/templates/teach_lessons.html:36
+msgid "All classes"
+msgstr "Todas las clases"
+
+#: services/classhub/templates/teach_lessons.html:41
+msgid "Apply"
+msgstr "Aplicar"
+
+#: services/classhub/templates/teach_lessons.html:52
+msgid "Open class dashboard"
+msgstr "Abrir panel de clase"
+
+#: services/classhub/templates/teach_lessons.html:58
+#, fuzzy, python-format
+#| msgid "Lesson tracker links"
+msgid "Lesson tracker for %(class_name)s"
+msgstr "enlaces del seguimiento de lecciones"
+
+#: services/classhub/templates/teach_lessons.html:63
+msgid "Dropboxes"
+msgstr "Buzones de entrega"
+
+#: services/classhub/templates/teach_lessons.html:73
+msgid "Technical IDs"
+msgstr "Technical IDs"
+
+#: services/classhub/templates/teach_lessons.html:83
+msgid "Teacher notes"
+msgstr "Notas del maestro"
+
+#: services/classhub/templates/teach_lessons.html:161
+#: services/classhub/templates/teach_material_submissions.html:46
+msgid "Submitted"
+msgstr "Entregados"
+
+#: services/classhub/templates/teach_lessons.html:162
+#: services/classhub/templates/teach_material_submissions.html:47
+msgid "Missing"
+msgstr "Faltantes"
+
+#: services/classhub/templates/teach_lessons.html:163
+msgid "Latest"
+msgstr "Mas reciente"
+
+#: services/classhub/templates/teach_lessons.html:167
+msgid "Review missing"
+msgstr "Revisar faltantes"
+
+#: services/classhub/templates/teach_lessons.html:168
+#, fuzzy
+#| msgid "Latest"
+msgid "ZIP latest"
+msgstr "Mas reciente"
+
+#: services/classhub/templates/teach_lessons.html:173
+msgid "No upload dropbox in this module."
+msgstr "No hay buzon de entrega en este modulo."
+
+#: services/classhub/templates/teach_lessons.html:182
+msgid "No lesson links found in this class yet."
+msgstr "Aun no se encontraron enlaces de lecciones en esta clase."
+
+#: services/classhub/templates/teach_lessons.html:189
+msgid "No classes available."
+msgstr "No hay clases disponibles."
+
+#
+# ── Teacher login page ───────────────────────────────────────────────
+#
+#: services/classhub/templates/teach_login.html:8
+#: services/classhub/templates/teach_login.html:20
+msgid "Teacher Login"
+msgstr "Inicio de sesión del maestro"
+
+#: services/classhub/templates/teach_login.html:22
+msgid "Home"
+msgstr "Inicio"
+
+#: services/classhub/templates/teach_login.html:41
+#, fuzzy
+#| msgid "Sign in to your account"
+msgid "Sign in with your organization account"
+msgstr "Inicia sesión en tu cuenta"
+
+#: services/classhub/templates/teach_login.html:44
+#, python-format
+msgid "Continue with %(label)s"
+msgstr "Continue with %(label)s"
+
+#: services/classhub/templates/teach_login.html:47
+msgid "You can also use username/password below."
+msgstr "You can also use username/password below."
+
+#: services/classhub/templates/teach_login.html:53
+msgid "Sign in to your account"
+msgstr "Inicia sesión en tu cuenta"
+
+#: services/classhub/templates/teach_login.html:81
+msgid "Password login disabled"
+msgstr "Password login disabled"
+
+#: services/classhub/templates/teach_login.html:82
+msgid "This deployment requires organization SSO for teacher login."
+msgstr "This deployment requires organization SSO for teacher login."
+
+#: services/classhub/templates/teach_material_submissions.html:7
+#: services/classhub/templates/teach_material_submissions.html:18
+msgid "Responses"
+msgstr "Responses"
+
+#: services/classhub/templates/teach_material_submissions.html:7
+#: services/classhub/templates/teach_material_submissions.html:18
+#, fuzzy
+#| msgid "My submissions"
+msgid "Submissions"
+msgstr "Mis entregas"
+
+#: services/classhub/templates/teach_material_submissions.html:21
+#, python-format
+msgid ""
+"Material: <strong>%(title)s</strong> · Scale 1-%(scale_max)s · Students "
+"%(count)s · Missing %(missing_count)s"
+msgstr ""
+
+#: services/classhub/templates/teach_material_submissions.html:25
+#, python-format
+msgid ""
+"Material: <strong>%(title)s</strong> · Accepted <span "
+"class=\"pill\">%(accepted_exts)s</span> · Students %(count)s · Missing "
+"%(missing_count)s"
+msgstr ""
+
+#: services/classhub/templates/teach_material_submissions.html:28
+msgid ""
+"Gallery moderation: student publish is opt-in; staff can approve/unapprove "
+"visibility."
+msgstr ""
+
+#: services/classhub/templates/teach_material_submissions.html:34
+#, fuzzy
+#| msgid "Download full backup ZIP"
+msgid "Download all latest (ZIP)"
+msgstr "Descargar ZIP de respaldo completo"
+
+#: services/classhub/templates/teach_material_submissions.html:35
+#: services/classhub/templates/teach_material_submissions.html:37
+msgid "Open in admin"
+msgstr "Open in admin"
+
+#
+# ── Student portfolio pages ──────────────────────────────────────────
+#
+#: services/classhub/templates/teach_material_submissions.html:44
+#, fuzzy
+#| msgid "Filters"
+msgid "Filter:"
+msgstr "Filtros"
+
+#: services/classhub/templates/teach_material_submissions.html:45
+msgid "All"
+msgstr "All"
+
+#: services/classhub/templates/teach_material_submissions.html:53
+#, python-format
+msgid "Rubric responses for %(material_title)s"
+msgstr "Rubric responses for %(material_title)s"
+
+#: services/classhub/templates/teach_material_submissions.html:55
+#, fuzzy, python-format
+#| msgid "Submission export rows for %(display_name)s"
+msgid "Submission status for %(material_title)s"
+msgstr "Filas de exportación de entregas para %(display_name)s"
+
+#: services/classhub/templates/teach_material_submissions.html:61
+msgid "Latest response"
+msgstr "Latest response"
+
+#: services/classhub/templates/teach_material_submissions.html:61
+#, fuzzy
+#| msgid "Last upload"
+msgid "Latest upload"
+msgstr "Última subida"
+
+#: services/classhub/templates/teach_material_submissions.html:62
+msgid "Rated criteria"
+msgstr "Rated criteria"
+
+#: services/classhub/templates/teach_material_submissions.html:62
+#, fuzzy
+#| msgid "File"
+msgid "Files"
+msgstr "Archivo"
+
+#: services/classhub/templates/teach_material_submissions.html:63
+msgid "Feedback"
+msgstr "Feedback"
+
+#: services/classhub/templates/teach_material_submissions.html:63
+#, fuzzy
+#| msgid "Latest"
+msgid "Latest file"
+msgstr "Mas reciente"
+
+#: services/classhub/templates/teach_material_submissions.html:79
+#, fuzzy
+#| msgid "saved"
+msgid "Saved"
+msgstr "guardado"
+
+#
+# ── Student class dashboard ──────────────────────────────────────────
+#
+#: services/classhub/templates/teach_material_submissions.html:86
+#, fuzzy
+#| msgid "Student home"
+msgid "Student published:"
+msgstr "Inicio del estudiante"
+
+#: services/classhub/templates/teach_material_submissions.html:87
+#, fuzzy
+#| msgid "Teacher notes"
+msgid "Teacher approved:"
+msgstr "Notas del maestro"
+
+#: services/classhub/templates/teach_material_submissions.html:90
+#, fuzzy
+#| msgid "Download"
+msgid "Download latest"
+msgstr "Descargar"
+
+#: services/classhub/templates/teach_material_submissions.html:117
+msgid "Unapprove"
+msgstr "Unapprove"
+
+#: services/classhub/templates/teach_material_submissions.html:117
+msgid "Approve"
+msgstr "Approve"
+
+#: services/classhub/templates/teach_material_submissions.html:127
+msgid ""
+"Downloads are private: staff can download any submission; students can only "
+"download their own."
+msgstr ""
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:7
+#, fuzzy, python-format
+#| msgid "Teacher · Lessons"
+msgid "Teacher · Edit Lesson: %(lesson_title)s"
+msgstr "Maestro · Lecciones"
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:16
+#, fuzzy, python-format
+#| msgid "Availability date for %(lesson_title)s"
+msgid "Edit Lesson: %(lesson_title)s"
+msgstr "Fecha de disponibilidad para %(lesson_title)s"
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:19
+msgid "You are currently editing a local override for this classroom."
+msgstr "You are currently editing a local override for this classroom."
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:21
+msgid ""
+"You are currently viewing the master repository content. Save to create a "
+"local override."
+msgstr ""
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:30
+msgid ""
+"Are you sure you want to reset this lesson to the global repository default? "
+"This will delete your local changes."
+msgstr ""
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:33
+#, fuzzy
+#| msgid "Reset default"
+msgid "Reset to Default"
+msgstr "Restablecer predeterminado"
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:36
+#, fuzzy
+#| msgid "Save rubric"
+msgid "Save Override"
+msgstr "Guardar rúbrica"
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:43
+#, fuzzy
+#| msgid "Lesson videos"
+msgid "Lesson Markdown"
+msgstr "videos de lecciones"
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:52
+msgid ""
+"This editor writes a class-local database override only. Repository course "
+"files are not modified."
+msgstr ""
+
+#: services/classhub/templates/trust.html:8
+msgid "What We Store"
+msgstr "Qué guardamos"
+
+#: services/classhub/templates/trust.html:18
+msgid "Privacy page"
+msgstr "Página de privacidad"
+
+#: services/classhub/templates/trust.html:20
 msgid "Plain-language trust notes for students, families, and staff."
-msgstr "Notas de confianza en lenguaje sencillo para estudiantes, familias y personal."
+msgstr "Plain-language trust notes for students, families, and staff."
 
-msgid "We store your class display name so your teacher can identify your work."
-msgstr "Guardamos tu nombre para mostrar de la clase para que tu maestro pueda identificar tu trabajo."
+#: services/classhub/templates/trust.html:31
+#, fuzzy
+#| msgid ""
+#| "We store your class display name so your teacher can identify your work."
+msgid "We save the class name you choose so your teacher can find your work."
+msgstr "We save the class name you choose so your teacher can find your work."
 
-msgid "We store your class files and activity responses (checklists, reflections, rubric answers)."
-msgstr "Guardamos tus archivos de clase y respuestas de actividad (listas, reflexiones y respuestas de rúbrica)."
+#: services/classhub/templates/trust.html:32
+msgid "We save your uploads and class responses."
+msgstr "We save your uploads and class responses."
 
-msgid "We store basic event timestamps (for example join time and upload time)."
-msgstr "Guardamos marcas de tiempo básicas de eventos (por ejemplo, la hora de unión y la hora de carga)."
+#: services/classhub/templates/trust.html:33
+msgid "We save basic times, like when you joined or uploaded."
+msgstr "We save basic times, like when you joined or uploaded."
 
-msgid "We never require student email or student password for normal class use."
-msgstr "Nunca exigimos correo electrónico ni contraseña del estudiante para el uso normal de la clase."
+#: services/classhub/templates/trust.html:34
+#, fuzzy
+#| msgid ""
+#| "We never require student email or student password for normal class use."
+msgid "We do not ask students for email or a password for normal class use."
+msgstr "We do not ask students for email or a password for normal class use."
 
+#: services/classhub/templates/trust.html:35
+#, fuzzy
+#| msgid "We never sell student data and we do not run ad tracking."
+msgid "We do not sell student data or run ad tracking."
+msgstr "We do not sell student data or run ad tracking."
+
+#: services/classhub/templates/trust.html:36
+#, fuzzy
+#| msgid ""
+#| "Teachers and approved staff can see student work in their class. Other "
+#| "classes cannot."
+msgid ""
+"Your class teachers and approved staff can see your class work. Other "
+"classes cannot."
+msgstr ""
+"Los maestros y el personal aprobado pueden ver el trabajo estudiantil de su "
+"clase. Otras clases no."
+
+#: services/classhub/templates/trust.html:37
+msgid ""
+"You can rename your class name, download your work, or delete your work from "
+"My Data."
+msgstr ""
+
+#: services/classhub/templates/trust.html:38
+msgid "Upload retention follows your class policy and operator settings."
+msgstr "Upload retention follows your class policy and operator settings."
+
+#: services/classhub/templates/trust.html:40
+msgid ""
+"We store your class display name so your teacher can identify your work."
+msgstr ""
+"Guardamos tu nombre para mostrar de la clase para que tu maestro pueda "
+"identificar tu trabajo."
+
+#: services/classhub/templates/trust.html:41
+msgid ""
+"We store your class files and activity responses (checklists, reflections, "
+"rubric answers)."
+msgstr ""
+"Guardamos tus archivos de clase y respuestas de actividad (listas, "
+"reflexiones y respuestas de rúbrica)."
+
+#: services/classhub/templates/trust.html:42
+msgid ""
+"We store basic event timestamps (for example join time and upload time)."
+msgstr ""
+"Guardamos marcas de tiempo básicas de eventos (por ejemplo, la hora de unión "
+"y la hora de carga)."
+
+#: services/classhub/templates/trust.html:43
+msgid ""
+"We never require student email or student password for normal class use."
+msgstr ""
+"Nunca exigimos correo electrónico ni contraseña del estudiante para el uso "
+"normal de la clase."
+
+#: services/classhub/templates/trust.html:44
 msgid "We never sell student data and we do not run ad tracking."
-msgstr "Nunca vendemos datos de estudiantes y no hacemos seguimiento publicitario."
+msgstr "We never sell student data and we do not run ad tracking."
 
-msgid "Teachers and approved staff can see student work in their class. Other classes cannot."
-msgstr "Los maestros y el personal aprobado pueden ver el trabajo estudiantil de su clase. Otras clases no."
+#: services/classhub/templates/trust.html:45
+msgid ""
+"Teachers and approved staff can see student work in their class. Other "
+"classes cannot."
+msgstr ""
+"Los maestros y el personal aprobado pueden ver el trabajo estudiantil de su "
+"clase. Otras clases no."
 
-msgid "Students can rename their display name from My Data at any time (safety rules still apply)."
-msgstr "Los estudiantes pueden cambiar su nombre para mostrar desde Mis datos en cualquier momento (siguen aplicando las reglas de seguridad)."
+#: services/classhub/templates/trust.html:46
+msgid ""
+"Students can rename their display name from My Data at any time (safety "
+"rules still apply)."
+msgstr ""
+"Los estudiantes pueden cambiar su nombre para mostrar desde Mis datos en "
+"cualquier momento (siguen aplicando las reglas de seguridad)."
 
-msgid "Students can request deletion of their own artifacts and class activity history from My Data. Staff review the request before removal."
-msgstr "Los estudiantes pueden solicitar la eliminación de sus propios archivos e historial de actividad desde Mis datos. El personal revisa la solicitud antes de eliminar."
+#: services/classhub/templates/trust.html:48
+msgid ""
+"Students can request deletion of their own artifacts and class activity "
+"history from My Data. Staff review the request before removal."
+msgstr ""
+"Los estudiantes pueden solicitar la eliminación de sus propios archivos e "
+"historial de actividad desde Mis datos. El personal revisa la solicitud "
+"antes de eliminar."
 
-msgid "Students can delete their own artifacts and class activity history from My Data at any time."
-msgstr "Los estudiantes pueden eliminar sus propios archivos e historial de actividad de la clase desde Mis datos en cualquier momento."
+#: services/classhub/templates/trust.html:50
+msgid ""
+"Students can delete their own artifacts and class activity history from My "
+"Data at any time."
+msgstr ""
+"Los estudiantes pueden eliminar sus propios archivos e historial de "
+"actividad de la clase desde Mis datos en cualquier momento."
 
+#: services/classhub/templates/trust.html:53
 msgid "Retention policy for submissions:"
 msgstr "Política de retención de entregas:"
 
-msgid "Retention policy for event metadata:"
-msgstr "Política de retención de metadatos de eventos:"
+#: services/classhub/templates/trust.html:55
+#: services/classhub/templates/trust.html:63
+msgid "day(s)."
+msgstr "day(s)."
 
+#: services/classhub/templates/trust.html:57
+#: services/classhub/templates/trust.html:65
 msgid "operator-controlled by class policy."
 msgstr "controlado por la política de la clase."
 
+#: services/classhub/templates/trust.html:61
+msgid "Retention policy for event metadata:"
+msgstr "Política de retención de metadatos de eventos:"
+
+#: services/classhub/templates/trust.html:73
 msgid "Quick controls"
 msgstr "Controles rápidos"
 
+#: services/classhub/templates/trust.html:75
 msgid "Student controls are at"
 msgstr "Los controles del estudiante están en"
 
+#: services/classhub/templates/trust.html:76
 msgid "rename, download, delete, and end session."
 msgstr "renombrar, descargar, eliminar y terminar sesión."
 
-#, python-format
-msgid "this server is hosted by %(operator_name)s, %(operator_descriptor)s."
-msgstr "este servidor está alojado por %(operator_name)s, %(operator_descriptor)s."
+#~ msgid "Staff-only cockpit"
+#~ msgstr "panel solo para personal"
+
+#~ msgid "Toggle lock"
+#~ msgstr "Cambiar bloqueo"
+
+#~ msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
+#~ msgstr ""
+#~ "Crea archivos iniciales `.md` y `.docx` ya formateados para maestros."
+
+#~ msgid ""
+#~ "Admin/superuser backup and catalog downloads for repo-authored course "
+#~ "syllabi."
+#~ msgstr ""
+#~ "Descargas de respaldo y catálogo para administradores o superusuarios de "
+#~ "programas de curso escritos en el repositorio."

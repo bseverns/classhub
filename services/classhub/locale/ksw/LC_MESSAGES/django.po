@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ClassHub 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-02 00:00-0500\n"
+"POT-Creation-Date: 2026-06-08 12:20-0500\n"
 "PO-Revision-Date: 2026-04-02 00:00-0500\n"
 "Last-Translator: ClassHub Contributors\n"
 "Language-Team: S'gaw Karen\n"
@@ -18,1341 +18,3733 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-msgid "Open helper"
-msgstr "အိးထီၣ် တၢ်မၤစၢၤ"
+#: site/LOCALIZATION/index.html:1385
+msgid "..."
+msgstr "..."
 
-msgid "Resume helper"
-msgstr "ဆဲးမၤ တၢ်မၤစၢၤ"
+#: services/classhub/config/context_processors.py:53
+#, python-format
+msgid "this server is hosted by %(operator_name)s, %(operator_descriptor)s."
+msgstr "server အံၤ ဘၣ်တၢ်host အီၤလၢ %(operator_name)s, %(operator_descriptor)s."
 
-msgid "Follow-up questions stay in one lesson thread in this browser session until you reset chat."
-msgstr "သံကွၢ်လၢခံတဖၣ် အိၣ်ဆိးလၢ တၢ်သိၣ်လိအံၤအတၢ်စံးကတိၤကျဲတဘိအပူၤ ဖဲ browser session အံၤ တုၤမ့ၢ်နဒုးက့ၤ chat."
+#: services/classhub/hub/forms.py:15
+#, fuzzy
+#| msgid "Optional feedback"
+msgid "Optional station"
+msgstr "feedback လၢသဘျ့"
 
-msgid "Conversation context is saved for this lesson in this browser session until you reset chat."
-msgstr "တၢ်စံးကတိၤအတၢ်အိၣ်သး ဘၣ်တၢ်သိမ်းဆည်းအီၤ လၢတၢ်သိၣ်လိအံၤအဂီၢ် ဖဲ browser session အံၤ တုၤမ့ၢ်နဒုးက့ၤ chat."
+#: services/classhub/hub/forms.py:20
+msgid "What did you try? What did you change? (optional)"
+msgstr "What did you try? What did you change? (optional)"
 
-msgid "You"
-msgstr "နၤ"
-
-msgid "Helper"
-msgstr "တၢ်မၤစၢၤ"
-
-msgid "Try next:"
-msgstr "မၤလၢခံ:"
-
-msgid "Conversation reset."
-msgstr "တၢ်စံးကတိၤ ဘၣ်တၢ်ဒုးက့ၤလံ."
-
-msgid "Type a question before asking."
-msgstr "မဆိမီၣ်တၢ်မၤစၢၤခင်, ကွဲးသံကွၢ်တခွံ."
-
-msgid "Thinking..."
-msgstr "ဆိကမိၣ်..."
-
-msgid "(no output)"
-msgstr "(တၢ်စံးဆၢတအိၣ်ဘၣ်)"
-
-msgid "Helper error: network_failure"
-msgstr "တၢ်မၤစၢၤအတၢ်ကမၣ်: network_failure"
-
-msgid "Quick asks (tap to send):"
-msgstr "သံကွၢ်အဖုၣ်တဖၣ် (ထိးလၢကပျဲ):"
-
-msgid "Quick helper prompts"
-msgstr "တၢ်မၤစၢၤအသံကွၢ်အဖုၣ်တဖၣ်"
-
-msgid "Question for helper"
-msgstr "တၢ်မၤစၢၤအဂီၢ် သံကွၢ်"
-
-msgid "Ask for help..."
-msgstr "ဃ့တၢ်မၤစၢၤ..."
-
-msgid "Ask"
-msgstr "သံကွၢ်"
-
-msgid "Reset chat"
-msgstr "ဒုးက့ၤ chat"
-
-msgid "Lesson references used"
-msgstr "တၢ်သိၣ်လိအတၢ်န့ၢ်လီၤဘၣ်သုံး"
-
-msgid "Helper error"
-msgstr "တၢ်မၤစၢၤအတၢ်ကမၣ်"
-
+#: services/classhub/hub/services/helper_widget.py:14
 msgid "Jump not working"
 msgstr "Jump တမၤဘၣ်"
 
-msgid "In StoryMode, left/right work but jump does not work in Cheeseteroid. Help me troubleshoot one step at a time."
-msgstr "StoryMode အပူၤ left/right မၤတၢ် ဘၣ်ဆၣ် jump တမၤဘၣ်လၢ Cheeseteroid အပူၤ. မၤစၢၤယၤ လၢတဆီဘၣ်တဆီ."
+#: services/classhub/hub/services/helper_widget.py:16
+msgid ""
+"In StoryMode, left/right work but jump does not work in Cheeseteroid. Help "
+"me troubleshoot one step at a time."
+msgstr ""
+"StoryMode အပူၤ left/right မၤတၢ် ဘၣ်ဆၣ် jump တမၤဘၣ်လၢ Cheeseteroid အပူၤ. မၤစၢၤယၤ "
+"လၢတဆီဘၣ်တဆီ."
 
+#: services/classhub/hub/services/helper_widget.py:20
 msgid "No buttons respond"
 msgstr "button တဖၣ် တစံးဆၢဘၣ်"
 
-msgid "None of my StoryMode breadboard buttons are responding. Give me one check at a time and ask me to retest."
-msgstr "ယ StoryMode breadboard button တဖၣ် တစံးဆၢနီတဖျၢၣ်ဘၣ်. ဟ့ၣ်ယၤ တၢ်ကွၢ်တဘျီဃီ ဒီးခ့ယၤလၢ ကမၤကဒီးစမ်သပ်."
+#: services/classhub/hub/services/helper_widget.py:22
+msgid ""
+"None of my StoryMode breadboard buttons are responding. Give me one check at "
+"a time and ask me to retest."
+msgstr ""
+"ယ StoryMode breadboard button တဖၣ် တစံးဆၢနီတဖျၢၣ်ဘၣ်. ဟ့ၣ်ယၤ တၢ်ကွၢ်တဘျီဃီ ဒီးခ့ယၤလၢ "
+"ကမၤကဒီးစမ်သပ်."
 
+#: services/classhub/hub/services/helper_widget.py:26
 msgid "One direction fails"
 msgstr "တၢ်လဲၤတကျိၤ ဖျၢၣ်တခါ ကမၣ်"
 
-msgid "Only one movement direction fails on my Piper controls. What should I compare first in my jumper wiring path?"
-msgstr "လၢယ Piper controls အပူၤ တၢ်လဲၤတကျိၤဖျၢၣ်တခါဧိၤ ကမၣ်ဝဲ. လၢယ jumper wiring path အပူၤ ယကြၢးထိၣ်သတြီၤမနုၤခီၣ်ထံးတမံၤလဲၣ်."
+#: services/classhub/hub/services/helper_widget.py:28
+msgid ""
+"Only one movement direction fails on my Piper controls. What should I "
+"compare first in my jumper wiring path?"
+msgstr ""
+"လၢယ Piper controls အပူၤ တၢ်လဲၤတကျိၤဖျၢၣ်တခါဧိၤ ကမၣ်ဝဲ. လၢယ jumper wiring path အပူၤ "
+"ယကြၢးထိၣ်သတြီၤမနုၤခီၣ်ထံးတမံၤလဲၣ်."
 
+#: services/classhub/hub/services/helper_widget.py:32
 msgid "Mouse-only path"
 msgstr "mouse တခီဘိအကျဲ"
 
-msgid "I only have a mouse right now, no keyboard. What is the mouse-first path for this lesson?"
-msgstr "ခဲအံၤ ယအိၣ်ဒၣ်ထဲ mouse တခါ, keyboard တအိၣ်ဘၣ်. တၢ်သိၣ်လိအံၤအဂီၢ် mouse-first path မနုၤလဲၣ်."
+#: services/classhub/hub/services/helper_widget.py:33
+msgid ""
+"I only have a mouse right now, no keyboard. What is the mouse-first path for "
+"this lesson?"
+msgstr ""
+"ခဲအံၤ ယအိၣ်ဒၣ်ထဲ mouse တခါ, keyboard တအိၣ်ဘၣ်. တၢ်သိၣ်လိအံၤအဂီၢ် mouse-first path မနုၤလဲၣ်."
 
+#: services/classhub/hub/services/helper_widget.py:36
 msgid "Upload .sb3 help"
 msgstr ".sb3 upload အတၢ်မၤစၢၤ"
 
-msgid "I finished but cannot find my .sb3 file to upload. Walk me through check -> retest steps."
-msgstr "ယမၤဝံၤလံ ဘၣ်ဆၣ် ယတထံၣ်န့ၢ်ဘၣ် ယ .sb3 file လၢက upload အီၤ. ဆှၢယၤခီဖျိ check -> retest အဆၢကတီၢ်တဖၣ်."
+#: services/classhub/hub/services/helper_widget.py:37
+msgid ""
+"I finished but cannot find my .sb3 file to upload. Walk me through check -> "
+"retest steps."
+msgstr ""
+"ယမၤဝံၤလံ ဘၣ်ဆၣ် ယတထံၣ်န့ၢ်ဘၣ် ယ .sb3 file လၢက upload အီၤ. ဆှၢယၤခီဖျိ check -> retest "
+"အဆၢကတီၢ်တဖၣ်."
 
+#: services/classhub/hub/services/helper_widget.py:42
 msgid "Sprite won't move"
 msgstr "sprite တလဲၤဘၣ်"
 
-msgid "My sprite does not move when I click the green flag. Please give me one Scratch block check at a time."
+#: services/classhub/hub/services/helper_widget.py:43
+msgid ""
+"My sprite does not move when I click the green flag. Please give me one "
+"Scratch block check at a time."
 msgstr "ဖဲယနိး green flag အခါ ယ sprite တလဲၤဘၣ်. ဟ့ၣ်ယၤ Scratch block တၢ်ကွၢ်တမံၤစုာ်စုာ်."
 
+#: services/classhub/hub/services/helper_widget.py:46
 msgid "Backdrop won't change"
 msgstr "backdrop တလီၤလဲၢ်ဘၣ်"
 
-msgid "My backdrop never changes. What is one specific Scratch block check I should do first?"
-msgstr "ယ backdrop တလီၤလဲၢ်နီတဘျီဘၣ်. Scratch block တၢ်ကွၢ်လီၤတံၢ်လီၤဆဲး မနုၤတမံၤ ယကြၢးမၤခီၣ်ထံးလဲၣ်."
+#: services/classhub/hub/services/helper_widget.py:47
+msgid ""
+"My backdrop never changes. What is one specific Scratch block check I should "
+"do first?"
+msgstr ""
+"ယ backdrop တလီၤလဲၢ်နီတဘျီဘၣ်. Scratch block တၢ်ကွၢ်လီၤတံၢ်လီၤဆဲး မနုၤတမံၤ ယကြၢးမၤခီၣ်ထံးလဲၣ်."
 
+#: services/classhub/hub/services/helper_widget.py:50
 msgid "Score not updating"
 msgstr "score တအိၣ်သီထီၣ်ဘၣ်"
 
-msgid "My score is not updating correctly. Help me debug in small steps and retest after each change."
-msgstr "ယ score တအိၣ်သီထီၣ်ဘၣ်လၢအဘၣ်. မၤစၢၤယၤလၢ debug အဆၢကတီၢ်ဖိတဖၣ် ဒီးမၤကဒီးစမ်သပ်ဝံၤအလီၢ်ခံ တၢ်လဲၤလိာ်တမံၤစုာ်စုာ်."
+#: services/classhub/hub/services/helper_widget.py:51
+msgid ""
+"My score is not updating correctly. Help me debug in small steps and retest "
+"after each change."
+msgstr ""
+"ယ score တအိၣ်သီထီၣ်ဘၣ်လၢအဘၣ်. မၤစၢၤယၤလၢ debug အဆၢကတီၢ်ဖိတဖၣ် ဒီးမၤကဒီးစမ်သပ်ဝံၤအလီၢ်ခံ "
+"တၢ်လဲၤလိာ်တမံၤစုာ်စုာ်."
 
+#: services/classhub/hub/services/helper_widget.py:54
 msgid "Game over missing"
 msgstr "game over တအိၣ်ဘၣ်"
 
-msgid "My game over condition does not trigger. Give me one event/broadcast check and then ask me to retest."
-msgstr "ယ game over condition တပာ်ဖျါထီၣ်အသးဘၣ်. ဟ့ၣ်ယၤ event/broadcast တၢ်ကွၢ်တမံၤ ဒီးခ့ယၤလၢ ကမၤကဒီးစမ်သပ်."
+#: services/classhub/hub/services/helper_widget.py:55
+msgid ""
+"My game over condition does not trigger. Give me one event/broadcast check "
+"and then ask me to retest."
+msgstr ""
+"ယ game over condition တပာ်ဖျါထီၣ်အသးဘၣ်. ဟ့ၣ်ယၤ event/broadcast တၢ်ကွၢ်တမံၤ ဒီးခ့ယၤလၢ "
+"ကမၤကဒီးစမ်သပ်."
 
+#: services/classhub/hub/services/helper_widget.py:58
 msgid "Save and upload"
 msgstr "သိမ်းဆည်း ဒီး upload"
 
-msgid "Please walk me through saving my Scratch project as .sb3 and uploading it privately."
+#: services/classhub/hub/services/helper_widget.py:59
+msgid ""
+"Please walk me through saving my Scratch project as .sb3 and uploading it "
+"privately."
 msgstr "မၤစၢၤယၤလၢ ကသိမ်းဆည်းယ Scratch project ဒ် .sb3 အသိး ဒီး upload အီၤလၢခူသူၣ်."
 
+#: services/classhub/hub/services/helper_widget.py:64
 msgid "What is today's goal?"
 msgstr "မုၢ်မဆါတနံၤအတၢ်ပာ်ဖျါ မနုၤလဲၣ်."
 
+#: services/classhub/hub/services/helper_widget.py:65
 msgid "What is the goal for this lesson, and what should be done first?"
 msgstr "တၢ်သိၣ်လိအံၤအတၢ်ပာ်ဖျါ မနုၤလဲၣ် ဒီးကဘၣ်မၤခီၣ်ထံး မနုၤလဲၣ်."
 
+#: services/classhub/hub/services/helper_widget.py:68
 msgid "I am stuck"
 msgstr "ယတၢ်ကီ"
 
-msgid "I am stuck. Ask me one clarifying question, then give me one small next step."
+#: services/classhub/hub/services/helper_widget.py:69
+msgid ""
+"I am stuck. Ask me one clarifying question, then give me one small next step."
 msgstr "ယတၢ်ကီ. သံကွၢ်ယၤတခွံလၢကဒုးသ့ၣ်ညါရှင်း, ဝံၤဒီး ဟ့ၣ်ယၤ ခီတဘိအဆံးတခါ."
 
+#: services/classhub/hub/services/helper_widget.py:72
 msgid "How to ask better"
 msgstr "သံကွၢ်လၢအဂ့ၤဒိၣ်ထီၣ် ဒ်လဲၣ်"
 
-msgid "Help me write a clear help request: what I expected, what happened, and what I already tried."
-msgstr "မၤစၢၤယၤလၢကွဲး တၢ်ဃ့တၢ်မၤစၢၤလၢအသ့ၣ်ညါရှင်း: ယဆိကမိၣ်မနုၤ, တၢ်မၤအသးမနုၤ, ဒီးယလဲၤမၤစမ်းလံမနုၤ."
-
-#
-# Provisional expanded site tranche (AI-assisted)
-#
-
-msgid "Join Class"
-msgstr "နုာ်လီၤတီၤ"
-
-msgid "Skip to main content"
-msgstr "ဃ့ၢ်ကပၤဆူ တၢ်ဂ့ၢ်မိၢ်ပှၢ်"
-
-msgid "Join your class"
-msgstr "နုာ်လီၤလၢ နတီၤ"
-
-msgid "Enter your class code and pick a display name."
-msgstr "ကွဲးထီၣ် နတီၤအကီၢ် ဒီးဃုထၢ နမံၤလၢကဒုးနဲၣ်."
-
-msgid "Enter the class code from your teacher. Pick any display name you like."
-msgstr "ကွဲးထီၣ် တီၤအကီၢ်လၢ နဆရာ/မ အအိၣ်. ဃုထၢမံၤလၢ နသးခုတမံၤမံၤ."
-
-msgid "On shared devices, enter your return code so you do not join as another student."
-msgstr "ဖဲ device လၢ ပှၤသုံးသကိးအီၤအခါ, ကွဲးထီၣ် နက့ၤနုာ်အကီၢ် ဒ်သိးနတနုာ်လီၤဒ် ပှၤမၤလိအဂၤအသိးတဂ့ၤ."
-
-msgid "Same classroom device? You can usually leave return code blank."
-msgstr "မ့ၢ် classroom device တခါဃီဧါ. နပာ်က့ၤ return code လၢအလီၢ်ဟးဂီၤတသ့ၣ်တဘျီန့ၣ်သ့."
-
-msgid "On shared devices, use your own return code to avoid signing in as someone else."
-msgstr "ဖဲ device လၢ ပှၤသုံးသကိးအီၤအခါ, သုံးနက့ၤနုာ်အကီၢ်ဒၣ်နဲ ဒ်သိး နတနုာ်လီၤဒ် ပှၤဂၤအသိးတဂ့ၤ."
-
-msgid "Class code"
-msgstr "တီၤအကီၢ်"
-
-msgid "Your display name"
-msgstr "နမံၤလၢကဒုးနဲၣ်"
-
-msgid "A nickname or made-up name is fine — no need to use your real name."
-msgstr "မံၤဖိ မ့တမ့ၢ် မံၤလၢနဒုးဘၣ်အသးတမံၤန့ၣ် သ့ဝဲ. တလီၤဘၣ်လၢ ကဘၣ်သုံး နမံၤအမှန်တက့ၢ်ဘၣ်."
-
-msgid "Return code (optional)"
-msgstr "က့ၤနုာ်အကီၢ် (သဘျ့)"
-
-msgid "If your class uses icon codes, use the icon keypad below."
-msgstr "မ့ၢ်နတီၤ သုံး icon code တဖၣ်န့ၣ်, သုံး icon keypad လၢအဖီလာ်."
-
-msgid "Show icon keypad"
-msgstr "ဒုးနဲၣ် icon keypad"
-
-msgid "Clear return code"
-msgstr "မၤစှၤကွံာ် က့ၤနုာ်အကီၢ်"
-
-msgid "Return code icon keypad"
-msgstr "က့ၤနုာ်အကီၢ် icon keypad"
-
-msgid "Join class"
-msgstr "နုာ်လီၤတီၤ"
-
-msgid "Privacy at a glance:"
-msgstr "တၢ်ခူသူၣ် တၢ်ကွၢ်ဖျါတဘျီ:"
-
-msgid "We store your display name, class submissions, and event timestamps."
-msgstr "ပသိမ်းဆည်း နမံၤလၢကဒုးနဲၣ်, class submission တဖၣ်, ဒီး event timestamp တဖၣ်."
-
-msgid "Storage location: %(location)s"
-msgstr "တၢ်သိမ်းဆည်းအလီၢ်: %(location)s"
-
-msgid "Retention:"
-msgstr "တၢ်သိမ်းအဆၢကတီၢ်:"
-
-msgid "submissions are kept up to %(counter)s day unless deleted sooner."
-msgid_plural "submissions are kept up to %(counter)s days unless deleted sooner."
-msgstr[0] "submission တဖၣ် ဘၣ်တၢ်သိမ်းဆည်းအီၤ တုၤ %(counter)s သီ, ဖဲတဘၣ်ဖျီၣ်ကွံာ်အီၤအဆိတဒံးဘၣ်."
-
-msgid "submissions stay until a teacher or admin removes them."
-msgstr "submission တဖၣ် အိၣ်ဆိးတုၤ ဆရာ/မ မ့တမ့ၢ် admin ဖျီၣ်ကွံာ်အီၤ."
-
-msgid "Delete now: after joining, open <a href=\"/student/my-data\">My Data</a> to delete your work or end this device session."
-msgstr "ဖျီၣ်ကွံာ်ခဲအံၤ: ဖဲနနုာ်လီၤဝံၤအလီၢ်ခံ, အိးထီၣ် <a href=\"/student/my-data\">ယ Data</a> ဒ်သိးကဖျီၣ်ကွံာ် နတၢ်မၤ မ့တမ့ၢ် မၤဝံၤ device session အံၤ."
-
-msgid "Teacher? Use <a href=\"/teach\">/teach</a>."
-msgstr "မ့ၢ်ဆရာ/မဧါ. သုံး <a href=\"/teach\">/teach</a>."
-
-msgid "Teacher Login"
-msgstr "ဆရာ/မ အတၢ်နုာ်လီၤ"
-
-msgid "Home"
-msgstr "အခီၣ်ထံး"
-
-msgid "Sign in to your account"
-msgstr "နုာ်လီၤဆူ န account"
-
-msgid "Log in"
-msgstr "နုာ်လီၤ"
-
-msgid "Language"
-msgstr "ကျိာ်"
-
-msgid "Switch"
-msgstr "လဲၤလိာ်"
-
-msgid "That invite link is not valid."
-msgstr "invite link အံၤ တဘၣ်ဝဲဘၣ်."
-
-msgid "That invite link has been disabled."
-msgstr "invite link အံၤ ဘၣ်တၢ်ပတုာ်အီၤလံ."
-
-msgid "That invite link has expired."
-msgstr "invite link အံၤ အဆၢကတီၢ်လဲၤပူၤလံ."
-
-msgid "This invite is full right now. Ask your teacher for a new invite link."
-msgstr "invite အံၤ ပှဲၤလံခဲအံၤ. ဃ့နဆရာ/မ လၢ invite link အသီတခါ."
-
-msgid "That invite link is not usable right now."
-msgstr "invite link အံၤ သုံးတသ့ဒံးဘၣ် ခဲအံၤ."
-
-msgid "That looks like an email address. Please use a nickname or display name instead."
-msgstr "အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် email address အသိး. သုံးမံၤဖိ မ့တမ့ၢ် မံၤလၢကဒုးနဲၣ်အီၤတက့ၢ်."
-
-msgid "That looks like a phone number. Please use a nickname or display name instead."
-msgstr "အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် phone number အသိး. သုံးမံၤဖိ မ့တမ့ၢ် မံၤလၢကဒုးနဲၣ်အီၤတက့ၢ်."
-
-msgid "Please use a nickname or display name instead of personal information."
-msgstr "သုံးမံၤဖိ မ့တမ့ၢ် မံၤလၢကဒုးနဲၣ်အီၤ, အလီၢ်တခါလၢ personal information တက့ၢ်."
-
-msgid "Heads-up: that looks like an email address. A nickname is safer."
-msgstr "သ့ၣ်ညါတက့ၢ်: အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် email address အသိး. မံၤဖိတမံၤ ပူၤဖျဲးဒိၣ်ထီၣ်."
-
-msgid "Heads-up: that looks like a phone number. A nickname is safer."
-msgstr "သ့ၣ်ညါတက့ၢ်: အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် phone number အသိး. မံၤဖိတမံၤ ပူၤဖျဲးဒိၣ်ထီၣ်."
-
-msgid "Consider using a nickname instead of personal information."
-msgstr "ဆိကမိၣ်သုံး မံၤဖိတမံၤ အလီၢ်တခါလၢ personal information တက့ၢ်."
-
-msgid "You are joining <strong>%(class_name)s</strong> by invite link."
-msgstr "နကနုာ်လီၤဆူ <strong>%(class_name)s</strong> ခီဖျိ invite link."
-
-msgid "Storage location:"
-msgstr "တၢ်သိမ်းဆည်းအလီၢ်:"
-
-msgid "day(s). Deleted sooner on request."
-msgstr "သီ. မ့ၢ်ဃ့န့ၣ် ဖျီၣ်ကွံာ်အဆိသ့."
-
-msgid "Delete now:"
-msgstr "ဖျီၣ်ကွံာ်ခဲအံၤ:"
-
-msgid "My Data"
-msgstr "ယ Data"
-
-msgid "delete your work or end session."
-msgstr "ဖျီၣ်ကွံာ် နတၢ်မၤ မ့တမ့ၢ် မၤဝံၤ session."
-
-msgid "Student home"
-msgstr "ပှၤမၤလိ အခီၣ်ထံး"
-
-msgid "Join page"
-msgstr "နုာ်လီၤအလံာ်ကဘျံး"
-
-msgid "Export my portfolio"
-msgstr "ထုးထီၣ်ယ portfolio"
-
-msgid "Privacy"
-msgstr "တၢ်ခူသူၣ်"
-
-msgid "Signed in as"
-msgstr "နုာ်လီၤဒ်"
-
-msgid "Code"
-msgstr "ကီၢ်"
-
-msgid "Copy class code"
-msgstr "ကူးယူ တီၤအကီၢ်"
-
-msgid "Your return code:"
-msgstr "နက့ၤနုာ်အကီၢ်:"
-
-msgid "Show return code"
-msgstr "ဒုးနဲၣ် က့ၤနုာ်အကီၢ်"
-
-msgid "Hide return code"
-msgstr "ခူသူၣ် က့ၤနုာ်အကီၢ်"
-
-msgid "Show"
-msgstr "ဒုးနဲၣ်"
-
-msgid "Copy return code"
-msgstr "ကူးယူ က့ၤနုာ်အကီၢ်"
-
-msgid "for rejoin"
-msgstr "လၢကနုာ်လီၤက့ၤ"
-
-msgid "Log out"
-msgstr "ထးလီၤ"
-
-msgid "This week"
-msgstr "တနွံအံၤ"
-
-msgid "This week's highlighted lesson"
-msgstr "တနွံအံၤ အတၢ်သိၣ်လိလၢ ဘၣ်တၢ်ဒုးဖျါထီၣ်"
-
-msgid "Highlighted lesson"
-msgstr "တၢ်သိၣ်လိလၢ ဘၣ်တၢ်ဒုးဖျါထီၣ်"
-
-msgid "Start this week's lesson"
-msgstr "စးထီၣ် တနွံအံၤအတၢ်သိၣ်လိ"
-
-msgid "Locked"
-msgstr "ဘၣ်ကး"
-
-msgid "Open"
-msgstr "အိးထီၣ်"
-
-msgid "No calendar-linked lessons yet. Ask your teacher when your first lesson opens."
-msgstr "calendar-linked lesson တဖၣ် တအိၣ်ဒံးဘၣ်. ဃ့နဆရာ/မ လၢ နတၢ်သိၣ်လိခီၣ်ထံး ကအိးထီၣ်ဖဲလဲၣ်."
-
-msgid "Course links"
-msgstr "Course link တဖၣ်"
-
-msgid "View full course lesson links"
-msgstr "ကွၢ် course lesson link အကုာ်အစၢၤ"
-
-msgid "Course lesson links will appear here after your teacher connects a course."
-msgstr "ဖဲနဆရာ/မ ဆဲးကျိး course တခါဝံၤအလီၢ်ခံ, course lesson link တဖၣ် ကပာ်ဖျါထီၣ်ဖဲအံၤ."
-
-msgid "How to tell you are done"
-msgstr "သ့ၣ်ညါဒ်လဲၣ်လၢ နမၤဝံၤလံ"
-
-msgid "Open lesson"
-msgstr "အိးထီၣ် lesson"
-
-msgid "Upload / view submissions"
-msgstr "Upload / ကွၢ် submissions"
-
-msgid "Upload / manage gallery"
-msgstr "Upload / ခၢၣ်စး gallery"
-
-msgid "Save checklist"
-msgstr "သိမ်းဆည်း checklist"
-
-msgid "Save reflection"
-msgstr "သိမ်းဆည်း reflection"
-
-msgid "Save rubric"
-msgstr "သိမ်းဆည်း rubric"
-
-msgid "Account"
-msgstr "Account"
-
-msgid "End my session on this device"
-msgstr "မၤဝံၤ ယ session လၢ device အံၤ"
-
-msgid "Studio handles"
-msgstr "Studio handle တဖၣ်"
-
-msgid "highlighted"
-msgstr "ဘၣ်တၢ်ဒုးဖျါထီၣ်"
-
-msgid "Advanced mode keeps core controls visible for autonomy and accountability."
-msgstr "Advanced mode ဒုးအိၣ်ထီၣ် core control တဖၣ် လၢကထံၣ်ဘၣ်အီၤ ဒ်သိးတၢ်မၤန့ၢ်သဒၣ်ဒၣ် ဒီး တၢ်ယူၢ်ယီၣ်တၢ်ကတာ် အဂီၢ်."
-
-msgid "Export portfolio snapshot"
-msgstr "ထုးထီၣ် portfolio snapshot"
-
-msgid "Rubric links"
-msgstr "Rubric link တဖၣ်"
-
-msgid "Gallery share toggles"
-msgstr "Gallery share toggle တဖၣ်"
-
-msgid "Done"
-msgstr "ဝံၤလံ"
-
-msgid "saved"
-msgstr "ဘၣ်သိမ်းဆည်းလံ"
-
-msgid "do now"
-msgstr "မၤခဲအံၤ"
-
-msgid "wait"
-msgstr "ခီၣ်ဆၢ"
-
-msgid "saved and reviewable"
-msgstr "ဘၣ်သိမ်းဆည်းလံ ဒီးကွၢ်ကဒါက့ၤသ့"
-
-msgid "active now"
-msgstr "မၤတၢ်ခဲအံၤ"
-
-msgid "date-gated"
-msgstr "ဘၣ်တၢ်ပာ်ကးလၢ မုၢ်နံၤ"
-
-msgid "Studio accountability: add design-log notes, a short changelog, and release notes for finished builds."
-msgstr "Studio accountability: ထံၣ်နုာ် design-log note တဖၣ်, changelog အဖုၣ်တခါ, ဒီး release note တဖၣ် လၢ build လၢဝံၤလံအဂီၢ်."
-
-msgid "saved and visible"
-msgstr "ဘၣ်သိမ်းဆည်းလံ ဒီးထံၣ်ဘၣ်သ့"
-
-msgid "ready now"
-msgstr "အသင့်ခဲအံၤ"
-
-msgid "opens on date shown"
-msgstr "အိးထီၣ်ဖဲ မုၢ်နံၤလၢဘၣ်တၢ်ဒုးနဲၣ်"
-
-msgid "Preview intro-only page"
-msgstr "ကွၢ်တခီ intro-only page"
-
-msgid "Full lesson unlocks on <strong>{{ open_date }}</strong>."
-msgstr "lesson အကုာ်အစၢၤ ကအိးလီၤဖဲ <strong>{{ open_date }}</strong>."
-
-msgid "Accepted: {{ exts }} · Max {{ max_mb }}MB"
-msgstr "ပာ်တၢ်မၤအါ: {{ exts }} · အဒိၣ်ကတၢၢ် {{ max_mb }}MB"
-
-msgid "Submissions open on <strong>{{ open_date }}</strong>."
-msgstr "submission တဖၣ် ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
-
-msgid "· {{ upload_count }} uploaded (latest saved)"
-msgstr "· {{ upload_count }} ဘၣ် upload လံ (လၢခံကတၢၢ် ဘၣ်သိမ်းဆည်းလံ)"
-
-msgid "Gallery opens on <strong>{{ open_date }}</strong>."
-msgstr "gallery ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
-
-msgid "· {{ upload_count }} uploaded"
-msgstr "· {{ upload_count }} ဘၣ် upload လံ"
-
-msgid "Shared gallery"
-msgstr "gallery လၢဘၣ်တၢ်သန့ၤ"
-
-msgid "you"
-msgstr "နၤ"
-
-msgid "Checklist opens on <strong>{{ open_date }}</strong>."
-msgstr "checklist ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
-
-msgid "Review checklist"
-msgstr "ကွၢ်ကဒါ checklist"
-
-msgid "Open checklist"
-msgstr "အိးထီၣ် checklist"
-
-msgid "Checklist has no items yet."
-msgstr "checklist အဂ့ၢ်တဖၣ် တအိၣ်ဒံးဘၣ်."
-
-msgid "Reflection opens on <strong>{{ open_date }}</strong>."
-msgstr "reflection ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
-
-msgid "Design log prompt: note what you changed, why you changed it, and what evidence shows improvement."
-msgstr "Design log prompt: ကွဲးမှတ်မနုၤလၢနလဲၤလိာ်, ဘာလၢနလဲၤလိာ်အီၤ, ဒီး တၢ်အုၣ်ကီၤလၢအဒုးနဲၣ်တၢ်ဂ့ၤထီၣ်."
-
-msgid "Review reflection"
-msgstr "ကွၢ်ကဒါ reflection"
-
-msgid "Open reflection"
-msgstr "အိးထီၣ် reflection"
-
-msgid "Your private reflection"
-msgstr "န reflection လၢခူသူၣ်"
-
-msgid "Write a short reflection."
-msgstr "ကွဲး reflection အဖုၣ်တခါ."
-
-msgid "Rubric opens on <strong>{{ open_date }}</strong>."
-msgstr "rubric ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
-
-msgid "Review rubric"
-msgstr "ကွၢ်ကဒါ rubric"
-
-msgid "Open rubric"
-msgstr "အိးထီၣ် rubric"
-
-msgid "Rate each criterion from 1 to {{ scale_max }}."
-msgstr "ဟ့ၣ်အမှတ် criterion တဘျီစုာ်စုာ် လၢ 1 တုၤ {{ scale_max }}."
-
-msgid "Studio expectation: scores should line up with your changelog and release-note claims."
-msgstr "Studio expectation: score တဖၣ် ကြၢးဆီလီၤပာ်ဖှိၣ်ဒီး န changelog ဒီး release-note အတၢ်စံး."
-
-msgid "Not scored"
-msgstr "တဟ့ၣ်အမှတ်ဒံးဘၣ်"
-
-msgid "Optional feedback"
-msgstr "feedback လၢသဘျ့"
-
-msgid "Short note to your teacher (optional)."
+#: services/classhub/hub/services/helper_widget.py:73
+msgid ""
+"Help me write a clear help request: what I expected, what happened, and what "
+"I already tried."
+msgstr ""
+"မၤစၢၤယၤလၢကွဲး တၢ်ဃ့တၢ်မၤစၢၤလၢအသ့ၣ်ညါရှင်း: ယဆိကမိၣ်မနုၤ, တၢ်မၤအသးမနုၤ, ဒီးယလဲၤမၤစမ်းလံမနုၤ."
+
+#: services/classhub/hub/services/student_home.py:63
+#: services/classhub/hub/services/student_home.py:65
+#: services/classhub/hub/views/content.py:62
+#: services/classhub/hub/views/content.py:64
+msgid "Private remote model"
+msgstr "Private remote model"
+
+#: services/classhub/hub/services/student_home.py:67
+#: services/classhub/hub/views/content.py:66
+msgid "Local model (Ollama)"
+msgstr "Local model (Ollama)"
+
+#: services/classhub/hub/services/student_home.py:69
+#: services/classhub/hub/views/content.py:68
+msgid "Mock model (Test mode)"
+msgstr "Mock model (Test mode)"
+
+#: services/classhub/hub/services/student_home.py:70
+#: services/classhub/hub/views/content.py:69
+msgid "Model backend (Unknown)"
+msgstr "Model backend (Unknown)"
+
+#: services/classhub/hub/views/content.py:261
+msgid ""
+"Need a hint for this lesson? Ask the helper to guide you without handing out "
+"answers."
+msgstr ""
+
+#: services/classhub/hub/views/content.py:263
+#: services/classhub/hub/views/student.py:108
+msgid "Need help? Ask for one small next step at a time."
+msgstr "Need help? Ask for one small next step at a time."
+
+#: services/classhub/hub/views/content.py:265
+msgid ""
+"Ask for strategy, debugging, or extension ideas without asking for direct "
+"answers."
+msgstr ""
+
+#: services/classhub/hub/views/content.py:269
+#, fuzzy
+#| msgid "Open helper"
+msgid "Lesson helper"
+msgstr "အိးထီၣ် တၢ်မၤစၢၤ"
+
+#: services/classhub/hub/views/student.py:106
+msgid ""
+"This is a Day-1 wire-up. It will become smarter once it can cite your class "
+"materials."
+msgstr ""
+
+#: services/classhub/hub/views/student.py:110
+msgid ""
+"Use studio mode: ask for strategy, code-reading checks, and release-quality "
+"feedback."
+msgstr ""
+
+#: services/classhub/hub/views/student.py:116
+#, fuzzy
+#| msgid "Class setup"
+msgid "Class helper"
+msgstr "class setup"
+
+#: services/classhub/hub/views/student.py:253
+#, fuzzy
+#| msgid "Short note to your teacher (optional)."
+msgid "Deletion request sent to your teacher."
 msgstr "note အဖုၣ်တခါဆူ နဆရာ/မ (သဘျ့)."
 
-msgid "Rubric criteria not configured yet."
-msgstr "rubric criteria တဖၣ် တဘၣ်တၢ်ကတီၤဒံးဘၣ်."
-
-msgid "Empty material — teacher will fill this in."
-msgstr "material အလီၢ်ဟးဂီၤ — ဆရာ/မ ကမၤပှဲၤအီၤ."
-
-msgid "No materials yet."
-msgstr "material တဖၣ် တအိၣ်ဒံးဘၣ်."
-
-msgid "No modules yet. A teacher/admin can add them in /admin."
-msgstr "module တဖၣ် တအိၣ်ဒံးဘၣ်. ဆရာ/မ မ့တမ့ၢ် admin တယောက် ကထံၣ်နုာ်အီၤဖဲ /admin သ့."
-
-msgid "Open My Data for account controls."
-msgstr "အိးထီၣ် ယ Data လၢ account control အဂီၢ်."
-
-msgid "Open My Data"
-msgstr "အိးထီၣ် ယ Data"
-
-msgid "Manage account + device data."
-msgstr "ခၢၣ်စး account + device data."
-
-msgid "What I made"
-msgstr "တၢ်လၢယမၤ"
-
-msgid "Session gallery"
-msgstr "session gallery"
-
-msgid "Quick check-in"
-msgstr "check-in အချ့"
-
-msgid "Share how this session feels right now. These signals help your facilitator support you."
-msgstr "ပာ်ဖျါဒ်လဲၣ်လၢ session အံၤ ခံစားခဲအံၤ. signal တဖၣ်အံၤ မၤစၢၤ န facilitator လၢကထံၣ်စၢၤနၤ."
-
-msgid "I can do this"
-msgstr "ယမၤအီၤသ့"
-
-msgid "I'm stuck"
-msgstr "ယတၢ်ကီ"
-
-msgid "I taught someone"
-msgstr "ယသိၣ်လိ ပှၤတဂၤ"
-
-msgid "Last check-in:"
-msgstr "check-in လၢခံကတၢၢ်:"
-
-msgid "Class return image"
-msgstr "တီၤအတၢ်က့ၤဟဲ image"
-
-msgid "Return image: look for this picture when you come back to class."
-msgstr "က့ၤဟဲ image: ဖဲနဟဲက့ၤဆူတီၤအခါ, ဃုကွၢ်ပနီၣ်အံၤ."
-
-msgid "Enable kiosk mode"
-msgstr "ဒုးမၤတၢ် kiosk mode"
-
-msgid "Exit kiosk mode"
-msgstr "ဟးထီၣ် kiosk mode"
-
-msgid "Kiosk mode keeps navigation inside the student class flow."
-msgstr "kiosk mode ဒုးအိၣ် navigation လၢ student class flow အပူၤ."
-
-msgid "Hide"
-msgstr "ခူသူၣ်"
-
-msgid "Return code hidden."
-msgstr "က့ၤနုာ်အကီၢ် ဘၣ်တၢ်ခူသူၣ်အီၤလံ."
-
-msgid "Return code shown."
-msgstr "က့ၤနုာ်အကီၢ် ဘၣ်တၢ်ဒုးနဲၣ်အီၤလံ."
-
-msgid "Could not load return code. Refresh and try again."
-msgstr "က့ၤနုာ်အကီၢ် မၤလိာ်တတီၤဘၣ်. refresh မၤကဒီး ဒီးစမ်းကွၢ်ကဒီး."
-
-msgid "Copied to clipboard."
-msgstr "ကူးယူဆူ clipboard လံ."
-
-msgid "Copy failed. Please copy manually."
-msgstr "ကူးယူတအောင်မြင်ဘၣ်. ကူးယူလၢစုတက့ၢ်."
-
-msgid "Sentence starter added."
-msgstr "sentence starter ဘၣ်တၢ်ထံၣ်နုာ်လံ."
-
-msgid "Sentence starters (optional)"
-msgstr "sentence starter တဖၣ် (သဘျ့)"
-
-msgid "Icon code: "
-msgstr "icon code: "
-
-msgid "Trust notes"
-msgstr "trust note တဖၣ်"
-
-msgid "Classes"
-msgstr "တီၤတဖၣ်"
-
-msgid "Start here: open class, share join code, then review submissions. Assigned classes appear first."
-msgstr "စးထီၣ်ဖဲအံၤ: အိးထီၣ်တီၤ, သန့ၤ join code, ဝံၤဒီး ကွၢ်ကဒါ submission တဖၣ်. တီၤလၢဘၣ်တၢ်ဟ့ၣ်လီၤအီၤ ကပာ်ဖျါထီၣ်ခီၣ်ထံး."
-
-msgid "Classes available in the teacher portal"
-msgstr "တီၤတဖၣ်လၢသုံးသ့ဖဲ teacher portal"
-
-msgid "Class"
-msgstr "တီၤ"
-
-msgid "Join code"
-msgstr "နုာ်လီၤအကီၢ်"
-
-msgid "Actions"
-msgstr "တၢ်မၤတဖၣ်"
-
-msgid "Assigned"
-msgstr "ဘၣ်တၢ်ဟ့ၣ်လီၤအီၤ"
-
-msgid "Copy"
-msgstr "ကူးယူ"
-
-msgid "Open class"
-msgstr "အိးထီၣ်တီၤ"
-
-msgid "Lesson tracker"
-msgstr "lesson tracker"
-
-msgid "Print join card"
-msgstr "ထုတ္ join card"
-
-msgid "Assign teacher"
-msgstr "ဟ့ၣ်လီၤ ဆရာ/မ"
-
-msgid "Set organization"
-msgstr "ပာ်လီၤ organization"
-
-msgid "No classes yet."
-msgstr "တီၤတဖၣ် တအိၣ်ဒံးဘၣ်."
-
-msgid "What Changed Since Yesterday"
-msgstr "လၢမဟါတနံၤလၢခံ တၢ်လဲၤလိာ်မနုၤတဖၣ်"
-
-msgid "Window started %(window_start)s"
-msgstr "window စးထီၣ် %(window_start)s"
-
-msgid "Daily class activity digest"
-msgstr "တနံၤတနံၤ class activity digest"
-
-msgid "New students"
-msgstr "ပှၤမၤလိအသီတဖၣ်"
-
-msgid "Uploads"
-msgstr "upload တဖၣ်"
-
-msgid "Helper chats"
-msgstr "helper chat တဖၣ်"
-
-msgid "Need first upload"
-msgstr "လိၣ်ဘၣ် upload ခီၣ်ထံး"
-
-msgid "Last upload"
-msgstr "upload လၢခံကတၢၢ်"
-
-msgid "No uploads yet"
-msgstr "upload တဖၣ် တအိၣ်ဒံးဘၣ်"
-
-msgid "End-of-Class Closeout"
-msgstr "တီၤဝံၤ closeout"
-
-msgid "Keep this collapsed until you need actions."
-msgstr "ပာ်အီၤလၢအဘၣ်ခီၣ်ဆၢတုၤ နလိၣ်ဘၣ် action တဖၣ်."
-
-msgid "%(class_name)s · %(student_total)s students"
-msgstr "%(class_name)s · ပှၤမၤလိ %(student_total)s ယောက်"
-
-msgid "%(pending_count)s still need a first upload."
-msgstr "%(pending_count)s ယောက် လိၣ်ဘၣ်ဒံး upload ခီၣ်ထံးတခါ."
-
-msgid "Class already locked"
-msgstr "တီၤ ဘၣ်ကးလံ"
-
-msgid "Lock class"
-msgstr "ကးတီၤ"
-
-msgid "Export today's submissions"
-msgstr "ထုးထီၣ် မုၢ်မဆါတနံၤအ submission တဖၣ်"
-
-msgid "Recent submissions"
-msgstr "submission အသီတဖၣ်"
-
-msgid "Latest uploads across all classes"
-msgstr "upload လၢခံကတၢၢ် လၢတီၤခဲလၢာ်အပူၤ"
-
-msgid "Recent submissions across classes"
-msgstr "submission အသီတဖၣ် လၢတီၤတဖၣ်အကျါ"
-
-msgid "Review submissions"
-msgstr "ကွၢ်ကဒါ submission တဖၣ်"
-
-msgid "Back to class"
-msgstr "က့ၤကဒါဆူတီၤ"
-
-msgid "Privacy at a glance"
-msgstr "တၢ်ခူသူၣ် တၢ်ကွၢ်ဖျါတဘျီ"
-
-msgid "Stored data: your display name, submissions, and class event timestamps."
-msgstr "data လၢဘၣ်တၢ်သိမ်းဆည်း: နမံၤလၢကဒုးနဲၣ်, submission တဖၣ်, ဒီး class event timestamp တဖၣ်."
-
-msgid "Download my work"
-msgstr "ဒုးလီၤကလ့ၣ် ယတၢ်မၤ"
-
-msgid "Delete all of your submissions now?"
-msgstr "ဖျီၣ်ကွံာ် န submission ခဲလၢာ်ခဲအံၤဧါ."
-
-msgid "Delete my work now"
-msgstr "ဖျီၣ်ကွံာ် ယတၢ်မၤခဲအံၤ"
-
-msgid "My submissions"
-msgstr "ယ submission တဖၣ်"
-
-msgid "When"
-msgstr "ဖဲလဲၣ်"
-
-msgid "Module"
-msgstr "module"
-
-msgid "Material"
-msgstr "material"
-
-msgid "File"
-msgstr "file"
-
-msgid "Download"
-msgstr "ဒုးလီၤကလ့ၣ်"
-
-msgid "No submissions stored yet."
-msgstr "submission တဖၣ် တဘၣ်သိမ်းဆည်းဒံးဘၣ်."
-
-msgid "Storage location: this server is hosted locally by your school or organization."
-msgstr "တၢ်သိမ်းဆည်းအလီၢ်: server အံၤ ဘၣ်တၢ်host အီၤ လၢနကျောင်း မ့တမ့ၢ် organization အပူၤ."
-
-msgid "No tracking. No ads. No data broker sharing."
-msgstr "tracking တအိၣ်ဘၣ်. ads တအိၣ်ဘၣ်. data broker sharing တအိၣ်ဘၣ်."
-
-msgid "Stored submissions for %(student_name)s"
-msgstr "submission လၢဘၣ်တၢ်သိမ်းဆည်းအီၤ လၢ %(student_name)s အဂီၢ်"
-
-msgid "Filters"
-msgstr "filter တဖၣ်"
-
+#: services/classhub/hub/views/student.py:280
+#, python-format
+msgid ""
+"Deleted %(submissions)s submission(s), %(events)s class event record(s), and "
+"%(outcomes)s outcome record(s)."
+msgstr ""
+
+#: services/classhub/hub/views/student_artifacts.py:63
+#: services/classhub/hub/views/student_artifacts.py:70
+msgid "Tombstoned"
+msgstr "Tombstoned"
+
+#: services/classhub/hub/views/student_artifacts.py:65
+#: services/classhub/hub/views/student_artifacts.py:70
+#: services/classhub/templates/student_portfolio.html:62
 msgid "Available"
 msgstr "သုံးသ့"
 
-msgid "%(display_name)s Portfolio"
-msgstr "%(display_name)s အ portfolio"
+#: services/classhub/hub/views/student_artifacts.py:134
+msgid "Removed from gallery."
+msgstr "Removed from gallery."
 
-msgid "%(display_name)s Portfolio Export"
-msgstr "%(display_name)s အ portfolio export"
+#: services/classhub/hub/views/student_artifacts.py:136
+#, fuzzy
+#| msgid "Shared gallery"
+msgid "Published to gallery."
+msgstr "gallery လၢဘၣ်တၢ်သန့ၤ"
 
-msgid "Class: %(classroom_name)s"
-msgstr "တီၤ: %(classroom_name)s"
+#: services/classhub/hub/views/student_artifacts.py:137
+msgid "Published. Waiting for teacher approval."
+msgstr "Published. Waiting for teacher approval."
 
-msgid "Generated: %(generated_at)s"
-msgstr "ဘၣ်တၢ်ထုးထီၣ်: %(generated_at)s"
+#: services/classhub/hub/views/student_artifacts.py:279
+msgid "Session gallery is disabled by your teacher."
+msgstr "Session gallery is disabled by your teacher."
 
-msgid "Submissions: %(included_count)s included / %(submission_count)s total"
-msgstr "submission တဖၣ်: %(included_count)s ဘၣ်တၢ်ပာ်ဃုာ် / %(submission_count)s ခဲလၢာ်"
+#: services/classhub/hub/views/student_identity.py:24
+msgid "Display name cannot be empty."
+msgstr "Display name cannot be empty."
 
-msgid "Submission export rows for %(display_name)s"
-msgstr "submission export row တဖၣ် လၢ %(display_name)s အဂီၢ်"
+#: services/classhub/hub/views/student_identity.py:28
+msgid "Display name unchanged."
+msgstr "Display name unchanged."
 
-msgid "Original file"
-msgstr "file မူဒါခီၣ်ထံး"
+#: services/classhub/hub/views/student_identity.py:37
+#: services/classhub/hub/views/student_join.py:235
+msgid ""
+"That looks like an email address. Please use a nickname or display name "
+"instead."
+msgstr "အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် email address အသိး. သုံးမံၤဖိ မ့တမ့ၢ် မံၤလၢကဒုးနဲၣ်အီၤတက့ၢ်."
 
-msgid "Archive path"
-msgstr "archive path"
+#: services/classhub/hub/views/student_identity.py:38
+#: services/classhub/hub/views/student_join.py:236
+msgid ""
+"That looks like a phone number. Please use a nickname or display name "
+"instead."
+msgstr "အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် phone number အသိး. သုံးမံၤဖိ မ့တမ့ၢ် မံၤလၢကဒုးနဲၣ်အီၤတက့ၢ်."
 
-msgid "Status"
-msgstr "အပတီၢ်"
+#: services/classhub/hub/views/student_identity.py:39
+#: services/classhub/hub/views/student_join.py:237
+#: services/classhub/templates/student_join.html:32
+msgid "Please use a nickname or display name instead of personal information."
+msgstr "သုံးမံၤဖိ မ့တမ့ၢ် မံၤလၢကဒုးနဲၣ်အီၤ, အလီၢ်တခါလၢ personal information တက့ၢ်."
 
-msgid "Note"
-msgstr "note"
+#: services/classhub/hub/views/student_identity.py:61
+msgid "Display name updated."
+msgstr "Display name updated."
 
-msgid "Included"
-msgstr "ဘၣ်တၢ်ပာ်ဃုာ်"
+#: services/classhub/hub/views/student_identity.py:64
+#, fuzzy
+#| msgid "Heads-up: that looks like an email address. A nickname is safer."
+msgid "Heads-up: this looks like an email address. A nickname is safer."
+msgstr "သ့ၣ်ညါတက့ၢ်: အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် email address အသိး. မံၤဖိတမံၤ ပူၤဖျဲးဒိၣ်ထီၣ်."
 
-msgid "Missing source file"
-msgstr "source file လီၤမၢ်"
+#: services/classhub/hub/views/student_identity.py:65
+#, fuzzy
+#| msgid "Heads-up: that looks like a phone number. A nickname is safer."
+msgid "Heads-up: this looks like a phone number. A nickname is safer."
+msgstr "သ့ၣ်ညါတက့ၢ်: အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် phone number အသိး. မံၤဖိတမံၤ ပူၤဖျဲးဒိၣ်ထီၣ်."
 
-msgid "No submissions yet."
-msgstr "submission တဖၣ် တအိၣ်ဒံးဘၣ်."
+#: services/classhub/hub/views/student_identity.py:66
+#: services/classhub/hub/views/student_join.py:243
+msgid "Consider using a nickname instead of personal information."
+msgstr "ဆိကမိၣ်သုံး မံၤဖိတမံၤ အလီၢ်တခါလၢ personal information တက့ၢ်."
 
-msgid "Privacy Information"
-msgstr "တၢ်ခူသူၣ် အတၢ်ဂ့ၢ်"
+#: services/classhub/hub/views/student_join.py:241
+msgid "Heads-up: that looks like an email address. A nickname is safer."
+msgstr "သ့ၣ်ညါတက့ၢ်: အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် email address အသိး. မံၤဖိတမံၤ ပူၤဖျဲးဒိၣ်ထီၣ်."
 
-msgid "How we handle your data on"
-msgstr "ပခၢၣ်စး န data ဒ်လဲၣ် ဖဲ"
+#: services/classhub/hub/views/student_join.py:242
+msgid "Heads-up: that looks like a phone number. A nickname is safer."
+msgstr "သ့ၣ်ညါတက့ၢ်: အဝဲန့ၣ် ထံၣ်လီၤအသးဒ် phone number အသိး. မံၤဖိတမံၤ ပူၤဖျဲးဒိၣ်ထီၣ်."
 
-msgid "1. What data is collected"
-msgstr "1. data လၢဘၣ်တၢ်ပာ်ဖှိၣ်"
+#: services/classhub/hub/views/student_join_landing.py:17
+#: services/classhub/templates/student_join.html:33
+msgid "That invite link is not valid."
+msgstr "invite link အံၤ တဘၣ်ဝဲဘၣ်."
 
-msgid "We design this platform to collect as little about you as possible."
-msgstr "ပမၤကတီၤ platform အံၤ ဒ်သိးကပာ်ဖှိၣ် တၢ်အဂ့ၢ်လၢနၤ အဆံးကတၢၢ်သ့."
+#: services/classhub/hub/views/student_join_landing.py:18
+msgid "That invite link has been disabled."
+msgstr "invite link အံၤ ဘၣ်တၢ်ပတုာ်အီၤလံ."
 
-msgid "Don't upload sensitive documents"
-msgstr "တ upload sensitive document တဂ့ၤ"
+#: services/classhub/hub/views/student_join_landing.py:19
+#: services/classhub/templates/student_join.html:35
+msgid "That invite link has expired."
+msgstr "invite link အံၤ အဆၢကတီၢ်လဲၤပူၤလံ."
 
-msgid "2. How to export or delete your work"
-msgstr "2. ထုးထီၣ် မ့တမ့ၢ် ဖျီၣ်ကွံာ် နတၢ်မၤ ဒ်လဲၣ်"
+#: services/classhub/hub/views/student_join_landing.py:20
+#: services/classhub/templates/student_join.html:36
+msgid "This invite is full right now. Ask your teacher for a new invite link."
+msgstr "invite အံၤ ပှဲၤလံခဲအံၤ. ဃ့နဆရာ/မ လၢ invite link အသီတခါ."
 
-msgid "You own your artifacts. While in an active session, you can export or delete your files at any time."
-msgstr "နပၢန artifact တဖၣ်. ဖဲနအိၣ်လၢ active session အပူၤန့ၣ်, နထုးထီၣ် မ့တမ့ၢ် ဖျီၣ်ကွံာ် န file တဖၣ်သ့ ဖဲအဆၢကတီၢ်ခဲလၢာ်."
+#: services/classhub/hub/views/student_join_landing.py:22
+msgid "That invite link is not usable right now."
+msgstr "invite link အံၤ သုံးတသ့ဒံးဘၣ် ခဲအံၤ."
 
-msgid "3. What gets deleted and when"
-msgstr "3. ဘာတဖၣ်ကဘၣ်ဖျီၣ်ကွံာ် ဒီးဖဲလဲၣ်"
+#: services/classhub/hub/views/student_micro_checks.py:24
+#: services/classhub/templates/student_class.html:189
+msgid "I can do this"
+msgstr "ယမၤအီၤသ့"
 
-msgid "We don't hold on to your data forever."
-msgstr "ပတသိမ်းဆည်း န data တုၤလၢထူထူယိာ်ယိာ်ဘၣ်."
+#: services/classhub/hub/views/student_micro_checks.py:25
+msgid "Saved. Keep going, and ask for help any time."
+msgstr "Saved. Keep going, and ask for help any time."
 
+#: services/classhub/hub/views/student_micro_checks.py:29
+#: services/classhub/templates/student_class.html:190
+msgid "I'm stuck"
+msgstr "ယတၢ်ကီ"
+
+#: services/classhub/hub/views/student_micro_checks.py:30
+msgid "Saved. Your facilitator can see you asked for help."
+msgstr "Saved. Your facilitator can see you asked for help."
+
+#: services/classhub/hub/views/student_micro_checks.py:34
+#: services/classhub/templates/student_class.html:191
+msgid "I taught someone"
+msgstr "ယသိၣ်လိ ပှၤတဂၤ"
+
+#: services/classhub/hub/views/student_micro_checks.py:35
+msgid "Saved. Thanks for helping a classmate."
+msgstr "Saved. Thanks for helping a classmate."
+
+#: services/classhub/templates/admin/login.html:26
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] "Please correct the error below."
+
+#: services/classhub/templates/admin/login.html:58
+#, fuzzy
+#| msgid "Current password"
+msgid "Forgotten your password?"
+msgstr "password လၢအခဲအံၤ"
+
+#: services/classhub/templates/admin/login.html:62
+#: services/classhub/templates/teach_login.html:75
+msgid "Log in"
+msgstr "နုာ်လီၤ"
+
+#: services/classhub/templates/course_overview.html:14
+#: services/classhub/templates/material_upload.html:35
+#: services/classhub/templates/privacy.html:14
+#: services/classhub/templates/student_class.html:34
+#: services/classhub/templates/student_gallery.html:14
+#: services/classhub/templates/student_join.html:44
+#: services/classhub/templates/student_my_data.html:14
+#: services/classhub/templates/student_portfolio.html:14
+#: services/classhub/templates/teach_certificate_eligibility.html:12
+#: services/classhub/templates/teach_class.html:12
+#: services/classhub/templates/teach_home.html:12
+#: services/classhub/templates/teach_lessons.html:12
+#: services/classhub/templates/teach_login.html:15
+#: services/classhub/templates/teach_material_submissions.html:12
+#: services/classhub/templates/teacher/teach_lesson_edit.html:12
+#: services/classhub/templates/trust.html:14
+msgid "Skip to main content"
+msgstr "ဃ့ၢ်ကပၤဆူ တၢ်ဂ့ၢ်မိၢ်ပှၢ်"
+
+#: services/classhub/templates/course_overview.html:19
+#: services/classhub/templates/student_class.html:42
+#: services/classhub/templates/trust.html:18
+msgid "Join page"
+msgstr "နုာ်လီၤအလံာ်ကဘျံး"
+
+#: services/classhub/templates/course_overview.html:19
+#: services/classhub/templates/student_class.html:40
+msgid "Student home"
+msgstr "ပှၤမၤလိ အခီၣ်ထံး"
+
+#: services/classhub/templates/course_overview.html:23
+#: services/classhub/templates/material_upload.html:56
+#: services/classhub/templates/privacy.html:22
+#: services/classhub/templates/student_join.html:50
+#: services/classhub/templates/student_my_data.html:21
+#: services/classhub/templates/trust.html:22
+msgid "Simple"
+msgstr "Simple"
+
+#: services/classhub/templates/course_overview.html:24
+#: services/classhub/templates/material_upload.html:57
+#: services/classhub/templates/privacy.html:23
+#: services/classhub/templates/student_join.html:51
+#: services/classhub/templates/student_my_data.html:22
+#: services/classhub/templates/trust.html:23
+msgid "Standard"
+msgstr "Standard"
+
+#: services/classhub/templates/course_overview.html:25
+#: services/classhub/templates/lesson_handout.html:25
+#: services/classhub/templates/lesson_page.html:25
+#: services/classhub/templates/lesson_page.html:189
+#: services/classhub/templates/material_upload.html:58
+#: services/classhub/templates/privacy.html:24
+#: services/classhub/templates/student_class.html:67
+#: services/classhub/templates/student_join.html:52
+#: services/classhub/templates/student_my_data.html:23
+#: services/classhub/templates/trust.html:24
+msgid "Reading level:"
+msgstr "Reading level:"
+
+#: services/classhub/templates/course_overview.html:31
+msgid "Open a lesson to see what to do next."
+msgstr "Open a lesson to see what to do next."
+
+#: services/classhub/templates/course_overview.html:33
+msgid "Open one lesson at a time for simpler student instructions."
+msgstr "Open one lesson at a time for simpler student instructions."
+
+#: services/classhub/templates/course_overview.html:36
+msgid ""
+"Elementary mode: simpler student language and fewer simultaneous controls."
+msgstr ""
+
+#: services/classhub/templates/course_overview.html:38
+msgid "Advanced mode: denser controls and richer helper guidance."
+msgstr "Advanced mode: denser controls and richer helper guidance."
+
+#: services/classhub/templates/course_overview.html:44
 msgid "Lessons"
 msgstr "lesson တဖၣ်"
 
+#: services/classhub/templates/course_overview.html:53
+msgid ""
+"Students usually join with a class code and open lessons from student home."
+msgstr ""
+
+#: services/classhub/templates/course_overview.html:55
+msgid ""
+"This page is mainly for direct lesson link verification. Students usually "
+"enter via class code and land on /student."
+msgstr ""
+
+#: services/classhub/templates/course_overview.html:59
 msgid "Back to join"
 msgstr "က့ၤကဒါဆူ နုာ်လီၤ"
 
-# Teacher shell tranche (2026-04-11)
-
-msgid "Teacher Portal"
-msgstr "ဆရာ/မ portal"
-
-msgid "Teacher portal links"
-msgstr "ဆရာ/မ portal link တဖၣ်"
-
-msgid "Staff-only cockpit"
-msgstr "staff သီးသန့ panel"
-
-msgid "Lesson videos"
-msgstr "lesson video တဖၣ်"
-
-msgid "Lesson assets"
-msgstr "lesson asset တဖၣ်"
-
-msgid "Data lifespan"
-msgstr "data lifespan"
-
-msgid "Student join page"
-msgstr "ပှၤမၤလိ join page"
-
-msgid "Portal modes"
-msgstr "portal mode တဖၣ်"
-
-msgid "Choose a focused surface for this session."
-msgstr "session အံၤအဂီၢ် ဃုထၢ view လၢအသးစဲတခါ."
-
-msgid "Hide operator tools"
-msgstr "ခူသူၣ် operator tools"
-
-msgid "Show operator tools"
-msgstr "ဒုးနဲၣ် operator tools"
-
-msgid "Class dashboard links"
-msgstr "class dashboard link တဖၣ်"
-
-msgid "Teacher"
-msgstr "ဆရာ/မ"
-
-msgid "Printable join card"
-msgstr "join card လၢ print သ့"
-
-msgid "Students"
-msgstr "ပှၤမၤလိတဖၣ်"
-
-msgid "Join flow"
-msgstr "join flow"
-
-msgid "Invite only"
-msgstr "invite ဒၣ်လဲာ်"
-
-msgid "Closed"
-msgstr "ပာ်ဃာ်"
-
-msgid "Unlocked"
-msgstr "တလိာ်ဃာ်ဘၣ်"
-
-msgid "Class actions"
-msgstr "class action တဖၣ်"
-
-msgid "Join card"
-msgstr "join card"
-
-msgid "Summary CSV"
-msgstr "summary CSV"
-
-msgid "Start Here In This Class"
-msgstr "စးထီၣ်ဖဲတီၤအံၤ"
-
-msgid "The unified workspace above handles the common path. Use these anchors when you need a deeper panel."
-msgstr "workspace ဖဲအဖီခိၣ် ကွဲၤမၤ common path န့ၣ်လီၤ. ဖဲနလိၣ် panel လၢအဆိကတၢၢ်အခါ သုံး anchor တဖၣ်အံၤ."
-
-msgid "Run class now"
-msgstr "မၤ class ခဲအံၤ"
-
-msgid "Print or share join card"
-msgstr "print မ့တမ့ၢ် share join card"
-
-msgid "Open lesson tracker + release controls"
-msgstr "အိးထီၣ် lesson tracker + release controls"
-
-msgid "Check facilitator support board"
-msgstr "ကွၢ် facilitator support board"
-
-msgid "Check outcomes snapshot"
-msgstr "ကွၢ် outcomes snapshot"
-
-msgid "Setup + cleanup"
-msgstr "setup + cleanup"
-
-msgid "Manage invite links + seat caps"
-msgstr "ပၢ invite link တဖၣ် + seat cap တဖၣ်"
-
-msgid "Fix roster identity issues"
-msgstr "မၤဘှါ roster identity တၢ်ကီတၢ်ခဲ"
-
-msgid "Review helper signal trends"
-msgstr "ကွၢ် helper signal trend တဖၣ်"
-
-msgid "Edit module order/content"
-msgstr "မၤဘှါ module order/content"
-
-msgid "Certificate eligibility links"
-msgstr "certificate eligibility link တဖၣ်"
-
-msgid "Certificate Eligibility"
-msgstr "certificate eligibility"
-
-msgid "Eligible students"
-msgstr "ပှၤမၤလိလၢအမီၤစရီ"
-
-msgid "Threshold:"
-msgstr "threshold:"
-
-msgid "sessions"
-msgstr "session တဖၣ်"
-
-msgid "artifacts"
-msgstr "artifact တဖၣ်"
-
-msgid "Export outcomes CSV"
-msgstr "ထုးထီၣ် outcomes CSV"
-
-msgid "Mark Session Completed"
-msgstr "မၤအက့ၢ် session completed"
-
-msgid "Use this only when completion happened offline and no artifact upload was submitted."
-msgstr "သုံးအံၤထဲဖဲ completion မၤအသး offline ဒီး artifact upload တအိၣ်ဘၣ်."
-
-msgid "Select student"
-msgstr "ဃုထၢ student"
-
-msgid "Select module"
-msgstr "ဃုထၢ module"
-
-msgid "Mark completed"
-msgstr "မၤအက့ၢ် completed"
-
-msgid "Read-only role: session completion updates are limited to teacher/admin roles."
-msgstr "read-only role: session completion update တဖၣ် အိၣ်ဘၣ်လၢ teacher/admin role တဖၣ်ဧိၤ."
-
-msgid "All Students"
-msgstr "ပှၤမၤလိခဲလၢာ်"
-
-msgid "Sessions"
-msgstr "session တဖၣ်"
-
-msgid "Artifacts"
-msgstr "artifact တဖၣ်"
-
-msgid "Milestones"
-msgstr "milestone တဖၣ်"
-
-msgid "Certificate"
-msgstr "certificate"
-
-msgid "Eligible"
-msgstr "eligible"
-
-msgid "In progress"
-msgstr "ဆဲးမၤဆူညါ"
-
-msgid "Download PDF"
-msgstr "download PDF"
-
-msgid "Not issued"
-msgstr "တဘၣ်ထုးထီၣ်ဒံးဘၣ်"
-
-msgid "Not eligible"
-msgstr "တမီၤစရီဘၣ်"
-
-msgid "Re-issue"
-msgstr "ထုးထီၣ်ကဒီး"
-
-msgid "Issue"
-msgstr "ထုးထီၣ်"
-
-msgid "No students in this class yet."
-msgstr "ပှၤမၤလိတဖၣ်လၢတီၤအံၤ တအိၣ်ဒံးဘၣ်."
-
-msgid "Teacher · Lessons"
-msgstr "ဆရာ/မ · lesson တဖၣ်"
-
-msgid "Lesson tracker links"
-msgstr "lesson tracker link တဖၣ်"
-
-msgid "Focus on lesson links and submission progress."
-msgstr "အၢၣ်လီၤလၢ lesson link ဒီး submission progress."
-
-msgid "All classes"
-msgstr "class ခဲလၢာ်"
-
-msgid "Apply"
-msgstr "သုံး"
-
-msgid "Open class dashboard"
-msgstr "အိးထီၣ် class dashboard"
-
-msgid "Lesson"
-msgstr "lesson"
-
-msgid "Dropboxes"
-msgstr "dropbox တဖၣ်"
-
-msgid "Teacher notes"
-msgstr "ဆရာ/မ note တဖၣ်"
-
+#: services/classhub/templates/includes/helper_widget.html:9
+#: services/classhub/templates/includes/helper_widget.html:33
+msgid "Open helper"
+msgstr "အိးထီၣ် တၢ်မၤစၢၤ"
+
+#: services/classhub/templates/includes/helper_widget.html:10
+msgid "Resume helper"
+msgstr "ဆဲးမၤ တၢ်မၤစၢၤ"
+
+#: services/classhub/templates/includes/helper_widget.html:11
+#: services/classhub/templates/includes/helper_widget.html:41
+msgid ""
+"Follow-up questions stay in one lesson thread in this browser session until "
+"you reset chat."
+msgstr ""
+"သံကွၢ်လၢခံတဖၣ် အိၣ်ဆိးလၢ တၢ်သိၣ်လိအံၤအတၢ်စံးကတိၤကျဲတဘိအပူၤ ဖဲ browser session အံၤ တုၤမ့ၢ်နဒုးက့ၤ chat."
+
+#: services/classhub/templates/includes/helper_widget.html:12
+msgid ""
+"Conversation context is saved for this lesson in this browser session until "
+"you reset chat."
+msgstr ""
+"တၢ်စံးကတိၤအတၢ်အိၣ်သး ဘၣ်တၢ်သိမ်းဆည်းအီၤ လၢတၢ်သိၣ်လိအံၤအဂီၢ် ဖဲ browser session အံၤ တုၤမ့ၢ်နဒုးက့ၤ chat."
+
+#: services/classhub/templates/includes/helper_widget.html:13
+msgid "You"
+msgstr "နၤ"
+
+#: services/classhub/templates/includes/helper_widget.html:14
+msgid "Helper"
+msgstr "တၢ်မၤစၢၤ"
+
+#: services/classhub/templates/includes/helper_widget.html:15
+msgid "Try next:"
+msgstr "မၤလၢခံ:"
+
+#: services/classhub/templates/includes/helper_widget.html:16
+msgid "Conversation reset."
+msgstr "တၢ်စံးကတိၤ ဘၣ်တၢ်ဒုးက့ၤလံ."
+
+#: services/classhub/templates/includes/helper_widget.html:17
+msgid "Type a question before asking."
+msgstr "မဆိမီၣ်တၢ်မၤစၢၤခင်, ကွဲးသံကွၢ်တခွံ."
+
+#: services/classhub/templates/includes/helper_widget.html:18
+msgid "Thinking..."
+msgstr "ဆိကမိၣ်..."
+
+#: services/classhub/templates/includes/helper_widget.html:19
+msgid "(no output)"
+msgstr "(တၢ်စံးဆၢတအိၣ်ဘၣ်)"
+
+#: services/classhub/templates/includes/helper_widget.html:20
+msgid "Helper error: network_failure"
+msgstr "တၢ်မၤစၢၤအတၢ်ကမၣ်: network_failure"
+
+#: services/classhub/templates/includes/helper_widget.html:21
+#: services/classhub/templates/includes/helper_widget.html:43
+msgid "Quick asks (tap to send):"
+msgstr "သံကွၢ်အဖုၣ်တဖၣ် (ထိးလၢကပျဲ):"
+
+#: services/classhub/templates/includes/helper_widget.html:22
+#: services/classhub/templates/includes/helper_widget.html:44
+msgid "Quick helper prompts"
+msgstr "တၢ်မၤစၢၤအသံကွၢ်အဖုၣ်တဖၣ်"
+
+#: services/classhub/templates/includes/helper_widget.html:23
+#: services/classhub/templates/includes/helper_widget.html:47
+msgid "Question for helper"
+msgstr "တၢ်မၤစၢၤအဂီၢ် သံကွၢ်"
+
+#: services/classhub/templates/includes/helper_widget.html:24
+#: services/classhub/templates/includes/helper_widget.html:48
+msgid "Ask for help..."
+msgstr "ဃ့တၢ်မၤစၢၤ..."
+
+#: services/classhub/templates/includes/helper_widget.html:25
+#: services/classhub/templates/includes/helper_widget.html:50
+msgid "Ask"
+msgstr "သံကွၢ်"
+
+#: services/classhub/templates/includes/helper_widget.html:26
+#: services/classhub/templates/includes/helper_widget.html:51
+msgid "Reset chat"
+msgstr "ဒုးက့ၤ chat"
+
+#: services/classhub/templates/includes/helper_widget.html:27
+#: services/classhub/templates/includes/helper_widget.html:88
+msgid "Lesson references used"
+msgstr "တၢ်သိၣ်လိအတၢ်န့ၢ်လီၤဘၣ်သုံး"
+
+#: services/classhub/templates/includes/helper_widget.html:28
+msgid "Helper error"
+msgstr "တၢ်မၤစၢၤအတၢ်ကမၣ်"
+
+#: services/classhub/templates/includes/helper_widget.html:54
+#, fuzzy
+#| msgid "Privacy at a glance"
+msgid "Privacy and data"
+msgstr "တၢ်ခူသူၣ် တၢ်ကွၢ်ဖျါတဘျီ"
+
+#: services/classhub/templates/includes/helper_widget.html:56
+msgid ""
+"Stored: helper access timestamps, lesson-scope metadata, and short-lived "
+"chat context used for follow-up help."
+msgstr ""
+
+#: services/classhub/templates/includes/helper_widget.html:57
+msgid ""
+"If teachers reset helper conversations, a class snapshot may be exported for "
+"internal research and quality review before cache clear."
+msgstr ""
+
+#: services/classhub/templates/includes/helper_widget.html:58
+msgid ""
+"Access: only your teachers and createMPLS administrators can access helper "
+"records and exports."
+msgstr ""
+
+#: services/classhub/templates/includes/helper_widget.html:60
+#: services/classhub/templates/material_upload.html:88
+#: services/classhub/templates/student_join.html:126
+msgid "Storage location:"
+msgstr "တၢ်သိမ်းဆည်းအလီၢ်:"
+
+#: services/classhub/templates/includes/helper_widget.html:64
+#: services/classhub/templates/material_upload.html:92
+#, fuzzy
+#| msgid ""
+#| "Storage location: this server is hosted locally by your school or "
+#| "organization."
+msgid "this server is hosted locally by your school or organization."
+msgstr "တၢ်သိမ်းဆည်းအလီၢ်: server အံၤ ဘၣ်တၢ်host အီၤ လၢနကျောင်း မ့တမ့ၢ် organization အပူၤ."
+
+#: services/classhub/templates/includes/helper_widget.html:68
+#: services/classhub/templates/material_upload.html:99
+#: services/classhub/templates/student_join.html:136
+#: services/classhub/templates/student_my_data.html:47
+msgid "Retention:"
+msgstr "တၢ်သိမ်းအဆၢကတီၢ်:"
+
+#: services/classhub/templates/includes/helper_widget.html:70
+#, python-format
+msgid "helper access events are kept up to %(days)s day."
+msgid_plural "helper access events are kept up to %(days)s days."
+msgstr[0] "helper access events are kept up to %(days)s day."
+
+#: services/classhub/templates/includes/helper_widget.html:72
+msgid "helper access events stay until admin retention cleanup is run."
+msgstr "helper access events stay until admin retention cleanup is run."
+
+#: services/classhub/templates/includes/helper_widget.html:76
+#: services/classhub/templates/student_join.html:144
+msgid "Delete now:"
+msgstr "ဖျီၣ်ကွံာ်ခဲအံၤ:"
+
+#: services/classhub/templates/includes/helper_widget.html:76
+#: services/classhub/templates/student_gallery.html:21
+#: services/classhub/templates/student_join.html:145
+#: services/classhub/templates/student_my_data.html:8
+#: services/classhub/templates/student_my_data.html:19
+#: services/classhub/templates/student_portfolio.html:20
+msgid "My Data"
+msgstr "ယ Data"
+
+#: services/classhub/templates/includes/helper_widget.html:80
+#: services/classhub/templates/material_upload.html:118
+#: services/classhub/templates/student_my_data.html:57
+msgid "No tracking. No ads. No data broker sharing."
+msgstr "tracking တအိၣ်ဘၣ်. ads တအိၣ်ဘၣ်. data broker sharing တအိၣ်ဘၣ်."
+
+#: services/classhub/templates/includes/language_chooser.html:5
+msgid "Language"
+msgstr "ကျိာ်"
+
+#: services/classhub/templates/includes/language_chooser.html:13
+msgid "Switch"
+msgstr "လဲၤလိာ်"
+
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:4
+#: services/classhub/templates/teach_lessons.html:90
 msgid "Release:"
 msgstr "release:"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:6
+#: services/classhub/templates/includes/teach_home/day_sections.html:37
+#: services/classhub/templates/student_class.html:129
+#: services/classhub/templates/student_class.html:157
+#: services/classhub/templates/student_class.html:246
+#: services/classhub/templates/student_class.html:250
+#: services/classhub/templates/student_class.html:255
+#: services/classhub/templates/student_class.html:267
+#: services/classhub/templates/student_class.html:284
+#: services/classhub/templates/student_class.html:302
+#: services/classhub/templates/student_class.html:310
+#: services/classhub/templates/student_class.html:326
+#: services/classhub/templates/student_class.html:356
+#: services/classhub/templates/student_class.html:399
+#: services/classhub/templates/student_class.html:431
+#: services/classhub/templates/student_class.html:474
+#: services/classhub/templates/teach_class.html:28
+#: services/classhub/templates/teach_lessons.html:92
+msgid "Locked"
+msgstr "ဘၣ်ကး"
+
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:8
+#: services/classhub/templates/includes/teach_home/day_sections.html:39
+#: services/classhub/templates/lesson_page.html:142
+#: services/classhub/templates/student_class.html:131
+#: services/classhub/templates/student_class.html:159
+#: services/classhub/templates/student_class.html:245
+#: services/classhub/templates/student_class.html:249
+#: services/classhub/templates/student_class.html:254
+#: services/classhub/templates/student_class.html:269
+#: services/classhub/templates/student_class.html:306
+#: services/classhub/templates/student_class.html:330
+#: services/classhub/templates/student_class.html:341
+#: services/classhub/templates/student_class.html:360
+#: services/classhub/templates/student_class.html:371
+#: services/classhub/templates/student_class.html:407
+#: services/classhub/templates/student_class.html:445
+#: services/classhub/templates/student_class.html:482
+#: services/classhub/templates/teach_class.html:27
+#: services/classhub/templates/teach_lessons.html:94
+msgid "Open"
+msgstr "အိးထီၣ်"
+
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:11
+#: services/classhub/templates/student_portfolio.html:44
+#: services/classhub/templates/teach_lessons.html:97
 msgid "Date"
 msgstr "မုၢ်နံၤ"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:14
+#: services/classhub/templates/teach_lessons.html:100
 msgid "Override active"
 msgstr "override အိၣ်အသး"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:16
+#: services/classhub/templates/teach_lessons.html:102
 msgid "Content default"
 msgstr "content default"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:28
+#: services/classhub/templates/teach_lessons.html:114
 #, python-format
 msgid "Availability date for %(lesson_title)s"
 msgstr "availability date လၢ %(lesson_title)s"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:36
+#: services/classhub/templates/teach_lessons.html:122
 msgid "Set date"
 msgstr "သတ်မှတ် မုၢ်နံၤ"
 
-msgid "Toggle lock"
-msgstr "ထိၣ်ဃာ်ကဒီး lock"
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:45
+#: services/classhub/templates/teach_lessons.html:131
+#, fuzzy
+#| msgid "Open lesson"
+msgid "Unlock lesson"
+msgstr "အိးထီၣ် lesson"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:45
+#: services/classhub/templates/teach_lessons.html:131
+#, fuzzy
+#| msgid "Lock class"
+msgid "Lock lesson"
+msgstr "ကးတီၤ"
+
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:54
+#: services/classhub/templates/teach_lessons.html:140
 msgid "Open now"
 msgstr "အိးခဲအံၤ"
 
+#: services/classhub/templates/includes/teach_class/lesson_tracker_release_controls.html:63
+#: services/classhub/templates/teach_lessons.html:149
 msgid "Reset default"
 msgstr "ပာ်က့ၤ default"
 
-msgid "Submitted"
-msgstr "ဘၣ်တၢ်ပာ်ဃုာ်"
+#: services/classhub/templates/includes/teach_home/day_sections.html:5
+msgid "Classes"
+msgstr "တီၤတဖၣ်"
 
-msgid "Missing"
-msgstr "လီၤမၢ်"
+#: services/classhub/templates/includes/teach_home/day_sections.html:6
+msgid ""
+"Start here: open class, share join code, then review submissions. Assigned "
+"classes appear first."
+msgstr ""
+"စးထီၣ်ဖဲအံၤ: အိးထီၣ်တီၤ, သန့ၤ join code, ဝံၤဒီး ကွၢ်ကဒါ submission တဖၣ်. တီၤလၢဘၣ်တၢ်ဟ့ၣ်လီၤအီၤ "
+"ကပာ်ဖျါထီၣ်ခီၣ်ထံး."
 
-msgid "Latest"
-msgstr "latest"
+#: services/classhub/templates/includes/teach_home/day_sections.html:13
+msgid "Classes available in the teacher portal"
+msgstr "တီၤတဖၣ်လၢသုံးသ့ဖဲ teacher portal"
 
-msgid "Review missing"
-msgstr "ကွၢ် missing"
+#: services/classhub/templates/includes/teach_home/day_sections.html:16
+#: services/classhub/templates/includes/teach_home/day_sections.html:75
+#: services/classhub/templates/includes/teach_home/day_sections.html:155
+#: services/classhub/templates/teach_class.html:28
+#: services/classhub/templates/teach_lessons.html:34
+msgid "Class"
+msgstr "တီၤ"
 
-msgid "No upload dropbox in this module."
-msgstr "upload dropbox လၢ module အံၤ တအိၣ်ဘၣ်."
+#: services/classhub/templates/includes/teach_home/day_sections.html:17
+#: services/classhub/templates/teach_class.html:23
+#: services/classhub/templates/teach_lessons.html:50
+msgid "Join code"
+msgstr "နုာ်လီၤအကီၢ်"
 
-msgid "No lesson links found in this class yet."
-msgstr "lesson link တဖၣ်လၢတီၤအံၤ တထံၣ်န့ၢ်ဒံးဘၣ်."
+#: services/classhub/templates/includes/teach_home/day_sections.html:18
+#: services/classhub/templates/student_portfolio.html:74
+#: services/classhub/templates/student_portfolio_index.html:26
+#: services/classhub/templates/teach_certificate_eligibility.html:79
+msgid "Status"
+msgstr "အပတီၢ်"
 
-msgid "No classes available."
-msgstr "class တဖၣ် တအိၣ်ဘၣ်."
+#: services/classhub/templates/includes/teach_home/day_sections.html:19
+#: services/classhub/templates/includes/teach_home/day_sections.html:157
+#: services/classhub/templates/teach_material_submissions.html:67
+msgid "Actions"
+msgstr "တၢ်မၤတဖၣ်"
 
+#: services/classhub/templates/includes/teach_home/day_sections.html:28
+msgid "Assigned"
+msgstr "ဘၣ်တၢ်ဟ့ၣ်လီၤအီၤ"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:33
+#: services/classhub/templates/teach_class.html:24
+msgid "Copy"
+msgstr "ကူးယူ"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:43
+msgid "Open class"
+msgstr "အိးထီၣ်တီၤ"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:44
+#: services/classhub/templates/teach_certificate_eligibility.html:18
+#: services/classhub/templates/teach_class.html:18
+#: services/classhub/templates/teach_class.html:34
+#: services/classhub/templates/teach_home.html:19
+#: services/classhub/templates/teach_material_submissions.html:17
+msgid "Lesson tracker"
+msgstr "lesson tracker"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:45
+#: services/classhub/templates/includes/teach_home/day_sections.html:131
+msgid "Print join card"
+msgstr "ထုတ္ join card"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:47
+msgid "Assign teacher"
+msgstr "ဟ့ၣ်လီၤ ဆရာ/မ"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:48
+msgid "Set organization"
+msgstr "ပာ်လီၤ organization"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:57
+#: services/classhub/templates/includes/teach_home/day_sections.html:104
+#: services/classhub/templates/includes/teach_home/day_sections.html:137
+msgid "No classes yet."
+msgstr "တီၤတဖၣ် တအိၣ်ဒံးဘၣ်."
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:63
+msgid "What Changed Since Yesterday"
+msgstr "လၢမဟါတနံၤလၢခံ တၢ်လဲၤလိာ်မနုၤတဖၣ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:65
+#, python-format
+msgid "Window started %(window_start)s"
+msgstr "window စးထီၣ် %(window_start)s"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:72
+msgid "Daily class activity digest"
+msgstr "တနံၤတနံၤ class activity digest"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:76
+msgid "New students"
+msgstr "ပှၤမၤလိအသီတဖၣ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:77
+msgid "Uploads"
+msgstr "upload တဖၣ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:78
+msgid "Helper chats"
+msgstr "helper chat တဖၣ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:79
+msgid "Need first upload"
+msgstr "လိၣ်ဘၣ် upload ခီၣ်ထံး"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:80
+msgid "Last upload"
+msgstr "upload လၢခံကတၢၢ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:95
+msgid "No uploads yet"
+msgstr "upload တဖၣ် တအိၣ်ဒံးဘၣ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:110
+msgid "End-of-Class Closeout"
+msgstr "တီၤဝံၤ closeout"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:111
+msgid "Keep this collapsed until you need actions."
+msgstr "ပာ်အီၤလၢအဘၣ်ခီၣ်ဆၢတုၤ နလိၣ်ဘၣ် action တဖၣ်."
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:118
+#, python-format
+msgid "%(class_name)s · %(student_total)s students"
+msgstr "%(class_name)s · ပှၤမၤလိ %(student_total)s ယောက်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:121
+#, python-format
+msgid "%(pending_count)s still need a first upload."
+msgstr "%(pending_count)s ယောက် လိၣ်ဘၣ်ဒံး upload ခီၣ်ထံးတခါ."
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:127
+msgid "Class already locked"
+msgstr "တီၤ ဘၣ်ကးလံ"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:127
+msgid "Lock class"
+msgstr "ကးတီၤ"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:130
+msgid "Export today's submissions"
+msgstr "ထုးထီၣ် မုၢ်မဆါတနံၤအ submission တဖၣ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:143
+msgid "Recent submissions"
+msgstr "submission အသီတဖၣ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:144
+msgid "Latest uploads across all classes"
+msgstr "upload လၢခံကတၢၢ် လၢတီၤခဲလၢာ်အပူၤ"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:150
+msgid "Recent submissions across classes"
+msgstr "submission အသီတဖၣ် လၢတီၤတဖၣ်အကျါ"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:153
+#: services/classhub/templates/material_upload.html:197
+#: services/classhub/templates/student_my_data.html:115
+#: services/classhub/templates/student_portfolio.html:68
+#: services/classhub/templates/student_portfolio_index.html:21
+msgid "When"
+msgstr "ဖဲလဲၣ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:154
+#: services/classhub/templates/teach_certificate_eligibility.html:46
+#: services/classhub/templates/teach_certificate_eligibility.html:75
+#: services/classhub/templates/teach_material_submissions.html:60
+#, fuzzy
+#| msgid "Students"
+msgid "Student"
+msgstr "ပှၤမၤလိတဖၣ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:156
+#: services/classhub/templates/student_my_data.html:117
+#: services/classhub/templates/student_portfolio.html:70
+#: services/classhub/templates/student_portfolio_index.html:23
+msgid "Material"
+msgstr "material"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:167
+msgid "Review submissions"
+msgstr "ကွၢ်ကဒါ submission တဖၣ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:167
+#: services/classhub/templates/material_upload.html:205
+#: services/classhub/templates/material_upload.html:227
+#: services/classhub/templates/student_gallery.html:72
+#: services/classhub/templates/student_my_data.html:119
+#: services/classhub/templates/student_my_data.html:129
+#: services/classhub/templates/student_portfolio.html:75
+#: services/classhub/templates/student_portfolio.html:89
+msgid "Download"
+msgstr "ဒုးလီၤကလ့ၣ်"
+
+#: services/classhub/templates/includes/teach_home/day_sections.html:174
+#: services/classhub/templates/student_portfolio_index.html:45
+msgid "No submissions yet."
+msgstr "submission တဖၣ် တအိၣ်ဒံးဘၣ်."
+
+#: services/classhub/templates/includes/teach_home/setup_sections.html:4
 msgid "Portal setup + account tools"
 msgstr "တၢ်တဲာ်တဲာ် portal ဒီး account tool တဖၣ်"
 
-msgid "Start with Class setup first. Superuser operator + policy workflows live behind Show operator tools."
-msgstr "စးထီၣ်လၢ class setup အကတီၢ်ဆိတက့ၢ်. superuser operator ဒီး policy workflow တဖၣ် အိၣ်လၢ Show operator tools အလီၢ်ခံ."
+#: services/classhub/templates/includes/teach_home/setup_sections.html:6
+msgid ""
+"Start with Class setup first. Superuser operator + policy workflows live "
+"behind Show operator tools."
+msgstr ""
+"စးထီၣ်လၢ class setup အကတီၢ်ဆိတက့ၢ်. superuser operator ဒီး policy workflow တဖၣ် အိၣ်လၢ "
+"Show operator tools အလီၢ်ခံ."
 
+#: services/classhub/templates/includes/teach_home/setup_sections.html:8
 msgid "Teacher top actions"
 msgstr "ဆရာ/မ အတၢ်မၤအခိၣ်တဖၣ်"
 
+#: services/classhub/templates/includes/teach_home/setup_sections.html:10
 msgid "Class setup"
 msgstr "class setup"
 
+#: services/classhub/templates/includes/teach_home/setup_sections.html:13
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:3
 msgid "My profile"
 msgstr "ယပရိုဖိုင်း"
 
+#: services/classhub/templates/includes/teach_home/setup_sections.html:22
 msgid "Invite teacher"
 msgstr "ကိးဖိတ် ဆရာ/မ"
 
+#: services/classhub/templates/includes/teach_home/setup_sections.html:25
 msgid "Organizations"
 msgstr "organization တဖၣ်"
 
-msgid "Create a class workspace"
-msgstr "တီၤအတၢ်မၤတၢ်လီၢ် မၤတ့ၢ်"
-
-msgid "Class name"
-msgstr "တီၤမံၤ"
-
-msgid "e.g., Piper + Scratch (Period 3)"
-msgstr "ဥပမာ, Piper + Scratch (အတီၢ်ပူၤ 3)"
-
-msgid "Student landing title (optional)"
-msgstr "ပှၤမၤလိ landing ခေါင်းစဉ် (optional)"
-
-msgid "e.g., Week 3: Story + Motion"
-msgstr "ဥပမာ, Week 3: Story + Motion"
-
-msgid "First session/module (optional)"
-msgstr "session/module အဆိကတၢၢ် (optional)"
-
-msgid "e.g., Session 1 — Warm-up + Build"
-msgstr "ဥပမာ, Session 1 - Warm-up + Build"
-
-msgid "Student kickoff note (optional)"
-msgstr "ပှၤမၤလိ kickoff note (optional)"
-
-msgid "Tell students where to start as soon as they join."
-msgstr "တဲဘၣ်ပှၤမၤလိလၢကစးထီၣ်ဖဲလဲၣ် တဘျီဃီဖဲအဝဲသ့ၣ်ဟဲနုာ်လီၤ."
-
-msgid "Create class workspace"
-msgstr "တီၤအတၢ်မၤတၢ်လီၢ် မၤတ့ၢ်"
-
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:5
 msgid "Update your contact details and password for teacher sign-in."
 msgstr "မၤသစ်က့ၤန contact detail ဒီး password လၢ teacher sign-in အဂီၢ်."
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:8
 msgid "Profile details"
 msgstr "profile အတၢ်ဂ့ၢ်"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:13
 msgid "First name"
 msgstr "မံၤဖျၢၣ်"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:17
 msgid "Last name"
 msgstr "အမံၤခံ"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:21
 msgid "Email"
 msgstr "email"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:26
 msgid "Save profile"
 msgstr "ပာ်ဖှိၣ် profile"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:30
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:48
 msgid "Change password"
 msgstr "လဲလိာ် password"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:35
 msgid "Current password"
 msgstr "password လၢအခဲအံၤ"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:39
 msgid "New password"
 msgstr "password အသစ်"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_profile_panel.html:43
 msgid "Confirm new password"
 msgstr "အုၣ်ကီၤ password အသစ်"
 
-msgid "Compile Coursepack ZIP"
-msgstr "ဟဲစိာ် syllabus source"
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:3
+msgid "Create a class workspace"
+msgstr "တီၤအတၢ်မၤတၢ်လီၢ် မၤတ့ၢ်"
 
-msgid "Build a repo-style course from a teacher source file (`.md`, `.docx`, or `.zip`)."
-msgstr "တ့ထီၣ် course ဒ် repo style အသိး လၢ teacher source file (`.md`, `.docx`, မ့တမ့ၢ် `.zip`) အပူၤ."
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:7
+msgid "Class name"
+msgstr "တီၤမံၤ"
 
-msgid "Course slug (optional)"
-msgstr "course slug (optional)"
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:8
+msgid "e.g., Piper + Scratch (Period 3)"
+msgstr "ဥပမာ, Piper + Scratch (အတီၢ်ပူၤ 3)"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:12
+msgid "Student landing title (optional)"
+msgstr "ပှၤမၤလိ landing ခေါင်းစဉ် (optional)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:17
+msgid "e.g., Week 3: Story + Motion"
+msgstr "ဥပမာ, Week 3: Story + Motion"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:21
+msgid "First session/module (optional)"
+msgstr "session/module အဆိကတၢၢ် (optional)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:26
+msgid "e.g., Session 1 — Warm-up + Build"
+msgstr "ဥပမာ, Session 1 - Warm-up + Build"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:31
+msgid "Student kickoff note (optional)"
+msgstr "ပှၤမၤလိ kickoff note (optional)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:37
+msgid "Tell students where to start as soon as they join."
+msgstr "တဲဘၣ်ပှၤမၤလိလၢကစးထီၣ်ဖဲလဲၣ် တဘျီဃီဖဲအဝဲသ့ၣ်ဟဲနုာ်လီၤ."
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:44
+#, fuzzy
+#| msgid "No students in this class yet."
+msgid "Import content into this class"
+msgstr "ပှၤမၤလိတဖၣ်လၢတီၤအံၤ တအိၣ်ဒံးဘၣ်."
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:45
+msgid ""
+"Optional. Accepts a coursepack ZIP or a `.md`, `.docx`, or source ZIP file "
+"and writes it to live course content."
+msgstr ""
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:51
+#, fuzzy
+#| msgid "Course title override (optional)"
+msgid "Course slug override (optional)"
+msgstr "course title override (optional)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:55
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:22
 msgid "Course title override (optional)"
 msgstr "course title override (optional)"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:59
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:27
 msgid "Default UI level"
 msgstr "UI level လၢအမ့ၢ် default"
 
-msgid "elementary"
-msgstr "elementary"
-
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:61
 msgid "secondary"
 msgstr "secondary"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:62
+msgid "elementary"
+msgstr "elementary"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:63
 msgid "advanced"
 msgstr "advanced"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:67
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:38
 msgid "Session parser mode"
 msgstr "session parser mode"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:69
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:40
 msgid "auto"
 msgstr "auto"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:70
 msgid "template"
 msgstr "template"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:71
 msgid "verbose"
 msgstr "verbose"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:75
+#, fuzzy
+#| msgid "Source file (.md, .docx, or .zip)"
+msgid "Source file (.zip, .docx, or .md)"
+msgstr "source file (.md, .docx, မ့တမ့ၢ် .zip)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:81
+msgid "Overwrite existing live course folder"
+msgstr "Overwrite existing live course folder"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:87
+#, fuzzy
+#| msgid "Create class workspace"
+msgid "Create class and import content"
+msgstr "တီၤအတၢ်မၤတၢ်လီၢ် မၤတ့ၢ်"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_quick_actions_panel.html:95
+msgid "Create class workspace"
+msgstr "တီၤအတၢ်မၤတၢ်လီၢ် မၤတ့ၢ်"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:8
+msgid "Compile Coursepack ZIP"
+msgstr "ဟဲစိာ် syllabus source"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:9
+#, fuzzy
+#| msgid ""
+#| "Build a repo-style course from a teacher source file (`.md`, `.docx`, or "
+#| "`.zip`)."
+msgid ""
+"Build a downloadable repo-style coursepack from a teacher source file "
+"(`.md`, `.docx`, or `.zip`)."
+msgstr ""
+"တ့ထီၣ် course ဒ် repo style အသိး လၢ teacher source file (`.md`, `.docx`, မ့တမ့ၢ် "
+"`.zip`) အပူၤ."
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:17
+msgid "Course slug (optional)"
+msgstr "course slug (optional)"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:49
 msgid "Source file (.md, .docx, or .zip)"
 msgstr "source file (.md, .docx, မ့တမ့ၢ် .zip)"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:53
 msgid "Optional overview (.md or .docx)"
 msgstr "overview (optional) (.md မ့တမ့ၢ် .docx)"
 
-msgid "Import source"
-msgstr "ဟဲစိာ် source"
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:58
+msgid ""
+"Compilation runs in temporary scratch space and returns a downloadable "
+"coursepack ZIP. It does not overwrite repository course folders or mutate "
+"live curriculum content."
+msgstr ""
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:61
+#, fuzzy
+#| msgid "Compile Coursepack ZIP"
+msgid "Compile coursepack ZIP"
+msgstr "ဟဲစိာ် syllabus source"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:73
 msgid "Generate Course Authoring Templates"
 msgstr "ထုးထီၣ် course authoring template တဖၣ်"
 
-msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
-msgstr "တ့ထီၣ် `.md` ဒီး `.docx` starter file လၢတၢ်ကတဲာ်ကတီၤပာ်စၢၤအီၤလံ လၢဆရာ/မတဖၣ်အဂီၢ်."
-
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:83
 msgid "Course slug"
 msgstr "course slug"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:88
 msgid "Course title"
 msgstr "course ခေါင်းစဉ်"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:93
+#: services/classhub/templates/teach_certificate_eligibility.html:76
+msgid "Sessions"
+msgstr "session တဖၣ်"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:98
 msgid "Session duration (minutes)"
 msgstr "session အဆၢကတီၢ် (မံးနံး)"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:104
 #, python-format
 msgid "Files are written to %(template_output_dir)s."
 msgstr "file တဖၣ် ဘၣ်တၢ်ကွဲးလီၤဆူ %(template_output_dir)s."
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:107
 msgid "Generate templates"
 msgstr "ထုးထီၣ် template တဖၣ်"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:112
 #, python-format
 msgid "Download files for %(template_slug)s"
 msgstr "download file တဖၣ် လၢ %(template_slug)s"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:121
 #, python-format
 msgid "%(label)s (not generated yet)"
 msgstr "%(label)s (တဘၣ်ထုးထီၣ်ဒံးဘၣ်)"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:137
 msgid "Syllabus Exports"
 msgstr "syllabus export တဖၣ်"
 
-msgid "Admin/superuser backup and catalog downloads for repo-authored course syllabi."
-msgstr "admin/superuser backup ဒီး catalog download တဖၣ် လၢ repo-authored course syllabus တဖၣ်အဂီၢ်."
-
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:144
 msgid "Download catalog CSV"
 msgstr "download catalog CSV"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:145
 msgid "Download full backup ZIP"
 msgstr "download full backup ZIP"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:149
 msgid "Single-course backup ZIP"
 msgstr "course တဖျၢၣ် backup ZIP"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:154
 msgid "Course"
 msgstr "course"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:158
 #, python-format
 msgid "%(title)s (%(slug)s) · %(lesson_count)s lessons"
 msgstr "%(title)s (%(slug)s) · %(lesson_count)s lesson တဖၣ်"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:165
 msgid "Download course ZIP"
 msgstr "download course ZIP"
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:169
 msgid "No syllabus courses found."
 msgstr "syllabus course တဖၣ် တထံၣ်န့ၢ်ဘၣ်."
 
-msgid "What We Store"
-msgstr "တၢ်လၢပသိမ်းဆည်း"
+#: services/classhub/templates/lesson_handout.html:26
+#, fuzzy
+#| msgid "Open helper"
+msgid "Open online:"
+msgstr "အိးထီၣ် တၢ်မၤစၢၤ"
 
-msgid "Privacy page"
-msgstr "တၢ်ခူသူၣ်အကဘျံးပၤ"
+#: services/classhub/templates/lesson_handout.html:26
+#, fuzzy
+#| msgid "Open lesson"
+msgid "Online lesson:"
+msgstr "အိးထီၣ် lesson"
 
+#: services/classhub/templates/lesson_handout.html:32
+#: services/classhub/templates/lesson_page.html:185
+msgid "Start here"
+msgstr "Start here"
+
+#: services/classhub/templates/lesson_handout.html:32
+#: services/classhub/templates/lesson_page.html:185
+msgid "Do this now"
+msgstr "Do this now"
+
+#: services/classhub/templates/lesson_handout.html:44
+#, fuzzy
+#| msgid "Open helper"
+msgid "Open online"
+msgstr "အိးထီၣ် တၢ်မၤစၢၤ"
+
+#: services/classhub/templates/lesson_handout.html:51
+#: services/classhub/templates/lesson_page.html:200
+msgid "Turn in"
+msgstr "Turn in"
+
+#: services/classhub/templates/lesson_handout.html:51
+#: services/classhub/templates/lesson_page.html:200
+#, fuzzy
+#| msgid "Submitted"
+msgid "Submit"
+msgstr "ဘၣ်တၢ်ပာ်ဃုာ်"
+
+#: services/classhub/templates/lesson_handout.html:62
+#: services/classhub/templates/lesson_page.html:208
+msgid "Stay safe"
+msgstr "Stay safe"
+
+#: services/classhub/templates/lesson_handout.html:62
+#: services/classhub/templates/lesson_page.html:208
+msgid "Safety"
+msgstr "Safety"
+
+#: services/classhub/templates/lesson_handout.html:73
+#: services/classhub/templates/lesson_page.html:220
+msgid "Around you"
+msgstr "Around you"
+
+#: services/classhub/templates/lesson_handout.html:73
+#: services/classhub/templates/lesson_page.html:220
+msgid "Local anchors"
+msgstr "Local anchors"
+
+#: services/classhub/templates/lesson_handout.html:84
+#: services/classhub/templates/lesson_page.html:231
+msgid "Other versions"
+msgstr "Other versions"
+
+#: services/classhub/templates/lesson_handout.html:84
+#: services/classhub/templates/lesson_page.html:231
+msgid "Example variants"
+msgstr "Example variants"
+
+#: services/classhub/templates/lesson_handout.html:95
+#: services/classhub/templates/lesson_page.html:242
+msgid "Words for this lesson"
+msgstr "Words for this lesson"
+
+#: services/classhub/templates/lesson_handout.html:95
+#: services/classhub/templates/lesson_page.html:242
+msgid "Community glossary"
+msgstr "Community glossary"
+
+#: services/classhub/templates/lesson_handout.html:106
+msgid "Feedback starters"
+msgstr "Feedback starters"
+
+#: services/classhub/templates/lesson_handout.html:106
+msgid "Peer feedback starters"
+msgstr "Peer feedback starters"
+
+#: services/classhub/templates/lesson_page.html:19
+#, fuzzy
+#| msgid "Course"
+msgid "Course:"
+msgstr "course"
+
+#: services/classhub/templates/lesson_page.html:30
+msgid "Today you will:"
+msgstr "Today you will:"
+
+#: services/classhub/templates/lesson_page.html:32
+msgid "Goal:"
+msgstr "Goal:"
+
+#: services/classhub/templates/lesson_page.html:34
+msgid "Makes:"
+msgstr "Makes:"
+
+#: services/classhub/templates/lesson_page.html:44
+#, fuzzy
+#| msgid "Lesson tracker"
+msgid "Lesson locked"
+msgstr "lesson tracker"
+
+#: services/classhub/templates/lesson_page.html:46
+#, fuzzy
+#| msgid "Lesson"
+msgid "Lesson open"
+msgstr "lesson"
+
+#: services/classhub/templates/lesson_page.html:51
+#: services/classhub/templates/material_upload.html:41
+#: services/classhub/templates/student_gallery.html:19
+#: services/classhub/templates/student_my_data.html:18
+#: services/classhub/templates/student_portfolio.html:19
+msgid "Back to class"
+msgstr "က့ၤကဒါဆူတီၤ"
+
+#: services/classhub/templates/lesson_page.html:52
+#, fuzzy
+#| msgid "Open now"
+msgid "Open handout"
+msgstr "အိးခဲအံၤ"
+
+#: services/classhub/templates/lesson_page.html:52
+msgid "Print handout"
+msgstr "Print handout"
+
+#: services/classhub/templates/lesson_page.html:53
+#, fuzzy
+#| msgid "Download"
+msgid "Download handout"
+msgstr "ဒုးလီၤကလ့ၣ်"
+
+#: services/classhub/templates/lesson_page.html:53
+#, fuzzy
+#| msgid "Download PDF"
+msgid "Download handout PDF"
+msgstr "download PDF"
+
+#: services/classhub/templates/lesson_page.html:55
+msgid "Edit Markdown"
+msgstr "Edit Markdown"
+
+#: services/classhub/templates/lesson_page.html:58
+#, fuzzy
+#| msgid "Export my portfolio"
+msgid "Export portfolio"
+msgstr "ထုးထီၣ်ယ portfolio"
+
+#: services/classhub/templates/lesson_page.html:61
+msgid "← Back"
+msgstr "← Back"
+
+#: services/classhub/templates/lesson_page.html:61
+msgid "← Prev"
+msgstr "← Prev"
+
+#: services/classhub/templates/lesson_page.html:64
+#, fuzzy
+#| msgid "Open lesson"
+msgid "Next lesson →"
+msgstr "အိးထီၣ် lesson"
+
+#: services/classhub/templates/lesson_page.html:64
+msgid "Next →"
+msgstr "Next →"
+
+#: services/classhub/templates/lesson_page.html:71
+msgid "When this opens"
+msgstr "When this opens"
+
+#: services/classhub/templates/lesson_page.html:71
+#, fuzzy
+#| msgid "Lesson videos"
+msgid "Lesson schedule"
+msgstr "lesson video တဖၣ်"
+
+#: services/classhub/templates/lesson_page.html:72
+msgid "Intro-only mode"
+msgstr "Intro-only mode"
+
+#: services/classhub/templates/lesson_page.html:74
+msgid "Full activities and submissions unlock on"
+msgstr "Full activities and submissions unlock on"
+
+#: services/classhub/templates/lesson_page.html:82
+#: services/classhub/templates/teach_home.html:19
+msgid "Lesson videos"
+msgstr "lesson video တဖၣ်"
+
+#: services/classhub/templates/lesson_page.html:102
+msgid "Your browser does not support this video. Use the open link below."
+msgstr "Your browser does not support this video. Use the open link below."
+
+#: services/classhub/templates/lesson_page.html:105
+msgid "No inline video source is configured yet."
+msgstr "No inline video source is configured yet."
+
+#: services/classhub/templates/lesson_page.html:110
+msgid "Open video in a new tab"
+msgstr "Open video in a new tab"
+
+#: services/classhub/templates/lesson_page.html:114
+msgid "After this you can:"
+msgstr "After this you can:"
+
+#: services/classhub/templates/lesson_page.html:124
+msgid "Turn in your work"
+msgstr "Turn in your work"
+
+#: services/classhub/templates/lesson_page.html:124
+msgid "Homework dropbox"
+msgstr "Homework dropbox"
+
+#: services/classhub/templates/lesson_page.html:125
+#, fuzzy
+#| msgid "No submissions yet."
+msgid "Submissions open"
+msgstr "submission တဖၣ် တအိၣ်ဒံးဘၣ်."
+
+#: services/classhub/templates/lesson_page.html:128
+#: services/classhub/templates/lesson_page.html:130
+msgid "Accepted:"
+msgstr "Accepted:"
+
+#: services/classhub/templates/lesson_page.html:133
+msgid "Suggested name:"
+msgstr "Suggested name:"
+
+#: services/classhub/templates/lesson_page.html:140
+#: services/classhub/templates/material_upload.html:190
+#: services/classhub/templates/student_class.html:244
+#: services/classhub/templates/student_class.html:248
+#: services/classhub/templates/student_class.html:253
+#: services/classhub/templates/student_class.html:339
+#: services/classhub/templates/student_class.html:369
+#: services/classhub/templates/student_class.html:405
+#: services/classhub/templates/student_class.html:443
+#: services/classhub/templates/student_class.html:480
+msgid "Done"
+msgstr "ဝံၤလံ"
+
+#: services/classhub/templates/lesson_page.html:140
+msgid "File saved. Re-upload to replace."
+msgstr "File saved. Re-upload to replace."
+
+#: services/classhub/templates/lesson_page.html:142
+msgid "Upload at least one file to finish."
+msgstr "Upload at least one file to finish."
+
+#: services/classhub/templates/lesson_page.html:146
+#, fuzzy
+#| msgid "No uploads yet"
+msgid "Open upload page"
+msgstr "upload တဖၣ် တအိၣ်ဒံးဘၣ်"
+
+#: services/classhub/templates/lesson_page.html:146
+#, fuzzy
+#| msgid "Open rubric"
+msgid "Open dropbox"
+msgstr "အိးထီၣ် rubric"
+
+#: services/classhub/templates/lesson_page.html:148
+#, python-format
+msgid "Uploaded %(count)s file · latest %(last_uploaded_at)s"
+msgid_plural "Uploaded %(count)s files · latest %(last_uploaded_at)s"
+msgstr[0] "Uploaded %(count)s file · latest %(last_uploaded_at)s"
+
+#: services/classhub/templates/lesson_page.html:152
+msgid ""
+"Dropbox is not configured for this lesson yet. A teacher can re-import the "
+"course pack to enable it."
+msgstr ""
+
+#: services/classhub/templates/lesson_page.html:155
+#, fuzzy
+#| msgid "Join your class"
+msgid "Join your class to upload homework"
+msgstr "နုာ်လီၤလၢ နတီၤ"
+
+#: services/classhub/templates/lesson_page.html:163
+msgid "Design log prompt"
+msgstr "Design log prompt"
+
+#: services/classhub/templates/lesson_page.html:164
+#, fuzzy
+#| msgid ""
+#| "Design log prompt: note what you changed, why you changed it, and what "
+#| "evidence shows improvement."
+msgid ""
+"Before you leave this session, record what changed, why you changed it, and "
+"what you would improve next."
+msgstr ""
+"Design log prompt: ကွဲးမှတ်မနုၤလၢနလဲၤလိာ်, ဘာလၢနလဲၤလိာ်အီၤ, ဒီး တၢ်အုၣ်ကီၤလၢအဒုးနဲၣ်တၢ်ဂ့ၤထီၣ်."
+
+#: services/classhub/templates/lesson_page.html:166
+msgid "Update your design log with one intentional decision and rationale."
+msgstr "Update your design log with one intentional decision and rationale."
+
+#: services/classhub/templates/lesson_page.html:167
+msgid "Add a short changelog entry for this session."
+msgstr "Add a short changelog entry for this session."
+
+#: services/classhub/templates/lesson_page.html:168
+msgid "Draft release notes for what a tester should notice."
+msgstr "Draft release notes for what a tester should notice."
+
+#: services/classhub/templates/lesson_page.html:169
+msgid "Explain one block/script path in plain language."
+msgstr "Explain one block/script path in plain language."
+
+#: services/classhub/templates/lesson_page.html:172
+msgid "Challenge branches"
+msgstr "Challenge branches"
+
+#: services/classhub/templates/lesson_page.html:173
+msgid "Choose one branch and document why you picked it."
+msgstr "Choose one branch and document why you picked it."
+
+#: services/classhub/templates/lesson_page.html:263
+msgid "If something feels private, leave it out and tell your teacher."
+msgstr "If something feels private, leave it out and tell your teacher."
+
+#: services/classhub/templates/lesson_page.html:265
+msgid ""
+"If something feels unsafe to share, keep it private and tell your teacher."
+msgstr ""
+
+#: services/classhub/templates/lesson_page.html:267
+msgid ""
+"If something feels unsafe to share, keep your work private and submit only "
+"the file. You control what leaves your device."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:8
+#: services/classhub/templates/material_upload.html:182
+#, fuzzy
+#| msgid "Uploads"
+msgid "Upload"
+msgstr "upload တဖၣ်"
+
+#: services/classhub/templates/material_upload.html:18
+#: services/classhub/templates/student_class.html:21
+#: services/classhub/templates/student_join.html:21
+msgid "Kiosk mode keeps navigation inside the student class flow."
+msgstr "kiosk mode ဒုးအိၣ် navigation လၢ student class flow အပူၤ."
+
+#: services/classhub/templates/material_upload.html:25
+#: services/classhub/templates/student_class.html:31
+msgid "Sentence starter added."
+msgstr "sentence starter ဘၣ်တၢ်ထံၣ်နုာ်လံ."
+
+#: services/classhub/templates/material_upload.html:26
+msgid "Upload queued. It will sync when connection returns."
+msgstr "Upload queued. It will sync when connection returns."
+
+#: services/classhub/templates/material_upload.html:27
+msgid "Syncing queued uploads..."
+msgstr "Syncing queued uploads..."
+
+#: services/classhub/templates/material_upload.html:28
+msgid "Queued upload synced."
+msgstr "Queued upload synced."
+
+#: services/classhub/templates/material_upload.html:29
+msgid "Queued upload still waiting for server connection."
+msgstr "Queued upload still waiting for server connection."
+
+#: services/classhub/templates/material_upload.html:30
+#: services/classhub/templates/material_upload.html:136
+msgid "Retry queued uploads now"
+msgstr "Retry queued uploads now"
+
+#: services/classhub/templates/material_upload.html:31
+#: services/classhub/templates/material_upload.html:135
+#, fuzzy
+#| msgid "Need first upload"
+msgid "No queued uploads."
+msgstr "လိၣ်ဘၣ် upload ခီၣ်ထံး"
+
+#: services/classhub/templates/material_upload.html:32
+#, fuzzy
+#| msgid "Uploads"
+msgid "Upload saved."
+msgstr "upload တဖၣ်"
+
+#: services/classhub/templates/material_upload.html:33
+msgid "Upload failed. Try again when connected."
+msgstr "Upload failed. Try again when connected."
+
+#: services/classhub/templates/material_upload.html:34
+msgid "Queued uploads pending: __COUNT__."
+msgstr "Queued uploads pending: __COUNT__."
+
+#: services/classhub/templates/material_upload.html:42
+#: services/classhub/templates/student_class.html:43
+#: services/classhub/templates/student_class.html:552
+#: services/classhub/templates/student_gallery.html:20
+#: services/classhub/templates/student_my_data.html:18
+#: services/classhub/templates/student_my_data.html:75
+#: services/classhub/templates/student_portfolio.html:8
+#: services/classhub/templates/student_portfolio.html:24
+msgid "What I made"
+msgstr "တၢ်လၢယမၤ"
+
+#: services/classhub/templates/material_upload.html:43
+#: services/classhub/templates/student_class.html:44
+#: services/classhub/templates/student_class.html:554
+#: services/classhub/templates/student_gallery.html:8
+#: services/classhub/templates/student_gallery.html:24
+#: services/classhub/templates/student_portfolio.html:21
+msgid "Session gallery"
+msgstr "session gallery"
+
+#: services/classhub/templates/material_upload.html:46
+#: services/classhub/templates/student_class.html:57
+#: services/classhub/templates/student_join.html:163
+msgid "Exit kiosk mode"
+msgstr "ဟးထီၣ် kiosk mode"
+
+#: services/classhub/templates/material_upload.html:48
+#: services/classhub/templates/student_class.html:59
+#: services/classhub/templates/student_join.html:165
+msgid "Enable kiosk mode"
+msgstr "ဒုးမၤတၢ် kiosk mode"
+
+#: services/classhub/templates/material_upload.html:51
+#: services/classhub/templates/student_class.html:88
+#: services/classhub/templates/student_gallery.html:22
+#: services/classhub/templates/student_my_data.html:18
+#: services/classhub/templates/student_portfolio.html:22
+#: services/classhub/templates/teach_certificate_eligibility.html:19
+#: services/classhub/templates/teach_class.html:19
+#: services/classhub/templates/teach_home.html:22
+#: services/classhub/templates/teach_lessons.html:18
+#: services/classhub/templates/teach_material_submissions.html:17
+msgid "Log out"
+msgstr "ထးလီၤ"
+
+#: services/classhub/templates/material_upload.html:54
+#: services/classhub/templates/student_class.html:70
+#: services/classhub/templates/student_my_data.html:25
+#: services/classhub/templates/student_portfolio.html:26
+#: services/classhub/templates/teach_home.html:25
+msgid "Signed in as"
+msgstr "နုာ်လီၤဒ်"
+
+#: services/classhub/templates/material_upload.html:65
+#, fuzzy
+#| msgid "Upload / manage gallery"
+msgid "Upload to gallery"
+msgstr "Upload / ခၢၣ်စး gallery"
+
+#: services/classhub/templates/material_upload.html:67
+#, fuzzy
+#| msgid "Download my work"
+msgid "Upload your work"
+msgstr "ဒုးလီၤကလ့ၣ် ယတၢ်မၤ"
+
+#: services/classhub/templates/material_upload.html:69
+msgid "Allowed:"
+msgstr "Allowed:"
+
+#: services/classhub/templates/material_upload.html:69
+msgid "Max"
+msgstr "Max"
+
+#: services/classhub/templates/material_upload.html:71
+msgid ""
+"Teacher-only by default. Only artifacts you explicitly publish appear in the "
+"session gallery wall."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:73
+msgid ""
+"Session gallery is currently disabled by your teacher. You can still upload "
+"work."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:76
+msgid "Done means your file appears in"
+msgstr "Done means your file appears in"
+
+#: services/classhub/templates/material_upload.html:76
+#: services/classhub/templates/material_upload.html:188
+#, fuzzy
+#| msgid "No uploads yet"
+msgid "Your uploads"
+msgstr "upload တဖၣ် တအိၣ်ဒံးဘၣ်"
+
+#: services/classhub/templates/material_upload.html:80
+#: services/classhub/templates/student_join.html:119
+msgid "Privacy at a glance:"
+msgstr "တၢ်ခူသူၣ် တၢ်ကွၢ်ဖျါတဘျီ:"
+
+#: services/classhub/templates/material_upload.html:82
+msgid ""
+"we save your class name, your uploaded files, and the time you uploaded them."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:84
+#, fuzzy
+#| msgid "We store your display name, class submissions, and event timestamps."
+msgid ""
+"we store your display name, uploaded files, and upload timestamps for class "
+"progress."
+msgstr "ပသိမ်းဆည်း နမံၤလၢကဒုးနဲၣ်, class submission တဖၣ်, ဒီး event timestamp တဖၣ်."
+
+#: services/classhub/templates/material_upload.html:97
+msgid "How long we keep uploads:"
+msgstr "How long we keep uploads:"
+
+#: services/classhub/templates/material_upload.html:102
+#, fuzzy, python-format
+#| msgid "submissions are kept up to %(counter)s day unless deleted sooner."
+#| msgid_plural ""
+#| "submissions are kept up to %(counter)s days unless deleted sooner."
+msgid "uploads are kept up to %(days)s day(s) unless deleted sooner."
+msgstr "submission တဖၣ် ဘၣ်တၢ်သိမ်းဆည်းအီၤ တုၤ %(counter)s သီ, ဖဲတဘၣ်ဖျီၣ်ကွံာ်အီၤအဆိတဒံးဘၣ်."
+
+#: services/classhub/templates/material_upload.html:104
+#, fuzzy
+#| msgid "submissions stay until a teacher or admin removes them."
+msgid "uploads stay until a teacher or admin removes them."
+msgstr "submission တဖၣ် အိၣ်ဆိးတုၤ ဆရာ/မ မ့တမ့ၢ် admin ဖျီၣ်ကွံာ်အီၤ."
+
+#: services/classhub/templates/material_upload.html:109
+msgid ""
+"Need to remove your work? Open <a href=\"/student/my-data\">My Data</a>."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:111
+#, fuzzy
+#| msgid ""
+#| "Delete now: after joining, open <a href=\"/student/my-data\">My Data</a> "
+#| "to delete your work or end this device session."
+msgid "Delete now: open <a href=\"/student/my-data\">My Data</a>."
+msgstr "Delete now: open <a href=\"/student/my-data\">My Data</a>."
+
+#: services/classhub/templates/material_upload.html:124
+#, python-format
+msgid ""
+"Submissions open on <strong>%(available_on)s</strong>. Prior uploads are "
+"still listed below."
+msgstr ""
+
+#: services/classhub/templates/material_upload.html:146
+#, fuzzy
+#| msgid "Import source"
+msgid "Remix source:"
+msgstr "ဟဲစိာ် source"
+
+#: services/classhub/templates/material_upload.html:147
+msgid "Based on work by"
+msgstr "Based on work by"
+
+#: services/classhub/templates/material_upload.html:149
+msgid "Their process note:"
+msgstr "Their process note:"
+
+#: services/classhub/templates/material_upload.html:154
+#: services/classhub/templates/student_portfolio.html:47
+#, fuzzy
+#| msgid "Student kickoff note (optional)"
+msgid "Station (optional)"
+msgstr "ပှၤမၤလိ kickoff note (optional)"
+
+#: services/classhub/templates/material_upload.html:158
+#, fuzzy
+#| msgid "Return code (optional)"
+msgid "Process note (optional)"
+msgstr "က့ၤနုာ်အကီၢ် (သဘျ့)"
+
+#: services/classhub/templates/material_upload.html:159
+msgid "What did you try? What did you change?"
+msgstr "What did you try? What did you change?"
+
+#: services/classhub/templates/material_upload.html:162
+msgid "Starters:"
+msgstr "Starters:"
+
+#: services/classhub/templates/material_upload.html:178
+msgid "Publish to class gallery wall"
+msgstr "Publish to class gallery wall"
+
+#: services/classhub/templates/material_upload.html:180
+msgid "Teachers can approve or unapprove gallery visibility at any time."
+msgstr "Teachers can approve or unapprove gallery visibility at any time."
+
+#: services/classhub/templates/material_upload.html:190
+#, fuzzy
+#| msgid "Last upload"
+msgid "Latest upload is saved."
+msgstr "upload လၢခံကတၢၢ်"
+
+#: services/classhub/templates/material_upload.html:194
+#, fuzzy
+#| msgid "No uploads yet"
+msgid "Your uploaded files"
+msgstr "upload တဖၣ် တအိၣ်ဒံးဘၣ်"
+
+#: services/classhub/templates/material_upload.html:198
+#: services/classhub/templates/student_my_data.html:118
+#: services/classhub/templates/student_portfolio.html:71
+msgid "File"
+msgstr "file"
+
+#: services/classhub/templates/material_upload.html:199
+#: services/classhub/templates/student_portfolio.html:72
+#, fuzzy
+#| msgid "Status"
+msgid "Station"
+msgstr "အပတီၢ်"
+
+#: services/classhub/templates/material_upload.html:201
+#: services/classhub/templates/student_portfolio.html:87
+msgid "Published"
+msgstr "Published"
+
+#: services/classhub/templates/material_upload.html:202
+#, fuzzy
+#| msgid "Teacher notes"
+msgid "Teacher approved"
+msgstr "ဆရာ/မ note တဖၣ်"
+
+#: services/classhub/templates/material_upload.html:203
+#, fuzzy
+#| msgid "Class actions"
+msgid "Publish action"
+msgstr "class action တဖၣ်"
+
+#: services/classhub/templates/material_upload.html:206
+#: services/classhub/templates/material_upload.html:228
+#: services/classhub/templates/student_gallery.html:73
+#: services/classhub/templates/student_portfolio.html:76
+#: services/classhub/templates/student_portfolio.html:90
+msgid "Remix"
+msgstr "Remix"
+
+#: services/classhub/templates/material_upload.html:216
+#: services/classhub/templates/material_upload.html:217
+#: services/classhub/templates/teach_material_submissions.html:86
+#: services/classhub/templates/teach_material_submissions.html:87
+msgid "Yes"
+msgstr "Yes"
+
+#: services/classhub/templates/material_upload.html:216
+#: services/classhub/templates/material_upload.html:217
+#: services/classhub/templates/teach_material_submissions.html:86
+#: services/classhub/templates/teach_material_submissions.html:87
+#, fuzzy
+#| msgid "Note"
+msgid "No"
+msgstr "note"
+
+#: services/classhub/templates/material_upload.html:223
+msgid "Unpublish"
+msgstr "Unpublish"
+
+#: services/classhub/templates/material_upload.html:223
+msgid "Publish"
+msgstr "Publish"
+
+#: services/classhub/templates/material_upload.html:235
+#: services/classhub/templates/student_gallery.html:69
+#: services/classhub/templates/student_portfolio.html:97
+msgid "Remix of:"
+msgstr "Remix of:"
+
+#: services/classhub/templates/material_upload.html:238
+#: services/classhub/templates/student_gallery.html:66
+#: services/classhub/templates/student_portfolio.html:100
+#: services/classhub/templates/teach_material_submissions.html:107
+#: services/classhub/templates/teach_material_submissions.html:109
+msgid "Process note:"
+msgstr "Process note:"
+
+#: services/classhub/templates/material_upload.html:247
+#, fuzzy
+#| msgid "No uploads yet"
+msgid "No uploads yet."
+msgstr "upload တဖၣ် တအိၣ်ဒံးဘၣ်"
+
+#: services/classhub/templates/privacy.html:19
+msgid "Privacy Information"
+msgstr "တၢ်ခူသူၣ် အတၢ်ဂ့ၢ်"
+
+#: services/classhub/templates/privacy.html:20
+msgid "How we handle your data on"
+msgstr "ပခၢၣ်စး န data ဒ်လဲၣ် ဖဲ"
+
+#: services/classhub/templates/privacy.html:29
+msgid "1. What data is collected"
+msgstr "1. data လၢဘၣ်တၢ်ပာ်ဖှိၣ်"
+
+#: services/classhub/templates/privacy.html:31
+msgid "We try to collect only what the class needs."
+msgstr "We try to collect only what the class needs."
+
+#: services/classhub/templates/privacy.html:33
+msgid "No student account:"
+msgstr "No student account:"
+
+#: services/classhub/templates/privacy.html:33
+msgid "You use a class code and a name you choose."
+msgstr "You use a class code and a name you choose."
+
+#: services/classhub/templates/privacy.html:34
+#, fuzzy
+#| msgid "Create class workspace"
+msgid "Your class work:"
+msgstr "တီၤအတၢ်မၤတၢ်လီၢ် မၤတ့ၢ်"
+
+#: services/classhub/templates/privacy.html:34
+#, fuzzy
+#| msgid ""
+#| "We store your class display name so your teacher can identify your work."
+msgid "We save uploads and class responses so your teacher can see them."
+msgstr "ပသိမ်းဆည်း နတီၤအ display name ဒ်သိး နဆရာ/မ ကသ့ၣ်ညါ နတၢ်မၤ."
+
+#: services/classhub/templates/privacy.html:35
+msgid "Basic timestamps:"
+msgstr "Basic timestamps:"
+
+#: services/classhub/templates/privacy.html:35
+msgid "We save when you join or upload."
+msgstr "We save when you join or upload."
+
+#: services/classhub/templates/privacy.html:38
+msgid "We design this platform to collect as little about you as possible."
+msgstr "ပမၤကတီၤ platform အံၤ ဒ်သိးကပာ်ဖှိၣ် တၢ်အဂ့ၢ်လၢနၤ အဆံးကတၢၢ်သ့."
+
+#: services/classhub/templates/privacy.html:51
+msgid "Don't upload sensitive documents"
+msgstr "တ upload sensitive document တဂ့ၤ"
+
+#: services/classhub/templates/privacy.html:60
+msgid "2. How to export or delete your work"
+msgstr "2. ထုးထီၣ် မ့တမ့ၢ် ဖျီၣ်ကွံာ် နတၢ်မၤ ဒ်လဲၣ်"
+
+#: services/classhub/templates/privacy.html:62
+#, fuzzy
+#| msgid "2. How to export or delete your work"
+msgid "You can download or delete your work."
+msgstr "2. ထုးထီၣ် မ့တမ့ၢ် ဖျီၣ်ကွံာ် နတၢ်မၤ ဒ်လဲၣ်"
+
+#: services/classhub/templates/privacy.html:64
+msgid ""
+"You own your artifacts. While in an active session, you can export or delete "
+"your files at any time."
+msgstr ""
+"နပၢန artifact တဖၣ်. ဖဲနအိၣ်လၢ active session အပူၤန့ၣ်, နထုးထီၣ် မ့တမ့ၢ် ဖျီၣ်ကွံာ် န file တဖၣ်သ့ "
+"ဖဲအဆၢကတီၢ်ခဲလၢာ်."
+
+#: services/classhub/templates/privacy.html:82
+msgid "3. What gets deleted and when"
+msgstr "3. ဘာတဖၣ်ကဘၣ်ဖျီၣ်ကွံာ် ဒီးဖဲလဲၣ်"
+
+#: services/classhub/templates/privacy.html:84
+#, fuzzy
+#| msgid "We don't hold on to your data forever."
+msgid "We do not keep class data forever."
+msgstr "ပတသိမ်းဆည်း န data တုၤလၢထူထူယိာ်ယိာ်ဘၣ်."
+
+#: services/classhub/templates/privacy.html:86
+msgid "We don't hold on to your data forever."
+msgstr "ပတသိမ်းဆည်း န data တုၤလၢထူထူယိာ်ယိာ်ဘၣ်."
+
+#: services/classhub/templates/privacy.html:107
+#: services/classhub/templates/trust.html:19
 msgid "What we store / what we never store"
 msgstr "တၢ်လၢပသိမ်းဆည်း / တၢ်လၢပတသိမ်းဆည်းနီတဘျီဘၣ်"
 
+#: services/classhub/templates/student_class.html:22
+#: services/classhub/templates/student_class.html:79
+#: services/classhub/templates/student_class.html:80
+msgid "Show return code"
+msgstr "ဒုးနဲၣ် က့ၤနုာ်အကီၢ်"
+
+#: services/classhub/templates/student_class.html:23
+#: services/classhub/templates/student_class.html:79
+msgid "Hide return code"
+msgstr "ခူသူၣ် က့ၤနုာ်အကီၢ်"
+
+#: services/classhub/templates/student_class.html:24
+#: services/classhub/templates/student_class.html:80
+msgid "Show"
+msgstr "ဒုးနဲၣ်"
+
+#: services/classhub/templates/student_class.html:25
+msgid "Hide"
+msgstr "ခူသူၣ်"
+
+#: services/classhub/templates/student_class.html:26
+msgid "Return code hidden."
+msgstr "က့ၤနုာ်အကီၢ် ဘၣ်တၢ်ခူသူၣ်အီၤလံ."
+
+#: services/classhub/templates/student_class.html:27
+msgid "Return code shown."
+msgstr "က့ၤနုာ်အကီၢ် ဘၣ်တၢ်ဒုးနဲၣ်အီၤလံ."
+
+#: services/classhub/templates/student_class.html:28
+msgid "Could not load return code. Refresh and try again."
+msgstr "က့ၤနုာ်အကီၢ် မၤလိာ်တတီၤဘၣ်. refresh မၤကဒီး ဒီးစမ်းကွၢ်ကဒီး."
+
+#: services/classhub/templates/student_class.html:29
+msgid "Copied to clipboard."
+msgstr "ကူးယူဆူ clipboard လံ."
+
+#: services/classhub/templates/student_class.html:30
+msgid "Copy failed. Please copy manually."
+msgstr "ကူးယူတအောင်မြင်ဘၣ်. ကူးယူလၢစုတက့ၢ်."
+
+#: services/classhub/templates/student_class.html:32
+msgid "Icon code: "
+msgstr "icon code: "
+
+#: services/classhub/templates/student_class.html:45
+msgid "Export my portfolio"
+msgstr "ထုးထီၣ်ယ portfolio"
+
+#: services/classhub/templates/student_class.html:46
+#: services/classhub/templates/student_class.html:52
+#: services/classhub/templates/student_my_data.html:18
+msgid "Privacy"
+msgstr "တၢ်ခူသူၣ်"
+
+#: services/classhub/templates/student_class.html:47
+#: services/classhub/templates/student_class.html:53
+#: services/classhub/templates/student_join.html:160
+#: services/classhub/templates/student_my_data.html:18
+msgid "Trust notes"
+msgstr "trust note တဖၣ်"
+
+#: services/classhub/templates/student_class.html:49
+#: services/classhub/templates/student_class.html:204
+msgid "Studio handles"
+msgstr "Studio handle တဖၣ်"
+
+#: services/classhub/templates/student_class.html:71
+#: services/classhub/templates/teach_certificate_eligibility.html:100
+msgid "Code"
+msgstr "ကီၢ်"
+
+#: services/classhub/templates/student_class.html:72
+msgid "Copy class code"
+msgstr "ကူးယူ တီၤအကီၢ်"
+
+#: services/classhub/templates/student_class.html:75
+msgid "Your return code:"
+msgstr "နက့ၤနုာ်အကီၢ်:"
+
+#: services/classhub/templates/student_class.html:82
+msgid "Copy return code"
+msgstr "ကူးယူ က့ၤနုာ်အကီၢ်"
+
+#: services/classhub/templates/student_class.html:83
+msgid "for rejoin"
+msgstr "လၢကနုာ်လီၤက့ၤ"
+
+#: services/classhub/templates/student_class.html:95
+msgid "Class return image"
+msgstr "တီၤအတၢ်က့ၤဟဲ image"
+
+#: services/classhub/templates/student_class.html:98
+msgid "Return image: look for this picture when you come back to class."
+msgstr "က့ၤဟဲ image: ဖဲနဟဲက့ၤဆူတီၤအခါ, ဃုကွၢ်ပနီၣ်အံၤ."
+
+#: services/classhub/templates/student_class.html:106
+msgid "This week"
+msgstr "တနွံအံၤ"
+
+#: services/classhub/templates/student_class.html:111
+msgid "This week's highlighted lesson"
+msgstr "တနွံအံၤ အတၢ်သိၣ်လိလၢ ဘၣ်တၢ်ဒုးဖျါထီၣ်"
+
+#: services/classhub/templates/student_class.html:113
+msgid "Highlighted lesson"
+msgstr "တၢ်သိၣ်လိလၢ ဘၣ်တၢ်ဒုးဖျါထီၣ်"
+
+#: services/classhub/templates/student_class.html:124
+msgid "Start this week's lesson"
+msgstr "စးထီၣ် တနွံအံၤအတၢ်သိၣ်လိ"
+
+#: services/classhub/templates/student_class.html:139
+msgid ""
+"No calendar-linked lessons yet. Ask your teacher when your first lesson "
+"opens."
+msgstr "calendar-linked lesson တဖၣ် တအိၣ်ဒံးဘၣ်. ဃ့နဆရာ/မ လၢ နတၢ်သိၣ်လိခီၣ်ထံး ကအိးထီၣ်ဖဲလဲၣ်."
+
+#: services/classhub/templates/student_class.html:145
+msgid "Course links"
+msgstr "Course link တဖၣ်"
+
+#: services/classhub/templates/student_class.html:148
+msgid "View full course lesson links"
+msgstr "ကွၢ် course lesson link အကုာ်အစၢၤ"
+
+#: services/classhub/templates/student_class.html:154
+msgid "highlighted"
+msgstr "ဘၣ်တၢ်ဒုးဖျါထီၣ်"
+
+#: services/classhub/templates/student_class.html:169
+msgid ""
+"Course lesson links will appear here after your teacher connects a course."
+msgstr "ဖဲနဆရာ/မ ဆဲးကျိး course တခါဝံၤအလီၢ်ခံ, course lesson link တဖၣ် ကပာ်ဖျါထီၣ်ဖဲအံၤ."
+
+#: services/classhub/templates/student_class.html:175
+msgid "Quick check-in"
+msgstr "check-in အချ့"
+
+#: services/classhub/templates/student_class.html:177
+msgid "Pick the button that best matches how class feels right now."
+msgstr "Pick the button that best matches how class feels right now."
+
+#: services/classhub/templates/student_class.html:179
+msgid ""
+"Share how this session feels right now. These signals help your facilitator "
+"support you."
+msgstr ""
+"ပာ်ဖျါဒ်လဲၣ်လၢ session အံၤ ခံစားခဲအံၤ. signal တဖၣ်အံၤ မၤစၢၤ န facilitator လၢကထံၣ်စၢၤနၤ."
+
+#: services/classhub/templates/student_class.html:195
+msgid "Last check-in:"
+msgstr "check-in လၢခံကတၢၢ်:"
+
+#: services/classhub/templates/student_class.html:205
+msgid ""
+"Advanced mode keeps core controls visible for autonomy and accountability."
+msgstr ""
+"Advanced mode ဒုးအိၣ်ထီၣ် core control တဖၣ် လၢကထံၣ်ဘၣ်အီၤ ဒ်သိးတၢ်မၤန့ၢ်သဒၣ်ဒၣ် ဒီး "
+"တၢ်ယူၢ်ယီၣ်တၢ်ကတာ် အဂီၢ်."
+
+#: services/classhub/templates/student_class.html:207
+msgid "Export portfolio snapshot"
+msgstr "ထုးထီၣ် portfolio snapshot"
+
+#: services/classhub/templates/student_class.html:212
+msgid "Rubric links"
+msgstr "Rubric link တဖၣ်"
+
+#: services/classhub/templates/student_class.html:224
+msgid "Gallery share toggles"
+msgstr "Gallery share toggle တဖၣ်"
+
+#: services/classhub/templates/student_class.html:240
+msgid "How to tell you are done"
+msgstr "သ့ၣ်ညါဒ်လဲၣ်လၢ နမၤဝံၤလံ"
+
+#: services/classhub/templates/student_class.html:242
+msgid ""
+"Done means your work is saved. Open means you can work now. Locked means "
+"wait for the date shown."
+msgstr ""
+
+#: services/classhub/templates/student_class.html:244
+msgid "saved"
+msgstr "ဘၣ်သိမ်းဆည်းလံ"
+
+#: services/classhub/templates/student_class.html:245
+msgid "do now"
+msgstr "မၤခဲအံၤ"
+
+#: services/classhub/templates/student_class.html:246
+msgid "wait"
+msgstr "ခီၣ်ဆၢ"
+
+#: services/classhub/templates/student_class.html:248
+msgid "saved and reviewable"
+msgstr "ဘၣ်သိမ်းဆည်းလံ ဒီးကွၢ်ကဒါက့ၤသ့"
+
+#: services/classhub/templates/student_class.html:249
+msgid "active now"
+msgstr "မၤတၢ်ခဲအံၤ"
+
+#: services/classhub/templates/student_class.html:250
+msgid "date-gated"
+msgstr "ဘၣ်တၢ်ပာ်ကးလၢ မုၢ်နံၤ"
+
+#: services/classhub/templates/student_class.html:251
+msgid ""
+"Studio accountability: add design-log notes, a short changelog, and release "
+"notes for finished builds."
+msgstr ""
+"Studio accountability: ထံၣ်နုာ် design-log note တဖၣ်, changelog အဖုၣ်တခါ, ဒီး "
+"release note တဖၣ် လၢ build လၢဝံၤလံအဂီၢ်."
+
+#: services/classhub/templates/student_class.html:253
+msgid "saved and visible"
+msgstr "ဘၣ်သိမ်းဆည်းလံ ဒီးထံၣ်ဘၣ်သ့"
+
+#: services/classhub/templates/student_class.html:254
+msgid "ready now"
+msgstr "အသင့်ခဲအံၤ"
+
+#: services/classhub/templates/student_class.html:255
+msgid "opens on date shown"
+msgstr "အိးထီၣ်ဖဲ မုၢ်နံၤလၢဘၣ်တၢ်ဒုးနဲၣ်"
+
+#: services/classhub/templates/student_class.html:286
+#, fuzzy, python-format
+#| msgid "Checklist opens on <strong>{{ open_date }}</strong>."
+msgid "This visual opens on <strong>%(open_date)s</strong>."
+msgstr "checklist ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:294
+#, fuzzy
+#| msgid "Open class"
+msgid "Open image"
+msgstr "အိးထီၣ်တီၤ"
+
+#: services/classhub/templates/student_class.html:311
+msgid "Preview intro-only page"
+msgstr "ကွၢ်တခီ intro-only page"
+
+#: services/classhub/templates/student_class.html:312
+#, fuzzy, python-format
+#| msgid "Full lesson unlocks on <strong>{{ open_date }}</strong>."
+msgid "Full lesson unlocks on <strong>%(open_date)s</strong>."
+msgstr "lesson အကုာ်အစၢၤ ကအိးလီၤဖဲ <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:314
+msgid "Open lesson"
+msgstr "အိးထီၣ် lesson"
+
+#: services/classhub/templates/student_class.html:333
+#: services/classhub/templates/student_class.html:363
+#, fuzzy, python-format
+#| msgid "Accepted: {{ exts }} · Max {{ max_mb }}MB"
+msgid "Accepted: %(exts)s · Max %(max_mb)sMB"
+msgstr "ပာ်တၢ်မၤအါ: {{ exts }} · အဒိၣ်ကတၢၢ် {{ max_mb }}MB"
+
+#: services/classhub/templates/student_class.html:335
+#, fuzzy, python-format
+#| msgid "Submissions open on <strong>{{ open_date }}</strong>."
+msgid "Submissions open on <strong>%(open_date)s</strong>."
+msgstr "submission တဖၣ် ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:345
+msgid "Upload / view submissions"
+msgstr "Upload / ကွၢ် submissions"
+
+#: services/classhub/templates/student_class.html:347
+#, fuzzy, python-format
+#| msgid "· {{ upload_count }} uploaded (latest saved)"
+msgid "· %(upload_count)s uploaded (latest saved)"
+msgstr "· {{ upload_count }} ဘၣ် upload လံ (လၢခံကတၢၢ် ဘၣ်သိမ်းဆည်းလံ)"
+
+#: services/classhub/templates/student_class.html:365
+#, fuzzy, python-format
+#| msgid "Gallery opens on <strong>{{ open_date }}</strong>."
+msgid "Gallery opens on <strong>%(open_date)s</strong>."
+msgstr "gallery ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:375
+msgid "Upload / manage gallery"
+msgstr "Upload / ခၢၣ်စး gallery"
+
+#: services/classhub/templates/student_class.html:377
+#, fuzzy, python-format
+#| msgid "· {{ upload_count }} uploaded"
+msgid "· %(upload_count)s uploaded"
+msgstr "· {{ upload_count }} ဘၣ် upload လံ"
+
+#: services/classhub/templates/student_class.html:383
+msgid "Shared gallery"
+msgstr "gallery လၢဘၣ်တၢ်သန့ၤ"
+
+#: services/classhub/templates/student_class.html:388
+msgid "you"
+msgstr "နၤ"
+
+#: services/classhub/templates/student_class.html:401
+#, fuzzy, python-format
+#| msgid "Checklist opens on <strong>{{ open_date }}</strong>."
+msgid "Checklist opens on <strong>%(open_date)s</strong>."
+msgstr "checklist ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:411
+msgid "Review checklist"
+msgstr "ကွၢ်ကဒါ checklist"
+
+#: services/classhub/templates/student_class.html:411
+msgid "Open checklist"
+msgstr "အိးထီၣ် checklist"
+
+#: services/classhub/templates/student_class.html:420
+msgid "Save checklist"
+msgstr "သိမ်းဆည်း checklist"
+
+#: services/classhub/templates/student_class.html:424
+msgid "Checklist has no items yet."
+msgstr "checklist အဂ့ၢ်တဖၣ် တအိၣ်ဒံးဘၣ်."
+
+#: services/classhub/templates/student_class.html:433
+#, fuzzy, python-format
+#| msgid "Reflection opens on <strong>{{ open_date }}</strong>."
+msgid "Reflection opens on <strong>%(open_date)s</strong>."
+msgstr "reflection ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:439
+msgid ""
+"Design log prompt: note what you changed, why you changed it, and what "
+"evidence shows improvement."
+msgstr ""
+"Design log prompt: ကွဲးမှတ်မနုၤလၢနလဲၤလိာ်, ဘာလၢနလဲၤလိာ်အီၤ, ဒီး တၢ်အုၣ်ကီၤလၢအဒုးနဲၣ်တၢ်ဂ့ၤထီၣ်."
+
+#: services/classhub/templates/student_class.html:449
+msgid "Review reflection"
+msgstr "ကွၢ်ကဒါ reflection"
+
+#: services/classhub/templates/student_class.html:449
+msgid "Open reflection"
+msgstr "အိးထီၣ် reflection"
+
+#: services/classhub/templates/student_class.html:452
+msgid "Your private reflection"
+msgstr "န reflection လၢခူသူၣ်"
+
+#: services/classhub/templates/student_class.html:455
+#: services/classhub/templates/student_class.html:507
+msgid "Sentence starters (optional)"
+msgstr "sentence starter တဖၣ် (သဘျ့)"
+
+#: services/classhub/templates/student_class.html:464
+msgid "Write a short reflection."
+msgstr "ကွဲး reflection အဖုၣ်တခါ."
+
+#: services/classhub/templates/student_class.html:465
+msgid "Save reflection"
+msgstr "သိမ်းဆည်း reflection"
+
+#: services/classhub/templates/student_class.html:476
+#, fuzzy, python-format
+#| msgid "Rubric opens on <strong>{{ open_date }}</strong>."
+msgid "Rubric opens on <strong>%(open_date)s</strong>."
+msgstr "rubric ကအိးထီၣ်ဖဲ <strong>{{ open_date }}</strong>."
+
+#: services/classhub/templates/student_class.html:486
+msgid "Review rubric"
+msgstr "ကွၢ်ကဒါ rubric"
+
+#: services/classhub/templates/student_class.html:486
+msgid "Open rubric"
+msgstr "အိးထီၣ် rubric"
+
+#: services/classhub/templates/student_class.html:489
+#, fuzzy, python-format
+#| msgid "Rate each criterion from 1 to {{ scale_max }}."
+msgid "Rate each criterion from 1 to %(scale_max)s."
+msgstr "ဟ့ၣ်အမှတ် criterion တဘျီစုာ်စုာ် လၢ 1 တုၤ {{ scale_max }}."
+
+#: services/classhub/templates/student_class.html:491
+msgid ""
+"Studio expectation: scores should line up with your changelog and release-"
+"note claims."
+msgstr ""
+"Studio expectation: score တဖၣ် ကြၢးဆီလီၤပာ်ဖှိၣ်ဒီး န changelog ဒီး release-note "
+"အတၢ်စံး."
+
+#: services/classhub/templates/student_class.html:497
+msgid "Not scored"
+msgstr "တဟ့ၣ်အမှတ်ဒံးဘၣ်"
+
+#: services/classhub/templates/student_class.html:504
+msgid "Optional feedback"
+msgstr "feedback လၢသဘျ့"
+
+#: services/classhub/templates/student_class.html:516
+msgid "Short note to your teacher (optional)."
+msgstr "note အဖုၣ်တခါဆူ နဆရာ/မ (သဘျ့)."
+
+#: services/classhub/templates/student_class.html:517
+msgid "Save rubric"
+msgstr "သိမ်းဆည်း rubric"
+
+#: services/classhub/templates/student_class.html:521
+msgid "Rubric criteria not configured yet."
+msgstr "rubric criteria တဖၣ် တဘၣ်တၢ်ကတီၤဒံးဘၣ်."
+
+#: services/classhub/templates/student_class.html:525
+msgid "Empty material — teacher will fill this in."
+msgstr "material အလီၢ်ဟးဂီၤ — ဆရာ/မ ကမၤပှဲၤအီၤ."
+
+#: services/classhub/templates/student_class.html:530
+msgid "No materials yet."
+msgstr "material တဖၣ် တအိၣ်ဒံးဘၣ်."
+
+#: services/classhub/templates/student_class.html:537
+msgid "No modules yet. A teacher/admin can add them in /admin."
+msgstr "module တဖၣ် တအိၣ်ဒံးဘၣ်. ဆရာ/မ မ့တမ့ၢ် admin တယောက် ကထံၣ်နုာ်အီၤဖဲ /admin သ့."
+
+#: services/classhub/templates/student_class.html:542
+msgid "Account"
+msgstr "Account"
+
+#: services/classhub/templates/student_class.html:544
+msgid "Open My Data for account controls."
+msgstr "အိးထီၣ် ယ Data လၢ account control အဂီၢ်."
+
+#: services/classhub/templates/student_class.html:546
+#: services/classhub/templates/student_class.html:551
+msgid "Open My Data"
+msgstr "အိးထီၣ် ယ Data"
+
+#: services/classhub/templates/student_class.html:549
+msgid "Manage account + device data."
+msgstr "ခၢၣ်စး account + device data."
+
+#: services/classhub/templates/student_class.html:553
+#: services/classhub/templates/student_my_data.html:76
+msgid "Download my work"
+msgstr "ဒုးလီၤကလ့ၣ် ယတၢ်မၤ"
+
+#: services/classhub/templates/student_class.html:557
+#: services/classhub/templates/student_my_data.html:88
+msgid "End my session on this device"
+msgstr "မၤဝံၤ ယ session လၢ device အံၤ"
+
+#: services/classhub/templates/student_gallery.html:26
+msgid "Shared inspiration for"
+msgstr "Shared inspiration for"
+
+#: services/classhub/templates/student_gallery.html:35
+#: services/classhub/templates/student_portfolio.html:36
+#: services/classhub/templates/student_portfolio.html:69
+#: services/classhub/templates/teach_lessons.html:62
+msgid "Lesson"
+msgstr "lesson"
+
+#: services/classhub/templates/student_gallery.html:38
+#, fuzzy
+#| msgid "sessions"
+msgid "Choose session"
+msgstr "session တဖၣ်"
+
+#: services/classhub/templates/student_gallery.html:44
+msgid "View"
+msgstr "View"
+
+#: services/classhub/templates/student_gallery.html:47
+#, fuzzy
+#| msgid "No classes available."
+msgid "No gallery lessons are available yet."
+msgstr "class တဖၣ် တအိၣ်ဘၣ်."
+
+#: services/classhub/templates/student_gallery.html:55
+msgid "This session gallery is disabled by your teacher right now."
+msgstr "This session gallery is disabled by your teacher right now."
+
+#: services/classhub/templates/student_gallery.html:79
+#, fuzzy
+#| msgid "Choose a focused surface for this session."
+msgid "No published artifacts for this session yet."
+msgstr "session အံၤအဂီၢ် ဃုထၢ view လၢအသးစဲတခါ."
+
+#
+# Provisional expanded site tranche (AI-assisted)
+#
+#: services/classhub/templates/student_join.html:9
+msgid "Join Class"
+msgstr "နုာ်လီၤတီၤ"
+
+#: services/classhub/templates/student_join.html:22
+#, fuzzy
+#| msgid "Icon code: "
+msgid "Icon code:"
+msgstr "icon code: "
+
+#: services/classhub/templates/student_join.html:23
+#: services/classhub/templates/student_join.html:105
+msgid "Show icon keypad"
+msgstr "ဒုးနဲၣ် icon keypad"
+
+#: services/classhub/templates/student_join.html:24
+#, fuzzy
+#| msgid "Show icon keypad"
+msgid "Hide icon keypad"
+msgstr "ဒုးနဲၣ် icon keypad"
+
+#: services/classhub/templates/student_join.html:25
+msgid "That class code is not recognized."
+msgstr "That class code is not recognized."
+
+#: services/classhub/templates/student_join.html:26
+msgid "That return code is not valid for this class."
+msgstr "That return code is not valid for this class."
+
+#: services/classhub/templates/student_join.html:27
+#, fuzzy
+#| msgid "Enter your class code and pick a display name."
+msgid "Enter your return code to rejoin this saved name."
+msgstr "ကွဲးထီၣ် နတီၤအကီၢ် ဒီးဃုထၢ နမံၤလၢကဒုးနဲၣ်."
+
+#: services/classhub/templates/student_join.html:28
+#, fuzzy
+#| msgid "That invite link is not usable right now."
+msgid "This class is locked right now."
+msgstr "invite link အံၤ သုံးတသ့ဒံးဘၣ် ခဲအံၤ."
+
+#: services/classhub/templates/student_join.html:29
+msgid "Enrollment for this class is closed."
+msgstr "Enrollment for this class is closed."
+
+#: services/classhub/templates/student_join.html:30
+msgid "This class accepts joins by invite link only."
+msgstr "This class accepts joins by invite link only."
+
+#: services/classhub/templates/student_join.html:31
+#, fuzzy
+#| msgid "Enter your class code and pick a display name."
+msgid "Please enter a class code and your name."
+msgstr "ကွဲးထီၣ် နတီၤအကီၢ် ဒီးဃုထၢ နမံၤလၢကဒုးနဲၣ်."
+
+#: services/classhub/templates/student_join.html:34
+#, fuzzy
+#| msgid "That invite link has been disabled."
+msgid "That invite link is disabled."
+msgstr "invite link အံၤ ဘၣ်တၢ်ပတုာ်အီၤလံ."
+
+#: services/classhub/templates/student_join.html:37
+msgid "Too many join attempts. Wait a minute and try again."
+msgstr "Too many join attempts. Wait a minute and try again."
+
+#: services/classhub/templates/student_join.html:38
+msgid "Joining is temporarily unavailable."
+msgstr "Joining is temporarily unavailable."
+
+#: services/classhub/templates/student_join.html:39
+msgid "Your join session expired. Reload this page and try again."
+msgstr "Your join session expired. Reload this page and try again."
+
+#: services/classhub/templates/student_join.html:40
+msgid "Security check blocked the join request. Reload and try again."
+msgstr "Security check blocked the join request. Reload and try again."
+
+#: services/classhub/templates/student_join.html:41
+msgid "Server error while joining. Please try again in a moment."
+msgstr "Server error while joining. Please try again in a moment."
+
+#: services/classhub/templates/student_join.html:42
+#, fuzzy
+#| msgid "Could not load return code. Refresh and try again."
+msgid "Could not join. Try again."
+msgstr "က့ၤနုာ်အကီၢ် မၤလိာ်တတီၤဘၣ်. refresh မၤကဒီး ဒီးစမ်းကွၢ်ကဒီး."
+
+#: services/classhub/templates/student_join.html:43
+msgid "Network error. Please try again."
+msgstr "Network error. Please try again."
+
+#: services/classhub/templates/student_join.html:48
+msgid "Join your class"
+msgstr "နုာ်လီၤလၢ နတီၤ"
+
+#: services/classhub/templates/student_join.html:55
+#, python-format
+msgid "You are joining <strong>%(class_name)s</strong> by invite link."
+msgstr "နကနုာ်လီၤဆူ <strong>%(class_name)s</strong> ခီဖျိ invite link."
+
+#: services/classhub/templates/student_join.html:58
+#, fuzzy
+#| msgid "Enter your class code and pick a display name."
+msgid "Type your class code. Pick a name for class."
+msgstr "ကွဲးထီၣ် နတီၤအကီၢ် ဒီးဃုထၢ နမံၤလၢကဒုးနဲၣ်."
+
+#: services/classhub/templates/student_join.html:60
+msgid "Enter your class code and pick a display name."
+msgstr "ကွဲးထီၣ် နတီၤအကီၢ် ဒီးဃုထၢ နမံၤလၢကဒုးနဲၣ်."
+
+#: services/classhub/templates/student_join.html:62
+msgid "Enter the class code from your teacher. Pick any display name you like."
+msgstr "ကွဲးထီၣ် တီၤအကီၢ်လၢ နဆရာ/မ အအိၣ်. ဃုထၢမံၤလၢ နသးခုတမံၤမံၤ."
+
+#: services/classhub/templates/student_join.html:66
+msgid "If this device is shared, use your own return code."
+msgstr "If this device is shared, use your own return code."
+
+#: services/classhub/templates/student_join.html:67
+msgid "That helps you get back to your work and not someone else's."
+msgstr "That helps you get back to your work and not someone else's."
+
+#: services/classhub/templates/student_join.html:69
+msgid ""
+"On shared devices, enter your return code so you do not join as another "
+"student."
+msgstr "ဖဲ device လၢ ပှၤသုံးသကိးအီၤအခါ, ကွဲးထီၣ် နက့ၤနုာ်အကီၢ် ဒ်သိးနတနုာ်လီၤဒ် ပှၤမၤလိအဂၤအသိးတဂ့ၤ."
+
+#: services/classhub/templates/student_join.html:72
+msgid "Same classroom device? You can usually leave return code blank."
+msgstr "မ့ၢ် classroom device တခါဃီဧါ. နပာ်က့ၤ return code လၢအလီၢ်ဟးဂီၤတသ့ၣ်တဘျီန့ၣ်သ့."
+
+#: services/classhub/templates/student_join.html:73
+msgid ""
+"On shared devices, use your own return code to avoid signing in as someone "
+"else."
+msgstr "ဖဲ device လၢ ပှၤသုံးသကိးအီၤအခါ, သုံးနက့ၤနုာ်အကီၢ်ဒၣ်နဲ ဒ်သိး နတနုာ်လီၤဒ် ပှၤဂၤအသိးတဂ့ၤ."
+
+#: services/classhub/templates/student_join.html:88
+msgid "Class code"
+msgstr "တီၤအကီၢ်"
+
+#: services/classhub/templates/student_join.html:93
+msgid "Your display name"
+msgstr "နမံၤလၢကဒုးနဲၣ်"
+
+#: services/classhub/templates/student_join.html:96
+msgid "A nickname or made-up name is fine — no need to use your real name."
+msgstr "မံၤဖိ မ့တမ့ၢ် မံၤလၢနဒုးဘၣ်အသးတမံၤန့ၣ် သ့ဝဲ. တလီၤဘၣ်လၢ ကဘၣ်သုံး နမံၤအမှန်တက့ၢ်ဘၣ်."
+
+#: services/classhub/templates/student_join.html:99
+msgid "Return code (optional)"
+msgstr "က့ၤနုာ်အကီၢ် (သဘျ့)"
+
+#: services/classhub/templates/student_join.html:102
+msgid "If your class uses icon codes, use the icon keypad below."
+msgstr "မ့ၢ်နတီၤ သုံး icon code တဖၣ်န့ၣ်, သုံး icon keypad လၢအဖီလာ်."
+
+#: services/classhub/templates/student_join.html:106
+msgid "Clear return code"
+msgstr "မၤစှၤကွံာ် က့ၤနုာ်အကီၢ်"
+
+#: services/classhub/templates/student_join.html:110
+msgid "Return code icon keypad"
+msgstr "က့ၤနုာ်အကီၢ် icon keypad"
+
+#: services/classhub/templates/student_join.html:113
+msgid "Join class"
+msgstr "နုာ်လီၤတီၤ"
+
+#: services/classhub/templates/student_join.html:121
+msgid ""
+"We save your class name, your uploads, and the time you joined or uploaded."
+msgstr ""
+
+#: services/classhub/templates/student_join.html:123
+msgid "We store your display name, class submissions, and event timestamps."
+msgstr "ပသိမ်းဆည်း နမံၤလၢကဒုးနဲၣ်, class submission တဖၣ်, ဒီး event timestamp တဖၣ်."
+
+#: services/classhub/templates/student_join.html:130
+msgid "hosted locally"
+msgstr "hosted locally"
+
+#: services/classhub/templates/student_join.html:134
+#, fuzzy
+#| msgid ""
+#| "We never require student email or student password for normal class use."
+msgid "We do not ask students for email or a password to join class."
+msgstr "ပတဃ့ student email မ့တမ့ၢ် student password လၢ class သုံးစွဲအရိုးရိုးအဂီၢ်ဘၣ်."
+
+#: services/classhub/templates/student_join.html:138
+#: services/classhub/templates/student_my_data.html:49
+msgid "day(s). Deleted sooner on request."
+msgstr "သီ. မ့ၢ်ဃ့န့ၣ် ဖျီၣ်ကွံာ်အဆိသ့."
+
+#: services/classhub/templates/student_join.html:140
+#: services/classhub/templates/student_my_data.html:51
+msgid "submissions stay until a teacher or admin removes them."
+msgstr "submission တဖၣ် အိၣ်ဆိးတုၤ ဆရာ/မ မ့တမ့ၢ် admin ဖျီၣ်ကွံာ်အီၤ."
+
+#: services/classhub/templates/student_join.html:146
+msgid "delete your work or end session."
+msgstr "ဖျီၣ်ကွံာ် နတၢ်မၤ မ့တမ့ၢ် မၤဝံၤ session."
+
+#: services/classhub/templates/student_join.html:148
+msgid "Learn more:"
+msgstr "Learn more:"
+
+#: services/classhub/templates/student_join.html:148
+#, fuzzy
+#| msgid "What we store / what we never store"
+msgid "What we store / never store"
+msgstr "တၢ်လၢပသိမ်းဆည်း / တၢ်လၢပတသိမ်းဆည်းနီတဘျီဘၣ်"
+
+#: services/classhub/templates/student_join.html:153
+#, fuzzy
+#| msgid "No tracking. No ads. No data broker sharing."
+msgid "No tracking. No ads."
+msgstr "tracking တအိၣ်ဘၣ်. ads တအိၣ်ဘၣ်. data broker sharing တအိၣ်ဘၣ်."
+
+#: services/classhub/templates/student_join.html:160
+msgid "Teacher? Use <a href=\"/teach\">/teach</a>."
+msgstr "မ့ၢ်ဆရာ/မဧါ. သုံး <a href=\"/teach\">/teach</a>."
+
+#: services/classhub/templates/student_my_data.html:34
+msgid "Privacy at a glance"
+msgstr "တၢ်ခူသူၣ် တၢ်ကွၢ်ဖျါတဘျီ"
+
+#: services/classhub/templates/student_my_data.html:37
+#, fuzzy
+#| msgid ""
+#| "Stored data: your display name, submissions, and class event timestamps."
+msgid "Stored data: your class name, your uploads, and basic class timestamps."
+msgstr "Stored data: your class name, your uploads, and basic class timestamps."
+
+#: services/classhub/templates/student_my_data.html:39
+msgid ""
+"Stored data: your display name, submissions, and class event timestamps."
+msgstr ""
+"data လၢဘၣ်တၢ်သိမ်းဆည်း: နမံၤလၢကဒုးနဲၣ်, submission တဖၣ်, ဒီး class event timestamp တဖၣ်."
+
+#: services/classhub/templates/student_my_data.html:42
+#, python-format
+msgid "Storage location: %(location)s"
+msgstr "တၢ်သိမ်းဆည်းအလီၢ်: %(location)s"
+
+#: services/classhub/templates/student_my_data.html:44
+msgid ""
+"Storage location: this server is hosted locally by your school or "
+"organization."
+msgstr "တၢ်သိမ်းဆည်းအလီၢ်: server အံၤ ဘၣ်တၢ်host အီၤ လၢနကျောင်း မ့တမ့ၢ် organization အပူၤ."
+
+#: services/classhub/templates/student_my_data.html:62
+#, fuzzy
+#| msgid "Your display name"
+msgid "Display name"
+msgstr "နမံၤလၢကဒုးနဲၣ်"
+
+#: services/classhub/templates/student_my_data.html:71
+#, fuzzy
+#| msgid "Your display name"
+msgid "Update display name"
+msgstr "နမံၤလၢကဒုးနဲၣ်"
+
+#: services/classhub/templates/student_my_data.html:78
+msgid "Send a deletion request to your teacher?"
+msgstr "Send a deletion request to your teacher?"
+
+#: services/classhub/templates/student_my_data.html:78
+msgid "Delete all of your submissions now?"
+msgstr "ဖျီၣ်ကွံာ် န submission ခဲလၢာ်ခဲအံၤဧါ."
+
+#: services/classhub/templates/student_my_data.html:81
+#, fuzzy
+#| msgid "Review reflection"
+msgid "Request deletion"
+msgstr "ကွၢ်ကဒါ reflection"
+
+#: services/classhub/templates/student_my_data.html:83
+msgid "Delete my work now"
+msgstr "ဖျီၣ်ကွံာ် ယတၢ်မၤခဲအံၤ"
+
+#: services/classhub/templates/student_my_data.html:94
+msgid "A teacher reviews deletion requests before your work is removed."
+msgstr "A teacher reviews deletion requests before your work is removed."
+
+#: services/classhub/templates/student_my_data.html:96
+msgid ""
+"Your program requires staff review before deletion. Your request appears on "
+"your teacher dashboard."
+msgstr ""
+
+#: services/classhub/templates/student_my_data.html:100
+msgid ""
+"Delete now removes your uploads, class responses, and class activity history "
+"for this class."
+msgstr ""
+
+#: services/classhub/templates/student_my_data.html:102
+msgid ""
+"Deletion is immediate for your submissions, checklist/rubric/reflection "
+"responses, and your class activity events in this class."
+msgstr ""
+
+#: services/classhub/templates/student_my_data.html:109
+msgid "My submissions"
+msgstr "ယ submission တဖၣ်"
+
+#: services/classhub/templates/student_my_data.html:112
+#, python-format
+msgid "Stored submissions for %(student_name)s"
+msgstr "submission လၢဘၣ်တၢ်သိမ်းဆည်းအီၤ လၢ %(student_name)s အဂီၢ်"
+
+#: services/classhub/templates/student_my_data.html:116
+#: services/classhub/templates/student_portfolio_index.html:22
+#: services/classhub/templates/teach_certificate_eligibility.html:53
+#: services/classhub/templates/teach_lessons.html:61
+msgid "Module"
+msgstr "module"
+
+#: services/classhub/templates/student_my_data.html:135
+msgid "No submissions stored yet."
+msgstr "submission တဖၣ် တဘၣ်သိမ်းဆည်းဒံးဘၣ်."
+
+#: services/classhub/templates/student_portfolio.html:29
+#, fuzzy
+#| msgid "Show"
+msgid "Showing"
+msgstr "ဒုးနဲၣ်"
+
+#: services/classhub/templates/student_portfolio.html:29
+#, fuzzy
+#| msgid "artifacts"
+msgid "artifact(s) from"
+msgstr "artifact တဖၣ်"
+
+#: services/classhub/templates/student_portfolio.html:29
+#, fuzzy
+#| msgid "No uploads yet"
+msgid "total upload(s)."
+msgstr "upload တဖၣ် တအိၣ်ဒံးဘၣ်"
+
+#: services/classhub/templates/student_portfolio.html:34
+msgid "Filters"
+msgstr "filter တဖၣ်"
+
+#: services/classhub/templates/student_portfolio.html:38
+#, fuzzy
+#| msgid "All classes"
+msgid "All lessons"
+msgstr "class ခဲလၢာ်"
+
+#: services/classhub/templates/student_portfolio.html:49
+#, fuzzy
+#| msgid "Class actions"
+msgid "All stations"
+msgstr "class action တဖၣ်"
+
+#: services/classhub/templates/student_portfolio.html:55
+#, fuzzy
+#| msgid "Filters"
+msgid "Apply filters"
+msgstr "filter တဖၣ်"
+
+#: services/classhub/templates/student_portfolio.html:56
+msgid "Clear"
+msgstr "Clear"
+
+#: services/classhub/templates/student_portfolio.html:61
+#: services/classhub/templates/teach_certificate_eligibility.html:77
+msgid "Artifacts"
+msgstr "artifact တဖၣ်"
+
+#: services/classhub/templates/student_portfolio.html:65
+#, fuzzy
+#| msgid "artifacts"
+msgid "Portfolio artifacts"
+msgstr "artifact တဖၣ်"
+
+#: services/classhub/templates/student_portfolio.html:73
+#: services/classhub/templates/teach_material_submissions.html:65
+msgid "Gallery"
+msgstr "Gallery"
+
+#: services/classhub/templates/student_portfolio.html:87
+#, fuzzy
+#| msgid "Teacher"
+msgid "Teacher-only"
+msgstr "ဆရာ/မ"
+
+#: services/classhub/templates/student_portfolio.html:109
+msgid "No artifacts match this filter yet."
+msgstr "No artifacts match this filter yet."
+
+#: services/classhub/templates/student_portfolio.html:110
+msgid "Older artifacts may have been removed by your class retention policy."
+msgstr "Older artifacts may have been removed by your class retention policy."
+
+#: services/classhub/templates/student_portfolio_index.html:7
+#, python-format
+msgid "%(display_name)s Portfolio"
+msgstr "%(display_name)s အ portfolio"
+
+#: services/classhub/templates/student_portfolio_index.html:11
+#, python-format
+msgid "%(display_name)s Portfolio Export"
+msgstr "%(display_name)s အ portfolio export"
+
+#: services/classhub/templates/student_portfolio_index.html:12
+#, python-format
+msgid "Class: %(classroom_name)s"
+msgstr "တီၤ: %(classroom_name)s"
+
+#: services/classhub/templates/student_portfolio_index.html:13
+#, python-format
+msgid "Generated: %(generated_at)s"
+msgstr "ဘၣ်တၢ်ထုးထီၣ်: %(generated_at)s"
+
+#: services/classhub/templates/student_portfolio_index.html:14
+#, python-format
+msgid "Submissions: %(included_count)s included / %(submission_count)s total"
+msgstr "Submissions: %(included_count)s included / %(submission_count)s total"
+
+#: services/classhub/templates/student_portfolio_index.html:18
+#, python-format
+msgid "Submission export rows for %(display_name)s"
+msgstr "submission export row တဖၣ် လၢ %(display_name)s အဂီၢ်"
+
+#: services/classhub/templates/student_portfolio_index.html:24
+msgid "Original file"
+msgstr "file မူဒါခီၣ်ထံး"
+
+#: services/classhub/templates/student_portfolio_index.html:25
+msgid "Archive path"
+msgstr "archive path"
+
+#: services/classhub/templates/student_portfolio_index.html:27
+msgid "Note"
+msgstr "note"
+
+#: services/classhub/templates/student_portfolio_index.html:38
+msgid "Included"
+msgstr "ဘၣ်တၢ်ပာ်ဃုာ်"
+
+#: services/classhub/templates/student_portfolio_index.html:38
+msgid "Missing source file"
+msgstr "source file လီၤမၢ်"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:7
+#: services/classhub/templates/teach_certificate_eligibility.html:18
+#: services/classhub/templates/teach_class.html:7
+#: services/classhub/templates/teach_class.html:18
+#: services/classhub/templates/teach_lessons.html:18
+#: services/classhub/templates/teach_material_submissions.html:17
+msgid "Teacher"
+msgstr "ဆရာ/မ"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:7
+#: services/classhub/templates/teach_certificate_eligibility.html:21
+msgid "Certificate Eligibility"
+msgstr "certificate eligibility"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:17
+msgid "Certificate eligibility links"
+msgstr "certificate eligibility link တဖၣ်"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:18
+#, fuzzy
+#| msgid "Class dashboard links"
+msgid "Class dashboard"
+msgstr "class dashboard link တဖၣ်"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:23
+msgid "Eligible students"
+msgstr "ပှၤမၤလိလၢအမီၤစရီ"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:24
+msgid "Threshold:"
+msgstr "threshold:"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:24
+msgid "sessions"
+msgstr "session တဖၣ်"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:24
+msgid "artifacts"
+msgstr "artifact တဖၣ်"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:28
+msgid "Export outcomes CSV"
+msgstr "ထုးထီၣ် outcomes CSV"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:39
+msgid "Mark Session Completed"
+msgstr "မၤအက့ၢ် session completed"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:41
+msgid ""
+"Use this only when completion happened offline and no artifact upload was "
+"submitted."
+msgstr "သုံးအံၤထဲဖဲ completion မၤအသး offline ဒီး artifact upload တအိၣ်ဘၣ်."
+
+#: services/classhub/templates/teach_certificate_eligibility.html:48
+msgid "Select student"
+msgstr "ဃုထၢ student"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:55
+msgid "Select module"
+msgstr "ဃုထၢ module"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:60
+msgid "Mark completed"
+msgstr "မၤအက့ၢ် completed"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:63
+msgid ""
+"Read-only role: session completion updates are limited to teacher/admin "
+"roles."
+msgstr ""
+"read-only role: session completion update တဖၣ် အိၣ်ဘၣ်လၢ teacher/admin role "
+"တဖၣ်ဧိၤ."
+
+#: services/classhub/templates/teach_certificate_eligibility.html:68
+msgid "All Students"
+msgstr "ပှၤမၤလိခဲလၢာ်"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:72
+#, fuzzy, python-format
+#| msgid "Certificate eligibility links"
+msgid "Certificate eligibility status for %(class_name)s"
+msgstr "certificate eligibility link တဖၣ်"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:78
+msgid "Milestones"
+msgstr "milestone တဖၣ်"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:80
+msgid "Certificate"
+msgstr "certificate"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:92
+msgid "Eligible"
+msgstr "eligible"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:94
+msgid "In progress"
+msgstr "ဆဲးမၤဆူညါ"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:103
+msgid "Download PDF"
+msgstr "download PDF"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:107
+msgid "Not issued"
+msgstr "တဘၣ်ထုးထီၣ်ဒံးဘၣ်"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:109
+msgid "Not eligible"
+msgstr "တမီၤစရီဘၣ်"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:115
+msgid "Re-issue"
+msgstr "ထုးထီၣ်ကဒီး"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:115
+msgid "Issue"
+msgstr "ထုးထီၣ်"
+
+#: services/classhub/templates/teach_certificate_eligibility.html:125
+msgid "No students in this class yet."
+msgstr "ပှၤမၤလိတဖၣ်လၢတီၤအံၤ တအိၣ်ဒံးဘၣ်."
+
+#: services/classhub/templates/teach_class.html:17
+msgid "Class dashboard links"
+msgstr "class dashboard link တဖၣ်"
+
+#: services/classhub/templates/teach_class.html:18
+#: services/classhub/templates/teach_home.html:19
+#: services/classhub/templates/teach_lessons.html:18
+#: services/classhub/templates/teach_material_submissions.html:17
+msgid "Lesson assets"
+msgstr "lesson asset တဖၣ်"
+
+#: services/classhub/templates/teach_class.html:25
+msgid "Printable join card"
+msgstr "join card လၢ print သ့"
+
+#: services/classhub/templates/teach_class.html:26
+#: services/classhub/templates/teach_lessons.html:50
+msgid "Students"
+msgstr "ပှၤမၤလိတဖၣ်"
+
+#: services/classhub/templates/teach_class.html:27
+msgid "Join flow"
+msgstr "join flow"
+
+#: services/classhub/templates/teach_class.html:27
+msgid "Invite only"
+msgstr "invite ဒၣ်လဲာ်"
+
+#: services/classhub/templates/teach_class.html:27
+msgid "Closed"
+msgstr "ပာ်ဃာ်"
+
+#: services/classhub/templates/teach_class.html:28
+msgid "Unlocked"
+msgstr "တလိာ်ဃာ်ဘၣ်"
+
+#: services/classhub/templates/teach_class.html:32
+msgid "Class actions"
+msgstr "class action တဖၣ်"
+
+#: services/classhub/templates/teach_class.html:33
+msgid "Join card"
+msgstr "join card"
+
+#: services/classhub/templates/teach_class.html:35
+msgid "Summary CSV"
+msgstr "summary CSV"
+
+#: services/classhub/templates/teach_class.html:43
+msgid "Start Here In This Class"
+msgstr "စးထီၣ်ဖဲတီၤအံၤ"
+
+#: services/classhub/templates/teach_class.html:44
+msgid ""
+"The unified workspace above handles the common path. Use these anchors when "
+"you need a deeper panel."
+msgstr ""
+"workspace ဖဲအဖီခိၣ် ကွဲၤမၤ common path န့ၣ်လီၤ. ဖဲနလိၣ် panel လၢအဆိကတၢၢ်အခါ သုံး anchor "
+"တဖၣ်အံၤ."
+
+#: services/classhub/templates/teach_class.html:48
+msgid "Run class now"
+msgstr "မၤ class ခဲအံၤ"
+
+#: services/classhub/templates/teach_class.html:50
+msgid "Print or share join card"
+msgstr "print မ့တမ့ၢ် share join card"
+
+#: services/classhub/templates/teach_class.html:51
+msgid "Open lesson tracker + release controls"
+msgstr "အိးထီၣ် lesson tracker + release controls"
+
+#: services/classhub/templates/teach_class.html:52
+msgid "Check facilitator support board"
+msgstr "ကွၢ် facilitator support board"
+
+#: services/classhub/templates/teach_class.html:53
+msgid "Check outcomes snapshot"
+msgstr "ကွၢ် outcomes snapshot"
+
+#: services/classhub/templates/teach_class.html:57
+msgid "Setup + cleanup"
+msgstr "setup + cleanup"
+
+#: services/classhub/templates/teach_class.html:59
+msgid "Manage invite links + seat caps"
+msgstr "ပၢ invite link တဖၣ် + seat cap တဖၣ်"
+
+#: services/classhub/templates/teach_class.html:60
+msgid "Fix roster identity issues"
+msgstr "မၤဘှါ roster identity တၢ်ကီတၢ်ခဲ"
+
+#: services/classhub/templates/teach_class.html:61
+msgid "Review helper signal trends"
+msgstr "ကွၢ် helper signal trend တဖၣ်"
+
+#: services/classhub/templates/teach_class.html:62
+msgid "Edit module order/content"
+msgstr "မၤဘှါ module order/content"
+
+# Teacher shell tranche (2026-04-11)
+#: services/classhub/templates/teach_home.html:7
+#: services/classhub/templates/teach_home.html:17
+msgid "Teacher Portal"
+msgstr "ဆရာ/မ portal"
+
+#: services/classhub/templates/teach_home.html:18
+msgid "Teacher portal links"
+msgstr "ဆရာ/မ portal link တဖၣ်"
+
+#: services/classhub/templates/teach_home.html:19
+#, fuzzy
+#| msgid "Create class workspace"
+msgid "Staff workspace"
+msgstr "တီၤအတၢ်မၤတၢ်လီၢ် မၤတ့ၢ်"
+
+#: services/classhub/templates/teach_home.html:20
+msgid "Data lifespan"
+msgstr "data lifespan"
+
+#: services/classhub/templates/teach_home.html:22
+msgid "Student join page"
+msgstr "ပှၤမၤလိ join page"
+
+#: services/classhub/templates/teach_home.html:36
+msgid ""
+"Org-boundary warning: strict org membership mode is currently off. Staff "
+"without organization memberships may retain legacy global class access."
+msgstr ""
+
+#: services/classhub/templates/teach_home.html:42
+msgid "Portal modes"
+msgstr "portal mode တဖၣ်"
+
+#: services/classhub/templates/teach_home.html:43
+msgid "Choose a focused surface for this session."
+msgstr "session အံၤအဂီၢ် ဃုထၢ view လၢအသးစဲတခါ."
+
+#: services/classhub/templates/teach_home.html:47
+msgid "Hide operator tools"
+msgstr "ခူသူၣ် operator tools"
+
+#: services/classhub/templates/teach_home.html:49
+msgid "Show operator tools"
+msgstr "ဒုးနဲၣ် operator tools"
+
+#: services/classhub/templates/teach_lessons.html:7
+msgid "Teacher · Lessons"
+msgstr "ဆရာ/မ · lesson တဖၣ်"
+
+#: services/classhub/templates/teach_lessons.html:17
+msgid "Lesson tracker links"
+msgstr "lesson tracker link တဖၣ်"
+
+#: services/classhub/templates/teach_lessons.html:20
+#, fuzzy
+#| msgid "Lesson tracker"
+msgid "Lesson Tracker"
+msgstr "lesson tracker"
+
+#: services/classhub/templates/teach_lessons.html:21
+msgid "Focus on lesson links and submission progress."
+msgstr "အၢၣ်လီၤလၢ lesson link ဒီး submission progress."
+
+#: services/classhub/templates/teach_lessons.html:36
+msgid "All classes"
+msgstr "class ခဲလၢာ်"
+
+#: services/classhub/templates/teach_lessons.html:41
+msgid "Apply"
+msgstr "သုံး"
+
+#: services/classhub/templates/teach_lessons.html:52
+msgid "Open class dashboard"
+msgstr "အိးထီၣ် class dashboard"
+
+#: services/classhub/templates/teach_lessons.html:58
+#, fuzzy, python-format
+#| msgid "Lesson tracker links"
+msgid "Lesson tracker for %(class_name)s"
+msgstr "lesson tracker link တဖၣ်"
+
+#: services/classhub/templates/teach_lessons.html:63
+msgid "Dropboxes"
+msgstr "dropbox တဖၣ်"
+
+#: services/classhub/templates/teach_lessons.html:73
+msgid "Technical IDs"
+msgstr "Technical IDs"
+
+#: services/classhub/templates/teach_lessons.html:83
+msgid "Teacher notes"
+msgstr "ဆရာ/မ note တဖၣ်"
+
+#: services/classhub/templates/teach_lessons.html:161
+#: services/classhub/templates/teach_material_submissions.html:46
+msgid "Submitted"
+msgstr "ဘၣ်တၢ်ပာ်ဃုာ်"
+
+#: services/classhub/templates/teach_lessons.html:162
+#: services/classhub/templates/teach_material_submissions.html:47
+msgid "Missing"
+msgstr "လီၤမၢ်"
+
+#: services/classhub/templates/teach_lessons.html:163
+msgid "Latest"
+msgstr "latest"
+
+#: services/classhub/templates/teach_lessons.html:167
+msgid "Review missing"
+msgstr "ကွၢ် missing"
+
+#: services/classhub/templates/teach_lessons.html:168
+#, fuzzy
+#| msgid "Latest"
+msgid "ZIP latest"
+msgstr "latest"
+
+#: services/classhub/templates/teach_lessons.html:173
+msgid "No upload dropbox in this module."
+msgstr "upload dropbox လၢ module အံၤ တအိၣ်ဘၣ်."
+
+#: services/classhub/templates/teach_lessons.html:182
+msgid "No lesson links found in this class yet."
+msgstr "lesson link တဖၣ်လၢတီၤအံၤ တထံၣ်န့ၢ်ဒံးဘၣ်."
+
+#: services/classhub/templates/teach_lessons.html:189
+msgid "No classes available."
+msgstr "class တဖၣ် တအိၣ်ဘၣ်."
+
+#: services/classhub/templates/teach_login.html:8
+#: services/classhub/templates/teach_login.html:20
+msgid "Teacher Login"
+msgstr "ဆရာ/မ အတၢ်နုာ်လီၤ"
+
+#: services/classhub/templates/teach_login.html:22
+msgid "Home"
+msgstr "အခီၣ်ထံး"
+
+#: services/classhub/templates/teach_login.html:41
+#, fuzzy
+#| msgid "Sign in to your account"
+msgid "Sign in with your organization account"
+msgstr "နုာ်လီၤဆူ န account"
+
+#: services/classhub/templates/teach_login.html:44
+#, python-format
+msgid "Continue with %(label)s"
+msgstr "Continue with %(label)s"
+
+#: services/classhub/templates/teach_login.html:47
+msgid "You can also use username/password below."
+msgstr "You can also use username/password below."
+
+#: services/classhub/templates/teach_login.html:53
+msgid "Sign in to your account"
+msgstr "နုာ်လီၤဆူ န account"
+
+#: services/classhub/templates/teach_login.html:81
+msgid "Password login disabled"
+msgstr "Password login disabled"
+
+#: services/classhub/templates/teach_login.html:82
+msgid "This deployment requires organization SSO for teacher login."
+msgstr "This deployment requires organization SSO for teacher login."
+
+#: services/classhub/templates/teach_material_submissions.html:7
+#: services/classhub/templates/teach_material_submissions.html:18
+msgid "Responses"
+msgstr "Responses"
+
+#: services/classhub/templates/teach_material_submissions.html:7
+#: services/classhub/templates/teach_material_submissions.html:18
+#, fuzzy
+#| msgid "My submissions"
+msgid "Submissions"
+msgstr "ယ submission တဖၣ်"
+
+#: services/classhub/templates/teach_material_submissions.html:21
+#, python-format
+msgid ""
+"Material: <strong>%(title)s</strong> · Scale 1-%(scale_max)s · Students "
+"%(count)s · Missing %(missing_count)s"
+msgstr ""
+
+#: services/classhub/templates/teach_material_submissions.html:25
+#, python-format
+msgid ""
+"Material: <strong>%(title)s</strong> · Accepted <span "
+"class=\"pill\">%(accepted_exts)s</span> · Students %(count)s · Missing "
+"%(missing_count)s"
+msgstr ""
+
+#: services/classhub/templates/teach_material_submissions.html:28
+msgid ""
+"Gallery moderation: student publish is opt-in; staff can approve/unapprove "
+"visibility."
+msgstr ""
+
+#: services/classhub/templates/teach_material_submissions.html:34
+#, fuzzy
+#| msgid "Download full backup ZIP"
+msgid "Download all latest (ZIP)"
+msgstr "download full backup ZIP"
+
+#: services/classhub/templates/teach_material_submissions.html:35
+#: services/classhub/templates/teach_material_submissions.html:37
+msgid "Open in admin"
+msgstr "Open in admin"
+
+#: services/classhub/templates/teach_material_submissions.html:44
+#, fuzzy
+#| msgid "Filters"
+msgid "Filter:"
+msgstr "filter တဖၣ်"
+
+#: services/classhub/templates/teach_material_submissions.html:45
+msgid "All"
+msgstr "All"
+
+#: services/classhub/templates/teach_material_submissions.html:53
+#, python-format
+msgid "Rubric responses for %(material_title)s"
+msgstr "Rubric responses for %(material_title)s"
+
+#: services/classhub/templates/teach_material_submissions.html:55
+#, fuzzy, python-format
+#| msgid "Submission export rows for %(display_name)s"
+msgid "Submission status for %(material_title)s"
+msgstr "submission export row တဖၣ် လၢ %(display_name)s အဂီၢ်"
+
+#: services/classhub/templates/teach_material_submissions.html:61
+msgid "Latest response"
+msgstr "Latest response"
+
+#: services/classhub/templates/teach_material_submissions.html:61
+#, fuzzy
+#| msgid "Last upload"
+msgid "Latest upload"
+msgstr "upload လၢခံကတၢၢ်"
+
+#: services/classhub/templates/teach_material_submissions.html:62
+msgid "Rated criteria"
+msgstr "Rated criteria"
+
+#: services/classhub/templates/teach_material_submissions.html:62
+#, fuzzy
+#| msgid "File"
+msgid "Files"
+msgstr "file"
+
+#: services/classhub/templates/teach_material_submissions.html:63
+msgid "Feedback"
+msgstr "Feedback"
+
+#: services/classhub/templates/teach_material_submissions.html:63
+#, fuzzy
+#| msgid "Latest"
+msgid "Latest file"
+msgstr "latest"
+
+#: services/classhub/templates/teach_material_submissions.html:79
+#, fuzzy
+#| msgid "saved"
+msgid "Saved"
+msgstr "ဘၣ်သိမ်းဆည်းလံ"
+
+#: services/classhub/templates/teach_material_submissions.html:86
+#, fuzzy
+#| msgid "Student home"
+msgid "Student published:"
+msgstr "ပှၤမၤလိ အခီၣ်ထံး"
+
+#: services/classhub/templates/teach_material_submissions.html:87
+#, fuzzy
+#| msgid "Teacher notes"
+msgid "Teacher approved:"
+msgstr "ဆရာ/မ note တဖၣ်"
+
+#: services/classhub/templates/teach_material_submissions.html:90
+#, fuzzy
+#| msgid "Download"
+msgid "Download latest"
+msgstr "ဒုးလီၤကလ့ၣ်"
+
+#: services/classhub/templates/teach_material_submissions.html:117
+msgid "Unapprove"
+msgstr "Unapprove"
+
+#: services/classhub/templates/teach_material_submissions.html:117
+msgid "Approve"
+msgstr "Approve"
+
+#: services/classhub/templates/teach_material_submissions.html:127
+msgid ""
+"Downloads are private: staff can download any submission; students can only "
+"download their own."
+msgstr ""
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:7
+#, fuzzy, python-format
+#| msgid "Teacher · Lessons"
+msgid "Teacher · Edit Lesson: %(lesson_title)s"
+msgstr "ဆရာ/မ · lesson တဖၣ်"
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:16
+#, fuzzy, python-format
+#| msgid "Availability date for %(lesson_title)s"
+msgid "Edit Lesson: %(lesson_title)s"
+msgstr "availability date လၢ %(lesson_title)s"
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:19
+msgid "You are currently editing a local override for this classroom."
+msgstr "You are currently editing a local override for this classroom."
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:21
+msgid ""
+"You are currently viewing the master repository content. Save to create a "
+"local override."
+msgstr ""
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:30
+msgid ""
+"Are you sure you want to reset this lesson to the global repository default? "
+"This will delete your local changes."
+msgstr ""
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:33
+#, fuzzy
+#| msgid "Reset default"
+msgid "Reset to Default"
+msgstr "ပာ်က့ၤ default"
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:36
+#, fuzzy
+#| msgid "Save rubric"
+msgid "Save Override"
+msgstr "သိမ်းဆည်း rubric"
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:43
+#, fuzzy
+#| msgid "Lesson videos"
+msgid "Lesson Markdown"
+msgstr "lesson video တဖၣ်"
+
+#: services/classhub/templates/teacher/teach_lesson_edit.html:52
+msgid ""
+"This editor writes a class-local database override only. Repository course "
+"files are not modified."
+msgstr ""
+
+#: services/classhub/templates/trust.html:8
+msgid "What We Store"
+msgstr "တၢ်လၢပသိမ်းဆည်း"
+
+#: services/classhub/templates/trust.html:18
+msgid "Privacy page"
+msgstr "တၢ်ခူသူၣ်အကဘျံးပၤ"
+
+#: services/classhub/templates/trust.html:20
 msgid "Plain-language trust notes for students, families, and staff."
 msgstr "trust note လၢအကစီဒီကစီလီၤ လၢပှၤမၤလိ, ဟံၣ်ဖိဃီဖိ ဒီး staff တဖၣ်အဂီၢ်."
 
-msgid "We store your class display name so your teacher can identify your work."
+#: services/classhub/templates/trust.html:31
+#, fuzzy
+#| msgid ""
+#| "We store your class display name so your teacher can identify your work."
+msgid "We save the class name you choose so your teacher can find your work."
 msgstr "ပသိမ်းဆည်း နတီၤအ display name ဒ်သိး နဆရာ/မ ကသ့ၣ်ညါ နတၢ်မၤ."
 
-msgid "We store your class files and activity responses (checklists, reflections, rubric answers)."
-msgstr "ပသိမ်းဆည်း နတီၤအ file တဖၣ် ဒီး activity response တဖၣ် (checklist, reflection, rubric answer တဖၣ်)."
+#: services/classhub/templates/trust.html:32
+msgid "We save your uploads and class responses."
+msgstr "We save your uploads and class responses."
 
-msgid "We store basic event timestamps (for example join time and upload time)."
-msgstr "ပသိမ်းဆည်း event timestamp အခီၣ်ထံးတဖၣ် (ဥပမာ join အဆၢကတီၢ် ဒီး upload အဆၢကတီၢ်)."
+#: services/classhub/templates/trust.html:33
+msgid "We save basic times, like when you joined or uploaded."
+msgstr "We save basic times, like when you joined or uploaded."
 
-msgid "We never require student email or student password for normal class use."
+#: services/classhub/templates/trust.html:34
+#, fuzzy
+#| msgid ""
+#| "We never require student email or student password for normal class use."
+msgid "We do not ask students for email or a password for normal class use."
 msgstr "ပတဃ့ student email မ့တမ့ၢ် student password လၢ class သုံးစွဲအရိုးရိုးအဂီၢ်ဘၣ်."
 
+#: services/classhub/templates/trust.html:35
+#, fuzzy
+#| msgid "We never sell student data and we do not run ad tracking."
+msgid "We do not sell student data or run ad tracking."
+msgstr "ပတဆါ student data နီတဘျီဘၣ် ဒီး ad tracking မအိၣ်ဘၣ်."
+
+#: services/classhub/templates/trust.html:36
+#, fuzzy
+#| msgid ""
+#| "Teachers and approved staff can see student work in their class. Other "
+#| "classes cannot."
+msgid ""
+"Your class teachers and approved staff can see your class work. Other "
+"classes cannot."
+msgstr ""
+"ဆရာ/မတဖၣ် ဒီး staff လၢဘၣ်တၢ်ပျဲအီၤတဖၣ် ကထံၣ်ဘၣ် student work လၢအတီၤပူၤသ့. class အဂၤတဖၣ် "
+"တထံၣ်ဘၣ်."
+
+#: services/classhub/templates/trust.html:37
+msgid ""
+"You can rename your class name, download your work, or delete your work from "
+"My Data."
+msgstr ""
+
+#: services/classhub/templates/trust.html:38
+msgid "Upload retention follows your class policy and operator settings."
+msgstr "Upload retention follows your class policy and operator settings."
+
+#: services/classhub/templates/trust.html:40
+msgid ""
+"We store your class display name so your teacher can identify your work."
+msgstr "ပသိမ်းဆည်း နတီၤအ display name ဒ်သိး နဆရာ/မ ကသ့ၣ်ညါ နတၢ်မၤ."
+
+#: services/classhub/templates/trust.html:41
+msgid ""
+"We store your class files and activity responses (checklists, reflections, "
+"rubric answers)."
+msgstr ""
+"ပသိမ်းဆည်း နတီၤအ file တဖၣ် ဒီး activity response တဖၣ် (checklist, reflection, "
+"rubric answer တဖၣ်)."
+
+#: services/classhub/templates/trust.html:42
+msgid ""
+"We store basic event timestamps (for example join time and upload time)."
+msgstr "ပသိမ်းဆည်း event timestamp အခီၣ်ထံးတဖၣ် (ဥပမာ join အဆၢကတီၢ် ဒီး upload အဆၢကတီၢ်)."
+
+#: services/classhub/templates/trust.html:43
+msgid ""
+"We never require student email or student password for normal class use."
+msgstr "ပတဃ့ student email မ့တမ့ၢ် student password လၢ class သုံးစွဲအရိုးရိုးအဂီၢ်ဘၣ်."
+
+#: services/classhub/templates/trust.html:44
 msgid "We never sell student data and we do not run ad tracking."
 msgstr "ပတဆါ student data နီတဘျီဘၣ် ဒီး ad tracking မအိၣ်ဘၣ်."
 
-msgid "Teachers and approved staff can see student work in their class. Other classes cannot."
-msgstr "ဆရာ/မတဖၣ် ဒီး staff လၢဘၣ်တၢ်ပျဲအီၤတဖၣ် ကထံၣ်ဘၣ် student work လၢအတီၤပူၤသ့. class အဂၤတဖၣ် တထံၣ်ဘၣ်."
+#: services/classhub/templates/trust.html:45
+msgid ""
+"Teachers and approved staff can see student work in their class. Other "
+"classes cannot."
+msgstr ""
+"ဆရာ/မတဖၣ် ဒီး staff လၢဘၣ်တၢ်ပျဲအီၤတဖၣ် ကထံၣ်ဘၣ် student work လၢအတီၤပူၤသ့. class အဂၤတဖၣ် "
+"တထံၣ်ဘၣ်."
 
-msgid "Students can rename their display name from My Data at any time (safety rules still apply)."
-msgstr "ပှၤမၤလိတဖၣ် လဲလိာ်အ display name လၢ My Data အပူၤသ့ ဖဲအဆၢကတီၢ်ခဲလၢာ် (safety rule တဖၣ် ဒံးအိၣ်အသး)."
+#: services/classhub/templates/trust.html:46
+msgid ""
+"Students can rename their display name from My Data at any time (safety "
+"rules still apply)."
+msgstr ""
+"ပှၤမၤလိတဖၣ် လဲလိာ်အ display name လၢ My Data အပူၤသ့ ဖဲအဆၢကတီၢ်ခဲလၢာ် (safety rule တဖၣ် "
+"ဒံးအိၣ်အသး)."
 
-msgid "Students can request deletion of their own artifacts and class activity history from My Data. Staff review the request before removal."
-msgstr "ပှၤမၤလိတဖၣ် ဃ့ဖျီၣ်ကွံာ် အဝဲသ့ၣ်အ artifact ဒီး class activity history လၢ My Data အပူၤသ့. staff ကကွၢ်သမံသမိး request အံၤ လၢတၢ်ဖျီၣ်ကွံာ် အခါခီ."
+#: services/classhub/templates/trust.html:48
+msgid ""
+"Students can request deletion of their own artifacts and class activity "
+"history from My Data. Staff review the request before removal."
+msgstr ""
+"ပှၤမၤလိတဖၣ် ဃ့ဖျီၣ်ကွံာ် အဝဲသ့ၣ်အ artifact ဒီး class activity history လၢ My Data အပူၤသ့. "
+"staff ကကွၢ်သမံသမိး request အံၤ လၢတၢ်ဖျီၣ်ကွံာ် အခါခီ."
 
-msgid "Students can delete their own artifacts and class activity history from My Data at any time."
-msgstr "ပှၤမၤလိတဖၣ် ဖျီၣ်ကွံာ် အဝဲသ့ၣ်အ artifact ဒီး class activity history လၢ My Data အပူၤသ့ ဖဲအဆၢကတီၢ်ခဲလၢာ်."
+#: services/classhub/templates/trust.html:50
+msgid ""
+"Students can delete their own artifacts and class activity history from My "
+"Data at any time."
+msgstr ""
+"ပှၤမၤလိတဖၣ် ဖျီၣ်ကွံာ် အဝဲသ့ၣ်အ artifact ဒီး class activity history လၢ My Data အပူၤသ့ "
+"ဖဲအဆၢကတီၢ်ခဲလၢာ်."
 
+#: services/classhub/templates/trust.html:53
 msgid "Retention policy for submissions:"
 msgstr "submission retention policy:"
 
-msgid "Retention policy for event metadata:"
-msgstr "event metadata retention policy:"
+#: services/classhub/templates/trust.html:55
+#: services/classhub/templates/trust.html:63
+msgid "day(s)."
+msgstr "day(s)."
 
+#: services/classhub/templates/trust.html:57
+#: services/classhub/templates/trust.html:65
 msgid "operator-controlled by class policy."
 msgstr "class policy ကပၢဆှၢအီၤ."
 
+#: services/classhub/templates/trust.html:61
+msgid "Retention policy for event metadata:"
+msgstr "event metadata retention policy:"
+
+#: services/classhub/templates/trust.html:73
 msgid "Quick controls"
 msgstr "quick control တဖၣ်"
 
+#: services/classhub/templates/trust.html:75
 msgid "Student controls are at"
 msgstr "student control တဖၣ် အိၣ်ဖဲ"
 
+#: services/classhub/templates/trust.html:76
 msgid "rename, download, delete, and end session."
 msgstr "လဲလိာ်မံၤ, download, ဖျီၣ်ကွံာ်, ဒီးမၤဝံၤ session."
 
-#, python-format
-msgid "this server is hosted by %(operator_name)s, %(operator_descriptor)s."
-msgstr "server အံၤ ဘၣ်တၢ်host အီၤလၢ %(operator_name)s, %(operator_descriptor)s."
+#~ msgid "Staff-only cockpit"
+#~ msgstr "staff သီးသန့ panel"
+
+#~ msgid "Toggle lock"
+#~ msgstr "ထိၣ်ဃာ်ကဒီး lock"
+
+#~ msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
+#~ msgstr "တ့ထီၣ် `.md` ဒီး `.docx` starter file လၢတၢ်ကတဲာ်ကတီၤပာ်စၢၤအီၤလံ လၢဆရာ/မတဖၣ်အဂီၢ်."
+
+#~ msgid ""
+#~ "Admin/superuser backup and catalog downloads for repo-authored course "
+#~ "syllabi."
+#~ msgstr ""
+#~ "admin/superuser backup ဒီး catalog download တဖၣ် လၢ repo-authored course "
+#~ "syllabus တဖၣ်အဂီၢ်."

@@ -1,4 +1,4 @@
-{% load static hub_extras %}
+{% load static hub_extras i18n %}
 <!doctype html>
 <html lang="en">
 
@@ -16,22 +16,22 @@
     <main id="main-content">
       <div class="top">
         <div>
-          <div class="muted">Course: <a href="/course/{{ course_slug }}?reading_level={{ selected_reading_level }}">{{ course.title|default:course_slug }}</a>
+          <div class="muted">{% trans "Course:" %} <a href="/course/{{ course_slug }}?reading_level={{ selected_reading_level }}">{{ course.title|default:course_slug }}</a>
           </div>
           <h1>{{ front_matter.title|default:lesson_slug }}</h1>
           <div class="muted">
             <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple">Simple</a>
             · <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard">Standard</a>
-            · Reading level: {{ selected_reading_level|title }}
+            · {% trans "Reading level:" %} {{ selected_reading_level|title }}
           </div>
           {% if front_matter.makes %}
           <div class="muted">
             {% if selected_reading_level == "simple" %}
-            Today you will: {{ front_matter.makes }}
+            {% trans "Today you will:" %} {{ front_matter.makes }}
             {% elif ui_density_mode == "compact" %}
-            Goal: {{ front_matter.makes }}
+            {% trans "Goal:" %} {{ front_matter.makes }}
             {% else %}
-            Makes: {{ front_matter.makes }}
+            {% trans "Makes:" %} {{ front_matter.makes }}
             {% endif %}
           </div>
           {% endif %}
@@ -41,37 +41,37 @@
           {% endif %}
           <div class="lesson-status">
             {% if lesson_locked %}
-            <span class="state-pill state-pill--locked">Lesson locked</span>
+            <span class="state-pill state-pill--locked">{% trans "Lesson locked" %}</span>
             {% else %}
-            <span class="state-pill state-pill--open">Lesson open</span>
+            <span class="state-pill state-pill--open">{% trans "Lesson open" %}</span>
             {% endif %}
           </div>
         </div>
         <div class="nav">
-          <a class="btn" href="/student?reading_level={{ selected_reading_level }}">Back to class</a>
-          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}Open handout{% else %}Print handout{% endif %}</a>
-          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout.pdf?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}Download handout{% else %}Download handout PDF{% endif %}</a>
+          <a class="btn" href="/student?reading_level={{ selected_reading_level }}">{% trans "Back to class" %}</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}{% trans "Open handout" %}{% else %}{% trans "Print handout" %}{% endif %}</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout.pdf?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}{% trans "Download handout" %}{% else %}{% trans "Download handout PDF" %}{% endif %}</a>
           {% if can_edit_lesson_override and classroom %}
-          <a class="btn" href="/teach/course/{{ course_slug }}/lesson/{{ lesson_slug }}/edit?class_id={{ classroom.id }}">Edit Markdown</a>
+          <a class="btn" href="/teach/course/{{ course_slug }}/lesson/{{ lesson_slug }}/edit?class_id={{ classroom.id }}">{% trans "Edit Markdown" %}</a>
           {% endif %}
           {% if ui_density_mode == "expanded" %}
-          <a class="btn" href="/student/portfolio-export">Export portfolio</a>
+          <a class="btn" href="/student/portfolio-export">{% trans "Export portfolio" %}</a>
           {% endif %}
           {% if prev %}
-          <a class="btn" href="/course/{{ course_slug }}/{{ prev.slug }}?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}← Back{% else %}← Prev{% endif %}</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ prev.slug }}?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}{% trans "← Back" %}{% else %}{% trans "← Prev" %}{% endif %}</a>
           {% endif %}
           {% if next %}
-          <a class="btn" href="/course/{{ course_slug }}/{{ next.slug }}?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}Next lesson →{% else %}Next →{% endif %}</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ next.slug }}?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}{% trans "Next lesson →" %}{% else %}{% trans "Next →" %}{% endif %}</a>
           {% endif %}
         </div>
       </div>
 
       {% if lesson_locked %}
       <div class="card">
-        <h2 class="card-title">{% if selected_reading_level == "simple" %}When this opens{% else %}Lesson schedule{% endif %}</h2>
-        <p><span class="state-pill state-pill--locked">Intro-only mode</span></p>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}{% trans "When this opens" %}{% else %}{% trans "Lesson schedule" %}{% endif %}</h2>
+        <p><span class="state-pill state-pill--locked">{% trans "Intro-only mode" %}</span></p>
         <p class="muted">
-          Full activities and submissions unlock on
+          {% trans "Full activities and submissions unlock on" %}
           <strong>{{ lesson_available_on|date:"M j, Y" }}</strong>.
         </p>
       </div>
@@ -79,7 +79,7 @@
 
       {% if not lesson_locked and lesson_videos %}
       <div class="card">
-        <h2 class="card-title">Lesson videos</h2>
+        <h2 class="card-title">{% trans "Lesson videos" %}</h2>
         {% for video in lesson_videos %}
         <section class="video-item">
           <button type="button" class="video-toggle" id="video-toggle-{{ forloop.counter }}" aria-expanded="false"
@@ -99,19 +99,19 @@
             {% elif video.source_type == "native" and video.media_url %}
             <video class="video-native" controls preload="metadata" playsinline>
               <source src="{{ video.media_url }}" {% if video.media_type %}type="{{ video.media_type }}" {% endif %} />
-              Your browser does not support this video. Use the open link below.
+              {% trans "Your browser does not support this video. Use the open link below." %}
             </video>
             {% else %}
-            <p class="muted video-state">No inline video source is configured yet.</p>
+            <p class="muted video-state">{% trans "No inline video source is configured yet." %}</p>
             {% endif %}
 
             {% if video.url %}
             <p class="video-state">
-              <a href="{{ video.url }}" target="_blank" rel="noopener noreferrer">Open video in a new tab</a>
+              <a href="{{ video.url }}" target="_blank" rel="noopener noreferrer">{% trans "Open video in a new tab" %}</a>
             </p>
             {% endif %}
             {% if video.outcome %}
-            <p class="muted video-state">After this you can: {{ video.outcome }}</p>
+            <p class="muted video-state">{% trans "After this you can:" %} {{ video.outcome }}</p>
             {% endif %}
           </div>
         </section>
@@ -121,40 +121,38 @@
 
       {% if not lesson_locked and lesson_submission.type == "file" %}
       <div class="card">
-        <h2 class="card-title">{% if selected_reading_level == "simple" %}Turn in your work{% else %}Homework dropbox{% endif %}</h2>
-        <p class="muted dropbox-detail"><span class="state-pill state-pill--open">Submissions open</span></p>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}{% trans "Turn in your work" %}{% else %}{% trans "Homework dropbox" %}{% endif %}</h2>
+        <p class="muted dropbox-detail"><span class="state-pill state-pill--open">{% trans "Submissions open" %}</span></p>
         <p class="muted dropbox-detail">
           {% if lesson_submission.accepted_exts %}
-          Accepted: <strong>{{ lesson_submission.accepted_exts|join:", " }}</strong>
+          {% trans "Accepted:" %} <strong>{{ lesson_submission.accepted_exts|join:", " }}</strong>
           {% else %}
-          Accepted: <strong>.sb3</strong>
+          {% trans "Accepted:" %} <strong>.sb3</strong>
           {% endif %}
           {% if lesson_submission.naming %}
-          · Suggested name: <strong>{{ lesson_submission.naming }}</strong>
+          · {% trans "Suggested name:" %} <strong>{{ lesson_submission.naming }}</strong>
           {% endif %}
         </p>
 
         {% if student and lesson_upload_material %}
         <p class="muted dropbox-state">
           {% if lesson_upload_status %}
-          <span class="state-pill state-pill--done">Done</span> File saved. Re-upload to replace.
+          <span class="state-pill state-pill--done">{% trans "Done" %}</span> {% trans "File saved. Re-upload to replace." %}
           {% else %}
-          <span class="state-pill state-pill--open">Open</span> Upload at least one file to finish.
+          <span class="state-pill state-pill--open">{% trans "Open" %}</span> {% trans "Upload at least one file to finish." %}
           {% endif %}
         </p>
         <div class="nav dropbox-actions">
-          <a class="btn" href="/material/{{ lesson_upload_material.id }}/upload?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}Open upload page{% else %}Open dropbox{% endif %}</a>
+          <a class="btn" href="/material/{{ lesson_upload_material.id }}/upload?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}{% trans "Open upload page" %}{% else %}{% trans "Open dropbox" %}{% endif %}</a>
           {% if lesson_upload_status %}
-          <span class="muted">Uploaded {{ lesson_upload_status.count }} file{{ lesson_upload_status.count|pluralize }} ·
-            latest {{ lesson_upload_status.last_uploaded_at }}</span>
+          <span class="muted">{% blocktrans count count=lesson_upload_status.count with last_uploaded_at=lesson_upload_status.last_uploaded_at %}Uploaded {{ count }} file · latest {{ last_uploaded_at }}{% plural %}Uploaded {{ count }} files · latest {{ last_uploaded_at }}{% endblocktrans %}</span>
           {% endif %}
         </div>
         {% elif student %}
-        <p class="muted dropbox-state">Dropbox is not configured for this lesson yet. A teacher can re-import the course
-          pack to enable it.</p>
+        <p class="muted dropbox-state">{% trans "Dropbox is not configured for this lesson yet. A teacher can re-import the course pack to enable it." %}</p>
         {% else %}
         <div class="nav dropbox-actions">
-          <a class="btn" href="/">Join your class to upload homework</a>
+          <a class="btn" href="/">{% trans "Join your class to upload homework" %}</a>
         </div>
         {% endif %}
       </div>
@@ -162,18 +160,17 @@
 
       {% if ui_density_mode == "expanded" and not lesson_locked %}
       <div class="card studio-expectations">
-        <h2 class="card-title">Design log prompt</h2>
-        <p class="muted">Before you leave this session, record what changed, why you changed it, and what you would
-          improve next.</p>
+        <h2 class="card-title">{% trans "Design log prompt" %}</h2>
+        <p class="muted">{% trans "Before you leave this session, record what changed, why you changed it, and what you would improve next." %}</p>
         <ul class="studio-checklist">
-          <li>Update your design log with one intentional decision and rationale.</li>
-          <li>Add a short changelog entry for this session.</li>
-          <li>Draft release notes for what a tester should notice.</li>
-          <li>Explain one block/script path in plain language.</li>
+          <li>{% trans "Update your design log with one intentional decision and rationale." %}</li>
+          <li>{% trans "Add a short changelog entry for this session." %}</li>
+          <li>{% trans "Draft release notes for what a tester should notice." %}</li>
+          <li>{% trans "Explain one block/script path in plain language." %}</li>
         </ul>
         {% if front_matter.extend %}
-        <h3 class="card-title">Challenge branches</h3>
-        <p class="muted">Choose one branch and document why you picked it.</p>
+        <h3 class="card-title">{% trans "Challenge branches" %}</h3>
+        <p class="muted">{% trans "Choose one branch and document why you picked it." %}</p>
         <ul class="studio-branch-list">
           {% for option in front_matter.extend|slice:":3" %}
           <li class="studio-branch-item">{{ option }}</li>
@@ -185,11 +182,11 @@
 
       {% if lesson_handout %}
       <div class="card">
-        <h2 class="card-title">{% if selected_reading_level == "simple" %}Start here{% else %}Do this now{% endif %}</h2>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}{% trans "Start here" %}{% else %}{% trans "Do this now" %}{% endif %}</h2>
         <div class="nav">
           <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple">Simple</a>
           <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard">Standard</a>
-          <span class="muted">Reading level: {{ selected_reading_level|title }}</span>
+          <span class="muted">{% trans "Reading level:" %} {{ selected_reading_level|title }}</span>
         </div>
         {% if lesson_handout.goal %}
         <p class="muted">{{ lesson_handout.goal }}</p>
@@ -200,7 +197,7 @@
           {% endfor %}
         </ul>
         {% if lesson_handout.submit %}
-        <h3 class="card-title">{% if selected_reading_level == "simple" %}Turn in{% else %}Submit{% endif %}</h3>
+        <h3 class="card-title">{% if selected_reading_level == "simple" %}{% trans "Turn in" %}{% else %}{% trans "Submit" %}{% endif %}</h3>
         <ul>
           {% for item in lesson_handout.submit %}
           <li>{{ item }}</li>
@@ -208,7 +205,7 @@
         </ul>
         {% endif %}
         {% if lesson_handout.safety %}
-        <h3 class="card-title">{% if selected_reading_level == "simple" %}Stay safe{% else %}Safety{% endif %}</h3>
+        <h3 class="card-title">{% if selected_reading_level == "simple" %}{% trans "Stay safe" %}{% else %}{% trans "Safety" %}{% endif %}</h3>
         <ul>
           {% for item in lesson_handout.safety %}
           <li>{{ item }}</li>
@@ -220,7 +217,7 @@
 
       {% if local_anchors %}
       <div class="card">
-        <h2 class="card-title">{% if selected_reading_level == "simple" %}Around you{% else %}Local anchors{% endif %}</h2>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}{% trans "Around you" %}{% else %}{% trans "Local anchors" %}{% endif %}</h2>
         <ul>
           {% for item in local_anchors %}
           <li>{{ item }}</li>
@@ -231,7 +228,7 @@
 
       {% if example_variants %}
       <div class="card">
-        <h2 class="card-title">{% if selected_reading_level == "simple" %}Other versions{% else %}Example variants{% endif %}</h2>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}{% trans "Other versions" %}{% else %}{% trans "Example variants" %}{% endif %}</h2>
         <ul>
           {% for item in example_variants %}
           <li>{{ item }}</li>
@@ -242,7 +239,7 @@
 
       {% if community_glossary %}
       <div class="card">
-        <h2 class="card-title">{% if selected_reading_level == "simple" %}Words for this lesson{% else %}Community glossary{% endif %}</h2>
+        <h2 class="card-title">{% if selected_reading_level == "simple" %}{% trans "Words for this lesson" %}{% else %}{% trans "Community glossary" %}{% endif %}</h2>
         <ul>
           {% for row in community_glossary %}
           <li><strong>{{ row.term }}</strong>: {{ row.definition }}</li>
@@ -263,12 +260,11 @@
 
       <p class="muted">
         {% if selected_reading_level == "simple" %}
-        If something feels private, leave it out and tell your teacher.
+        {% trans "If something feels private, leave it out and tell your teacher." %}
         {% elif ui_density_mode == "compact" %}
-        If something feels unsafe to share, keep it private and tell your teacher.
+        {% trans "If something feels unsafe to share, keep it private and tell your teacher." %}
         {% else %}
-        If something feels unsafe to share, keep your work private and submit only the file. You control what leaves
-        your device.
+        {% trans "If something feels unsafe to share, keep your work private and submit only the file. You control what leaves your device." %}
         {% endif %}
       </p>
     </main>

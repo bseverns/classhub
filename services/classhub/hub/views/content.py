@@ -175,6 +175,114 @@ def _normalize_stored_lesson_videos(course_slug: str, lesson_slug: str) -> list[
     return normalized
 
 
+def _lesson_upload_context(
+    *,
+    request,
+    course_slug: str,
+    lesson_slug: str,
+    lesson_locked: bool,
+    lesson_submission: dict,
+) -> tuple[Material | None, dict]:
+    lesson_upload_material = None
+    lesson_upload_status: dict = {}
+    if (
+        lesson_locked
+        or lesson_submission.get("type") != "file"
+        or getattr(request, "student", None) is None
+        or getattr(request, "classroom", None) is None
+    ):
+        return lesson_upload_material, lesson_upload_status
+
+    lesson_upload_material = _find_lesson_upload_material(request.classroom.id, course_slug, lesson_slug)
+    if lesson_upload_material is None:
+        return lesson_upload_material, lesson_upload_status
+
+    student_submissions = Submission.objects.filter(
+        material=lesson_upload_material,
+        student=request.student,
+    )
+    latest = student_submissions.only("id", "uploaded_at").first()
+    if latest is not None:
+        lesson_upload_status = {
+            "count": student_submissions.count(),
+            "last_uploaded_at": latest.uploaded_at,
+            "last_id": latest.id,
+        }
+    return lesson_upload_material, lesson_upload_status
+
+
+def _apply_helper_release_overrides(
+    *,
+    release_override,
+    helper_context: str,
+    helper_topics: list[str],
+    helper_allowed_topics: list[str],
+    helper_reference: str,
+) -> tuple[str, list[str], list[str], str]:
+    if not release_override:
+        return helper_context, helper_topics, helper_allowed_topics, helper_reference
+
+    helper_context_override = (release_override.helper_context_override or "").strip()
+    helper_topics_override = split_helper_topics_text(release_override.helper_topics_override)
+    helper_allowed_topics_override = split_helper_topics_text(release_override.helper_allowed_topics_override)
+    helper_reference_override = (release_override.helper_reference_override or "").strip()
+    if helper_context_override:
+        helper_context = helper_context_override
+    if helper_topics_override:
+        helper_topics = helper_topics_override
+    if helper_allowed_topics_override:
+        helper_allowed_topics = helper_allowed_topics_override
+    if helper_reference_override:
+        helper_reference = helper_reference_override
+    return helper_context, helper_topics, helper_allowed_topics, helper_reference
+
+
+def _build_lesson_helper_widget(
+    *,
+    request,
+    lesson_locked: bool,
+    helper_context: str,
+    helper_topics: list[str],
+    helper_allowed_topics: list[str],
+    helper_reference: str,
+    localization,
+    ui_density_mode: str,
+    helper_scope_token: str,
+) -> str:
+    can_use_helper = bool(
+        getattr(request, "student", None) is not None
+        or (request.user.is_authenticated and request.user.is_staff)
+    )
+    if lesson_locked or not can_use_helper:
+        return ""
+
+    get_token(request)
+    helper_delete_url = "/student/my-data" if getattr(request, "student", None) is not None else "/teach"
+    helper_description = _("Need a hint for this lesson? Ask the helper to guide you without handing out answers.")
+    if ui_density_mode == "compact":
+        helper_description = _("Need help? Ask for one small next step at a time.")
+    elif ui_density_mode == "expanded":
+        helper_description = _("Ask for strategy, debugging, or extension ideas without asking for direct answers.")
+    return render_to_string(
+        "includes/helper_widget.html",
+        {
+            "helper_title": _("Lesson helper"),
+            "helper_description": helper_description,
+            "helper_context": helper_context,
+            "helper_topics": " | ".join(helper_topics),
+            "helper_reference": helper_reference,
+            "helper_allowed_topics": " | ".join(helper_allowed_topics),
+            "helper_backend_label": _helper_backend_label(),
+            "helper_delete_url": helper_delete_url,
+            "helper_language_code": localization.helper_code,
+            "helper_prompt_sets_json": build_helper_prompt_sets_json(),
+            "student_event_retention_days": _retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180),
+            "helper_scope_token": helper_scope_token,
+        },
+        request=request,
+    )
+
+
 def course_lesson(request, course_slug: str, lesson_slug: str):
     """Render a markdown lesson page from disk."""
     localization = localization_from_request(request)
@@ -266,43 +374,22 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
         language_code=localization.code,
     )
     lesson_submission = front_matter_submission(fm)
-    lesson_upload_material = None
-    lesson_upload_status = {}
-
-    if (
-        not lesson_locked
-        and lesson_submission.get("type") == "file"
-        and getattr(request, "student", None) is not None
-        and getattr(request, "classroom", None) is not None
-    ):
-        lesson_upload_material = _find_lesson_upload_material(request.classroom.id, course_slug, lesson_slug)
-        if lesson_upload_material is not None:
-            student_submissions = Submission.objects.filter(
-                material=lesson_upload_material,
-                student=request.student,
-            )
-            latest = student_submissions.only("id", "uploaded_at").first()
-            if latest is not None:
-                lesson_upload_status = {
-                    "count": student_submissions.count(),
-                    "last_uploaded_at": latest.uploaded_at,
-                    "last_id": latest.id,
-                }
+    lesson_upload_material, lesson_upload_status = _lesson_upload_context(
+        request=request,
+        course_slug=course_slug,
+        lesson_slug=lesson_slug,
+        lesson_locked=lesson_locked,
+        lesson_submission=lesson_submission,
+    )
 
     helper_reference = lesson_meta.get("helper_reference") or manifest.get("helper_reference") or ""
-    if release_override:
-        helper_context_override = (release_override.helper_context_override or "").strip()
-        helper_topics_override = split_helper_topics_text(release_override.helper_topics_override)
-        helper_allowed_topics_override = split_helper_topics_text(release_override.helper_allowed_topics_override)
-        helper_reference_override = (release_override.helper_reference_override or "").strip()
-        if helper_context_override:
-            helper_context = helper_context_override
-        if helper_topics_override:
-            helper_topics = helper_topics_override
-        if helper_allowed_topics_override:
-            helper_allowed_topics = helper_allowed_topics_override
-        if helper_reference_override:
-            helper_reference = helper_reference_override
+    helper_context, helper_topics, helper_allowed_topics, helper_reference = _apply_helper_release_overrides(
+        release_override=release_override,
+        helper_context=helper_context,
+        helper_topics=helper_topics,
+        helper_allowed_topics=helper_allowed_topics,
+        helper_reference=helper_reference,
+    )
 
     helper_scope_token = issue_scope_token(
         context=helper_context,
@@ -311,37 +398,17 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
         reference=helper_reference,
         signing_key=_helper_scope_signing_key(),
     )
-    helper_widget = ""
-    can_use_helper = bool(
-        getattr(request, "student", None) is not None
-        or (request.user.is_authenticated and request.user.is_staff)
+    helper_widget = _build_lesson_helper_widget(
+        request=request,
+        lesson_locked=lesson_locked,
+        helper_context=helper_context,
+        helper_topics=helper_topics,
+        helper_allowed_topics=helper_allowed_topics,
+        helper_reference=helper_reference,
+        localization=localization,
+        ui_density_mode=ui_density_mode,
+        helper_scope_token=helper_scope_token,
     )
-    if not lesson_locked and can_use_helper:
-        get_token(request)
-        helper_delete_url = "/student/my-data" if getattr(request, "student", None) is not None else "/teach"
-        helper_description = _("Need a hint for this lesson? Ask the helper to guide you without handing out answers.")
-        if ui_density_mode == "compact":
-            helper_description = _("Need help? Ask for one small next step at a time.")
-        elif ui_density_mode == "expanded":
-            helper_description = _("Ask for strategy, debugging, or extension ideas without asking for direct answers.")
-        helper_widget = render_to_string(
-            "includes/helper_widget.html",
-            {
-                "helper_title": _("Lesson helper"),
-                "helper_description": helper_description,
-                "helper_context": helper_context,
-                "helper_topics": " | ".join(helper_topics),
-                "helper_reference": helper_reference,
-                "helper_allowed_topics": " | ".join(helper_allowed_topics),
-                "helper_backend_label": _helper_backend_label(),
-                "helper_delete_url": helper_delete_url,
-                "helper_language_code": localization.helper_code,
-                "helper_prompt_sets_json": build_helper_prompt_sets_json(),
-                "student_event_retention_days": _retention_days("CLASSHUB_STUDENT_EVENT_RETENTION_DAYS", 180),
-                "helper_scope_token": helper_scope_token,
-            },
-            request=request,
-        )
 
     return render(
         request,

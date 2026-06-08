@@ -33,9 +33,9 @@
           <p class="muted">{% trans "Open one lesson at a time for simpler student instructions." %}</p>
           {% endif %}
           {% if ui_density_mode == "compact" %}
-          <p class="muted">Elementary mode: simpler student language and fewer simultaneous controls.</p>
+          <p class="muted">{% trans "Elementary mode: simpler student language and fewer simultaneous controls." %}</p>
           {% elif ui_density_mode == "expanded" %}
-          <p class="muted">Advanced mode: denser controls and richer helper guidance.</p>
+          <p class="muted">{% trans "Advanced mode: denser controls and richer helper guidance." %}</p>
           {% endif %}
         </div>
       </div>
@@ -52,8 +52,7 @@
         {% if selected_reading_level == "simple" %}
         <p class="muted">{% trans "Students usually join with a class code and open lessons from student home." %}</p>
         {% else %}
-        <p class="muted">This page is mainly for direct lesson link verification. Students usually enter via class code
-          and land on <code>/student</code>.</p>
+        <p class="muted">{% trans "This page is mainly for direct lesson link verification. Students usually enter via class code and land on /student." %}</p>
         {% endif %}
       </div>
 

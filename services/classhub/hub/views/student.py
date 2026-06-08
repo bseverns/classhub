@@ -291,6 +291,45 @@ def student_end_session(request):
     return _end_student_session_response(request)
 
 
+def _material_upload_post_state(
+    *,
+    request,
+    material: Material,
+    form: SubmissionUploadForm,
+    allowed_exts: list[str],
+    max_bytes: int,
+):
+    response_status = 200
+    error = ""
+    remix_source = None
+    if form.is_valid():
+        share_with_class = bool(request.POST.get("share_with_class")) if material.type == Material.TYPE_GALLERY else False
+        remix_source = resolve_remix_source_submission(
+            request=request,
+            material=material,
+            remix_of_submission_id=form.cleaned_data.get("remix_of_submission_id"),
+        )
+        upload_result = process_material_upload_form(
+            request=request,
+            material=material,
+            form=form,
+            allowed_exts=allowed_exts,
+            max_bytes=max_bytes,
+            validate_upload_content_fn=validate_upload_content,
+            scan_uploaded_file_fn=scan_uploaded_file,
+            emit_student_event_fn=_emit_student_event,
+            logger=logger,
+            share_with_class=share_with_class,
+            remix_of_submission=remix_source,
+        )
+        return upload_result.redirect_url, upload_result.error, upload_result.response_status, remix_source
+
+    first_error = next((str(values[0]).strip() for values in form.errors.values() if values), "")
+    error = first_error or "Please check your upload form and try again."
+    response_status = 400
+    return "", error, response_status, remix_source
+
+
 def material_upload(request, material_id: int):
     """Student upload page for a Material of type=upload or type=gallery."""
     if getattr(request, "student", None) is None or getattr(request, "classroom", None) is None:
@@ -329,34 +368,15 @@ def material_upload(request, material_id: int):
             response_status = 403
     elif request.method == "POST":
         form = SubmissionUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            share_with_class = bool(request.POST.get("share_with_class")) if material.type == Material.TYPE_GALLERY else False
-            remix_source = resolve_remix_source_submission(
-                request=request,
-                material=material,
-                remix_of_submission_id=form.cleaned_data.get("remix_of_submission_id"),
-            )
-            upload_result = process_material_upload_form(
-                request=request,
-                material=material,
-                form=form,
-                allowed_exts=allowed_exts,
-                max_bytes=max_bytes,
-                validate_upload_content_fn=validate_upload_content,
-                scan_uploaded_file_fn=scan_uploaded_file,
-                emit_student_event_fn=_emit_student_event,
-                logger=logger,
-                share_with_class=share_with_class,
-                remix_of_submission=remix_source,
-            )
-            if upload_result.redirect_url:
-                return redirect(upload_result.redirect_url)
-            error = upload_result.error
-            response_status = upload_result.response_status
-        else:
-            first_error = next((str(values[0]).strip() for values in form.errors.values() if values), "")
-            error = first_error or "Please check your upload form and try again."
-            response_status = 400
+        redirect_url, error, response_status, remix_source = _material_upload_post_state(
+            request=request,
+            material=material,
+            form=form,
+            allowed_exts=allowed_exts,
+            max_bytes=max_bytes,
+        )
+        if redirect_url:
+            return redirect(redirect_url)
     submissions = Submission.objects.filter(material=material, student=request.student).all()
 
     response = render(

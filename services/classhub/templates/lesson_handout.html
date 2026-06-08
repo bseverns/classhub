@@ -1,4 +1,4 @@
-{% load static %}
+{% load static i18n %}
 <!doctype html>
 <html lang="en">
 
@@ -22,14 +22,14 @@
         </p>
       </div>
       <div class="meta">
-        <p><strong>Reading level:</strong> {{ selected_reading_level|title }}</p>
-        <p><strong>{% if selected_reading_level == "simple" %}Open online:{% else %}Online lesson:{% endif %}</strong> {{ lesson_handout.online_url }}</p>
+        <p><strong>{% trans "Reading level:" %}</strong> {{ selected_reading_level|title }}</p>
+        <p><strong>{% if selected_reading_level == "simple" %}{% trans "Open online:" %}{% else %}{% trans "Online lesson:" %}{% endif %}</strong> {{ lesson_handout.online_url }}</p>
       </div>
     </header>
 
     <section class="grid">
       <article class="panel">
-        <h2>{% if selected_reading_level == "simple" %}Start here{% else %}Do this now{% endif %}</h2>
+        <h2>{% if selected_reading_level == "simple" %}{% trans "Start here" %}{% else %}{% trans "Do this now" %}{% endif %}</h2>
         {% if lesson_handout.goal %}
         <p class="goal">{{ lesson_handout.goal }}</p>
         {% endif %}
@@ -41,14 +41,14 @@
       </article>
 
       <aside class="panel qr-panel">
-        <h2>{% if selected_reading_level == "simple" %}Open online{% else %}Open online{% endif %}</h2>
+        <h2>{% trans "Open online" %}</h2>
         <div class="qr-art" aria-hidden="true">{{ handout_qr_svg|safe }}</div>
         <p class="small">{{ lesson_handout.online_url }}</p>
       </aside>
 
       {% if lesson_handout.submit %}
       <article class="panel">
-        <h2>{% if selected_reading_level == "simple" %}Turn in{% else %}Submit{% endif %}</h2>
+        <h2>{% if selected_reading_level == "simple" %}{% trans "Turn in" %}{% else %}{% trans "Submit" %}{% endif %}</h2>
         <ul>
           {% for item in lesson_handout.submit %}
           <li>{{ item }}</li>
@@ -59,7 +59,7 @@
 
       {% if lesson_handout.safety %}
       <article class="panel">
-        <h2>{% if selected_reading_level == "simple" %}Stay safe{% else %}Safety{% endif %}</h2>
+        <h2>{% if selected_reading_level == "simple" %}{% trans "Stay safe" %}{% else %}{% trans "Safety" %}{% endif %}</h2>
         <ul>
           {% for item in lesson_handout.safety %}
           <li>{{ item }}</li>
@@ -70,7 +70,7 @@
 
       {% if lesson_handout.local_anchors %}
       <article class="panel">
-        <h2>{% if selected_reading_level == "simple" %}Around you{% else %}Local anchors{% endif %}</h2>
+        <h2>{% if selected_reading_level == "simple" %}{% trans "Around you" %}{% else %}{% trans "Local anchors" %}{% endif %}</h2>
         <ul>
           {% for item in lesson_handout.local_anchors %}
           <li>{{ item }}</li>
@@ -81,7 +81,7 @@
 
       {% if lesson_handout.example_variants %}
       <article class="panel">
-        <h2>{% if selected_reading_level == "simple" %}Other versions{% else %}Example variants{% endif %}</h2>
+        <h2>{% if selected_reading_level == "simple" %}{% trans "Other versions" %}{% else %}{% trans "Example variants" %}{% endif %}</h2>
         <ul>
           {% for item in lesson_handout.example_variants %}
           <li>{{ item }}</li>
@@ -92,7 +92,7 @@
 
       {% if lesson_handout.community_glossary %}
       <article class="panel glossary-panel">
-        <h2>{% if selected_reading_level == "simple" %}Words for this lesson{% else %}Community glossary{% endif %}</h2>
+        <h2>{% if selected_reading_level == "simple" %}{% trans "Words for this lesson" %}{% else %}{% trans "Community glossary" %}{% endif %}</h2>
         <ul>
           {% for row in lesson_handout.community_glossary %}
           <li><strong>{{ row.term }}</strong>: {{ row.definition }}</li>
@@ -103,7 +103,7 @@
 
       {% if lesson_handout.comment %}
       <article class="panel">
-        <h2>{% if selected_reading_level == "simple" %}Feedback starters{% else %}Peer feedback starters{% endif %}</h2>
+        <h2>{% if selected_reading_level == "simple" %}{% trans "Feedback starters" %}{% else %}{% trans "Peer feedback starters" %}{% endif %}</h2>
         <ul>
           {% for item in lesson_handout.comment %}
           <li>{{ item }}</li>
