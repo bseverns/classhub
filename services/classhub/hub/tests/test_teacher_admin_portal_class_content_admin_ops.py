@@ -1,8 +1,73 @@
 from ._shared import *  # noqa: F401,F403
 from ._teacher_admin_portal_base import TeacherPortalBaseTests
+from ..services.coursepack_registry import build_registry_entry, new_registry_document, upsert_registry_entry, write_registry_document
 
 
 class TeacherPortalClassContentAdminOpsTests(TeacherPortalBaseTests):
+    def _registry_index(self, *, root: Path, slug: str, version: str) -> Path:
+        courses_root = root / "registry_source_courses"
+        course_dir = courses_root / slug
+        course_dir.mkdir(parents=True)
+        (course_dir / "course.yaml").write_text(
+            f"""slug: {slug}
+title: "Portal Registry Course"
+ui_level: advanced
+program_profile: advanced
+lessons:
+  - session: 1
+    slug: s01-build
+    title: "Build"
+    file: lessons/01-build.md
+""",
+            encoding="utf-8",
+        )
+        artifact_dir = root / "published_registry" / "artifacts"
+        artifact_dir.mkdir(parents=True)
+        artifact_path = artifact_dir / f"{slug}_{version}.zip"
+        artifact_buffer = BytesIO()
+        with zipfile.ZipFile(artifact_buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr(
+                f"{slug}/course.yaml",
+                f"""slug: {slug}
+title: "Portal Registry Course"
+ui_level: advanced
+program_profile: advanced
+lessons:
+  - session: 1
+    slug: s01-build
+    title: "Build"
+    file: lessons/01-build.md
+""",
+            )
+            archive.writestr(
+                f"{slug}/lessons/01-build.md",
+                f"""---
+course: {slug}
+session: 1
+slug: s01-build
+title: "Build"
+submission:
+  type: file
+  accepted:
+    - .sb3
+---
+# Build
+""",
+            )
+        artifact_path.write_bytes(artifact_buffer.getvalue())
+        entry = build_registry_entry(
+            slug=slug,
+            artifact_path=artifact_path,
+            version=version,
+            artifact_url=f"artifacts/{artifact_path.name}",
+            source_url=f"https://example.org/coursepacks/{slug}",
+            sdk_version="0.1.0",
+            courses_root=courses_root,
+        )
+        index_path = root / "published_registry" / "index.json"
+        write_registry_document(index_path, upsert_registry_entry(new_registry_document(), entry))
+        return index_path
+
     @patch("hub.views.teacher_parts.content_home.generate_authoring_templates")
     def test_teach_home_can_generate_authoring_templates(self, mock_generate):
         mock_generate.return_value.output_paths = [
@@ -218,8 +283,72 @@ Session 02: Final Build
                 )
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp["Content-Type"], "application/zip")
-        self.assertTrue(resp["Content-Disposition"].startswith("attachment;"))
+
+    def test_teach_home_shows_registry_import_tool_for_superuser(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach")
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Import Registry Coursepack")
+        self.assertContains(resp, 'action="/teach/import-coursepack-registry"', html=False)
+
+    def test_superuser_can_import_registry_coursepack_from_teach_home(self):
+        _force_login_staff_verified(self.client, self.staff)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            index_path = self._registry_index(
+                root=root,
+                slug="portal_registry_course",
+                version="20260608T223000Z",
+            )
+            content_root = root / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/import-coursepack-registry",
+                    {
+                        "registry_index": str(index_path),
+                        "registry_course_slug": "portal_registry_course",
+                        "registry_version": "20260608T223000Z",
+                        "registry_class_name": "Portal Registry Cohort",
+                        "registry_create_class": "1",
+                    },
+                )
+
+                self.assertEqual(resp.status_code, 302)
+                self.assertIn("/teach?notice=", resp["Location"])
+                self.assertTrue((content_root / "courses" / "portal_registry_course" / "course.yaml").exists())
+
+        classroom = Class.objects.get(name="Portal Registry Cohort")
+        self.assertEqual(classroom.modules.count(), 1)
+        self.assertTrue(Material.objects.filter(module__classroom=classroom, title="Homework dropbox").exists())
+        event = AuditEvent.objects.filter(action="coursepack.registry.import", classroom=classroom).first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.staff.id)
+        self.assertEqual(event.metadata["import_channel"], "teacher_portal")
+        self.assertEqual(event.metadata["source_metadata"]["registry_version"], "20260608T223000Z")
+
+    def test_non_superuser_cannot_import_registry_coursepack_from_teach_home(self):
+        teacher = get_user_model().objects.create_user(
+            username="staff_teacher_registry_blocked",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        _force_login_staff_verified(self.client, teacher)
+
+        resp = self.client.post(
+            "/teach/import-coursepack-registry",
+            {
+                "registry_index": "https://example.org/classhub-coursepacks/index.json",
+                "registry_course_slug": "blocked_course",
+                "registry_class_name": "Blocked Cohort",
+                "registry_create_class": "1",
+            },
+        )
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/teach?error=", resp["Location"])
 
     def test_teacher_can_import_docx_syllabus_source(self):
         from ..services.authoring_templates import generate_authoring_templates

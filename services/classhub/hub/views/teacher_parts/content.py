@@ -21,6 +21,7 @@ from .content_rbac_policy_io import (
 )
 from .content_lesson_overrides import teach_edit_override_lesson
 from .content_lessons import teach_lessons, teach_set_lesson_release
+from .content_registry_import import teach_import_coursepack_registry
 from .content_syllabus_import import teach_import_syllabus_source
 from .content_syllabus_exports import teach_export_syllabus
 
@@ -37,6 +38,7 @@ __all__ = [
     "teach_review_rbac_change_request",
     "teach_export_rbac_policy",
     "teach_import_rbac_policy",
+    "teach_import_coursepack_registry",
     "teach_import_syllabus_source",
     "teach_export_syllabus",
     "teach_generate_authoring_templates",

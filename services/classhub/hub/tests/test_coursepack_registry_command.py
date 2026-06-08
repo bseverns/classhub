@@ -107,6 +107,11 @@ lessons:
             self.assertTrue(Material.objects.filter(module__classroom=classroom, title="Open lesson").exists())
             self.assertTrue(Material.objects.filter(module__classroom=classroom, title="Homework dropbox").exists())
             self.assertIn("Version: 20260608T210000Z", out.getvalue())
+            event = AuditEvent.objects.filter(action="coursepack.registry.import", classroom=classroom).first()
+            self.assertIsNotNone(event)
+            self.assertIsNone(event.actor_user_id)
+            self.assertEqual(event.metadata["import_channel"], "management_command")
+            self.assertEqual(event.metadata["source_metadata"]["registry_version"], "20260608T210000Z")
 
     def test_command_errors_when_registry_entry_is_missing(self):
         with tempfile.TemporaryDirectory() as temp_dir:

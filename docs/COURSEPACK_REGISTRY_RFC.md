@@ -14,7 +14,9 @@
   - the SDK can validate/list/fetch registry entries with checksum + byte-size verification,
   - index entries support relative artifact URLs so the same index can be hosted from Git-backed static files or object storage,
   - operators now have a concrete static publishing guide,
-  - ClassHub can now import directly from a registry index with `manage.py import_coursepack_registry`.
+  - ClassHub can now import directly from a registry index with `manage.py import_coursepack_registry`,
+  - superusers can now import from a registry index through `/teach` and `/admin`,
+  - registry-backed imports now emit explicit audit provenance metadata.
 - Remote registry service, signed discovery API, and desktop GUI authoring remain optional future work and should not be implied as active roadmap commitments without a concrete operator need.
 
 ## Closure recommendation
@@ -22,7 +24,7 @@
 Treat Phase 1 and the initial Phase 2 registry slice as complete. Narrow the remaining work to:
 
 1. Optional signed-artifact policy if checksum-only trust proves insufficient.
-2. Audit/event polish if registry import needs stronger import provenance in operator logs.
+2. Optional audit-feed UX polish if registry import provenance needs a more dedicated operator history surface.
 3. Defer any hosted registry service or desktop app until a real distribution bottleneck appears.
 
 ## Summary
@@ -79,6 +81,8 @@ Implemented now:
 - Relative artifact URLs let operators keep `index.json`, ZIP artifacts, and checksum files together in a static directory tree.
 - `docs/COURSEPACK_REGISTRY_PUBLISHING.md` now documents the recommended static directory layout and publishing flow.
 - `python manage.py import_coursepack_registry ...` now imports a verified registry artifact directly into ClassHub using the existing safe ZIP import path.
+- `/teach/import-coursepack-registry` and `/admin/hub/class/import-coursepack/` now expose browser-based registry import paths for superusers.
+- Registry-backed imports now record source metadata in audit events so operators can trace index, version, artifact URL, and verification details after the fact.
 
 ### Phase 3: Optional distribution service
 

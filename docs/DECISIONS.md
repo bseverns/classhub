@@ -1548,6 +1548,15 @@ Execution ownership and gates:
 - Relative artifact URLs are the default when updating a local registry index so the same tree can be served from Git-backed static hosting or object storage without rewriting entries.
 - Document the operator publishing contract in `docs/COURSEPACK_REGISTRY_PUBLISHING.md` with one recommended static tree layout.
 - Import from published registry indexes through `python manage.py import_coursepack_registry`, which verifies the artifact first and then reuses the existing safe ZIP import path.
+- Expose the same registry import path to superusers in the Teacher Portal and the existing admin import tool so reviewed content can be promoted without shell access.
+- Record registry provenance in audit metadata across command, Teacher Portal, and admin imports:
+  - index location
+  - registry version
+  - source URL
+  - release channel
+  - artifact URL
+  - resolved artifact/checksum locations
+  - verified SHA-256 and byte size
 
 **Why this remains active:**
 - Makes the RFC real without introducing a hosted registry service before there is evidence that one is needed.

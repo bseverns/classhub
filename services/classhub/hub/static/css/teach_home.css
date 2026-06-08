@@ -146,6 +146,16 @@
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
+.stacked-checks {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.inline-check-label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
 .download-list {
   margin: 14px 0 0 0;
   padding-left: 18px;

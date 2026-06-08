@@ -9,6 +9,7 @@ from ..admin import (
     OrganizationCustomRoleAdmin,
     OrganizationCustomRoleAssignmentAdmin,
 )
+from ..services.coursepack_registry import build_registry_entry, new_registry_document, upsert_registry_entry, write_registry_document
 
 
 class AdminRBACRegistrationTests(SimpleTestCase):
@@ -194,6 +195,44 @@ title: "Second Build"
             )
         return buffer.getvalue()
 
+    def _registry_index(self, *, root: Path, slug: str, version: str) -> Path:
+        courses_root = root / "registry_source_courses"
+        course_dir = courses_root / slug
+        course_dir.mkdir(parents=True)
+        (course_dir / "course.yaml").write_text(
+            f"""slug: {slug}
+title: "Admin Registry Course"
+ui_level: advanced
+program_profile: advanced
+lessons:
+  - session: 1
+    slug: s01-first-build
+    title: "First Build"
+    file: lessons/01-first-build.md
+  - session: 2
+    slug: s02-second-build
+    title: "Second Build"
+    file: lessons/02-second-build.md
+""",
+            encoding="utf-8",
+        )
+        artifact_dir = root / "published_registry" / "artifacts"
+        artifact_dir.mkdir(parents=True)
+        artifact_path = artifact_dir / f"{slug}_{version}.zip"
+        artifact_path.write_bytes(self._coursepack_zip(slug=slug))
+        entry = build_registry_entry(
+            slug=slug,
+            artifact_path=artifact_path,
+            version=version,
+            artifact_url=f"artifacts/{artifact_path.name}",
+            source_url=f"https://example.org/coursepacks/{slug}",
+            sdk_version="0.1.0",
+            courses_root=courses_root,
+        )
+        index_path = root / "published_registry" / "index.json"
+        write_registry_document(index_path, upsert_registry_entry(new_registry_document(), entry))
+        return index_path
+
     def test_class_changelist_links_coursepack_import_tool(self):
         _force_login_staff_verified(self.client, self.admin_user)
 
@@ -268,3 +307,39 @@ title: "Second Build"
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Upload a .zip, .docx, or .md source file.")
         self.assertFalse(Class.objects.filter(name="Bad Upload").exists())
+
+    def test_superuser_can_import_coursepack_from_registry_from_admin(self):
+        _force_login_staff_verified(self.client, self.admin_user)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            index_path = self._registry_index(
+                root=root,
+                slug="admin_registry_course",
+                version="20260608T220000Z",
+            )
+            content_root = root / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/admin/hub/class/import-coursepack/",
+                    {
+                        "class_name": "Admin Registry Cohort",
+                        "create_class": "on",
+                        "registry_index": str(index_path),
+                        "registry_course_slug": "admin_registry_course",
+                        "registry_version": "20260608T220000Z",
+                    },
+                    follow=True,
+                )
+
+                self.assertEqual(resp.status_code, 200)
+                self.assertTrue((content_root / "courses" / "admin_registry_course" / "course.yaml").exists())
+
+        classroom = Class.objects.get(name="Admin Registry Cohort")
+        self.assertEqual(classroom.modules.count(), 2)
+        event = AuditEvent.objects.filter(action="admin.coursepack_registry.import").first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.actor_user_id, self.admin_user.id)
+        self.assertEqual(event.target_id, "admin_registry_course")
+        self.assertEqual(event.metadata["source_kind"], "coursepack_registry")
+        self.assertEqual(event.metadata["source_metadata"]["registry_version"], "20260608T220000Z")

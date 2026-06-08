@@ -11,6 +11,7 @@ from .services.audit import log_audit_event
 from .services.coursepack_import import (
     CoursepackImportError,
     import_content_upload_to_class,
+    import_coursepack_registry,
     import_coursepack_zip,
 )
 from .models import (
@@ -44,7 +45,26 @@ from .models import (
 class CoursepackZipImportForm(forms.Form):
     coursepack_zip = forms.FileField(
         label="Content import file",
+        required=False,
         help_text="Upload a repo-style coursepack ZIP, or a .md/.docx/.zip source file that can be compiled into one.",
+    )
+    registry_index = forms.CharField(
+        label="Registry index path or URL",
+        required=False,
+        max_length=500,
+        help_text="Optional. Use this with registry course slug to import from a static registry index.",
+    )
+    registry_course_slug = forms.CharField(
+        label="Registry course slug",
+        required=False,
+        max_length=120,
+        help_text="Required when using a registry index import.",
+    )
+    registry_version = forms.CharField(
+        label="Registry version",
+        required=False,
+        max_length=120,
+        help_text="Optional. Defaults to the newest generated registry entry for that slug.",
     )
     course_slug = forms.CharField(
         label="Course slug override",
@@ -107,13 +127,25 @@ class CoursepackZipImportForm(forms.Form):
         cleaned = super().clean()
         class_code = (cleaned.get("class_code") or "").strip()
         class_name = (cleaned.get("class_name") or "").strip()
+        registry_index = (cleaned.get("registry_index") or "").strip()
+        registry_course_slug = (cleaned.get("registry_course_slug") or "").strip()
         if class_code and class_name:
             raise forms.ValidationError("Use class code or class name, not both.")
         upload = cleaned.get("coursepack_zip")
+        registry_requested = bool(registry_index or registry_course_slug)
+        if upload and registry_requested:
+            raise forms.ValidationError("Use either an upload file or a registry index import, not both.")
+        if not upload and not registry_requested:
+            raise forms.ValidationError("Provide either an upload file or a registry index + course slug.")
         if upload:
             source_name = str(getattr(upload, "name", "") or "").lower()
             if not source_name.endswith((".zip", ".docx", ".md")):
                 raise forms.ValidationError("Upload a .zip, .docx, or .md source file.")
+        if registry_requested:
+            if not registry_index:
+                raise forms.ValidationError("Registry index path or URL is required.")
+            if not registry_course_slug:
+                raise forms.ValidationError("Registry course slug is required.")
         return cleaned
 
 @admin.register(Organization)
@@ -293,7 +325,7 @@ class ClassAdmin(admin.ModelAdmin):
                     class_name = form.cleaned_data.get("class_name") or ""
                     target_classroom = None
                     target_created = False
-                    if class_code or class_name:
+                    if source_upload and (class_code or class_name):
                         target_classroom, target_created = self._resolve_admin_import_classroom(form)
                         result = import_content_upload_to_class(
                             source_upload=source_upload,
@@ -305,11 +337,23 @@ class ClassAdmin(admin.ModelAdmin):
                             replace=bool(form.cleaned_data.get("replace")),
                             overwrite_content=bool(form.cleaned_data.get("overwrite_content")),
                         )
-                    else:
+                    elif source_upload:
                         result = import_coursepack_zip(
                             source_upload=source_upload,
                             class_code="",
                             class_name="",
+                            create_class=bool(form.cleaned_data.get("create_class")),
+                            replace=bool(form.cleaned_data.get("replace")),
+                            overwrite_content=bool(form.cleaned_data.get("overwrite_content")),
+                            organization=form.cleaned_data.get("organization"),
+                        )
+                    else:
+                        result = import_coursepack_registry(
+                            index_location=form.cleaned_data.get("registry_index") or "",
+                            course_slug=form.cleaned_data.get("registry_course_slug") or "",
+                            version=form.cleaned_data.get("registry_version") or "",
+                            class_code=class_code,
+                            class_name=class_name,
                             create_class=bool(form.cleaned_data.get("create_class")),
                             replace=bool(form.cleaned_data.get("replace")),
                             overwrite_content=bool(form.cleaned_data.get("overwrite_content")),
@@ -322,11 +366,19 @@ class ClassAdmin(admin.ModelAdmin):
                 else:
                     log_audit_event(
                         request=request,
-                        action="admin.coursepack_zip.import",
+                        action=(
+                            "admin.coursepack_registry.import"
+                            if result.source_kind == "coursepack_registry"
+                            else "admin.coursepack_zip.import"
+                        ),
                         classroom=result.classroom,
                         target_type="Coursepack",
                         target_id=result.course_slug,
-                        summary=f"Imported coursepack ZIP for {result.course_slug}",
+                        summary=(
+                            f"Imported registry coursepack for {result.course_slug}"
+                            if result.source_kind == "coursepack_registry"
+                            else f"Imported coursepack ZIP for {result.course_slug}"
+                        ),
                         metadata={
                             "course_slug": result.course_slug,
                             "course_title": result.course_title,
@@ -339,6 +391,7 @@ class ClassAdmin(admin.ModelAdmin):
                             "extracted_files": result.extracted_files,
                             "source_kind": result.source_kind,
                             "source_files": list(result.source_files),
+                            "source_metadata": result.source_metadata,
                             "replace": bool(form.cleaned_data.get("replace")),
                             "overwrite_content": bool(form.cleaned_data.get("overwrite_content")),
                         },

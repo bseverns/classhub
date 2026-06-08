@@ -6,7 +6,7 @@ import shutil
 import tempfile
 import uuid
 import zipfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from io import BytesIO
 from pathlib import Path, PurePosixPath
 
@@ -48,6 +48,7 @@ class CoursepackImportResult:
     extracted_files: int = 0
     source_kind: str = "coursepack_zip"
     source_files: tuple[str, ...] = ()
+    source_metadata: dict = field(default_factory=dict)
 
 
 def courses_dir() -> Path:
@@ -506,6 +507,7 @@ def import_coursepack_zip(
         extracted_files=extracted_files,
         source_kind="coursepack_zip",
         source_files=(source_name,),
+        source_metadata={"upload_name": source_name},
     )
 
 
@@ -572,6 +574,18 @@ def import_coursepack_registry(
             str(fetch_result.get("source_artifact_url") or fetch_path.name),
             str(entry.get("version") or "").strip(),
         ),
+        source_metadata={
+            "registry_index": str(index_location),
+            "registry_version": str(entry.get("version") or "").strip(),
+            "registry_title": str(entry.get("title") or "").strip(),
+            "registry_source_url": str(entry.get("source_url") or "").strip(),
+            "registry_release_channel": str(entry.get("release_channel") or "").strip(),
+            "registry_artifact_url": str(fetch_result.get("source_artifact_url") or fetch_path.name),
+            "registry_resolved_artifact_location": str(fetch_result.get("resolved_artifact_location") or ""),
+            "registry_resolved_checksum_location": str(fetch_result.get("resolved_checksum_location") or ""),
+            "registry_sha256": str(fetch_result.get("sha256") or ""),
+            "registry_bytes": int(fetch_result.get("bytes") or 0),
+        },
     )
 
 
@@ -616,6 +630,7 @@ def import_content_upload_to_class(
             extracted_files=extracted_files,
             source_kind="coursepack_zip",
             source_files=(source_name,),
+            source_metadata={"upload_name": source_name},
         )
 
     try:
@@ -650,6 +665,7 @@ def import_content_upload_to_class(
         extracted_files=syllabus_result.lesson_count,
         source_kind=syllabus_result.source_kind,
         source_files=tuple(syllabus_result.source_files),
+        source_metadata={"upload_name": source_name},
     )
 
 

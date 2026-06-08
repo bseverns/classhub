@@ -98,6 +98,38 @@ Notes:
 - Use `--overwrite-content` if the extracted course already exists under `CONTENT_ROOT/courses/<slug>`.
 - Use `--replace` if the class already has module/material layout that should be rebuilt from the imported coursepack.
 
+## Browser-based import paths
+
+Shell access is no longer required for the import step.
+
+Current UI paths:
+- Teacher Portal (`/teach`)
+  - superuser-only card: `Import Registry Coursepack`
+  - accepts registry index, course slug, optional registry version, and target class fields
+- Django admin (`/admin/hub/class/import-coursepack/`)
+  - supports either upload-based import or registry-based import from the same page
+
+Both UI paths:
+- verify SHA-256 and byte size before import,
+- reuse the same safe ZIP extraction/import flow as the command path,
+- write audit events with registry provenance metadata.
+
+## Audit provenance
+
+Registry-backed imports now record explicit provenance in audit history:
+- management command: `coursepack.registry.import`
+- teacher portal: `coursepack.registry.import`
+- admin GUI: `admin.coursepack_registry.import`
+
+Audit metadata includes:
+- registry index location
+- registry version
+- source URL
+- release channel
+- artifact URL
+- resolved artifact/checksum locations
+- verified SHA-256 and byte size
+
 ## Minimal operator checklist
 
 1. Build the artifact with `coursepack_sdk.py build ... --registry-index ...`.

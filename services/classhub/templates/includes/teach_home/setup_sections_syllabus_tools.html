@@ -66,6 +66,66 @@
 </div>
 {% endif %}
 
+{% if request.user.is_superuser %}
+<div class="card card-secondary card-secondary--tools">
+  <details class="support-collapsible">
+    <summary class="support-summary">
+      <span class="support-summary-text">
+        <span class="support-summary-title">{% trans "Import Registry Coursepack" %}</span>
+        <span class="support-summary-note muted">{% trans "Import reviewed coursepack ZIPs from a static registry index into live class content." %}</span>
+      </span>
+    </summary>
+    <div class="support-collapsible-body">
+      <form method="post" action="/teach/import-coursepack-registry">
+        {% csrf_token %}
+        <div class="grid-2">
+          <div>
+            <label for="registry-index">{% trans "Registry index path or URL" %}</label>
+            <input id="registry-index" name="registry_index" value="{{ registry_index }}" placeholder="https://example.org/classhub-coursepacks/index.json" required />
+          </div>
+          <div>
+            <label for="registry-course-slug">{% trans "Registry course slug" %}</label>
+            <input id="registry-course-slug" name="registry_course_slug" value="{{ registry_course_slug }}" placeholder="swarm_aesthetics" required />
+          </div>
+          <div>
+            <label for="registry-version">{% trans "Registry version (optional)" %}</label>
+            <input id="registry-version" name="registry_version" value="{{ registry_version }}" placeholder="20260608T210000Z" />
+          </div>
+          <div>
+            <label for="registry-class-name">{% trans "Class name (optional)" %}</label>
+            <input id="registry-class-name" name="registry_class_name" value="{{ registry_class_name }}" placeholder="Swarm Aesthetics Cohort" />
+          </div>
+          <div>
+            <label for="registry-class-code">{% trans "Existing class code (optional)" %}</label>
+            <input id="registry-class-code" name="registry_class_code" value="{{ registry_class_code }}" placeholder="ABCD1234" />
+          </div>
+          <div class="stacked-checks">
+            <label class="inline-check-label" for="registry-create-class">
+              <input id="registry-create-class" name="registry_create_class" type="checkbox" value="1" {% if registry_create_class %}checked{% endif %} />
+              {% trans "Create class if needed" %}
+            </label>
+            <label class="inline-check-label" for="registry-replace">
+              <input id="registry-replace" name="registry_replace" type="checkbox" value="1" {% if registry_replace %}checked{% endif %} />
+              {% trans "Replace existing modules/materials in target class" %}
+            </label>
+            <label class="inline-check-label" for="registry-overwrite-content">
+              <input id="registry-overwrite-content" name="registry_overwrite_content" type="checkbox" value="1" {% if registry_overwrite_content %}checked{% endif %} />
+              {% trans "Overwrite existing live course folder" %}
+            </label>
+          </div>
+        </div>
+        <p class="muted">
+          {% trans "This verifies the registry artifact checksum and byte size before importing. It writes reviewed content into live course storage." %}
+        </p>
+        <div class="submit-wrap">
+          <button type="submit">{% trans "Import from registry" %}</button>
+        </div>
+      </form>
+    </div>
+  </details>
+</div>
+{% endif %}
+
 <div class="card card-secondary card-secondary--tools">
   <details class="support-collapsible">
     <summary class="support-summary">

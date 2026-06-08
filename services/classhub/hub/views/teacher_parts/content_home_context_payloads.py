@@ -64,6 +64,14 @@ def _build_teach_home_class_context(
     import_course_title: str,
     import_default_ui_level: str,
     import_session_parse_mode: str,
+    registry_index: str,
+    registry_course_slug: str,
+    registry_version: str,
+    registry_class_code: str,
+    registry_class_name: str,
+    registry_create_class: bool,
+    registry_replace: bool,
+    registry_overwrite_content: bool,
     output_dir: Path,
     template_download_rows: list,
 ) -> dict:
@@ -90,6 +98,14 @@ def _build_teach_home_class_context(
         "import_session_parse_mode": (
             import_session_parse_mode if import_session_parse_mode in {"auto", "template", "verbose"} else "auto"
         ),
+        "registry_index": registry_index,
+        "registry_course_slug": registry_course_slug,
+        "registry_version": registry_version,
+        "registry_class_code": registry_class_code,
+        "registry_class_name": registry_class_name,
+        "registry_create_class": bool(registry_create_class),
+        "registry_replace": bool(registry_replace),
+        "registry_overwrite_content": bool(registry_overwrite_content),
         "template_output_dir": str(output_dir),
         "template_download_rows": template_download_rows,
     }

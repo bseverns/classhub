@@ -60,6 +60,16 @@ def teach_home(request):
     import_course_title = (request.GET.get("import_course_title") or "").strip()
     import_default_ui_level = (request.GET.get("import_default_ui_level") or "secondary").strip().lower()
     import_session_parse_mode = (request.GET.get("import_session_parse_mode") or "auto").strip().lower()
+    registry_index = (request.GET.get("registry_index") or "").strip()
+    registry_course_slug = (request.GET.get("registry_course_slug") or "").strip()
+    registry_version = (request.GET.get("registry_version") or "").strip()
+    registry_class_code = (request.GET.get("registry_class_code") or "").strip().upper()
+    registry_class_name = (request.GET.get("registry_class_name") or "").strip()
+    registry_create_class = (request.GET.get("registry_create_class") or "").strip().lower() in {"1", "true", "yes", "on"}
+    registry_replace = (request.GET.get("registry_replace") or "").strip().lower() in {"1", "true", "yes", "on"}
+    registry_overwrite_content = (
+        (request.GET.get("registry_overwrite_content") or "").strip().lower() in {"1", "true", "yes", "on"}
+    )
     teacher_invite_state = _read_teacher_invite_state(request)
     org_state = _read_org_admin_state(request)
     profile_state = _read_profile_state(request, request.user)
@@ -120,6 +130,14 @@ def teach_home(request):
             import_course_title=import_course_title,
             import_default_ui_level=import_default_ui_level,
             import_session_parse_mode=import_session_parse_mode,
+            registry_index=registry_index,
+            registry_course_slug=registry_course_slug,
+            registry_version=registry_version,
+            registry_class_code=registry_class_code,
+            registry_class_name=registry_class_name,
+            registry_create_class=registry_create_class,
+            registry_replace=registry_replace,
+            registry_overwrite_content=registry_overwrite_content,
             output_dir=output_dir,
             template_download_rows=template_download_rows,
         ),

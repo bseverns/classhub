@@ -107,6 +107,7 @@ urlpatterns = [
     path("teach/rbac/policy/export", views.teach_export_rbac_policy),
     path("teach/rbac/policy/import", views.teach_import_rbac_policy),
     path("teach/import-syllabus-source", views.teach_import_syllabus_source),
+    path("teach/import-coursepack-registry", views.teach_import_coursepack_registry),
     path("teach/authoring-template/download", views.teach_download_authoring_template),
     path("teach/syllabus-export", views.teach_export_syllabus),
     path("teach/logout", views.teacher_logout),

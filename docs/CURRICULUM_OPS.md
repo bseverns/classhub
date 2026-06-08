@@ -48,6 +48,10 @@ Optional flags:
 
 Static registry publishing layout and examples are documented in [COURSEPACK_REGISTRY_PUBLISHING.md](COURSEPACK_REGISTRY_PUBLISHING.md).
 
+Superuser browser alternatives:
+- Teacher Portal: `/teach` → `Import Registry Coursepack`
+- Admin: `/admin/hub/class/import-coursepack/`
+
 ## 2. Pushing curriculum updates
 
 If you modify the markdown files or `course.yaml` manifest in `content/courses` safely update the existing classroom to reflect the latest module structure without losing student data:
