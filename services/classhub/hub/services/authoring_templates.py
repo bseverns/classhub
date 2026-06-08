@@ -80,6 +80,26 @@ Checkpoints
 Common stuck points + fixes
 - <stuck point> -> <fix>
 
+Local anchors
+- Where might students see this in their neighborhood?
+- Who uses this tool or skill in real life around here?
+- What version of this fits home or community life?
+
+Example variants
+- kitchen
+- transit
+- sports
+- care work
+
+Community glossary
+- <term>: <local or family-friendly definition>
+
+Offline handout
+- Do now: <three short action steps>
+- Safety: <privacy or physical-safety reminder>
+- Submit: <what to turn in or show before leaving>
+- Comment: <peer feedback starter>
+
 Extensions
 - <optional stretch for early finishers>
 """

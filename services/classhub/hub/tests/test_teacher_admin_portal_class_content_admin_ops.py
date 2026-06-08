@@ -101,6 +101,26 @@ Session 02: Drift Tests
         self.assertFalse(event.metadata["writes_live_content"])
         self.assertFalse((content_root / "courses" / "field_systems_studio").exists())
 
+    def test_generate_authoring_templates_include_belonging_and_handout_sections(self):
+        from ..services.authoring_templates import generate_authoring_templates
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            result = generate_authoring_templates(
+                slug="community_studio",
+                title="Community Studio",
+                sessions=1,
+                duration=60,
+                age_band="Grades 6-8",
+                out_dir=Path(temp_dir),
+                overwrite=True,
+            )
+
+            teacher_plan = result.teacher_plan_md_path.read_text(encoding="utf-8")
+            self.assertIn("Local anchors", teacher_plan)
+            self.assertIn("Example variants", teacher_plan)
+            self.assertIn("Community glossary", teacher_plan)
+            self.assertIn("Offline handout", teacher_plan)
+
     def test_staff_teacher_syllabus_import_compiles_valid_zip(self):
         teacher = get_user_model().objects.create_user(
             username="staff_teacher_import",

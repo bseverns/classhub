@@ -7,6 +7,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Student access uses class code + display name, with return-code/device-hint rejoin.
 - Student trust controls are live: `/trust` and `/student/my-data`.
 - Student portfolio and session gallery flows are live with teacher-first visibility defaults.
+- Student artifact remix actions are live on portfolio/gallery/upload flows, with per-submission lineage preserved.
 - Student upload flow includes offline queue/retry behavior for intermittent networks.
 - Student kiosk shell mode is available behind `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED` (manifest + route allowlist + focused nav constraints).
 - Teacher portal includes roster, submissions, moderation, outcomes, and certificate workflows.
@@ -14,6 +15,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Operator data-lifespan dashboard is live at `/teach/data-lifespan` with retention trend rows and CSV/JSON snapshot export (`/teach/data-lifespan/export`).
 - `/teach/data-lifespan` now also surfaces aggregate remote-helper-compute posture: active lease status, low-noise trend summary, and recent class activity rows from helper-owned evidence.
 - Repo now ships an unattended remote-compute evidence watcher (`python3 scripts/remote_compute_operator_watch.py`) plus reference systemd timer units for bounded webhook alerting from the helper-owned operator snapshot.
+- Lesson pages now support belonging-layer metadata (`local_anchors`, `example_variants`, `community_glossary`) plus print-friendly offline handout export and PDF download.
 - Homework Helper runs as a separate Django service behind `/helper/*`.
 - Homework Helper supports optional bounded local curriculum RAG (pgvector) with curriculum-only retrieval scope.
 - Helper exposes an internal RAG posture contract at `/helper/internal/rag-status` (token-protected) for ClassHub operator evidence panels.

@@ -18,7 +18,13 @@ from .api_teacher import (
     api_teacher_toggle_lock,
 )
 from .api_teacher_rbac import api_teacher_rbac_simulate
-from .content import course_lesson, course_overview, iter_course_lesson_options
+from .content import (
+    course_lesson,
+    course_lesson_handout,
+    course_lesson_handout_pdf,
+    course_overview,
+    iter_course_lesson_options,
+)
 from .internal import internal_helper_chat_access_event
 from .media import lesson_asset_download, lesson_video_stream
 from .student_join import index, invite_join, join_class
@@ -143,6 +149,8 @@ __all__ = [
     "api_teacher_set_enrollment_mode",
     "api_teacher_toggle_lock",
     "course_lesson",
+    "course_lesson_handout",
+    "course_lesson_handout_pdf",
     "course_overview",
     "healthz",
     "index",

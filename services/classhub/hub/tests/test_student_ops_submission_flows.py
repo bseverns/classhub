@@ -378,6 +378,49 @@ class StudentEventSubmissionTests(TestCase):
         self.assertEqual(bad.status_code, 400)
         self.assertEqual(Submission.objects.filter(material=gallery, student=self.student).count(), 1)
 
+    def test_material_upload_records_remix_lineage(self):
+        gallery = Material.objects.create(
+            module=self.module,
+            title="Share to gallery",
+            type=Material.TYPE_GALLERY,
+            accepted_extensions=".png,.jpg,.jpeg,.pdf,.sb3",
+            max_upload_mb=50,
+            order_index=1,
+        )
+        owner = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ben")
+        source = Submission.objects.create(
+            material=gallery,
+            student=owner,
+            original_filename="starter.sb3",
+            file=SimpleUploadedFile("starter.sb3", _sample_sb3_bytes()),
+            is_published=True,
+            is_gallery_shared=True,
+        )
+        self._login_student()
+
+        page = self.client.get(f"/material/{gallery.id}/upload?remix_of={source.id}")
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, "Remix source:")
+        self.assertContains(page, "starter.sb3")
+
+        resp = self.client.post(
+            f"/material/{gallery.id}/upload",
+            {
+                "file": SimpleUploadedFile("project-remix.sb3", _sample_sb3_bytes()),
+                "remix_of_submission_id": str(source.id),
+                "process_note": "I changed the score rules.",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        saved = Submission.objects.filter(material=gallery, student=self.student).order_by("-id").first()
+        self.assertIsNotNone(saved)
+        self.assertEqual(saved.remix_of_id, source.id)
+
+        portfolio = self.client.get("/student/portfolio")
+        self.assertEqual(portfolio.status_code, 200)
+        self.assertContains(portfolio, "Remix of:")
+        self.assertContains(portfolio, "starter.sb3")
+
     def test_student_portfolio_filters_to_current_student_and_query(self):
         gallery = Material.objects.create(
             module=self.module,
@@ -927,4 +970,3 @@ class FileCleanupSignalTests(TestCase):
 
                 video.delete()
                 self.assertFalse(file_path.exists())
-

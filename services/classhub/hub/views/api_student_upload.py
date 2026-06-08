@@ -17,6 +17,7 @@ from ..services.telemetry_events import write_student_event
 from ..services.submission_service import (
     parse_extensions,
     process_material_upload_form,
+    resolve_remix_source_submission,
     resolve_upload_release_state,
     scan_uploaded_file,
     validate_upload_content,
@@ -187,6 +188,11 @@ def api_student_material_upload(request, material_id: int):
         allowed_exts = parse_extensions(material.accepted_extensions) or [".sb3"]
         max_bytes = int(material.max_upload_mb) * 1024 * 1024
         share_with_class = _share_with_class_requested(request, material=material)
+        remix_source = resolve_remix_source_submission(
+            request=request,
+            material=material,
+            remix_of_submission_id=form.cleaned_data.get("remix_of_submission_id"),
+        )
         upload_result = process_material_upload_form(
             request=request,
             material=material,
@@ -198,6 +204,7 @@ def api_student_material_upload(request, material_id: int):
             emit_student_event_fn=_emit_student_event,
             logger=logger,
             share_with_class=share_with_class,
+            remix_of_submission=remix_source,
         )
         return _upload_result_response(material=material, upload_result=upload_result)
     except Exception:

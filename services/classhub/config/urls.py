@@ -69,6 +69,8 @@ urlpatterns = [
 
     # Repo-authored course content pages (markdown rendered to HTML).
     path("course/<slug:course_slug>", views.course_overview),
+    path("course/<slug:course_slug>/<slug:lesson_slug>/handout", views.course_lesson_handout),
+    path("course/<slug:course_slug>/<slug:lesson_slug>/handout.pdf", views.course_lesson_handout_pdf),
     path("course/<slug:course_slug>/<slug:lesson_slug>", views.course_lesson),
 
     # Teacher cockpit (staff-only, outside Django admin).

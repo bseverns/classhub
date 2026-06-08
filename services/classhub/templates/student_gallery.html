@@ -65,8 +65,12 @@
                   {% if sub.process_note %}
                     <p class="muted">{% trans "Process note:" %} {{ sub.process_note }}</p>
                   {% endif %}
+                  {% if sub.remix_of %}
+                    <p class="muted">{% trans "Remix of:" %} {{ sub.remix_of.original_filename }} · {{ sub.remix_of.student.display_name }}</p>
+                  {% endif %}
                   <div>
                     <a href="/submission/{{ sub.id }}/download">{% trans "Download" %}</a>
+                    · <a href="/material/{{ sub.material.id }}/upload?remix_of={{ sub.id }}">{% trans "Remix" %}</a>
                   </div>
                 </li>
               {% endfor %}

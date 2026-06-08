@@ -4,6 +4,11 @@ from django.utils.translation import gettext_lazy as _
 
 class SubmissionUploadForm(forms.Form):
     file = forms.FileField(required=True)
+    remix_of_submission_id = forms.IntegerField(
+        required=False,
+        min_value=1,
+        widget=forms.HiddenInput(),
+    )
     station_label = forms.CharField(
         required=False,
         max_length=80,

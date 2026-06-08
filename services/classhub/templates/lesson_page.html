@@ -42,6 +42,8 @@
         </div>
         <div class="nav">
           <a class="btn" href="/student">Back to class</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout?reading_level={{ selected_reading_level }}">Print handout</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout.pdf?reading_level={{ selected_reading_level }}">Download handout PDF</a>
           {% if can_edit_lesson_override and classroom %}
           <a class="btn" href="/teach/course/{{ course_slug }}/lesson/{{ lesson_slug }}/edit?class_id={{ classroom.id }}">Edit Markdown</a>
           {% endif %}
@@ -171,6 +173,74 @@
           {% endfor %}
         </ul>
         {% endif %}
+      </div>
+      {% endif %}
+
+      {% if lesson_handout %}
+      <div class="card">
+        <h2 class="card-title">Do this now</h2>
+        <div class="nav">
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple">Simple</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard">Standard</a>
+          <span class="muted">Reading level: {{ selected_reading_level|title }}</span>
+        </div>
+        {% if lesson_handout.goal %}
+        <p class="muted">{{ lesson_handout.goal }}</p>
+        {% endif %}
+        <ul>
+          {% for step in lesson_handout.do_now %}
+          <li>{{ step }}</li>
+          {% endfor %}
+        </ul>
+        {% if lesson_handout.submit %}
+        <h3 class="card-title">Submit</h3>
+        <ul>
+          {% for item in lesson_handout.submit %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% if lesson_handout.safety %}
+        <h3 class="card-title">Safety</h3>
+        <ul>
+          {% for item in lesson_handout.safety %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% if local_anchors %}
+      <div class="card">
+        <h2 class="card-title">Local anchors</h2>
+        <ul>
+          {% for item in local_anchors %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if example_variants %}
+      <div class="card">
+        <h2 class="card-title">Example variants</h2>
+        <ul>
+          {% for item in example_variants %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if community_glossary %}
+      <div class="card">
+        <h2 class="card-title">Community glossary</h2>
+        <ul>
+          {% for row in community_glossary %}
+          <li><strong>{{ row.term }}</strong>: {{ row.definition }}</li>
+          {% endfor %}
+        </ul>
       </div>
       {% endif %}
 

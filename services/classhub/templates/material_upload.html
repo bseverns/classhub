@@ -121,6 +121,16 @@
             <form method="post" enctype="multipart/form-data" class="upload-form">
               {% csrf_token %}
               {{ form.file }}
+              {{ form.remix_of_submission_id }}
+              {% if remix_source %}
+                <div class="privacy-note top-gap-8">
+                  <p class="muted"><strong>{% trans "Remix source:" %}</strong> {{ remix_source.original_filename }}</p>
+                  <p class="muted">{% trans "Based on work by" %} {{ remix_source.student.display_name }}.</p>
+                  {% if remix_source.process_note %}
+                    <p class="muted">{% trans "Their process note:" %} {{ remix_source.process_note }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
               <div class="upload-note-field">
                 <label for="id_station_label" class="muted">{% trans "Station (optional)" %}</label>
                 {{ form.station_label }}
@@ -174,6 +184,7 @@
                     <th scope="col">{% trans "Publish action" %}</th>
                   {% endif %}
                   <th scope="col">{% trans "Download" %}</th>
+                  <th scope="col">{% trans "Remix" %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -195,12 +206,18 @@
                       </td>
                     {% endif %}
                     <td><a href="/submission/{{ s.id }}/download">{% trans "Download" %}</a></td>
+                    <td><a href="/material/{{ material.id }}/upload?remix_of={{ s.id }}">{% trans "Remix" %}</a></td>
                   </tr>
-                  {% if s.process_note or s.note %}
+                  {% if s.process_note or s.note or s.remix_of %}
                     <tr>
                       <td></td>
-                      <td colspan="{% if is_gallery_material %}6{% else %}3{% endif %}" class="muted">
-                        {% trans "Process note:" %} {{ s.process_note|default:s.note }}
+                      <td colspan="{% if is_gallery_material %}7{% else %}4{% endif %}" class="muted">
+                        {% if s.remix_of %}
+                          {% trans "Remix of:" %} {{ s.remix_of.original_filename }}{% if s.process_note or s.note %} · {% endif %}
+                        {% endif %}
+                        {% if s.process_note or s.note %}
+                          {% trans "Process note:" %} {{ s.process_note|default:s.note }}
+                        {% endif %}
                       </td>
                     </tr>
                   {% endif %}

@@ -35,6 +35,15 @@ from ..services.helper_topics import (
     split_helper_topics_text,
 )
 from ..services.helper_widget import build_helper_prompt_sets_json
+from ..services.lesson_handouts import (
+    build_handout_context,
+    build_handout_pdf_bytes,
+    build_handout_qr_svg,
+    resolve_community_glossary,
+    resolve_example_variants,
+    resolve_local_anchors,
+    resolve_reading_level,
+)
 from ..services.org_access import staff_can_manage_classroom, staff_classroom_or_none
 from ..services.release_state import lesson_release_override_map, lesson_release_state
 from ..services.upload_policy import front_matter_submission
@@ -270,6 +279,18 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
     helper_context = fm.get("title") or lesson_slug
     helper_topics = build_lesson_topics(fm)
     helper_allowed_topics = build_allowed_topics(fm)
+    selected_reading_level = resolve_reading_level(request.GET.get("reading_level"))
+    lesson_path = f"/course/{course_slug}/{lesson_slug}"
+    handout = build_handout_context(
+        course_slug=course_slug,
+        lesson_slug=lesson_slug,
+        course_manifest=manifest,
+        front_matter=fm,
+        request=request,
+        reading_level=selected_reading_level,
+        online_path=lesson_path,
+        language_code=localization.code,
+    )
     lesson_submission = front_matter_submission(fm)
     lesson_upload_material = None
     lesson_upload_status = {}
@@ -370,8 +391,96 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
             "lesson_available_on": lesson_available_on,
             "ui_density_mode": ui_density_mode,
             "can_edit_lesson_override": staff_can_manage_classroom(request.user, effective_classroom),
+            "selected_reading_level": selected_reading_level,
+            "local_anchors": resolve_local_anchors(front_matter=fm),
+            "example_variants": resolve_example_variants(course_manifest=manifest, front_matter=fm),
+            "community_glossary": resolve_community_glossary(course_manifest=manifest, front_matter=fm),
+            "lesson_handout": handout,
         },
     )
+
+
+def course_lesson_handout(request, course_slug: str, lesson_slug: str):
+    localization = localization_from_request(request)
+    manifest = load_course_manifest(course_slug)
+    if not manifest:
+        return HttpResponse("Course not found", status=404)
+
+    try:
+        fm, body_md, _lesson_meta = load_lesson_markdown(course_slug, lesson_slug)
+    except ValueError:
+        logger.warning(
+            "lesson_handout_metadata_invalid course_slug=%s lesson_slug=%s",
+            course_slug,
+            lesson_slug,
+            exc_info=True,
+        )
+        return HttpResponse("Lesson metadata invalid.", status=500)
+    if not body_md:
+        return HttpResponse("Lesson not found", status=404)
+
+    selected_reading_level = resolve_reading_level(request.GET.get("reading_level"))
+    lesson_path = f"/course/{course_slug}/{lesson_slug}"
+    handout = build_handout_context(
+        course_slug=course_slug,
+        lesson_slug=lesson_slug,
+        course_manifest=manifest,
+        front_matter=fm,
+        request=request,
+        reading_level=selected_reading_level,
+        online_path=lesson_path,
+        language_code=localization.code,
+    )
+    response = render(
+        request,
+        "lesson_handout.html",
+        {
+            "course_slug": course_slug,
+            "lesson_slug": lesson_slug,
+            "course": manifest,
+            "front_matter": fm,
+            "selected_reading_level": selected_reading_level,
+            "lesson_handout": handout,
+            "handout_qr_svg": build_handout_qr_svg(handout["online_url"]),
+        },
+    )
+    return response
+
+
+def course_lesson_handout_pdf(request, course_slug: str, lesson_slug: str):
+    localization = localization_from_request(request)
+    manifest = load_course_manifest(course_slug)
+    if not manifest:
+        return HttpResponse("Course not found", status=404)
+
+    try:
+        fm, body_md, _lesson_meta = load_lesson_markdown(course_slug, lesson_slug)
+    except ValueError:
+        logger.warning(
+            "lesson_handout_pdf_metadata_invalid course_slug=%s lesson_slug=%s",
+            course_slug,
+            lesson_slug,
+            exc_info=True,
+        )
+        return HttpResponse("Lesson metadata invalid.", status=500)
+    if not body_md:
+        return HttpResponse("Lesson not found", status=404)
+
+    selected_reading_level = resolve_reading_level(request.GET.get("reading_level"))
+    lesson_path = f"/course/{course_slug}/{lesson_slug}"
+    handout = build_handout_context(
+        course_slug=course_slug,
+        lesson_slug=lesson_slug,
+        course_manifest=manifest,
+        front_matter=fm,
+        request=request,
+        reading_level=selected_reading_level,
+        online_path=lesson_path,
+        language_code=localization.code,
+    )
+    response = HttpResponse(build_handout_pdf_bytes(handout), content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="{course_slug}-{lesson_slug}-handout.pdf"'
+    return response
 
 
 def iter_course_lesson_options() -> list[dict]:
@@ -407,5 +516,7 @@ def iter_course_lesson_options() -> list[dict]:
 __all__ = [
     "course_overview",
     "course_lesson",
+    "course_lesson_handout",
+    "course_lesson_handout_pdf",
     "iter_course_lesson_options",
 ]

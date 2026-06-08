@@ -47,7 +47,14 @@ from ..services.student_home import (
     privacy_meta_context,
     student_self_delete_mode,
 )
-from ..services.submission_service import parse_extensions, process_material_upload_form, resolve_upload_release_state, scan_uploaded_file, validate_upload_content
+from ..services.submission_service import (
+    parse_extensions,
+    process_material_upload_form,
+    resolve_remix_source_submission,
+    resolve_upload_release_state,
+    scan_uploaded_file,
+    validate_upload_content,
+)
 from ..services.submission_quota import invalidate_classroom_submission_quota_cache
 from ..services.telemetry_events import write_student_event
 from ..services.ui_density import resolve_ui_density_mode_for_modules
@@ -331,6 +338,13 @@ def material_upload(request, material_id: int):
     form = SubmissionUploadForm()
     notice = (request.GET.get("notice") or "").strip()
     process_note_starters = resolve_peer_feedback_starters(language_code=localization.code, course_manifest={})
+    remix_source = resolve_remix_source_submission(
+        request=request,
+        material=material,
+        remix_of_submission_id=request.GET.get("remix_of"),
+    )
+    if remix_source is not None:
+        form = SubmissionUploadForm(initial={"remix_of_submission_id": remix_source.id})
 
     if release_state.get("is_locked"):
         available_on = release_state.get("available_on")
@@ -341,6 +355,11 @@ def material_upload(request, material_id: int):
         form = SubmissionUploadForm(request.POST, request.FILES)
         if form.is_valid():
             share_with_class = bool(request.POST.get("share_with_class")) if material.type == Material.TYPE_GALLERY else False
+            remix_source = resolve_remix_source_submission(
+                request=request,
+                material=material,
+                remix_of_submission_id=form.cleaned_data.get("remix_of_submission_id"),
+            )
             upload_result = process_material_upload_form(
                 request=request,
                 material=material,
@@ -352,6 +371,7 @@ def material_upload(request, material_id: int):
                 emit_student_event_fn=_emit_student_event,
                 logger=logger,
                 share_with_class=share_with_class,
+                remix_of_submission=remix_source,
             )
             if upload_result.redirect_url:
                 return redirect(upload_result.redirect_url)
@@ -380,6 +400,7 @@ def material_upload(request, material_id: int):
             "process_note_starters": process_note_starters,
             "upload_locked": bool(release_state.get("is_locked")),
             "upload_available_on": release_state.get("available_on"),
+            "remix_source": remix_source,
             **privacy_meta_context(classroom=request.classroom),
         },
         status=response_status,

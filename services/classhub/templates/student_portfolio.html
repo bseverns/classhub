@@ -73,6 +73,7 @@
                 <th scope="col">{% trans "Gallery" %}</th>
                 <th scope="col">{% trans "Status" %}</th>
                 <th scope="col">{% trans "Download" %}</th>
+                <th scope="col">{% trans "Remix" %}</th>
               </tr>
             </thead>
             <tbody>
@@ -86,11 +87,19 @@
                   <td class="muted">{% if sub.is_published %}{% trans "Published" %}{% else %}{% trans "Teacher-only" %}{% endif %}</td>
                   <td class="muted">{{ artifact_statuses|get_item:sub.id|default:status_available }}</td>
                   <td><a href="/submission/{{ sub.id }}/download">{% trans "Download" %}</a></td>
+                  <td><a href="/material/{{ sub.material.id }}/upload?remix_of={{ sub.id }}">{% trans "Remix" %}</a></td>
                 </tr>
-                {% if sub.process_note %}
+                {% if sub.process_note or sub.remix_of %}
                   <tr>
                     <td></td>
-                    <td colspan="7" class="muted">{% trans "Process note:" %} {{ sub.process_note }}</td>
+                    <td colspan="8" class="muted">
+                      {% if sub.remix_of %}
+                        {% trans "Remix of:" %} {{ sub.remix_of.original_filename }}{% if sub.process_note %} · {% endif %}
+                      {% endif %}
+                      {% if sub.process_note %}
+                        {% trans "Process note:" %} {{ sub.process_note }}
+                      {% endif %}
+                    </td>
                   </tr>
                 {% endif %}
               {% endfor %}

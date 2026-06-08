@@ -14,6 +14,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Telemetry endpoint addressing policy](#telemetry-endpoint-addressing-policy)
 - [Execution sequencing: 30/60/90 reliability-first plan](#execution-sequencing-306090-reliability-first-plan)
 - [Artifact-first sharing defaults](#artifact-first-sharing-defaults)
+- [Artifact remix lineage and remix actions](#artifact-remix-lineage-and-remix-actions)
 - [Program profiles for cohort age bands](#program-profiles-for-cohort-age-bands)
 - [Stability freeze and change budget](#stability-freeze-and-change-budget)
 - [Decision ownership and review cadence](#decision-ownership-and-review-cadence)
@@ -90,6 +91,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Error-response redaction](#error-response-redaction)
 - [Signal wiring and RAG SQL identifier hardening](#signal-wiring-and-rag-sql-identifier-hardening)
 - [Teacher authoring templates](#teacher-authoring-templates)
+- [Belonging-aware authoring and offline lesson handouts](#belonging-aware-authoring-and-offline-lesson-handouts)
 - [Syllabus export access and backups](#syllabus-export-access-and-backups)
 - [Teacher UI comfort mode](#teacher-ui-comfort-mode)
 - [Teacher portal complexity budget](#teacher-portal-complexity-budget)
@@ -442,6 +444,22 @@ Execution ownership and gates:
 - Supports celebration/inspiration while keeping privacy and teacher judgment in control.
 - Avoids ranking/leaderboard pressure and keeps feedback mechanics supportive.
 - Preserves storage and retention controls by reusing existing submission + prune pipelines.
+
+## Artifact remix lineage and remix actions
+
+**Current decision:**
+- Treat remix as a first-class artifact relationship using the existing `Submission.remix_of` lineage field rather than a parallel project-fork model.
+- Expose remix actions directly on student artifact surfaces:
+  - `/student/portfolio`
+  - `/student/gallery`
+  - `/material/<id>/upload?remix_of=<submission_id>`
+- Keep remix bounded to the same classroom material so students can make “your own version” responses without widening access scope.
+- Preserve lineage in the upload record and student portfolio display so facilitators can celebrate iteration without ranking students.
+
+**Why this remains active:**
+- Makes artifact-first learning feel cumulative instead of disposable.
+- Reuses existing privacy and moderation boundaries instead of introducing a separate public-project system.
+- Keeps remix implementation inspectable: one explicit lineage pointer per submission.
 
 ## Program profiles for cohort age bands
 
@@ -1599,6 +1617,33 @@ Execution ownership and gates:
 **Why this remains active:**
 - Teachers can author in familiar formats (Markdown or Word) while preserving deterministic ingestion.
 - Reduces onboarding friction and avoids repeated format mistakes in session-plan documents.
+
+## Belonging-aware authoring and offline lesson handouts
+
+**Current decision:**
+- Extend teacher authoring templates with explicit belonging-layer prompts:
+  - `Local anchors`
+  - `Example variants`
+  - `Community glossary`
+  - `Offline handout`
+- Support lesson-level belonging metadata in authored content through front matter and manifest keys such as:
+  - `local_anchors`
+  - `example_variants`
+  - `community_glossary`
+  - `offline_handout`
+- Expose a print-friendly lesson handout surface at:
+  - `/course/<course_slug>/<lesson_slug>/handout`
+  - `/course/<course_slug>/<lesson_slug>/handout.pdf`
+- Keep reading-level support deterministic:
+  - `reading_level=simple|standard`
+  - authored overrides live in `offline_handout.reading_levels`
+  - fallback content is generated from existing lesson metadata rather than runtime LLM rewriting.
+- Include an online-return target in handouts and render a QR code in the print-friendly HTML handout so paper copies still point back to the live lesson.
+
+**Why this remains active:**
+- Moves culturally responsive context from “teacher craft knowledge” into the product’s default authoring scaffold.
+- Improves low-connectivity classroom survivability with a boring export path that does not depend on a live browser session.
+- Keeps trust-critical guidance deterministic and reviewable, which matters more here than generative polish.
 
 ## Syllabus export access and backups
 

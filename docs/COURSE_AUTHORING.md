@@ -102,7 +102,8 @@ Default output folder:
 
 These files are formatted to match the ingest parser in `scripts/ingest_syllabus_md.py`
 (`Session NN: Title`, `Mission`, `Teacher prep`, `Materials`, `Checkpoints`,
-`Common stuck points + fixes`, `Extensions`).
+`Common stuck points + fixes`, `Local anchors`, `Example variants`,
+`Community glossary`, `Offline handout`, `Extensions`).
 
 Slug convention in the generated session plan:
 - lesson slugs are written as `sNN-your-topic-slug` (for example `s03-loops-and-sprites`)
@@ -177,6 +178,31 @@ help:
     - <common fix>
 extend:
   - <optional stretch>
+local_anchors:
+  - <where students see this in the neighborhood>
+  - <who uses this skill around here>
+example_variants:
+  - <kitchen/transit/sports/care-work/community variant>
+community_glossary:
+  - term: <local term>
+    definition: <family-friendly explanation>
+offline_handout:
+  subtitle: <one-line task summary>
+  do_now:
+    - <short action step>
+  safety:
+    - <privacy or physical-safety reminder>
+  submit:
+    - <what to upload or show>
+  comment:
+    - <peer feedback starter>
+  reading_levels:
+    simple:
+      do_now:
+        - <simpler wording for task steps>
+    standard:
+      do_now:
+        - <default wording for task steps>
 teacher_panel:
   purpose: <goal>
   snags:
@@ -211,6 +237,12 @@ videos:
 
 `youtube_id` and `url` are both supported; when either resolves to YouTube, the
 lesson page will embed the video and also show an external link.
+
+Offline handout export:
+- Every lesson can expose a print-friendly handout at `/course/<course_slug>/<lesson_slug>/handout`.
+- PDF export is available at `/course/<course_slug>/<lesson_slug>/handout.pdf`.
+- The handout uses `offline_handout` front matter when present and otherwise falls back to existing lesson metadata.
+- Reading-level selection is deterministic and query-based: `?reading_level=simple` or `?reading_level=standard`.
 
 ## Homework dropbox behavior
 

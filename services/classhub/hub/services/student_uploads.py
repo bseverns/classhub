@@ -53,6 +53,24 @@ def resolve_upload_release_state(request, *, material: Material) -> dict:
     return release_state
 
 
+def resolve_remix_source_submission(*, request, material: Material, remix_of_submission_id) -> Submission | None:
+    try:
+        submission_id = int(remix_of_submission_id or 0)
+    except Exception:
+        submission_id = 0
+    if submission_id <= 0:
+        return None
+    return (
+        Submission.objects.select_related("student", "material__module")
+        .filter(
+            id=submission_id,
+            material=material,
+            material__module__classroom_id=request.classroom.id,
+        )
+        .first()
+    )
+
+
 def process_material_upload_form(
     *,
     request,
@@ -65,6 +83,7 @@ def process_material_upload_form(
     emit_student_event_fn,
     logger,
     share_with_class: bool = False,
+    remix_of_submission: Submission | None = None,
 ) -> UploadAttemptResult:
     uploaded_file = form.cleaned_data["file"]
     note = (form.cleaned_data.get("note") or "").strip()
@@ -178,6 +197,7 @@ def process_material_upload_form(
             is_gallery_shared=False,
             is_published=student_published,
             published_at=timezone.now() if student_published else None,
+            remix_of=remix_of_submission,
         )
     except Exception:
         logger.exception(
@@ -206,6 +226,7 @@ def process_material_upload_form(
             "gallery_shared": bool(submission.is_gallery_shared),
             "is_published": bool(submission.is_published),
             "gallery_enabled_for_session": module_gallery_enabled,
+            "remix_of_submission_id": int(remix_of_submission.id) if remix_of_submission else 0,
         },
         ip_address=client_ip_from_request(
             request,
