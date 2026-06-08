@@ -444,7 +444,7 @@ msgstr "ပှၤမၤလိ အခီၣ်ထံး"
 #: services/classhub/templates/student_my_data.html:21
 #: services/classhub/templates/trust.html:22
 msgid "Simple"
-msgstr "Simple"
+msgstr "ဖးလီၤစှၤ"
 
 #: services/classhub/templates/course_overview.html:24
 #: services/classhub/templates/material_upload.html:57
@@ -453,7 +453,7 @@ msgstr "Simple"
 #: services/classhub/templates/student_my_data.html:22
 #: services/classhub/templates/trust.html:23
 msgid "Standard"
-msgstr "Standard"
+msgstr "ပတီၢ်ညီ"
 
 #: services/classhub/templates/course_overview.html:25
 #: services/classhub/templates/lesson_handout.html:25
@@ -466,7 +466,7 @@ msgstr "Standard"
 #: services/classhub/templates/student_my_data.html:23
 #: services/classhub/templates/trust.html:24
 msgid "Reading level:"
-msgstr "Reading level:"
+msgstr "တၢ်ဖးအပတီၢ်:"
 
 #: services/classhub/templates/course_overview.html:31
 msgid "Open a lesson to see what to do next."
@@ -1292,122 +1292,108 @@ msgid "No syllabus courses found."
 msgstr "syllabus course တဖၣ် တထံၣ်န့ၢ်ဘၣ်."
 
 #: services/classhub/templates/lesson_handout.html:26
-#, fuzzy
-#| msgid "Open helper"
 msgid "Open online:"
-msgstr "အိးထီၣ် တၢ်မၤစၢၤ"
+msgstr "အိးထီၣ် online:"
 
 #: services/classhub/templates/lesson_handout.html:26
-#, fuzzy
-#| msgid "Open lesson"
 msgid "Online lesson:"
-msgstr "အိးထီၣ် lesson"
+msgstr "online lesson:"
 
 #: services/classhub/templates/lesson_handout.html:32
 #: services/classhub/templates/lesson_page.html:185
 msgid "Start here"
-msgstr "Start here"
+msgstr "စးထီၣ်ဖဲအံၤ"
 
 #: services/classhub/templates/lesson_handout.html:32
 #: services/classhub/templates/lesson_page.html:185
 msgid "Do this now"
-msgstr "Do this now"
+msgstr "မၤတၢ်အံၤခဲအံၤ"
 
 #: services/classhub/templates/lesson_handout.html:44
-#, fuzzy
-#| msgid "Open helper"
 msgid "Open online"
-msgstr "အိးထီၣ် တၢ်မၤစၢၤ"
+msgstr "အိးထီၣ် online"
 
 #: services/classhub/templates/lesson_handout.html:51
 #: services/classhub/templates/lesson_page.html:200
 msgid "Turn in"
-msgstr "Turn in"
+msgstr "အပ်လီၤ"
 
 #: services/classhub/templates/lesson_handout.html:51
 #: services/classhub/templates/lesson_page.html:200
-#, fuzzy
-#| msgid "Submitted"
 msgid "Submit"
-msgstr "ဘၣ်တၢ်ပာ်ဃုာ်"
+msgstr "ပာ်ဃုာ်"
 
 #: services/classhub/templates/lesson_handout.html:62
 #: services/classhub/templates/lesson_page.html:208
 msgid "Stay safe"
-msgstr "Stay safe"
+msgstr "အိၣ်ဘှံးအိၣ်ရှဲ"
 
 #: services/classhub/templates/lesson_handout.html:62
 #: services/classhub/templates/lesson_page.html:208
 msgid "Safety"
-msgstr "Safety"
+msgstr "တၢ်အုၣ်အသး"
 
 #: services/classhub/templates/lesson_handout.html:73
 #: services/classhub/templates/lesson_page.html:220
 msgid "Around you"
-msgstr "Around you"
+msgstr "လၢနကပၤ"
 
 #: services/classhub/templates/lesson_handout.html:73
 #: services/classhub/templates/lesson_page.html:220
 msgid "Local anchors"
-msgstr "Local anchors"
+msgstr "ဒိးသန့ၤလၢပဝဲဒၣ်အလီၢ်ကဝီၤ"
 
 #: services/classhub/templates/lesson_handout.html:84
 #: services/classhub/templates/lesson_page.html:231
 msgid "Other versions"
-msgstr "Other versions"
+msgstr "version အဂၤတဖၣ်"
 
 #: services/classhub/templates/lesson_handout.html:84
 #: services/classhub/templates/lesson_page.html:231
 msgid "Example variants"
-msgstr "Example variants"
+msgstr "တၢ်ဒိတဖၣ်"
 
 #: services/classhub/templates/lesson_handout.html:95
 #: services/classhub/templates/lesson_page.html:242
 msgid "Words for this lesson"
-msgstr "Words for this lesson"
+msgstr "တၢ်သိၣ်လိအံၤအလံာ်ညိး"
 
 #: services/classhub/templates/lesson_handout.html:95
 #: services/classhub/templates/lesson_page.html:242
 msgid "Community glossary"
-msgstr "Community glossary"
+msgstr "ပှၤကရၢဖိအတၢ်ကတိၤအခီပညီ"
 
 #: services/classhub/templates/lesson_handout.html:106
 msgid "Feedback starters"
-msgstr "Feedback starters"
+msgstr "တၢ်စံးဆၢအခီၣ်ထံးတဖၣ်"
 
 #: services/classhub/templates/lesson_handout.html:106
 msgid "Peer feedback starters"
-msgstr "Peer feedback starters"
+msgstr "တၢ်စံးဆၢအခီၣ်ထံး လၢတီၤဖိတဖၣ်အဂီၢ်"
 
 #: services/classhub/templates/lesson_page.html:19
-#, fuzzy
-#| msgid "Course"
 msgid "Course:"
-msgstr "course"
+msgstr "course:"
 
 #: services/classhub/templates/lesson_page.html:30
 msgid "Today you will:"
-msgstr "Today you will:"
+msgstr "မုၢ်မဆါတနံၤအံၤ နကမၤ:"
 
 #: services/classhub/templates/lesson_page.html:32
 msgid "Goal:"
-msgstr "Goal:"
+msgstr "တၢ်ပာ်ဖျါ:"
 
 #: services/classhub/templates/lesson_page.html:34
 msgid "Makes:"
-msgstr "Makes:"
+msgstr "ကတ့ထီၣ်:"
 
 #: services/classhub/templates/lesson_page.html:44
-#, fuzzy
-#| msgid "Lesson tracker"
 msgid "Lesson locked"
-msgstr "lesson tracker"
+msgstr "lesson ဘၣ်တၢ်ဃာ်"
 
 #: services/classhub/templates/lesson_page.html:46
-#, fuzzy
-#| msgid "Lesson"
 msgid "Lesson open"
-msgstr "lesson"
+msgstr "lesson အိးထီၣ်"
 
 #: services/classhub/templates/lesson_page.html:51
 #: services/classhub/templates/material_upload.html:41
@@ -1418,20 +1404,16 @@ msgid "Back to class"
 msgstr "က့ၤကဒါဆူတီၤ"
 
 #: services/classhub/templates/lesson_page.html:52
-#, fuzzy
-#| msgid "Open now"
 msgid "Open handout"
-msgstr "အိးခဲအံၤ"
+msgstr "အိးထီၣ် handout"
 
 #: services/classhub/templates/lesson_page.html:52
 msgid "Print handout"
-msgstr "Print handout"
+msgstr "ထုးထီၣ် handout"
 
 #: services/classhub/templates/lesson_page.html:53
-#, fuzzy
-#| msgid "Download"
 msgid "Download handout"
-msgstr "ဒုးလီၤကလ့ၣ်"
+msgstr "ဒုးလီၤကလ့ၣ် handout"
 
 #: services/classhub/templates/lesson_page.html:53
 #, fuzzy
@@ -1441,7 +1423,7 @@ msgstr "download PDF"
 
 #: services/classhub/templates/lesson_page.html:55
 msgid "Edit Markdown"
-msgstr "Edit Markdown"
+msgstr "မၤဘှီ Markdown"
 
 #: services/classhub/templates/lesson_page.html:58
 #, fuzzy
@@ -1451,39 +1433,35 @@ msgstr "ထုးထီၣ်ယ portfolio"
 
 #: services/classhub/templates/lesson_page.html:61
 msgid "← Back"
-msgstr "← Back"
+msgstr "← က့ၤ"
 
 #: services/classhub/templates/lesson_page.html:61
 msgid "← Prev"
-msgstr "← Prev"
+msgstr "← လၢညါ"
 
 #: services/classhub/templates/lesson_page.html:64
-#, fuzzy
-#| msgid "Open lesson"
 msgid "Next lesson →"
-msgstr "အိးထီၣ် lesson"
+msgstr "lesson လၢခံ →"
 
 #: services/classhub/templates/lesson_page.html:64
 msgid "Next →"
-msgstr "Next →"
+msgstr "လၢခံ →"
 
 #: services/classhub/templates/lesson_page.html:71
 msgid "When this opens"
-msgstr "When this opens"
+msgstr "ဖဲတၢ်အံၤအိးထီၣ်အခါ"
 
 #: services/classhub/templates/lesson_page.html:71
-#, fuzzy
-#| msgid "Lesson videos"
 msgid "Lesson schedule"
-msgstr "lesson video တဖၣ်"
+msgstr "lesson အဆၢကတီၢ်"
 
 #: services/classhub/templates/lesson_page.html:72
 msgid "Intro-only mode"
-msgstr "Intro-only mode"
+msgstr "intro အကျိၤထဲတခါ"
 
 #: services/classhub/templates/lesson_page.html:74
 msgid "Full activities and submissions unlock on"
-msgstr "Full activities and submissions unlock on"
+msgstr "တၢ်မၤလၢာ်ဒီး submission တဖၣ် ကအိးထီၣ်ဖဲ"
 
 #: services/classhub/templates/lesson_page.html:82
 #: services/classhub/templates/teach_home.html:19
@@ -1492,27 +1470,27 @@ msgstr "lesson video တဖၣ်"
 
 #: services/classhub/templates/lesson_page.html:102
 msgid "Your browser does not support this video. Use the open link below."
-msgstr "Your browser does not support this video. Use the open link below."
+msgstr "န browser တဟံးန့ၢ် video အံၤဘၣ်. သုံး link လၢလာ်တကပၤ ဒ်သိးကအိးထီၣ်အီၤ."
 
 #: services/classhub/templates/lesson_page.html:105
 msgid "No inline video source is configured yet."
-msgstr "No inline video source is configured yet."
+msgstr "inline video source တဘၣ်တၢ်တဲာ်ကတီၤဒံးဘၣ်."
 
 #: services/classhub/templates/lesson_page.html:110
 msgid "Open video in a new tab"
-msgstr "Open video in a new tab"
+msgstr "အိးထီၣ် video လၢ tab အသစ်"
 
 #: services/classhub/templates/lesson_page.html:114
 msgid "After this you can:"
-msgstr "After this you can:"
+msgstr "လၢအဝဲအံၤအလီၢ်ခံ နမၤသ့:"
 
 #: services/classhub/templates/lesson_page.html:124
 msgid "Turn in your work"
-msgstr "Turn in your work"
+msgstr "အပ်လီၤနတၢ်မၤ"
 
 #: services/classhub/templates/lesson_page.html:124
 msgid "Homework dropbox"
-msgstr "Homework dropbox"
+msgstr "homework အတၢ်ပာ်လီၤတၢ်"
 
 #: services/classhub/templates/lesson_page.html:125
 #, fuzzy
@@ -1523,11 +1501,11 @@ msgstr "submission တဖၣ် တအိၣ်ဒံးဘၣ်."
 #: services/classhub/templates/lesson_page.html:128
 #: services/classhub/templates/lesson_page.html:130
 msgid "Accepted:"
-msgstr "Accepted:"
+msgstr "လၢတၢ်ဟံးန့ၢ်အီၤ:"
 
 #: services/classhub/templates/lesson_page.html:133
 msgid "Suggested name:"
-msgstr "Suggested name:"
+msgstr "မံၤလၢတၢ်ဟ့ၣ်ကူၣ်:"
 
 #: services/classhub/templates/lesson_page.html:140
 #: services/classhub/templates/material_upload.html:190
@@ -1544,11 +1522,11 @@ msgstr "ဝံၤလံ"
 
 #: services/classhub/templates/lesson_page.html:140
 msgid "File saved. Re-upload to replace."
-msgstr "File saved. Re-upload to replace."
+msgstr "file ဘၣ်သိမ်းဆည်းလံ. upload ကဒီး ဒ်သိးကလဲလိာ်."
 
 #: services/classhub/templates/lesson_page.html:142
 msgid "Upload at least one file to finish."
-msgstr "Upload at least one file to finish."
+msgstr "ဒ်သိးကမၤဝံၤအဂီၢ် upload file တဖျၢၣ်မ့ၢ်ဂ့ၤ."
 
 #: services/classhub/templates/lesson_page.html:146
 #, fuzzy
@@ -1582,7 +1560,7 @@ msgstr "နုာ်လီၤလၢ နတီၤ"
 
 #: services/classhub/templates/lesson_page.html:163
 msgid "Design log prompt"
-msgstr "Design log prompt"
+msgstr "design log အသံကွၢ်"
 
 #: services/classhub/templates/lesson_page.html:164
 #, fuzzy

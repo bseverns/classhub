@@ -1001,6 +1001,7 @@ Execution ownership and gates:
   - `/course/<slug>/<lesson_slug>/handout`
   - `/student`
   - `/student/my-data`
+- On lesson and handout routes, treat both the reading-level label/value pair and the first action label (`Start here` / `Do this now`) as explicit localization seams and keep them covered by rendered-route tests.
 - Use authored/simple copy variants in templates and views instead of runtime rewriting.
 - Preserve the same storage, deletion, and retention semantics across reading levels; only the wording changes.
 
@@ -1021,6 +1022,7 @@ Execution ownership and gates:
   - count of Somali entries still identical to English fallback copy.
 - Keep an explicit human review packet for trust-critical Somali copy:
   - [LOCALIZATION_SO_REVIEW_PACKET.md](LOCALIZATION_SO_REVIEW_PACKET.md)
+- Treat the current Somali copy for the trust-critical family-visible tranche plus lesson/handout reading-level strings as human-reviewed for shipping decisions; broader Somali admin/operator surfaces may still use interim fallback entries until separately reviewed.
 - Extend i18n smoke tests so Somali is validated on the same student surfaces already covered in Spanish:
   - `/student/my-data`
   - `/student/portfolio`

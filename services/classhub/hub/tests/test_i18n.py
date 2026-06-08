@@ -13,6 +13,57 @@ class I18nSmokeTests(TestCase):
         session.save()
         return classroom, student
 
+    def _write_lesson_locale_fixture(self, content_root: Path) -> None:
+        manifest = """
+title: "Neighborhood Circuits"
+lessons:
+  - slug: s01-neighborhood-circuits
+    title: "Neighborhood Circuits"
+    file: "lessons/01-neighborhood-circuits.md"
+"""
+        lesson = """---
+title: Neighborhood Circuits
+makes: "A small circuit plan you can explain."
+offline_handout:
+  subtitle: "Build, explain, and upload one circuit idea."
+  do_now:
+    - Sketch one circuit idea.
+  reading_levels:
+    simple:
+      do_now:
+        - Draw one circuit.
+      submit:
+        - Upload one PDF page.
+---
+## Build
+
+Draw, test, and explain one loop.
+"""
+        course_dir = content_root / "courses" / "neighborhood_circuits"
+        lesson_dir = course_dir / "lessons"
+        lesson_dir.mkdir(parents=True, exist_ok=True)
+        (course_dir / "course.yaml").write_text(manifest, encoding="utf-8")
+        (lesson_dir / "01-neighborhood-circuits.md").write_text(lesson, encoding="utf-8")
+
+    def _assert_lesson_route_i18n(
+        self,
+        *,
+        route: str,
+        language: str,
+        expected_reading_label: str,
+        expected_reading_value: str,
+        expected_section_label: str,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir)
+            self._write_lesson_locale_fixture(content_root)
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.get(route, HTTP_ACCEPT_LANGUAGE=language)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, expected_reading_label)
+        self.assertContains(resp, expected_reading_value)
+        self.assertContains(resp, expected_section_label)
+
     def test_join_page_english_by_default(self):
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, 200)
@@ -209,6 +260,60 @@ class I18nSmokeTests(TestCase):
         resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="ksw")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Course link တဖၣ်")
+
+    def test_course_lesson_page_spanish_renders_translated_reading_level_label(self):
+        self._assert_lesson_route_i18n(
+            route="/course/neighborhood_circuits/s01-neighborhood-circuits?reading_level=simple",
+            language="es",
+            expected_reading_label="Nivel de lectura:",
+            expected_reading_value="Sencillo",
+            expected_section_label="Empieza aquí",
+        )
+
+    def test_course_lesson_page_somali_renders_translated_reading_level_label(self):
+        self._assert_lesson_route_i18n(
+            route="/course/neighborhood_circuits/s01-neighborhood-circuits?reading_level=simple",
+            language="so",
+            expected_reading_label="Heerka akhriska:",
+            expected_reading_value="Fudud",
+            expected_section_label="Halkan ka bilow",
+        )
+
+    def test_course_lesson_page_sgaw_karen_renders_translated_reading_level_label(self):
+        self._assert_lesson_route_i18n(
+            route="/course/neighborhood_circuits/s01-neighborhood-circuits?reading_level=simple",
+            language="ksw",
+            expected_reading_label="တၢ်ဖးအပတီၢ်:",
+            expected_reading_value="ဖးလီၤစှၤ",
+            expected_section_label="စးထီၣ်ဖဲအံၤ",
+        )
+
+    def test_course_lesson_handout_spanish_renders_translated_reading_level_label(self):
+        self._assert_lesson_route_i18n(
+            route="/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple",
+            language="es",
+            expected_reading_label="Nivel de lectura:",
+            expected_reading_value="Sencillo",
+            expected_section_label="Empieza aquí",
+        )
+
+    def test_course_lesson_handout_somali_renders_translated_reading_level_label(self):
+        self._assert_lesson_route_i18n(
+            route="/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple",
+            language="so",
+            expected_reading_label="Heerka akhriska:",
+            expected_reading_value="Fudud",
+            expected_section_label="Halkan ka bilow",
+        )
+
+    def test_course_lesson_handout_sgaw_karen_renders_translated_reading_level_label(self):
+        self._assert_lesson_route_i18n(
+            route="/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple",
+            language="ksw",
+            expected_reading_label="တၢ်ဖးအပတီၢ်:",
+            expected_reading_value="ဖးလီၤစှၤ",
+            expected_section_label="စးထီၣ်ဖဲအံၤ",
+        )
 
     def test_teach_home_day_mode_spanish_renders_translated_core_copy(self):
         teacher = get_user_model().objects.create_user(

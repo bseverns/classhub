@@ -56,6 +56,7 @@ Karen-language implementation note:
 Somali parity policy:
 - Somali should include every `msgid` that exists in Spanish.
 - New strings should not land in Spanish without a non-empty Somali entry.
+- Trust-critical family-visible routes and the lesson/handout reading-level tranche are currently treated as human-reviewed Somali copy for release decisions.
 - Where a reviewed Somali translation is not ready yet, keep a non-empty fallback entry and follow up with language review.
 
 ## Family-visible first tranche

@@ -456,7 +456,7 @@ msgstr "Bogga ardayga"
 #: services/classhub/templates/student_my_data.html:21
 #: services/classhub/templates/trust.html:22
 msgid "Simple"
-msgstr "Simple"
+msgstr "Fudud"
 
 #: services/classhub/templates/course_overview.html:24
 #: services/classhub/templates/material_upload.html:57
@@ -465,7 +465,7 @@ msgstr "Simple"
 #: services/classhub/templates/student_my_data.html:22
 #: services/classhub/templates/trust.html:23
 msgid "Standard"
-msgstr "Standard"
+msgstr "Caadi"
 
 #: services/classhub/templates/course_overview.html:25
 #: services/classhub/templates/lesson_handout.html:25
@@ -1306,16 +1306,12 @@ msgid "No syllabus courses found."
 msgstr "Koorsooyin manhaj ah lama helin."
 
 #: services/classhub/templates/lesson_handout.html:26
-#, fuzzy
-#| msgid "Open lesson"
 msgid "Open online:"
-msgstr "Open lesson"
+msgstr "Ku fur onlayn:"
 
 #: services/classhub/templates/lesson_handout.html:26
-#, fuzzy
-#| msgid "Open lesson"
 msgid "Online lesson:"
-msgstr "Open lesson"
+msgstr "Casharka onlaynka:"
 
 #: services/classhub/templates/lesson_handout.html:32
 #: services/classhub/templates/lesson_page.html:185
@@ -1328,10 +1324,8 @@ msgid "Do this now"
 msgstr "Tan hadda samee"
 
 #: services/classhub/templates/lesson_handout.html:44
-#, fuzzy
-#| msgid "Open lesson"
 msgid "Open online"
-msgstr "Open lesson"
+msgstr "Ku fur onlaynka"
 
 #: services/classhub/templates/lesson_handout.html:51
 #: services/classhub/templates/lesson_page.html:200
@@ -1340,10 +1334,8 @@ msgstr "Gudbi"
 
 #: services/classhub/templates/lesson_handout.html:51
 #: services/classhub/templates/lesson_page.html:200
-#, fuzzy
-#| msgid "Submitted"
 msgid "Submit"
-msgstr "La gudbiyey"
+msgstr "Gudbi"
 
 #: services/classhub/templates/lesson_handout.html:62
 #: services/classhub/templates/lesson_page.html:208
@@ -1394,10 +1386,8 @@ msgid "Peer feedback starters"
 msgstr "Bilowga faallooyinka ardayda kale"
 
 #: services/classhub/templates/lesson_page.html:19
-#, fuzzy
-#| msgid "Course"
 msgid "Course:"
-msgstr "Koorso"
+msgstr "Koorso:"
 
 #: services/classhub/templates/lesson_page.html:30
 msgid "Today you will:"
@@ -1412,16 +1402,12 @@ msgid "Makes:"
 msgstr "Waxa la sameynayo:"
 
 #: services/classhub/templates/lesson_page.html:44
-#, fuzzy
-#| msgid "Lesson tracker"
 msgid "Lesson locked"
-msgstr "Raadiyaha casharrada"
+msgstr "Casharku wuu xiran yahay"
 
 #: services/classhub/templates/lesson_page.html:46
-#, fuzzy
-#| msgid "Lesson"
 msgid "Lesson open"
-msgstr "Cashar"
+msgstr "Casharku wuu furan yahay"
 
 #: services/classhub/templates/lesson_page.html:51
 #: services/classhub/templates/material_upload.html:41
@@ -1432,20 +1418,16 @@ msgid "Back to class"
 msgstr "Ku noqo fasalka"
 
 #: services/classhub/templates/lesson_page.html:52
-#, fuzzy
-#| msgid "Open now"
 msgid "Open handout"
-msgstr "Fur hadda"
+msgstr "Fur warqadda casharka"
 
 #: services/classhub/templates/lesson_page.html:52
 msgid "Print handout"
-msgstr "Print handout"
+msgstr "Daabac warqadda casharka"
 
 #: services/classhub/templates/lesson_page.html:53
-#, fuzzy
-#| msgid "Download"
 msgid "Download handout"
-msgstr "Soo dejiso"
+msgstr "Soo dejiso warqadda casharka"
 
 #: services/classhub/templates/lesson_page.html:53
 #, fuzzy
@@ -1455,7 +1437,7 @@ msgstr "Soo dejiso PDF"
 
 #: services/classhub/templates/lesson_page.html:55
 msgid "Edit Markdown"
-msgstr "Edit Markdown"
+msgstr "Wax ka beddel Markdown"
 
 #: services/classhub/templates/lesson_page.html:58
 #, fuzzy
@@ -1465,39 +1447,35 @@ msgstr "Dhoofinta portfolio-gayga"
 
 #: services/classhub/templates/lesson_page.html:61
 msgid "← Back"
-msgstr "← Back"
+msgstr "← Dib u noqo"
 
 #: services/classhub/templates/lesson_page.html:61
 msgid "← Prev"
-msgstr "← Prev"
+msgstr "← Hore"
 
 #: services/classhub/templates/lesson_page.html:64
-#, fuzzy
-#| msgid "Open lesson"
 msgid "Next lesson →"
-msgstr "Open lesson"
+msgstr "Casharka xiga →"
 
 #: services/classhub/templates/lesson_page.html:64
 msgid "Next →"
-msgstr "Next →"
+msgstr "Xiga →"
 
 #: services/classhub/templates/lesson_page.html:71
 msgid "When this opens"
-msgstr "When this opens"
+msgstr "Goorta tani furmeyso"
 
 #: services/classhub/templates/lesson_page.html:71
-#, fuzzy
-#| msgid "Lesson videos"
 msgid "Lesson schedule"
-msgstr "fiidyowyada casharrada"
+msgstr "Jadwalka casharka"
 
 #: services/classhub/templates/lesson_page.html:72
 msgid "Intro-only mode"
-msgstr "Intro-only mode"
+msgstr "Habka hordhac keliya"
 
 #: services/classhub/templates/lesson_page.html:74
 msgid "Full activities and submissions unlock on"
-msgstr "Full activities and submissions unlock on"
+msgstr "Hawlaha iyo gudbinnada oo dhan waxay furmayaan"
 
 #: services/classhub/templates/lesson_page.html:82
 #: services/classhub/templates/teach_home.html:19
@@ -1506,27 +1484,27 @@ msgstr "fiidyowyada casharrada"
 
 #: services/classhub/templates/lesson_page.html:102
 msgid "Your browser does not support this video. Use the open link below."
-msgstr "Your browser does not support this video. Use the open link below."
+msgstr "Browser-kaagu ma taageero fiidiyowgan. Adeegso xiriirka hoose si aad u furto."
 
 #: services/classhub/templates/lesson_page.html:105
 msgid "No inline video source is configured yet."
-msgstr "No inline video source is configured yet."
+msgstr "Weli looma dejin il fiidiyow oo ku dhex jira bogga."
 
 #: services/classhub/templates/lesson_page.html:110
 msgid "Open video in a new tab"
-msgstr "Open video in a new tab"
+msgstr "Ku fur fiidiyowga tab cusub"
 
 #: services/classhub/templates/lesson_page.html:114
 msgid "After this you can:"
-msgstr "After this you can:"
+msgstr "Kadib waxaad awoodaa:"
 
 #: services/classhub/templates/lesson_page.html:124
 msgid "Turn in your work"
-msgstr "Turn in your work"
+msgstr "Gudbi shaqadaada"
 
 #: services/classhub/templates/lesson_page.html:124
 msgid "Homework dropbox"
-msgstr "Homework dropbox"
+msgstr "Sanduuqa shaqo-guriga"
 
 #: services/classhub/templates/lesson_page.html:125
 #, fuzzy
@@ -1537,11 +1515,11 @@ msgstr "Wali gudbin ma jiro."
 #: services/classhub/templates/lesson_page.html:128
 #: services/classhub/templates/lesson_page.html:130
 msgid "Accepted:"
-msgstr "Accepted:"
+msgstr "La aqbalay:"
 
 #: services/classhub/templates/lesson_page.html:133
 msgid "Suggested name:"
-msgstr "Suggested name:"
+msgstr "Magac la soo jeediyey:"
 
 #: services/classhub/templates/lesson_page.html:140
 #: services/classhub/templates/material_upload.html:190
@@ -1554,15 +1532,15 @@ msgstr "Suggested name:"
 #: services/classhub/templates/student_class.html:443
 #: services/classhub/templates/student_class.html:480
 msgid "Done"
-msgstr "Done"
+msgstr "Waa la dhammeeyey"
 
 #: services/classhub/templates/lesson_page.html:140
 msgid "File saved. Re-upload to replace."
-msgstr "File saved. Re-upload to replace."
+msgstr "Faylka waa la kaydiyey. Mar kale u geli si aad u beddesho."
 
 #: services/classhub/templates/lesson_page.html:142
 msgid "Upload at least one file to finish."
-msgstr "Upload at least one file to finish."
+msgstr "Soo geli ugu yaraan hal fayl si aad u dhammayso."
 
 #: services/classhub/templates/lesson_page.html:146
 #, fuzzy
@@ -1597,7 +1575,7 @@ msgstr "Ku biir fasalkaaga"
 
 #: services/classhub/templates/lesson_page.html:163
 msgid "Design log prompt"
-msgstr "Design log prompt"
+msgstr "Su'aasha diiwaanka naqshadda"
 
 #: services/classhub/templates/lesson_page.html:164
 #, fuzzy

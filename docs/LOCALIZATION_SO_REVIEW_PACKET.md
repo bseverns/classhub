@@ -2,6 +2,11 @@
 
 Purpose: support human Somali-language review on trust-critical family-facing copy.
 
+Current status:
+- Trust-critical family-visible Somali copy is treated as human-reviewed.
+- Lesson and handout reading-level strings are also treated as reviewed.
+- Broader Somali coverage outside those slices can still use interim non-empty fallback entries until separately reviewed.
+
 Review focus:
 - Join flow
 - Privacy summary

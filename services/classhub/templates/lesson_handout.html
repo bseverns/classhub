@@ -17,12 +17,12 @@
         <h1>{{ lesson_handout.title }}</h1>
         <p class="subtitle">{{ lesson_handout.subtitle }}</p>
         <p class="subtitle">
-          <a href="?reading_level=simple">Simple</a> ·
-          <a href="?reading_level=standard">Standard</a>
+          <a href="?reading_level=simple">{% trans "Simple" %}</a> ·
+          <a href="?reading_level=standard">{% trans "Standard" %}</a>
         </p>
       </div>
       <div class="meta">
-        <p><strong>{% trans "Reading level:" %}</strong> {{ selected_reading_level|title }}</p>
+        <p><strong>{% trans "Reading level:" %}</strong> {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}</p>
         <p><strong>{% if selected_reading_level == "simple" %}{% trans "Open online:" %}{% else %}{% trans "Online lesson:" %}{% endif %}</strong> {{ lesson_handout.online_url }}</p>
       </div>
     </header>

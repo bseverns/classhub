@@ -20,9 +20,10 @@
           </div>
           <h1>{{ front_matter.title|default:lesson_slug }}</h1>
           <div class="muted">
-            <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple">Simple</a>
-            · <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard">Standard</a>
-            · {% trans "Reading level:" %} {{ selected_reading_level|title }}
+            <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple">{% trans "Simple" %}</a>
+            · <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard">{% trans "Standard" %}</a>
+            · {% trans "Reading level:" %}
+            {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
           </div>
           {% if front_matter.makes %}
           <div class="muted">
@@ -184,9 +185,9 @@
       <div class="card">
         <h2 class="card-title">{% if selected_reading_level == "simple" %}{% trans "Start here" %}{% else %}{% trans "Do this now" %}{% endif %}</h2>
         <div class="nav">
-          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple">Simple</a>
-          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard">Standard</a>
-          <span class="muted">{% trans "Reading level:" %} {{ selected_reading_level|title }}</span>
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple">{% trans "Simple" %}</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard">{% trans "Standard" %}</a>
+          <span class="muted">{% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}</span>
         </div>
         {% if lesson_handout.goal %}
         <p class="muted">{{ lesson_handout.goal }}</p>
