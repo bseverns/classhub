@@ -113,13 +113,6 @@ def _registry_file_url_to_path(raw_url: str, *, label: str) -> Path:
     return Path(url2pathname(parsed.path)).expanduser().resolve()
 
 
-def _registry_index_local_path(raw_path: str, *, label: str) -> Path:
-    path = Path(str(raw_path or "").strip()).expanduser().resolve()
-    if not path.exists() or not path.is_file():
-        raise CoursepackRegistryError(f"{label} file not found: {path}")
-    return path
-
-
 def _registry_local_path(base_path: Path, raw_path: str, *, label: str) -> Path:
     candidate = str(raw_path or "").strip().replace("\\", "/")
     if not candidate:
@@ -377,7 +370,9 @@ def read_registry_document(index_location: str) -> tuple[dict[str, Any], Registr
         raw = index_path.read_text(encoding="utf-8")
         source = RegistrySource(location=str(index_path), base_path=index_path.parent)
     else:
-        index_path = _registry_index_local_path(location, label="Registry index")
+        index_path = Path(str(location or "").strip()).expanduser().resolve()
+        if not index_path.exists() or not index_path.is_file():
+            raise CoursepackRegistryError(f"Registry index file not found: {index_path}")
         raw = index_path.read_text(encoding="utf-8")
         source = RegistrySource(location=str(index_path), base_path=index_path.parent)
 
