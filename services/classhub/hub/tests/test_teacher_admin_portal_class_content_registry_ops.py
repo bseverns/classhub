@@ -91,7 +91,7 @@ submission:
                 resp = self.client.post(
                     "/teach/import-coursepack-registry",
                     {
-                        "registry_index": str(index_path),
+                        "registry_index": index_path.as_uri(),
                         "registry_course_slug": "portal_registry_course",
                         "registry_version": "20260608T223000Z",
                         "registry_class_name": "Portal Registry Cohort",

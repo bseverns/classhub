@@ -325,7 +325,7 @@ lessons:
                     {
                         "class_name": "Admin Registry Cohort",
                         "create_class": "on",
-                        "registry_index": str(index_path),
+                        "registry_index": index_path.as_uri(),
                         "registry_course_slug": "admin_registry_course",
                         "registry_version": "20260608T220000Z",
                     },
