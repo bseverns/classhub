@@ -12,6 +12,8 @@ from urllib.parse import urljoin, urlparse, urlunparse
 from urllib.request import url2pathname, urlopen
 
 from django.conf import settings
+from django.core.exceptions import SuspiciousFileOperation
+from django.utils._os import safe_join
 import yaml
 
 
@@ -123,7 +125,11 @@ def _registry_local_path(base_path: Path, raw_path: str, *, label: str) -> Path:
         raise CoursepackRegistryError(f"{label} must use a relative path inside the registry directory.")
 
     resolved_base = Path(base_path).resolve()
-    resolved_path = (resolved_base / candidate).resolve()
+    try:
+        joined = safe_join(str(resolved_base), candidate)
+    except SuspiciousFileOperation as exc:
+        raise CoursepackRegistryError(f"{label} escapes the registry directory.") from exc
+    resolved_path = Path(joined).resolve()
     if not resolved_path.is_relative_to(resolved_base):
         raise CoursepackRegistryError(f"{label} escapes the registry directory.")
     return resolved_path
