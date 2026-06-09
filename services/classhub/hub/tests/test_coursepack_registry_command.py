@@ -167,7 +167,7 @@ lessons:
         }
 
         def _fake_fetch(_source, _entry, *, output_path):
-            self.assertEqual(output_path.name, "registry_import_course-20260609T040000Z.zip")
+            self.assertEqual(output_path.name, "registry-import.zip")
             output_path.write_bytes(b"PK\x03\x04")
             return {
                 "source_artifact_url": "artifacts/registry_import_course.zip",

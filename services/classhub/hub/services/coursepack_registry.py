@@ -23,6 +23,7 @@ VALID_PROGRAM_PROFILES = {"elementary", "secondary", "advanced"}
 COURSE_SLUG_RE = re.compile(r"^[A-Za-z0-9_-]+$")
 VERSION_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
+SAFE_FILENAME_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 
 
 class CoursepackRegistryError(Exception):
@@ -129,6 +130,7 @@ def _registry_local_path(base_path: Path, raw_path: str, *, label: str) -> Path:
 
 
 def sha256_file(path: Path) -> str:
+    path = _resolved_existing_file_path(path, label="Artifact")
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         while True:
@@ -140,9 +142,34 @@ def sha256_file(path: Path) -> str:
 
 
 def write_checksum_file(path: Path, sha256: str) -> Path:
-    checksum_path = Path(f"{path}.sha256")
-    checksum_path.write_text(f"{sha256}  {path.name}\n", encoding="utf-8")
+    artifact_path = _resolved_existing_file_path(path, label="Artifact")
+    checksum_name = f"{artifact_path.name}.sha256"
+    checksum_path = artifact_path.parent / checksum_name
+    checksum_path.write_text(f"{sha256}  {artifact_path.name}\n", encoding="utf-8")
     return checksum_path
+
+
+def _safe_registry_filename(raw_name: str, *, default: str = "registry-artifact.zip") -> str:
+    candidate = Path(str(raw_name or "").strip()).name.strip()
+    if not candidate or candidate in {".", ".."}:
+        return default
+    if not SAFE_FILENAME_RE.fullmatch(candidate):
+        return default
+    return candidate
+
+
+def _resolved_existing_file_path(raw_path: str | Path, *, label: str) -> Path:
+    path = Path(raw_path).expanduser().resolve(strict=True)
+    if not path.is_file():
+        raise CoursepackRegistryError(f"{label} file not found: {path}")
+    return path
+
+
+def _resolved_output_path(raw_path: str | Path, *, fallback_name: str) -> Path:
+    candidate = Path(raw_path)
+    parent = candidate.parent.resolve()
+    filename = _safe_registry_filename(candidate.name, default=fallback_name)
+    return parent / filename
 
 
 def load_course_manifest(slug: str, *, courses_root: Path = COURSES_ROOT) -> dict[str, Any]:
@@ -347,11 +374,14 @@ def read_registry_document(index_location: str) -> tuple[dict[str, Any], Registr
             raw = handle.read().decode("utf-8")
         source = RegistrySource(location=remote_location, base_url=remote_location)
     elif parsed.scheme == "file":
-        index_path = _registry_file_url_to_path(location, label="Registry index")
+        index_path = _resolved_existing_file_path(
+            _registry_file_url_to_path(location, label="Registry index"),
+            label="Registry index",
+        )
         raw = index_path.read_text(encoding="utf-8")
         source = RegistrySource(location=str(index_path), base_path=index_path.parent)
     else:
-        index_path = Path(location).expanduser().resolve()
+        index_path = _resolved_existing_file_path(location, label="Registry index")
         raw = index_path.read_text(encoding="utf-8")
         source = RegistrySource(location=str(index_path), base_path=index_path.parent)
 
@@ -474,7 +504,7 @@ def fetch_registry_artifact(
         with urlopen(resolved_location) as handle:
             payload = handle.read()
     else:
-        payload = Path(resolved_location).read_bytes()
+        payload = _resolved_existing_file_path(resolved_location, label="Registry artifact").read_bytes()
 
     actual_sha256 = hashlib.sha256(payload).hexdigest()
     if actual_sha256 != expected_sha256:
@@ -489,8 +519,14 @@ def fetch_registry_artifact(
         )
 
     if output_path is None:
-        output_path = Path(str(artifact.get("filename") or "") or Path(artifact_url).name)
-    output_path = Path(output_path)
+        output_path = _safe_registry_filename(
+            str(artifact.get("filename") or "") or Path(urlparse(artifact_url).path).name,
+            default="registry-artifact.zip",
+        )
+    output_path = _resolved_output_path(
+        output_path,
+        fallback_name=_safe_registry_filename(Path(urlparse(artifact_url).path).name, default="registry-artifact.zip"),
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_bytes(payload)
     checksum_path = write_checksum_file(output_path, actual_sha256)

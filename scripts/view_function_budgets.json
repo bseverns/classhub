@@ -7,7 +7,7 @@
     "services/classhub/hub/views/teacher_parts/auth_teacher_2fa.py::teach_teacher_2fa_setup": 155,
     "services/classhub/hub/views/teacher_parts/content_home.py::teach_home": 100,
     "services/classhub/hub/views/teacher_parts/content_home.py::teach_generate_authoring_templates": 110,
-    "services/classhub/hub/views/teacher_parts/content_home_context_payloads.py::_build_teach_home_class_context": 80,
+    "services/classhub/hub/views/teacher_parts/content_home_context_payloads_class_forms.py::_build_teach_home_class_context": 80,
     "services/classhub/hub/views/teacher_parts/content_lessons.py::teach_set_lesson_release": 265,
     "services/classhub/hub/views/teacher_parts/content_rbac_policy_io.py::teach_import_rbac_policy": 95,
     "services/classhub/hub/views/teacher_parts/content_rbac_view_review.py::teach_review_rbac_change_request": 85,

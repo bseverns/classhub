@@ -55,10 +55,8 @@ def courses_dir() -> Path:
     return Path(getattr(settings, "CONTENT_ROOT", Path.cwd() / "content")) / "courses"
 
 
-def _registry_download_filename(*, course_slug: str, version: str) -> str:
-    normalized_slug = str(course_slug or "").strip().lower() or "coursepack"
-    normalized_version = str(version or "").strip() or "latest"
-    return f"{normalized_slug}-{normalized_version}.zip"
+def _registry_download_filename() -> str:
+    return "registry-import.zip"
 
 
 def _load_manifest(course_slug: str) -> dict:
@@ -545,8 +543,6 @@ def import_coursepack_registry(
 
     with tempfile.TemporaryDirectory(prefix="coursepack-registry-import-") as tmp_dir:
         fetch_path = Path(tmp_dir) / _registry_download_filename(
-            course_slug=course_slug,
-            version=str(entry.get("version") or "").strip(),
         )
         try:
             fetch_result = fetch_registry_artifact(source, entry, output_path=fetch_path)
