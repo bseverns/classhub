@@ -16,6 +16,7 @@ from .content_home_context import (
     _resolve_initial_top_tab,
     _tab_for_portal_mode,
 )
+from .content_import_audit import build_content_import_audit_context
 from .content_operator_config import build_operator_config_snapshot
 from .content_rbac_tools import (
     build_rbac_tools_context,
@@ -47,29 +48,47 @@ from .shared import (
 )
 
 
+_TRUTHY_VALUES = {"1", "true", "yes", "on"}
+
+
+def _read_teach_home_form_state(request) -> dict:
+    return {
+        "notice": (request.GET.get("notice") or "").strip(),
+        "error": (request.GET.get("error") or "").strip(),
+        "template_slug": (request.GET.get("template_slug") or "").strip(),
+        "template_title": (request.GET.get("template_title") or "").strip(),
+        "template_sessions": (request.GET.get("template_sessions") or "").strip(),
+        "template_duration": (request.GET.get("template_duration") or "").strip(),
+        "import_course_slug": (request.GET.get("import_course_slug") or "").strip(),
+        "import_course_title": (request.GET.get("import_course_title") or "").strip(),
+        "import_default_ui_level": (request.GET.get("import_default_ui_level") or "secondary").strip().lower(),
+        "import_session_parse_mode": (request.GET.get("import_session_parse_mode") or "auto").strip().lower(),
+        "registry_index": (request.GET.get("registry_index") or "").strip(),
+        "registry_course_slug": (request.GET.get("registry_course_slug") or "").strip(),
+        "registry_version": (request.GET.get("registry_version") or "").strip(),
+        "registry_class_code": (request.GET.get("registry_class_code") or "").strip().upper(),
+        "registry_class_name": (request.GET.get("registry_class_name") or "").strip(),
+        "registry_create_class": (request.GET.get("registry_create_class") or "").strip().lower() in _TRUTHY_VALUES,
+        "registry_replace": (request.GET.get("registry_replace") or "").strip().lower() in _TRUTHY_VALUES,
+        "registry_overwrite_content": (
+            (request.GET.get("registry_overwrite_content") or "").strip().lower() in _TRUTHY_VALUES
+        ),
+    }
+
+
+def _content_import_audit_state(request) -> dict:
+    return {
+        "content_audit_action": (request.GET.get("content_audit_action") or "all").strip(),
+        "content_audit_class_id": (request.GET.get("content_audit_class_id") or "").strip(),
+        "content_audit_limit": (request.GET.get("content_audit_limit") or "50").strip(),
+        "content_audit_event_id": (request.GET.get("content_audit_event_id") or "").strip(),
+    }
+
+
 @staff_member_required
 def teach_home(request):
     """Teacher landing page (outside /admin)."""
-    notice = (request.GET.get("notice") or "").strip()
-    error = (request.GET.get("error") or "").strip()
-    template_slug = (request.GET.get("template_slug") or "").strip()
-    template_title = (request.GET.get("template_title") or "").strip()
-    template_sessions = (request.GET.get("template_sessions") or "").strip()
-    template_duration = (request.GET.get("template_duration") or "").strip()
-    import_course_slug = (request.GET.get("import_course_slug") or "").strip()
-    import_course_title = (request.GET.get("import_course_title") or "").strip()
-    import_default_ui_level = (request.GET.get("import_default_ui_level") or "secondary").strip().lower()
-    import_session_parse_mode = (request.GET.get("import_session_parse_mode") or "auto").strip().lower()
-    registry_index = (request.GET.get("registry_index") or "").strip()
-    registry_course_slug = (request.GET.get("registry_course_slug") or "").strip()
-    registry_version = (request.GET.get("registry_version") or "").strip()
-    registry_class_code = (request.GET.get("registry_class_code") or "").strip().upper()
-    registry_class_name = (request.GET.get("registry_class_name") or "").strip()
-    registry_create_class = (request.GET.get("registry_create_class") or "").strip().lower() in {"1", "true", "yes", "on"}
-    registry_replace = (request.GET.get("registry_replace") or "").strip().lower() in {"1", "true", "yes", "on"}
-    registry_overwrite_content = (
-        (request.GET.get("registry_overwrite_content") or "").strip().lower() in {"1", "true", "yes", "on"}
-    )
+    form_state = _read_teach_home_form_state(request)
     teacher_invite_state = _read_teacher_invite_state(request)
     org_state = _read_org_admin_state(request)
     profile_state = _read_profile_state(request, request.user)
@@ -100,7 +119,7 @@ def teach_home(request):
     first_submission = recent_submissions[0] if recent_submissions else None
     teacher_start_submission_material_id = int(getattr(getattr(first_submission, "material", None), "id", 0) or 0)
     output_dir = _authoring_template_output_dir()
-    template_download_rows = _build_template_download_rows(template_slug, output_dir)
+    template_download_rows = _build_template_download_rows(form_state["template_slug"], output_dir)
     syllabus_export_state = build_syllabus_export_state(request)
     org_admin_context = _build_org_admin_context(
         user=request.user,
@@ -109,6 +128,11 @@ def teach_home(request):
         classes=classes,
     )
     rbac_tools_context = build_rbac_tools_context(request=request, classes=classes)
+    content_import_audit_context = build_content_import_audit_context(
+        classes=classes,
+        state=_content_import_audit_state(request),
+        user=request.user,
+    )
     operator_config_snapshot = build_operator_config_snapshot(user=request.user)
     context = {
         **_build_teach_home_class_context(
@@ -120,24 +144,24 @@ def teach_home(request):
             class_digest_rows=context_data["class_digest_rows"],
             digest_since=context_data["digest_since"],
             recent_submissions=recent_submissions,
-            notice=notice,
-            error=error,
-            template_slug=template_slug,
-            template_title=template_title,
-            template_sessions=template_sessions,
-            template_duration=template_duration,
-            import_course_slug=import_course_slug,
-            import_course_title=import_course_title,
-            import_default_ui_level=import_default_ui_level,
-            import_session_parse_mode=import_session_parse_mode,
-            registry_index=registry_index,
-            registry_course_slug=registry_course_slug,
-            registry_version=registry_version,
-            registry_class_code=registry_class_code,
-            registry_class_name=registry_class_name,
-            registry_create_class=registry_create_class,
-            registry_replace=registry_replace,
-            registry_overwrite_content=registry_overwrite_content,
+            notice=form_state["notice"],
+            error=form_state["error"],
+            template_slug=form_state["template_slug"],
+            template_title=form_state["template_title"],
+            template_sessions=form_state["template_sessions"],
+            template_duration=form_state["template_duration"],
+            import_course_slug=form_state["import_course_slug"],
+            import_course_title=form_state["import_course_title"],
+            import_default_ui_level=form_state["import_default_ui_level"],
+            import_session_parse_mode=form_state["import_session_parse_mode"],
+            registry_index=form_state["registry_index"],
+            registry_course_slug=form_state["registry_course_slug"],
+            registry_version=form_state["registry_version"],
+            registry_class_code=form_state["registry_class_code"],
+            registry_class_name=form_state["registry_class_name"],
+            registry_create_class=form_state["registry_create_class"],
+            registry_replace=form_state["registry_replace"],
+            registry_overwrite_content=form_state["registry_overwrite_content"],
             output_dir=output_dir,
             template_download_rows=template_download_rows,
         ),
@@ -152,6 +176,7 @@ def teach_home(request):
         **syllabus_export_state,
         **org_admin_context,
         **rbac_tools_context,
+        **content_import_audit_context,
         **operator_config_snapshot,
         **portal_mode_context,
         "org_membership_strict_mode": bool(getattr(settings, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", False)),

@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load hub_extras i18n %}
 {% if show_setup_sections %}
 {% if can_compile_coursepack %}
 <div class="card card-secondary card-secondary--tools">
@@ -121,6 +121,139 @@
           <button type="submit">{% trans "Import from registry" %}</button>
         </div>
       </form>
+    </div>
+  </details>
+</div>
+{% endif %}
+
+{% if request.user.is_superuser and advanced_tools_enabled %}
+<div class="card card-secondary card-secondary--tools">
+  <details class="support-collapsible" id="content-import-audit" {% if content_audit_open %}open{% endif %}>
+    <summary class="support-summary">
+      <span class="support-summary-text">
+        <span class="support-summary-title">{% trans "Content Import Audit" %}</span>
+        <span class="support-summary-note muted">{% trans "Filter recent content packaging and import operations across registry, upload, and export flows." %}</span>
+      </span>
+    </summary>
+    <div class="support-collapsible-body">
+      <form method="get" action="/teach">
+        <input type="hidden" name="portal_mode" value="setup" />
+        <input type="hidden" name="advanced" value="1" />
+        <div class="grid-2">
+          <div>
+            <label for="content-audit-action">{% trans "Action family" %}</label>
+            <select id="content-audit-action" name="content_audit_action">
+              {% for value, label in content_audit_action_choices %}
+                <option value="{{ value }}" {% if content_audit_action == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="content-audit-class-id">{% trans "Class (optional)" %}</label>
+            <select id="content-audit-class-id" name="content_audit_class_id">
+              <option value="">{% trans "All accessible classes" %}</option>
+              {% for c in classes %}
+                <option value="{{ c.id }}" {% if content_audit_class_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="content-audit-limit">{% trans "Rows" %}</label>
+            <input id="content-audit-limit" name="content_audit_limit" type="number" min="1" max="250" value="{{ content_audit_limit }}" />
+          </div>
+        </div>
+        <div class="submit-wrap">
+          <button type="submit">{% trans "Refresh audit feed" %}</button>
+        </div>
+      </form>
+      {% if content_audit_events %}
+        <div class="table-wrap">
+          <table>
+            <caption class="visually-hidden">{% trans "Content import audit operations" %}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{% trans "When" %}</th>
+                <th scope="col">{% trans "Actor" %}</th>
+                <th scope="col">{% trans "Action" %}</th>
+                <th scope="col">{% trans "Class" %}</th>
+                <th scope="col">{% trans "Channel" %}</th>
+                <th scope="col">{% trans "Summary" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in content_audit_rows %}
+                <tr{% if row.selected %} class="content-audit-row-selected"{% endif %}>
+                  <td class="muted">{{ row.event.created_at|date:"Y-m-d H:i:s" }}</td>
+                  <td class="muted">{% if row.event.actor_user %}{{ row.event.actor_user.username }}{% else %}-{% endif %}</td>
+                  <td><code>{{ row.event.action }}</code></td>
+                  <td class="muted">{% if row.event.classroom %}{{ row.event.classroom.name }}{% else %}-{% endif %}</td>
+                  <td class="muted">{{ row.event.metadata.import_channel|default:row.event.metadata.source_kind|default:"-" }}</td>
+                  <td class="muted">
+                    {{ row.event.summary|default:"-" }}
+                    <span class="content-audit-inline-link">
+                      <a href="{{ row.inspect_url }}">{% trans "Inspect" %}</a>
+                    </span>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if content_audit_selected_event %}
+          <div class="content-audit-detail-card">
+            <div class="row">
+              <h3 class="section-title-compact">{% trans "Selected audit event" %}</h3>
+              <div class="muted">#{{ content_audit_selected_event.id }}</div>
+            </div>
+            <div class="content-audit-detail-grid">
+              <div>
+                <div class="muted">{% trans "Action" %}</div>
+                <div><code>{{ content_audit_selected_event.action }}</code></div>
+              </div>
+              <div>
+                <div class="muted">{% trans "When" %}</div>
+                <div>{{ content_audit_selected_event.created_at|date:"Y-m-d H:i:s" }}</div>
+              </div>
+              <div>
+                <div class="muted">{% trans "Actor" %}</div>
+                <div>{% if content_audit_selected_event.actor_user %}{{ content_audit_selected_event.actor_user.username }}{% else %}-{% endif %}</div>
+              </div>
+              <div>
+                <div class="muted">{% trans "Class" %}</div>
+                <div>{% if content_audit_selected_event.classroom %}{{ content_audit_selected_event.classroom.name }}{% else %}-{% endif %}</div>
+              </div>
+              <div>
+                <div class="muted">{% trans "Target" %}</div>
+                <div>{{ content_audit_selected_event.target_type|default:"-" }}{% if content_audit_selected_event.target_id %}: {{ content_audit_selected_event.target_id }}{% endif %}</div>
+              </div>
+              <div>
+                <div class="muted">{% trans "Channel" %}</div>
+                <div>{{ content_audit_selected_event.metadata.import_channel|default:content_audit_selected_event.metadata.source_kind|default:"-" }}</div>
+              </div>
+              <div>
+                <div class="muted">{% trans "Registry version" %}</div>
+                <div>{{ content_audit_selected_event.metadata.source_metadata|get_item:"registry_version"|default:"-" }}</div>
+              </div>
+              <div>
+                <div class="muted">{% trans "Artifact URL" %}</div>
+                <div>{{ content_audit_selected_event.metadata.source_metadata|get_item:"artifact_url"|default:"-" }}</div>
+              </div>
+              <div>
+                <div class="muted">{% trans "Verified SHA-256" %}</div>
+                <div><code>{{ content_audit_selected_event.metadata.source_metadata|get_item:"sha256"|default:"-" }}</code></div>
+              </div>
+              <div>
+                <div class="muted">{% trans "Verified bytes" %}</div>
+                <div>{{ content_audit_selected_event.metadata.source_metadata|get_item:"artifact_bytes"|default:"-" }}</div>
+              </div>
+            </div>
+            <h4 class="section-title-compact">{% trans "Stored metadata" %}</h4>
+            <pre class="content-audit-metadata">{{ content_audit_selected_metadata_json }}</pre>
+          </div>
+        {% endif %}
+      {% else %}
+        <p class="muted">{% trans "No content/import audit operations matched the current filter." %}</p>
+      {% endif %}
     </div>
   </details>
 </div>

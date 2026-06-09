@@ -122,6 +122,38 @@
 .table-wrap tbody tr:last-child td {
   border-bottom: 0;
 }
+.content-audit-row-selected {
+  background: rgba(18, 57, 79, 0.1) !important;
+}
+.content-audit-inline-link {
+  display: inline-block;
+  margin-left: 8px;
+  font-weight: 600;
+}
+.content-audit-detail-card {
+  margin-top: 12px;
+  border: 1px solid rgba(22, 59, 80, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.46);
+  padding: 14px;
+}
+.content-audit-detail-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 12px;
+}
+.content-audit-metadata {
+  margin: 10px 0 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(240, 246, 250, 0.8);
+  border: 1px solid rgba(22, 59, 80, 0.12);
+  overflow: auto;
+  max-height: 320px;
+  font-size: 12px;
+  line-height: 1.45;
+}
 .inline-form {
   display: inline;
 }

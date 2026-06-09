@@ -60,6 +60,10 @@
                 <li><a href="#section-roster">{% trans "Fix roster identity issues" %}</a></li>
                 <li><a href="#section-helper-signals">{% trans "Review helper signal trends" %}</a></li>
                 <li><a href="#section-module-editor">{% trans "Edit module order/content" %}</a></li>
+                {% if request.user.is_superuser and class_content_audit_url %}
+                <li><a href="{{ class_content_audit_url }}">{% trans "Open content/import audit for this class" %}</a></li>
+                <li><a href="{{ class_registry_import_audit_url }}">{% trans "Open registry import audit for this class" %}</a></li>
+                {% endif %}
               </ul>
             </div>
           </div>

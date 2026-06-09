@@ -113,6 +113,7 @@ Both UI paths:
 - verify SHA-256 and byte size before import,
 - reuse the same safe ZIP extraction/import flow as the command path,
 - write audit events with registry provenance metadata.
+- are now visible in the Teacher Portal content/import audit feed when advanced tools are enabled.
 
 ## Audit provenance
 

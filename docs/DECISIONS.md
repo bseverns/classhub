@@ -1557,6 +1557,10 @@ Execution ownership and gates:
   - artifact URL
   - resolved artifact/checksum locations
   - verified SHA-256 and byte size
+- Surface those operations back to operators in `/teach` with a filtered content/import audit feed, following the same bounded pattern as the RBAC audit tooling instead of creating a separate dashboard.
+- Keep that audit feed operator-centric rather than admin-centric:
+  - selected rows can be inspected in place with the stored metadata payload,
+  - class dashboards link directly into the same feed with class-prefiltered shortcuts instead of creating a parallel class-history surface.
 
 **Why this remains active:**
 - Makes the RFC real without introducing a hosted registry service before there is evidence that one is needed.
@@ -3768,6 +3772,9 @@ Execution ownership and gates:
   - `services/classhub/hub/views/teacher_parts/content_home_context_payloads.py`
 - Keep org-admin helper imports in the facade so existing `content_home.py` imports remain unchanged.
 - Extend `scripts/check_teacher_admin_hotspot_budgets.py` with explicit budgets for the facade and each split module.
+- Keep `_build_teach_home_class_context(...)` on an explicit budget instead of forcing an opaque “mega state” object:
+  - the helper is the typed composition seam where class, template, import, and registry form payloads are merged for `teach_home`,
+  - its width is intentional input fan-in, not hidden control-flow complexity.
 
 **Why this remains active:**
 - Reduces cognitive load in `teach_home` context assembly without changing behavior.

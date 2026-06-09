@@ -98,6 +98,7 @@ ROUTE_CAPABILITY_MAP: dict[str, RouteContract] = {
     "/teach/rbac/policy/export": RouteContract("rbac.manage", "teach_export_rbac_policy"),
     "/teach/rbac/policy/import": RouteContract("rbac.manage", "teach_import_rbac_policy"),
     "/teach/import-syllabus-source": RouteContract("class.create", "teach_import_syllabus_source"),
+    "/teach/import-coursepack-registry": RouteContract("org.superuser", "teach_import_coursepack_registry"),
     "/teach/authoring-template/download": RouteContract("staff_only", "teach_download_authoring_template"),
     "/teach/syllabus-export": RouteContract("syllabus.export", "teach_export_syllabus"),
     "/teach/logout": RouteContract("auth_or_public", "teacher_logout"),

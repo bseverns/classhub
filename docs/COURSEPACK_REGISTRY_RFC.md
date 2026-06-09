@@ -16,7 +16,10 @@
   - operators now have a concrete static publishing guide,
   - ClassHub can now import directly from a registry index with `manage.py import_coursepack_registry`,
   - superusers can now import from a registry index through `/teach` and `/admin`,
-  - registry-backed imports now emit explicit audit provenance metadata.
+  - registry-backed imports now emit explicit audit provenance metadata,
+  - `/teach` now includes a filtered content/import audit surface for recent packaging and import operations,
+  - operators can deep-link into a selected audit row and inspect stored provenance metadata without leaving `/teach`,
+  - class dashboards now include shortcuts into the class-scoped audit feed.
 - Remote registry service, signed discovery API, and desktop GUI authoring remain optional future work and should not be implied as active roadmap commitments without a concrete operator need.
 
 ## Closure recommendation
@@ -24,8 +27,7 @@
 Treat Phase 1 and the initial Phase 2 registry slice as complete. Narrow the remaining work to:
 
 1. Optional signed-artifact policy if checksum-only trust proves insufficient.
-2. Optional audit-feed UX polish if registry import provenance needs a more dedicated operator history surface.
-3. Defer any hosted registry service or desktop app until a real distribution bottleneck appears.
+2. Defer any hosted registry service or desktop app until a real distribution bottleneck appears.
 
 ## Summary
 ClassHub should treat curriculum as versioned source code, not only LMS-uploaded artifacts.

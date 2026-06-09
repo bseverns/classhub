@@ -46,6 +46,22 @@ def _class_assignment_panel_context(*, request, classroom):
     }
 
 
+def _content_import_audit_shortcuts(*, request, classroom):
+    if not request.user.is_superuser:
+        return {}
+    base_params = {
+        "portal_mode": "setup",
+        "advanced": "1",
+        "content_audit_class_id": str(classroom.id),
+    }
+    return {
+        "class_content_audit_url": f"/teach?{urlencode(base_params)}#content-import-audit",
+        "class_registry_import_audit_url": (
+            f"/teach?{urlencode({**base_params, 'content_audit_action': 'coursepack.registry.import'})}#content-import-audit"
+        ),
+    }
+
+
 from .roster_class_import import teach_create_class
 
 
@@ -92,6 +108,7 @@ def teach_class_dashboard(request, class_id: int):
                 classroom=classroom,
             ),
             **class_assignment_panel,
+            **_content_import_audit_shortcuts(request=request, classroom=classroom),
         },
     )
     apply_no_store(response, private=True, pragma=True)
