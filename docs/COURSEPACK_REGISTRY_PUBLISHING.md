@@ -65,7 +65,9 @@ If you want ClassHub to fetch a remote registry directly:
 
 Examples:
 - local filesystem path:
-  - `/srv/classhub-coursepacks/index.json`
+  - `file:///srv/classhub-coursepacks/index.json`
+- relative local path from the process working directory:
+  - `registry/index.json`
 - Git-backed static site or raw file hosting:
   - `https://example.org/classhub-coursepacks/index.json`
 - object storage bucket with static read access:
@@ -90,7 +92,7 @@ Local-file variant:
 ```bash
 cd /srv/lms/app/compose
 docker compose exec classhub_web python manage.py import_coursepack_registry \
-  --index /srv/classhub-coursepacks/index.json \
+  --index file:///srv/classhub-coursepacks/index.json \
   --course-slug swarm_aesthetics \
   --class-name "Swarm Aesthetics Cohort" \
   --create-class
@@ -101,6 +103,7 @@ Notes:
 - The command verifies SHA-256 and byte size before importing.
 - The command reuses the existing safe ZIP extraction/import path after verification.
 - Remote indexes are rejected unless their host is listed in `CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS`.
+- Absolute local indexes must use `file://...`; plain local paths are treated as relative to the ClassHub process working directory.
 - Use `--overwrite-content` if the extracted course already exists under `CONTENT_ROOT/courses/<slug>`.
 - Use `--replace` if the class already has module/material layout that should be rebuilt from the imported coursepack.
 

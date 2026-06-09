@@ -111,7 +111,7 @@ class CoursepackRegistryServiceTests(SimpleTestCase):
             payload = upsert_registry_entry(new_registry_document(), entry)
             write_registry_document(index_path, payload)
 
-            read_payload, source = read_registry_document(str(index_path))
+            read_payload, source = read_registry_document(index_path.as_uri())
             selected = select_registry_entry(read_payload, slug="demo_course", version="20260608T120000Z")
             result = fetch_registry_artifact(
                 source,
@@ -192,6 +192,16 @@ class CoursepackRegistryServiceTests(SimpleTestCase):
 
         self.assertIn("Remote registry fetch is disabled", str(exc.exception))
         urlopen_mock.assert_not_called()
+
+    def test_read_registry_document_rejects_absolute_local_path_without_file_url(self):
+        with TemporaryDirectory() as tmpdir:
+            index_path = Path(tmpdir) / "index.json"
+            index_path.write_text(json.dumps(new_registry_document()), encoding="utf-8")
+
+            with self.assertRaises(CoursepackRegistryError) as exc:
+                read_registry_document(str(index_path))
+
+        self.assertIn("absolute local paths must use file://", str(exc.exception))
 
     @override_settings(CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS=["registry.example.org"])
     @patch("hub.services.coursepack_registry.urlopen")

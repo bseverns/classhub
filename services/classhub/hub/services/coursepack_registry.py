@@ -369,8 +369,12 @@ def read_registry_document(index_location: str) -> tuple[dict[str, Any], Registr
         index_path = _registry_file_url_to_path(location, label="Registry index")
         raw = index_path.read_text(encoding="utf-8")
         source = RegistrySource(location=str(index_path), base_path=index_path.parent)
+    elif parsed.scheme:
+        raise CoursepackRegistryError("Registry index must use https, file, or a relative local path.")
     else:
-        index_path = Path(str(location or "").strip()).expanduser().resolve()
+        if location.replace("\\", "/").startswith("/"):
+            raise CoursepackRegistryError("Registry index absolute local paths must use file://.")
+        index_path = _registry_local_path(Path.cwd(), location, label="Registry index")
         if not index_path.exists() or not index_path.is_file():
             raise CoursepackRegistryError(f"Registry index file not found: {index_path}")
         raw = index_path.read_text(encoding="utf-8")

@@ -1550,7 +1550,7 @@ Execution ownership and gates:
 - Import from published registry indexes through `python manage.py import_coursepack_registry`, which verifies the artifact first and then reuses the existing safe ZIP import path.
 - Expose the same registry import path to superusers in the Teacher Portal and the existing admin import tool so reviewed content can be promoted without shell access.
 - Keep remote registry fetch behind an explicit trust boundary:
-  - local filesystem indexes remain available by default,
+  - local filesystem indexes remain available by default, but absolute local paths must use `file://...` while plain local paths stay relative to the ClassHub process working directory,
   - remote registry indexes/artifacts must use `https`,
   - remote hosts must be explicitly listed in `CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS`,
   - remote artifact/checksum URLs must stay on the same origin as the index,

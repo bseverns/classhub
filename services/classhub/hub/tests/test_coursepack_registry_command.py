@@ -96,7 +96,7 @@ lessons:
                 out = StringIO()
                 call_command(
                     "import_coursepack_registry",
-                    index=str(index_path),
+                    index=index_path.as_uri(),
                     course_slug="registry_import_course",
                     registry_version="20260608T210000Z",
                     class_name="Registry Cohort",
@@ -131,7 +131,7 @@ lessons:
                 with self.assertRaises(CommandError):
                     call_command(
                         "import_coursepack_registry",
-                        index=str(index_path),
+                        index=index_path.as_uri(),
                         course_slug="missing_course",
                         class_name="Missing Registry Cohort",
                         create_class=True,
