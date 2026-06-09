@@ -414,6 +414,37 @@ Draw, test, and explain one loop.
         self.assertContains(resp, "တၢ်တဲာ်တဲာ် portal ဒီး account tool တဖၣ်")
         self.assertContains(resp, "တီၤအတၢ်မၤတၢ်လီၢ် မၤတ့ၢ်")
 
+    def _assert_teach_home_setup_audit_i18n(self, *, language: str, expected_label: str) -> None:
+        teacher = get_user_model().objects.create_user(
+            username=f"teacher_i18n_audit_{language}",
+            password="testpass123",
+            is_staff=True,
+            is_superuser=True,
+        )
+        _force_login_staff_verified(self.client, teacher)
+
+        resp = self.client.get("/teach?portal_mode=setup&advanced=1", HTTP_ACCEPT_LANGUAGE=language)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, expected_label)
+
+    def test_teach_home_setup_audit_spanish_renders_translated_copy(self):
+        self._assert_teach_home_setup_audit_i18n(
+            language="es",
+            expected_label="Auditoría de importación de contenido",
+        )
+
+    def test_teach_home_setup_audit_somali_renders_translated_copy(self):
+        self._assert_teach_home_setup_audit_i18n(
+            language="so",
+            expected_label="Dabagalka gelinta macluumaadka",
+        )
+
+    def test_teach_home_setup_audit_sgaw_karen_renders_translated_copy(self):
+        self._assert_teach_home_setup_audit_i18n(
+            language="ksw",
+            expected_label="content/import audit",
+        )
+
     def test_student_my_data_page_spanish_renders_translated_core_copy(self):
         self._set_student_session()
 

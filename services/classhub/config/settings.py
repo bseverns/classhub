@@ -103,6 +103,11 @@ if not DEBUG and _secret_key_looks_unsafe(HELPER_SCOPE_SIGNING_KEY):
     raise RuntimeError("HELPER_SCOPE_SIGNING_KEY must be a strong non-default value when DJANGO_DEBUG=0")
 
 ALLOWED_HOSTS = [h.strip() for h in env("DJANGO_ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",") if h.strip()]
+CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS = [
+    host.strip().lower()
+    for host in env("CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS", default="").split(",")
+    if host.strip()
+]
 
 # Use when serving via domain + HTTPS so Django accepts browser CSRF tokens
 # coming from those origins.

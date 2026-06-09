@@ -3,10 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import Mock, patch
 
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 
 from hub.services.coursepack_registry import (
+    CoursepackRegistryError,
+    RegistrySource,
     build_registry_entry,
     fetch_registry_artifact,
     new_registry_document,
@@ -168,3 +171,70 @@ class CoursepackRegistryServiceTests(SimpleTestCase):
         selected = select_registry_entry(payload, slug="demo_course")
 
         self.assertEqual(selected["version"], "0.9.9")
+
+    @override_settings(CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS=["registry.example.org"])
+    @patch("hub.services.coursepack_registry.urlopen")
+    def test_read_registry_document_allows_allowlisted_https_host(self, urlopen_mock):
+        response = Mock()
+        response.read.return_value = json.dumps(new_registry_document()).encode("utf-8")
+        urlopen_mock.return_value.__enter__.return_value = response
+
+        payload, source = read_registry_document("https://registry.example.org/index.json")
+
+        self.assertEqual(payload["entries"], [])
+        self.assertEqual(source.base_url, "https://registry.example.org/index.json")
+        urlopen_mock.assert_called_once_with("https://registry.example.org/index.json")
+
+    @patch("hub.services.coursepack_registry.urlopen")
+    def test_read_registry_document_rejects_unallowlisted_https_host_before_fetch(self, urlopen_mock):
+        with self.assertRaises(CoursepackRegistryError) as exc:
+            read_registry_document("https://registry.example.org/index.json")
+
+        self.assertIn("Remote registry fetch is disabled", str(exc.exception))
+        urlopen_mock.assert_not_called()
+
+    @override_settings(CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS=["registry.example.org"])
+    @patch("hub.services.coursepack_registry.urlopen")
+    def test_fetch_registry_artifact_rejects_cross_origin_remote_artifact_url(self, urlopen_mock):
+        source = RegistrySource(
+            location="https://registry.example.org/index.json",
+            base_url="https://registry.example.org/index.json",
+        )
+        entry = {
+            "slug": "demo_course",
+            "version": "20260609T010000Z",
+            "artifact": {
+                "url": "https://evil.example.org/demo.zip",
+                "sha256": "a" * 64,
+                "bytes": 4,
+                "checksum_url": "https://evil.example.org/demo.zip.sha256",
+            },
+        }
+
+        with self.assertRaises(CoursepackRegistryError) as exc:
+            fetch_registry_artifact(source, entry)
+
+        self.assertIn("not in CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS", str(exc.exception))
+        urlopen_mock.assert_not_called()
+
+    def test_fetch_registry_artifact_rejects_local_absolute_path_escape(self):
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            registry_root = root / "registry"
+            registry_root.mkdir(parents=True)
+            source = RegistrySource(location=str(registry_root / "index.json"), base_path=registry_root)
+            entry = {
+                "slug": "demo_course",
+                "version": "20260609T020000Z",
+                "artifact": {
+                    "url": "/etc/passwd",
+                    "sha256": "a" * 64,
+                    "bytes": 4,
+                    "checksum_url": "artifacts/demo.zip.sha256",
+                },
+            }
+
+            with self.assertRaises(CoursepackRegistryError) as exc:
+                fetch_registry_artifact(source, entry)
+
+            self.assertIn("relative path inside the registry directory", str(exc.exception))

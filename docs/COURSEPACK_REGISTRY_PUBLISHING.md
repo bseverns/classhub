@@ -58,6 +58,11 @@ Any static file host is sufficient. The contract is just:
 - artifact `.zip` files must be reachable,
 - checksum sidecars must stay adjacent to those artifacts.
 
+If you want ClassHub to fetch a remote registry directly:
+- host it on `https`,
+- add the registry host to `CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS`,
+- keep artifact and checksum URLs on the same origin as the index.
+
 Examples:
 - local filesystem path:
   - `/srv/classhub-coursepacks/index.json`
@@ -95,6 +100,7 @@ Notes:
 - If `--registry-version` is omitted, the command imports the most recently generated registry entry for that slug.
 - The command verifies SHA-256 and byte size before importing.
 - The command reuses the existing safe ZIP extraction/import path after verification.
+- Remote indexes are rejected unless their host is listed in `CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS`.
 - Use `--overwrite-content` if the extracted course already exists under `CONTENT_ROOT/courses/<slug>`.
 - Use `--replace` if the class already has module/material layout that should be rebuilt from the imported coursepack.
 
@@ -143,4 +149,5 @@ Audit metadata includes:
 
 - This is a static distribution workflow, not a hosted registry service.
 - Trust is checksum-based in this first slice; signed artifact policy is still future work.
+- Remote fetch is intentionally bounded to explicit `https` host allowlists; arbitrary remote URLs are not accepted.
 - The registry does not change the source-of-truth authoring model: course content is still authored file-first and packaged intentionally.

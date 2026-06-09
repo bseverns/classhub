@@ -8,9 +8,10 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from urllib.parse import urljoin, urlparse
-from urllib.request import urlopen
+from urllib.parse import urljoin, urlparse, urlunparse
+from urllib.request import url2pathname, urlopen
 
+from django.conf import settings
 import yaml
 
 
@@ -45,6 +46,86 @@ def default_registry_version() -> str:
 
 def default_source_url_for_slug(slug: str) -> str:
     return f"repo://services/classhub/content/courses/{slug}"
+
+
+def _normalized_registry_host(raw: str) -> str:
+    return str(raw or "").strip().lower().rstrip(".")
+
+
+def _allowed_registry_remote_hosts() -> set[str]:
+    raw_value = getattr(settings, "CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS", ())
+    if isinstance(raw_value, str):
+        values = raw_value.split(",")
+    else:
+        values = raw_value or ()
+    return {_normalized_registry_host(value) for value in values if _normalized_registry_host(value)}
+
+
+def _registry_remote_url(
+    raw_url: str,
+    *,
+    label: str,
+    allowed_hosts: set[str] | None = None,
+    expected_origin: str = "",
+) -> str:
+    parsed = urlparse(str(raw_url or "").strip())
+    if parsed.scheme != "https":
+        raise CoursepackRegistryError(f"{label} must use https.")
+    if parsed.username or parsed.password:
+        raise CoursepackRegistryError(f"{label} cannot include credentials.")
+    if parsed.query or parsed.fragment:
+        raise CoursepackRegistryError(f"{label} cannot include query strings or fragments.")
+
+    host = _normalized_registry_host(parsed.hostname or "")
+    if not host:
+        raise CoursepackRegistryError(f"{label} host is required.")
+
+    allowed = allowed_hosts if allowed_hosts is not None else _allowed_registry_remote_hosts()
+    if not allowed:
+        raise CoursepackRegistryError(
+            "Remote registry fetch is disabled until CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS is configured."
+        )
+    if host not in allowed:
+        raise CoursepackRegistryError(
+            f"{label} host '{host}' is not in CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS."
+        )
+    if parsed.port not in {None, 443}:
+        raise CoursepackRegistryError(f"{label} must use the default https port.")
+
+    if expected_origin:
+        expected = urlparse(expected_origin)
+        expected_host = _normalized_registry_host(expected.hostname or "")
+        if expected.scheme != "https" or expected_host != host:
+            raise CoursepackRegistryError(f"{label} must stay on the same https origin as the registry index.")
+        if expected.port not in {None, 443}:
+            raise CoursepackRegistryError("Registry index origin must use the default https port.")
+
+    return urlunparse(("https", host, parsed.path or "/", "", "", ""))
+
+
+def _registry_file_url_to_path(raw_url: str, *, label: str) -> Path:
+    parsed = urlparse(str(raw_url or "").strip())
+    if parsed.scheme != "file":
+        raise CoursepackRegistryError(f"{label} must use the file scheme.")
+    if parsed.netloc not in {"", "localhost"}:
+        raise CoursepackRegistryError(f"{label} file URLs cannot include a remote host.")
+    return Path(url2pathname(parsed.path)).expanduser().resolve()
+
+
+def _registry_local_path(base_path: Path, raw_path: str, *, label: str) -> Path:
+    candidate = str(raw_path or "").strip().replace("\\", "/")
+    if not candidate:
+        raise CoursepackRegistryError(f"{label} path is required.")
+    if urlparse(candidate).scheme == "file":
+        raise CoursepackRegistryError(f"{label} must use a relative path inside the registry directory.")
+    if candidate.startswith("/"):
+        raise CoursepackRegistryError(f"{label} must use a relative path inside the registry directory.")
+
+    resolved_base = Path(base_path).resolve()
+    resolved_path = (resolved_base / candidate).resolve()
+    if not resolved_path.is_relative_to(resolved_base):
+        raise CoursepackRegistryError(f"{label} escapes the registry directory.")
+    return resolved_path
 
 
 def sha256_file(path: Path) -> str:
@@ -260,10 +341,15 @@ def read_registry_document(index_location: str) -> tuple[dict[str, Any], Registr
         raise CoursepackRegistryError("Registry index location is required.")
 
     parsed = urlparse(location)
-    if parsed.scheme in {"http", "https", "file"}:
-        with urlopen(location) as handle:
+    if parsed.scheme in {"http", "https"}:
+        remote_location = _registry_remote_url(location, label="Registry index")
+        with urlopen(remote_location) as handle:
             raw = handle.read().decode("utf-8")
-        source = RegistrySource(location=location, base_url=location)
+        source = RegistrySource(location=remote_location, base_url=remote_location)
+    elif parsed.scheme == "file":
+        index_path = _registry_file_url_to_path(location, label="Registry index")
+        raw = index_path.read_text(encoding="utf-8")
+        source = RegistrySource(location=str(index_path), base_path=index_path.parent)
     else:
         index_path = Path(location).expanduser().resolve()
         raw = index_path.read_text(encoding="utf-8")
@@ -332,14 +418,16 @@ def resolve_registry_artifact_location(source: RegistrySource, artifact_url: str
         raise CoursepackRegistryError("Artifact URL is required.")
 
     parsed = urlparse(raw)
-    if parsed.scheme in {"http", "https", "file"}:
-        return raw
-    if raw.startswith("/"):
-        return raw
     if source.base_path is not None:
-        return str((source.base_path / raw).resolve())
+        return str(_registry_local_path(source.base_path, raw, label="Registry artifact"))
     if source.base_url:
-        return urljoin(source.base_url, raw)
+        resolved = raw if parsed.scheme in {"http", "https"} else urljoin(source.base_url, raw)
+        return _registry_remote_url(
+            resolved,
+            label="Registry artifact",
+            allowed_hosts={_normalized_registry_host(urlparse(source.base_url).hostname or "")},
+            expected_origin=source.base_url,
+        )
     return raw
 
 
@@ -382,7 +470,7 @@ def fetch_registry_artifact(
     resolved_location = resolve_registry_artifact_location(source, artifact_url)
     parsed = urlparse(resolved_location)
 
-    if parsed.scheme in {"http", "https", "file"}:
+    if parsed.scheme == "https":
         with urlopen(resolved_location) as handle:
             payload = handle.read()
     else:

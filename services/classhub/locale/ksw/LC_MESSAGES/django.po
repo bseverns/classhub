@@ -3711,6 +3711,46 @@ msgstr "student control တဖၣ် အိၣ်ဖဲ"
 msgid "rename, download, delete, and end session."
 msgstr "လဲလိာ်မံၤ, download, ဖျီၣ်ကွံာ်, ဒီးမၤဝံၤ session."
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:137
+msgid "Content Import Audit"
+msgstr "content/import audit"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:191
+msgid "Inspect"
+msgstr "ကွၢ်သမံ"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:201
+msgid "Selected audit event"
+msgstr "တၢ်ကဲထီၣ်အသး audit လၢဘၣ်တၢ်ဃုထၢ"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:224
+msgid "Registry version"
+msgstr "registry version"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:228
+msgid "Artifact URL"
+msgstr "artifact URL"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:232
+msgid "Verified SHA-256"
+msgstr "SHA-256 လၢဘၣ်တၢ်အုၣ်သး"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:236
+msgid "Verified bytes"
+msgstr "bytes လၢဘၣ်တၢ်အုၣ်သး"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:240
+msgid "Stored metadata"
+msgstr "metadata လၢဘၣ်တၢ်သိမ်းဆည်း"
+
+#: services/classhub/templates/teach_class.html:58
+msgid "Open content/import audit for this class"
+msgstr "ကးလီၤဖျါ content/import audit လၢတီၤအံၤအဂီၢ်"
+
+#: services/classhub/templates/teach_class.html:59
+msgid "Open registry import audit for this class"
+msgstr "ကးလီၤဖျါ registry import audit လၢတီၤအံၤအဂီၢ်"
+
 #~ msgid "Staff-only cockpit"
 #~ msgstr "staff သီးသန့ panel"
 

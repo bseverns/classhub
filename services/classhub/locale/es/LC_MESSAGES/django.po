@@ -3815,6 +3815,46 @@ msgstr "Los controles del estudiante están en"
 msgid "rename, download, delete, and end session."
 msgstr "renombrar, descargar, eliminar y terminar sesión."
 
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:137
+msgid "Content Import Audit"
+msgstr "Auditoría de importación de contenido"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:191
+msgid "Inspect"
+msgstr "Inspeccionar"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:201
+msgid "Selected audit event"
+msgstr "Evento de auditoría seleccionado"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:224
+msgid "Registry version"
+msgstr "Versión del registro"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:228
+msgid "Artifact URL"
+msgstr "URL del artefacto"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:232
+msgid "Verified SHA-256"
+msgstr "SHA-256 verificado"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:236
+msgid "Verified bytes"
+msgstr "Bytes verificados"
+
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:240
+msgid "Stored metadata"
+msgstr "Metadatos guardados"
+
+#: services/classhub/templates/teach_class.html:58
+msgid "Open content/import audit for this class"
+msgstr "Abrir auditoría de contenido/importación para esta clase"
+
+#: services/classhub/templates/teach_class.html:59
+msgid "Open registry import audit for this class"
+msgstr "Abrir auditoría de importación del registro para esta clase"
+
 #~ msgid "Staff-only cockpit"
 #~ msgstr "panel solo para personal"
 

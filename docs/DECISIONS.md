@@ -1549,6 +1549,12 @@ Execution ownership and gates:
 - Document the operator publishing contract in `docs/COURSEPACK_REGISTRY_PUBLISHING.md` with one recommended static tree layout.
 - Import from published registry indexes through `python manage.py import_coursepack_registry`, which verifies the artifact first and then reuses the existing safe ZIP import path.
 - Expose the same registry import path to superusers in the Teacher Portal and the existing admin import tool so reviewed content can be promoted without shell access.
+- Keep remote registry fetch behind an explicit trust boundary:
+  - local filesystem indexes remain available by default,
+  - remote registry indexes/artifacts must use `https`,
+  - remote hosts must be explicitly listed in `CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS`,
+  - remote artifact/checksum URLs must stay on the same origin as the index,
+  - local registry artifact/checksum paths must stay relative to the registry directory.
 - Record registry provenance in audit metadata across command, Teacher Portal, and admin imports:
   - index location
   - registry version
@@ -1565,7 +1571,7 @@ Execution ownership and gates:
 **Why this remains active:**
 - Makes the RFC real without introducing a hosted registry service before there is evidence that one is needed.
 - Gives operators a low-friction, auditable content distribution primitive that works offline from local files and online from static hosting.
-- Keeps trust posture simple in the first slice: explicit checksum files plus fetch-time digest and byte-size verification.
+- Keeps trust posture simple in the first slice: explicit checksum files plus fetch-time digest and byte-size verification, with a bounded remote-host allowlist instead of arbitrary URL fetch.
 
 ## Redirect target validation
 
@@ -3770,6 +3776,8 @@ Execution ownership and gates:
   - `services/classhub/hub/views/teacher_parts/content_home_context_portal.py`
 - Move payload/data-shaping helpers into:
   - `services/classhub/hub/views/teacher_parts/content_home_context_payloads.py`
+- Move class/import form payload composition into:
+  - `services/classhub/hub/views/teacher_parts/content_home_context_payloads_class_forms.py`
 - Keep org-admin helper imports in the facade so existing `content_home.py` imports remain unchanged.
 - Extend `scripts/check_teacher_admin_hotspot_budgets.py` with explicit budgets for the facade and each split module.
 - Keep `_build_teach_home_class_context(...)` on an explicit budget instead of forcing an opaque “mega state” object:

@@ -71,6 +71,7 @@ HOTSPOT_BUDGETS: dict[Path, int] = {
     Path("services/classhub/hub/views/teacher_parts/content_home_context_state.py"): 140,
     Path("services/classhub/hub/views/teacher_parts/content_home_context_portal.py"): 180,
     Path("services/classhub/hub/views/teacher_parts/content_home_context_payloads.py"): 220,
+    Path("services/classhub/hub/views/teacher_parts/content_home_context_payloads_class_forms.py"): 170,
     Path("services/classhub/hub/views/teacher_parts/content_rbac_access.py"): 40,
     Path("services/classhub/hub/views/teacher_parts/content_rbac_view_endpoints.py"): 90,
     Path("services/classhub/hub/views/teacher_parts/content_rbac_view_context.py"): 180,

@@ -2,8 +2,11 @@ from io import BytesIO, StringIO
 import tempfile
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 from ._shared import *  # noqa: F401,F403
+from ..services.coursepack_import import CoursepackImportResult, import_coursepack_registry
+from ..services.coursepack_registry import RegistrySource
 from ..services.coursepack_registry import build_registry_entry, new_registry_document, upsert_registry_entry, write_registry_document
 
 
@@ -133,3 +136,64 @@ lessons:
                         class_name="Missing Registry Cohort",
                         create_class=True,
                     )
+
+    @patch("hub.services.coursepack_import.import_coursepack_zip")
+    @patch("hub.services.coursepack_import.fetch_registry_artifact")
+    @patch("hub.services.coursepack_import.select_registry_entry")
+    @patch("hub.services.coursepack_import.read_registry_document")
+    def test_import_service_uses_deterministic_registry_download_name(
+        self,
+        read_registry_document_mock,
+        select_registry_entry_mock,
+        fetch_registry_artifact_mock,
+        import_coursepack_zip_mock,
+    ):
+        classroom = Class.objects.create(name="Registry Deterministic Cohort", join_code="RGSAFE01")
+        read_registry_document_mock.return_value = (
+            new_registry_document(),
+            RegistrySource(location="/tmp/index.json", base_path=Path("/tmp")),
+        )
+        select_registry_entry_mock.return_value = {
+            "slug": "registry_import_course",
+            "title": "Registry Import Course",
+            "version": "20260609T040000Z",
+            "artifact": {
+                "url": "artifacts/registry_import_course.zip",
+                "filename": "../../escape.zip",
+                "sha256": "a" * 64,
+                "bytes": 4,
+                "checksum_url": "artifacts/registry_import_course.zip.sha256",
+            },
+        }
+
+        def _fake_fetch(_source, _entry, *, output_path):
+            self.assertEqual(output_path.name, "registry_import_course-20260609T040000Z.zip")
+            output_path.write_bytes(b"PK\x03\x04")
+            return {
+                "source_artifact_url": "artifacts/registry_import_course.zip",
+                "resolved_artifact_location": "/tmp/registry/artifacts/registry_import_course.zip",
+                "resolved_checksum_location": "/tmp/registry/artifacts/registry_import_course.zip.sha256",
+                "sha256": "a" * 64,
+                "bytes": 4,
+            }
+
+        fetch_registry_artifact_mock.side_effect = _fake_fetch
+        import_coursepack_zip_mock.return_value = CoursepackImportResult(
+            course_slug="registry_import_course",
+            course_title="Registry Import Course",
+            classroom=classroom,
+            course_dir=Path("/tmp/content/courses/registry_import_course"),
+            created_modules=1,
+            created_materials=2,
+            created_assets=0,
+        )
+
+        result = import_coursepack_registry(
+            index_location="/tmp/index.json",
+            course_slug="registry_import_course",
+            version="20260609T040000Z",
+            class_name="Registry Deterministic Cohort",
+            create_class=True,
+        )
+
+        self.assertEqual(result.course_slug, "registry_import_course")

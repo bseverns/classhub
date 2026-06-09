@@ -32,6 +32,7 @@ from .test_teacher_admin_portal import (
 )
 from .test_teacher_admin_portal_class_ops import TeacherPortalClassOpsTests as TeacherPortalTests
 from .test_teacher_admin_portal_class_content_admin_ops import TeacherPortalClassContentAdminOpsTests
+from .test_teacher_admin_portal_class_content_registry_ops import TeacherPortalClassContentRegistryOpsTests
 from .test_teacher_admin_release import LessonReleaseTests
 
 __all__ = [
@@ -61,5 +62,6 @@ __all__ = [
     "TeacherAuditTests",
     "TeacherOTPEnforcementTests",
     "TeacherPortalClassContentAdminOpsTests",
+    "TeacherPortalClassContentRegistryOpsTests",
     "TeacherPortalTests",
 ]
