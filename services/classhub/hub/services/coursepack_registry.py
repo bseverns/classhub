@@ -113,6 +113,13 @@ def _registry_file_url_to_path(raw_url: str, *, label: str) -> Path:
     return Path(url2pathname(parsed.path)).expanduser().resolve()
 
 
+def _registry_index_local_path(raw_path: str, *, label: str) -> Path:
+    path = Path(str(raw_path or "").strip()).expanduser().resolve()
+    if not path.exists() or not path.is_file():
+        raise CoursepackRegistryError(f"{label} file not found: {path}")
+    return path
+
+
 def _registry_local_path(base_path: Path, raw_path: str, *, label: str) -> Path:
     candidate = str(raw_path or "").strip().replace("\\", "/")
     if not candidate:
@@ -130,9 +137,8 @@ def _registry_local_path(base_path: Path, raw_path: str, *, label: str) -> Path:
 
 
 def sha256_file(path: Path) -> str:
-    path = _resolved_existing_file_path(path, label="Artifact")
     digest = hashlib.sha256()
-    with path.open("rb") as handle:
+    with Path(path).open("rb") as handle:
         while True:
             block = handle.read(1024 * 1024)
             if not block:
@@ -142,7 +148,7 @@ def sha256_file(path: Path) -> str:
 
 
 def write_checksum_file(path: Path, sha256: str) -> Path:
-    artifact_path = _resolved_existing_file_path(path, label="Artifact")
+    artifact_path = Path(path).resolve()
     checksum_name = f"{artifact_path.name}.sha256"
     checksum_path = artifact_path.parent / checksum_name
     checksum_path.write_text(f"{sha256}  {artifact_path.name}\n", encoding="utf-8")
@@ -156,13 +162,6 @@ def _safe_registry_filename(raw_name: str, *, default: str = "registry-artifact.
     if not SAFE_FILENAME_RE.fullmatch(candidate):
         return default
     return candidate
-
-
-def _resolved_existing_file_path(raw_path: str | Path, *, label: str) -> Path:
-    path = Path(raw_path).expanduser().resolve(strict=True)
-    if not path.is_file():
-        raise CoursepackRegistryError(f"{label} file not found: {path}")
-    return path
 
 
 def _resolved_output_path(raw_path: str | Path, *, fallback_name: str) -> Path:
@@ -374,14 +373,11 @@ def read_registry_document(index_location: str) -> tuple[dict[str, Any], Registr
             raw = handle.read().decode("utf-8")
         source = RegistrySource(location=remote_location, base_url=remote_location)
     elif parsed.scheme == "file":
-        index_path = _resolved_existing_file_path(
-            _registry_file_url_to_path(location, label="Registry index"),
-            label="Registry index",
-        )
+        index_path = _registry_file_url_to_path(location, label="Registry index")
         raw = index_path.read_text(encoding="utf-8")
         source = RegistrySource(location=str(index_path), base_path=index_path.parent)
     else:
-        index_path = _resolved_existing_file_path(location, label="Registry index")
+        index_path = _registry_index_local_path(location, label="Registry index")
         raw = index_path.read_text(encoding="utf-8")
         source = RegistrySource(location=str(index_path), base_path=index_path.parent)
 
@@ -504,7 +500,14 @@ def fetch_registry_artifact(
         with urlopen(resolved_location) as handle:
             payload = handle.read()
     else:
-        payload = _resolved_existing_file_path(resolved_location, label="Registry artifact").read_bytes()
+        local_artifact_path = _registry_local_path(
+            source.base_path or Path("."),
+            artifact_url,
+            label="Registry artifact",
+        )
+        if not local_artifact_path.exists() or not local_artifact_path.is_file():
+            raise CoursepackRegistryError(f"Registry artifact file not found: {local_artifact_path}")
+        payload = local_artifact_path.read_bytes()
 
     actual_sha256 = hashlib.sha256(payload).hexdigest()
     if actual_sha256 != expected_sha256:
