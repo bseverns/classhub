@@ -245,7 +245,8 @@ lesson page will embed the video and also show an external link.
 
 Offline handout export:
 - Every lesson can expose a print-friendly handout at `/course/<course_slug>/<lesson_slug>/handout`.
-- PDF export is available at `/course/<course_slug>/<lesson_slug>/handout.pdf`.
+- PDF export is available at `/course/<course_slug>/<lesson_slug>/handout.pdf` as a simple fallback download.
+- The HTML handout is the primary export surface; the current PDF path is a basic text-first fallback and does not preserve the full HTML handout layout.
 - The handout uses `offline_handout` front matter when present and otherwise falls back to existing lesson metadata.
 - Reading-level selection is deterministic and query-based: `?reading_level=simple` or `?reading_level=standard`.
 - The syllabus ingest path preserves `Local anchors`, `Example variants`, `Community glossary`, and `Offline handout` sections from teacher-authored `.md`, `.docx`, or `.zip` sources by compiling them into lesson front matter.

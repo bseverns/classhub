@@ -315,6 +315,19 @@ Draw, test, and explain one loop.
             expected_section_label="စးထီၣ်ဖဲအံၤ",
         )
 
+    def test_course_lesson_handout_sets_html_lang_to_active_language(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir)
+            self._write_lesson_locale_fixture(content_root)
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.get(
+                    "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple",
+                    HTTP_ACCEPT_LANGUAGE="so",
+                )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '<html lang="so">')
+
     def test_teach_home_day_mode_spanish_renders_translated_core_copy(self):
         teacher = get_user_model().objects.create_user(
             username="teacher_i18n_day_mode",

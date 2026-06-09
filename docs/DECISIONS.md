@@ -1718,6 +1718,7 @@ Execution ownership and gates:
 - Expose a print-friendly lesson handout surface at:
   - `/course/<course_slug>/<lesson_slug>/handout`
   - `/course/<course_slug>/<lesson_slug>/handout.pdf`
+- Treat the HTML handout as the primary export surface and keep the current PDF path positioned as a simple fallback download rather than a publication-grade multilingual layout renderer.
 - Keep reading-level support deterministic:
   - `reading_level=simple|standard`
   - authored overrides live in `offline_handout.reading_levels`

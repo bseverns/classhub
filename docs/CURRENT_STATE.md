@@ -1,7 +1,9 @@
-# Current State (May 7, 2026)
+# Current State
 
 ## Summary
 This page is the live snapshot of what ClassHub currently ships on `main`.
+It is updated manually when shipped capabilities change.
+Last reviewed: 2026-06-09
 
 ## What is live now
 - Student access uses class code + display name, with return-code/device-hint rejoin.
@@ -16,7 +18,7 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 - Operator data-lifespan dashboard is live at `/teach/data-lifespan` with retention trend rows and CSV/JSON snapshot export (`/teach/data-lifespan/export`).
 - `/teach/data-lifespan` now also surfaces aggregate remote-helper-compute posture: active lease status, low-noise trend summary, and recent class activity rows from helper-owned evidence.
 - Repo now ships an unattended remote-compute evidence watcher (`python3 scripts/remote_compute_operator_watch.py`) plus reference systemd timer units for bounded webhook alerting from the helper-owned operator snapshot.
-- Lesson pages now support belonging-layer metadata (`local_anchors`, `example_variants`, `community_glossary`) plus print-friendly offline handout export and PDF download.
+- Lesson pages now support belonging-layer metadata (`local_anchors`, `example_variants`, `community_glossary`) plus print-friendly offline handout export and a simple PDF fallback download.
 - Teacher syllabus import now preserves belonging-layer and offline-handout sections instead of dropping them during coursepack compilation.
 - Homework Helper runs as a separate Django service behind `/helper/*`.
 - Homework Helper supports optional bounded local curriculum RAG (pgvector) with curriculum-only retrieval scope.
