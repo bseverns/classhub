@@ -1,0 +1,2415 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/OPENAI_HELPER/">
+      
+      
+        <link rel="prev" href="../KIOSK_PWA/">
+      
+      
+        <link rel="next" href="../REQUEST_SAFETY/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>Helper Backend Operations - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#homework-helper-backend-operations" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Helper Backend Operations
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRENT_STATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../FEATURE_MATURITY/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Engineering
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HUBCTL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facilitator CLI (hubctl)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LOCALIZATION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Localization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LOCALIZATION_SO_REVIEW_PACKET/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Somali Review Packet
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COURSEPACK_REGISTRY_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Coursepack Registry RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ASYNC_SELF_PACED_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Async Self-Paced RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IDENTITY_SSO_EXPANSION_PLAN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Identity SSO Expansion Plan
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RBAC_CAPABILITIES_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RBAC Capabilities RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TELEMETRY_DB_SPLIT_PLAN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Telemetry DB Split Plan
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNTIME_LOCK_PROFILES/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Runtime Lock Profiles
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../KIOSK_PWA/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Classroom Kiosk PWA
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Helper Backend Operations
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Helper Backend Operations
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do now
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification signal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#runtime-module-layout-current" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runtime module layout (current)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backend selection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Backend selection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ollama-local" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ollama (local)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#private-remote-model-host-gemma-family-example-over-private-tailnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Private remote model host (Gemma-family example over private tailnet)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openai-compatible-private-api-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAI-compatible / private API servers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openai-optional-explicit-opt-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAI (optional, explicit opt-in)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mock-backend-citest" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mock backend (CI/test)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tutor-stance-and-strictness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tutor stance and strictness
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lesson-context-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Lesson context metadata
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#allowed-topics-per-lesson" class="md-nav__link">
+    <span class="md-ellipsis">
+      Allowed topics (per lesson)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-course-scaffold" class="md-nav__link">
+    <span class="md-ellipsis">
+      New course scaffold
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#course-reference-facts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Course reference facts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Course reference facts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multiple-reference-files-per-course-or-lesson" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiple reference files (per course or lesson)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-local-pgvector-rag-curriculum-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional local pgvector RAG (curriculum only)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-lesson-references-generated-from-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      Per-lesson references generated from content
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-sync-helper-references-across-all-courses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Batch-sync helper references across all courses
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scope mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#queue-concurrency-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Queue / concurrency limits
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#response-length-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      Response length controls
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-resilience-telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backend resilience + telemetry
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access boundary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#end-to-end-helper-flow-map-d3" class="md-nav__link">
+    <span class="md-ellipsis">
+      End-to-end helper flow (Map D3)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rag-current" class="md-nav__link">
+    <span class="md-ellipsis">
+      RAG (current)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evals-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evals (recommended)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REQUEST_SAFETY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Request Safety
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HELPER_EVALS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Evals
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MERGE_READINESS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Merge Readiness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING_DOCS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs Maintenance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOCS_TRUTH_MECHANISM/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs Truth Mechanism
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do now
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification signal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#runtime-module-layout-current" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runtime module layout (current)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backend selection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Backend selection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ollama-local" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ollama (local)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#private-remote-model-host-gemma-family-example-over-private-tailnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Private remote model host (Gemma-family example over private tailnet)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openai-compatible-private-api-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAI-compatible / private API servers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openai-optional-explicit-opt-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAI (optional, explicit opt-in)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mock-backend-citest" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mock backend (CI/test)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tutor-stance-and-strictness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tutor stance and strictness
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lesson-context-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Lesson context metadata
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#allowed-topics-per-lesson" class="md-nav__link">
+    <span class="md-ellipsis">
+      Allowed topics (per lesson)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-course-scaffold" class="md-nav__link">
+    <span class="md-ellipsis">
+      New course scaffold
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#course-reference-facts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Course reference facts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Course reference facts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multiple-reference-files-per-course-or-lesson" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiple reference files (per course or lesson)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-local-pgvector-rag-curriculum-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional local pgvector RAG (curriculum only)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-lesson-references-generated-from-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      Per-lesson references generated from content
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-sync-helper-references-across-all-courses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Batch-sync helper references across all courses
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scope mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#queue-concurrency-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Queue / concurrency limits
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#response-length-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      Response length controls
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-resilience-telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backend resilience + telemetry
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access boundary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#end-to-end-helper-flow-map-d3" class="md-nav__link">
+    <span class="md-ellipsis">
+      End-to-end helper flow (Map D3)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rag-current" class="md-nav__link">
+    <span class="md-ellipsis">
+      RAG (current)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evals-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evals (recommended)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="homework-helper-backend-operations">Homework Helper Backend Operations<a class="headerlink" href="#homework-helper-backend-operations" title="Permanent link">&para;</a></h1>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>This page is the runtime/config guide for Homework Helper regardless of provider. The filename is historical: it covers the helper backend in general, not only hosted OpenAI.</p>
+<p>Use this page for backend selection, shared runtime knobs, references, curriculum RAG, conversation controls, and queue/resilience settings.</p>
+<p>Use these related docs for narrower questions:
+- <a href="../PRIVATE_LLM_BACKEND/">PRIVATE_LLM_BACKEND.md</a> for network topology and the private model-host path
+- <a href="../HELPER_POLICY/">HELPER_POLICY.md</a> for tutor stance and anti-cheating policy
+- <a href="../SECURITY/">SECURITY.md</a> for access boundaries and browser/security posture</p>
+<h2 id="what-to-do-now">What to do now<a class="headerlink" href="#what-to-do-now" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Choose your backend family in <code>LLM_BACKEND</code>.</li>
+<li>Treat scope, references, conversation controls, and RAG as helper features unless a section says they are provider-specific.</li>
+<li>Use the provider-specific sections only for the backend you are actually operating.</li>
+</ol>
+<h2 id="verification-signal">Verification signal<a class="headerlink" href="#verification-signal" title="Permanent link">&para;</a></h2>
+<p>An operator should be able to say which settings apply to any helper backend and which settings only apply to one provider family.</p>
+<p>The helper service is a Django app that exposes:</p>
+<ul>
+<li><code>GET /helper/healthz</code></li>
+<li><code>POST /helper/chat</code></li>
+<li><code>POST /helper/internal/reset-class-conversations</code> (token-protected internal control plane)</li>
+<li><code>GET /helper/internal/rag-status</code> (token-protected internal evidence/status contract)</li>
+</ul>
+<p>By default, the helper is wired to a small local LLM path (via Ollama) for self-hosted smoke validation and predictable day-1 ops.
+For the serious private scale-out path, prefer a Gemma-family model on a private GPU host and let Homework Helper reach it over the host-to-host tailnet through Ollama or another compatible private backend.
+For createMPLS-style deployments, the recommended control plane behind that path is Headscale on a tiny Ubuntu VPS.
+Hosted OpenAI remains an explicit optional path via the <strong>Responses API</strong> and must be intentionally acknowledged before use.</p>
+<p>Hosted OpenAI path note:
+- <code>LLM_BACKEND=openai</code> normalizes to the shared provider name <code>openai_responses</code>.
+- Hosted OpenAI now goes through the same <code>tutor/llm/*</code> provider layer as the other helper backends.</p>
+<pre class="mermaid"><code>flowchart TD
+  A[POST /helper/chat] --&gt; B[Auth + scope token checks]
+  B --&gt; C[Rate limit + queue slot]
+  C --&gt; D{Backend}
+  D --&gt;|ollama| E[Local Ollama API]
+  D --&gt;|openai| F[OpenAI Responses API]
+  D --&gt;|mock| G[Deterministic test response]
+  E --&gt; H[Policy-shaped answer]
+  F --&gt; H
+  G --&gt; H
+  H --&gt; I[JSON response + request_id]</code></pre>
+<h2 id="runtime-module-layout-current">Runtime module layout (current)<a class="headerlink" href="#runtime-module-layout-current" title="Permanent link">&para;</a></h2>
+<p><code>/helper/chat</code> stays in <code>tutor/views.py</code> as the HTTP boundary. Internals are split into focused modules:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tutor/views.py</code></td>
+<td>endpoint adapter, auth/rate-limit gate, dependency wiring</td>
+</tr>
+<tr>
+<td><code>tutor/views_chat_request.py</code></td>
+<td>actor/client derivation, payload parse, rate-limit request shaping</td>
+</tr>
+<tr>
+<td><code>tutor/views_chat_deps.py</code></td>
+<td><code>ChatDeps</code> construction (wiring patch-sensitive callables)</td>
+</tr>
+<tr>
+<td><code>tutor/views_chat_runtime.py</code></td>
+<td>runtime wrappers for backend/auth/circuit seams</td>
+</tr>
+<tr>
+<td><code>tutor/views_chat_helpers.py</code></td>
+<td>reference loading, memory helpers, runtime env wrappers, event detail shaping</td>
+</tr>
+<tr>
+<td><code>tutor/engine/service.py</code></td>
+<td>chat orchestration core (<code>handle_chat</code>)</td>
+</tr>
+<tr>
+<td><code>tutor/engine/context_envelope.py</code></td>
+<td>signed scope token resolution into normalized context envelope</td>
+</tr>
+<tr>
+<td><code>tutor/engine/runtime_config.py</code></td>
+<td>profile-aware policy defaults (<code>strictness</code>, <code>scope_mode</code>, topic filter)</td>
+</tr>
+<tr>
+<td><code>tutor/engine/execution_config.py</code></td>
+<td>execution knobs (backend, queue, conversation limits, references, keyword caps)</td>
+</tr>
+<tr>
+<td><code>tutor/engine/backends.py</code></td>
+<td>backend registry + retry adapter</td>
+</tr>
+<tr>
+<td><code>tutor/llm/*</code></td>
+<td>provider abstraction for Ollama, hosted OpenAI Responses, and private OpenAI-compatible servers</td>
+</tr>
+<tr>
+<td><code>tutor/engine/heuristics.py</code></td>
+<td>intent/follow-up/topic/text-language/Piper heuristics</td>
+</tr>
+<tr>
+<td><code>tutor/engine/memory.py</code></td>
+<td>conversation cache state and compaction</td>
+</tr>
+<tr>
+<td><code>tutor/engine/reference.py</code></td>
+<td>reference-file resolution + citation extraction</td>
+</tr>
+<tr>
+<td><code>tutor/engine/rag.py</code></td>
+<td>optional local pgvector retrieval + curriculum index helpers</td>
+</tr>
+<tr>
+<td><code>tutor/engine/auth.py</code></td>
+<td>actor and class-table/session boundary checks</td>
+</tr>
+<tr>
+<td><code>tutor/engine/circuit.py</code></td>
+<td>cache-backed backend failure circuit state</td>
+</tr>
+</tbody>
+</table>
+<h2 id="backend-selection">Backend selection<a class="headerlink" href="#backend-selection" title="Permanent link">&para;</a></h2>
+<p>Provider-neutral runtime surfaces:</p>
+<ul>
+<li><code>LLM_BACKEND</code>, <code>LLM_BASE_URL</code>, <code>LLM_API_KEY</code>, <code>LLM_MODEL</code>, timeout, and token controls are the shared backend-selection surface.</li>
+<li>Scope enforcement, conversation cache, queue limits, audit/event behavior, references, and lesson-boundary policy are helper features, not OpenAI-only features.</li>
+<li>Curriculum references and curriculum RAG are backend-neutral at the product level:</li>
+<li>they stay bounded to configured helper reference markdown,</li>
+<li>they do not index student submissions or student events.</li>
+<li>Current embedding/index build flow for RAG uses the helper's <code>HELPER_RAG_EMBED_*</code> settings and an Ollama-style embedding endpoint. That is an implementation detail of the current shipped path, not a claim that every provider automatically supports helper RAG.</li>
+</ul>
+<p>Set the backend in <code>compose/.env</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">LLM_ENABLED</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">LLM_BACKEND</span><span class="o">=</span>ollama<span class="w">          </span><span class="c1"># or &quot;openai_compatible&quot;, &quot;openai&quot;, &quot;openai_responses&quot;, or &quot;mock&quot;</span>
+<span class="nv">HELPER_LLM_BACKEND</span><span class="o">=</span>ollama<span class="w">   </span><span class="c1"># legacy alias still supported</span>
+<span class="nv">LLM_BASE_URL</span><span class="o">=</span>http://ollama:11434
+<span class="nv">LLM_API_KEY</span><span class="o">=</span>
+<span class="nv">LLM_MODEL</span><span class="o">=</span>llama3.2:1b
+<span class="nv">LLM_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">30</span>
+<span class="nv">LLM_MAX_TOKENS</span><span class="o">=</span><span class="m">400</span>
+<span class="nv">LLM_NUM_CTX</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">LLM_TEMPERATURE</span><span class="o">=</span><span class="m">0</span>.2
+<span class="nv">LLM_TOP_P</span><span class="o">=</span><span class="m">0</span>.9
+<span class="nv">LLM_LOG_PROMPT_CONTENT</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">LLM_REDACTION_ENABLED</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">LLM_ALLOWED_ACTOR_TYPES</span><span class="o">=</span>student,staff
+<span class="nv">HELPER_REMOTE_MODE_ACKNOWLEDGED</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">HELPER_MOCK_RESPONSE_TEXT</span><span class="o">=</span>
+<span class="nv">HELPER_STRICTNESS</span><span class="o">=</span>light<span class="w">     </span><span class="c1"># or &quot;strict&quot;</span>
+<span class="nv">HELPER_SCOPE_MODE</span><span class="o">=</span>strict<span class="w">    </span><span class="c1"># or &quot;soft&quot;</span>
+<span class="nv">HELPER_REFERENCE_FILE</span><span class="o">=</span>/app/tutor/reference/piper_scratch.md
+<span class="nv">HELPER_REFERENCE_DIR</span><span class="o">=</span>/app/tutor/reference
+<span class="nv">HELPER_REFERENCE_MAP</span><span class="o">={</span><span class="s2">&quot;piper_scratch&quot;</span>:<span class="s2">&quot;piper_scratch.md&quot;</span><span class="o">}</span>
+<span class="nv">HELPER_RAG_ENABLED</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">HELPER_RAG_EMBED_BASE_URL</span><span class="o">=</span>http://ollama:11434
+<span class="nv">HELPER_RAG_EMBED_MODEL</span><span class="o">=</span>nomic-embed-text
+<span class="nv">HELPER_RAG_EMBED_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">12</span>
+<span class="nv">HELPER_RAG_EMBED_DIMENSIONS</span><span class="o">=</span><span class="m">768</span>
+<span class="nv">HELPER_RAG_MAX_COSINE_DISTANCE</span><span class="o">=</span><span class="m">0</span>.42
+<span class="nv">HELPER_SCOPE_TOKEN_MAX_AGE_SECONDS</span><span class="o">=</span><span class="m">7200</span>
+<span class="nv">HELPER_RESPONSE_MAX_CHARS</span><span class="o">=</span><span class="m">2200</span>
+<span class="nv">HELPER_CONVERSATION_ENABLED</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">HELPER_CONVERSATION_MAX_MESSAGES</span><span class="o">=</span><span class="m">12</span>
+<span class="nv">HELPER_CONVERSATION_TTL_SECONDS</span><span class="o">=</span><span class="m">7200</span>
+<span class="nv">HELPER_CONVERSATION_TURN_MAX_CHARS</span><span class="o">=</span><span class="m">1000</span>
+<span class="nv">HELPER_CONVERSATION_HISTORY_MAX_CHARS</span><span class="o">=</span><span class="m">4000</span>
+<span class="nv">HELPER_CONVERSATION_SUMMARY_MAX_CHARS</span><span class="o">=</span><span class="m">1400</span>
+<span class="nv">HELPER_FOLLOW_UP_SUGGESTIONS_MAX</span><span class="o">=</span><span class="m">3</span>
+<span class="nv">HELPER_MAX_CONCURRENCY</span><span class="o">=</span><span class="m">2</span>
+<span class="nv">HELPER_QUEUE_MAX_WAIT_SECONDS</span><span class="o">=</span><span class="m">10</span>
+<span class="nv">HELPER_QUEUE_POLL_SECONDS</span><span class="o">=</span><span class="m">0</span>.2
+<span class="nv">HELPER_QUEUE_SLOT_TTL_SECONDS</span><span class="o">=</span><span class="m">120</span>
+<span class="nv">HELPER_BACKEND_MAX_ATTEMPTS</span><span class="o">=</span><span class="m">2</span>
+<span class="nv">HELPER_BACKOFF_SECONDS</span><span class="o">=</span><span class="m">0</span>.4
+<span class="nv">HELPER_CIRCUIT_BREAKER_FAILURES</span><span class="o">=</span><span class="m">5</span>
+<span class="nv">HELPER_CIRCUIT_BREAKER_TTL_SECONDS</span><span class="o">=</span><span class="m">30</span>
+<span class="nv">HELPER_TOPIC_FILTER_MODE</span><span class="o">=</span>strict
+<span class="nv">HELPER_TEXT_LANGUAGE_KEYWORDS</span><span class="o">=</span>pascal,python,java,javascript,typescript,c++,c#,csharp,ruby,php,go,golang,rust,swift,kotlin
+<span class="nv">HELPER_INTERNAL_API_TOKEN</span><span class="o">=</span>...
+<span class="nv">HELPER_INTERNAL_ALLOWED_CIDRS</span><span class="o">=</span><span class="m">127</span>.0.0.0/8,::1/128,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fc00::/7
+<span class="nv">HELPER_INTERNAL_TRUST_PROXY_HEADERS</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">HELPER_INTERNAL_XFF_INDEX</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">HELPER_INTERNAL_RESET_URL</span><span class="o">=</span>http://helper_web:8000/helper/internal/reset-class-conversations
+<span class="nv">HELPER_INTERNAL_RESET_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">2</span>
+<span class="nv">HELPER_INTERNAL_RAG_STATUS_URL</span><span class="o">=</span>http://helper_web:8000/helper/internal/rag-status
+<span class="nv">HELPER_INTERNAL_RAG_STATUS_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">1</span>.2
+<span class="nv">HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">HELPER_CLASS_RESET_MAX_KEYS</span><span class="o">=</span><span class="m">4000</span>
+<span class="nv">HELPER_CLASS_RESET_ARCHIVE_ENABLED</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">HELPER_CLASS_RESET_ARCHIVE_DIR</span><span class="o">=</span>/uploads/helper_reset_exports
+<span class="nv">HELPER_CLASS_RESET_ARCHIVE_MAX_MESSAGES</span><span class="o">=</span><span class="m">120</span>
+</code></pre></div>
+<p>Optional YAML consolidation:
+- Set <code>HELPER_CONFIG_FILE</code> to a YAML file (recommended in-container path: <code>/app/config/helper.config.yaml</code>).
+- A baseline file ships in the repo at <code>services/homework_helper/config/helper.config.yaml</code> and a host-side template is available at <code>compose/helper.config.example.yaml</code>.
+- For mapped helper settings, resolution order is:
+  1. explicit env var value
+  2. YAML value
+  3. code default
+- Secrets remain env-only by design (for example <code>OPENAI_API_KEY</code>, internal tokens, signing keys).</p>
+<p>Config resolution model:
+- <code>ContextEnvelope</code>: derives trusted lesson context from signed <code>scope_token</code>.
+- <code>PolicyBundle</code>: derives helper policy stance (<code>strictness</code>, <code>scope_mode</code>, topic filter) with profile defaults.
+- <code>ExecutionConfig</code>: derives runtime execution knobs (queue/backoff/conversation/reference settings).</p>
+<p>Precedence:
+- explicit env value wins,
+- otherwise profile/default contract applies.</p>
+<p>Conversation behavior:
+- Each chat request can include a <code>conversation_id</code>; the helper now returns one on every response.
+- Recent redacted turns are cached per <code>(actor, scope token, conversation_id)</code> with TTL, so follow-up questions can build on prior context.
+- When history exceeds <code>HELPER_CONVERSATION_MAX_MESSAGES</code>, older turns are compacted into a rolling summary to preserve context while keeping prompts short.
+- Each response includes an <code>intent</code> tag (<code>debug</code>, <code>concept</code>, <code>strategy</code>, etc.) derived from the latest student message.
+- Each response includes <code>follow_up_suggestions</code> (bounded by <code>HELPER_FOLLOW_UP_SUGGESTIONS_MAX</code>) so the UI can offer one-tap next questions.
+- Class Hub sends <code>language_code</code> from the active UI locale; helper normalizes that to the supported set (<code>en</code>, <code>es</code>, <code>so</code>, <code>ksw</code>) and returns the applied <code>response_language</code> on every response.
+- Helper output language follows the active UI locale deterministically. Student message wording alone does not change the helper language.
+- <code>ksw</code> currently uses S'gaw Karen as the canonical Karen code; helper widget chrome and quick-prompt payloads now have provisional Karen translations, while broader deterministic Karen copy still falls back to English until reviewed translations are added.
+- Reset by starting a new <code>conversation_id</code> (UI <code>Reset chat</code> does this), or clear all student helper conversations for a class via teacher dashboard action (<code>/teach/class/&lt;id&gt;/reset-helper-conversations</code>).
+- On class reset, helper can export a JSON snapshot before cache deletion (controlled by <code>HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE</code> and <code>HELPER_CLASS_RESET_ARCHIVE_ENABLED</code>).</p>
+<p>Archive access + audit:
+- Helper reset archives are written under uploads storage (default <code>/uploads/helper_reset_exports</code>) and are not served by public routes.
+- Teacher-triggered reset actions create audit metadata in Class Hub, including archive path/count when export occurs.
+- Ops should keep archive filesystem access restricted to trusted teacher/admin operators.
+- Default archive retention is 30 days (<code>RETENTION_HELPER_EXPORT_DAYS=30</code>) via <code>scripts/retention_maintenance.sh</code>.
+- <code>scripts/retention_maintenance.sh</code> now enforces helper archive path containment under <code>/uploads</code> and tightens permissions (<code>0700</code> directory, <code>0600</code> archive files) during scheduled retention runs.
+- Helper reset archives are internal-only and excluded from student-facing portfolio exports.</p>
+<p>Internal RAG status contract:
+- <code>/helper/internal/rag-status</code> requires the same bearer token as reset operations (<code>HELPER_INTERNAL_API_TOKEN</code>).
+- Helper internal control/status endpoints also require the caller IP to fall inside <code>HELPER_INTERNAL_ALLOWED_CIDRS</code>.
+- If helper is behind a trusted reverse proxy, set <code>HELPER_INTERNAL_TRUST_PROXY_HEADERS=1</code> and, if needed, adjust <code>HELPER_INTERNAL_XFF_INDEX</code>.
+- Response includes:
+  - <code>rag_enabled</code>, <code>index_ready</code>,
+  - <code>indexed_chunk_count</code>, <code>reference_source_count</code>,
+  - per-source chunk counts and last indexed timestamps,
+  - <code>student_data_excluded_from_index: true</code>.</p>
+<h3 id="ollama-local">Ollama (local)<a class="headerlink" href="#ollama-local" title="Permanent link">&para;</a></h3>
+<p>Required env:</p>
+<div class="highlight"><pre><span></span><code>OLLAMA_BASE_URL=http://ollama:11434
+OLLAMA_MODEL=llama3.2:1b
+OLLAMA_TIMEOUT_SECONDS=30
+OLLAMA_TEMPERATURE=0.2
+OLLAMA_TOP_P=0.9
+OLLAMA_NUM_CTX=0
+OLLAMA_NUM_PREDICT=400
+</code></pre></div>
+<p>Local Ollama is available as an opt-in Compose profile (<code>local-ollama</code>) and
+persists models at <code>data/ollama/</code>. Start it and pull a model with:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>compose
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>local-ollama<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>ollama
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>ollama<span class="w"> </span>ollama<span class="w"> </span>pull<span class="w"> </span>llama3.2:1b
+</code></pre></div>
+<p>On CPU-only servers with limited RAM, keep the model small (1B–2B range).
+Larger models may be too slow or may not fit in memory.</p>
+<p>If you run Ollama outside of Compose, set <code>OLLAMA_BASE_URL</code> to the host address
+that containers can reach.</p>
+<p>For hosted or remote model deployments, set <code>OLLAMA_NUM_CTX</code>/<code>LLM_NUM_CTX</code>
+explicitly when the model's default context window is too large for your
+runtime. A value like <code>4096</code> is a practical starting point for smoke checks and
+short classroom hints.</p>
+<h3 id="private-remote-model-host-gemma-family-example-over-private-tailnet">Private remote model host (Gemma-family example over private tailnet)<a class="headerlink" href="#private-remote-model-host-gemma-family-example-over-private-tailnet" title="Permanent link">&para;</a></h3>
+<p>Recommended production pattern:
+- keep the tailnet client host-managed, not in <code>docker-compose.yml</code>
+- run the model server on the GPU host
+- publish it privately as a tailnet-only HTTPS endpoint
+- point Class Hub at the GPU host's private HTTPS hostname
+- for createMPLS-style deployments, recommend Headscale as the control plane behind that private path
+- for open-model deployments, a Gemma-family model is the recommended example for the private GPU host</p>
+<p>Why this is the preferred remote pattern:
+- keeps the app Compose stack least-privilege
+- avoids public edge proxies between <code>helper_web</code> and the private model backend
+- gives operators a stable URL that works in both browsers and env config</p>
+<p>GPU host bring-up:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://tailscale.com/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+tailscale<span class="w"> </span>up<span class="w"> </span>--ssh
+curl<span class="w"> </span>http://127.0.0.1:11434/api/tags
+tailscale<span class="w"> </span>serve<span class="w"> </span>--bg<span class="w"> </span><span class="m">443</span><span class="w"> </span>http://127.0.0.1:11434
+tailscale<span class="w"> </span>serve<span class="w"> </span>status
+</code></pre></div>
+<p>If the GPU environment does not run <code>systemd</code>, start <code>tailscaled</code> manually in
+userspace-networking mode before <code>tailscale up</code>:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/var/lib/tailscale<span class="w"> </span>/run/tailscale
+sudo<span class="w"> </span>nohup<span class="w"> </span>tailscaled<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--state<span class="o">=</span>/var/lib/tailscale/tailscaled.state<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--socket<span class="o">=</span>/run/tailscale/tailscaled.sock<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--tun<span class="o">=</span>userspace-networking<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>&gt;/tmp/tailscaled.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">&amp;</span>
+sudo<span class="w"> </span>tailscale<span class="w"> </span>--socket<span class="o">=</span>/run/tailscale/tailscaled.sock<span class="w"> </span>up<span class="w"> </span>--ssh
+sudo<span class="w"> </span>tailscale<span class="w"> </span>--socket<span class="o">=</span>/run/tailscale/tailscaled.sock<span class="w"> </span>serve<span class="w"> </span>--bg<span class="w"> </span><span class="m">443</span><span class="w"> </span>http://127.0.0.1:11434
+sudo<span class="w"> </span>tailscale<span class="w"> </span>--socket<span class="o">=</span>/run/tailscale/tailscaled.sock<span class="w"> </span>serve<span class="w"> </span>status
+</code></pre></div>
+<p>LMS host env example:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">LLM_ENABLED</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">LLM_BACKEND</span><span class="o">=</span>ollama
+<span class="nv">LLM_BASE_URL</span><span class="o">=</span>https://llm-gpu.tail.creatempls.org
+<span class="nv">LLM_API_KEY</span><span class="o">=</span>REPLACE_ME_STRONG
+<span class="nv">LLM_MODEL</span><span class="o">=</span>llama3.2:3b
+<span class="nv">LLM_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">45</span>
+<span class="nv">LLM_NUM_CTX</span><span class="o">=</span><span class="m">4096</span>
+<span class="nv">LLM_MAX_TOKENS</span><span class="o">=</span><span class="m">64</span>
+<span class="nv">HELPER_REMOTE_MODE_ACKNOWLEDGED</span><span class="o">=</span><span class="m">1</span>
+
+<span class="nv">HELPER_RAG_EMBED_BASE_URL</span><span class="o">=</span>https://llm-gpu.tail.creatempls.org
+<span class="nv">HELPER_RAG_EMBED_MODEL</span><span class="o">=</span>nomic-embed-text
+</code></pre></div>
+<p>Verification flow:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>https://llm-gpu.tail.creatempls.org/api/tags
+curl<span class="w"> </span>--max-time<span class="w"> </span><span class="m">60</span><span class="w"> </span>https://llm-gpu.tail.creatempls.org/api/chat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;User-Agent: ClassHub-HomeworkHelper/1.0&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;model&quot;:&quot;llama3.2:3b&quot;,&quot;messages&quot;:[{&quot;role&quot;:&quot;system&quot;,&quot;content&quot;:&quot;Be brief.&quot;},{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;Give one short Scratch hint about moving a sprite.&quot;}],&quot;stream&quot;:false,&quot;options&quot;:{&quot;num_ctx&quot;:4096,&quot;num_predict&quot;:64}}&#39;</span>
+</code></pre></div>
+<p>Smoke check recommendation for remote GPUs:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">SMOKE_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">45</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">SMOKE_HELPER_MESSAGE</span><span class="o">=</span><span class="s1">&#39;Give one short Scratch hint about moving a sprite.&#39;</span><span class="w"> </span><span class="se">\</span>
+make<span class="w"> </span>smoke-full
+</code></pre></div>
+<p>Tailscale references:
+- Serve CLI: https://tailscale.com/docs/reference/tailscale-cli/serve
+- Userspace networking: https://tailscale.com/kb/1112/userspace-networking
+- MagicDNS / <code>.ts.net</code> names: https://tailscale.com/kb/1081/magicdns</p>
+<p>Private backend ops bundle:
+- <a href="../PRIVATE_LLM_BACKEND/">PRIVATE_LLM_BACKEND.md</a>
+- <code>ops/llm-server/README.md</code> (in repo root, outside docs site)</p>
+<h3 id="openai-compatible-private-api-servers">OpenAI-compatible / private API servers<a class="headerlink" href="#openai-compatible-private-api-servers" title="Permanent link">&para;</a></h3>
+<p>Use this when the helper should call a private or self-hosted API that speaks the current OpenAI-compatible request shape used by the helper runtime.</p>
+<div class="highlight"><pre><span></span><code><span class="nv">LLM_BACKEND</span><span class="o">=</span>openai_compatible
+<span class="nv">LLM_BASE_URL</span><span class="o">=</span>https://private-llm.example.org
+<span class="nv">LLM_API_KEY</span><span class="o">=</span>REPLACE_ME
+<span class="nv">LLM_MODEL</span><span class="o">=</span>your-model-name
+<span class="nv">HELPER_REMOTE_MODE_ACKNOWLEDGED</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
+<p>Notes:
+- This is distinct from hosted OpenAI Responses.
+- Helper scope, references, conversation memory, and policy behavior stay the same.
+- Advanced helper features such as curriculum references and RAG still use the helper-specific config surfaces documented on this page.</p>
+<h3 id="openai-optional-explicit-opt-in">OpenAI (optional, explicit opt-in)<a class="headerlink" href="#openai-optional-explicit-opt-in" title="Permanent link">&para;</a></h3>
+<p>If you want to re-enable hosted OpenAI later:</p>
+<div class="highlight"><pre><span></span><code>HELPER_LLM_BACKEND=openai
+HELPER_REMOTE_MODE_ACKNOWLEDGED=1
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-5.2
+OPENAI_MAX_OUTPUT_TOKENS=400
+</code></pre></div>
+<p>Equivalent generic env form:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">LLM_BACKEND</span><span class="o">=</span>openai
+<span class="nv">HELPER_REMOTE_MODE_ACKNOWLEDGED</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">LLM_API_KEY</span><span class="o">=</span>...
+<span class="nv">LLM_MODEL</span><span class="o">=</span>gpt-5.2
+<span class="nv">LLM_MAX_TOKENS</span><span class="o">=</span><span class="m">400</span>
+</code></pre></div>
+<p>Safety behavior:
+- If <code>HELPER_LLM_BACKEND=openai</code> and <code>HELPER_REMOTE_MODE_ACKNOWLEDGED!=1</code>, <code>/helper/chat</code> returns <code>remote_backend_not_acknowledged</code>.
+- This prevents remote mode from becoming a silent default.</p>
+<p><code>openai</code> is already included in <code>services/homework_helper/requirements.txt</code>.</p>
+<h3 id="mock-backend-citest">Mock backend (CI/test)<a class="headerlink" href="#mock-backend-citest" title="Permanent link">&para;</a></h3>
+<p>For deterministic CI smoke checks without external model dependencies:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">HELPER_LLM_BACKEND</span><span class="o">=</span>mock
+<span class="nv">HELPER_MOCK_RESPONSE_TEXT</span><span class="o">=</span>Optional<span class="w"> </span>fixed<span class="w"> </span>reply<span class="w"> </span>text
+</code></pre></div>
+<h2 id="tutor-stance-and-strictness">Tutor stance and strictness<a class="headerlink" href="#tutor-stance-and-strictness" title="Permanent link">&para;</a></h2>
+<p>We support two modes:</p>
+<ul>
+<li><code>HELPER_STRICTNESS=light</code> (default): may give direct answers, but must explain
+  reasoning and include a check-for-understanding question.</li>
+<li><code>HELPER_STRICTNESS=strict</code>: no final answers for graded work; respond with
+  hints, steps, and questions.</li>
+</ul>
+<p>The strictness switch is intentionally simple so teachers can “throw the switch”
+without code changes.</p>
+<h2 id="lesson-context-metadata">Lesson context metadata<a class="headerlink" href="#lesson-context-metadata" title="Permanent link">&para;</a></h2>
+<p>Lesson pages now sign contextual metadata and pass it to the helper as a scope token:</p>
+<ul>
+<li><code>data-helper-scope-token</code>: signed payload containing:</li>
+<li><code>context</code></li>
+<li><code>topics</code></li>
+<li><code>allowed_topics</code></li>
+<li><code>reference</code></li>
+</ul>
+<p>Homework Helper verifies this token server-side and uses only the signed scope
+for student requests. This prevents client-side request edits from widening
+lesson scope.</p>
+<h2 id="allowed-topics-per-lesson">Allowed topics (per lesson)<a class="headerlink" href="#allowed-topics-per-lesson" title="Permanent link">&para;</a></h2>
+<p>You can provide an explicit allowed-topics list in lesson front matter to keep
+students on the intended scope. Add either of these:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">helper_allowed_topics</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sprites</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">motion blocks</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">saving .sb3</span>
+</code></pre></div>
+<p>The helper will gently redirect questions outside this list when
+<code>HELPER_TOPIC_FILTER_MODE=soft</code> (no blocking) and will redirect when set to <code>strict</code>.</p>
+<p>You can also auto-generate a starter list from lesson markdown:</p>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>scripts/add_helper_allowed_topics.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--lessons-dir<span class="w"> </span>services/classhub/content/courses/piper_scratch_12_session/lessons<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--write
+</code></pre></div>
+<h2 id="new-course-scaffold">New course scaffold<a class="headerlink" href="#new-course-scaffold" title="Permanent link">&para;</a></h2>
+<p>To create a brand-new course folder + lesson stubs + a reference file:</p>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>scripts/new_course_scaffold.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--slug<span class="w"> </span>robotics_intro<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--title<span class="w"> </span><span class="s2">&quot;Robotics: Sensors + Motion&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--sessions<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--duration<span class="w"> </span><span class="m">75</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--age-band<span class="w"> </span><span class="s2">&quot;5th-7th&quot;</span>
+</code></pre></div>
+<h2 id="course-reference-facts">Course reference facts<a class="headerlink" href="#course-reference-facts" title="Permanent link">&para;</a></h2>
+<p>You can reinforce subject expertise by providing a reference file with concrete
+facts and workflows for the course. This is a helper feature, not a provider-specific one. The helper will include this text in the
+system instructions:</p>
+<div class="highlight"><pre><span></span><code>HELPER_REFERENCE_FILE=/app/tutor/reference/piper_scratch.md
+</code></pre></div>
+<p>The example <code>piper_scratch.md</code> lives in the helper image and can be edited to
+match your curriculum.</p>
+<h3 id="multiple-reference-files-per-course-or-lesson">Multiple reference files (per course or lesson)<a class="headerlink" href="#multiple-reference-files-per-course-or-lesson" title="Permanent link">&para;</a></h3>
+<p>Use a reference key in <code>course.yaml</code> or <code>lesson</code> entries:</p>
+<div class="highlight"><pre><span></span><code>helper_reference: piper_scratch
+</code></pre></div>
+<p>Then configure a map in <code>.env</code> so the helper can resolve the key to a file:</p>
+<div class="highlight"><pre><span></span><code>HELPER_REFERENCE_DIR=/app/tutor/reference
+HELPER_REFERENCE_MAP={&quot;piper_scratch&quot;:&quot;piper_scratch.md&quot;}
+</code></pre></div>
+<p>This keeps file access safe and lets you swap references per lesson or course.</p>
+<h3 id="optional-local-pgvector-rag-curriculum-only">Optional local pgvector RAG (curriculum only)<a class="headerlink" href="#optional-local-pgvector-rag-curriculum-only" title="Permanent link">&para;</a></h3>
+<p>This is backend-neutral at the product level: retrieval stays bounded to helper curriculum references, not to a vendor-managed knowledge base.</p>
+<p>Enable RAG only after preparing a curriculum index in Postgres:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>services/homework_helper/manage.py<span class="w"> </span>build_curriculum_rag<span class="w"> </span>--clear-first
+</code></pre></div>
+<p>Then set:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">HELPER_RAG_ENABLED</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
+<p>Scope boundary:
+- Indexed content comes only from helper reference markdown.
+- Student submissions/events are not embedded and are not queried in retrieval.
+- If pgvector/index data is unavailable, helper falls back to lexical lesson citations.</p>
+<h3 id="per-lesson-references-generated-from-content">Per-lesson references generated from content<a class="headerlink" href="#per-lesson-references-generated-from-content" title="Permanent link">&para;</a></h3>
+<p>For lesson-specific expertise, generate one reference file per lesson slug.
+The helper will load <code>reference_dir/&lt;lesson_slug&gt;.md</code> when a lesson sets
+<code>helper_reference: &lt;lesson_slug&gt;</code> in <code>course.yaml</code>.</p>
+<p>Generate references from the course markdown:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/generate_lesson_references.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--course<span class="w"> </span>services/classhub/content/courses/piper_scratch_12_session/course.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>services/homework_helper/tutor/reference
+</code></pre></div>
+<h3 id="batch-sync-helper-references-across-all-courses">Batch-sync helper references across all courses<a class="headerlink" href="#batch-sync-helper-references-across-all-courses" title="Permanent link">&para;</a></h3>
+<p>For server ops, use the batch sync command instead of running the lesson generator
+course by course:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/sync_helper_references.py<span class="w"> </span>--dry-run
+python<span class="w"> </span>scripts/sync_helper_references.py
+</code></pre></div>
+<p>Default behavior:
+- scans all <code>services/classhub/content/courses/*/course.yaml</code> manifests,
+- preserves existing hand-written course-level reference files,
+- generates lesson reference files only for lessons whose <code>helper_reference</code>
+  differs from the course-level <code>helper_reference</code>.</p>
+<p>Useful overrides:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># regenerate course-level reference files too</span>
+python<span class="w"> </span>scripts/sync_helper_references.py<span class="w"> </span>--overwrite-course-refs
+
+<span class="c1"># emit one lesson reference file per lesson slug, even when a course uses one shared reference</span>
+python<span class="w"> </span>scripts/sync_helper_references.py<span class="w"> </span>--all-lesson-refs
+
+<span class="c1"># limit the run to one course folder</span>
+python<span class="w"> </span>scripts/sync_helper_references.py<span class="w"> </span>--course-slug<span class="w"> </span>piper_scratch_12_session
+</code></pre></div>
+<h2 id="scope-mode">Scope mode<a class="headerlink" href="#scope-mode" title="Permanent link">&para;</a></h2>
+<p>Use <code>HELPER_SCOPE_MODE</code> to control how strictly the helper stays within the lesson:</p>
+<ul>
+<li><code>soft</code>: prefer lesson scope, gently redirect off-topic requests</li>
+<li><code>strict</code>: refuse unrelated questions and ask students to rephrase</li>
+</ul>
+<p>If <code>HELPER_SCOPE_MODE</code> is unset, profile defaults apply (see <a href="../PROGRAM_PROFILES/">PROGRAM_PROFILES.md</a>).</p>
+<h2 id="queue-concurrency-limits">Queue / concurrency limits<a class="headerlink" href="#queue-concurrency-limits" title="Permanent link">&para;</a></h2>
+<p>On CPU-only servers, limit concurrent model calls to avoid overload.
+The helper uses a small Redis-backed slot queue:</p>
+<ul>
+<li><code>HELPER_MAX_CONCURRENCY</code>: maximum simultaneous LLM calls (default: 2)</li>
+<li><code>HELPER_QUEUE_MAX_WAIT_SECONDS</code>: how long to wait for a slot (default: 10)</li>
+<li><code>HELPER_QUEUE_POLL_SECONDS</code>: polling interval (default: 0.2)</li>
+<li><code>HELPER_QUEUE_SLOT_TTL_SECONDS</code>: auto-release safety timeout (default: 120)</li>
+</ul>
+<h2 id="response-length-controls">Response length controls<a class="headerlink" href="#response-length-controls" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>HELPER_RESPONSE_MAX_CHARS</code>: hard cap on returned assistant text length (default: <code>2200</code>, minimum enforced <code>200</code>)</li>
+<li><code>OPENAI_MAX_OUTPUT_TOKENS</code>: optional Responses API output-token cap (set <code>0</code> to disable)</li>
+<li><code>OLLAMA_NUM_PREDICT</code>: optional Ollama generation-token cap (set <code>0</code> to use model default)</li>
+<li><code>OLLAMA_NUM_CTX</code>: optional Ollama context-window cap (set <code>0</code> to use model default)</li>
+</ul>
+<h2 id="backend-resilience-telemetry">Backend resilience + telemetry<a class="headerlink" href="#backend-resilience-telemetry" title="Permanent link">&para;</a></h2>
+<p>The helper now retries transient backend failures before returning an error.</p>
+<ul>
+<li><code>HELPER_BACKEND_MAX_ATTEMPTS</code>: total backend attempts per request (default: 2)</li>
+<li><code>HELPER_BACKOFF_SECONDS</code>: base exponential backoff (default: 0.4)</li>
+<li><code>HELPER_CIRCUIT_BREAKER_FAILURES</code>: consecutive failures before temporary open-circuit (default: 5)</li>
+<li><code>HELPER_CIRCUIT_BREAKER_TTL_SECONDS</code>: open-circuit duration and failure-window TTL (default: 30)</li>
+</ul>
+<p><code>POST /helper/chat</code> responses now include:
+- <code>request_id</code> (also returned as <code>X-Request-ID</code> response header)
+- <code>response_language</code> (normalized helper output language)
+- <code>attempts</code>
+- timing fields (<code>queue_wait_ms</code>, <code>total_ms</code>) on successful calls
+- <code>truncated</code> when response text was clipped by <code>HELPER_RESPONSE_MAX_CHARS</code></p>
+<p>Service logs now emit structured helper chat events (rate limits, queue busy,
+backend failures, successful calls) for easier operational tracing.</p>
+<h2 id="access-boundary">Access boundary<a class="headerlink" href="#access-boundary" title="Permanent link">&para;</a></h2>
+<p><code>POST /helper/chat</code> now requires an authenticated classroom context:</p>
+<ul>
+<li>student session (<code>student_id</code> + <code>class_id</code> in Django session), or</li>
+<li>staff-authenticated teacher session.</li>
+</ul>
+<p>This prevents anonymous/public use of helper capacity. CSRF protection remains enabled.</p>
+<h2 id="end-to-end-helper-flow-map-d3">End-to-end helper flow (Map D3)<a class="headerlink" href="#end-to-end-helper-flow-map-d3" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>sequenceDiagram
+  participant B as Browser
+  participant MW as Middleware
+  participant H as Helper chat endpoint
+  participant RS as request_safety
+  participant LLM as LLM backend (local preferred)
+  participant CH as ClassHub internal events
+
+  B-&gt;&gt;MW: POST /helper/chat (message, scope token)
+  MW-&gt;&gt;H: request
+  H-&gt;&gt;RS: rate limit + concurrency gate
+  H-&gt;&gt;LLM: bounded prompt (scope-enforced)
+  LLM--&gt;&gt;H: response
+  H--&gt;&gt;B: JSON response (request_id, no-store)
+  H-&gt;&gt;CH: best-effort POST /internal/events/helper-chat-access</code></pre>
+<p>Canonical policy notes live in:</p>
+<ul>
+<li><code>services/homework_helper/tutor/fixtures/policy_prompts.md</code></li>
+<li><a href="../HELPER_POLICY/">HELPER_POLICY.md</a></li>
+</ul>
+<h2 id="rag-current">RAG (current)<a class="headerlink" href="#rag-current" title="Permanent link">&para;</a></h2>
+<p>Local curriculum RAG is available now when enabled:
+- Build/update the curriculum-only index: <code>python services/homework_helper/manage.py build_curriculum_rag --clear-first</code>
+- Enable retrieval: <code>HELPER_RAG_ENABLED=1</code>
+- Retrieval scope remains bounded to configured curriculum references; student submissions/events are not embedded or queried.
+- Current shipped embedding/index build flow uses <code>HELPER_RAG_EMBED_*</code> against the helper's configured embedding endpoint, typically local or private Ollama-compatible infrastructure.
+- If pgvector/index data is unavailable, helper falls back to lexical lesson citations so chat remains available.</p>
+<h2 id="evals-recommended">Evals (recommended)<a class="headerlink" href="#evals-recommended" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>services/homework_helper/tutor/fixtures/eval_prompts.jsonl</code></li>
+<li><code>services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl</code></li>
+<li><code>bash scripts/run_helper_classroom_eval.sh --url http://localhost/helper/chat --student-auth --class-code "$SMOKE_CLASS_CODE" --out-dir /tmp/classhub_helper_eval_light</code></li>
+<li><a href="../HELPER_EVALS/">HELPER_EVALS.md</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>

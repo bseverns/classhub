@@ -1,0 +1,2025 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/RBAC_CAPABILITIES_RFC/">
+      
+      
+        <link rel="prev" href="../IDENTITY_SSO_EXPANSION_PLAN/">
+      
+      
+        <link rel="next" href="../TELEMETRY_DB_SPLIT_PLAN/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>RBAC Capabilities RFC - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#granular-rbac-capabilities-rfc" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              RBAC Capabilities RFC
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRENT_STATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../FEATURE_MATURITY/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Engineering
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HUBCTL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facilitator CLI (hubctl)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LOCALIZATION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Localization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LOCALIZATION_SO_REVIEW_PACKET/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Somali Review Packet
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COURSEPACK_REGISTRY_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Coursepack Registry RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ASYNC_SELF_PACED_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Async Self-Paced RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IDENTITY_SSO_EXPANSION_PLAN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Identity SSO Expansion Plan
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    RBAC Capabilities RFC
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    RBAC Capabilities RFC
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#closure-recommendation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Closure recommendation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do now
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification signal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-implementation-status-march-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current implementation status (March 2026)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problem statement
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals-this-rfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      Non-goals (this RFC)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proposed-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proposed architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proposed architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-capability-vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      1) Capability vocabulary
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-role-templates-backward-compatibility-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      2) Role templates (backward compatibility baseline)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-scope-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      3) Scope model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-evaluator-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      4) Evaluator contract
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-model-evolution-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data model evolution plan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data model evolution plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-no-custom-role-tables-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1 (no custom-role tables required)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-custom-roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2 (custom roles)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remaining-rollout-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remaining rollout work
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Remaining rollout work">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-evaluator-wrappers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1: Evaluator + wrappers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-scoped-grants" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: Scoped grants
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-policy-administration-ux" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 3: Policy administration UX
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-should-now-be-treated-as-done" class="md-nav__link">
+    <span class="md-ellipsis">
+      What should now be treated as done
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks-and-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Risks and mitigations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing plan
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-posture-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security posture notes
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TELEMETRY_DB_SPLIT_PLAN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Telemetry DB Split Plan
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNTIME_LOCK_PROFILES/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Runtime Lock Profiles
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../KIOSK_PWA/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Classroom Kiosk PWA
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OPENAI_HELPER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Backend Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REQUEST_SAFETY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Request Safety
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HELPER_EVALS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Evals
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MERGE_READINESS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Merge Readiness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING_DOCS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs Maintenance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOCS_TRUTH_MECHANISM/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs Truth Mechanism
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#closure-recommendation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Closure recommendation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do now
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification signal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-implementation-status-march-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current implementation status (March 2026)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problem statement
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals-this-rfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      Non-goals (this RFC)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proposed-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proposed architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proposed architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-capability-vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      1) Capability vocabulary
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-role-templates-backward-compatibility-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      2) Role templates (backward compatibility baseline)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-scope-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      3) Scope model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-evaluator-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      4) Evaluator contract
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-model-evolution-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data model evolution plan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data model evolution plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-no-custom-role-tables-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1 (no custom-role tables required)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-custom-roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2 (custom roles)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remaining-rollout-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remaining rollout work
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Remaining rollout work">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-evaluator-wrappers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1: Evaluator + wrappers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-scoped-grants" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: Scoped grants
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-policy-administration-ux" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 3: Policy administration UX
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-should-now-be-treated-as-done" class="md-nav__link">
+    <span class="md-ellipsis">
+      What should now be treated as done
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks-and-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Risks and mitigations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing plan
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-posture-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security posture notes
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="granular-rbac-capabilities-rfc">Granular RBAC Capabilities RFC<a class="headerlink" href="#granular-rbac-capabilities-rfc" title="Permanent link">&para;</a></h1>
+<h2 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h2>
+<ul>
+<li>This RFC is mostly implemented on <code>main</code>.</li>
+<li>The evaluator, scoped grants, simulation tools, policy import/export, custom role persistence, and delegated approval queue foundation are all real.</li>
+<li>The remaining work is not core RBAC existence; it is operational polish for district-scale approval routing and higher-level administration UX.</li>
+</ul>
+<h2 id="closure-recommendation">Closure recommendation<a class="headerlink" href="#closure-recommendation" title="Permanent link">&para;</a></h2>
+<p>Treat this RFC as effectively closed for architecture. Ongoing work should move under implementation docs and maturity tracking:</p>
+<ul>
+<li>keep <a href="../RBAC_GUIDE/">RBAC_GUIDE.md</a> as the operator/how-to source,</li>
+<li>keep <a href="../FEATURE_MATURITY/">FEATURE_MATURITY.md</a> as the rollout truth,</li>
+<li>reserve this RFC for historical architecture rationale plus the small list of remaining non-shipped items.</li>
+</ul>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>ClassHub currently uses organization roles (<code>owner</code>, <code>admin</code>, <code>teacher</code>, <code>viewer</code>) with coarse permissions. This RFC defines a capability-driven RBAC model that supports district-grade policy needs while preserving current behavior during rollout.</p>
+<p>Core outcomes:
+- express permissions as capabilities (verbs), not only role names,
+- allow scoped access (class/module) where needed,
+- keep existing role behavior stable until policies are explicitly customized.</p>
+<h2 id="what-to-do-now">What to do now<a class="headerlink" href="#what-to-do-now" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Keep role-template + scoped-grant policies stable and audited in production.</li>
+<li>Keep endpoint-level RBAC guard CI checks aligned as new teacher/API routes are added.</li>
+<li>Narrow remaining work to:</li>
+<li>district-scale approval routing polish,</li>
+<li>custom-role administration UX polish,</li>
+<li>clearer operator lifecycle/runbook guidance.</li>
+</ol>
+<h2 id="verification-signal">Verification signal<a class="headerlink" href="#verification-signal" title="Permanent link">&para;</a></h2>
+<p>A staff user with role <code>viewer</code> can load class data but cannot perform manage/delete actions, and a <code>teacher</code> can still perform current class operations with no regression.</p>
+<h2 id="current-implementation-status-march-2026">Current implementation status (March 2026)<a class="headerlink" href="#current-implementation-status-march-2026" title="Permanent link">&para;</a></h2>
+<p>Implemented on <code>main</code>:
+- Capability evaluator + compatibility wrappers are live.
+- Endpoint checks are capability-specific across teacher and API routes.
+- Org role capability templates are live via <code>OrganizationRoleCapability</code>.
+- Scoped grants are live via <code>ClassStaffModuleScopeGrant</code> with <code>allow</code>/<code>deny</code> effects.
+- Scoped-grant precedence is live: <code>deny &gt; allow &gt; role fallback</code>.
+- RBAC simulation is live:
+  - API: <code>POST /api/v1/teacher/rbac/simulate</code>
+  - Teacher tools: <code>POST /teach/rbac/simulate</code> + bulk matrix view
+  - CLI: <code>simulate_rbac_access</code>
+- Policy-as-code bundle import/export is live:
+  - <code>GET /teach/rbac/policy/export</code>
+  - <code>POST /teach/rbac/policy/import</code>
+- RBAC policy/audit ops are visible in teacher tools and audit events are emitted for grant/template changes.
+- First-class custom role entities are live:
+  - <code>OrganizationCustomRole</code>
+  - <code>OrganizationCustomRoleCapability</code>
+  - <code>OrganizationCustomRoleAssignment</code>
+- Evaluator support for custom role assignments is live:
+  - assigned custom-role capabilities are additive to membership-role capabilities for the same organization,
+  - decision reasons include custom-role allow paths.
+- Teacher RBAC tools now include custom role lifecycle actions:
+  - custom role upsert
+  - custom role capability upsert
+  - custom role assignment upsert
+- Policy-as-code import/export now carries custom role sections:
+  - <code>custom_roles[]</code>
+  - <code>custom_role_assignments[]</code>
+- Delegated approval workflow foundation is live (feature-flagged):
+  - <code>CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1</code>
+  - policy mutations queue <code>RbacPolicyChangeRequest</code> and require separate reviewer approval.</p>
+<p>Still RFC/pending:
+- Hardened district-scale approval routing (multi-step approvers, notification routing, SLA escalation).
+- More polished custom-role administration UX beyond the current operator tooling surface.</p>
+<h2 id="problem-statement">Problem statement<a class="headerlink" href="#problem-statement" title="Permanent link">&para;</a></h2>
+<p>Current model is strong for early-stage operations but too coarse for larger institutions. It cannot express policy variants like:
+- "TA can review submissions but cannot delete data",
+- "Curriculum coach can edit modules 1-3 only",
+- "Data steward can export audits but not modify roster."</p>
+<h2 id="non-goals-this-rfc">Non-goals (this RFC)<a class="headerlink" href="#non-goals-this-rfc" title="Permanent link">&para;</a></h2>
+<ul>
+<li>replacing Django auth,</li>
+<li>introducing per-request policy DSLs,</li>
+<li>shipping a full district policy UI in Phase 1.</li>
+</ul>
+<h2 id="proposed-architecture">Proposed architecture<a class="headerlink" href="#proposed-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="1-capability-vocabulary">1) Capability vocabulary<a class="headerlink" href="#1-capability-vocabulary" title="Permanent link">&para;</a></h3>
+<p>Define stable action keys:
+- <code>class.view</code>
+- <code>class.manage</code>
+- <code>class.create</code>
+- <code>roster.manage</code>
+- <code>submission.view</code>
+- <code>submission.delete</code>
+- <code>policy.manage</code>
+- <code>syllabus.export</code></p>
+<h3 id="2-role-templates-backward-compatibility-baseline">2) Role templates (backward compatibility baseline)<a class="headerlink" href="#2-role-templates-backward-compatibility-baseline" title="Permanent link">&para;</a></h3>
+<p>Map existing roles to capability sets:
+- <code>owner</code>: full set
+- <code>admin</code>: full set except ownership-only controls (future)
+- <code>teacher</code>: class management + roster/submission operations
+- <code>viewer</code>: read-only capabilities</p>
+<p>This preserves current organization-role semantics while shifting checks to capability terms.</p>
+<p>Current implementation note:
+- Org-level role template overrides are active through <code>OrganizationRoleCapability</code>.</p>
+<h3 id="3-scope-model">3) Scope model<a class="headerlink" href="#3-scope-model" title="Permanent link">&para;</a></h3>
+<p>Phase targets:
+- Phase 1: organization/class scope (module scope argument supported by evaluator contract, no custom module grants yet).
+- Phase 2: explicit scoped grants for module ranges and object-specific constraints.</p>
+<p>Current implementation note:
+- Scoped grants are implemented and enforceable behind <code>CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED</code>.
+- Scoped capabilities include:
+  - <code>submission.view</code>
+  - <code>submission.delete</code>
+  - <code>roster.manage</code>
+  - <code>policy.manage</code></p>
+<h3 id="4-evaluator-contract">4) Evaluator contract<a class="headerlink" href="#4-evaluator-contract" title="Permanent link">&para;</a></h3>
+<p>Single service entry point:
+- input: user, capability, optional class/module scope
+- output: allow/deny + reason metadata</p>
+<p>All view/service permission checks should call this service (directly or via compatibility wrappers).</p>
+<h2 id="data-model-evolution-plan">Data model evolution plan<a class="headerlink" href="#data-model-evolution-plan" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-no-custom-role-tables-required">Phase 1 (no custom-role tables required)<a class="headerlink" href="#phase-1-no-custom-role-tables-required" title="Permanent link">&para;</a></h3>
+<ul>
+<li>evaluator + role-capability map in service layer,</li>
+<li>existing <code>OrganizationMembership.role</code> remains source of truth.</li>
+</ul>
+<h3 id="phase-2-custom-roles">Phase 2 (custom roles)<a class="headerlink" href="#phase-2-custom-roles" title="Permanent link">&para;</a></h3>
+<ul>
+<li>add <code>Role</code>, <code>Capability</code>, <code>RoleCapability</code>, <code>ScopedGrant</code> tables,</li>
+<li>migrate role template mappings into DB-managed policy records,</li>
+<li>provide constrained admin UX for policy changes.</li>
+</ul>
+<p>Current implementation note:
+- Phase-2 custom-role persistence foundation is shipped.
+- Current policy model supports additive custom role capabilities per user/org.
+- Destructive migration from role templates to pure custom-role policy records remains future work.</p>
+<h2 id="remaining-rollout-work">Remaining rollout work<a class="headerlink" href="#remaining-rollout-work" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-evaluator-wrappers">Phase 1: Evaluator + wrappers<a class="headerlink" href="#phase-1-evaluator-wrappers" title="Permanent link">&para;</a></h3>
+<ul>
+<li>keep existing helper function signatures,</li>
+<li>internally route to <code>staff_can(...capability...)</code>,</li>
+<li>add tests for parity against current behavior.</li>
+</ul>
+<p>Status: shipped.</p>
+<h3 id="phase-2-scoped-grants">Phase 2: Scoped grants<a class="headerlink" href="#phase-2-scoped-grants" title="Permanent link">&para;</a></h3>
+<ul>
+<li>add module/class scoped grants with deny-by-default overrides,</li>
+<li>include conflict-resolution order:</li>
+<li>explicit deny &gt; explicit allow &gt; template role fallback.</li>
+</ul>
+<p>Current implementation note:
+- module-range grants are implemented with <code>ClassStaffModuleScopeGrant</code> and now support <code>allow</code> and <code>deny</code> effects.
+- evaluator precedence follows: explicit deny &gt; explicit allow &gt; role fallback.</p>
+<p>Status: shipped.</p>
+<h3 id="phase-3-policy-administration-ux">Phase 3: Policy administration UX<a class="headerlink" href="#phase-3-policy-administration-ux" title="Permanent link">&para;</a></h3>
+<ul>
+<li>add admin/operator screens for custom role definitions,</li>
+<li>add policy simulation UI for "why was access denied?" debugging.</li>
+</ul>
+<p>Current implementation note:
+- operator simulation is currently available via:
+  - API: <code>POST /api/v1/teacher/rbac/simulate</code>
+  - command: <code>simulate_rbac_access</code>
+  - teacher portal single-user simulation: <code>POST /teach/rbac/simulate</code>
+  - teacher portal bulk matrix simulation: <code>GET /teach?rbac_tools=1&amp;rbac_bulk_class_id=&lt;id&gt;&amp;rbac_bulk_capability=&lt;capability&gt;</code></p>
+<p>Status: simulation/policy tools are shipped; custom-role entity persistence is shipped; custom-role policy UX/automation remains future work.</p>
+<h2 id="what-should-now-be-treated-as-done">What should now be treated as done<a class="headerlink" href="#what-should-now-be-treated-as-done" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Capability-driven evaluator contract</li>
+<li>Compatibility wrappers around legacy role semantics</li>
+<li>Scoped allow/deny grant persistence and precedence</li>
+<li>RBAC simulation surfaces</li>
+<li>Policy-as-code import/export</li>
+<li>Custom role persistence model</li>
+<li>Delegated approval queue foundation</li>
+</ul>
+<p>These should no longer be described elsewhere as hypothetical architecture.</p>
+<h2 id="risks-and-mitigations">Risks and mitigations<a class="headerlink" href="#risks-and-mitigations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Risk: policy drift during migration.</li>
+<li>Mitigation: retain legacy wrappers + parity tests.</li>
+<li>Risk: too many capability names.</li>
+<li>Mitigation: versioned capability registry and naming conventions.</li>
+<li>Risk: unclear denials for staff users.</li>
+<li>Mitigation: evaluator reason metadata for UI/audit logging.</li>
+</ul>
+<h2 id="testing-plan">Testing plan<a class="headerlink" href="#testing-plan" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Service tests:</li>
+<li>superuser bypass,</li>
+<li>membership-required mode,</li>
+<li>role-to-capability mapping parity.</li>
+<li>Integration tests:</li>
+<li>viewer blocked from manage endpoints,</li>
+<li>teacher allowed for current manage flows,</li>
+<li>export permission restricted to owner/admin.</li>
+</ul>
+<h2 id="security-posture-notes">Security posture notes<a class="headerlink" href="#security-posture-notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Keep deny-by-default behavior when org membership is required and absent.</li>
+<li>Never infer write permissions from read permissions.</li>
+<li>Preserve class boundary checks before capability checks where object ownership matters.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>

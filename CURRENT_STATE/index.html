@@ -1,0 +1,1339 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/CURRENT_STATE/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../START_HERE/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>Current State - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#current-state" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Current State
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-state-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current state at a glance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Current state at a glance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#classroomstudent-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      Classroom/student experience
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#handouts-language-and-course-portability" class="md-nav__link">
+    <span class="md-ellipsis">
+      Handouts, language, and course portability
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teacherprogram-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher/program operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trust-privacy-and-org-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Trust, privacy, and org boundaries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opsreliability" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ops/reliability
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advancedflagged-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced/flagged infrastructure
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-live-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is live now
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-and-reliability-posture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment and reliability posture
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-product-posture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current product posture
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-known-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Active known constraints
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#screenshot-evidence-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Screenshot evidence status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-look-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      Where to look next
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../FEATURE_MATURITY/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DEVELOPMENT/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-state-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current state at a glance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Current state at a glance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#classroomstudent-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      Classroom/student experience
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#handouts-language-and-course-portability" class="md-nav__link">
+    <span class="md-ellipsis">
+      Handouts, language, and course portability
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teacherprogram-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher/program operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trust-privacy-and-org-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Trust, privacy, and org boundaries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opsreliability" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ops/reliability
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advancedflagged-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced/flagged infrastructure
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-live-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is live now
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-and-reliability-posture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment and reliability posture
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-product-posture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current product posture
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-known-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Active known constraints
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#screenshot-evidence-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Screenshot evidence status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-look-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      Where to look next
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="current-state">Current State<a class="headerlink" href="#current-state" title="Permanent link">&para;</a></h1>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>This page is the live snapshot of what ClassHub currently ships on <code>main</code>.
+It is updated manually when shipped capabilities change.
+Last reviewed: 2026-06-09</p>
+<h2 id="current-state-at-a-glance">Current state at a glance<a class="headerlink" href="#current-state-at-a-glance" title="Permanent link">&para;</a></h2>
+<h3 id="classroomstudent-experience">Classroom/student experience<a class="headerlink" href="#classroomstudent-experience" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Students join with a class code or invite link plus a display name.</li>
+<li>Student home, lesson pages, uploads, portfolio, gallery, and My Data are live.</li>
+<li>Reading-level controls (<code>simple</code> / <code>standard</code>) are available on family-visible and core learner routes.</li>
+</ul>
+<h3 id="handouts-language-and-course-portability">Handouts, language, and course portability<a class="headerlink" href="#handouts-language-and-course-portability" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Lesson pages support belonging-layer metadata, print-friendly HTML handouts, and simple PDF fallback downloads.</li>
+<li>Lesson and handout routes support explicit <code>?lang=en|es|so|ksw</code> selection for operator-printed handouts.</li>
+<li>Course authoring, syllabus import, coursepack builds, and static registry import/publishing workflows are live.</li>
+</ul>
+<h3 id="teacherprogram-operations">Teacher/program operations<a class="headerlink" href="#teacherprogram-operations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Teacher portal supports roster, lesson release controls, submissions, moderation, outcomes, certificates, and class closeout workflows.</li>
+<li>Superuser org, staff, class assignment, coursepack import, and content/import audit tools are live.</li>
+<li>Teacher day-of-class shell and top-task choreography are wired into <code>/teach</code>.</li>
+</ul>
+<h3 id="trust-privacy-and-org-boundaries">Trust, privacy, and org boundaries<a class="headerlink" href="#trust-privacy-and-org-boundaries" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>/trust</code>, <code>/student/my-data</code>, retention presets, student rename/export/delete controls, and privacy-safe support tags are live.</li>
+<li>Organization boundaries, RBAC capability checks, scoped grants, custom roles, and policy bundle import/export are live, with some workflows feature-flagged.</li>
+<li>Student-facing artifact and feedback flows avoid rankings and leaderboards.</li>
+</ul>
+<h3 id="opsreliability">Ops/reliability<a class="headerlink" href="#opsreliability" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Health checks, smoke checks, docs truth checks, view budgets, migration gates, and dependency/container scans are part of the guardrail set.</li>
+<li>Data lifespan dashboard and CSV/JSON export are live at <code>/teach/data-lifespan</code>.</li>
+<li>Runbook, restore rehearsal, incident response, and deployment docs are maintained as operator-facing controls.</li>
+</ul>
+<h3 id="advancedflagged-infrastructure">Advanced/flagged infrastructure<a class="headerlink" href="#advancedflagged-infrastructure" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Homework Helper runs as a separate Django service behind <code>/helper/*</code>.</li>
+<li>Optional curriculum-only RAG, private model-host topology, and bounded remote helper compute controls are implemented with explicit operator boundaries.</li>
+<li>Scoped RBAC grants, delegated approval workflow, kiosk mode, and some telemetry split paths remain controlled rollout surfaces.</li>
+</ul>
+<h2 id="what-is-live-now">What is live now<a class="headerlink" href="#what-is-live-now" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Student access uses class code + display name, with return-code/device-hint rejoin.</li>
+<li>Student trust controls are live: <code>/trust</code> and <code>/student/my-data</code>.</li>
+<li>Family-visible join/privacy/trust/upload pages now support deterministic <code>simple</code> / <code>standard</code> reading-level copy via query parameter.</li>
+<li>Student portfolio and session gallery flows are live with teacher-first visibility defaults.</li>
+<li>Student artifact remix actions are live on portfolio/gallery/upload flows, with per-submission lineage preserved.</li>
+<li>Student upload flow includes offline queue/retry behavior for intermittent networks.</li>
+<li>Student kiosk shell mode is available behind <code>CLASSHUB_STUDENT_KIOSK_PWA_ENABLED</code> (manifest + route allowlist + focused nav constraints).</li>
+<li>Teacher portal includes roster, submissions, moderation, outcomes, and certificate workflows.</li>
+<li>Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded.</li>
+<li>Operator data-lifespan dashboard is live at <code>/teach/data-lifespan</code> with retention trend rows and CSV/JSON snapshot export (<code>/teach/data-lifespan/export</code>).</li>
+<li><code>/teach/data-lifespan</code> now also surfaces aggregate remote-helper-compute posture: active lease status, low-noise trend summary, and recent class activity rows from helper-owned evidence.</li>
+<li>Repo now ships an unattended remote-compute evidence watcher (<code>python3 scripts/remote_compute_operator_watch.py</code>) plus reference systemd timer units for bounded webhook alerting from the helper-owned operator snapshot.</li>
+<li>Lesson pages now support belonging-layer metadata (<code>local_anchors</code>, <code>example_variants</code>, <code>community_glossary</code>) plus print-friendly offline handout export and a simple PDF fallback download.</li>
+<li>Teacher syllabus import now preserves belonging-layer and offline-handout sections instead of dropping them during coursepack compilation.</li>
+<li>Homework Helper runs as a separate Django service behind <code>/helper/*</code>.</li>
+<li>Homework Helper supports optional bounded local curriculum RAG (pgvector) with curriculum-only retrieval scope.</li>
+<li>Helper exposes an internal RAG posture contract at <code>/helper/internal/rag-status</code> (token-protected) for ClassHub operator evidence panels.</li>
+<li>Helper now ships a staff-only bounded remote compute control for class sessions; provider control URLs stay server-side, the remote backend is used only when state is <code>ready</code>, and helper requests fall back to local/default mode when remote compute is off, not ready, or unavailable.</li>
+<li>Remote helper compute now produces durable class-scoped lease evidence: requested duration, time spent in <code>starting</code>/<code>ready</code>/<code>degraded</code>, remote route and fallback counts, leased minutes, auto-stop/manual-stop counts, recent events, and an optional approximate cost estimate when operator pricing assumptions are configured.</li>
+<li>Remote helper control now emits explicit bridge correlation/idempotency metadata and treats duplicate same-class activate/deactivate requests as calm bounded no-op control actions.</li>
+<li><code>/teach/class/&lt;id&gt;</code> now surfaces a tighter remote-compute evidence slice for staff: recent lease sessions, recent events, and a simple cost-risk state alongside the existing control/export path.</li>
+<li>Repo now ships a narrow Headscale control-plane ops bundle for createMPLS-style deployments: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under <code>ops/headscale/</code>.</li>
+<li>Repo now also ships a Headscale replacement-host rehearsal wrapper (<code>bash scripts/headscale_restore_rehearsal_evidence.sh --backup ...</code>) that captures control-plane restore artifacts plus LMS/GPU-side verification placeholders.</li>
+<li>Helper classroom-quality eval tooling is live (<code>scripts/run_helper_classroom_eval.sh</code> + classroom prompt pack in <code>services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl</code>).</li>
+<li>Coursepack Authoring SDK is live via <code>scripts/coursepack_sdk.py</code> (validate/build/package local content artifacts, checksum sidecars, static registry index create/validate/list/fetch flows), and ClassHub can now import directly from a static registry index via <code>manage.py import_coursepack_registry</code> as well as superuser browser flows in <code>/teach</code> and <code>/admin</code>.</li>
+<li><code>/teach</code> now includes a filtered content/import audit feed for recent registry imports, upload imports, syllabus compilation, template generation, and syllabus export operations.</li>
+<li>Teacher syllabus zip import now maps session-prefixed support images into lesson assets.</li>
+<li>Organization boundaries and RBAC capability checks are live.</li>
+<li>Scoped RBAC grants are live behind <code>CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED</code>.</li>
+<li>RBAC simulation and policy bundle import/export endpoints are live for operators.</li>
+<li>RBAC custom roles are live (role definitions, capabilities, and staff assignments) in teacher RBAC tools and policy bundles.</li>
+<li>RBAC delegated approval workflow is live behind <code>CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED</code> (default off for initial rollout).</li>
+<li>RBAC approval reviews now require org owner/admin role (or superuser) and block self-approval.</li>
+<li>Superuser class-to-teacher assignment workflows are live in <code>/teach</code> org admin tools and <code>/teach/class/&lt;id&gt;</code>.</li>
+<li>Superuser account lifecycle actions are live in <code>/teach</code> (enable/disable, promote/demote superuser, reset password, resend invite).</li>
+<li>Superuser organization lifecycle controls are live in <code>/teach</code> (rename, guarded archive/restore, class-to-organization move).</li>
+<li>Superuser operator config snapshot is live in <code>/teach</code> (active profile/flag summary + doc pointers).</li>
+<li>Facilitator CLI (<code>hubctl</code>) is live from repo tooling for teacher API class controls (<code>tools/hubctl/</code>).</li>
+<li>Security and ops guardrails are live in CI (smoke, migration gate, endpoint guard checks, view-size/function budgets, docs-truth checks, and container/dependency scanning).</li>
+<li>Q2-Q3 ecosystem milestones are complete; implementation status now lives here and in feature-specific docs (the temporary milestones plan doc is retired).</li>
+<li>Telemetry split Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is live (validated telemetry mode envs, optional telemetry DB registration in settings, telemetry router + dedicated <code>hub_telemetry</code> schema app, centralized dual-write service seam for event/outcome emit paths, read abstraction for support/rollup/lifespan event queries, baseline split-write instrumentation counters/log fields, an idempotent <code>backfill_telemetry_events</code> command with dry-run/batch resume controls, and a strict <code>check_telemetry_parity</code> command for cutover gates). Slice 7 release-cycle evidence capture is complete at <code>artifacts/stability/2026-03-10/telemetry/</code> (parity + strict smoke + rollback drill).</li>
+<li>Telemetry evidence tooling now also renders machine-checked <code>slo_summary.md</code> artifacts from explicit metric inputs and can include telemetry DB backup/restore validation in restore rehearsal evidence when telemetry split is active.</li>
+<li>Superuser runtime policy lock checks are live in <code>/teach?advanced=1&amp;portal_mode=admin</code> and in stability guardrails via <code>scripts/check_runtime_policy_lock.py</code>.</li>
+<li>Teacher top-task choreography and <code>Start Here Today</code> contract wiring are live in <code>/teach</code> and guarded by <code>scripts/check_teacher_top_tasks_contract.py</code>.</li>
+<li>Registry-backed docs truth checks are live via <code>docs/_registry/runtime_contracts.json</code> and <code>scripts/check_docs_truth.py</code>.</li>
+</ul>
+<h2 id="deployment-and-reliability-posture">Deployment and reliability posture<a class="headerlink" href="#deployment-and-reliability-posture" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Day-1 local mode: <code>compose/Caddyfile.local</code> over HTTP.</li>
+<li>Domain mode: <code>compose/Caddyfile.domain</code> (or <code>Caddyfile.domain.assets</code>) with Caddy-managed TLS.</li>
+<li>Cookie transport in local HTTP mode: <code>DJANGO_SESSION_COOKIE_SECURE=0</code>, <code>DJANGO_CSRF_COOKIE_SECURE=0</code>.</li>
+<li>Cookie transport in domain/TLS mode: both values set to <code>1</code>.</li>
+<li>Repo-shipped env examples currently default to <code>DJANGO_CSP_MODE=report-only</code>; the Django code fallback remains <code>relaxed</code> when the setting is unset.</li>
+<li>System validation command: <code>bash scripts/validate_env_secrets.sh</code>.</li>
+<li>System validation command: <code>bash scripts/system_doctor.sh --smoke-mode golden</code>.</li>
+<li>Serious remote-LLM production posture is documented as: public LMS, private model host, helper-only server-to-server tailnet traffic, a Headscale-recommended control plane for createMPLS-style deployments, and a Gemma-family model as the recommended open-model example on the remote private host.</li>
+</ul>
+<h2 id="current-product-posture">Current product posture<a class="headerlink" href="#current-product-posture" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Privacy-forward default: minimal student identity model.</li>
+<li>Privacy-forward default: class-level retention presets.</li>
+<li>Privacy-forward default: student rename/export/delete controls.</li>
+<li>Privacy-forward default: structured staff-only support tags (no default freeform note field).</li>
+<li>No rankings/leaderboards in student-facing artifact and feedback flows.</li>
+<li>Multilingual UI is active for supported strings (<code>en</code>, <code>es</code>, <code>so</code>, <code>ksw</code>) across join/login, trust/privacy, core student flows (<code>/student</code>, <code>/student/my-data</code>, <code>/student/portfolio</code>, <code>/student/gallery</code>), and teacher day-of-class shell copy (<code>/teach?portal_mode=day</code>), with bounded tranche enforcement via <code>scripts/check_i18n_family_visible_contract.py</code>.</li>
+<li>S'gaw Karen (<code>ksw</code>) now ships across that same visible tranche with AI-assisted provisional copy pending native-speaker review, instead of falling back to English on the main family/student routes.</li>
+</ul>
+<h2 id="active-known-constraints">Active known constraints<a class="headerlink" href="#active-known-constraints" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Scoped RBAC grants are still feature-flagged for controlled rollout.</li>
+<li>RBAC delegated approval workflow remains feature-flagged for controlled rollout.</li>
+<li>Async/self-paced sequencing exists as an RFC direction; synchronous teacher-led flow remains the default operation model.</li>
+<li>Screenshot backlog is now clear in <code>press/screenshots/PLACEHOLDERS.md</code> (public screenshot set is complete through <code>21</code>, plus optional companion <code>19-rbac-tools-tab-approval-on.png</code>).</li>
+</ul>
+<h2 id="screenshot-evidence-status">Screenshot evidence status<a class="headerlink" href="#screenshot-evidence-status" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Canonical gallery: <a href="../SCREENSHOT_GALLERY/">SCREENSHOT_GALLERY.md</a>.</li>
+<li>Capture plan and ownership: <code>press/screenshots/SHOTLIST.md</code>.</li>
+<li>Placeholder inventory: <code>press/screenshots/PLACEHOLDERS.md</code>.</li>
+<li>Interpretation:</li>
+<li><code>Live capture</code>: screenshot reflects current <code>main</code>.</li>
+<li><code>Placeholder</code>: feature is live, screenshot refresh is pending.</li>
+</ul>
+<h2 id="where-to-look-next">Where to look next<a class="headerlink" href="#where-to-look-next" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Canonical policy/source map: <a href="../CANONICAL_TRUTHS/">CANONICAL_TRUTHS.md</a></li>
+<li>Strategy and rationale: <a href="../DECISIONS/">DECISIONS.md</a></li>
+<li>Operator onboarding: <a href="../START_HERE/">START_HERE.md</a></li>
+<li>Non-technical evaluation path: <a href="../START_HERE_EVALUATOR/">START_HERE_EVALUATOR.md</a></li>
+<li>Feature maturity and rollout flags: <a href="../FEATURE_MATURITY/">FEATURE_MATURITY.md</a></li>
+<li>Infrastructure hardening roadmap: <a href="../INFRASTRUCTURE_HARDENING_ROADMAP/">INFRASTRUCTURE_HARDENING_ROADMAP.md</a></li>
+<li>Ops execution: <a href="../RUNBOOK/">RUNBOOK.md</a>, <a href="../TROUBLESHOOTING/">TROUBLESHOOTING.md</a></li>
+<li>Remote-compute evidence: <a href="../EVIDENCE_REMOTE_COMPUTE/">EVIDENCE_REMOTE_COMPUTE.md</a></li>
+<li>RBAC implementation and policy ops: <a href="../RBAC_GUIDE/">RBAC_GUIDE.md</a>, <a href="../RBAC_CAPABILITIES_RFC/">RBAC_CAPABILITIES_RFC.md</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>

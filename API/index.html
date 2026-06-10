@@ -1,0 +1,2385 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/API/">
+      
+      
+        <link rel="prev" href="../ARCHITECTURE/">
+      
+      
+        <link rel="next" href="../HUBCTL/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>API Reference - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#json-api-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRENT_STATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../FEATURE_MATURITY/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Engineering
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do now
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentication
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#student-bearer-token-recommended-for-mobile" class="md-nav__link">
+    <span class="md-ellipsis">
+      Student: Bearer Token (recommended for mobile)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#student-session-cookie-browser-fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      Student: Session Cookie (browser fallback)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teacher-session-cookie-otp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher: Session Cookie + OTP
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#student-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Student API
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Student API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1studentsession" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/student/session
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1studentmodules" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/student/modules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1studentcsrf" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/student/csrf
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiv1studentmaterialidupload" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /api/v1/student/material/&lt;id&gt;/upload
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1studentsubmissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/student/submissions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teacher-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher API
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Teacher API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#read-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Read Endpoints
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Read Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1teacherclasses" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/teacher/classes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1teacherclassidroster" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/teacher/class/&lt;id&gt;/roster
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1teacherclassidsubmissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/teacher/class/&lt;id&gt;/submissions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#write-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Write Endpoints
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Write Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-apiv1teacherclassidtoggle-lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /api/v1/teacher/class/&lt;id&gt;/toggle-lock
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiv1teacherclassidrotate-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /api/v1/teacher/class/&lt;id&gt;/rotate-code
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiv1teacherclassidset-enrollment-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /api/v1/teacher/class/&lt;id&gt;/set-enrollment-mode
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiv1teacherrbacsimulate" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /api/v1/teacher/rbac/simulate
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rate-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rate Limits
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Codes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cache-headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cache Headers
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HUBCTL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facilitator CLI (hubctl)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LOCALIZATION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Localization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LOCALIZATION_SO_REVIEW_PACKET/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Somali Review Packet
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COURSEPACK_REGISTRY_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Coursepack Registry RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ASYNC_SELF_PACED_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Async Self-Paced RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IDENTITY_SSO_EXPANSION_PLAN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Identity SSO Expansion Plan
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RBAC_CAPABILITIES_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RBAC Capabilities RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TELEMETRY_DB_SPLIT_PLAN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Telemetry DB Split Plan
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNTIME_LOCK_PROFILES/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Runtime Lock Profiles
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../KIOSK_PWA/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Classroom Kiosk PWA
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OPENAI_HELPER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Backend Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REQUEST_SAFETY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Request Safety
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HELPER_EVALS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Evals
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MERGE_READINESS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Merge Readiness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING_DOCS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs Maintenance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOCS_TRUTH_MECHANISM/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs Truth Mechanism
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do now
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentication
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#student-bearer-token-recommended-for-mobile" class="md-nav__link">
+    <span class="md-ellipsis">
+      Student: Bearer Token (recommended for mobile)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#student-session-cookie-browser-fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      Student: Session Cookie (browser fallback)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teacher-session-cookie-otp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher: Session Cookie + OTP
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#student-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Student API
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Student API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1studentsession" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/student/session
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1studentmodules" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/student/modules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1studentcsrf" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/student/csrf
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiv1studentmaterialidupload" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /api/v1/student/material/&lt;id&gt;/upload
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1studentsubmissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/student/submissions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teacher-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher API
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Teacher API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#read-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Read Endpoints
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Read Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1teacherclasses" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/teacher/classes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1teacherclassidroster" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/teacher/class/&lt;id&gt;/roster
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-apiv1teacherclassidsubmissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /api/v1/teacher/class/&lt;id&gt;/submissions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#write-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Write Endpoints
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Write Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-apiv1teacherclassidtoggle-lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /api/v1/teacher/class/&lt;id&gt;/toggle-lock
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiv1teacherclassidrotate-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /api/v1/teacher/class/&lt;id&gt;/rotate-code
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiv1teacherclassidset-enrollment-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /api/v1/teacher/class/&lt;id&gt;/set-enrollment-mode
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-apiv1teacherrbacsimulate" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /api/v1/teacher/rbac/simulate
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rate-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rate Limits
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Codes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cache-headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cache Headers
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="json-api-reference">JSON API Reference<a class="headerlink" href="#json-api-reference" title="Permanent link">&para;</a></h1>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>ClassHub exposes a headless JSON API for mobile and programmatic clients.
+All endpoints live under <code>/api/v1/</code> and return <code>application/json</code> with
+<code>Cache-Control: no-store, private</code> headers.</p>
+<h2 id="what-to-do-now">What to do now<a class="headerlink" href="#what-to-do-now" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Use the <a href="#authentication">Authentication</a> section to understand how to
+   obtain and send credentials.</li>
+<li>Browse the <a href="#student-api">Student</a> or <a href="#teacher-api">Teacher</a> endpoint
+   tables for the route you need.</li>
+<li>Check <a href="#rate-limits">Rate Limits</a> and <a href="#error-codes">Error Codes</a> for
+   operational details.</li>
+</ol>
+<hr />
+<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<h3 id="student-bearer-token-recommended-for-mobile">Student: Bearer Token (recommended for mobile)<a class="headerlink" href="#student-bearer-token-recommended-for-mobile" title="Permanent link">&para;</a></h3>
+<p>Tokens are issued at join time and sent via the <code>Authorization</code> header.</p>
+<div class="highlight"><pre><span></span><code>POST /join
+Content-Type: application/json
+
+{&quot;class_code&quot;: &quot;ABC123&quot;, &quot;display_name&quot;: &quot;Ada&quot;}
+</code></pre></div>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;ok&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;return_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;XYZW&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;rejoined&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;api_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;token&gt;&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p>Use the token on all subsequent API requests:</p>
+<div class="highlight"><pre><span></span><code>GET /api/v1/student/session
+Authorization: Bearer &lt;token&gt;
+</code></pre></div>
+<p><strong>Token properties:</strong>
+- Signed with <code>CLASSHUB_API_TOKEN_SIGNING_KEY</code> (falls back to <code>SECRET_KEY</code>).
+- Contains <code>{sid, cid, epoch}</code>. Automatically invalidated when a teacher
+  resets the class roster (bumps <code>session_epoch</code>).
+- Optional hard TTL: set <code>CLASSHUB_API_TOKEN_MAX_AGE_SECONDS</code> to enforce
+  expiry (default: <code>None</code> = no expiry, epoch-based only).
+- <strong>Fail-closed:</strong> If an <code>Authorization: Bearer</code> header is present on <code>/api/</code>
+  but invalid (tampered, expired, or epoch mismatch), the request fails
+  immediately with <code>401 {"error": "invalid_token"}</code>. It does <strong>not</strong> fall
+  through to session auth.</p>
+<h3 id="student-session-cookie-browser-fallback">Student: Session Cookie (browser fallback)<a class="headerlink" href="#student-session-cookie-browser-fallback" title="Permanent link">&para;</a></h3>
+<p>Browser clients may continue to use session cookies set by <code>/join</code>.
+The middleware checks bearer tokens first, then falls back to session auth.</p>
+<h3 id="teacher-session-cookie-otp">Teacher: Session Cookie + OTP<a class="headerlink" href="#teacher-session-cookie-otp" title="Permanent link">&para;</a></h3>
+<p>Teacher endpoints require Django staff authentication with verified OTP
+(<code>TEACHER_2FA_REQUIRED=True</code> by default). Requests from staff users
+who haven't completed 2FA verification receive <code>401 {"error": "otp_required"}</code>.
+There is no bearer token flow for teachers (OTP is inherently stateful).</p>
+<p>Authenticate via <code>/teach/login</code> → complete <code>/teach/2fa/setup</code> verification →
+session cookie is set.</p>
+<p>For terminal automation, use <a href="../HUBCTL/">HUBCTL.md</a>, which follows the same
+session + OTP contract.</p>
+<hr />
+<h2 id="student-api">Student API<a class="headerlink" href="#student-api" title="Permanent link">&para;</a></h2>
+<p>All student endpoints require authentication (bearer token or session).
+Unauthenticated requests return <code>401</code>.</p>
+<h3 id="get-apiv1studentsession"><code>GET /api/v1/student/session</code><a class="headerlink" href="#get-apiv1studentsession" title="Permanent link">&para;</a></h3>
+<p>Returns the active classroom and student details. Also serves as a
+heartbeat (updates <code>last_seen_at</code> at most once per minute).</p>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;classroom&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Intro to Scratch&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;student_landing_title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Welcome!&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;student_landing_message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Start coding today.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;student_landing_hero_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/static/hero.jpg&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;student&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;display_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ada&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;return_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;XYZW&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;privacy_meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h3 id="get-apiv1studentmodules"><code>GET /api/v1/student/modules</code><a class="headerlink" href="#get-apiv1studentmodules" title="Permanent link">&para;</a></h3>
+<p>Returns the accessible curriculum tree for the student's classroom.</p>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;ui_density_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;standard&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;modules&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Session 1&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;materials&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Upload your project&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;upload&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;accepted_extensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;.sb3&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;max_upload_mb&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;access&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;checklist_items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">          </span><span class="nt">&quot;rubric_specs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h3 id="get-apiv1studentcsrf"><code>GET /api/v1/student/csrf</code><a class="headerlink" href="#get-apiv1studentcsrf" title="Permanent link">&para;</a></h3>
+<p>Returns a fresh CSRF token for session-authenticated student write calls
+(used by resilient upload clients and offline queue flush).</p>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;csrf_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h3 id="post-apiv1studentmaterialidupload"><code>POST /api/v1/student/material/&lt;id&gt;/upload</code><a class="headerlink" href="#post-apiv1studentmaterialidupload" title="Permanent link">&para;</a></h3>
+<p>Session-authenticated upload endpoint for student material submissions.
+Accepts the same multipart fields as <code>/material/&lt;id&gt;/upload</code>:
+- <code>file</code> (required)
+- <code>station_label</code> (optional)
+- <code>process_note</code> (optional)
+- <code>share_with_class</code> (optional, gallery materials only)</p>
+<p><strong>Success response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;ok&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;material_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;redirect_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/material/10/upload&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Error response</strong> (example):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;upload_locked&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Submissions for this lesson are not open yet.&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h3 id="get-apiv1studentsubmissions"><code>GET /api/v1/student/submissions</code><a class="headerlink" href="#get-apiv1studentsubmissions" title="Permanent link">&para;</a></h3>
+<p>Returns the student's historical work and responses, with pagination.</p>
+<p><strong>Query parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Type</th>
+<th>Default</th>
+<th>Max</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>limit</code></td>
+<td>int</td>
+<td>50</td>
+<td>100</td>
+</tr>
+<tr>
+<td><code>offset</code></td>
+<td>int</td>
+<td>0</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;submissions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;material_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;uploaded_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-02-28T14:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;original_filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;project.sb3&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;pagination&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;offset&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;submissions_by_material&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;material_responses&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;gallery_entries_by_material&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h2 id="teacher-api">Teacher API<a class="headerlink" href="#teacher-api" title="Permanent link">&para;</a></h2>
+<p>All teacher endpoints require staff authentication with verified OTP.
+Unauthenticated or non-staff requests return <code>401</code>. Authorization failures
+(e.g., non-manager attempting a write) return <code>403</code>.</p>
+<h3 id="read-endpoints">Read Endpoints<a class="headerlink" href="#read-endpoints" title="Permanent link">&para;</a></h3>
+<h4 id="get-apiv1teacherclasses"><code>GET /api/v1/teacher/classes</code><a class="headerlink" href="#get-apiv1teacherclasses" title="Permanent link">&para;</a></h4>
+<p>Returns all classes accessible to the authenticated teacher.</p>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;classes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Intro to Scratch&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;join_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ABC123&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;is_locked&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;enrollment_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;open&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;student_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;submissions_24h&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;is_assigned&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h4 id="get-apiv1teacherclassidroster"><code>GET /api/v1/teacher/class/&lt;id&gt;/roster</code><a class="headerlink" href="#get-apiv1teacherclassidroster" title="Permanent link">&para;</a></h4>
+<p>Returns the full dashboard context for a class, including students, modules,
+materials, submission counts, outcome snapshots, and helper signals.</p>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;classroom&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Intro to Scratch&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;join_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ABC123&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;is_locked&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;enrollment_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;open&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;students&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;display_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ada&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;last_seen_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-02-28T14:30:00Z&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;student_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;modules&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Session 1&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;materials&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Upload your project&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;upload&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;submission_counts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;outcome_snapshots&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;helper_signals&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Errors:</strong>
+- <code>404</code> — class not found or not accessible to this teacher.</p>
+<hr />
+<h4 id="get-apiv1teacherclassidsubmissions"><code>GET /api/v1/teacher/class/&lt;id&gt;/submissions</code><a class="headerlink" href="#get-apiv1teacherclassidsubmissions" title="Permanent link">&para;</a></h4>
+<p>Returns paginated submissions for a class, ordered by most recent.</p>
+<p><strong>Query parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Type</th>
+<th>Default</th>
+<th>Max</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>limit</code></td>
+<td>int</td>
+<td>50</td>
+<td>100</td>
+</tr>
+<tr>
+<td><code>offset</code></td>
+<td>int</td>
+<td>0</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;submissions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;student&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;display_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ada&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;material&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Upload your project&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;uploaded_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-02-28T14:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;original_filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;project.sb3&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;pagination&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;offset&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h3 id="write-endpoints">Write Endpoints<a class="headerlink" href="#write-endpoints" title="Permanent link">&para;</a></h3>
+<p>Teacher write endpoints use Django session auth and require CSRF headers for
+non-browser clients.</p>
+<p>All write endpoints use <code>POST</code>, require staff authentication with capability-
+specific ACL checks, and create an audit log entry.</p>
+<h4 id="post-apiv1teacherclassidtoggle-lock"><code>POST /api/v1/teacher/class/&lt;id&gt;/toggle-lock</code><a class="headerlink" href="#post-apiv1teacherclassidtoggle-lock" title="Permanent link">&para;</a></h4>
+<p>Toggles the <code>is_locked</code> status of a class. No request body required.</p>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;classroom_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;is_locked&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h4 id="post-apiv1teacherclassidrotate-code"><code>POST /api/v1/teacher/class/&lt;id&gt;/rotate-code</code><a class="headerlink" href="#post-apiv1teacherclassidrotate-code" title="Permanent link">&para;</a></h4>
+<p>Generates a new unique join code for a class. No request body required.</p>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;classroom_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;join_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NEW56789&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h4 id="post-apiv1teacherclassidset-enrollment-mode"><code>POST /api/v1/teacher/class/&lt;id&gt;/set-enrollment-mode</code><a class="headerlink" href="#post-apiv1teacherclassidset-enrollment-mode" title="Permanent link">&para;</a></h4>
+<p>Sets the enrollment mode for a class. Accepts JSON or form-encoded body.</p>
+<p><strong>Request body:</strong>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;enrollment_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;open&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Valid modes:</strong> <code>open</code>, <code>invite_only</code>, <code>closed</code></p>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;classroom_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;enrollment_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;open&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Errors:</strong>
+- <code>400</code> with <code>{"error": "invalid_enrollment_mode", "valid_modes": ["closed", "invite_only", "open"]}</code>.</p>
+<hr />
+<h4 id="post-apiv1teacherrbacsimulate"><code>POST /api/v1/teacher/rbac/simulate</code><a class="headerlink" href="#post-apiv1teacherrbacsimulate" title="Permanent link">&para;</a></h4>
+<p>Runs a read-only RBAC capability simulation for a target staff user.</p>
+<p>Requires staff auth + OTP and org-level export capability (<code>syllabus.export</code>).</p>
+<p><strong>Request body</strong> (JSON):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;capability&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;submission.view&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;class_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;module_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">99</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Response</strong> (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;target_user&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;teacher_aide&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;decision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;allowed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;capability&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;submission.view&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;scoped_grant_explicit_deny&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;teacher&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;organization_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;classroom_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;module_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">99</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Errors:</strong>
+- <code>400</code> — missing/invalid parameters (for example <code>module_id</code> without <code>class_id</code>).
+- <code>403</code> — caller lacks simulation rights.
+- <code>404</code> — target staff user or class scope not found/accessible.</p>
+<hr />
+<h2 id="rate-limits">Rate Limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h2>
+<p>All API endpoints are rate-limited per client IP.</p>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Limit</th>
+<th>Window</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Student (read)</td>
+<td>120 requests</td>
+<td>60 sec</td>
+</tr>
+<tr>
+<td>Teacher (read)</td>
+<td>60 requests</td>
+<td>60 sec</td>
+</tr>
+<tr>
+<td>Teacher (write)</td>
+<td>30 requests</td>
+<td>60 sec</td>
+</tr>
+</tbody>
+</table>
+<p>Exceeding the limit returns <code>429</code>:
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rate_limited&quot;</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h2 id="error-codes">Error Codes<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h2>
+<p>All errors follow a consistent shape:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;error_code&quot;</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>HTTP</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>unauthorized</code></td>
+<td>401</td>
+<td>Missing or invalid credentials</td>
+</tr>
+<tr>
+<td><code>otp_required</code></td>
+<td>401</td>
+<td>Staff authenticated but 2FA not verified</td>
+</tr>
+<tr>
+<td><code>invalid_token</code></td>
+<td>401</td>
+<td>Bearer header present but token invalid/expired</td>
+</tr>
+<tr>
+<td><code>rate_limited</code></td>
+<td>429</td>
+<td>Too many requests</td>
+</tr>
+<tr>
+<td><code>not_found</code></td>
+<td>404</td>
+<td>Class not found or not accessible</td>
+</tr>
+<tr>
+<td><code>forbidden</code></td>
+<td>403</td>
+<td>Insufficient permissions for requested capability</td>
+</tr>
+<tr>
+<td><code>invalid_enrollment_mode</code></td>
+<td>400</td>
+<td>Unknown enrollment mode value</td>
+</tr>
+<tr>
+<td><code>module_scope_requires_class_id</code></td>
+<td>400</td>
+<td>RBAC simulation requested module scope without class scope</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="cache-headers">Cache Headers<a class="headerlink" href="#cache-headers" title="Permanent link">&para;</a></h2>
+<p>All API responses include:
+- <code>Cache-Control: no-store, private</code>
+- <code>Pragma: no-cache</code></p>
+<p>This ensures that intermediate proxies and browsers never cache
+authenticated API responses.</p>
+<hr />
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<p>The API is covered by 55 automated tests across three test modules:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Tests</th>
+<th>Covers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_api_tokens.py</code></td>
+<td>15</td>
+<td>Token utility, middleware bearer resolution, join token issuance</td>
+</tr>
+<tr>
+<td><code>test_api_student.py</code></td>
+<td>13</td>
+<td>Session, modules, submissions endpoints</td>
+</tr>
+<tr>
+<td><code>test_api_teacher.py</code></td>
+<td>27</td>
+<td>All 6 teacher endpoints (read + write)</td>
+</tr>
+</tbody>
+</table>
+<p>Run locally:
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>hub.tests.test_api_tokens<span class="w"> </span>hub.tests.test_api_student<span class="w"> </span>hub.tests.test_api_teacher<span class="w"> </span>-v2
+</code></pre></div></p>
+<p>The smoke check (<code>scripts/smoke_check.sh</code>) also probes live API endpoints
+using bearer tokens and teacher session cookies.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>

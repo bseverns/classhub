@@ -1,0 +1,1980 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/HEADSCALE_CONTROL_PLANE/">
+      
+      
+        <link rel="prev" href="../MINIMUM_VIABLE_OPERATOR/">
+      
+      
+        <link rel="next" href="../PRIVATE_LLM_BACKEND/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>Headscale Control Plane - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#headscale-control-plane" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Headscale Control Plane
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRENT_STATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Operations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FEATURE_MATURITY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Feature Maturity
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INFRASTRUCTURE_HARDENING_ROADMAP/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Infrastructure Hardening Roadmap
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CANONICAL_TRUTHS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Canonical Truths
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DAY1_DEPLOY_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Day 1 Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BOOTSTRAP_SERVER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bootstrap Server
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STAFF_ACCOUNT_OPS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Staff Account Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MINIMUM_VIABLE_OPERATOR/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Minimum Viable Operator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Headscale Control Plane
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Headscale Control Plane
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      Purpose
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-it-is-separate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why it is separate
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recommended-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recommended host
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ubuntu-first-assumptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ubuntu-first assumptions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canonical-repo-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Canonical repo bundle
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-joins-the-tailnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      What joins the tailnet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-should-not-join-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      What should not join by default
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-traffic-uses-the-tailnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      What traffic uses the tailnet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-traffic-must-never-use-the-tailnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      What traffic must never use the tailnet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-plane-vs-control-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data plane vs control plane
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lms-side-relation-to-helper-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      LMS-side relation to helper config
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-expectations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backup expectations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#replacement-and-recovery-expectations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Replacement and recovery expectations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operator-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operator checks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related docs
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PRIVATE_LLM_BACKEND/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Private LLM Backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JETSON_B_HELPER_BACKEND/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Jetson-B Helper Backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REMOTE_HELPER_COMPUTE_CONTROL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remote Helper Compute Control
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../EVIDENCE_REMOTE_COMPUTE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remote Compute Evidence
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNBOOK/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Runbook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INCIDENT_RESPONSE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Incident Response
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRICULUM_OPS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Curriculum Ops
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DISASTER_RECOVERY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Disaster Recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REPORTING_REHEARSAL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reporting Rehearsal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RESTORE_REHEARSAL_LOG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Restore Rehearsal Log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TURNOVER_PACKET/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Turnover Packet
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TURNOVER_DRILL_LOG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Turnover Drill Log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OPS_CADENCE_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ops Cadence Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RELEASING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Releasing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DEVELOPMENT/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      Purpose
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-it-is-separate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why it is separate
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recommended-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recommended host
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ubuntu-first-assumptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ubuntu-first assumptions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canonical-repo-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Canonical repo bundle
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-joins-the-tailnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      What joins the tailnet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-should-not-join-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      What should not join by default
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-traffic-uses-the-tailnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      What traffic uses the tailnet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-traffic-must-never-use-the-tailnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      What traffic must never use the tailnet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-plane-vs-control-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data plane vs control plane
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lms-side-relation-to-helper-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      LMS-side relation to helper config
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-expectations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backup expectations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#replacement-and-recovery-expectations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Replacement and recovery expectations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operator-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operator checks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related docs
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="headscale-control-plane">Headscale Control Plane<a class="headerlink" href="#headscale-control-plane" title="Permanent link">&para;</a></h1>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>This is the operator field guide for the recommended control plane behind the createMPLS private LLM path.</p>
+<p>For this deployment class:</p>
+<ul>
+<li><code>lms.creatempls.org</code> stays public</li>
+<li>the model host stays private</li>
+<li>only Homework Helper talks to the model host</li>
+<li>the private path is host-to-host over a tailnet</li>
+<li>the recommended tailnet control plane is a self-hosted Headscale server on a tiny Ubuntu VPS</li>
+</ul>
+<p>Headscale is coordinating the private path. It is not serving the model and it is not serving the public LMS.</p>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>Use the Headscale VPS for one job only:</p>
+<ul>
+<li>coordinate private tailnet membership for the LMS host and the private model host</li>
+</ul>
+<p>Do not treat it as:</p>
+<ul>
+<li>a public reverse proxy</li>
+<li>a transit box for browser traffic</li>
+<li>a general office VPN</li>
+<li>a full-site overlay for <code>lms.creatempls.org</code></li>
+</ul>
+<h2 id="why-it-is-separate">Why it is separate<a class="headerlink" href="#why-it-is-separate" title="Permanent link">&para;</a></h2>
+<p>Keep the Headscale control plane separate from the LMS for boring operations:</p>
+<ul>
+<li>the public LMS should keep working even if you replace the tailnet control plane</li>
+<li>the model host should remain replaceable compute, not the networking source of truth</li>
+<li>control-plane maintenance should not share fate with the public classroom site</li>
+</ul>
+<h2 id="recommended-host">Recommended host<a class="headerlink" href="#recommended-host" title="Permanent link">&para;</a></h2>
+<p>Minimal default for this deployment class:</p>
+<ul>
+<li>tiny Ubuntu VPS</li>
+<li>1 vCPU</li>
+<li>1 GB RAM</li>
+<li>small persistent disk</li>
+<li>stable public IP or stable DNS front door</li>
+</ul>
+<p>This node is coordination-only. It does not need GPU, large storage, or public web app capacity.</p>
+<p>Recommended hostname/subdomain:</p>
+<ul>
+<li><code>hs.creatempls.org</code></li>
+</ul>
+<p>Keep it distinct from:</p>
+<ul>
+<li>public LMS: <code>lms.creatempls.org</code></li>
+<li>private model endpoint: for example <code>llm-gpu.tail.creatempls.org</code>, or <code>jetson-b.tail.creatempls.org</code> for the bounded <code>lab_mind</code> Jetson-B route</li>
+</ul>
+<h2 id="ubuntu-first-assumptions">Ubuntu-first assumptions<a class="headerlink" href="#ubuntu-first-assumptions" title="Permanent link">&para;</a></h2>
+<p>Assume:</p>
+<ul>
+<li>Ubuntu LTS on the Headscale VPS</li>
+<li>Ubuntu or another Linux distribution on the LMS host</li>
+<li>Ubuntu or another Linux distribution on the private model host</li>
+</ul>
+<p>This repo now ships a narrow Headscale ops bundle in <code>ops/headscale/</code>:</p>
+<ul>
+<li>Ubuntu-first bootstrap via <code>ops/headscale/install.sh</code></li>
+<li>canonical Compose stack via <code>ops/headscale/docker-compose.yml</code></li>
+<li>backup via <code>ops/headscale/backup.sh</code></li>
+<li>restore via <code>ops/headscale/restore.sh</code></li>
+<li>restore rehearsal evidence wrapper via <code>scripts/headscale_restore_rehearsal_evidence.sh</code></li>
+<li>systemd wrappers via <code>ops/headscale/classhub-headscale.service</code> and <code>ops/headscale/classhub-headscale-backup.timer</code></li>
+</ul>
+<p>The ClassHub app still does not depend on Headscale internals at runtime.</p>
+<h2 id="canonical-repo-bundle">Canonical repo bundle<a class="headerlink" href="#canonical-repo-bundle" title="Permanent link">&para;</a></h2>
+<p>Use the repo bundle to make the control plane reproducible instead of memory-driven.</p>
+<p>Recommended runtime root on the Headscale VPS:</p>
+<ul>
+<li><code>/srv/headscale</code></li>
+</ul>
+<p>Recommended repo checkout on the Headscale VPS:</p>
+<ul>
+<li><code>/srv/headscale/app</code></li>
+</ul>
+<p>Recommended bootstrap sequence:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/headscale/app
+sudo<span class="w"> </span>bash<span class="w"> </span>ops/headscale/install.sh
+sudo<span class="w"> </span>cp<span class="w"> </span>/srv/headscale/.env.example<span class="w"> </span>/srv/headscale/.env
+sudo<span class="w"> </span>cp<span class="w"> </span>/srv/headscale/config/config.yaml.example<span class="w"> </span>/srv/headscale/config/config.yaml
+sudo<span class="w"> </span>cp<span class="w"> </span>/srv/headscale/config/policy.hujson.example<span class="w"> </span>/srv/headscale/config/policy.hujson
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>classhub-headscale
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>classhub-headscale-backup.timer
+</code></pre></div>
+<p>This keeps the Headscale VPS deployment path aligned with the rest of the repo's operator bundle style.</p>
+<h2 id="what-joins-the-tailnet">What joins the tailnet<a class="headerlink" href="#what-joins-the-tailnet" title="Permanent link">&para;</a></h2>
+<p>Default nodes:</p>
+<ul>
+<li>LMS application host running ClassHub + Homework Helper</li>
+<li>private model host running the model server and optional auth proxy</li>
+</ul>
+<p>For the current <code>lab_mind</code> integration, that private model host is Jetson-B only by explicit ClassHub exception. The refreshed <code>lab_mind</code> role map still treats Jetson-A Orin Nano as the normal assistant/model node, Jetson-B/C as edge/support nodes, R900 as the infrastructure spine, and Raspberry Pis as disposable edge appliances.</p>
+<p>Optional, narrow-use nodes:</p>
+<ul>
+<li>one trusted admin workstation for operator troubleshooting</li>
+</ul>
+<h2 id="what-should-not-join-by-default">What should not join by default<a class="headerlink" href="#what-should-not-join-by-default" title="Permanent link">&para;</a></h2>
+<ul>
+<li>student browsers</li>
+<li>teacher browsers</li>
+<li>classroom devices</li>
+<li>public edge/CDN nodes serving <code>lms.creatempls.org</code></li>
+<li>unrelated office, school, or home-network devices</li>
+</ul>
+<p>If you add more nodes, document the reason first. The default mental model is two servers, plus maybe one operator laptop.</p>
+<h2 id="what-traffic-uses-the-tailnet">What traffic uses the tailnet<a class="headerlink" href="#what-traffic-uses-the-tailnet" title="Permanent link">&para;</a></h2>
+<p>Allowed/default:</p>
+<ul>
+<li>Homework Helper on the LMS host to the endpoint on the private model host</li>
+<li>operator/admin troubleshooting between the LMS host and private model host</li>
+<li>narrow admin checks against tailnet state when debugging the helper path</li>
+</ul>
+<h2 id="what-traffic-must-never-use-the-tailnet">What traffic must never use the tailnet<a class="headerlink" href="#what-traffic-must-never-use-the-tailnet" title="Permanent link">&para;</a></h2>
+<ul>
+<li>public browser traffic to <code>lms.creatempls.org</code></li>
+<li>normal student or teacher page loads</li>
+<li>public asset delivery</li>
+<li>general site routing for ClassHub</li>
+<li>unrelated office or school traffic</li>
+</ul>
+<p>The tailnet is only for LLM traffic and related operator troubleshooting.
+Remote helper compute activation leases do not change that boundary; they only control when the helper prefers the private remote backend.</p>
+<h2 id="data-plane-vs-control-plane">Data plane vs control plane<a class="headerlink" href="#data-plane-vs-control-plane" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+  Browser["Browser"]
+  LMS["Public LMS&lt;br/&gt;lms.creatempls.org"]
+  Helper["Homework Helper"]
+  Model["Private model host&lt;br/&gt;llm-gpu.tail.creatempls.org or jetson-b.tail.creatempls.org"]
+  HS["Headscale VPS&lt;br/&gt;hs.creatempls.org"]
+
+  Browser --&gt;|HTTPS| LMS
+  LMS --&gt; Helper
+  Helper --&gt;|HTTPS over tailnet| Model
+  HS -. coordinates node identity and reachability .- LMS
+  HS -. control plane only .- Model</code></pre>
+<p>Important:</p>
+<ul>
+<li>request traffic does not transit through the Headscale VPS</li>
+<li>Headscale coordinates the private path; it does not proxy model traffic, serve the model, or serve the public LMS</li>
+</ul>
+<h2 id="lms-side-relation-to-helper-config">LMS-side relation to helper config<a class="headerlink" href="#lms-side-relation-to-helper-config" title="Permanent link">&para;</a></h2>
+<p>ClassHub runtime stays vendor-neutral at this layer. The LMS side only needs:</p>
+<ul>
+<li><code>LLM_BASE_URL</code></li>
+<li><code>LLM_API_KEY</code></li>
+<li><code>LLM_BACKEND</code></li>
+<li>helper-side probing such as <code>bash scripts/check_llm_backend.sh --probe-chat</code></li>
+</ul>
+<p>Example separation:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">DOMAIN</span><span class="o">=</span>lms.creatempls.org
+
+<span class="nv">LLM_ENABLED</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">LLM_BACKEND</span><span class="o">=</span>ollama
+<span class="nv">LLM_BASE_URL</span><span class="o">=</span>https://llm-gpu.tail.creatempls.org
+<span class="nv">LLM_API_KEY</span><span class="o">=</span>REPLACE_ME_STRONG
+<span class="nv">HELPER_REMOTE_MODE_ACKNOWLEDGED</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
+<p>That config means:</p>
+<ul>
+<li>browsers use <code>https://lms.creatempls.org</code></li>
+<li>only Homework Helper uses <code>https://llm-gpu.tail.creatempls.org</code></li>
+</ul>
+<h2 id="backup-expectations">Backup expectations<a class="headerlink" href="#backup-expectations" title="Permanent link">&para;</a></h2>
+<p>Back up the control plane like a small but important coordination service:</p>
+<ul>
+<li>Headscale config</li>
+<li>database/state directory</li>
+<li>any ACL/policy files</li>
+<li>bootstrap or registration secrets used to enroll nodes</li>
+</ul>
+<p>Keep backups off the VPS.</p>
+<p>Canonical repo-side backup command:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>/usr/local/bin/classhub-headscale-backup<span class="w"> </span>--headscale-root<span class="w"> </span>/srv/headscale
+</code></pre></div>
+<p>Recommended recurring automation:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>classhub-headscale-backup.timer
+</code></pre></div>
+<h2 id="replacement-and-recovery-expectations">Replacement and recovery expectations<a class="headerlink" href="#replacement-and-recovery-expectations" title="Permanent link">&para;</a></h2>
+<p>Treat the Headscale VPS as important but replaceable:</p>
+<ol>
+<li>restore Headscale config/state onto a fresh tiny Ubuntu VPS</li>
+<li>keep the same hostname if possible (<code>hs.creatempls.org</code>)</li>
+<li>confirm the LMS host and private model host rejoin cleanly</li>
+<li>rerun helper probing from the LMS host</li>
+</ol>
+<p>Canonical repo-side restore command:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>/usr/local/bin/classhub-headscale-restore<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--headscale-root<span class="w"> </span>/srv/headscale<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--backup<span class="w"> </span>/srv/headscale/backups/headscale_&lt;STAMP&gt;.tgz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--start-stack
+</code></pre></div>
+<p>Canonical repo-side rehearsal wrapper for a fresh/replacement host:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/headscale/app
+sudo<span class="w"> </span>bash<span class="w"> </span>scripts/headscale_restore_rehearsal_evidence.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--backup<span class="w"> </span>/srv/headscale/backups/headscale_&lt;STAMP&gt;.tgz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--host-class<span class="w"> </span>replacement-host<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--host-label<span class="w"> </span>hs-replacement-01
+</code></pre></div>
+<p>That wrapper:</p>
+<ul>
+<li>can bootstrap the fresh Ubuntu VPS with <code>ops/headscale/install.sh</code></li>
+<li>runs the shipped restore path against one backup archive</li>
+<li>re-enables the Headscale stack and backup timer</li>
+<li>captures local <code>systemctl</code>, <code>docker compose ps</code>, metrics, logs, and node-list evidence</li>
+<li>writes manual placeholders for the LMS-host helper probe and optional model-host follow-up</li>
+<li>produces a markdown summary suitable for <code>artifacts/stability/&lt;date&gt;/headscale_restore_rehearsal/&lt;timestamp&gt;/</code></li>
+</ul>
+<p>The public LMS and model service remain separate concerns. Replacing the control plane should not require changing application code.</p>
+<p>What this does not mean:</p>
+<ul>
+<li>the repo has not already proven blank-VPS recovery on your infrastructure</li>
+<li>node enrollment, DNS ownership, and LMS-host helper probing are still operator-reviewed steps</li>
+<li>Headscale is still coordination only, not a request proxy or public LMS dependency</li>
+</ul>
+<h2 id="operator-checks">Operator checks<a class="headerlink" href="#operator-checks" title="Permanent link">&para;</a></h2>
+<p>From the LMS host:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/check_llm_backend.sh<span class="w"> </span>--probe-chat
+curl<span class="w"> </span>-fsS<span class="w"> </span>https://lms.creatempls.org/healthz
+</code></pre></div>
+<p>From the private model host:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsS<span class="w"> </span>http://127.0.0.1:11434/api/tags
+</code></pre></div>
+<p>For the Jetson-B llama.cpp route, use <a href="../JETSON_B_HELPER_BACKEND/">JETSON_B_HELPER_BACKEND.md</a> and <code>bash scripts/check_jetson_b_route.sh --probe-chat</code> from the LMS host instead of the Ollama <code>/api/tags</code> check.</p>
+<p>From the Headscale VPS:</p>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>status<span class="w"> </span>classhub-headscale<span class="w"> </span>--no-pager
+systemctl<span class="w"> </span>status<span class="w"> </span>classhub-headscale-backup.timer<span class="w"> </span>--no-pager
+<span class="nb">cd</span><span class="w"> </span>/srv/headscale<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>ps
+curl<span class="w"> </span>-fsS<span class="w"> </span>http://127.0.0.1:9090/metrics<span class="w"> </span>&gt;/dev/null
+</code></pre></div>
+<p>Use the Headscale VPS to confirm control-plane health, not to test public site routing.</p>
+<h2 id="related-docs">Related docs<a class="headerlink" href="#related-docs" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../PRIVATE_LLM_BACKEND/">PRIVATE_LLM_BACKEND.md</a></li>
+<li><a href="../ARCHITECTURE/">ARCHITECTURE.md</a></li>
+<li><a href="../RUNBOOK/">RUNBOOK.md</a></li>
+<li><a href="../DAY1_DEPLOY_CHECKLIST/">DAY1_DEPLOY_CHECKLIST.md</a></li>
+<li><a href="../JETSON_B_HELPER_BACKEND/">JETSON_B_HELPER_BACKEND.md</a></li>
+<li>repo ops bundle: <code>ops/headscale/README.md</code></li>
+<li>repo ops bundle: <code>ops/llm-server/README.md</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>

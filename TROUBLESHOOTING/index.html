@@ -1,0 +1,2419 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/TROUBLESHOOTING/">
+      
+      
+        <link rel="prev" href="../CURRICULUM_OPS/">
+      
+      
+        <link rel="next" href="../DISASTER_RECOVERY/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>Troubleshooting - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#troubleshooting-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Troubleshooting
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRENT_STATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Operations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FEATURE_MATURITY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Feature Maturity
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INFRASTRUCTURE_HARDENING_ROADMAP/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Infrastructure Hardening Roadmap
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CANONICAL_TRUTHS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Canonical Truths
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DAY1_DEPLOY_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Day 1 Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BOOTSTRAP_SERVER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bootstrap Server
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STAFF_ACCOUNT_OPS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Staff Account Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MINIMUM_VIABLE_OPERATOR/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Minimum Viable Operator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HEADSCALE_CONTROL_PLANE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Headscale Control Plane
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PRIVATE_LLM_BACKEND/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Private LLM Backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JETSON_B_HELPER_BACKEND/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Jetson-B Helper Backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REMOTE_HELPER_COMPUTE_CONTROL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remote Helper Compute Control
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../EVIDENCE_REMOTE_COMPUTE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remote Compute Evidence
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNBOOK/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Runbook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INCIDENT_RESPONSE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Incident Response
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRICULUM_OPS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Curriculum Ops
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#3-minute-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      3-minute baseline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fast-triage-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fast triage commands
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom index
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-site-does-not-load-over-https" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: site does not load over HTTPS
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-deploy-logs-repeated-the-token-variable-is-not-set-warnings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: deploy logs repeated The "&lt;token&gt;" variable is not set warnings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-helperchat-fails-with-502ollama_error-or-503busy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: /helper/chat fails with 502/ollama_error or 503/busy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-helperchat-fails-with-403-csrf-page" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: /helper/chat fails with 403 CSRF page
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-student-join-shows-security-check-blocked-the-join-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: student join shows "Security check blocked the join request"
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-smoke-says-teacher-login-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: smoke says teacher login failed
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-accessibility-smoke-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: accessibility smoke fails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-helper-or-classhub-container-unhealthyrestarting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: helper or classhub container unhealthy/restarting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-helper-tests-fail-with-current-transaction-is-aborted" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: helper tests fail with current transaction is aborted
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-teacher-invite-email-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: teacher invite email fails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-helper-returns-policy-redirect-instead-of-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: helper returns policy redirect instead of answer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-student-join-fails-with-invite-related-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: student join fails with invite-related error
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-admin-login-blocked-by-otp-requirement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: admin login blocked by OTP requirement
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-browser-shows-a-usernamepassword-popup-before-adminlogin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: browser shows a username/password popup before /admin/login/
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-teach-redirects-to-teach2fasetup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: /teach redirects to /teach/2fa/setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-class-content-disappeared-after-rebuildreset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: class content disappeared after rebuild/reset
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-ci-dependency-security-job-fails-pip-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: CI dependency security job fails (pip-audit)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-500-internal-server-error-on-a-page-load" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: 500 Internal Server Error on a page load
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-script-fails-with-django_secret_key-is-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: Script fails with "DJANGO_SECRET_KEY is required"
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#escalation-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      Escalation criteria
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-patterns-to-avoid" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anti-patterns to avoid
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DISASTER_RECOVERY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Disaster Recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REPORTING_REHEARSAL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reporting Rehearsal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RESTORE_REHEARSAL_LOG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Restore Rehearsal Log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TURNOVER_PACKET/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Turnover Packet
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TURNOVER_DRILL_LOG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Turnover Drill Log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OPS_CADENCE_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ops Cadence Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RELEASING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Releasing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DEVELOPMENT/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#3-minute-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      3-minute baseline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fast-triage-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fast triage commands
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom index
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-site-does-not-load-over-https" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: site does not load over HTTPS
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-deploy-logs-repeated-the-token-variable-is-not-set-warnings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: deploy logs repeated The "&lt;token&gt;" variable is not set warnings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-helperchat-fails-with-502ollama_error-or-503busy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: /helper/chat fails with 502/ollama_error or 503/busy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-helperchat-fails-with-403-csrf-page" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: /helper/chat fails with 403 CSRF page
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-student-join-shows-security-check-blocked-the-join-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: student join shows "Security check blocked the join request"
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-smoke-says-teacher-login-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: smoke says teacher login failed
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-accessibility-smoke-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: accessibility smoke fails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-helper-or-classhub-container-unhealthyrestarting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: helper or classhub container unhealthy/restarting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-helper-tests-fail-with-current-transaction-is-aborted" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: helper tests fail with current transaction is aborted
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-teacher-invite-email-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: teacher invite email fails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-helper-returns-policy-redirect-instead-of-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: helper returns policy redirect instead of answer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-student-join-fails-with-invite-related-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: student join fails with invite-related error
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-admin-login-blocked-by-otp-requirement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: admin login blocked by OTP requirement
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-browser-shows-a-usernamepassword-popup-before-adminlogin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: browser shows a username/password popup before /admin/login/
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-teach-redirects-to-teach2fasetup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: /teach redirects to /teach/2fa/setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-class-content-disappeared-after-rebuildreset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: class content disappeared after rebuild/reset
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-ci-dependency-security-job-fails-pip-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: CI dependency security job fails (pip-audit)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-500-internal-server-error-on-a-page-load" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: 500 Internal Server Error on a page load
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symptom-script-fails-with-django_secret_key-is-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptom: Script fails with "DJANGO_SECRET_KEY is required"
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#escalation-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      Escalation criteria
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-patterns-to-avoid" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anti-patterns to avoid
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="troubleshooting-guide">Troubleshooting Guide<a class="headerlink" href="#troubleshooting-guide" title="Permanent link">&para;</a></h1>
+<p>Use this page when something is broken right now.</p>
+<p>Flow:</p>
+<ol>
+<li>confirm failure once</li>
+<li>capture logs</li>
+<li>classify symptom</li>
+<li>apply smallest reversible fix</li>
+</ol>
+<pre class="mermaid"><code>flowchart TD
+  A[Incident] --&gt; B[system_doctor --smoke-mode basic]
+  B --&gt; C{First failing step}
+  C --&gt;|healthz/helper| D[Check container health + logs]
+  C --&gt;|TLS/domain| E[Check Caddy template + DNS]
+  C --&gt;|auth/teach| F[Check teacher/admin session + OTP]
+  C --&gt;|helper backend| G[Check Ollama/OpenAI config]
+  D --&gt; H[Apply smallest fix]
+  E --&gt; H
+  F --&gt; H
+  G --&gt; H</code></pre>
+<h2 id="3-minute-baseline">3-minute baseline<a class="headerlink" href="#3-minute-baseline" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/system_doctor.sh<span class="w"> </span>--smoke-mode<span class="w"> </span>basic
+bash<span class="w"> </span>scripts/check_llm_backend.sh<span class="w"> </span>--probe-chat
+</code></pre></div>
+<p>If this fails early, fix the first failing step before changing anything else.</p>
+<h2 id="fast-triage-commands">Fast triage commands<a class="headerlink" href="#fast-triage-commands" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>ps
+curl<span class="w"> </span>-I<span class="w"> </span>http://localhost/healthz
+curl<span class="w"> </span>-I<span class="w"> </span>http://localhost/upstream-healthz
+curl<span class="w"> </span>-I<span class="w"> </span>http://localhost/helper/healthz
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>classhub_web<span class="w"> </span>helper_web<span class="w"> </span>caddy
+</code></pre></div>
+<h2 id="symptom-index">Symptom index<a class="headerlink" href="#symptom-index" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Check first</th>
+<th>Most likely area</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Site not loading over HTTPS</td>
+<td>Caddy logs + <code>.env</code> domain/template</td>
+<td>Edge routing/TLS</td>
+</tr>
+<tr>
+<td><code>/helper/chat</code> failing (502 / <code>ollama_error</code> or 503 / <code>busy</code>)</td>
+<td><code>helper_web</code> logs + Ollama tags</td>
+<td>Helper backend/model/queue saturation</td>
+</tr>
+<tr>
+<td>Private LLM check failing before smoke</td>
+<td><code>bash scripts/check_llm_backend.sh --probe-chat</code></td>
+<td>Tailnet DNS/auth/upstream reachability</td>
+</tr>
+<tr>
+<td><code>/helper/chat</code> failing with 403 CSRF page</td>
+<td>Browser request headers (<code>Referer</code>, <code>X-CSRFToken</code>, <code>Cookie</code>) + <code>classhub_web</code> logs</td>
+<td>CSRF/referrer/session</td>
+</tr>
+<tr>
+<td>Student join shows "Security check blocked the join request"</td>
+<td><code>/join</code> response code + cookie secure flags in <code>.env</code></td>
+<td>CSRF cookie transport mismatch</td>
+</tr>
+<tr>
+<td>Teacher login smoke fails</td>
+<td>smoke credentials + login response path</td>
+<td>Auth/config mismatch</td>
+</tr>
+<tr>
+<td>Accessibility smoke fails (<code>scripts/a11y_smoke.sh</code>)</td>
+<td>Playwright install + teacher session/bootstrap fixtures</td>
+<td>Tooling/session/markup regression</td>
+</tr>
+<tr>
+<td>Container unhealthy/restarting</td>
+<td>service logs + DB auth</td>
+<td>Boot/runtime dependency</td>
+</tr>
+<tr>
+<td>Helper returns policy redirect unexpectedly</td>
+<td>topic filter mode + scope context</td>
+<td>Policy config</td>
+</tr>
+<tr>
+<td>Admin blocked by OTP</td>
+<td>admin device enrollment</td>
+<td>Auth hardening</td>
+</tr>
+<tr>
+<td>Content missing after reset/rebuild</td>
+<td>class/module records</td>
+<td>Data reset/reseed</td>
+</tr>
+<tr>
+<td>Deploy shows <code>The "&lt;token&gt;" variable is not set</code> warnings</td>
+<td><code>compose/.env</code> secrets with <code>$</code></td>
+<td>Docker Compose interpolation</td>
+</tr>
+<tr>
+<td>Student join says "invite required" or "invite is full"</td>
+<td>class enrollment mode + invite status</td>
+<td>Enrollment controls</td>
+</tr>
+<tr>
+<td>500 Internal Server Error on a page load</td>
+<td>Django log stack trace (<code>TemplateSyntaxError</code>)</td>
+<td>UI/Template formatting</td>
+</tr>
+<tr>
+<td>Script fails with "DJANGO_SECRET_KEY is required"</td>
+<td>Active virtual environment or Docker status</td>
+<td>Environment/Secret sourcing</td>
+</tr>
+</tbody>
+</table>
+<h2 id="symptom-site-does-not-load-over-https">Symptom: site does not load over HTTPS<a class="headerlink" href="#symptom-site-does-not-load-over-https" title="Permanent link">&para;</a></h2>
+<p>Common causes:</p>
+<ul>
+<li>wrong Caddy template mounted</li>
+<li>wrong <code>DOMAIN</code></li>
+<li>ACME/DNS mismatch</li>
+</ul>
+<p>Checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>inspect<span class="w"> </span>classhub_caddy<span class="w"> </span>--format<span class="w"> </span><span class="s1">&#39;{{range .Mounts}}{{println .Source &quot;-&gt;&quot; .Destination}}{{end}}&#39;</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>caddy
+grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;^(CADDYFILE_TEMPLATE|DOMAIN)=&#39;</span><span class="w"> </span>.env
+</code></pre></div>
+<p>Look for:</p>
+<ul>
+<li>expected template (<code>Caddyfile.domain</code> or <code>Caddyfile.domain.assets</code> for public TLS)</li>
+<li>correct domain in logs and <code>.env</code></li>
+<li>ACME identifier/certificate errors</li>
+</ul>
+<h2 id="symptom-deploy-logs-repeated-the-token-variable-is-not-set-warnings">Symptom: deploy logs repeated <code>The "&lt;token&gt;" variable is not set</code> warnings<a class="headerlink" href="#symptom-deploy-logs-repeated-the-token-variable-is-not-set-warnings" title="Permanent link">&para;</a></h2>
+<p>Example signal:</p>
+<div class="highlight"><pre><span></span><code>WARN[0000] The &quot;BA1VKkxkjyEBba&quot; variable is not set. Defaulting to a blank string.
+</code></pre></div>
+<p>Common cause:</p>
+<ul>
+<li>a secret in <code>compose/.env</code> contains an unescaped <code>$</code> (most often <code>CADDY_ADMIN_BASIC_AUTH_HASH</code> bcrypt value)</li>
+</ul>
+<p>Fix:</p>
+<ul>
+<li>wrap the value in single quotes, for example:</li>
+<li><code>CADDY_ADMIN_BASIC_AUTH_HASH='$2a$14$...'</code></li>
+<li>or escape dollars as <code>$$</code>:</li>
+<li><code>CADDY_ADMIN_BASIC_AUTH_HASH=$$2a$$14$$...</code></li>
+</ul>
+<p>Then re-run:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/validate_env_secrets.sh
+bash<span class="w"> </span>scripts/deploy_with_smoke.sh
+</code></pre></div>
+<h2 id="symptom-helperchat-fails-with-502ollama_error-or-503busy">Symptom: <code>/helper/chat</code> fails with 502/<code>ollama_error</code> or 503/<code>busy</code><a class="headerlink" href="#symptom-helperchat-fails-with-502ollama_error-or-503busy" title="Permanent link">&para;</a></h2>
+<p>Common causes:</p>
+<ul>
+<li>Ollama not ready</li>
+<li>model not pulled</li>
+<li><code>OLLAMA_BASE_URL</code> mismatch</li>
+<li>bundled Ollama only listening on localhost instead of <code>0.0.0.0:11434</code> inside its container</li>
+<li>mixed canonical/legacy helper env keys (<code>LLM_*</code> vs <code>HELPER_LLM_BACKEND</code> / <code>OLLAMA_*</code>)</li>
+<li><code>LLM_API_KEY</code> mismatch between LMS and private proxy</li>
+<li>helper worker timeout too strict for retry budget</li>
+<li>helper request queue is saturated on CPU-bound inference</li>
+<li>the local smoke model/context is too large for the LMS host RAM budget</li>
+</ul>
+<p>Checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>helper_web
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>ollama
+curl<span class="w"> </span>http://localhost:11434/api/tags
+bash<span class="w"> </span>scripts/check_llm_backend.sh<span class="w"> </span>--probe-chat
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>ollama<span class="w"> </span>sh<span class="w"> </span>-lc<span class="w"> </span><span class="s1">&#39;echo &quot;${OLLAMA_HOST:-}&quot; &amp;&amp; ollama list&#39;</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>helper_web<span class="w"> </span>env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;^(LLM_BACKEND|HELPER_LLM_BACKEND|LLM_BASE_URL|OLLAMA_BASE_URL|LLM_MODEL|OLLAMA_MODEL|LLM_TIMEOUT_SECONDS|OLLAMA_TIMEOUT_SECONDS|HELPER_GUNICORN_TIMEOUT_SECONDS|HELPER_BACKEND_MAX_ATTEMPTS|HELPER_QUEUE_MAX_WAIT_SECONDS|HELPER_BACKOFF_SECONDS)=&#39;</span>
+bash<span class="w"> </span>scripts/validate_env_secrets.sh
+</code></pre></div>
+<p>Fix pattern:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>local-ollama<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>ollama
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>ollama<span class="w"> </span>ollama<span class="w"> </span>pull<span class="w"> </span>llama3.2:1b
+<span class="c1"># Keep helper timeout above queue+retry budget (env-check enforces this).</span>
+<span class="c1"># Fast safe defaults for deploy smoke:</span>
+<span class="c1"># HELPER_GUNICORN_TIMEOUT_SECONDS=180</span>
+<span class="c1"># OLLAMA_TIMEOUT_SECONDS=20</span>
+<span class="c1"># HELPER_BACKEND_MAX_ATTEMPTS=1</span>
+<span class="c1"># SMOKE_HELPER_CHAT_RETRIES=6</span>
+<span class="c1"># SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS=30</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>helper_web
+</code></pre></div>
+<p>Bundled local Ollama should expose the server to other Compose services with:</p>
+<div class="highlight"><pre><span></span><code>OLLAMA_HOST=0.0.0.0:11434
+</code></pre></div>
+<p>The shipped Compose file now sets that automatically and the doctor waits for Ollama to become healthy before probe chat.</p>
+<p>If the local smoke lane still fails on a small VPS, reduce the local smoke profile before treating it as a private-backend design problem. <code>make smoke-full</code> now uses a bounded local profile, but very small hosts may still need:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">SMOKE_FULL_LOCAL_OLLAMA_MODEL</span><span class="o">=</span>llama3.2:1b<span class="w"> </span><span class="se">\</span>
+<span class="nv">SMOKE_FULL_LOCAL_LLM_NUM_CTX</span><span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">SMOKE_FULL_LOCAL_LLM_MAX_TOKENS</span><span class="o">=</span><span class="m">96</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">SMOKE_FULL_LOCAL_HELPER_BACKEND_MAX_ATTEMPTS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+make<span class="w"> </span>smoke-full
+</code></pre></div>
+<p>If the serious deployment target is a private GPU host, prefer solving that path there with a Gemma-family model instead of trying to turn the LMS VPS into the long-term inference node.</p>
+<p>If both canonical and legacy helper keys are present, keep them aligned:</p>
+<div class="highlight"><pre><span></span><code>LLM_BACKEND=ollama
+HELPER_LLM_BACKEND=ollama
+LLM_BASE_URL=http://ollama:11434
+OLLAMA_BASE_URL=http://ollama:11434
+LLM_MODEL=llama3.2:1b
+OLLAMA_MODEL=llama3.2:1b
+LLM_TIMEOUT_SECONDS=30
+OLLAMA_TIMEOUT_SECONDS=30
+</code></pre></div>
+<p>If using non-compose Ollama, ensure <code>OLLAMA_BASE_URL</code> points to a host reachable from containers.
+If you are using a private GPU node, ensure <code>LLM_BASE_URL</code>/<code>OLLAMA_BASE_URL</code> points at the tailnet-only hostname and that the private proxy/API key still match.
+If this deployment uses Headscale, confirm the Headscale VPS is healthy as a control plane, but do not treat it as a request-path proxy for the model traffic.</p>
+<p>Recommended separation check:</p>
+<ul>
+<li>public LMS stays at <code>https://lms.creatempls.org</code></li>
+<li>private model endpoint stays at a tailnet-only hostname such as <code>https://llm-gpu.tail.creatempls.org</code></li>
+<li>only Homework Helper talks to that private endpoint</li>
+</ul>
+<p>If bounded remote helper compute control is enabled, also check:</p>
+<ul>
+<li>the class lease on <code>/teach/class/&lt;id&gt;</code> is active for the intended class</li>
+<li>the remote-helper state is actually <code>ready</code>; <code>requested</code> or <code>starting</code> still stay on local/default helper compute</li>
+<li>the helper internal remote-compute status/control URLs are configured</li>
+<li><code>CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1</code> and <code>CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1</code> are both set for the intended deployment</li>
+<li>the helper healthcheck URL is configured if your orchestration bridge needs a separate readiness signal</li>
+<li>provider control calls remain server-side; no browser should talk to the remote provider directly</li>
+</ul>
+<p>Useful class-day signals:</p>
+<ul>
+<li><code>/teach/class/&lt;id&gt;</code> shows whether helper will use the remote backend right now</li>
+<li><code>remote_compute_fallback_local</code> in helper logs means the remote path degraded and the request retried locally</li>
+<li>a <code>degraded</code> or <code>error</code> state should not send students directly to the provider; it should keep them on the LMS-side helper path</li>
+</ul>
+<h2 id="symptom-helperchat-fails-with-403-csrf-page">Symptom: <code>/helper/chat</code> fails with 403 CSRF page<a class="headerlink" href="#symptom-helperchat-fails-with-403-csrf-page" title="Permanent link">&para;</a></h2>
+<p>Example failure signal:</p>
+<div class="highlight"><pre><span></span><code>Forbidden (403)
+CSRF verification failed. Request aborted.
+... requires a &quot;Referer header&quot; ... but none was sent.
+</code></pre></div>
+<p>Common causes:</p>
+<ul>
+<li>request was sent by <code>curl</code>/script without CSRF cookie + <code>X-CSRFToken</code> + <code>Referer</code> (expected to fail)</li>
+<li>browser privacy extension/policy strips <code>Referer</code></li>
+<li>mixed hosts (for example <code>localhost</code> vs <code>lms.example.org</code>) causing cookie/referrer mismatch</li>
+</ul>
+<p>Checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--since<span class="o">=</span>10m<span class="w"> </span>classhub_web<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-Ei<span class="w"> </span><span class="s1">&#39;csrf|forbidden|referer|helper/chat&#39;</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>helper_web<span class="w"> </span>env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;^(CSRF_TRUSTED_ORIGINS|DJANGO_ALLOWED_HOSTS)=&#39;</span>
+</code></pre></div>
+<p>In browser DevTools (<code>Network</code> -&gt; <code>helper/chat</code>), verify request headers include:</p>
+<ul>
+<li><code>Referer: https://&lt;your-domain&gt;/...</code></li>
+<li><code>X-CSRFToken: ...</code></li>
+<li><code>Cookie: csrftoken=...; sessionid=...</code></li>
+</ul>
+<p>Notes:</p>
+<ul>
+<li>A raw <code>curl</code> POST to <code>/helper/chat</code> is expected to fail CSRF unless you include valid session + CSRF headers.</li>
+<li>The helper widget now surfaces structured errors as <code>Helper error: &lt;error_code&gt; (request &lt;id&gt;)</code>; CSRF HTML responses map to <code>csrf_forbidden</code>.</li>
+</ul>
+<h2 id="symptom-student-join-shows-security-check-blocked-the-join-request">Symptom: student join shows "Security check blocked the join request"<a class="headerlink" href="#symptom-student-join-shows-security-check-blocked-the-join-request" title="Permanent link">&para;</a></h2>
+<p>Example failure signal:</p>
+<div class="highlight"><pre><span></span><code>Security check blocked the join request. Reload and try again.
+</code></pre></div>
+<p>Common cause (local/day-1 HTTP mode):</p>
+<ul>
+<li><code>DJANGO_DEBUG=0</code> with <code>http://localhost</code>, but <code>DJANGO_CSRF_COOKIE_SECURE</code> and/or <code>DJANGO_SESSION_COOKIE_SECURE</code> are unset or <code>1</code>.</li>
+<li>Browser never sends secure cookies over HTTP, so <code>/join</code> POST fails CSRF with HTTP <code>403</code>.</li>
+</ul>
+<p>Checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;^(CADDYFILE_TEMPLATE|SMOKE_BASE_URL|DJANGO_DEBUG|DJANGO_SESSION_COOKIE_SECURE|DJANGO_CSRF_COOKIE_SECURE)=&#39;</span><span class="w"> </span>.env
+</code></pre></div>
+<p>Expected for local HTTP:</p>
+<ul>
+<li><code>CADDYFILE_TEMPLATE=Caddyfile.local</code></li>
+<li><code>SMOKE_BASE_URL=http://localhost</code></li>
+<li><code>DJANGO_SESSION_COOKIE_SECURE=0</code></li>
+<li><code>DJANGO_CSRF_COOKIE_SECURE=0</code></li>
+</ul>
+<p>Then run:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/validate_env_secrets.sh
+<span class="nb">cd</span><span class="w"> </span>compose<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--force-recreate<span class="w"> </span>classhub_web<span class="w"> </span>helper_web<span class="w"> </span>caddy
+</code></pre></div>
+<h2 id="symptom-smoke-says-teacher-login-failed">Symptom: smoke says teacher login failed<a class="headerlink" href="#symptom-smoke-says-teacher-login-failed" title="Permanent link">&para;</a></h2>
+<p>Example failure signal: <code>teacher login returned 200</code>.</p>
+<p>Common causes:</p>
+<ul>
+<li>smoke credentials not present or stale</li>
+<li>login route returns form again instead of redirect/session success</li>
+<li>CSRF/host/cookie settings drift</li>
+</ul>
+<p>Checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;^(SMOKE_|DJANGO_ALLOWED_HOSTS|CSRF_TRUSTED_ORIGINS)=&#39;</span><span class="w"> </span>.env
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>classhub_web
+</code></pre></div>
+<p>Then re-run strict smoke:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/smoke_check.sh<span class="w"> </span>--strict
+</code></pre></div>
+<h2 id="symptom-accessibility-smoke-fails">Symptom: accessibility smoke fails<a class="headerlink" href="#symptom-accessibility-smoke-fails" title="Permanent link">&para;</a></h2>
+<p>Example failure signals:</p>
+<ul>
+<li><code>browserType.launch: Executable doesn't exist...</code></li>
+<li><code>expected authenticated teacher view but was redirected to /teach/login...</code></li>
+<li><code>[a11y] FAIL: found N violation(s) at critical+ impact</code></li>
+</ul>
+<p>Checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/system_doctor.sh<span class="w"> </span>--smoke-mode<span class="w"> </span>golden
+bash<span class="w"> </span>scripts/a11y_smoke.sh<span class="w"> </span>--compose-mode<span class="w"> </span>prod<span class="w"> </span>--install-browsers
+</code></pre></div>
+<p>If browser install is still missing:</p>
+<div class="highlight"><pre><span></span><code>npm<span class="w"> </span>--prefix<span class="w"> </span>scripts/a11y<span class="w"> </span>run<span class="w"> </span>install-browsers
+</code></pre></div>
+<p>If teacher routes redirect to login:</p>
+<ol>
+<li>Confirm golden fixtures completed successfully.</li>
+<li>Confirm <code>smoke_teacher</code> exists in Class Hub and is active staff.</li>
+<li>Re-run <code>scripts/a11y_smoke.sh</code> (it mints a fresh server-side session each run).</li>
+</ol>
+<p>If violations remain:</p>
+<ol>
+<li>Fix the exact selector(s) reported by axe.</li>
+<li>Re-run <code>scripts/a11y_smoke.sh</code>.</li>
+<li>Re-run strict smoke before deploy:</li>
+<li><code>bash scripts/smoke_check.sh --strict</code></li>
+</ol>
+<h2 id="symptom-helper-or-classhub-container-unhealthyrestarting">Symptom: helper or classhub container unhealthy/restarting<a class="headerlink" href="#symptom-helper-or-classhub-container-unhealthyrestarting" title="Permanent link">&para;</a></h2>
+<p>Common causes:</p>
+<ul>
+<li>DB credential mismatch</li>
+<li>migration/import-time failure</li>
+<li>route/view symbol mismatch after partial deploy</li>
+</ul>
+<p>Checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>ps<span class="w"> </span>-a
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>helper_web
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>classhub_web
+</code></pre></div>
+<p>Look for:</p>
+<ul>
+<li><code>password authentication failed</code></li>
+<li>migration errors</li>
+<li>import/attribute errors</li>
+</ul>
+<h2 id="symptom-helper-tests-fail-with-current-transaction-is-aborted">Symptom: helper tests fail with <code>current transaction is aborted</code><a class="headerlink" href="#symptom-helper-tests-fail-with-current-transaction-is-aborted" title="Permanent link">&para;</a></h2>
+<p>Common cause:</p>
+<ul>
+<li>helper best-effort classhub table access in environments missing classhub tables</li>
+</ul>
+<p>Recovery:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build<span class="w"> </span>helper_web
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>helper_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>tutor.tests.HelperChatAuthTests
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>helper_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>tutor.tests
+</code></pre></div>
+<p>Interpretation:</p>
+<ul>
+<li>warning logs about missing classhub tables can be expected</li>
+<li>hard failure is persistent transaction-aborted state on later queries</li>
+</ul>
+<h2 id="symptom-teacher-invite-email-fails">Symptom: teacher invite email fails<a class="headerlink" href="#symptom-teacher-invite-email-fails" title="Permanent link">&para;</a></h2>
+<p>Common causes:</p>
+<ul>
+<li>SMTP host typo</li>
+<li>DNS failure in container</li>
+<li>provider SMTP AUTH policy restrictions</li>
+</ul>
+<p>Checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+grep<span class="w"> </span>-nE<span class="w"> </span><span class="s1">&#39;^(DJANGO_EMAIL_|TEACHER_INVITE_FROM_EMAIL)=&#39;</span><span class="w"> </span>.env
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>classhub_web<span class="w"> </span>env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;^(DJANGO_EMAIL_|TEACHER_INVITE_FROM_EMAIL)&#39;</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;&#39;PY&#39;</span>
+<span class="s">import os, socket</span>
+<span class="s">host = os.getenv(&quot;DJANGO_EMAIL_HOST&quot;,&quot;&quot;)</span>
+<span class="s">print(&quot;HOST:&quot;, host)</span>
+<span class="s">print(&quot;DNS:&quot;, socket.gethostbyname(host))</span>
+<span class="s">PY</span>
+</code></pre></div>
+<p>Office 365 baseline:</p>
+<ul>
+<li>host <code>smtp.office365.com</code></li>
+<li>port <code>587</code></li>
+<li><code>DJANGO_EMAIL_USE_TLS=1</code></li>
+</ul>
+<h2 id="symptom-helper-returns-policy-redirect-instead-of-answer">Symptom: helper returns policy redirect instead of answer<a class="headerlink" href="#symptom-helper-returns-policy-redirect-instead-of-answer" title="Permanent link">&para;</a></h2>
+<p>Common cause:</p>
+<ul>
+<li>strict topic filtering and prompt outside allowed scope</li>
+</ul>
+<p>Check:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>helper_web<span class="w"> </span>env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;^HELPER_TOPIC_FILTER_MODE=&#39;</span>
+</code></pre></div>
+<p>Behavior:</p>
+<ul>
+<li><code>strict</code> intentionally short-circuits out-of-scope prompts</li>
+<li><code>soft</code> is less restrictive</li>
+</ul>
+<h2 id="symptom-student-join-fails-with-invite-related-error">Symptom: student join fails with invite-related error<a class="headerlink" href="#symptom-student-join-fails-with-invite-related-error" title="Permanent link">&para;</a></h2>
+<p>Example failure signals:</p>
+<ul>
+<li><code>"error":"invite_required"</code> when posting to <code>/join</code> with class code</li>
+<li><code>"error":"invite_seat_cap_reached"</code> when using invite link</li>
+</ul>
+<p>Common causes:</p>
+<ul>
+<li>class is set to <code>invite_only</code> and student used class code flow</li>
+<li>invite link seat cap (<code>max_uses</code>) was reached</li>
+<li>invite was disabled or expired</li>
+</ul>
+<p>Checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>shell<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
+<span class="s2">&quot;from hub.models import Class, ClassInviteLink; print(list(Class.objects.values_list(&#39;id&#39;,&#39;name&#39;,&#39;enrollment_mode&#39;)[:20])); print(list(ClassInviteLink.objects.order_by(&#39;-id&#39;).values_list(&#39;id&#39;,&#39;classroom_id&#39;,&#39;is_active&#39;,&#39;max_uses&#39;,&#39;use_count&#39;,&#39;expires_at&#39;)[:20]))&quot;</span>
+</code></pre></div>
+<p>Fix pattern:</p>
+<ol>
+<li>For class-code joins, set class mode back to <code>open</code> if appropriate.</li>
+<li>For invite-only cohorts, create a fresh invite link or raise seat cap.</li>
+<li>Disable stale/accidentally shared links and distribute the new link.</li>
+</ol>
+<h2 id="symptom-admin-login-blocked-by-otp-requirement">Symptom: admin login blocked by OTP requirement<a class="headerlink" href="#symptom-admin-login-blocked-by-otp-requirement" title="Permanent link">&para;</a></h2>
+<p>Cause:</p>
+<ul>
+<li>admin 2FA enforced with no enrolled device</li>
+</ul>
+<p>Fix:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>bootstrap_admin_otp<span class="w"> </span>--username<span class="w"> </span>&lt;admin_username&gt;<span class="w"> </span>--with-static-backup
+</code></pre></div>
+<p>If no superuser exists:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>createsuperuser
+</code></pre></div>
+<h2 id="symptom-browser-shows-a-usernamepassword-popup-before-adminlogin">Symptom: browser shows a username/password popup before <code>/admin/login/</code><a class="headerlink" href="#symptom-browser-shows-a-usernamepassword-popup-before-adminlogin" title="Permanent link">&para;</a></h2>
+<p>Cause:</p>
+<ul>
+<li>Caddy <code>/admin*</code> basic auth is enabled and intercepting the login route, so Django OTP login is never reached</li>
+</ul>
+<p>Checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;^(CADDY_ADMIN_BASIC_AUTH_ENABLED|CADDY_ADMIN_BASIC_AUTH_USER)=&#39;</span><span class="w"> </span>.env
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">120</span><span class="w"> </span>caddy
+</code></pre></div>
+<p>Fix:</p>
+<ol>
+<li>Deploy the updated Caddy template that exempts <code>/admin/login*</code> from edge basic auth.</li>
+<li>Restart Caddy (<code>docker compose up -d caddy</code>).</li>
+<li>Re-test <code>https://&lt;domain&gt;/admin/login/</code> and confirm Django login (with OTP) appears instead of browser auth modal.</li>
+</ol>
+<h2 id="symptom-teach-redirects-to-teach2fasetup">Symptom: <code>/teach</code> redirects to <code>/teach/2fa/setup</code><a class="headerlink" href="#symptom-teach-redirects-to-teach2fasetup" title="Permanent link">&para;</a></h2>
+<p>Cause:</p>
+<ul>
+<li>staff account is authenticated but not OTP-verified</li>
+<li><code>DJANGO_TEACHER_2FA_REQUIRED=1</code> is enabled (default)</li>
+</ul>
+<p>Fix:</p>
+<ol>
+<li>Complete setup at <code>/teach/2fa/setup</code> for that account.</li>
+<li>If the account has no device yet, enroll one with the QR/manual secret flow.</li>
+<li>If this is temporary bootstrap only, set <code>DJANGO_TEACHER_2FA_REQUIRED=0</code>, restart, then re-enable after enrollment.</li>
+</ol>
+<h2 id="symptom-class-content-disappeared-after-rebuildreset">Symptom: class content disappeared after rebuild/reset<a class="headerlink" href="#symptom-class-content-disappeared-after-rebuildreset" title="Permanent link">&para;</a></h2>
+<p>Cause:</p>
+<ul>
+<li>DB or volume reset removed class/module/material records</li>
+</ul>
+<p>Recovery:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+scripts/rebuild_coursepack.sh<span class="w"> </span>--course-slug<span class="w"> </span>piper_scratch_12_session<span class="w"> </span>--create-class
+</code></pre></div>
+<p>Then verify in <code>/teach</code> and <code>/student</code>.</p>
+<h2 id="symptom-ci-dependency-security-job-fails-pip-audit">Symptom: CI dependency security job fails (<code>pip-audit</code>)<a class="headerlink" href="#symptom-ci-dependency-security-job-fails-pip-audit" title="Permanent link">&para;</a></h2>
+<p>Cause:</p>
+<ul>
+<li>pinned package below a fixed advisory version</li>
+</ul>
+<p>Fix pattern:</p>
+<ol>
+<li>bump dependency pin</li>
+<li>rebuild services</li>
+<li>rerun service tests</li>
+<li>rerun CI/security workflow</li>
+</ol>
+<p>Verification pattern:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build<span class="w"> </span>classhub_web<span class="w"> </span>helper_web
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>hub.tests<span class="w"> </span>hub.tests_services
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>helper_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>tutor.tests
+</code></pre></div>
+<h2 id="symptom-500-internal-server-error-on-a-page-load">Symptom: 500 Internal Server Error on a page load<a class="headerlink" href="#symptom-500-internal-server-error-on-a-page-load" title="Permanent link">&para;</a></h2>
+<p>Example failure signal: Browser shows a "500 Internal Server Error", and logs show <code>django.template.exceptions.TemplateSyntaxError</code> (e.g. <code>Invalid block tag</code>).</p>
+<p>Common cause:
+- A code formatter automatically inserted newlines inside a Django template tag (e.g., <code>{% if ... %}</code>).
+- A code formatter removed required padding spaces around operators (e.g., <code>{% if var=="value" %}</code>).</p>
+<p>Fix pattern:
+1. Identify the file from the stack trace in the logs.
+2. Flatten the broken <code>{% ... %}</code> tag back onto a single line.
+3. Ensure there are spaces immediately around <code>==</code> operators.
+4. Disable or configure your IDE's HTML formatter for that specific file.</p>
+<h2 id="symptom-script-fails-with-django_secret_key-is-required">Symptom: Script fails with "DJANGO_SECRET_KEY is required"<a class="headerlink" href="#symptom-script-fails-with-django_secret_key-is-required" title="Permanent link">&para;</a></h2>
+<p>Example failure signal: <code>RuntimeError: DJANGO_SECRET_KEY is required</code> or <code>ModuleNotFoundError: No module named 'django'</code> when running a python script or <code>manage.py</code>.</p>
+<p>Common cause:
+- The script fell back to the local system Python instead of activating the <code>.venv</code> that contains Django.
+- The command was not sourced and run inside a <code>.env</code> shell.</p>
+<p>Fix pattern:
+1. Ensure you are running within Docker (where variables are bound automatically), OR
+2. Explicitly activate your virtual environment (e.g. <code>source services/classhub/.venv/bin/activate</code>) before executing the script.
+3. If running scripts locally, prefix the command with environment variables (or rely on <code>scripts/import_coursepacks.sh</code> which auto-resolves the <code>.venv</code>).</p>
+<h2 id="escalation-criteria">Escalation criteria<a class="headerlink" href="#escalation-criteria" title="Permanent link">&para;</a></h2>
+<p>Escalate to full incident workflow (<a href="../DISASTER_RECOVERY/">DISASTER_RECOVERY.md</a>) when:</p>
+<ul>
+<li>health checks fail after restart and config verification</li>
+<li>migrations fail in production</li>
+<li>repeated auth failures with no config drift</li>
+<li>data integrity concerns (missing submissions/classes unexpectedly)</li>
+</ul>
+<h2 id="anti-patterns-to-avoid">Anti-patterns to avoid<a class="headerlink" href="#anti-patterns-to-avoid" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Rebuilding everything before capturing first-failure logs.</li>
+<li>Making multiple config changes at once.</li>
+<li>Ignoring warning logs without classification.</li>
+<li>Skipping health endpoint checks.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1714 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/JETSON_B_HELPER_BACKEND/">
+      
+      
+        <link rel="prev" href="../PRIVATE_LLM_BACKEND/">
+      
+      
+        <link rel="next" href="../REMOTE_HELPER_COMPUTE_CONTROL/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>Jetson-B Helper Backend - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#jetson-b-helper-backend" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Jetson-B Helper Backend
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRENT_STATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Operations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FEATURE_MATURITY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Feature Maturity
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INFRASTRUCTURE_HARDENING_ROADMAP/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Infrastructure Hardening Roadmap
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CANONICAL_TRUTHS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Canonical Truths
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DAY1_DEPLOY_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Day 1 Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BOOTSTRAP_SERVER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bootstrap Server
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STAFF_ACCOUNT_OPS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Staff Account Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MINIMUM_VIABLE_OPERATOR/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Minimum Viable Operator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HEADSCALE_CONTROL_PLANE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Headscale Control Plane
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PRIVATE_LLM_BACKEND/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Private LLM Backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Jetson-B Helper Backend
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Jetson-B Helper Backend
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lab-mind-machine-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      Lab Mind Machine Map
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target Topology
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#headscale-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Headscale Policy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jetson-b-publish-shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jetson-B Publish Shape
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lms-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      LMS Env
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bounded-remote-compute-option" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bounded Remote Compute Option
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REMOTE_HELPER_COMPUTE_CONTROL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remote Helper Compute Control
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../EVIDENCE_REMOTE_COMPUTE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remote Compute Evidence
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNBOOK/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Runbook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INCIDENT_RESPONSE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Incident Response
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRICULUM_OPS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Curriculum Ops
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DISASTER_RECOVERY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Disaster Recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REPORTING_REHEARSAL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reporting Rehearsal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RESTORE_REHEARSAL_LOG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Restore Rehearsal Log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TURNOVER_PACKET/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Turnover Packet
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TURNOVER_DRILL_LOG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Turnover Drill Log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OPS_CADENCE_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ops Cadence Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RELEASING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Releasing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DEVELOPMENT/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lab-mind-machine-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      Lab Mind Machine Map
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target Topology
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#headscale-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Headscale Policy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jetson-b-publish-shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jetson-B Publish Shape
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lms-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      LMS Env
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bounded-remote-compute-option" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bounded Remote Compute Option
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="jetson-b-helper-backend">Jetson-B Helper Backend<a class="headerlink" href="#jetson-b-helper-backend" title="Permanent link">&para;</a></h1>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>This is the concrete route for using <code>lab_mind</code> Jetson-B as the private Homework Helper backend.</p>
+<p>This is an intentional exception to the current <code>lab_mind</code> role map. In <code>lab_mind</code>, Jetson-B is normally an edge/support node, not the main assistant or primary model host. For this ClassHub route, treat Jetson-B as a small, bounded helper-model appliance:</p>
+<ul>
+<li>use a small model only</li>
+<li>keep the endpoint tailnet-only</li>
+<li>keep browser traffic on the public LMS</li>
+<li>let Homework Helper be the only ClassHub component that talks to Jetson-B</li>
+<li>keep Headscale as reachability control only, not a request proxy</li>
+</ul>
+<h2 id="lab-mind-machine-map">Lab Mind Machine Map<a class="headerlink" href="#lab-mind-machine-map" title="Permanent link">&para;</a></h2>
+<p>Use the refreshed <code>lab_mind</code> docs as the source of truth for machine roles:</p>
+<ul>
+<li>Dell PowerEdge R900: infrastructure spine for backups, shared storage, monitoring, dashboards, Portainer, docs mirror, known-good-state archive, and operational memory</li>
+<li>Jetson-A Orin Nano: normal assistant/model node for Open WebUI, local model serving, code-assistant workflows, local docs/RAG, and browser-first educator access</li>
+<li>Jetson-B and Jetson-C: edge/support nodes for room status, service polling, local dashboards, and machine-adjacent helper roles</li>
+<li>Raspberry Pi fleet: disposable edge appliances for kiosks, displays, USB or machine bridges, signage, sensors, and cameras</li>
+<li>Headscale: private control plane for remote access and host-to-host reachability, not a public app surface</li>
+</ul>
+<p>This ClassHub route does not change that placement map. It only adds a narrowly named Jetson-B helper endpoint for this site.</p>
+<h2 id="target-topology">Target Topology<a class="headerlink" href="#target-topology" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+  Browser["Student/teacher browser"]
+  LMS["ClassHub + Homework Helper"]
+  HS["Headscale VPS&lt;br/&gt;control plane only"]
+  Jetson["lab_mind Jetson-B&lt;br/&gt;small llama.cpp /v1 API"]
+
+  Browser --&gt;|HTTPS public LMS| LMS
+  LMS --&gt;|HTTPS over tailnet&lt;br/&gt;/v1/chat/completions| Jetson
+  HS -. coordinates node identity .- LMS
+  HS -. coordinates node identity .- Jetson</code></pre>
+<h2 id="headscale-policy">Headscale Policy<a class="headerlink" href="#headscale-policy" title="Permanent link">&para;</a></h2>
+<p>Use this repo's ClassHub-specific lab policy starting point:</p>
+<ul>
+<li><code>ops/headscale/policy.lab-mind-classhub.hujson.example</code></li>
+</ul>
+<p>It defines:</p>
+<ul>
+<li><code>tag:classhub-lms</code> for the LMS/helper host</li>
+<li><code>tag:lab-mind-jetson-b</code> for the Jetson-B helper-model host</li>
+<li><code>tag:ops</code> for a narrow operator workstation, if needed</li>
+</ul>
+<p>The default allowed model path is intentionally small:</p>
+<ul>
+<li><code>tag:classhub-lms</code> -&gt; <code>tag:lab-mind-jetson-b:443</code></li>
+</ul>
+<p>That assumes Jetson-B publishes a localhost auth proxy through Tailscale Serve as tailnet-only HTTPS. Keep raw model ports local to Jetson-B.</p>
+<h2 id="jetson-b-publish-shape">Jetson-B Publish Shape<a class="headerlink" href="#jetson-b-publish-shape" title="Permanent link">&para;</a></h2>
+<p>The current <code>lab_mind</code> Jetson-B compose file only runs a status page. Add this repo's Jetson-B route overlay to run a small llama.cpp backend plus a bearer-token auth proxy:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lab_mind
+<span class="nv">CLASSHUB_LAB_MIND_ROUTE_ROOT</span><span class="o">=</span>/srv/classhub/app/ops/lab-mind<span class="w"> </span><span class="se">\</span>
+<span class="nv">CLASSHUB_JETSON_LLM_API_KEY</span><span class="o">=</span>REPLACE_ME_WITH_PRIVATE_MODEL_TOKEN<span class="w"> </span><span class="se">\</span>
+<span class="nv">CLASSHUB_JETSON_MODEL</span><span class="o">=</span>/models/classhub/REPLACE_ME-small.gguf<span class="w"> </span><span class="se">\</span>
+<span class="nv">CLASSHUB_JETSON_CTX_SIZE</span><span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">CLASSHUB_JETSON_N_GPU_LAYERS</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span>compose/jetson-b.compose.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span>/srv/classhub/app/ops/lab-mind/jetson-b-classhub-route.compose.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>up<span class="w"> </span>-d
+</code></pre></div>
+<p>The overlay adds:</p>
+<ul>
+<li><code>classhub_llamacpp</code>, a small OpenAI-compatible llama.cpp <code>/v1</code> server</li>
+<li><code>classhub_llm_proxy</code>, a Caddy auth proxy that:</li>
+<li>accepts only <code>Authorization: Bearer &lt;CLASSHUB_JETSON_LLM_API_KEY&gt;</code></li>
+<li>reverse-proxies to <code>classhub_llamacpp:8080</code></li>
+<li>binds only <code>127.0.0.1:18080</code> on Jetson-B</li>
+</ul>
+<p>Publish the localhost-only proxy to the tailnet from Jetson-B:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>tailscale<span class="w"> </span>up<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--login-server<span class="w"> </span>https://hs.creatempls.org<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hostname<span class="w"> </span>jetson-b<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--advertise-tags<span class="w"> </span>tag:lab-mind-jetson-b
+
+sudo<span class="w"> </span>tailscale<span class="w"> </span>serve<span class="w"> </span>--bg<span class="w"> </span>--https<span class="o">=</span><span class="m">443</span><span class="w"> </span>http://127.0.0.1:18080
+tailscale<span class="w"> </span>serve<span class="w"> </span>status
+</code></pre></div>
+<p>Do not publish llama.cpp's raw <code>8080</code> port publicly. The normal ClassHub route should be:</p>
+<p>LMS/helper host -&gt; tailnet HTTPS -&gt; Jetson-B localhost auth proxy -&gt; compose-private llama.cpp.</p>
+<h2 id="lms-env">LMS Env<a class="headerlink" href="#lms-env" title="Permanent link">&para;</a></h2>
+<p>After the LMS host is enrolled in the same Headscale tailnet, use:</p>
+<ul>
+<li><code>compose/env.jetson-b.example</code></li>
+</ul>
+<p>Expected production values:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">COMPOSE_LOCAL_OLLAMA_AUTO</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">LLM_ENABLED</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">LLM_BACKEND</span><span class="o">=</span>openai_compatible
+<span class="nv">LLM_BASE_URL</span><span class="o">=</span>https://jetson-b.tail.creatempls.org
+<span class="nv">LLM_API_KEY</span><span class="o">=</span>REPLACE_ME_WITH_PRIVATE_MODEL_TOKEN
+<span class="nv">LLM_MODEL</span><span class="o">=</span>REPLACE_ME_WITH_LLAMA_CPP_MODEL_ID
+<span class="nv">HELPER_REMOTE_MODE_ACKNOWLEDGED</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
+<p>Use <code>openai_compatible</code> because llama.cpp exposes <code>/v1/chat/completions</code>, not the Ollama <code>/api/chat</code> shape.</p>
+<h2 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h2>
+<p>From the LMS host:</p>
+<div class="highlight"><pre><span></span><code>bash<span class="w"> </span>scripts/check_jetson_b_route.sh<span class="w"> </span>--probe-chat
+bash<span class="w"> </span>scripts/check_llm_backend.sh<span class="w"> </span>--probe-chat
+</code></pre></div>
+<p>The first command verifies the raw private route to Jetson-B. The second verifies that Homework Helper's configured backend can use it.</p>
+<p>If the first command fails:</p>
+<ul>
+<li>confirm both nodes are present in Headscale</li>
+<li>confirm the LMS node has <code>tag:classhub-lms</code></li>
+<li>confirm Jetson-B has <code>tag:lab-mind-jetson-b</code></li>
+<li>confirm Tailscale Serve is active on Jetson-B</li>
+<li>confirm <code>classhub_llamacpp</code> and <code>classhub_llm_proxy</code> are running in the <code>lab_mind</code> compose stack</li>
+<li>confirm the Jetson-B endpoint returns <code>/v1/models</code></li>
+</ul>
+<p>If the first command passes but <code>check_llm_backend.sh</code> fails:</p>
+<ul>
+<li>check <code>LLM_BACKEND=openai_compatible</code></li>
+<li>check <code>LLM_BASE_URL</code></li>
+<li>check <code>LLM_API_KEY</code></li>
+<li>check <code>LLM_MODEL</code></li>
+<li>check Homework Helper logs for provider/auth/timeout errors</li>
+</ul>
+<h2 id="bounded-remote-compute-option">Bounded Remote Compute Option<a class="headerlink" href="#bounded-remote-compute-option" title="Permanent link">&para;</a></h2>
+<p>This doc prepares the steady private backend path. If you want Jetson-B to be used only during staff-activated class windows, keep <code>LLM_BASE_URL</code> on the local/default backend and set the <code>REMOTE_LLM_*</code> values to the Jetson-B endpoint.</p>
+<p>Do not enable <code>CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1</code> until an activate/health/stop bridge exists for the Jetson-B path. The remote-compute feature expects a server-side control bridge; Headscale routing alone is only the private network path.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>

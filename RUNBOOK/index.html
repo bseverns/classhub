@@ -1,0 +1,3030 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/RUNBOOK/">
+      
+      
+        <link rel="prev" href="../EVIDENCE_REMOTE_COMPUTE/">
+      
+      
+        <link rel="next" href="../INCIDENT_RESPONSE/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>Runbook - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#runbook" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Runbook
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRENT_STATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Operations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FEATURE_MATURITY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Feature Maturity
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INFRASTRUCTURE_HARDENING_ROADMAP/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Infrastructure Hardening Roadmap
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CANONICAL_TRUTHS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Canonical Truths
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DAY1_DEPLOY_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Day 1 Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BOOTSTRAP_SERVER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bootstrap Server
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STAFF_ACCOUNT_OPS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Staff Account Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MINIMUM_VIABLE_OPERATOR/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Minimum Viable Operator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HEADSCALE_CONTROL_PLANE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Headscale Control Plane
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PRIVATE_LLM_BACKEND/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Private LLM Backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JETSON_B_HELPER_BACKEND/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Jetson-B Helper Backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REMOTE_HELPER_COMPUTE_CONTROL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remote Helper Compute Control
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../EVIDENCE_REMOTE_COMPUTE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remote Compute Evidence
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Runbook
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Runbook
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#working-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working directories
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#60-second-quick-command-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      60-second quick command set
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standard-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Standard operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standard operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#secret-rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secret rotation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-stop-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start / stop stack
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#guardrailed-deploy-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Guardrailed deploy (recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-stack-self-check-doctor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Full stack self-check (doctor)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operator-preflight" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operator preflight
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smoke-checks-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Smoke checks only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-gpu-over-private-tailnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote GPU over private tailnet
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#headscale-control-plane-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Headscale control-plane bundle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#staff-only-remote-helper-compute-lease" class="md-nav__link">
+    <span class="md-ellipsis">
+      Staff-only remote helper compute lease
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-domain-deployment-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Public domain deployment notes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#incident-degradation-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Incident degradation modes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#health-and-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health and logs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Health and logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#health-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health checks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tail-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tail logs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-and-content-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration and content gates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration and content gates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#migration-gate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration gate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apply-runtime-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Apply runtime migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#content-preflight" class="md-nav__link">
+    <span class="md-ellipsis">
+      Content preflight
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-backend-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper backend operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper backend operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ollama-model-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ollama model setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helper-queue-tuning-cpu-focused" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper queue tuning (CPU-focused)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-and-edge-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security and edge limits
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security and edge limits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#envsecret-gate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Env/secret gate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caddy-request-size-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caddy request size limits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teacheradmin-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher/admin operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Teacher/admin operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#teacher-account-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher account workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin-otp-bootstrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Admin OTP bootstrap
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backups-and-recovery-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backups and recovery hooks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-artifact-packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Release artifact packaging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retention-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retention operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Retention operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#submission-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      Submission retention
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#student-event-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      Student event retention
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orphan-upload-scavenger-legacy-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Orphan upload scavenger (legacy cleanup)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#legacy-temp-zip-cleanup-one-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Legacy temp ZIP cleanup (one-time)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-event-ingest-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper event ingest check
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper event ingest check">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automate-retention-and-orphan-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automate retention and orphan cleanup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unattended-remote-compute-evidence-watch" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unattended remote-compute evidence watch
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disk-space-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disk Space Management
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#log-rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Log rotation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#escalate-when" class="md-nav__link">
+    <span class="md-ellipsis">
+      Escalate when
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INCIDENT_RESPONSE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Incident Response
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRICULUM_OPS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Curriculum Ops
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DISASTER_RECOVERY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Disaster Recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REPORTING_REHEARSAL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reporting Rehearsal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RESTORE_REHEARSAL_LOG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Restore Rehearsal Log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TURNOVER_PACKET/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Turnover Packet
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TURNOVER_DRILL_LOG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Turnover Drill Log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OPS_CADENCE_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ops Cadence Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RELEASING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Releasing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DEVELOPMENT/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#working-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working directories
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#60-second-quick-command-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      60-second quick command set
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standard-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Standard operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standard operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#secret-rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secret rotation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-stop-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start / stop stack
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#guardrailed-deploy-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Guardrailed deploy (recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-stack-self-check-doctor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Full stack self-check (doctor)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operator-preflight" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operator preflight
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smoke-checks-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Smoke checks only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-gpu-over-private-tailnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote GPU over private tailnet
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#headscale-control-plane-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Headscale control-plane bundle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#staff-only-remote-helper-compute-lease" class="md-nav__link">
+    <span class="md-ellipsis">
+      Staff-only remote helper compute lease
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-domain-deployment-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Public domain deployment notes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#incident-degradation-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Incident degradation modes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#health-and-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health and logs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Health and logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#health-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health checks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tail-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tail logs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-and-content-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration and content gates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration and content gates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#migration-gate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration gate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apply-runtime-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Apply runtime migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#content-preflight" class="md-nav__link">
+    <span class="md-ellipsis">
+      Content preflight
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-backend-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper backend operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper backend operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ollama-model-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ollama model setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helper-queue-tuning-cpu-focused" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper queue tuning (CPU-focused)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-and-edge-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security and edge limits
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security and edge limits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#envsecret-gate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Env/secret gate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caddy-request-size-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caddy request size limits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teacheradmin-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher/admin operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Teacher/admin operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#teacher-account-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Teacher account workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin-otp-bootstrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Admin OTP bootstrap
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backups-and-recovery-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backups and recovery hooks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-artifact-packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Release artifact packaging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retention-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retention operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Retention operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#submission-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      Submission retention
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#student-event-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      Student event retention
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orphan-upload-scavenger-legacy-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Orphan upload scavenger (legacy cleanup)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#legacy-temp-zip-cleanup-one-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Legacy temp ZIP cleanup (one-time)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-event-ingest-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper event ingest check
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper event ingest check">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automate-retention-and-orphan-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automate retention and orphan cleanup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unattended-remote-compute-evidence-watch" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unattended remote-compute evidence watch
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disk-space-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disk Space Management
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#log-rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Log rotation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#escalate-when" class="md-nav__link">
+    <span class="md-ellipsis">
+      Escalate when
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="runbook">Runbook<a class="headerlink" href="#runbook" title="Permanent link">&para;</a></h1>
+<p>This is the operator playbook for running the stack safely in production.</p>
+<p>If you are new, start with <a href="../START_HERE/">START_HERE.md</a> and <a href="../DAY1_DEPLOY_CHECKLIST/">DAY1_DEPLOY_CHECKLIST.md</a> first.
+If you need the exact operator skill floor first, read <a href="../MINIMUM_VIABLE_OPERATOR/">MINIMUM_VIABLE_OPERATOR.md</a>.
+If you are onboarding a new operator, run <a href="../OPERATOR_ONBOARDING_DRILL/">OPERATOR_ONBOARDING_DRILL.md</a> instead of relying on oral walkthroughs.
+If docs seem to overlap, resolve policy-source questions with <a href="../CANONICAL_TRUTHS/">CANONICAL_TRUTHS.md</a>.</p>
+<pre class="mermaid"><code>flowchart TD
+  A[Deploy/Operate] --&gt; B[validate_env_secrets]
+  B --&gt; C[operator_preflight]
+  C --&gt; D[migration_gate]
+  D --&gt; E[deploy_with_smoke]
+  E --&gt; F{Smoke pass?}
+  F --&gt;|Yes| G[Record good state]
+  F --&gt;|No| H[Rollback hook / triage]
+  H --&gt; I[system_doctor + logs]</code></pre>
+<h2 id="working-directories">Working directories<a class="headerlink" href="#working-directories" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Repo root (server): <code>/srv/lms/app</code></li>
+<li>Compose folder: <code>/srv/lms/app/compose</code></li>
+</ul>
+<p>Use repo root unless a section explicitly says otherwise.</p>
+<h2 id="60-second-quick-command-set">60-second quick command set<a class="headerlink" href="#60-second-quick-command-set" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/system_doctor.sh
+python3<span class="w"> </span>scripts/operator_preflight.py<span class="w"> </span>--env-file<span class="w"> </span>compose/.env
+bash<span class="w"> </span>scripts/check_llm_backend.sh<span class="w"> </span>--probe-chat
+
+<span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>ps
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>classhub_web<span class="w"> </span>helper_web<span class="w"> </span>caddy
+</code></pre></div>
+<p>If <code>system_doctor</code> passes, the platform is usually in good shape.</p>
+<p>Secret and token inventory / rotation reference:
+- <a href="../SECRET_ROTATION/">SECRET_ROTATION.md</a></p>
+<p>One-command full-stack smoke (golden + a11y):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+make<span class="w"> </span>smoke-full
+</code></pre></div>
+<p>Common overrides:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">SMOKE_COMPOSE_MODE</span><span class="o">=</span>dev<span class="w"> </span>make<span class="w"> </span>smoke-full
+<span class="nv">SMOKE_BASE_URL</span><span class="o">=</span>http://localhost<span class="w"> </span>make<span class="w"> </span>smoke-full
+<span class="nv">SMOKE_INSTALL_BROWSERS</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>make<span class="w"> </span>smoke-full
+</code></pre></div>
+<h2 id="standard-operations">Standard operations<a class="headerlink" href="#standard-operations" title="Permanent link">&para;</a></h2>
+<h3 id="secret-rotation">Secret rotation<a class="headerlink" href="#secret-rotation" title="Permanent link">&para;</a></h3>
+<p>Use the canonical secret inventory and rotation steps here:</p>
+<ul>
+<li><a href="../SECRET_ROTATION/">SECRET_ROTATION.md</a></li>
+</ul>
+<p>Minimum post-rotation verification:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/validate_env_secrets.sh
+python3<span class="w"> </span>scripts/operator_preflight.py<span class="w"> </span>--env-file<span class="w"> </span>compose/.env
+bash<span class="w"> </span>scripts/system_doctor.sh<span class="w"> </span>--smoke-mode<span class="w"> </span>golden
+</code></pre></div>
+<h3 id="start-stop-stack">Start / stop stack<a class="headerlink" href="#start-stop-stack" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+<span class="c1"># Start</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<span class="c1"># Stop</span>
+docker<span class="w"> </span>compose<span class="w"> </span>down
+</code></pre></div>
+<p>Verify:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>ps
+curl<span class="w"> </span>-fsS<span class="w"> </span>http://localhost/healthz
+curl<span class="w"> </span>-fsS<span class="w"> </span>http://localhost/upstream-healthz
+curl<span class="w"> </span>-fsS<span class="w"> </span>http://localhost/helper/healthz
+</code></pre></div>
+<p>If <code>CADDY_EXPOSE_UPSTREAM_HEALTHZ=0</code>, expect <code>/upstream-healthz</code> to return <code>404</code> from Caddy.</p>
+<h3 id="guardrailed-deploy-recommended">Guardrailed deploy (recommended)<a class="headerlink" href="#guardrailed-deploy-recommended" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/deploy_with_smoke.sh
+</code></pre></div>
+<p>What this deploy command enforces:</p>
+<ul>
+<li>environment and secret validation</li>
+<li>deploy-time operator preflight for routing/env coherence</li>
+<li>migration gate for both Django services</li>
+<li>runtime <code>manage.py migrate --noinput</code> for both Django services</li>
+<li>compose launch via <code>compose/docker-compose.yml</code> only</li>
+<li>Caddy template mount sanity checks</li>
+<li>smoke checks (<code>/healthz</code>, <code>/helper/healthz</code>, join, helper chat, teacher login)</li>
+</ul>
+<p>Optional rollback hook:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+<span class="nv">ROLLBACK_CMD</span><span class="o">=</span><span class="s1">&#39;echo &quot;replace with your rollback command&quot;&#39;</span><span class="w"> </span>bash<span class="w"> </span>scripts/deploy_with_smoke.sh
+</code></pre></div>
+<h3 id="full-stack-self-check-doctor">Full stack self-check (doctor)<a class="headerlink" href="#full-stack-self-check-doctor" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/system_doctor.sh
+</code></pre></div>
+<h3 id="operator-preflight">Operator preflight<a class="headerlink" href="#operator-preflight" title="Permanent link">&para;</a></h3>
+<p>Run this before a domain/TLS deploy any time <code>compose/.env</code> changed:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+python3<span class="w"> </span>scripts/operator_preflight.py<span class="w"> </span>--env-file<span class="w"> </span>compose/.env
+</code></pre></div>
+<p>What it checks:</p>
+<ul>
+<li>Caddy routing mode vs public host settings</li>
+<li><code>DJANGO_ALLOWED_HOSTS</code> / <code>CSRF_TRUSTED_ORIGINS</code> coherence</li>
+<li>required internal helper URL contracts</li>
+<li>feature-gated helper/remote-compute env completeness</li>
+</ul>
+<p>Useful variants:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Strict smoke using existing SMOKE_* env values</span>
+bash<span class="w"> </span>scripts/system_doctor.sh<span class="w"> </span>--smoke-mode<span class="w"> </span>strict
+
+<span class="c1"># Fast baseline smoke</span>
+bash<span class="w"> </span>scripts/system_doctor.sh<span class="w"> </span>--smoke-mode<span class="w"> </span>basic
+
+<span class="c1"># Infra/content checks only</span>
+bash<span class="w"> </span>scripts/system_doctor.sh<span class="w"> </span>--smoke-mode<span class="w"> </span>off
+</code></pre></div>
+<h3 id="smoke-checks-only">Smoke checks only<a class="headerlink" href="#smoke-checks-only" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/smoke_check.sh<span class="w"> </span>--strict
+bash<span class="w"> </span>scripts/check_llm_backend.sh<span class="w"> </span>--probe-chat
+</code></pre></div>
+<p>Notes:</p>
+<ul>
+<li><code>scripts/check_llm_backend.sh</code> runs inside <code>helper_web</code>, so it validates the same DNS reachability and private backend path the app actually uses.</li>
+<li><code>/helper/chat</code> smoke retries transient helper backend failures by default (<code>502</code> + <code>ollama_error</code>, <code>503</code> + <code>busy</code>) using <code>SMOKE_HELPER_CHAT_RETRIES=3</code>.</li>
+<li>Default retry delays are <code>SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS=3</code> for transport/<code>ollama_error</code>, and <code>SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS=30</code> for <code>busy</code>.</li>
+<li>Increase those values in <code>compose/.env</code> if Ollama cold starts or queue wait regularly exceed your current retry budget.</li>
+</ul>
+<h3 id="remote-gpu-over-private-tailnet">Remote GPU over private tailnet<a class="headerlink" href="#remote-gpu-over-private-tailnet" title="Permanent link">&para;</a></h3>
+<p>Current recommended path:</p>
+<ul>
+<li>browsers talk only to the public LMS edge</li>
+<li>Caddy routes <code>/helper/*</code> to <code>helper_web</code></li>
+<li><code>helper_web</code> is the only service that talks to the remote model host</li>
+<li>that model hop goes over a private tailnet to a tailnet-only endpoint</li>
+<li>the GPU host keeps the model server loopback-bound behind its local auth proxy</li>
+<li>for createMPLS-style production deployments, the recommended tailnet control plane is a self-hosted Headscale server on a tiny Ubuntu VPS</li>
+<li>the Headscale server is control plane only; it does not proxy request traffic</li>
+</ul>
+<p>Operational meaning:</p>
+<ul>
+<li>if the GPU node is unavailable, the LMS should still load and core classroom flows should stay up</li>
+<li><code>bash scripts/check_llm_backend.sh --probe-chat</code> is the fastest way to validate the helper-to-GPU path from the same runtime context the app uses</li>
+<li>use <code>LLM_BASE_URL</code> and the rest of the <code>LLM_*</code> env vars as the primary configuration surface; legacy <code>OLLAMA_*</code> names remain compatibility fallbacks</li>
+<li>public browser traffic to <code>lms.creatempls.org</code> must never use the tailnet</li>
+<li>the tailnet is reserved for helper-to-model traffic and related operator/admin troubleshooting</li>
+</ul>
+<p>Reference:</p>
+<ul>
+<li><a href="../PRIVATE_LLM_BACKEND/">PRIVATE_LLM_BACKEND.md</a></li>
+<li><a href="../HEADSCALE_CONTROL_PLANE/">HEADSCALE_CONTROL_PLANE.md</a></li>
+<li><a href="../REMOTE_HELPER_COMPUTE_CONTROL/">REMOTE_HELPER_COMPUTE_CONTROL.md</a></li>
+</ul>
+<h3 id="headscale-control-plane-bundle">Headscale control-plane bundle<a class="headerlink" href="#headscale-control-plane-bundle" title="Permanent link">&para;</a></h3>
+<p>If this deployment uses Headscale for the helper/model tailnet, use the repo bundle in <code>ops/headscale/</code> instead of a one-off VPS setup.</p>
+<p>Recommended bootstrap on the Headscale VPS:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/headscale/app
+sudo<span class="w"> </span>bash<span class="w"> </span>ops/headscale/install.sh
+sudo<span class="w"> </span>cp<span class="w"> </span>/srv/headscale/.env.example<span class="w"> </span>/srv/headscale/.env
+sudo<span class="w"> </span>cp<span class="w"> </span>/srv/headscale/config/config.yaml.example<span class="w"> </span>/srv/headscale/config/config.yaml
+sudo<span class="w"> </span>cp<span class="w"> </span>/srv/headscale/config/policy.hujson.example<span class="w"> </span>/srv/headscale/config/policy.hujson
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>classhub-headscale
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>classhub-headscale-backup.timer
+</code></pre></div>
+<p>Canonical backup command:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>/usr/local/bin/classhub-headscale-backup<span class="w"> </span>--headscale-root<span class="w"> </span>/srv/headscale
+</code></pre></div>
+<p>Canonical restore command on a replacement VPS:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>/usr/local/bin/classhub-headscale-restore<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--headscale-root<span class="w"> </span>/srv/headscale<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--backup<span class="w"> </span>/srv/headscale/backups/headscale_&lt;STAMP&gt;.tgz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--start-stack
+</code></pre></div>
+<p>Canonical rehearsal evidence wrapper on a replacement VPS:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/headscale/app
+sudo<span class="w"> </span>bash<span class="w"> </span>scripts/headscale_restore_rehearsal_evidence.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--backup<span class="w"> </span>/srv/headscale/backups/headscale_&lt;STAMP&gt;.tgz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--host-class<span class="w"> </span>replacement-host<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--host-label<span class="w"> </span>hs-replacement-01<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--evidence-note<span class="w"> </span><span class="s2">&quot;Quarterly blank-VPS Headscale recovery rehearsal&quot;</span>
+</code></pre></div>
+<p>Operational intent:</p>
+<ul>
+<li>keep the Headscale VPS small and replaceable</li>
+<li>back it up like coordination state, not like the LMS itself</li>
+<li>recover it with one archive + one restore command + one LMS-side helper probe</li>
+</ul>
+<p>The Headscale bundle is not part of the public LMS Compose stack.
+It is a separate control-plane bundle for the separate VPS.</p>
+<p>The rehearsal wrapper writes a timestamped artifact directory under:</p>
+<ul>
+<li><code>artifacts/stability/&lt;date&gt;/headscale_restore_rehearsal/&lt;timestamp&gt;/</code></li>
+</ul>
+<p>Expected artifacts:</p>
+<ul>
+<li><code>headscale_restore_rehearsal.log</code></li>
+<li><code>headscale_restore_rehearsal_metrics.json</code></li>
+<li><code>headscale_restore_rehearsal_summary.md</code></li>
+<li><code>manual_verification_checklist.md</code></li>
+<li>automated Headscale VPS captures (<code>systemctl</code>, <code>docker compose ps</code>, metrics sample, node list, logs)</li>
+<li>LMS/GPU-side evidence placeholders for helper probe, node rejoin notes, and optional GPU health output</li>
+</ul>
+<p>Important:</p>
+<ul>
+<li>this wrapper is for operator rehearsal on the real Headscale VPS; it does not claim the repo has already proven blank-VPS recovery</li>
+<li>the LMS-side helper probe still needs to be run from the LMS host and attached to the artifact</li>
+<li>do not treat the Headscale VPS as a place to test public LMS routing; keep public browser traffic on the public LMS path</li>
+</ul>
+<h3 id="staff-only-remote-helper-compute-lease">Staff-only remote helper compute lease<a class="headerlink" href="#staff-only-remote-helper-compute-lease" title="Permanent link">&para;</a></h3>
+<p>If you enable bounded remote helper compute control:</p>
+<ul>
+<li>keep it off by default</li>
+<li>activate it only for live partner/class windows</li>
+<li>let staff use <code>/teach/class/&lt;id&gt;</code> to activate/deactivate it</li>
+<li>use <code>CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1</code> and <code>CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1</code> as the deployment gate</li>
+<li>keep provider control URLs and credentials server-side only</li>
+<li>expect state transitions such as <code>requested</code>, <code>starting</code>, <code>ready</code>, <code>degraded</code>, <code>stopping</code>, and <code>error</code></li>
+<li>expect helper traffic to use the remote backend only when the class state is <code>ready</code></li>
+<li>expect helper requests to fall back to local/default mode if the remote path is not ready or later errors</li>
+<li>keep the lease short and stop it after class; optional idle auto-stop is acceptable but does not replace operator awareness</li>
+<li>use <code>HELPER_REMOTE_COMPUTE_ESTIMATED_USD_PER_HOUR</code> only as an approximate operator hint, not as exact billing truth</li>
+</ul>
+<p>Useful inspection surfaces:</p>
+<ul>
+<li>the configured internal helper URLs:</li>
+<li><code>HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL</code></li>
+<li><code>HELPER_INTERNAL_REMOTE_COMPUTE_EVIDENCE_URL</code></li>
+<li>the teacher/admin export path below</li>
+<li>helper logs plus <code>system_doctor</code> when reconciling drift between lease state and actual backend behavior</li>
+</ul>
+<p>Teacher/admin export path:</p>
+<ul>
+<li><code>/teach/class/&lt;id&gt;/export-helper-remote-snapshot?format=json</code></li>
+<li><code>/teach/class/&lt;id&gt;/export-helper-remote-snapshot?format=csv</code></li>
+</ul>
+<p>What the export/evidence layer now makes visible:</p>
+<ul>
+<li>requested duration vs leased minutes</li>
+<li>actual time spent in <code>starting</code>, <code>ready</code>, and <code>degraded</code></li>
+<li>remote-routed request count</li>
+<li>local fallback count after remote attempt</li>
+<li>manual stop count</li>
+<li>auto-stop count</li>
+<li>recent lease sessions and reason-coded events</li>
+</ul>
+<p>Golden-path smoke (auto fixture bootstrap):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/golden_path_smoke.sh
+</code></pre></div>
+<p><code>golden_path_smoke.sh</code> also validates invite-only enrollment behavior and class summary CSV export (teacher session path).</p>
+<p>Telemetry stabilization evidence capture (Slice 7):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/telemetry_stabilization_evidence.sh<span class="w"> </span>--window-days<span class="w"> </span><span class="m">7</span><span class="w"> </span>--perform-rollback-drill
+</code></pre></div>
+<p>Notes:</p>
+<ul>
+<li>Writes timestamped artifacts to <code>/tmp/classhub_telemetry_stabilization_&lt;timestamp&gt;/</code>.</li>
+<li>Includes parity output, strict smoke output, and optional rollback-drill output.</li>
+<li>To render a non-placeholder <code>slo_summary.md</code>, pass explicit baseline/observed values for:</li>
+<li><code>--student-home-p95-baseline-ms</code> and <code>--student-home-p95-ms</code></li>
+<li><code>--student-upload-success-rate-baseline-pct</code> and <code>--student-upload-success-rate-pct</code></li>
+<li><code>--helper-chat-5xx-rate-baseline-pct</code> and <code>--helper-chat-5xx-rate-pct</code></li>
+<li>Keep telemetry <code>READ_MODE=core</code> if parity reports drift.</li>
+<li>Endpoint policy and env presets for telemetry rollout live in <a href="../TELEMETRY_DB_SPLIT_PLAN/#endpoint-policy-and-concrete-env-presets">TELEMETRY_DB_SPLIT_PLAN.md</a>.</li>
+</ul>
+<p>Full stability + telemetry closeout cycle (Phase 1 + Slice 7):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+make<span class="w"> </span>stability-cycle-closeout<span class="w"> </span><span class="nv">STABILITY_RELEASE_DATE</span><span class="o">=</span>&lt;YYYY-MM-DD&gt;<span class="w"> </span><span class="nv">SMOKE_COMPOSE_MODE</span><span class="o">=</span>prod<span class="w"> </span><span class="nv">TELEMETRY_WINDOW_DAYS</span><span class="o">=</span><span class="m">7</span>
+</code></pre></div>
+<p>Notes:</p>
+<ul>
+<li>Enforces <code>scripts/check_runtime_policy_lock.py --profile release</code> against <code>compose/.env</code>:</li>
+<li><code>REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1</code></li>
+<li><code>CLASSHUB_TELEMETRY_WRITE_MODE=dual</code></li>
+<li><code>CLASSHUB_TELEMETRY_READ_MODE=telemetry</code></li>
+<li>explicit <code>CLASSHUB_CERTIFICATE_MIN_SESSIONS</code> / <code>CLASSHUB_CERTIFICATE_MIN_ARTIFACTS</code> values (<code>&gt;=1</code>)</li>
+<li>Baseline-vs-release runtime lock profile behavior is documented in <a href="../RUNTIME_LOCK_PROFILES/">RUNTIME_LOCK_PROFILES.md</a>.</li>
+<li>Writes release artifacts under <code>artifacts/stability/&lt;date&gt;/</code> and telemetry artifacts under <code>artifacts/stability/&lt;date&gt;/telemetry/</code>.</li>
+<li>Includes evaluator-facing evidence index at <code>artifacts/stability/&lt;date&gt;/EVIDENCE_INDEX.md</code>.</li>
+<li>Fails the run if parity/smoke/rollback drill do not pass or required artifacts are missing.</li>
+<li>Produces <code>cycle_closeout_summary.md</code> with doc-update checklist before sign-off.</li>
+<li>For cycles where kiosk drill is tracked separately, set <code>STABILITY_SKIP_KIOSK=1</code> to skip kiosk resilience in this command.</li>
+<li>To validate example env files without release lock expectations, run:</li>
+<li><code>python3 scripts/check_runtime_policy_lock.py --profile baseline --env-file compose/.env.example.local</code></li>
+</ul>
+<p>Accessibility smoke:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/a11y_smoke.sh<span class="w"> </span>--compose-mode<span class="w"> </span>prod<span class="w"> </span>--install-browsers
+</code></pre></div>
+<p>Notes:</p>
+<ul>
+<li>Run this after <code>golden_path_smoke.sh</code> or <code>system_doctor --smoke-mode golden</code> so class/teacher fixtures exist.</li>
+<li>Default fail threshold is <code>critical</code>; override with <code>--fail-impact</code> when intentionally broadening checks.</li>
+<li>Expected success line: <code>[a11y] PASS</code>.</li>
+</ul>
+<p>Reference: <a href="../ACCESSIBILITY/">ACCESSIBILITY.md</a></p>
+<p>Kiosk resilience drill:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/kiosk_resilience_check.sh<span class="w"> </span>--class-code<span class="w"> </span>&lt;SMOKE_CLASS_CODE&gt;
+</code></pre></div>
+<p>Notes:</p>
+<ul>
+<li>Runs deterministic checks for kiosk manifest/service-worker endpoints and route guard redirects.</li>
+<li>Prompts through unstable-network upload queue validation steps and writes a report to <code>/tmp/classhub_kiosk_resilience_&lt;timestamp&gt;.md</code>.</li>
+<li>Use <code>--non-interactive</code> to emit a checklist-only report for later manual completion.</li>
+</ul>
+<p>Outcome/reporting semantics reference:
+- <a href="../OUTCOME_SEMANTICS/">OUTCOME_SEMANTICS.md</a></p>
+<p>End-to-end reporting rehearsal playbook:
+- <a href="../REPORTING_REHEARSAL/">REPORTING_REHEARSAL.md</a></p>
+<p>Recurring ops cadence checklist:
+- <a href="../OPS_CADENCE_CHECKLIST/">OPS_CADENCE_CHECKLIST.md</a></p>
+<p>Turnover drill evidence log:
+- <a href="../TURNOVER_DRILL_LOG/">TURNOVER_DRILL_LOG.md</a></p>
+<p>Org boundary policy audit template:
+- <a href="../ORG_BOUNDARY_POLICY_AUDIT/">ORG_BOUNDARY_POLICY_AUDIT.md</a></p>
+<h2 id="public-domain-deployment-notes">Public domain deployment notes<a class="headerlink" href="#public-domain-deployment-notes" title="Permanent link">&para;</a></h2>
+<p>When running behind Caddy on a real domain, use these defaults to avoid false rate-limit identity and upload mismatches:</p>
+<ul>
+<li>Proxy/IP trust:</li>
+<li>Set <code>REQUEST_SAFETY_TRUST_PROXY_HEADERS=1</code> so Django rate limiting sees client IPs forwarded by Caddy.</li>
+<li>Keep <code>REQUEST_SAFETY_XFF_INDEX=0</code> when Caddy is the first trusted hop.</li>
+<li>Upload size alignment:</li>
+<li>Set <code>CADDY_CLASSHUB_MAX_BODY</code> slightly above <code>CLASSHUB_UPLOAD_MAX_MB</code> (for example, <code>220MB</code> vs <code>200</code>).</li>
+<li><code>CLASSHUB_UPLOAD_MAX_MB</code> controls Django request body cap for class uploads.</li>
+<li>Keep <code>CLASSHUB_GUNICORN_TIMEOUT_SECONDS</code> high enough for large uploads on classroom Wi-Fi (default <code>1200</code> seconds).</li>
+<li>Keep <code>HELPER_GUNICORN_TIMEOUT_SECONDS</code> above helper queue/retry budget (<code>HELPER_QUEUE_MAX_WAIT_SECONDS</code>, <code>HELPER_BACKEND_MAX_ATTEMPTS</code>, <code>OLLAMA_TIMEOUT_SECONDS</code>, <code>HELPER_BACKOFF_SECONDS</code>); <code>scripts/validate_env_secrets.sh</code> now blocks unsafe combinations.</li>
+<li>Retention timer:</li>
+<li>Enable the <code>classhub-retention.timer</code> unit so submission/event cleanup runs automatically.</li>
+<li>Timer setup commands are in <a href="#automate-retention-and-orphan-cleanup">Automate retention + orphan cleanup</a>.</li>
+<li>Teacher/admin proxy armor:</li>
+<li>Preferred: set IP allowlist for <code>/admin*</code> + <code>/teach*</code>:<ul>
+<li><code>CADDY_STAFF_IP_ALLOWLIST_V4</code></li>
+<li><code>CADDY_STAFF_IP_ALLOWLIST_V6</code></li>
+</ul>
+</li>
+<li>Optional extra basic-auth gate for <code>/admin*</code>:<ul>
+<li><code>CADDY_ADMIN_BASIC_AUTH_ENABLED=1</code></li>
+<li><code>CADDY_ADMIN_BASIC_AUTH_USER</code></li>
+<li><code>CADDY_ADMIN_BASIC_AUTH_HASH</code></li>
+<li><code>/admin/login*</code> is intentionally excluded so staff can complete Django OTP login.</li>
+<li>If the bcrypt hash includes <code>$</code> (it will), quote it in <code>compose/.env</code> or escape as <code>$$</code> to avoid Compose interpolation warnings.</li>
+</ul>
+</li>
+<li>If you intentionally leave allowlists open, set explicit acknowledgement:<ul>
+<li><code>CADDY_ALLOW_PUBLIC_STAFF_ROUTES=1</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="incident-degradation-modes">Incident degradation modes<a class="headerlink" href="#incident-degradation-modes" title="Permanent link">&para;</a></h2>
+<p>Use <code>CLASSHUB_SITE_MODE</code> in <code>compose/.env</code>, then redeploy:</p>
+<ul>
+<li><code>normal</code></li>
+<li><code>read-only</code></li>
+<li><code>join-only</code></li>
+<li><code>maintenance</code></li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+sed<span class="w"> </span>-i.bak<span class="w"> </span><span class="s1">&#39;s/^CLASSHUB_SITE_MODE=.*/CLASSHUB_SITE_MODE=join-only/&#39;</span><span class="w"> </span>compose/.env
+bash<span class="w"> </span>scripts/deploy_with_smoke.sh
+</code></pre></div>
+<p>Optional status message shown to users on blocked routes:</p>
+<ul>
+<li><code>CLASSHUB_SITE_MODE_MESSAGE</code></li>
+</ul>
+<h2 id="health-and-logs">Health and logs<a class="headerlink" href="#health-and-logs" title="Permanent link">&para;</a></h2>
+<h3 id="health-checks">Health checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>ps
+curl<span class="w"> </span>-I<span class="w"> </span>http://localhost/healthz
+curl<span class="w"> </span>-I<span class="w"> </span>http://localhost/upstream-healthz
+curl<span class="w"> </span>-I<span class="w"> </span>http://localhost/helper/healthz
+</code></pre></div>
+<p>If <code>CADDY_EXPOSE_UPSTREAM_HEALTHZ=0</code>, <code>/upstream-healthz</code> should return <code>404</code>.</p>
+<h3 id="tail-logs">Tail logs<a class="headerlink" href="#tail-logs" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>classhub_web
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>helper_web
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span><span class="w"> </span>caddy
+</code></pre></div>
+<p>Helper logs include structured events like <code>success</code>, <code>queue_busy</code>, and <code>backend_transport_error</code> with <code>request_id</code>.</p>
+<h2 id="migration-and-content-gates">Migration and content gates<a class="headerlink" href="#migration-and-content-gates" title="Permanent link">&para;</a></h2>
+<h3 id="migration-gate-only">Migration gate only<a class="headerlink" href="#migration-gate-only" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/migration_gate.sh
+</code></pre></div>
+<p><code>migration_gate.sh</code> checks that migration files are committed. It does not apply DB migrations.</p>
+<h3 id="apply-runtime-migrations">Apply runtime migrations<a class="headerlink" href="#apply-runtime-migrations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>--noinput
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>helper_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>--noinput
+</code></pre></div>
+<p><code>RUN_MIGRATIONS_ON_START=0</code> is the production default to avoid boot-time migration races; keep it <code>1</code> only for local/dev workflows where container boot should self-migrate.</p>
+<h3 id="content-preflight">Content preflight<a class="headerlink" href="#content-preflight" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/content_preflight.sh<span class="w"> </span>piper_scratch_12_session
+</code></pre></div>
+<p>Strict global sequence checks:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/content_preflight.sh<span class="w"> </span>piper_scratch_12_session<span class="w"> </span>--strict-global
+</code></pre></div>
+<h2 id="helper-backend-operations">Helper backend operations<a class="headerlink" href="#helper-backend-operations" title="Permanent link">&para;</a></h2>
+<h3 id="ollama-model-setup">Ollama model setup<a class="headerlink" href="#ollama-model-setup" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>ollama<span class="w"> </span>ollama<span class="w"> </span>pull<span class="w"> </span>llama3.2:1b
+curl<span class="w"> </span>http://localhost:11434/api/tags
+</code></pre></div>
+<p>Note: Ollama is host-bound at <code>127.0.0.1:11434</code> by default.</p>
+<h3 id="helper-queue-tuning-cpu-focused">Helper queue tuning (CPU-focused)<a class="headerlink" href="#helper-queue-tuning-cpu-focused" title="Permanent link">&para;</a></h3>
+<p>Set in <code>compose/.env</code>:</p>
+<div class="highlight"><pre><span></span><code>HELPER_MAX_CONCURRENCY=2
+HELPER_QUEUE_MAX_WAIT_SECONDS=10
+HELPER_QUEUE_POLL_SECONDS=0.2
+HELPER_QUEUE_SLOT_TTL_SECONDS=120
+</code></pre></div>
+<h2 id="security-and-edge-limits">Security and edge limits<a class="headerlink" href="#security-and-edge-limits" title="Permanent link">&para;</a></h2>
+<h3 id="envsecret-gate-only">Env/secret gate only<a class="headerlink" href="#envsecret-gate-only" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/validate_env_secrets.sh
+</code></pre></div>
+<h3 id="caddy-request-size-limits">Caddy request size limits<a class="headerlink" href="#caddy-request-size-limits" title="Permanent link">&para;</a></h3>
+<p>Set in <code>compose/.env</code>:</p>
+<div class="highlight"><pre><span></span><code>CADDY_CLASSHUB_MAX_BODY=220MB
+CADDY_HELPER_MAX_BODY=1MB
+CLASSHUB_UPLOAD_MAX_MB=200
+</code></pre></div>
+<h2 id="teacheradmin-operations">Teacher/admin operations<a class="headerlink" href="#teacheradmin-operations" title="Permanent link">&para;</a></h2>
+<h3 id="teacher-account-workflow">Teacher account workflow<a class="headerlink" href="#teacher-account-workflow" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="../TEACHER_PORTAL/">TEACHER_PORTAL.md</a></li>
+<li><a href="../TEACHER_HANDOFF_CHECKLIST/">TEACHER_HANDOFF_CHECKLIST.md</a></li>
+<li><a href="../TEACHER_HANDOFF_RECORD_TEMPLATE/">TEACHER_HANDOFF_RECORD_TEMPLATE.md</a></li>
+</ul>
+<p>Helper script:</p>
+<ul>
+<li><code>scripts/examples/teacher_accounts.sh</code> (dry-run by default; set <code>RUN=1</code> to execute)</li>
+</ul>
+<h3 id="admin-otp-bootstrap">Admin OTP bootstrap<a class="headerlink" href="#admin-otp-bootstrap" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>bootstrap_admin_otp<span class="w"> </span>--username<span class="w"> </span>&lt;admin_username&gt;<span class="w"> </span>--with-static-backup
+</code></pre></div>
+<p>Use <code>--rotate</code> to replace an existing device name.</p>
+<h2 id="backups-and-recovery-hooks">Backups and recovery hooks<a class="headerlink" href="#backups-and-recovery-hooks" title="Permanent link">&para;</a></h2>
+<p>Backup scripts:</p>
+<ul>
+<li><code>scripts/backup_postgres.sh</code></li>
+<li><code>scripts/backup_minio.sh</code></li>
+<li><code>scripts/backup_uploads.sh</code></li>
+<li><code>scripts/backup_restore_rehearsal.sh</code> (core backup + restore rehearsal engine)</li>
+<li><code>scripts/restore_rehearsal_evidence.sh</code> (recommended evidence wrapper)</li>
+</ul>
+<p>Disaster recovery guide:</p>
+<ul>
+<li><a href="../DISASTER_RECOVERY/">DISASTER_RECOVERY.md</a></li>
+</ul>
+<p>Recommended restore drill (single command):</p>
+<div class="highlight"><pre><span></span><code>bash<span class="w"> </span>scripts/restore_rehearsal_evidence.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--compose-mode<span class="w"> </span>prod<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out-dir<span class="w"> </span>artifacts/stability/<span class="k">$(</span>date<span class="w"> </span>+%F<span class="k">)</span>
+</code></pre></div>
+<p>Automated cadence:
+- GitHub Actions workflow: <code>.github/workflows/restore-rehearsal.yml</code> (weekly + manual dispatch)
+- Artifacts: rehearsal log, metrics (<code>RTO</code>/<code>RPO</code>), and backup checksums retained per run</p>
+<p>This command:
+1. Runs <code>backup_restore_rehearsal.sh</code> (fresh backups + non-destructive restore validation).
+2. Captures rehearsal log and metrics (<code>RTO</code>/<code>RPO</code>) to the evidence directory.
+3. Copies backup artifacts and writes checksums for auditability.
+4. Writes a markdown summary for operator review.</p>
+<p>Telemetry-aware restore drill:</p>
+<div class="highlight"><pre><span></span><code>bash<span class="w"> </span>scripts/restore_rehearsal_evidence.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--compose-mode<span class="w"> </span>prod<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--include-telemetry-db<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out-dir<span class="w"> </span>artifacts/stability/<span class="k">$(</span>date<span class="w"> </span>+%F<span class="k">)</span>
+</code></pre></div>
+<p>Use this mode when <code>CLASSHUB_TELEMETRY_DATABASE_URL</code> is active and you want the rehearsal to validate both the core and telemetry databases.</p>
+<p>Optional reuse of existing artifacts:</p>
+<div class="highlight"><pre><span></span><code>bash<span class="w"> </span>scripts/restore_rehearsal_evidence.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--compose-mode<span class="w"> </span>prod<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--skip-backup<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out-dir<span class="w"> </span>artifacts/stability/<span class="k">$(</span>date<span class="w"> </span>+%F<span class="k">)</span>
+</code></pre></div>
+<p>Rehearsal evidence log template:
+- <a href="../RESTORE_REHEARSAL_LOG/">RESTORE_REHEARSAL_LOG.md</a></p>
+<h2 id="release-artifact-packaging">Release artifact packaging<a class="headerlink" href="#release-artifact-packaging" title="Permanent link">&para;</a></h2>
+<p>Create a shareable source zip without local machine clutter (<code>.venv</code>, <code>.git</code>, macOS metadata, caches):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/make_release_zip.sh
+</code></pre></div>
+<p>Optional output path:</p>
+<div class="highlight"><pre><span></span><code>bash<span class="w"> </span>scripts/make_release_zip.sh<span class="w"> </span>/srv/lms/releases/classhub_release.zip
+</code></pre></div>
+<p>Validate the generated archive explicitly:</p>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>scripts/lint_release_artifact.py<span class="w"> </span>/srv/lms/releases/classhub_release.zip
+</code></pre></div>
+<p>Release packaging policy and verification details:</p>
+<ul>
+<li><a href="../RELEASING/">RELEASING.md</a></li>
+</ul>
+<p>Companion evidence bundle packaging (separate from source zip):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+<span class="nv">RELEASE_DATE</span><span class="o">=</span><span class="m">2026</span>-03-10
+tar<span class="w"> </span>-C<span class="w"> </span>artifacts/stability<span class="w"> </span>-czf<span class="w"> </span><span class="s2">&quot;dist/classhub_evidence_</span><span class="si">${</span><span class="nv">RELEASE_DATE</span><span class="si">}</span><span class="s2">.tgz&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">RELEASE_DATE</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>For evaluator/partner handoff, provide both:</p>
+<ol>
+<li><code>dist/classhub_release_*.zip</code> (source bundle)</li>
+<li><code>dist/classhub_evidence_&lt;release-date&gt;.tgz</code> (closeout evidence bundle with <code>EVIDENCE_INDEX.md</code>)</li>
+</ol>
+<h2 id="retention-operations">Retention operations<a class="headerlink" href="#retention-operations" title="Permanent link">&para;</a></h2>
+<h3 id="submission-retention">Submission retention<a class="headerlink" href="#submission-retention" title="Permanent link">&para;</a></h3>
+<p>Dry run:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_submissions<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">90</span><span class="w"> </span>--dry-run
+</code></pre></div>
+<p>Apply:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_submissions<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">90</span>
+</code></pre></div>
+<p>Optional default (<code>compose/.env</code>):</p>
+<div class="highlight"><pre><span></span><code>CLASSHUB_SUBMISSION_RETENTION_DAYS=90
+</code></pre></div>
+<h3 id="student-event-retention">Student event retention<a class="headerlink" href="#student-event-retention" title="Permanent link">&para;</a></h3>
+<p>Dry run:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_student_events<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">180</span><span class="w"> </span>--dry-run
+</code></pre></div>
+<p>Dry run with CSV export snapshot:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_student_events<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">180</span><span class="w"> </span>--dry-run<span class="w"> </span>--export-csv<span class="w"> </span>/tmp/student_events_older_than_180d.csv
+</code></pre></div>
+<p>Apply:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_student_events<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">180</span>
+</code></pre></div>
+<p>Apply with export-before-delete snapshot:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>prune_student_events<span class="w"> </span>--older-than-days<span class="w"> </span><span class="m">180</span><span class="w"> </span>--export-csv<span class="w"> </span>/srv/lms/backups/student_events_before_prune_<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>.csv
+</code></pre></div>
+<p>Optional default (<code>compose/.env</code>):</p>
+<div class="highlight"><pre><span></span><code>CLASSHUB_STUDENT_EVENT_RETENTION_DAYS=180
+</code></pre></div>
+<p>Verification (operator dashboard):</p>
+<ul>
+<li>Open <code>/teach/data-lifespan</code> as owner/admin/superuser.</li>
+<li>Confirm <code>Last successful retention prune</code> timestamp updated.</li>
+<li>Confirm <code>Policy-overdue rows</code> is at or near expected value for your policy window.</li>
+<li>Use <code>Export JSON</code> / <code>Export CSV</code> from the same page to capture an evidence snapshot.</li>
+</ul>
+<p>Evidence export (headless, optional):</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-L<span class="w"> </span>-b<span class="w"> </span>classhub_teach_cookie.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;https://YOUR_DOMAIN/teach/data-lifespan/export?format=json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-o<span class="w"> </span>data_lifespan_snapshot.json
+
+curl<span class="w"> </span>-L<span class="w"> </span>-b<span class="w"> </span>classhub_teach_cookie.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;https://YOUR_DOMAIN/teach/data-lifespan/export?format=csv&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-o<span class="w"> </span>data_lifespan_snapshot.csv
+</code></pre></div>
+<p>Demonstration script (recommended):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/demo_data_lifespan_evidence.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--base-url<span class="w"> </span>https://YOUR_DOMAIN<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cookie-file<span class="w"> </span>classhub_teach_cookie.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out-dir<span class="w"> </span>/tmp/classhub_evidence_demo
+</code></pre></div>
+<p>RAG evidence panel prerequisites:</p>
+<ul>
+<li><code>HELPER_INTERNAL_API_TOKEN</code> must match between ClassHub and helper.</li>
+<li><code>HELPER_INTERNAL_ALLOWED_CIDRS</code> should include the ClassHub caller address range. Defaults allow loopback plus RFC1918/ULA private ranges.</li>
+<li>If helper receives proxied requests, set <code>HELPER_INTERNAL_TRUST_PROXY_HEADERS=1</code> and verify <code>HELPER_INTERNAL_XFF_INDEX</code> matches the trusted client position.</li>
+<li><code>HELPER_INTERNAL_RAG_STATUS_URL</code> should point to helper (<code>http://helper_web:8000/helper/internal/rag-status</code> in Compose).</li>
+<li><code>HELPER_INTERNAL_RAG_STATUS_TIMEOUT_SECONDS</code> controls request timeout (default <code>1.2</code>).</li>
+</ul>
+<h3 id="orphan-upload-scavenger-legacy-cleanup">Orphan upload scavenger (legacy cleanup)<a class="headerlink" href="#orphan-upload-scavenger-legacy-cleanup" title="Permanent link">&para;</a></h3>
+<p>Report orphaned upload files (files on disk with no matching DB row):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>scavenge_orphan_uploads
+</code></pre></div>
+<p>Delete orphans (use after reviewing report output):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>scavenge_orphan_uploads<span class="w"> </span>--delete
+</code></pre></div>
+<h3 id="legacy-temp-zip-cleanup-one-time">Legacy temp ZIP cleanup (one-time)<a class="headerlink" href="#legacy-temp-zip-cleanup-one-time" title="Permanent link">&para;</a></h3>
+<p>Older builds could leave export zips in <code>/tmp</code>.</p>
+<p>Inspect:</p>
+<div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-lh<span class="w"> </span>/tmp/classhub_closeout_*.zip<span class="w"> </span>/tmp/classhub_latest_*.zip<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+</code></pre></div>
+<p>Delete:</p>
+<div class="highlight"><pre><span></span><code>rm<span class="w"> </span>-f<span class="w"> </span>/tmp/classhub_closeout_*.zip<span class="w"> </span>/tmp/classhub_latest_*.zip
+</code></pre></div>
+<h2 id="helper-event-ingest-check">Helper event ingest check<a class="headerlink" href="#helper-event-ingest-check" title="Permanent link">&para;</a></h2>
+<p>Helper chat telemetry now forwards through an authenticated internal Class Hub endpoint.</p>
+<p>Required env:</p>
+<ul>
+<li><code>CLASSHUB_INTERNAL_EVENTS_URL</code></li>
+<li><code>CLASSHUB_INTERNAL_EVENTS_TOKEN</code></li>
+</ul>
+<p>Quick validation:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/validate_env_secrets.sh
+bash<span class="w"> </span>scripts/system_doctor.sh<span class="w"> </span>--smoke-mode<span class="w"> </span>golden
+</code></pre></div>
+<h3 id="automate-retention-and-orphan-cleanup">Automate retention and orphan cleanup<a class="headerlink" href="#automate-retention-and-orphan-cleanup" title="Permanent link">&para;</a></h3>
+<p>Run once manually:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/retention_maintenance.sh<span class="w"> </span>--compose-mode<span class="w"> </span>prod
+</code></pre></div>
+<p>Helper reset export retention (optional override):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">RETENTION_HELPER_EXPORT_DAYS</span><span class="o">=</span><span class="m">30</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">RETENTION_HELPER_EXPORT_DIR</span><span class="o">=</span>/uploads/helper_reset_exports
+bash<span class="w"> </span>scripts/retention_maintenance.sh<span class="w"> </span>--compose-mode<span class="w"> </span>prod
+</code></pre></div>
+<p>Optional webhook alerts (for unattended runs):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">RETENTION_ALERT_WEBHOOK_URL</span><span class="o">=</span><span class="s2">&quot;https://hooks.example.org/classhub&quot;</span>
+bash<span class="w"> </span>scripts/retention_maintenance.sh<span class="w"> </span>--compose-mode<span class="w"> </span>prod<span class="w"> </span>--alert-on-success
+</code></pre></div>
+<p>Systemd timer (recommended):</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>cp<span class="w"> </span>/srv/lms/app/ops/systemd/classhub-retention.service<span class="w"> </span>/etc/systemd/system/
+sudo<span class="w"> </span>cp<span class="w"> </span>/srv/lms/app/ops/systemd/classhub-retention.timer<span class="w"> </span>/etc/systemd/system/
+sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>classhub-retention.timer
+sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>classhub-retention.timer
+</code></pre></div>
+<p>Before enabling, edit <code>/etc/systemd/system/classhub-retention.service</code> if your app path or runtime user differs from <code>/srv/lms/app</code>.
+Shipped defaults are:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[Service]</span>
+<span class="na">User</span><span class="o">=</span><span class="s">lms</span>
+<span class="na">Group</span><span class="o">=</span><span class="s">docker</span>
+</code></pre></div>
+<p>If your host uses a different account, override <code>User=</code> / <code>Group=</code> in the copied unit.
+Ensure the runtime user exists and can access Docker:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[Service]</span>
+<span class="na">User</span><span class="o">=</span><span class="s">&lt;your-maintenance-user&gt;</span>
+<span class="na">Group</span><span class="o">=</span><span class="s">docker</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>id<span class="w"> </span>&lt;your-maintenance-user&gt;
+getent<span class="w"> </span>group<span class="w"> </span>docker
+sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span>&lt;your-maintenance-user&gt;
+</code></pre></div>
+<p>The unit also ships with baseline hardening (<code>NoNewPrivileges</code>, <code>PrivateTmp</code>, <code>ProtectSystem</code>, <code>ProtectHome</code>, etc.) and refuses to run as root unless <code>CLASSHUB_ALLOW_ROOT_MAINTENANCE=1</code> is set as an explicit break-glass override.</p>
+<p>Review last run:</p>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>list-timers<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>classhub-retention
+journalctl<span class="w"> </span>-u<span class="w"> </span>classhub-retention.service<span class="w"> </span>-n<span class="w"> </span><span class="m">200</span><span class="w"> </span>--no-pager
+</code></pre></div>
+<p>One-command monthly retention health snapshot (recommended):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/retention_health_snapshot.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--compose-mode<span class="w"> </span>prod<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>artifacts/stability/<span class="k">$(</span>date<span class="w"> </span>+%F<span class="k">)</span>/retention_health.log
+</code></pre></div>
+<h3 id="unattended-remote-compute-evidence-watch">Unattended remote-compute evidence watch<a class="headerlink" href="#unattended-remote-compute-evidence-watch" title="Permanent link">&para;</a></h3>
+<p>Run once manually:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+python3<span class="w"> </span>scripts/remote_compute_operator_watch.py<span class="w"> </span>--compose-mode<span class="w"> </span>prod
+</code></pre></div>
+<p>Optional webhook alerts:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">REMOTE_COMPUTE_ALERT_WEBHOOK_URL</span><span class="o">=</span><span class="s2">&quot;https://hooks.example.org/classhub&quot;</span>
+python3<span class="w"> </span>scripts/remote_compute_operator_watch.py<span class="w"> </span>--compose-mode<span class="w"> </span>prod
+</code></pre></div>
+<p>If you want notice-level <code>watch</code> states to fail the timer run as well as <code>attention</code> states:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">REMOTE_COMPUTE_FAIL_ON_WATCH</span><span class="o">=</span><span class="m">1</span>
+python3<span class="w"> </span>scripts/remote_compute_operator_watch.py<span class="w"> </span>--compose-mode<span class="w"> </span>prod
+</code></pre></div>
+<p>The watcher executes the snapshot export inside <code>classhub_web</code>, so the default internal helper URL contract can stay private (<code>http://helper_web:8000/...</code>) and does not need host port exposure.</p>
+<p>Systemd timer (recommended):</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>cp<span class="w"> </span>/srv/lms/app/ops/systemd/classhub-remote-compute-watch.service<span class="w"> </span>/etc/systemd/system/
+sudo<span class="w"> </span>cp<span class="w"> </span>/srv/lms/app/ops/systemd/classhub-remote-compute-watch.timer<span class="w"> </span>/etc/systemd/system/
+sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>classhub-remote-compute-watch.timer
+sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>classhub-remote-compute-watch.timer
+</code></pre></div>
+<p>Review last run:</p>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>list-timers<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>classhub-remote-compute-watch
+journalctl<span class="w"> </span>-u<span class="w"> </span>classhub-remote-compute-watch.service<span class="w"> </span>-n<span class="w"> </span><span class="m">200</span><span class="w"> </span>--no-pager
+</code></pre></div>
+<p>Artifacts land under <code>artifacts/stability/&lt;YYYY-MM-DD&gt;/remote_compute_watch_&lt;HHMMSSZ&gt;/</code> and include:</p>
+<ul>
+<li><code>remote_compute_operator_snapshot.json</code></li>
+<li><code>remote_compute_operator_report.json</code></li>
+<li><code>remote_compute_operator_summary.md</code></li>
+<li><code>remote_compute_operator_watch.log</code></li>
+</ul>
+<h2 id="disk-space-management">Disk Space Management<a class="headerlink" href="#disk-space-management" title="Permanent link">&para;</a></h2>
+<p>ClassHub is designed to be operationally calm and run on a single host. If disk space exceeds 85%, take these steps:</p>
+<ol>
+<li><strong>Verify automated backups aren't ballooning</strong>
+   Check your <code>backups/</code> directory. Are old backups being rotated out? If you use the bundled <code>backup_*.sh</code> scripts, consider adding a <code>find ./backups -type f -mtime +30 -delete</code> step to your cron jobs.</li>
+<li><strong>Check for abandoned or completed classroom data</strong>
+   Navigate to the Django <code>/admin</code> surface. Identify classrooms from previous academic terms or completed workshops.
+   Use the Teacher Dashboard or <code>/admin</code> to bulk-export their portfolios, then use the "Reset Roster" and "Delete Student Data" actions to clear the uploaded assets for those classes.</li>
+<li><strong>Quota Policies</strong>
+   ClassHub sets a default <code>CLASSHUB_CLASSROOM_QUOTA_MB</code> (default 2048 MB, or 2GB) per classroom to prevent large video uploads from exhausting the server. Adjust this environment variable as necessary based on your host's capacity.</li>
+</ol>
+<h2 id="log-rotation">Log rotation<a class="headerlink" href="#log-rotation" title="Permanent link">&para;</a></h2>
+<p>Cron jobs (<code>crontab.example</code>) write to:
+- <code>/var/log/classhub_backup.log</code> — nightly backup script
+- <code>/var/log/classhub_rehearsal.log</code> — backup restore rehearsal
+- <code>/var/log/classhub_retention.log</code> — submission/event retention pruning</p>
+<p>Install the rotation config:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>cp<span class="w"> </span>ops/logrotate/classhub<span class="w"> </span>/etc/logrotate.d/classhub
+sudo<span class="w"> </span>chown<span class="w"> </span>root:root<span class="w"> </span>/etc/logrotate.d/classhub
+</code></pre></div>
+<p>Verify (dry run):</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>logrotate<span class="w"> </span>-d<span class="w"> </span>/etc/logrotate.d/classhub
+</code></pre></div>
+<p>Rotation runs weekly, keeps 4 compressed archives. Check <code>/var/log/classhub_*.log*</code> weekly to confirm rotation is working.</p>
+<h2 id="escalate-when">Escalate when<a class="headerlink" href="#escalate-when" title="Permanent link">&para;</a></h2>
+<p>Move to incident workflow (<a href="../TROUBLESHOOTING/">TROUBLESHOOTING.md</a>, then <a href="../DISASTER_RECOVERY/">DISASTER_RECOVERY.md</a>) when any of these are true:</p>
+<ul>
+<li>health checks still fail after config verification</li>
+<li>migrations fail in production</li>
+<li>repeated auth failures without expected config drift</li>
+<li>data integrity issues (missing classes/submissions without intended prune/reset)</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>

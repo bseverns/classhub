@@ -1,0 +1,1841 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/ARCHITECTURE/">
+      
+      
+        <link rel="prev" href="../DEVELOPMENT/">
+      
+      
+        <link rel="next" href="../API/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>Architecture - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#architecture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRENT_STATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../FEATURE_MATURITY/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Engineering
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#runtime-topology-current" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runtime topology (current)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#end-to-end-learnerhelper-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      End-to-end learner/helper path
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trust-boundaries-map-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      Trust boundaries (Map A)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-routes-where" class="md-nav__link">
+    <span class="md-ellipsis">
+      What routes where
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data boundaries
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data boundaries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      Class Hub
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#homework-helper" class="md-nav__link">
+    <span class="md-ellipsis">
+      Homework Helper
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-two-django-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why two Django services
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#staff-activation-path-for-remote-compute" class="md-nav__link">
+    <span class="md-ellipsis">
+      Staff activation path for remote compute
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classhub-module-graph-map-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClassHub module graph (Map C)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HUBCTL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facilitator CLI (hubctl)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LOCALIZATION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Localization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LOCALIZATION_SO_REVIEW_PACKET/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Somali Review Packet
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COURSEPACK_REGISTRY_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Coursepack Registry RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ASYNC_SELF_PACED_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Async Self-Paced RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IDENTITY_SSO_EXPANSION_PLAN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Identity SSO Expansion Plan
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RBAC_CAPABILITIES_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RBAC Capabilities RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TELEMETRY_DB_SPLIT_PLAN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Telemetry DB Split Plan
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNTIME_LOCK_PROFILES/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Runtime Lock Profiles
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../KIOSK_PWA/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Classroom Kiosk PWA
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OPENAI_HELPER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Backend Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REQUEST_SAFETY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Request Safety
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HELPER_EVALS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Evals
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MERGE_READINESS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Merge Readiness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING_DOCS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs Maintenance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOCS_TRUTH_MECHANISM/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs Truth Mechanism
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#runtime-topology-current" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runtime topology (current)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#end-to-end-learnerhelper-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      End-to-end learner/helper path
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trust-boundaries-map-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      Trust boundaries (Map A)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-routes-where" class="md-nav__link">
+    <span class="md-ellipsis">
+      What routes where
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data boundaries
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data boundaries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      Class Hub
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#homework-helper" class="md-nav__link">
+    <span class="md-ellipsis">
+      Homework Helper
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-two-django-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why two Django services
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#staff-activation-path-for-remote-compute" class="md-nav__link">
+    <span class="md-ellipsis">
+      Staff activation path for remote compute
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classhub-module-graph-map-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClassHub module graph (Map C)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
+<p>This system is a small self-hosted LMS stack with a split web surface:</p>
+<ul>
+<li><code>Class Hub</code> (main LMS)</li>
+<li><code>Homework Helper</code> (AI tutor under <code>/helper/*</code>)</li>
+</ul>
+<h2 id="runtime-topology-current">Runtime topology (current)<a class="headerlink" href="#runtime-topology-current" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+  U[Students / Teachers / Admins] --&gt;|HTTP/HTTPS| C[Caddy]
+  C --&gt;|/helper/*| H[Homework Helper Django]
+  C --&gt;|everything else| W[Class Hub Django]
+
+  W --&gt; P[(Postgres)]
+  H --&gt; P
+  W --&gt; R[(Redis db0)]
+  H --&gt; R[(Redis db1)]
+
+  W --&gt; F[(Local upload volume&lt;br/&gt;/uploads)]
+  H --&gt; L[LLM backend&lt;br/&gt;mock, local, or private remote]
+  HS[Headscale VPS&lt;br/&gt;control plane only]
+
+  HS -. coordinates tailnet membership when remote/private LLM is enabled .- H
+  HS -. control plane only .- L
+
+  M[(MinIO)] -. reserved / optional .- W</code></pre>
+<h2 id="end-to-end-learnerhelper-path">End-to-end learner/helper path<a class="headerlink" href="#end-to-end-learnerhelper-path" title="Permanent link">&para;</a></h2>
+<p>In the current remote-GPU deployment, the browser only talks to the public LMS edge. The model host stays private and tailnet-only. Homework Helper is the only component that talks to that private endpoint.</p>
+<pre class="mermaid"><code>%%{init: {"flowchart": {"nodeSpacing": 18, "rankSpacing": 20, "defaultRenderer": "elk"}}}%%
+flowchart TB
+  S[Student browser] --&gt;|HTTPS| E[Public LMS edge&lt;br/&gt;Caddy]
+  E --&gt;|/, /student, lesson page| CH[Class Hub Django]
+  CH --&gt;|embedded helper widget&lt;br/&gt;same site session| HH[Homework Helper Django]
+
+  subgraph PRIVATE["Private model path"]
+    direction TB
+    TS[Tailnet-only endpoint]
+    AP[Private auth proxy]
+    GPU[Remote GPU host&lt;br/&gt;model server on 127.0.0.1]
+    TS --&gt; AP --&gt; GPU
+  end
+
+  HS[Headscale VPS&lt;br/&gt;control plane only]
+
+  HH --&gt;|HTTPS over tailnet| TS
+  HS -. coordinates LMS/GPU nodes .- HH
+  HS -. does not carry request traffic .- GPU</code></pre>
+<p>Key points:</p>
+<ul>
+<li>Browsers never connect to the GPU host directly.</li>
+<li>Homework Helper is the only component that talks to the model host.</li>
+<li>The helper request still appears inside the LMS page, but the model hop happens server-to-server from Homework Helper.</li>
+<li>Responses return along the same path; the reverse hop is omitted from the diagram to keep it readable in-flow.</li>
+<li>Class Hub remains the policy and session boundary for the learner-visible experience.</li>
+<li>The tailnet exists only for LLM traffic and related operator troubleshooting, not for normal browser traffic and not for general site routing.</li>
+<li>For createMPLS-style production deployments, the recommended control plane for that private path is a self-hosted Headscale server on a tiny Ubuntu VPS.</li>
+<li>If the remote model host is down, Class Hub pages still load; only helper responses degrade.</li>
+</ul>
+<h2 id="trust-boundaries-map-a">Trust boundaries (Map A)<a class="headerlink" href="#trust-boundaries-map-a" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TB
+  subgraph Z0["Internet and Browsers"]
+    S["Student browser"]
+    T["Teacher browser"]
+    A["Admin browser"]
+  end
+
+  subgraph Z1["Edge Proxy (Caddy)"]
+    C["Caddy: TLS, routing, request limits"]
+  end
+
+  subgraph Z2["Application Network"]
+    CH["ClassHub (Django)"]
+    HH["Homework Helper (Django)"]
+    R["Redis cache"]
+    PG["Postgres database"]
+    FS["File storage (/uploads)"]
+  end
+
+  subgraph Z3["Optional External Services"]
+    YT["YouTube-nocookie embeds"]
+    REM["Private LLM node&lt;br/&gt;tailnet-only data plane"]
+    HS["Headscale VPS&lt;br/&gt;control plane only"]
+  end
+
+  S --&gt;|HTTPS| C
+  T --&gt;|HTTPS| C
+  A --&gt;|HTTPS| C
+
+  C --&gt;|/, /teach, downloads| CH
+  C --&gt;|/helper/*| HH
+
+  CH &lt;--&gt; R
+  CH &lt;--&gt; PG
+  CH &lt;--&gt; FS
+
+  HH &lt;--&gt; R
+  HH --&gt;|metadata event POST| CH
+
+  CH -.-&gt; YT
+  HH -. optional helper-only model traffic .-&gt; REM
+  HH -. optional control-plane enrollment only .-&gt; HS</code></pre>
+<h2 id="what-routes-where">What routes where<a class="headerlink" href="#what-routes-where" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Caddy handles edge traffic.</li>
+<li><code>/helper/*</code> goes to Homework Helper.</li>
+<li>All other paths go to Class Hub.</li>
+</ul>
+<p>This means helper outages are less likely to take down core LMS pages.</p>
+<pre class="mermaid"><code>flowchart LR
+  S[Student session&lt;br/&gt;class code + display name] --&gt; W[Class Hub]
+  T[Teacher/Admin Django auth session + OTP&lt;br/&gt;optional Google SSO] --&gt; W
+  W --&gt;|signed scope token| H[Homework Helper]
+  H --&gt;|metadata-only event| W</code></pre>
+<p>For the remote private-model continuation of that flow, see <a href="../PRIVATE_LLM_BACKEND/">PRIVATE_LLM_BACKEND.md</a>.</p>
+<h2 id="data-boundaries">Data boundaries<a class="headerlink" href="#data-boundaries" title="Permanent link">&para;</a></h2>
+<h3 id="class-hub">Class Hub<a class="headerlink" href="#class-hub" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Owns classroom, student, module/material, submission, and teacher portal flows.</li>
+<li>Uses Postgres + Redis.</li>
+<li>Stores uploads on local mounted storage (<code>/uploads</code>), not public media routes.</li>
+</ul>
+<h3 id="homework-helper">Homework Helper<a class="headerlink" href="#homework-helper" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Owns helper chat policy, prompt shaping, and model backends.</li>
+<li>Uses Postgres + Redis for auth/session/rate-limit integration.</li>
+<li>Uses a small local Ollama path by default for bounded smoke/day-1 validation; serious remote Gemma-family or other private backends are supported through the helper provider layer.</li>
+<li>Private remote deployment stays control-plane-agnostic at runtime: the app uses <code>LLM_BASE_URL</code> and <code>LLM_API_KEY</code>, while operators may use Tailscale or Headscale to coordinate the private host-to-host path.</li>
+<li>Owns the bounded remote-compute lease control for expensive private helper backends; the teacher/admin surface can request activation, but provider credentials and orchestration APIs remain server-side.</li>
+<li>Runtime behavior is resolved through explicit contracts:</li>
+<li>scope/context envelope (<code>engine/context_envelope.py</code>)</li>
+<li>policy bundle (<code>engine/runtime_config.py</code>)</li>
+<li>execution config (<code>engine/execution_config.py</code>)</li>
+<li>provider abstraction (<code>tutor/llm/*</code>)</li>
+</ul>
+<h2 id="why-two-django-services">Why two Django services<a class="headerlink" href="#why-two-django-services" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Availability isolation: core classroom flows can remain usable when AI degrades.</li>
+<li>Security boundaries: helper policy/rate-limit logic is isolated from core LMS pages.</li>
+<li>Operational flexibility: helper can evolve independently (model/backend changes).</li>
+</ol>
+<h2 id="deployment-model">Deployment model<a class="headerlink" href="#deployment-model" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Production images bake service code and curriculum content from repo.</li>
+<li>Gunicorn serves Django WSGI (ClassHub) and ASGI via Uvicorn workers (Homework Helper) in containers.</li>
+<li>Local dev uses compose override + bind mounts for fast iteration.</li>
+<li>Day-1 deploy/test defaults to a bundled CPU-local Ollama service with a small local smoke profile when the helper backend points at <code>http://ollama:11434</code>.</li>
+<li>Private remote inference remains optional; remote helper validation is advisory by default so the core LMS stack can still deploy and smoke-test independently.</li>
+<li>For createMPLS-style production use, the recommended serious path is a public LMS plus a private tailnet-only model endpoint coordinated by Headscale on a tiny Ubuntu VPS, with a Gemma-family model as the recommended open-model example on the private GPU host.</li>
+</ul>
+<h2 id="staff-activation-path-for-remote-compute">Staff activation path for remote compute<a class="headerlink" href="#staff-activation-path-for-remote-compute" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+  Staff["Teacher/Admin"]
+  LMS["ClassHub /teach/class/&lt;id&gt;"]
+  Helper["Homework Helper internal control"]
+  Ops["Server-side orchestration URL"]
+  Remote["Remote helper compute"]
+
+  Staff --&gt; LMS
+  LMS --&gt; Helper
+  Helper --&gt; Ops
+  Ops --&gt; Remote</code></pre>
+<p>This path is staff-only and server-side after the initial teacher/admin action. It is not a student/browser feature.</p>
+<p>See:</p>
+<ul>
+<li><a href="../DEVELOPMENT/">DEVELOPMENT.md</a> for local workflow</li>
+<li><a href="../RUNBOOK/">RUNBOOK.md</a> for operations</li>
+<li><a href="../EVIDENCE_REMOTE_COMPUTE/">EVIDENCE_REMOTE_COMPUTE.md</a> for the measured lease/fallback evidence layer</li>
+<li><code>compose/docker-compose.yml</code> for source-of-truth wiring</li>
+</ul>
+<h2 id="classhub-module-graph-map-c">ClassHub module graph (Map C)<a class="headerlink" href="#classhub-module-graph-map-c" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>%%{init: {"themeVariables": {"fontSize": "11px"}, "flowchart": {"nodeSpacing": 24, "rankSpacing": 22, "defaultRenderer": "elk"}}}%%
+flowchart TB
+  subgraph URL["URLs / Routing"]
+    U[config/urls.py&lt;br/&gt;route table]
+  end
+
+  subgraph MW["Middleware layer"]
+    M1[SecurityHeadersMiddleware]
+    M2[SiteModeMiddleware]
+    M3[TeacherOTPRequiredMiddleware]
+    M4[StudentSessionMiddleware]
+  end
+
+  subgraph V["Views"]
+    direction TB
+    V1[hub/views/student_join.py&lt;br/&gt;join + invite bridge + join/index]
+    V2[hub/views/student.py&lt;br/&gt;session/home + upload + my-data + exports]
+    V3[hub/views/student_materials.py&lt;br/&gt;checklist + reflection + rubric]
+    V4[hub/views/content.py&lt;br/&gt;course + lesson render]
+    V5[hub/views/teacher.py&lt;br/&gt;portal + roster + materials]
+    V6[hub/views/internal.py&lt;br/&gt;token-gated internal events]
+    V7[hub/views/media.py&lt;br/&gt;asset/video download + stream]
+    VALL{{ClassHub view layer}}
+  end
+
+  subgraph D["Data layer"]
+    MD[hub/models.py]
+    DB[(Postgres)]
+    RC[(Redis/cache)]
+    FS[(MEDIA storage)]
+  end
+
+  subgraph H["Homework Helper service"]
+    direction TB
+    H1[tutor/views.py&lt;br/&gt;/helper/chat]
+    H2[tutor/views_chat_request.py&lt;br/&gt;request shaping]
+    H3[tutor/views_chat_deps.py&lt;br/&gt;dependency wiring]
+    H4[tutor/views_chat_runtime.py&lt;br/&gt;runtime wrappers]
+    H5[tutor/views_chat_helpers.py&lt;br/&gt;helper adapters]
+    H6[tutor/engine/service.py&lt;br/&gt;chat orchestration]
+    H7[tutor/engine/context_envelope.py&lt;br/&gt;scope contract]
+    H8[tutor/engine/runtime_config.py&lt;br/&gt;policy contract]
+    H9[tutor/engine/execution_config.py&lt;br/&gt;execution contract]
+    H10[tutor/policy.py]
+    H11[tutor/classhub_events.py]
+    H12[common/request_safety]
+    HALL{{Helper endpoint layer}}
+  end
+
+  subgraph B["Support layers (below)"]
+    direction TB
+    BSUP{{Support layer}}
+
+    subgraph S["Services"]
+      SALL[hub/services/*&lt;br/&gt;content_links + upload_validation + filenames&lt;br/&gt;ip_privacy + audit + upload_scan + release_state]
+    end
+
+    subgraph T["Templates"]
+      TP[templates/student_* + teach_* + includes/helper_widget]
+      TT[hub/templatetags/hub_extras.py]
+    end
+  end
+
+  U --&gt; M1 --&gt; M2 --&gt; M3 --&gt; M4 --&gt; VALL
+
+  VALL --&gt; V1
+  VALL --&gt; V2
+  VALL --&gt; V3
+  VALL --&gt; V4
+  VALL --&gt; V5
+  VALL --&gt; V6
+  VALL --&gt; V7
+
+  VALL --&gt; BSUP
+  BSUP --&gt; SALL
+  BSUP -.-&gt; TP
+
+  VALL ==&gt; MD
+  MD ==&gt; DB
+  VALL ==&gt; RC
+  VALL ==&gt; FS
+
+  TP -.-&gt; TT
+
+  H1 --&gt; HALL
+  HALL --&gt; H2
+  HALL --&gt; H3
+  HALL --&gt; H4
+  HALL --&gt; H5
+  HALL --&gt; H6
+  H6 --&gt; H7
+  H6 --&gt; H8
+  H6 --&gt; H9
+  H6 --&gt; H10
+  HALL --&gt; H11
+  H2 --&gt; H12
+  H11 -. token-gated internal POST .-&gt; V6
+  H12 ==&gt; RC</code></pre>
+<p>Reading note: arrows indicate directional dependencies/flow between modules.
+Where a connection has special meaning, it is labeled directly on the edge
+(for example, <code>token-gated internal POST</code>).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>

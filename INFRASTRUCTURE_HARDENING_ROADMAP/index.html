@@ -1,0 +1,2436 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/INFRASTRUCTURE_HARDENING_ROADMAP/">
+      
+      
+        <link rel="prev" href="../FEATURE_MATURITY/">
+      
+      
+        <link rel="next" href="../CANONICAL_TRUTHS/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>Infrastructure Hardening Roadmap - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#infrastructure-hardening-roadmap" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Infrastructure Hardening Roadmap
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRENT_STATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Operations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FEATURE_MATURITY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Feature Maturity
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Infrastructure Hardening Roadmap
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Infrastructure Hardening Roadmap
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#closure-recommendation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Closure recommendation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-roadmap-is-for" class="md-nav__link">
+    <span class="md-ellipsis">
+      What This Roadmap Is For
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardening-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hardening Order
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-1-lease-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Priority 1: Lease Governance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority 1: Lease Governance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-comes-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Comes First
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-outcomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required outcomes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-facing-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo-facing work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-looks-like" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done looks like
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-2-honest-readiness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Priority 2: Honest Readiness
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority 2: Honest Readiness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goal_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-comes-second" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Comes Second
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-outcomes_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required outcomes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-facing-work_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo-facing work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-looks-like_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done looks like
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-3-minimal-durable-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Priority 3: Minimal Durable Metrics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority 3: Minimal Durable Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goal_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-comes-third" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Comes Third
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-counters-or-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required counters or evidence
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-facing-work_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo-facing work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-looks-like_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done looks like
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-4-provisioning-codification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Priority 4: Provisioning Codification
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority 4: Provisioning Codification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goal_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-comes-fourth" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Comes Fourth
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-outcomes_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required outcomes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-facing-work_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo-facing work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-looks-like_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done looks like
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-5-bridge-idempotency-and-audit-trail" class="md-nav__link">
+    <span class="md-ellipsis">
+      Priority 5: Bridge Idempotency And Audit Trail
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority 5: Bridge Idempotency And Audit Trail">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goal_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-comes-fifth" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Comes Fifth
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-outcomes_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required outcomes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-facing-work_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo-facing work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-looks-like_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done looks like
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-not-to-do-during-this-hardening-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      What Not To Do During This Hardening Pass
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recommended-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recommended Sequence
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#two-year-quiet-durability-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two-Year Quiet-Durability Check
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Docs
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CANONICAL_TRUTHS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Canonical Truths
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DAY1_DEPLOY_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Day 1 Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BOOTSTRAP_SERVER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bootstrap Server
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STAFF_ACCOUNT_OPS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Staff Account Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MINIMUM_VIABLE_OPERATOR/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Minimum Viable Operator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HEADSCALE_CONTROL_PLANE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Headscale Control Plane
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PRIVATE_LLM_BACKEND/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Private LLM Backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JETSON_B_HELPER_BACKEND/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Jetson-B Helper Backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REMOTE_HELPER_COMPUTE_CONTROL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remote Helper Compute Control
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../EVIDENCE_REMOTE_COMPUTE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remote Compute Evidence
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNBOOK/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Runbook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INCIDENT_RESPONSE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Incident Response
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRICULUM_OPS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Curriculum Ops
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DISASTER_RECOVERY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Disaster Recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REPORTING_REHEARSAL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reporting Rehearsal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RESTORE_REHEARSAL_LOG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Restore Rehearsal Log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TURNOVER_PACKET/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Turnover Packet
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TURNOVER_DRILL_LOG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Turnover Drill Log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OPS_CADENCE_CHECKLIST/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ops Cadence Checklist
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RELEASING/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Releasing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DEVELOPMENT/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#closure-recommendation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Closure recommendation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-roadmap-is-for" class="md-nav__link">
+    <span class="md-ellipsis">
+      What This Roadmap Is For
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hardening-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hardening Order
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-1-lease-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Priority 1: Lease Governance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority 1: Lease Governance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-comes-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Comes First
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-outcomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required outcomes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-facing-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo-facing work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-looks-like" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done looks like
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-2-honest-readiness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Priority 2: Honest Readiness
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority 2: Honest Readiness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goal_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-comes-second" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Comes Second
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-outcomes_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required outcomes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-facing-work_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo-facing work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-looks-like_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done looks like
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-3-minimal-durable-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Priority 3: Minimal Durable Metrics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority 3: Minimal Durable Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goal_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-comes-third" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Comes Third
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-counters-or-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required counters or evidence
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-facing-work_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo-facing work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-looks-like_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done looks like
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-4-provisioning-codification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Priority 4: Provisioning Codification
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority 4: Provisioning Codification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goal_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-comes-fourth" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Comes Fourth
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-outcomes_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required outcomes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-facing-work_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo-facing work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-looks-like_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done looks like
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-5-bridge-idempotency-and-audit-trail" class="md-nav__link">
+    <span class="md-ellipsis">
+      Priority 5: Bridge Idempotency And Audit Trail
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority 5: Bridge Idempotency And Audit Trail">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goal_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-comes-fifth" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Comes Fifth
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-outcomes_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required outcomes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-facing-work_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Repo-facing work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-looks-like_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done looks like
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-not-to-do-during-this-hardening-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      What Not To Do During This Hardening Pass
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recommended-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recommended Sequence
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#two-year-quiet-durability-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two-Year Quiet-Durability Check
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Docs
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="infrastructure-hardening-roadmap">Infrastructure Hardening Roadmap<a class="headerlink" href="#infrastructure-hardening-roadmap" title="Permanent link">&para;</a></h1>
+<h2 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h2>
+<p>This is no longer a broad exploratory roadmap. Large parts of the hardening pass are already real on <code>main</code>.</p>
+<p>Current state by priority:</p>
+<ul>
+<li>Priority 1: Lease governance</li>
+<li>largely shipped in bounded form (<code>TTL</code>, expiry display, explicit stop path, unused-activation accounting)</li>
+<li>Priority 2: Honest readiness</li>
+<li>largely shipped in bounded form (<code>ready</code> depends on warm probe / usable remote path, not only instance existence)</li>
+<li>Priority 3: Minimal durable metrics</li>
+<li>shipped in bounded form (durable lease/accounting state, snapshot/export, operator watch path)</li>
+<li>Priority 4: Provisioning codification</li>
+<li>mostly shipped in repo artifacts; still needs real blank-host restore evidence capture</li>
+<li>Priority 5: Bridge idempotency and audit trail</li>
+<li>partially shipped; still the main remaining hardening lane</li>
+</ul>
+<h2 id="closure-recommendation">Closure recommendation<a class="headerlink" href="#closure-recommendation" title="Permanent link">&para;</a></h2>
+<p>Treat Priorities 1-3 as effectively complete for this release line, keep Priority 4 open only for proof-by-rehearsal, and focus active implementation on finishing Priority 5.</p>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>This roadmap turns the current infrastructure review into a bounded next-step plan for the createMPLS deployment style:</p>
+<ul>
+<li>public LMS at <code>lms.creatempls.org</code></li>
+<li>private model host</li>
+<li>Homework Helper as the only model client</li>
+<li>host-to-host tailnet for helper/model traffic only</li>
+<li>Headscale on a tiny Ubuntu VPS as the recommended control plane</li>
+<li>remote helper compute off by default, staff-only, class-scoped, and cost-aware</li>
+</ul>
+<p>This is not a platform-expansion roadmap. It is a hardening roadmap for making the current architecture quieter, more honest, and less dependent on operator memory.</p>
+<h2 id="what-this-roadmap-is-for">What This Roadmap Is For<a class="headerlink" href="#what-this-roadmap-is-for" title="Permanent link">&para;</a></h2>
+<p>Use this page when deciding what to harden next in the remote helper compute chain.</p>
+<p>The current repo already has:</p>
+<ul>
+<li>strong public/private boundary discipline</li>
+<li>good fallback behavior when remote compute is unavailable</li>
+<li>clear operator docs for the expected topology</li>
+</ul>
+<p>The remaining work is mostly about making the system more self-calming:</p>
+<ul>
+<li>less drift between orchestration truth and runtime truth</li>
+<li>less cost leakage from forgotten remote leases</li>
+<li>more durable evidence when the remote path is helping or hurting</li>
+<li>less dependence on oral tradition for Headscale and bridge operations</li>
+</ul>
+<h2 id="hardening-order">Hardening Order<a class="headerlink" href="#hardening-order" title="Permanent link">&para;</a></h2>
+<p>Use this as the closeout order, not as a speculative backlog.</p>
+<h2 id="priority-1-lease-governance">Priority 1: Lease Governance<a class="headerlink" href="#priority-1-lease-governance" title="Permanent link">&para;</a></h2>
+<p>Status: Mostly closed on <code>main</code>.</p>
+<h3 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h3>
+<p>Make expensive remote helper compute harder to leave on accidentally.</p>
+<h3 id="why-this-comes-first">Why This Comes First<a class="headerlink" href="#why-this-comes-first" title="Permanent link">&para;</a></h3>
+<p>This is the cheapest way to reduce both financial risk and operator anxiety.</p>
+<h3 id="required-outcomes">Required outcomes<a class="headerlink" href="#required-outcomes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>every remote helper lease has a mandatory TTL</li>
+<li>auto-stop is on by default</li>
+<li><code>/teach</code> shows a clear <code>expires at</code> value</li>
+<li>staff have one obvious <code>Stop now</code> path</li>
+<li>createMPLS deployment default is max concurrent remote lease count of <code>1</code></li>
+</ul>
+<h3 id="repo-facing-work">Repo-facing work<a class="headerlink" href="#repo-facing-work" title="Permanent link">&para;</a></h3>
+<ul>
+<li>enforce lease expiry even when the UI is not revisited</li>
+<li>add one canonical class/session lease duration setting</li>
+<li>surface active lease countdown and stop affordance in <code>/teach/class/&lt;id&gt;</code></li>
+<li>record explicit stop reason:</li>
+<li>manual stop</li>
+<li>TTL expiry</li>
+<li>class end</li>
+<li>idle stop</li>
+</ul>
+<h3 id="done-looks-like">Done looks like<a class="headerlink" href="#done-looks-like" title="Permanent link">&para;</a></h3>
+<ul>
+<li>a class can activate remote compute, use it, and leave the page without creating surprise spend</li>
+<li>operator evidence can show why the remote backend stopped</li>
+</ul>
+<h2 id="priority-2-honest-readiness">Priority 2: Honest Readiness<a class="headerlink" href="#priority-2-honest-readiness" title="Permanent link">&para;</a></h2>
+<p>Status: Mostly closed on <code>main</code>.</p>
+<h3 id="goal_1">Goal<a class="headerlink" href="#goal_1" title="Permanent link">&para;</a></h3>
+<p>Only call the remote path <code>ready</code> when it is actually usable for helper traffic.</p>
+<h3 id="why-this-comes-second">Why This Comes Second<a class="headerlink" href="#why-this-comes-second" title="Permanent link">&para;</a></h3>
+<p>The most likely production failure is state drift: provider says the backend exists, but helper traffic is still not truly ready.</p>
+<h3 id="required-outcomes_1">Required outcomes<a class="headerlink" href="#required-outcomes_1" title="Permanent link">&para;</a></h3>
+<p><code>ready</code> means all of these are true:</p>
+<ul>
+<li>model endpoint is reachable from Homework Helper</li>
+<li>auth/token path is valid</li>
+<li>a warm probe request succeeds</li>
+<li>first-use latency is still within a bounded classroom budget</li>
+</ul>
+<p>Anything weaker should remain <code>starting</code>, <code>degraded</code>, or <code>error</code>.</p>
+<h3 id="repo-facing-work_1">Repo-facing work<a class="headerlink" href="#repo-facing-work_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>tighten the provider bridge contract around readiness semantics</li>
+<li>separate <code>instance exists</code> from <code>helper-ready</code></li>
+<li>add one explicit warm-probe result to remote lease state</li>
+<li>keep helper routing remote only when lease state is <code>ready</code></li>
+<li>preserve local/default fallback when readiness cannot be proven</li>
+</ul>
+<h3 id="done-looks-like_1">Done looks like<a class="headerlink" href="#done-looks-like_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>staff do not see <code>ready</code> unless a real helper request would likely succeed</li>
+<li>remote activation failures degrade cleanly without confusing status language</li>
+</ul>
+<h2 id="priority-3-minimal-durable-metrics">Priority 3: Minimal Durable Metrics<a class="headerlink" href="#priority-3-minimal-durable-metrics" title="Permanent link">&para;</a></h2>
+<p>Status: Closed in bounded form on <code>main</code>.</p>
+<h3 id="goal_2">Goal<a class="headerlink" href="#goal_2" title="Permanent link">&para;</a></h3>
+<p>Make the remote helper path diagnosable without introducing observability theater.</p>
+<h3 id="why-this-comes-third">Why This Comes Third<a class="headerlink" href="#why-this-comes-third" title="Permanent link">&para;</a></h3>
+<p>Once leases and readiness are honest, the next question is whether the feature is worth its cost and complexity.</p>
+<h3 id="required-counters-or-evidence">Required counters or evidence<a class="headerlink" href="#required-counters-or-evidence" title="Permanent link">&para;</a></h3>
+<ul>
+<li>remote lease activations</li>
+<li>average time to ready</li>
+<li>fallback count by class/session</li>
+<li>degraded transitions</li>
+<li>provider unreachable events</li>
+<li>activations where remote compute was never actually used</li>
+</ul>
+<h3 id="repo-facing-work_2">Repo-facing work<a class="headerlink" href="#repo-facing-work_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>add structured counters or append-only events for lease lifecycle milestones</li>
+<li>expose a small operator evidence view or export for active/recent remote sessions</li>
+<li>add one low-noise summary in <code>/teach</code> or operator evidence surfaces</li>
+</ul>
+<p>Current status:</p>
+<ul>
+<li>helper remote lease state and per-class accounting are now durable in helper-owned Django tables, with cache retained only as a mirror for hot reads</li>
+<li>export/snapshot polish is now live in both <code>/teach</code> and the unattended <code>remote_compute_operator_watch.py</code> path</li>
+</ul>
+<h3 id="done-looks-like_2">Done looks like<a class="headerlink" href="#done-looks-like_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>operators can answer whether remote compute is helping, failing, or wasting money without reading raw logs</li>
+</ul>
+<h2 id="priority-4-provisioning-codification">Priority 4: Provisioning Codification<a class="headerlink" href="#priority-4-provisioning-codification" title="Permanent link">&para;</a></h2>
+<p>Status: Repo artifacts shipped; proof rehearsal still open.</p>
+<h3 id="goal_3">Goal<a class="headerlink" href="#goal_3" title="Permanent link">&para;</a></h3>
+<p>Turn more of the Headscale and remote bridge story into reproducible artifacts.</p>
+<h3 id="why-this-comes-fourth">Why This Comes Fourth<a class="headerlink" href="#why-this-comes-fourth" title="Permanent link">&para;</a></h3>
+<p>The architecture is already good. The remaining risk is operator drift around bootstrap, backup, restore, and enrollment steps.</p>
+<h3 id="required-outcomes_2">Required outcomes<a class="headerlink" href="#required-outcomes_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>one canonical Headscale bootstrap path</li>
+<li>example systemd units where appropriate</li>
+<li>backup script or equivalent repeatable command path</li>
+<li>restore checklist validated against a blank VPS</li>
+<li>one canonical bridge/bootstrap env template</li>
+</ul>
+<h3 id="repo-facing-work_3">Repo-facing work<a class="headerlink" href="#repo-facing-work_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>add <code>ops/headscale/</code> and bridge deployment artifacts only where they reduce ambiguity</li>
+<li>prefer narrow, auditable artifacts over broad automation claims</li>
+<li>rehearse restore against a fresh host and record the evidence</li>
+</ul>
+<p>Current status:</p>
+<ul>
+<li>the repo now ships a narrow Headscale bundle in <code>ops/headscale/</code> for bootstrap, Compose/systemd, backup, and restore</li>
+<li>the repo now also ships <code>scripts/headscale_restore_rehearsal_evidence.sh</code> so a replacement-host drill can produce one canonical artifact set instead of relying on operator memory</li>
+<li>the remaining proof step is to run that rehearsal on a real blank VPS and record the resulting evidence</li>
+</ul>
+<h3 id="done-looks-like_3">Done looks like<a class="headerlink" href="#done-looks-like_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>replacing the Headscale VPS or bridge host does not require improvisation</li>
+</ul>
+<h2 id="priority-5-bridge-idempotency-and-audit-trail">Priority 5: Bridge Idempotency And Audit Trail<a class="headerlink" href="#priority-5-bridge-idempotency-and-audit-trail" title="Permanent link">&para;</a></h2>
+<p>Status: Still active and should be treated as the primary remaining hardening slice.</p>
+<h3 id="goal_4">Goal<a class="headerlink" href="#goal_4" title="Permanent link">&para;</a></h3>
+<p>Make repeated activate/stop requests safe and auditable.</p>
+<h3 id="why-this-comes-fifth">Why This Comes Fifth<a class="headerlink" href="#why-this-comes-fifth" title="Permanent link">&para;</a></h3>
+<p>Once the lease lifecycle is real production behavior, duplicate clicks and repeated retries should not create backend chaos.</p>
+<h3 id="required-outcomes_3">Required outcomes<a class="headerlink" href="#required-outcomes_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>duplicate activate requests do not create duplicate cost events</li>
+<li>duplicate stop requests are harmless</li>
+<li>audit trail records:</li>
+<li>who requested the action</li>
+<li>for which class</li>
+<li>when it was requested</li>
+<li>what outcome the bridge reported</li>
+<li>when the backend actually turned off</li>
+</ul>
+<h3 id="repo-facing-work_4">Repo-facing work<a class="headerlink" href="#repo-facing-work_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>tighten bridge request idempotency keys or equivalent request correlation</li>
+<li>persist lease lifecycle events with actor + class context</li>
+<li>expose enough audit detail for operator handoff and postmortems</li>
+</ul>
+<h3 id="done-looks-like_4">Done looks like<a class="headerlink" href="#done-looks-like_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>operators can reconstruct a remote lease lifecycle without reading provider consoles first</li>
+</ul>
+<h2 id="what-not-to-do-during-this-hardening-pass">What Not To Do During This Hardening Pass<a class="headerlink" href="#what-not-to-do-during-this-hardening-pass" title="Permanent link">&para;</a></h2>
+<ul>
+<li>do not route public browser traffic over the tailnet</li>
+<li>do not make the LMS depend on Headscale APIs</li>
+<li>do not broaden the tailnet into general office or site routing</li>
+<li>do not add Kubernetes, service mesh, or large observability stack complexity</li>
+<li>do not make remote GPU the default helper path</li>
+</ul>
+<h2 id="recommended-sequence">Recommended Sequence<a class="headerlink" href="#recommended-sequence" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Record one real blank-host Headscale restore rehearsal artifact set.</li>
+<li>Finish bridge idempotency and stronger lease audit-trail correlation.</li>
+<li>Re-run one boring remote lease lifecycle from activate to stop and archive the evidence.</li>
+<li>Reclassify this roadmap to historical hardening record once those proofs exist.</li>
+</ol>
+<h2 id="two-year-quiet-durability-check">Two-Year Quiet-Durability Check<a class="headerlink" href="#two-year-quiet-durability-check" title="Permanent link">&para;</a></h2>
+<p>This roadmap is working if the repo can demonstrate all five of these:</p>
+<ol>
+<li>One boring Headscale restore onto a replacement VPS.</li>
+<li>One boring remote lease lifecycle from activate to stop.</li>
+<li>Evidence that fallback is graceful and relatively rare.</li>
+<li>One small operator view showing active lease, expiry, backend mode, and recent fallbacks.</li>
+<li>Fewer critical steps that depend on one maintainer remembering them from memory.</li>
+</ol>
+<h2 id="related-docs">Related Docs<a class="headerlink" href="#related-docs" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../CURRENT_STATE/">CURRENT_STATE.md</a></li>
+<li><a href="../FEATURE_MATURITY/">FEATURE_MATURITY.md</a></li>
+<li><a href="../HEADSCALE_CONTROL_PLANE/">HEADSCALE_CONTROL_PLANE.md</a></li>
+<li><a href="../PRIVATE_LLM_BACKEND/">PRIVATE_LLM_BACKEND.md</a></li>
+<li><a href="../REMOTE_HELPER_COMPUTE_CONTROL/">REMOTE_HELPER_COMPUTE_CONTROL.md</a></li>
+<li><a href="../RUNBOOK/">RUNBOOK.md</a></li>
+<li><a href="../MAINTENANCE_RISK_REGISTER/">MAINTENANCE_RISK_REGISTER.md</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>

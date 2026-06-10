@@ -1,0 +1,2613 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/TELEMETRY_DB_SPLIT_PLAN/">
+      
+      
+        <link rel="prev" href="../RBAC_CAPABILITIES_RFC/">
+      
+      
+        <link rel="next" href="../RUNTIME_LOCK_PROFILES/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>Telemetry DB Split Plan - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#telemetry-database-split-plan-phase-1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Telemetry DB Split Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRENT_STATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../FEATURE_MATURITY/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Engineering
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HUBCTL/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Facilitator CLI (hubctl)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LOCALIZATION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Localization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LOCALIZATION_SO_REVIEW_PACKET/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Somali Review Packet
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COURSEPACK_REGISTRY_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Coursepack Registry RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ASYNC_SELF_PACED_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Async Self-Paced RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IDENTITY_SSO_EXPANSION_PLAN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Identity SSO Expansion Plan
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RBAC_CAPABILITIES_RFC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RBAC Capabilities RFC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Telemetry DB Split Plan
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Telemetry DB Split Plan
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status-as-of-2026-05-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation status (as of 2026-05-07)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do now
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#306090-day-execution-checklist-kickoff-march-7-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      30/60/90-day execution checklist (kickoff: March 7, 2026)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="30/60/90-day execution checklist (kickoff: March 7, 2026)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#slo-guardrails-must-stay-green-during-rollout" class="md-nav__link">
+    <span class="md-ellipsis">
+      SLO guardrails (must stay green during rollout)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#day-0-30-march-7-april-6-2026-stabilize-phase-1-and-collect-first-evidence-cycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Day 0-30 (March 7-April 6, 2026): stabilize Phase 1 and collect first evidence cycle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-cycle-gate-policy-phase-1-slice-7-closeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current-cycle gate policy (Phase 1 Slice 7 closeout)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#day-31-60-april-7-may-6-2026-decision-gate-for-phase-1-steady-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Day 31-60 (April 7-May 6, 2026): decision gate for Phase 1 steady state
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#day-61-90-may-7-june-5-2026-phase-2-readiness-only-no-automatic-cutover" class="md-nav__link">
+    <span class="md-ellipsis">
+      Day 61-90 (May 7-June 5, 2026): Phase 2 readiness only (no automatic cutover)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification signal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-split-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why this split first
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target topology
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-model-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      Important model constraint
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execution plan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Execution plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-0-infrastructure-prep" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 0: Infrastructure prep
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1a-django-config-flags-no-behavior-change-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1A: Django config + flags (no behavior change yet)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1b-telemetry-app-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1B: Telemetry app + schema
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1c-dual-write-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1C: Dual-write implementation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1d-backfill" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1D: Backfill
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1e-read-cutover" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1E: Read cutover
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1f-stabilization-window" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1F: Stabilization window
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1g-optional-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1G: Optional completion
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rollback-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rollback plan
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operational-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operational checks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#suggested-env-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      Suggested env matrix
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#endpoint-policy-and-concrete-env-presets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Endpoint policy and concrete env presets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-candidates-not-part-of-this-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2 candidates (not part of this change)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#path-to-improvement-and-expansion-cross-cutting-roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Path to Improvement and Expansion (cross-cutting roadmap)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Path to Improvement and Expansion (cross-cutting roadmap)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-mitigate-immediate-maintenance-risks-march-june-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1: Mitigate immediate maintenance risks (March-June 2026)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-enforce-boundaries-and-finish-migrations-june-september-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: Enforce boundaries and finish migrations (June-September 2026)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-product-expansion-post-freeze-october-december-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 3: Product expansion (post-freeze; October-December 2026)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-1-implementation-backlog-execution-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1 implementation backlog (execution checklist)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-touchpoints-inventory-expected" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code touchpoints inventory (expected)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exit-criteria-by-gate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exit criteria by gate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Exit criteria by gate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gate-a-after-slice-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gate A (after Slice 3)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gate-b-after-slice-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gate B (after Slice 5)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gate-c-before-read_modetelemetry-in-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gate C (before READ_MODE=telemetry in production)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gate-d-before-write_modetelemetry_only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gate D (before WRITE_MODE=telemetry_only)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-commands-telemetry-specific" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification commands (telemetry-specific)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-decisions-requiring-sign-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      Open decisions requiring sign-off
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNTIME_LOCK_PROFILES/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Runtime Lock Profiles
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../KIOSK_PWA/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Classroom Kiosk PWA
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OPENAI_HELPER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Backend Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REQUEST_SAFETY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Request Safety
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HELPER_EVALS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper Evals
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MERGE_READINESS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Merge Readiness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING_DOCS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs Maintenance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOCS_TRUTH_MECHANISM/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docs Truth Mechanism
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status-as-of-2026-05-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation status (as of 2026-05-07)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do now
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#306090-day-execution-checklist-kickoff-march-7-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      30/60/90-day execution checklist (kickoff: March 7, 2026)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="30/60/90-day execution checklist (kickoff: March 7, 2026)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#slo-guardrails-must-stay-green-during-rollout" class="md-nav__link">
+    <span class="md-ellipsis">
+      SLO guardrails (must stay green during rollout)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#day-0-30-march-7-april-6-2026-stabilize-phase-1-and-collect-first-evidence-cycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Day 0-30 (March 7-April 6, 2026): stabilize Phase 1 and collect first evidence cycle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-cycle-gate-policy-phase-1-slice-7-closeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current-cycle gate policy (Phase 1 Slice 7 closeout)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#day-31-60-april-7-may-6-2026-decision-gate-for-phase-1-steady-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Day 31-60 (April 7-May 6, 2026): decision gate for Phase 1 steady state
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#day-61-90-may-7-june-5-2026-phase-2-readiness-only-no-automatic-cutover" class="md-nav__link">
+    <span class="md-ellipsis">
+      Day 61-90 (May 7-June 5, 2026): Phase 2 readiness only (no automatic cutover)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification signal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-split-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why this split first
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target topology
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-model-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      Important model constraint
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execution plan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Execution plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-0-infrastructure-prep" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 0: Infrastructure prep
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1a-django-config-flags-no-behavior-change-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1A: Django config + flags (no behavior change yet)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1b-telemetry-app-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1B: Telemetry app + schema
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1c-dual-write-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1C: Dual-write implementation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1d-backfill" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1D: Backfill
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1e-read-cutover" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1E: Read cutover
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1f-stabilization-window" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1F: Stabilization window
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1g-optional-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1G: Optional completion
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rollback-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rollback plan
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operational-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operational checks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#suggested-env-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      Suggested env matrix
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#endpoint-policy-and-concrete-env-presets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Endpoint policy and concrete env presets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-candidates-not-part-of-this-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2 candidates (not part of this change)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#path-to-improvement-and-expansion-cross-cutting-roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Path to Improvement and Expansion (cross-cutting roadmap)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Path to Improvement and Expansion (cross-cutting roadmap)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-mitigate-immediate-maintenance-risks-march-june-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1: Mitigate immediate maintenance risks (March-June 2026)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-enforce-boundaries-and-finish-migrations-june-september-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: Enforce boundaries and finish migrations (June-September 2026)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-product-expansion-post-freeze-october-december-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 3: Product expansion (post-freeze; October-December 2026)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-1-implementation-backlog-execution-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1 implementation backlog (execution checklist)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-touchpoints-inventory-expected" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code touchpoints inventory (expected)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exit-criteria-by-gate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exit criteria by gate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Exit criteria by gate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gate-a-after-slice-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gate A (after Slice 3)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gate-b-after-slice-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gate B (after Slice 5)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gate-c-before-read_modetelemetry-in-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gate C (before READ_MODE=telemetry in production)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gate-d-before-write_modetelemetry_only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gate D (before WRITE_MODE=telemetry_only)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-commands-telemetry-specific" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification commands (telemetry-specific)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-decisions-requiring-sign-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      Open decisions requiring sign-off
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="telemetry-database-split-plan-phase-1">Telemetry Database Split Plan (Phase 1)<a class="headerlink" href="#telemetry-database-split-plan-phase-1" title="Permanent link">&para;</a></h1>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>This page defines a low-risk, near-zero-downtime plan to split high-churn telemetry workloads from ClassHub's core transactional database.</p>
+<p>Goal:
+- keep join/login/submission core flows stable during event spikes and retention pruning,
+- reduce blast radius and backup/restore time for core LMS data.</p>
+<p>Non-goal (Phase 1):
+- do not split core transactional models (<code>Class</code>, <code>Module</code>, <code>Material</code>, <code>Submission</code>, auth tables).</p>
+<h2 id="implementation-status-as-of-2026-05-07">Implementation status (as of 2026-05-07)<a class="headerlink" href="#implementation-status-as-of-2026-05-07" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Slice 0-6 implementation is shipped on <code>main</code> (flags, telemetry schema/router, dual-write seams, read abstraction, backfill command, parity command).</li>
+<li>Slice 7 tooling is shipped (<code>scripts/telemetry_stabilization_evidence.sh</code>) and first release-cycle evidence capture is complete at <code>artifacts/stability/2026-03-10/telemetry/</code> (<code>parity</code>, strict smoke, rollback drill all pass).</li>
+<li>Slice 7 tooling now also includes:</li>
+<li>machine-rendered SLO summary capture via <code>scripts/render_telemetry_slo_summary.py</code> and explicit metric flags on <code>scripts/telemetry_stabilization_evidence.sh</code>,</li>
+<li>telemetry-aware restore rehearsal support via <code>scripts/backup_telemetry_postgres.sh</code>, <code>scripts/backup_restore_rehearsal.sh</code>, and <code>scripts/restore_rehearsal_evidence.sh --include-telemetry-db</code>.</li>
+</ul>
+<h2 id="what-to-do-now">What to do now<a class="headerlink" href="#what-to-do-now" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Run a second full release cycle with <code>WRITE_MODE=dual</code> and <code>READ_MODE=telemetry</code> to prove repeatability.</li>
+<li>Capture and archive a second evidence packet (<code>parity</code>, <code>smoke</code>, rollback drill, SLO summary) using <code>scripts/telemetry_stabilization_evidence.sh</code>.</li>
+<li>Maintain strict zero parity drift; resolve any deltas before sign-off.</li>
+<li>Run one telemetry-inclusive restore rehearsal with <code>bash scripts/restore_rehearsal_evidence.sh --include-telemetry-db ...</code>.</li>
+<li>Decide steady-state write mode (<code>dual</code> vs <code>telemetry_only</code>) and document the dated decision.</li>
+</ol>
+<h2 id="306090-day-execution-checklist-kickoff-march-7-2026">30/60/90-day execution checklist (kickoff: March 7, 2026)<a class="headerlink" href="#306090-day-execution-checklist-kickoff-march-7-2026" title="Permanent link">&para;</a></h2>
+<p>Calendar anchors:
+- Day 30 checkpoint: April 6, 2026
+- Day 60 checkpoint: May 6, 2026
+- Day 90 checkpoint: June 5, 2026</p>
+<h3 id="slo-guardrails-must-stay-green-during-rollout">SLO guardrails (must stay green during rollout)<a class="headerlink" href="#slo-guardrails-must-stay-green-during-rollout" title="Permanent link">&para;</a></h3>
+<p>Use the same metrics in staging and production evidence packets.</p>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Baseline source</th>
+<th>Guardrail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Student home p95 latency</td>
+<td>7-day pre-cutover baseline</td>
+<td>no worse than +10% for 2 consecutive weekly windows</td>
+</tr>
+<tr>
+<td>Student upload success rate</td>
+<td>30-day pre-cutover baseline</td>
+<td>&gt;= 99.0% and not down &gt;0.5 percentage points</td>
+</tr>
+<tr>
+<td>Helper chat 5xx rate</td>
+<td>30-day pre-cutover baseline</td>
+<td>&lt;= 1.0% and not up &gt;0.5 percentage points</td>
+</tr>
+<tr>
+<td>Restore rehearsal RTO</td>
+<td>quarterly rehearsal artifact</td>
+<td>&lt;= 60 minutes</td>
+</tr>
+<tr>
+<td>Restore rehearsal RPO</td>
+<td>quarterly rehearsal artifact</td>
+<td>&lt;= 15 minutes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="day-0-30-march-7-april-6-2026-stabilize-phase-1-and-collect-first-evidence-cycle">Day 0-30 (March 7-April 6, 2026): stabilize Phase 1 and collect first evidence cycle<a class="headerlink" href="#day-0-30-march-7-april-6-2026-stabilize-phase-1-and-collect-first-evidence-cycle" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] Keep production in <code>WRITE_MODE=dual</code> and <code>READ_MODE=telemetry</code> for one full release cycle.</li>
+<li>[x] Run <code>check_telemetry_parity --window-days 7</code> at least daily in staging and at least once per production deploy.</li>
+<li>[x] Capture one full evidence packet using <code>scripts/telemetry_stabilization_evidence.sh</code>:</li>
+<li>parity output,</li>
+<li>smoke output,</li>
+<li>rollback drill output (<code>--perform-rollback-drill</code>).</li>
+<li>[ ] Publish a one-page SLO summary for student home latency, upload success, and helper 5xx rates using explicit metric inputs to <code>scripts/telemetry_stabilization_evidence.sh</code> / <code>scripts/render_telemetry_slo_summary.py</code>.</li>
+<li>[x] Log and resolve all parity deltas; strict gate for this cycle is zero unresolved drift.</li>
+</ul>
+<p>Exit criteria for Day 30:
+- one complete evidence packet archived,
+- no unresolved parity deltas (strict zero-drift cycle gate),
+- rollback drill proven with env-toggle-only recovery.</p>
+<h3 id="current-cycle-gate-policy-phase-1-slice-7-closeout">Current-cycle gate policy (Phase 1 Slice 7 closeout)<a class="headerlink" href="#current-cycle-gate-policy-phase-1-slice-7-closeout" title="Permanent link">&para;</a></h3>
+<p>Lock these policies for the current sign-off cycle:</p>
+<ul>
+<li>keep <code>CLASSHUB_TELEMETRY_WRITE_MODE=dual</code></li>
+<li>keep <code>CLASSHUB_TELEMETRY_READ_MODE=telemetry</code></li>
+<li>parity threshold is strict zero drift</li>
+<li>Gate D (<code>telemetry_only</code>) decision is deferred to the next cycle unless an explicit dated decision overrides this section</li>
+</ul>
+<h3 id="day-31-60-april-7-may-6-2026-decision-gate-for-phase-1-steady-state">Day 31-60 (April 7-May 6, 2026): decision gate for Phase 1 steady state<a class="headerlink" href="#day-31-60-april-7-may-6-2026-decision-gate-for-phase-1-steady-state" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Run a second full release cycle under the same telemetry modes to prove repeatability.</li>
+<li>[ ] Re-run evidence packet capture; compare with Day 0-30 packet.</li>
+<li>[ ] Decide steady-state write mode:</li>
+<li>remain <code>dual</code> (safer default), or</li>
+<li>move to <code>telemetry_only</code> if all gates are green.</li>
+<li>[ ] Update runbook and incident checklist with the chosen steady state.</li>
+<li>[ ] Complete one restore rehearsal that includes both <code>default</code> and <code>telemetry</code> DB artifacts using <code>bash scripts/restore_rehearsal_evidence.sh --include-telemetry-db ...</code>.</li>
+</ul>
+<p>Exit criteria for Day 60:
+- two consecutive evidence cycles green,
+- SLO guardrails remain within bounds,
+- documented sign-off on write mode (<code>dual</code> or <code>telemetry_only</code>) with owner + date.</p>
+<h3 id="day-61-90-may-7-june-5-2026-phase-2-readiness-only-no-automatic-cutover">Day 61-90 (May 7-June 5, 2026): Phase 2 readiness only (no automatic cutover)<a class="headerlink" href="#day-61-90-may-7-june-5-2026-phase-2-readiness-only-no-automatic-cutover" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Produce a Phase 2 proposal limited to design + risk model:</li>
+<li>candidate data domains,</li>
+<li>migration sequence,</li>
+<li>rollback model,</li>
+<li>blast-radius analysis.</li>
+<li>[ ] Require explicit go/no-go review before any Phase 2 implementation branch starts.</li>
+<li>[ ] Keep Phase 2 blocked unless all conditions hold:</li>
+<li>Day 60 criteria are still green,</li>
+<li>no open telemetry parity incidents older than 14 days,</li>
+<li>restore rehearsal evidence is current (&lt;= 30 days old).</li>
+<li>[ ] If blocked, keep investment on reliability backlog (query budgets, runbook hardening, rehearsal automation).</li>
+</ul>
+<p>Exit criteria for Day 90:
+- approved Phase 2 design review packet with named owners, or
+- documented deferral with reasons and next review date.</p>
+<h2 id="verification-signal">Verification signal<a class="headerlink" href="#verification-signal" title="Permanent link">&para;</a></h2>
+<p>At the end of Phase 1:
+- student join/upload latency remains stable during prune jobs,
+- teacher support board and telemetry-derived rollups work with telemetry reads enabled,
+- rollback to core reads can be done by env toggle only.</p>
+<h2 id="why-this-split-first">Why this split first<a class="headerlink" href="#why-this-split-first" title="Permanent link">&para;</a></h2>
+<p><code>StudentEvent</code> and <code>StudentOutcomeEvent</code> are append-only, high-write, and retention-pruned.
+They are good isolation candidates because:
+- they can tolerate eventual consistency during migration windows,
+- they do not gate core identity/material integrity.</p>
+<h2 id="target-topology">Target topology<a class="headerlink" href="#target-topology" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>default</code> DB (core): auth, classes, roster, materials, submissions, staff audit.</li>
+<li><code>telemetry</code> DB: append-only student telemetry streams and related read paths.</li>
+<li>object storage (already external): lesson assets + uploads remain external and separate from DB.</li>
+</ul>
+<h2 id="important-model-constraint">Important model constraint<a class="headerlink" href="#important-model-constraint" title="Permanent link">&para;</a></h2>
+<p>Do not move existing FK-constrained event tables directly to a second DB in one step.
+Cross-database FK constraints and ORM joins are not safe for this codebase today.</p>
+<p>Phase 1 approach:
+- introduce telemetry-native tables with scalar IDs (no cross-DB FKs),
+- dual-write from existing event emit points,
+- progressively move read paths to telemetry queries.</p>
+<h2 id="execution-plan">Execution plan<a class="headerlink" href="#execution-plan" title="Permanent link">&para;</a></h2>
+<h3 id="phase-0-infrastructure-prep">Phase 0: Infrastructure prep<a class="headerlink" href="#phase-0-infrastructure-prep" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Provision telemetry Postgres with:</li>
+<li>PITR backups,</li>
+<li>separate credentials,</li>
+<li>connection pooling.</li>
+<li>Add monitoring:</li>
+<li>write QPS,</li>
+<li>replication/backlog (if managed service),</li>
+<li>slow query logs.</li>
+</ul>
+<h3 id="phase-1a-django-config-flags-no-behavior-change-yet">Phase 1A: Django config + flags (no behavior change yet)<a class="headerlink" href="#phase-1a-django-config-flags-no-behavior-change-yet" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Add env vars:</li>
+<li><code>CLASSHUB_TELEMETRY_DATABASE_URL</code> (optional; empty disables feature),</li>
+<li><code>CLASSHUB_TELEMETRY_WRITE_MODE=off|dual|telemetry_only</code> (start with <code>off</code>),</li>
+<li><code>CLASSHUB_TELEMETRY_READ_MODE=core|telemetry</code> (start with <code>core</code>).</li>
+<li>Settings pattern:</li>
+<li>add <code>DATABASES["telemetry"]</code> only when URL is set,</li>
+<li>route <code>hub_telemetry</code> models to telemetry DB via <code>TelemetryRouter</code>.</li>
+</ul>
+<h3 id="phase-1b-telemetry-app-schema">Phase 1B: Telemetry app + schema<a class="headerlink" href="#phase-1b-telemetry-app-schema" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Create a dedicated app (recommended: <code>hub_telemetry</code>) with tables:</li>
+<li><code>TelemetryStudentEvent</code></li>
+<li><code>TelemetryStudentOutcomeEvent</code></li>
+<li>Store scalar references instead of FKs:</li>
+<li><code>classroom_id</code>, <code>student_id</code>, <code>module_id</code>, <code>material_id</code> (nullable integers),</li>
+<li>plus event type, source, details JSON, created_at.</li>
+<li>Add indexes equivalent to current event query shapes.</li>
+</ul>
+<h3 id="phase-1c-dual-write-implementation">Phase 1C: Dual-write implementation<a class="headerlink" href="#phase-1c-dual-write-implementation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Keep existing core writes untouched.</li>
+<li>Update event emit helpers to write:</li>
+<li>core only when write mode <code>off</code>,</li>
+<li>core + telemetry when <code>dual</code>,</li>
+<li>telemetry only when <code>telemetry_only</code>.</li>
+<li>For <code>dual</code> mode:</li>
+<li>telemetry write failures should log loudly and increment counters,</li>
+<li>core write must continue to preserve behavior during rollout.</li>
+</ul>
+<h3 id="phase-1d-backfill">Phase 1D: Backfill<a class="headerlink" href="#phase-1d-backfill" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Implement management command, e.g.:</li>
+<li><code>python manage.py backfill_telemetry_events --batch-size 5000 --since-id N</code></li>
+<li>Backfill order:</li>
+<li><code>StudentEvent</code></li>
+<li><code>StudentOutcomeEvent</code></li>
+<li>Backfill idempotency:</li>
+<li>use immutable source-id markers (<code>core_event_id</code>, <code>core_outcome_event_id</code>) for safe re-runs.</li>
+</ul>
+<h3 id="phase-1e-read-cutover">Phase 1E: Read cutover<a class="headerlink" href="#phase-1e-read-cutover" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Move read-heavy paths behind <code>CLASSHUB_TELEMETRY_READ_MODE</code>:</li>
+<li>facilitator support board queries,</li>
+<li>event/outcome rollups and metrics panels.</li>
+<li>Keep fallback path to core queries under same code path.</li>
+</ul>
+<h3 id="phase-1f-stabilization-window">Phase 1F: Stabilization window<a class="headerlink" href="#phase-1f-stabilization-window" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Run with:</li>
+<li><code>WRITE_MODE=dual</code></li>
+<li><code>READ_MODE=telemetry</code></li>
+<li>for at least 1-2 release cycles.</li>
+<li>Validate:</li>
+<li>row counts by event_type/day between core and telemetry,</li>
+<li>key dashboard aggregates parity.</li>
+</ul>
+<h3 id="phase-1g-optional-completion">Phase 1G: Optional completion<a class="headerlink" href="#phase-1g-optional-completion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>If stable and parity is proven:</li>
+<li>set <code>WRITE_MODE=telemetry_only</code>.</li>
+<li>Keep core event tables for retention window before any destructive cleanup.</li>
+</ul>
+<h2 id="rollback-plan">Rollback plan<a class="headerlink" href="#rollback-plan" title="Permanent link">&para;</a></h2>
+<p>Fast rollback (no migration):
+1. Set <code>CLASSHUB_TELEMETRY_READ_MODE=core</code>.
+2. Keep <code>WRITE_MODE=dual</code> (or <code>off</code> if telemetry DB is degraded).
+3. Redeploy app.
+4. Run <code>python manage.py check_telemetry_parity --window-days 7 --allow-drift</code> and attach output to incident notes.</p>
+<p>Data safety rule:
+- never disable core writes until telemetry parity checks are green for the stabilization window.</p>
+<h2 id="operational-checks">Operational checks<a class="headerlink" href="#operational-checks" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Add to CI/deploy checklist:</li>
+<li>telemetry DB connectivity check (when URL configured),</li>
+<li>dual-write smoke check logs,</li>
+<li>parity check must pass (<code>python manage.py check_telemetry_parity --window-days 7</code>) before enabling <code>READ_MODE=telemetry</code>.</li>
+<li>Add runbook tasks:</li>
+<li>parity spot-check command output,</li>
+<li>backlog/failed-write alert thresholds,</li>
+<li>rollback drill confirmation (<code>READ_MODE=core</code> + redeploy + teacher dashboard smoke).</li>
+</ul>
+<h2 id="suggested-env-matrix">Suggested env matrix<a class="headerlink" href="#suggested-env-matrix" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Local/default:</li>
+<li>telemetry URL unset</li>
+<li><code>WRITE_MODE=off</code></li>
+<li><code>READ_MODE=core</code></li>
+<li>Staging rollout:</li>
+<li>telemetry URL set</li>
+<li><code>WRITE_MODE=dual</code></li>
+<li><code>READ_MODE=core</code> then <code>telemetry</code></li>
+<li>Production steady-state (after validation):</li>
+<li>telemetry URL set</li>
+<li><code>WRITE_MODE=dual</code> (safer) or <code>telemetry_only</code> (leaner)</li>
+<li><code>READ_MODE=telemetry</code></li>
+</ul>
+<h2 id="endpoint-policy-and-concrete-env-presets">Endpoint policy and concrete env presets<a class="headerlink" href="#endpoint-policy-and-concrete-env-presets" title="Permanent link">&para;</a></h2>
+<p>Policy:
+- <code>CLASSHUB_TELEMETRY_DATABASE_URL</code> should point to an established private database endpoint (private DNS / managed Postgres endpoint), not a public app URL.
+- Keep internal service callbacks on private/container networking (for example <code>helper_web</code> and <code>classhub_web</code> hostnames), not edge-routed domain URLs.</p>
+<p>Reference presets:</p>
+<p>Local/day-1:</p>
+<div class="highlight"><pre><span></span><code>CLASSHUB_TELEMETRY_DATABASE_URL=
+CLASSHUB_TELEMETRY_WRITE_MODE=off
+CLASSHUB_TELEMETRY_READ_MODE=core
+</code></pre></div>
+<p>Staging rollout:</p>
+<div class="highlight"><pre><span></span><code>CLASSHUB_TELEMETRY_DATABASE_URL=postgresql://classhub_telemetry:REPLACE_ME@telemetry-db.internal:5432/classhub_telemetry?sslmode=require
+CLASSHUB_TELEMETRY_WRITE_MODE=dual
+CLASSHUB_TELEMETRY_READ_MODE=core
+# After parity gates are green:
+# CLASSHUB_TELEMETRY_READ_MODE=telemetry
+</code></pre></div>
+<p>Production steady-state:</p>
+<div class="highlight"><pre><span></span><code>CLASSHUB_TELEMETRY_DATABASE_URL=postgresql://classhub_telemetry:REPLACE_ME@telemetry-db.internal:5432/classhub_telemetry?sslmode=require
+CLASSHUB_TELEMETRY_WRITE_MODE=dual
+CLASSHUB_TELEMETRY_READ_MODE=telemetry
+# Optional only after Gate D sign-off:
+# CLASSHUB_TELEMETRY_WRITE_MODE=telemetry_only
+</code></pre></div>
+<p>Internal URL examples (keep private):</p>
+<div class="highlight"><pre><span></span><code>HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+</code></pre></div>
+<h2 id="phase-2-candidates-not-part-of-this-change">Phase 2 candidates (not part of this change)<a class="headerlink" href="#phase-2-candidates-not-part-of-this-change" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Core DB read replica for teacher dashboards/reporting.</li>
+<li>Dedicated analytics warehouse fed from telemetry DB.</li>
+<li>Optional audit stream hardening (keep <code>AuditEvent</code> in core unless compliance architecture changes).</li>
+</ul>
+<h2 id="path-to-improvement-and-expansion-cross-cutting-roadmap">Path to Improvement and Expansion (cross-cutting roadmap)<a class="headerlink" href="#path-to-improvement-and-expansion-cross-cutting-roadmap" title="Permanent link">&para;</a></h2>
+<p>This section converts the documented platform risks into a phased execution track with explicit ownership and measurable gates.</p>
+<p>Transition rule:
+- Do not start a later phase until all exit criteria in the prior phase are green and sign-off is recorded in <a href="../DECISIONS/">DECISIONS.md</a>.</p>
+<h3 id="phase-1-mitigate-immediate-maintenance-risks-march-june-2026">Phase 1: Mitigate immediate maintenance risks (March-June 2026)<a class="headerlink" href="#phase-1-mitigate-immediate-maintenance-risks-march-june-2026" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Refactor teacher portal via service-layer extraction</li>
+<li>Owner: ClassHub application team.</li>
+<li>Target window: March 10-May 15, 2026.</li>
+<li>Scope: Continue extraction of dashboard assembly and syllabus import logic from <code>hub/views/teacher_parts/</code> into <code>hub/services/</code>.</li>
+<li>
+<p>Exit criteria: view-size guards stay green, <code>services/classhub/hub/views/teacher_parts/content_home.py</code> is back within budget, and new teacher portal behavior is covered by service-level tests.</p>
+</li>
+<li>
+<p>Unify outcome semantics across dashboards and certificate eligibility</p>
+</li>
+<li>Owner: Teacher insights + analytics maintainers.</li>
+<li>Target window: March 17-May 1, 2026.</li>
+<li>Scope: Centralize <code>StudentOutcomeEvent</code> aggregation behind one shared service layer consumed by both dashboard snapshot and certificate-eligibility paths.</li>
+<li>
+<p>Exit criteria: shared query module is the single source of truth, regression tests prove parity for seeded fixtures, and no count drift appears in smoke/eval checks.</p>
+</li>
+<li>
+<p>Standardize operations with a turnover packet and restore automation</p>
+</li>
+<li>Owner: SRE + release engineering.</li>
+<li>Target window: April 1-June 5, 2026.</li>
+<li>Scope: Produce a single turnover packet (runbooks, ownership map, incident checklist, recovery commands) and automate <code>scripts/backup_restore_rehearsal.sh</code> in staging CI.</li>
+<li>Automation bootstrap (March 9, 2026): <code>.github/workflows/restore-rehearsal.yml</code> now runs scheduled + on-demand rehearsal with archived evidence artifacts.</li>
+<li>Exit criteria: staged restore rehearsal runs on a fixed schedule with archived artifacts, two consecutive runs meet <code>RTO &lt;= 60 minutes</code> and <code>RPO &lt;= 15 minutes</code>, and packet links are current in onboarding docs.</li>
+</ol>
+<h3 id="phase-2-enforce-boundaries-and-finish-migrations-june-september-2026">Phase 2: Enforce boundaries and finish migrations (June-September 2026)<a class="headerlink" href="#phase-2-enforce-boundaries-and-finish-migrations-june-september-2026" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Enforce strict organizational boundaries</li>
+<li>Owner: Security/RBAC maintainers.</li>
+<li>Target window: June 10-July 12, 2026.</li>
+<li>Scope: Set <code>REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True</code> in production and migrate legacy global staff to explicit <code>OrganizationMembership</code> mappings via <code>hubctl</code>.</li>
+<li>
+<p>Exit criteria: dry-run + apply migration tooling is documented, all active staff have explicit org membership records, and policy checks pass in smoke + admin workflows.</p>
+</li>
+<li>
+<p>Execute telemetry DB split Phase 2 (gated)</p>
+</li>
+<li>Owner: Data platform + ClassHub maintainers.</li>
+<li>Target window: July 15-September 6, 2026.</li>
+<li>Scope: After Phase 1 telemetry gates remain green, isolate additional high-churn read/write workloads onto telemetry DB per approved design packet.</li>
+<li>
+<p>Exit criteria: approved design/risk/rollback packet, parity + latency SLOs remain in bounds during rollout, and rollback drill succeeds with env-toggle-only recovery.</p>
+</li>
+<li>
+<p>Complete RBAC Phase 2 custom-role workflows</p>
+</li>
+<li>Owner: Security/RBAC maintainers.</li>
+<li>Target window: July 1-September 20, 2026.</li>
+<li>Scope: Stabilize and unflag delegated approval (<code>RbacPolicyChangeRequest</code>) and custom-role management flows in teacher portal.</li>
+<li>Exit criteria: workflow feature flags are removed or default-on, audit logs are complete for grant/approval transitions, and role-management smoke tests pass for admin and delegated operators.</li>
+</ol>
+<h3 id="phase-3-product-expansion-post-freeze-october-december-2026">Phase 3: Product expansion (post-freeze; October-December 2026)<a class="headerlink" href="#phase-3-product-expansion-post-freeze-october-december-2026" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Expand Homework Helper RAG with class-scoped shared artifacts</li>
+<li>Owner: Helper platform + privacy reviewer.</li>
+<li>Target window: October 1-November 14, 2026.</li>
+<li>Scope: Support opt-in, teacher-approved class-scoped context (for example gallery exemplars) without exposing private student artifacts.</li>
+<li>
+<p>Exit criteria: explicit consent/allowlist controls are enforced, privacy tests confirm no private cross-student leakage, and moderation/audit trails capture shared-artifact usage.</p>
+</li>
+<li>
+<p>Advance decentralized coursepack registry</p>
+</li>
+<li>Owner: Curriculum platform team.</li>
+<li>Target window: October 15-December 19, 2026.</li>
+<li>Scope: Move beyond ZIP-only ingest by implementing a network-aware registry flow from <code>docs/COURSEPACK_REGISTRY_RFC.md</code>.</li>
+<li>Exit criteria: signed/verified package metadata is supported, preview/import works end-to-end from LMS UI, and an offline/manual fallback path remains documented and tested.</li>
+</ol>
+<h2 id="phase-1-implementation-backlog-execution-checklist">Phase 1 implementation backlog (execution checklist)<a class="headerlink" href="#phase-1-implementation-backlog-execution-checklist" title="Permanent link">&para;</a></h2>
+<p>Use this as the canonical execution tracker for telemetry split completion.</p>
+<ul>
+<li>[x] Slice 0: Baseline instrumentation + guardrails</li>
+<li>Add explicit counters/log fields for telemetry dual-write attempts, successes, and failures.</li>
+<li>Add an env validation rule set for telemetry toggles (invalid mode values fail early).</li>
+<li>Ensure deploy smoke remains green with telemetry toggles unset.</li>
+<li>[x] Slice 1: Settings + telemetry DB registration</li>
+<li>Add <code>CLASSHUB_TELEMETRY_DATABASE_URL</code>, <code>CLASSHUB_TELEMETRY_WRITE_MODE</code>, <code>CLASSHUB_TELEMETRY_READ_MODE</code> parsing in settings.</li>
+<li>Register <code>DATABASES["telemetry"]</code> only when URL is set.</li>
+<li>Keep behavior identical with default envs (<code>WRITE_MODE=off</code>, <code>READ_MODE=core</code>).</li>
+<li>[x] Slice 2: Telemetry app + schema</li>
+<li>Add <code>hub_telemetry</code> app and migrations for:<ul>
+<li><code>TelemetryStudentEvent</code>,</li>
+<li><code>TelemetryStudentOutcomeEvent</code>.</li>
+</ul>
+</li>
+<li>Use scalar references only (no cross-DB FKs).</li>
+<li>Add indexes matching support-board and outcomes rollup read patterns.</li>
+<li>[x] Slice 3: Dual-write service seam</li>
+<li>Introduce a single telemetry write service called by event emit points.</li>
+<li>In <code>off</code>: write core only.</li>
+<li>In <code>dual</code>: write core + telemetry (telemetry failures must not break core writes).</li>
+<li>In <code>telemetry_only</code>: write telemetry only (not enabled in production until Phase 1F gate is complete).</li>
+<li>[x] Slice 4: Read abstraction + core/telemetry switch</li>
+<li>Add read helper layer for event/outcome queries used by:<ul>
+<li>support board,</li>
+<li>teacher class rollups,</li>
+<li>data lifespan rollups that include event counts.</li>
+</ul>
+</li>
+<li>Keep shared return contract for both backends to avoid UI/view branching.</li>
+<li>[x] Slice 5: Backfill command + idempotency</li>
+<li>Add <code>backfill_telemetry_events</code> management command with:<ul>
+<li><code>--batch-size</code>,</li>
+<li><code>--since-id</code>,</li>
+<li><code>--dry-run</code>,</li>
+<li><code>--max-batches</code>.</li>
+</ul>
+</li>
+<li>Guarantee idempotent re-runs.</li>
+<li>Emit backfill progress metrics and summary.</li>
+<li>[x] Slice 6: Parity checker + cutover runbook hooks</li>
+<li>Add parity check command/script for row counts and key aggregates by day/event type.</li>
+<li>Add deploy checklist step: parity must be green before <code>READ_MODE=telemetry</code>.</li>
+<li>Add rollback checklist step: immediate switch back to <code>READ_MODE=core</code>.</li>
+<li>[ ] Slice 7: Staging/prod stabilization evidence</li>
+<li>Evidence capture tooling is now available via <code>scripts/telemetry_stabilization_evidence.sh</code>.</li>
+<li>SLO summary rendering is now available via <code>scripts/render_telemetry_slo_summary.py</code>.</li>
+<li>Telemetry-aware restore rehearsal tooling is now available via <code>scripts/backup_telemetry_postgres.sh</code> and <code>scripts/restore_rehearsal_evidence.sh --include-telemetry-db</code>.</li>
+<li>Remaining work is operational: run a second full release cycle with <code>WRITE_MODE=dual</code>, <code>READ_MODE=telemetry</code>, capture the second evidence packet, complete one telemetry-inclusive restore rehearsal, and only then decide whether to keep <code>dual</code> or move to <code>telemetry_only</code>.</li>
+</ul>
+<h2 id="code-touchpoints-inventory-expected">Code touchpoints inventory (expected)<a class="headerlink" href="#code-touchpoints-inventory-expected" title="Permanent link">&para;</a></h2>
+<p>Primary ClassHub areas likely to change:
+- <code>services/classhub/config/settings.py</code> (env parsing + <code>DATABASES["telemetry"]</code>)
+- <code>services/classhub/hub/models.py</code> (core telemetry model contract reference points only; no cross-db FK extension)
+- <code>services/classhub/hub/services/teacher_roster_class.py</code> (support board and rollup read paths)
+- <code>services/classhub/hub/services/teacher_tracker.py</code> (helper-access telemetry rollups)
+- <code>services/classhub/hub/services/data_lifespan.py</code> (event/outcome count sources)
+- <code>services/classhub/hub/views/internal.py</code> (helper telemetry ingestion write path)
+- <code>services/classhub/hub/views/student*.py</code> and <code>services/classhub/hub/views/api_student_upload.py</code> (student event emit points)
+- <code>services/classhub/hub/management/commands/</code> (new backfill/parity commands)
+- <code>services/classhub/hub/tests/</code> + <code>services/classhub/hub/tests_services.py</code> (behavior parity and toggle tests)
+- <code>scripts/system_doctor.sh</code> / smoke docs (optional telemetry parity gates when URL is configured)
+- <code>scripts/render_telemetry_slo_summary.py</code> (operator SLO evidence rendering)
+- <code>scripts/backup_telemetry_postgres.sh</code> + restore rehearsal wrappers (telemetry-aware DR evidence)</p>
+<p>Implemented app path:
+- <code>services/classhub/hub_telemetry/</code> (models, migrations, query adapters).</p>
+<h2 id="exit-criteria-by-gate">Exit criteria by gate<a class="headerlink" href="#exit-criteria-by-gate" title="Permanent link">&para;</a></h2>
+<h3 id="gate-a-after-slice-3">Gate A (after Slice 3)<a class="headerlink" href="#gate-a-after-slice-3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Core behavior unchanged with toggles at defaults.</li>
+<li>Dual-write emits telemetry failure counters without user-visible regression.</li>
+<li>Smoke + migration gates pass.</li>
+</ul>
+<h3 id="gate-b-after-slice-5">Gate B (after Slice 5)<a class="headerlink" href="#gate-b-after-slice-5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Backfill can run incrementally and re-run safely.</li>
+<li>Backfill dry-run output is deterministic.</li>
+<li>No lock contention regressions on core tables during backfill batches.</li>
+</ul>
+<h3 id="gate-c-before-read_modetelemetry-in-production">Gate C (before <code>READ_MODE=telemetry</code> in production)<a class="headerlink" href="#gate-c-before-read_modetelemetry-in-production" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Parity checks pass for:</li>
+<li>daily row counts by event type,</li>
+<li>support-board unresolved counts,</li>
+<li>teacher outcomes rollups.</li>
+<li>Rollback drill (<code>READ_MODE=core</code>) completes via env toggle + redeploy only.</li>
+</ul>
+<h3 id="gate-d-before-write_modetelemetry_only">Gate D (before <code>WRITE_MODE=telemetry_only</code>)<a class="headerlink" href="#gate-d-before-write_modetelemetry_only" title="Permanent link">&para;</a></h3>
+<ul>
+<li>At least one release cycle of stable dual-write telemetry.</li>
+<li>No unresolved parity deltas above agreed threshold.</li>
+<li>Retention and backup procedures tested with telemetry DB present.</li>
+</ul>
+<h2 id="verification-commands-telemetry-specific">Verification commands (telemetry-specific)<a class="headerlink" href="#verification-commands-telemetry-specific" title="Permanent link">&para;</a></h2>
+<p>Canonical operational command reference lives in <a href="../RUNBOOK/">RUNBOOK.md</a>.
+Use these telemetry-specific commands for this plan:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app/compose
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>backfill_telemetry_events<span class="w"> </span>--dry-run<span class="w"> </span>--batch-size<span class="w"> </span><span class="m">5000</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>classhub_web<span class="w"> </span>python<span class="w"> </span>manage.py<span class="w"> </span>check_telemetry_parity<span class="w"> </span>--window-days<span class="w"> </span><span class="m">7</span>
+</code></pre></div>
+<p>Stabilization evidence capture (Slice 7 helper):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv/lms/app
+bash<span class="w"> </span>scripts/telemetry_stabilization_evidence.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--window-days<span class="w"> </span><span class="m">7</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--perform-rollback-drill<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--student-home-p95-baseline-ms<span class="w"> </span><span class="m">240</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--student-home-p95-ms<span class="w"> </span><span class="m">248</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--student-upload-success-rate-baseline-pct<span class="w"> </span><span class="m">99</span>.40<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--student-upload-success-rate-pct<span class="w"> </span><span class="m">99</span>.35<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--helper-chat-5xx-rate-baseline-pct<span class="w"> </span><span class="m">0</span>.20<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--helper-chat-5xx-rate-pct<span class="w"> </span><span class="m">0</span>.30
+</code></pre></div>
+<h2 id="open-decisions-requiring-sign-off">Open decisions requiring sign-off<a class="headerlink" href="#open-decisions-requiring-sign-off" title="Permanent link">&para;</a></h2>
+<p>Canonical decision history lives in <a href="../DECISIONS/">DECISIONS.md</a> under "Database workload split roadmap."</p>
+<ul>
+<li>Threshold for acceptable parity deltas during stabilization (strict zero vs bounded percentage).</li>
+<li>Whether production steady-state remains <code>WRITE_MODE=dual</code> for safety or moves to <code>telemetry_only</code>.</li>
+<li>Retention/backup ownership boundaries for telemetry DB in disaster-recovery drills.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>

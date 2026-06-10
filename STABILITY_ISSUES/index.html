@@ -1,0 +1,2882 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bseverns.github.io/classhub/STABILITY_ISSUES/">
+      
+      
+        <link rel="prev" href="../STABILITY_CHARTER/">
+      
+      
+        <link rel="next" href="../STABILITY_OWNER_CADENCE/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>Stability Issues - ClassHub Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#stability-freeze-issue-drafts" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ClassHub Docs" class="md-header__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ClassHub Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Stability Issues
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ClassHub Docs" class="md-nav__button md-logo" aria-label="ClassHub Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ClassHub Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bseverns/ClassHub" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CURRENT_STATE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Current State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../START_HERE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Start Here
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../NON_DEVELOPER_GUIDE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Teaching
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../FEATURE_MATURITY/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../SECURITY_BASELINE/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Security & Privacy
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DEVELOPMENT/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Engineering
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Governance
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Governance
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LEGAL_AND_PARTNER_NOTES/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Legal and Partner Notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TOOL_CHARTER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tool Charter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STABILITY_CHARTER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Stability Charter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Stability Issues
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Stability Issues
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#shared-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shared defaults
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-1-stability-freeze-kickoff-and-owner-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 1: Stability freeze kickoff and owner assignment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 1: Stability freeze kickoff and owner assignment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-2-define-top-10-teacher-tasks-current-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 2: Define top 10 teacher tasks (current state)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 2: Define top 10 teacher tasks (current state)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-3-teacher-portal-declutter-pass-copy-and-ordering-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 3: Teacher portal declutter pass (copy and ordering only)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 3: Teacher portal declutter pass (copy and ordering only)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-4-org-boundary-policy-decision-and-production-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 4: Org boundary policy decision and production audit
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 4: Org boundary policy decision and production audit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-5-add-explicit-strict-mode-off-operator-warning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 5: Add explicit strict-mode-off operator warning
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 5: Add explicit strict-mode-off operator warning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-6-outcomes-and-certificate-semantics-canonical-note" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 6: Outcomes and certificate semantics canonical note
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 6: Outcomes and certificate semantics canonical note">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-7-end-to-end-reporting-rehearsal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 7: End-to-end reporting rehearsal
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 7: End-to-end reporting rehearsal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-8-quarterly-restore-rehearsal-baseline-and-evidence-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 8: Quarterly restore rehearsal baseline and evidence log
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 8: Quarterly restore rehearsal baseline and evidence log">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-9-retention-automation-health-check-and-alert-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 9: Retention automation health check and alert path
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 9: Retention automation health check and alert path">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-10-maintainer-turnover-drill-60-minutes-1-day" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 10: Maintainer turnover drill (60 minutes + 1 day)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 10: Maintainer turnover drill (60 minutes + 1 day)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-11-day-of-class-first-contact-lane-clarity-on-teach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 11: Day-of-class first-contact lane clarity on /teach
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 11: Day-of-class first-contact lane clarity on /teach">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#routes-in-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Routes in scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#out-of-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Out of scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification commands
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-12-class-dashboard-safety-copy-pass-for-destructive-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 12: Class dashboard safety copy pass for destructive actions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 12: Class dashboard safety copy pass for destructive actions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#routes-in-scope_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Routes in scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#out-of-scope_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Out of scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-commands_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification commands
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-13-submission-review-discoverability-and-wording-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 13: Submission review discoverability and wording consistency
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 13: Submission review discoverability and wording consistency">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#routes-in-scope_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Routes in scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#out-of-scope_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Out of scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-commands_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification commands
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related docs
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STABILITY_OWNER_CADENCE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Stability Owner Cadence
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MAINTENANCE_RISK_REGISTER/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Maintenance Risk Register
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../30_DAY_STABILITY_PLAN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    30-Day Stability Plan
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STAFF_TURNOVER_SURVIVABILITY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Staff Turnover Survivability
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DECISIONS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Decisions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../decisions/archive/2026-02/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Decision Archive
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../DOCS_MAP/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../examples/course_authoring/example_slug-public-overview-template/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#shared-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shared defaults
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-1-stability-freeze-kickoff-and-owner-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 1: Stability freeze kickoff and owner assignment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 1: Stability freeze kickoff and owner assignment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-2-define-top-10-teacher-tasks-current-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 2: Define top 10 teacher tasks (current state)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 2: Define top 10 teacher tasks (current state)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-3-teacher-portal-declutter-pass-copy-and-ordering-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 3: Teacher portal declutter pass (copy and ordering only)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 3: Teacher portal declutter pass (copy and ordering only)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-4-org-boundary-policy-decision-and-production-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 4: Org boundary policy decision and production audit
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 4: Org boundary policy decision and production audit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-5-add-explicit-strict-mode-off-operator-warning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 5: Add explicit strict-mode-off operator warning
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 5: Add explicit strict-mode-off operator warning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-6-outcomes-and-certificate-semantics-canonical-note" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 6: Outcomes and certificate semantics canonical note
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 6: Outcomes and certificate semantics canonical note">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-7-end-to-end-reporting-rehearsal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 7: End-to-end reporting rehearsal
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 7: End-to-end reporting rehearsal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-8-quarterly-restore-rehearsal-baseline-and-evidence-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 8: Quarterly restore rehearsal baseline and evidence log
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 8: Quarterly restore rehearsal baseline and evidence log">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-9-retention-automation-health-check-and-alert-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 9: Retention automation health check and alert path
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 9: Retention automation health check and alert path">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-10-maintainer-turnover-drill-60-minutes-1-day" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 10: Maintainer turnover drill (60 minutes + 1 day)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 10: Maintainer turnover drill (60 minutes + 1 day)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-11-day-of-class-first-contact-lane-clarity-on-teach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 11: Day-of-class first-contact lane clarity on /teach
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 11: Day-of-class first-contact lane clarity on /teach">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#routes-in-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Routes in scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#out-of-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Out of scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification commands
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-12-class-dashboard-safety-copy-pass-for-destructive-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 12: Class dashboard safety copy pass for destructive actions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 12: Class dashboard safety copy pass for destructive actions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#routes-in-scope_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Routes in scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#out-of-scope_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Out of scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-commands_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification commands
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-13-submission-review-discoverability-and-wording-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue 13: Submission review discoverability and wording consistency
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue 13: Submission review discoverability and wording consistency">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#routes-in-scope_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Routes in scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#out-of-scope_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Out of scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#done-means_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Done means
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-commands_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification commands
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related docs
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="stability-freeze-issue-drafts">Stability Freeze Issue Drafts<a class="headerlink" href="#stability-freeze-issue-drafts" title="Permanent link">&para;</a></h1>
+<p>Use this file to create the first execution issues for the stability freeze.</p>
+<h2 id="shared-defaults">Shared defaults<a class="headerlink" href="#shared-defaults" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Milestone: <code>Stability Freeze (30 days)</code></li>
+<li>Base labels for all issues:</li>
+<li><code>stability-freeze</code></li>
+<li><code>ops</code></li>
+<li><code>docs</code></li>
+<li><code>no-new-primitives</code></li>
+</ul>
+<h2 id="issue-1-stability-freeze-kickoff-and-owner-assignment">Issue 1: Stability freeze kickoff and owner assignment<a class="headerlink" href="#issue-1-stability-freeze-kickoff-and-owner-assignment" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>governance</code></li>
+<li><code>risk-R1</code></li>
+<li><code>risk-R5</code></li>
+<li>Owner role:</li>
+<li><code>OD</code> + <code>maintainer</code></li>
+</ul>
+<h3 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h3>
+<p>Adopt <a href="../STABILITY_CHARTER/">STABILITY_CHARTER.md</a> as active PR policy and assign owner/cadence for all five risks in <a href="../MAINTENANCE_RISK_REGISTER/">MAINTENANCE_RISK_REGISTER.md</a>.</p>
+<h3 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Assign a named owner and cadence for each risk.</li>
+<li>Add next review date for each risk to the team calendar.</li>
+<li>Confirm freeze checklist is used in review comments.</li>
+<li>Keep owner/cadence/next-review tracking in <a href="../STABILITY_OWNER_CADENCE/">STABILITY_OWNER_CADENCE.md</a>.</li>
+</ul>
+<h3 id="done-means">Done means<a class="headerlink" href="#done-means" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Every risk has a named owner and review date.</li>
+<li>Freeze checklist is visible in active PR reviews.</li>
+<li><a href="../STABILITY_OWNER_CADENCE/">STABILITY_OWNER_CADENCE.md</a> is current.</li>
+</ul>
+<hr />
+<h2 id="issue-2-define-top-10-teacher-tasks-current-state">Issue 2: Define top 10 teacher tasks (current state)<a class="headerlink" href="#issue-2-define-top-10-teacher-tasks-current-state" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>teacher-portal</code></li>
+<li><code>risk-R1</code></li>
+<li>Owner role:</li>
+<li><code>OD</code> + instructor lead</li>
+</ul>
+<h3 id="description_1">Description<a class="headerlink" href="#description_1" title="Permanent link">&para;</a></h3>
+<p>Document the top 10 real tasks staff perform in <code>/teach</code> so stabilization targets current operations, not theoretical workflows.</p>
+<h3 id="tasks_1">Tasks<a class="headerlink" href="#tasks_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Identify top 10 recurring teacher/admin tasks.</li>
+<li>Map each to route and completion signal.</li>
+<li>Add checklist link into stability docs.</li>
+</ul>
+<h3 id="done-means_1">Done means<a class="headerlink" href="#done-means_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>One agreed list exists and is linked from stability docs.</li>
+<li>List is used in weekly regression walkthroughs.</li>
+</ul>
+<hr />
+<h2 id="issue-3-teacher-portal-declutter-pass-copy-and-ordering-only">Issue 3: Teacher portal declutter pass (copy and ordering only)<a class="headerlink" href="#issue-3-teacher-portal-declutter-pass-copy-and-ordering-only" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>teacher-portal</code></li>
+<li><code>ux-smoothing</code></li>
+<li><code>risk-R1</code></li>
+<li>Owner role:</li>
+<li><code>maintainer</code></li>
+</ul>
+<h3 id="description_2">Description<a class="headerlink" href="#description_2" title="Permanent link">&para;</a></h3>
+<p>Reduce operator confusion in <code>/teach</code> and <code>/teach/class/&lt;id&gt;</code> without adding routes, tabs, models, or workflows.</p>
+<h3 id="tasks_2">Tasks<a class="headerlink" href="#tasks_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Improve copy for existing controls.</li>
+<li>Reorder controls for safer first actions.</li>
+<li>Ensure destructive actions use explicit warning language.</li>
+<li>Add/update tests only where behavior/visibility changes.</li>
+</ul>
+<h3 id="done-means_2">Done means<a class="headerlink" href="#done-means_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>First-time instructor can locate class setup, enrollment, invites, exports, and certificates quickly.</li>
+<li>No new primitives were introduced.</li>
+</ul>
+<hr />
+<h2 id="issue-4-org-boundary-policy-decision-and-production-audit">Issue 4: Org boundary policy decision and production audit<a class="headerlink" href="#issue-4-org-boundary-policy-decision-and-production-audit" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>security</code></li>
+<li><code>risk-R2</code></li>
+<li>Owner role:</li>
+<li><code>OD</code></li>
+</ul>
+<h3 id="description_3">Description<a class="headerlink" href="#description_3" title="Permanent link">&para;</a></h3>
+<p>Choose and document intended posture for <code>REQUIRE_ORG_MEMBERSHIP_FOR_STAFF</code> and verify production matches policy.</p>
+<h3 id="tasks_3">Tasks<a class="headerlink" href="#tasks_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Confirm intended value (<code>0</code> transition vs <code>1</code> strict) for current deployment.</li>
+<li>Record who approved any non-strict exception.</li>
+<li>Add next review date.</li>
+<li>Record audit output using <a href="../ORG_BOUNDARY_POLICY_AUDIT/">ORG_BOUNDARY_POLICY_AUDIT.md</a>.</li>
+</ul>
+<h3 id="done-means_3">Done means<a class="headerlink" href="#done-means_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Current setting is verified and documented.</li>
+<li>Boundary policy is explicit and review-dated.</li>
+</ul>
+<hr />
+<h2 id="issue-5-add-explicit-strict-mode-off-operator-warning">Issue 5: Add explicit strict-mode-off operator warning<a class="headerlink" href="#issue-5-add-explicit-strict-mode-off-operator-warning" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>teacher-portal</code></li>
+<li><code>hardening</code></li>
+<li><code>risk-R2</code></li>
+<li>Owner role:</li>
+<li><code>maintainer</code></li>
+</ul>
+<h3 id="description_4">Description<a class="headerlink" href="#description_4" title="Permanent link">&para;</a></h3>
+<p>Add an explicit staff-facing warning when org strict mode is off. UI/copy only; no role or permission model changes.</p>
+<h3 id="tasks_4">Tasks<a class="headerlink" href="#tasks_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Add visible warning indicator in appropriate teacher/admin context.</li>
+<li>Link warning text to policy docs.</li>
+<li>Add/update tests for visibility conditions.</li>
+</ul>
+<h3 id="done-means_4">Done means<a class="headerlink" href="#done-means_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Operators can see boundary posture in normal workflow.</li>
+<li>Warning behavior is test-backed.</li>
+</ul>
+<hr />
+<h2 id="issue-6-outcomes-and-certificate-semantics-canonical-note">Issue 6: Outcomes and certificate semantics canonical note<a class="headerlink" href="#issue-6-outcomes-and-certificate-semantics-canonical-note" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>reporting</code></li>
+<li><code>risk-R3</code></li>
+<li>Owner role:</li>
+<li><code>OD</code> + fundraising lead</li>
+</ul>
+<h3 id="description_5">Description<a class="headerlink" href="#description_5" title="Permanent link">&para;</a></h3>
+<p>Create one canonical note that defines outcome event meanings and certificate issuance semantics for staff-facing reporting.</p>
+<h3 id="tasks_5">Tasks<a class="headerlink" href="#tasks_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Define <code>session_completed</code>, <code>artifact_submitted</code>, <code>milestone_earned</code> in plain language.</li>
+<li>Define what certificate issuance does and does not assert.</li>
+<li>Link note from teacher and fundraising docs.</li>
+</ul>
+<h3 id="done-means_5">Done means<a class="headerlink" href="#done-means_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Staff can explain certificate eligibility consistently.</li>
+<li>No competing definitions in docs.</li>
+</ul>
+<hr />
+<h2 id="issue-7-end-to-end-reporting-rehearsal">Issue 7: End-to-end reporting rehearsal<a class="headerlink" href="#issue-7-end-to-end-reporting-rehearsal" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>scenario-testing</code></li>
+<li><code>risk-R3</code></li>
+<li>Owner role:</li>
+<li><code>OD</code> + instructor lead</li>
+</ul>
+<h3 id="description_6">Description<a class="headerlink" href="#description_6" title="Permanent link">&para;</a></h3>
+<p>Run an operational dry run of the full reporting path: join -&gt; submission -&gt; mark completion -&gt; outcomes export -&gt; certificate issue/download.</p>
+<h3 id="tasks_6">Tasks<a class="headerlink" href="#tasks_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Execute full workflow in a rehearsal class.</li>
+<li>Record friction points and ambiguities.</li>
+<li>Convert findings into docs/copy tickets (not new features).</li>
+<li>Record run evidence using <a href="../REPORTING_REHEARSAL/">REPORTING_REHEARSAL.md</a>.</li>
+</ul>
+<h3 id="done-means_6">Done means<a class="headerlink" href="#done-means_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Rehearsal notes are saved and linked.</li>
+<li>Follow-up tasks are narrowed to stabilization scope.</li>
+<li><a href="../REPORTING_REHEARSAL/">REPORTING_REHEARSAL.md</a> has a dated evidence row.</li>
+</ul>
+<hr />
+<h2 id="issue-8-quarterly-restore-rehearsal-baseline-and-evidence-log">Issue 8: Quarterly restore rehearsal baseline and evidence log<a class="headerlink" href="#issue-8-quarterly-restore-rehearsal-baseline-and-evidence-log" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>recovery</code></li>
+<li><code>risk-R4</code></li>
+<li>Owner role:</li>
+<li><code>OD</code> + <code>maintainer</code></li>
+</ul>
+<h3 id="description_7">Description<a class="headerlink" href="#description_7" title="Permanent link">&para;</a></h3>
+<p>Institutionalize restore rehearsal and record outcomes to prevent backup confidence drift.</p>
+<h3 id="tasks_7">Tasks<a class="headerlink" href="#tasks_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Run: <code>bash scripts/backup_restore_rehearsal.sh --compose-mode prod</code></li>
+<li>Record date, pass/fail, and blockers.</li>
+<li>Schedule next quarterly rehearsal.</li>
+<li>Capture artifacts and summary with:</li>
+<li><code>bash scripts/restore_rehearsal_evidence.sh --compose-mode prod --out-dir artifacts/stability/&lt;date&gt;</code></li>
+<li>Log the run in <a href="../RESTORE_REHEARSAL_LOG/">RESTORE_REHEARSAL_LOG.md</a>.</li>
+</ul>
+<h3 id="done-means_7">Done means<a class="headerlink" href="#done-means_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Most recent rehearsal date is documented.</li>
+<li>Next rehearsal is on calendar with owner.</li>
+<li><a href="../RESTORE_REHEARSAL_LOG/">RESTORE_REHEARSAL_LOG.md</a> contains a dated evidence row with artifact path.</li>
+</ul>
+<hr />
+<h2 id="issue-9-retention-automation-health-check-and-alert-path">Issue 9: Retention automation health check and alert path<a class="headerlink" href="#issue-9-retention-automation-health-check-and-alert-path" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>retention</code></li>
+<li><code>risk-R4</code></li>
+<li>Owner role:</li>
+<li><code>maintainer</code></li>
+</ul>
+<h3 id="description_8">Description<a class="headerlink" href="#description_8" title="Permanent link">&para;</a></h3>
+<p>Verify retention jobs are healthy and observable so retention policy remains operational, not aspirational.</p>
+<h3 id="tasks_8">Tasks<a class="headerlink" href="#tasks_8" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Verify <code>classhub-retention.timer</code> status and recent runs.</li>
+<li>Verify retention command path and optional webhook alert configuration.</li>
+<li>Document monthly verification steps.</li>
+<li>Add and use one command for evidence capture:</li>
+<li><code>bash scripts/retention_health_snapshot.sh --compose-mode prod --out artifacts/stability/&lt;date&gt;/retention_health.log</code></li>
+</ul>
+<h3 id="done-means_8">Done means<a class="headerlink" href="#done-means_8" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Retention status can be checked with a short documented sequence.</li>
+<li>Ops has clear owner for monthly retention verification.</li>
+<li>A dated retention health snapshot artifact exists for the cycle.</li>
+</ul>
+<hr />
+<h2 id="issue-10-maintainer-turnover-drill-60-minutes-1-day">Issue 10: Maintainer turnover drill (60 minutes + 1 day)<a class="headerlink" href="#issue-10-maintainer-turnover-drill-60-minutes-1-day" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>handoff</code></li>
+<li><code>risk-R5</code></li>
+<li>Owner role:</li>
+<li><code>ED</code> + <code>OD</code> + <code>maintainer</code></li>
+</ul>
+<h3 id="description_9">Description<a class="headerlink" href="#description_9" title="Permanent link">&para;</a></h3>
+<p>Run a live turnover drill using <a href="../STAFF_TURNOVER_SURVIVABILITY/">STAFF_TURNOVER_SURVIVABILITY.md</a> to validate docs and expose hidden assumptions.</p>
+<h3 id="tasks_9">Tasks<a class="headerlink" href="#tasks_9" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Execute 60-minute onboarding path with a backup maintainer.</li>
+<li>Execute first-day path (smoke + policy + recovery orientation).</li>
+<li>Log unclear steps and patch docs immediately.</li>
+<li>Record drill evidence in <a href="../TURNOVER_DRILL_LOG/">TURNOVER_DRILL_LOG.md</a>.</li>
+</ul>
+<h3 id="done-means_9">Done means<a class="headerlink" href="#done-means_9" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Backup maintainer can run critical checks without coaching.</li>
+<li>Turnover packet gaps are closed with doc updates.</li>
+<li><a href="../TURNOVER_DRILL_LOG/">TURNOVER_DRILL_LOG.md</a> has a dated drill row with next drill date.</li>
+</ul>
+<hr />
+<h2 id="issue-11-day-of-class-first-contact-lane-clarity-on-teach">Issue 11: Day-of-class first-contact lane clarity on <code>/teach</code><a class="headerlink" href="#issue-11-day-of-class-first-contact-lane-clarity-on-teach" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>teacher-portal</code></li>
+<li><code>ux-smoothing</code></li>
+<li><code>risk-R1</code></li>
+<li>Owner role:</li>
+<li><code>maintainer</code> + instructor lead</li>
+</ul>
+<h3 id="description_10">Description<a class="headerlink" href="#description_10" title="Permanent link">&para;</a></h3>
+<p>Improve first-contact clarity for daily teaching actions on <code>/teach</code> by tightening section labels/order for top tasks 1-4 in <a href="../TEACHER_TOP_TASKS/">TEACHER_TOP_TASKS.md</a>. Copy and ordering only.</p>
+<h3 id="routes-in-scope">Routes in scope<a class="headerlink" href="#routes-in-scope" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>/teach</code></li>
+<li>includes under <code>templates/includes/teach_home/*</code></li>
+</ul>
+<h3 id="tasks_10">Tasks<a class="headerlink" href="#tasks_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Ensure first visible language prioritizes:</li>
+<li>create/open class,</li>
+<li>share join access,</li>
+<li>review submission queue.</li>
+<li>Standardize CTA wording for class-opening actions (<code>Open class</code>, <code>Lessons</code>, <code>Print join card</code>) across day/setup surfaces.</li>
+<li>Move admin/operator language below classroom-first language when both are visible.</li>
+<li>Keep existing controls and route contracts unchanged.</li>
+</ul>
+<h3 id="out-of-scope">Out of scope<a class="headerlink" href="#out-of-scope" title="Permanent link">&para;</a></h3>
+<ul>
+<li>New tabs, routes, workflows, or RBAC primitives.</li>
+<li>Data model changes.</li>
+</ul>
+<h3 id="done-means_10">Done means<a class="headerlink" href="#done-means_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li>A first-time teacher can complete top tasks 1-4 from <code>/teach</code> without opening docs.</li>
+<li>No conflicting wording for equivalent actions across day/setup panels.</li>
+<li>Capability and guardrail checks pass.</li>
+</ul>
+<h3 id="verification-commands">Verification commands<a class="headerlink" href="#verification-commands" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>python scripts/check_view_size_budgets.py</code></li>
+<li><code>python scripts/check_view_function_budgets.py</code></li>
+<li><code>python scripts/check_teacher_endpoint_capability_map.py</code></li>
+<li><code>python scripts/check_frontend_static_refs.py</code></li>
+</ul>
+<hr />
+<h2 id="issue-12-class-dashboard-safety-copy-pass-for-destructive-actions">Issue 12: Class dashboard safety copy pass for destructive actions<a class="headerlink" href="#issue-12-class-dashboard-safety-copy-pass-for-destructive-actions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>teacher-portal</code></li>
+<li><code>hardening</code></li>
+<li><code>risk-R1</code></li>
+<li>Owner role:</li>
+<li><code>maintainer</code></li>
+</ul>
+<h3 id="description_11">Description<a class="headerlink" href="#description_11" title="Permanent link">&para;</a></h3>
+<p>Reduce accidental destructive operations on <code>/teach/class/&lt;id&gt;</code> by making reset/delete/lock language explicit and action intent unambiguous. Copy and confirmation-language pass only.</p>
+<h3 id="routes-in-scope_1">Routes in scope<a class="headerlink" href="#routes-in-scope_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>/teach/class/&lt;id&gt;</code></li>
+<li>related teacher templates for class controls</li>
+</ul>
+<h3 id="tasks_11">Tasks<a class="headerlink" href="#tasks_11" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Normalize destructive-action copy (<code>reset</code>, <code>delete</code>, <code>lock</code>, <code>rotate code</code>) to explicit impact language.</li>
+<li>Ensure destructive forms include clear confirmation text and consistent warning tone.</li>
+<li>Keep non-destructive actions visually and textually distinct from destructive actions.</li>
+<li>Add/update tests for text visibility where behavior changes.</li>
+</ul>
+<h3 id="out-of-scope_1">Out of scope<a class="headerlink" href="#out-of-scope_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Permission model or endpoint behavior changes.</li>
+<li>New moderation or policy workflows.</li>
+</ul>
+<h3 id="done-means_11">Done means<a class="headerlink" href="#done-means_11" title="Permanent link">&para;</a></h3>
+<ul>
+<li>A teacher can distinguish reversible vs irreversible actions at a glance.</li>
+<li>Existing destructive flows retain behavior but are harder to trigger accidentally.</li>
+<li>No route-map or RBAC guard drift.</li>
+</ul>
+<h3 id="verification-commands_1">Verification commands<a class="headerlink" href="#verification-commands_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>python scripts/check_view_size_budgets.py</code></li>
+<li><code>python scripts/check_teacher_endpoint_capability_map.py</code></li>
+<li><code>python scripts/check_rbac_endpoint_guards.py</code></li>
+<li><code>python scripts/check_no_inline_template_js.py</code></li>
+<li><code>python scripts/check_no_inline_template_css.py</code></li>
+</ul>
+<hr />
+<h2 id="issue-13-submission-review-discoverability-and-wording-consistency">Issue 13: Submission review discoverability and wording consistency<a class="headerlink" href="#issue-13-submission-review-discoverability-and-wording-consistency" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Suggested labels:</li>
+<li><code>stability-freeze</code></li>
+<li><code>teacher-portal</code></li>
+<li><code>ux-smoothing</code></li>
+<li><code>risk-R1</code></li>
+<li>Owner role:</li>
+<li><code>maintainer</code> + instructor lead</li>
+</ul>
+<h3 id="description_12">Description<a class="headerlink" href="#description_12" title="Permanent link">&para;</a></h3>
+<p>Make submission review paths obvious and consistent so teachers can reliably complete top task 4 (review/download submissions) from both <code>/teach</code> and <code>/teach/class/&lt;id&gt;</code>.</p>
+<h3 id="routes-in-scope_2">Routes in scope<a class="headerlink" href="#routes-in-scope_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>/teach</code></li>
+<li><code>/teach/class/&lt;id&gt;</code></li>
+<li><code>/teach/material/&lt;material_id&gt;/submissions</code> entry links</li>
+</ul>
+<h3 id="tasks_12">Tasks<a class="headerlink" href="#tasks_12" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Standardize queue-entry wording (<code>Open queue</code>, <code>Review submissions</code>, <code>Submissions</code>) to one canonical phrase.</li>
+<li>Ensure at least one clear submission-review entry appears in classroom-first sections.</li>
+<li>Keep export/download wording consistent between list views and class dashboard.</li>
+<li>Add/update tests where link text assertions or visibility assumptions change.</li>
+</ul>
+<h3 id="out-of-scope_2">Out of scope<a class="headerlink" href="#out-of-scope_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>New analytics surfaces.</li>
+<li>Changes to submission data model or export formats.</li>
+</ul>
+<h3 id="done-means_12">Done means<a class="headerlink" href="#done-means_12" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Teachers can find submission review from the home and class dashboards with no route hunting.</li>
+<li>Equivalent actions have one consistent label.</li>
+<li>Existing endpoint/capability contracts remain intact.</li>
+</ul>
+<h3 id="verification-commands_2">Verification commands<a class="headerlink" href="#verification-commands_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>python scripts/check_teacher_endpoint_capability_map.py</code></li>
+<li><code>python scripts/check_frontend_static_refs.py</code></li>
+<li><code>python scripts/check_no_inline_template_js.py</code></li>
+<li><code>python scripts/check_no_inline_template_css.py</code></li>
+</ul>
+<h2 id="related-docs">Related docs<a class="headerlink" href="#related-docs" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../STABILITY_CHARTER/">STABILITY_CHARTER.md</a></li>
+<li><a href="../MAINTENANCE_RISK_REGISTER/">MAINTENANCE_RISK_REGISTER.md</a></li>
+<li><a href="../30_DAY_STABILITY_PLAN/">30_DAY_STABILITY_PLAN.md</a></li>
+<li><a href="../TEACHER_TOP_TASKS/">TEACHER_TOP_TASKS.md</a></li>
+<li><a href="../STAFF_TURNOVER_SURVIVABILITY/">STAFF_TURNOVER_SURVIVABILITY.md</a></li>
+<li><a href="../STABILITY_OWNER_CADENCE/">STABILITY_OWNER_CADENCE.md</a></li>
+<li><a href="../REPORTING_REHEARSAL/">REPORTING_REHEARSAL.md</a></li>
+<li><a href="../RESTORE_REHEARSAL_LOG/">RESTORE_REHEARSAL_LOG.md</a></li>
+<li><a href="../TURNOVER_DRILL_LOG/">TURNOVER_DRILL_LOG.md</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.prune", "navigation.indexes", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../javascripts/vendor/mermaid.min.js?v=10.9.4"></script>
+      
+        <script src="../javascripts/nav-accordion.js?v=2"></script>
+      
+        <script src="../javascripts/mermaid-init.js?v=5"></script>
+      
+        <script src="../javascripts/diagram-lightbox.js?v=5"></script>
+      
+    
+  </body>
+</html>
