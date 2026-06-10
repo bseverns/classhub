@@ -59,7 +59,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Spanish/Somali localization parity](#spanishsomali-localization-parity)
 - [Feature maturity ledger and evaluator quickstart](#feature-maturity-ledger-and-evaluator-quickstart)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
-- [Docs publishing path: gh-pages branch deploy](#docs-publishing-path-gh-pages-branch-deploy)
+- [Docs publishing path: GitHub Actions Pages deploy](#docs-publishing-path-github-actions-pages-deploy)
 - [Secret handling: env-only secret sources](#secret-handling-env-only-secret-sources)
 - [Operator profile white-labeling](#operator-profile-white-labeling)
 - [Compose env dollar escaping](#compose-env-dollar-escaping)
@@ -1068,21 +1068,23 @@ Execution ownership and gates:
 - Reduces friction for non-technical readers by making zoom behavior discoverable (click diagram) instead of requiring horizontal scroll.
 - Reduces supply-chain fragility for docs rendering by avoiding runtime fetches from external script CDNs.
 
-## Docs publishing path: gh-pages branch deploy
+## Docs publishing path: GitHub Actions Pages deploy
 
 **Current decision:**
-- Publish MkDocs output by pushing generated site content to the repository `gh-pages` branch via `mkdocs gh-deploy --force` in `.github/workflows/docs.yml`.
-- Do not use the `actions/configure-pages` auto-enable path for this repository:
-  - the default workflow `GITHUB_TOKEN` cannot create or enable a Pages site,
-  - the repository already carries a dedicated `gh-pages` publish branch,
-  - branch-publish keeps the docs deploy path aligned with the existing local scaffold in `setup_docs.sh`.
-- Treat GitHub Pages repository settings as a one-time admin prerequisite:
-  - Pages source must point at the `gh-pages` branch for the published site to serve.
+- Publish MkDocs output through the GitHub Pages Actions flow in `.github/workflows/docs.yml`:
+  - `actions/configure-pages@v5`
+  - `actions/upload-pages-artifact@v3`
+  - `actions/deploy-pages@v4`
+- Do not pass `enablement: true` to `actions/configure-pages`:
+  - the repository Pages site must already exist,
+  - the default workflow `GITHUB_TOKEN` can deploy to an existing Pages site but may not be allowed to create or enable one.
+- Treat GitHub Pages repository settings as the stable source-of-truth:
+  - Pages source should remain `GitHub Actions`.
 
 **Why this remains active:**
+- Restores the deployment path that had already been serving this repository successfully.
 - Avoids recurring CI failures caused by attempting Pages-site creation with insufficient workflow token privileges.
-- Keeps the docs deploy path boring: build in CI, push static output to the dedicated publish branch, serve from standard Pages branch mode.
-- Preserves a simpler fallback model operators can inspect manually by looking at the `gh-pages` branch contents.
+- Keeps the workflow aligned with repository Pages settings so successful CI runs correspond to the public site actually updating.
 
 ## Secret handling: env-only secret sources
 
