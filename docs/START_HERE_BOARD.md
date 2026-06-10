@@ -13,6 +13,22 @@ Use this page for a 5-10 minute board walkthrough. The main idea: ClassHub is pr
 - The Homework Helper is separate and bounded; it is not a general student surveillance layer.
 - The organization owns the deployment, backup, recovery, and evidence path.
 
+## ClassHub at a glance
+
+```mermaid
+flowchart LR
+  Join["Students join<br/>class code or invite"] --> Learn["Lessons + helper<br/>day-of-class flow"]
+  Learn --> Make["Artifacts<br/>submissions, portfolio, gallery"]
+  Make --> Report["Teacher evidence<br/>exports, certificates, closeout"]
+  Trust["Trust controls<br/>retention, deletion, plain-language data pages"] -. shapes every step .-> Join
+  Trust -. shapes every step .-> Learn
+  Trust -. shapes every step .-> Make
+  Trust -. shapes every step .-> Report
+  Ops["Operator ownership<br/>deployment, backup, recovery"] -. keeps the system accountable .-> Report
+```
+
+Board read: this is not just content delivery. The product value is the full program loop from join to evidence, with trust and operations treated as first-class responsibilities.
+
 ## 10-minute reading path
 
 1. [PUBLIC_OVERVIEW.md](PUBLIC_OVERVIEW.md): plain-language product and trust overview.

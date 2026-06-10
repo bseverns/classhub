@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="260" viewBox="0 0 1400 260" role="img" aria-labelledby="title desc">
+  <title id="title">Program lifecycle flow</title>
+  <desc id="desc">Program lifecycle from recruit to renew.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .box { fill: #ffffff; stroke: #1f2937; stroke-width: 2; rx: 18; ry: 18; }
+      .line { stroke: #334155; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .label { font: 700 22px Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .small { font: 400 17px Arial, sans-serif; fill: #334155; text-anchor: middle; }
+      .caption { font: 600 20px Arial, sans-serif; fill: #0f172a; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1400" height="260"/>
+  <text class="caption" x="60" y="42">Program lifecycle: each stage creates the evidence needed for the next one</text>
+  <rect class="box" x="35" y="90" width="160" height="92"/>
+  <text class="label" x="115" y="125">Recruit</text>
+  <text class="small" x="115" y="155">entry point</text>
+  <rect class="box" x="225" y="90" width="160" height="92"/>
+  <text class="label" x="305" y="125">Enroll</text>
+  <text class="small" x="305" y="155">invite + join</text>
+  <rect class="box" x="415" y="90" width="160" height="92"/>
+  <text class="label" x="495" y="125">Deliver</text>
+  <text class="small" x="495" y="155">lesson flow</text>
+  <rect class="box" x="605" y="90" width="160" height="92"/>
+  <text class="label" x="685" y="125">Capture</text>
+  <text class="small" x="685" y="155">artifacts + events</text>
+  <rect class="box" x="795" y="90" width="160" height="92"/>
+  <text class="label" x="875" y="125">Certify</text>
+  <text class="small" x="875" y="155">completion proof</text>
+  <rect class="box" x="985" y="90" width="160" height="92"/>
+  <text class="label" x="1065" y="125">Report</text>
+  <text class="small" x="1065" y="155">exports</text>
+  <rect class="box" x="1175" y="90" width="160" height="92"/>
+  <text class="label" x="1255" y="125">Renew</text>
+  <text class="small" x="1255" y="155">repeatable setup</text>
+  <path class="line" d="M195 136 H225"/>
+  <path class="line" d="M385 136 H415"/>
+  <path class="line" d="M575 136 H605"/>
+  <path class="line" d="M765 136 H795"/>
+  <path class="line" d="M955 136 H985"/>
+  <path class="line" d="M1145 136 H1175"/>
+</svg>

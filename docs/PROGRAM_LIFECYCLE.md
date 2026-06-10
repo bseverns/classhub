@@ -13,6 +13,20 @@ If your organization runs earned-income programs, the biggest value is less admi
 
 ClassHub does not include billing. It does reduce manual coordination around enrollment, delivery evidence, and repeat-program setup.
 
+## Lifecycle map
+
+```mermaid
+flowchart LR
+  Recruit["Recruit<br/>set up the program entry point"] --> Enroll["Enroll<br/>invite links, seat limits, join flow"]
+  Enroll --> Deliver["Deliver<br/>lessons, teacher workspace, helper"]
+  Deliver --> Capture["Capture<br/>submissions, completion, evidence"]
+  Capture --> Certify["Certify<br/>eligibility and certificate files"]
+  Certify --> Report["Report<br/>outcomes and sponsor-ready exports"]
+  Report --> Renew["Renew<br/>reuse proof and class patterns"]
+```
+
+Read it left to right: each stage produces the next stage's evidence instead of forcing staff to rebuild the story later from email, spreadsheets, and memory.
+
 ## Lifecycle visuals
 
 Current captures:

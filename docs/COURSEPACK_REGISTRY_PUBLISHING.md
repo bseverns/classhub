@@ -7,6 +7,18 @@ Use this when you want to:
 - publish it in a static directory tree,
 - import it into ClassHub from a registry index instead of from a local repo checkout.
 
+## Publishing path in one view
+
+```mermaid
+flowchart LR
+  Author["Author files<br/>course content in repo"] --> Build["Build coursepack<br/>zip + sha256 + index entry"]
+  Build --> Publish["Publish static registry<br/>index.json + artifacts/"]
+  Publish --> Verify["ClassHub verifies<br/>host allowlist, size, sha256"]
+  Verify --> Import["Import into class<br/>safe unzip + normal course import"]
+```
+
+Read it left to right: the registry is a static distribution layer, not a new authoring system or hosted control plane.
+
 ## Recommended static layout
 
 Keep the registry as plain files:

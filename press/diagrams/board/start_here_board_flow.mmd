@@ -1,0 +1,9 @@
+flowchart LR
+  Join["Students join<br/>class code or invite"] --> Learn["Lessons + helper<br/>day-of-class flow"]
+  Learn --> Make["Artifacts<br/>submissions, portfolio, gallery"]
+  Make --> Report["Teacher evidence<br/>exports, certificates, closeout"]
+  Trust["Trust controls<br/>retention, deletion, plain-language data pages"] -. shapes every step .-> Join
+  Trust -. shapes every step .-> Learn
+  Trust -. shapes every step .-> Make
+  Trust -. shapes every step .-> Report
+  Ops["Operator ownership<br/>deployment, backup, recovery"] -. keeps the system accountable .-> Report

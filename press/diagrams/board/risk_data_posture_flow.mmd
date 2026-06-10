@@ -1,0 +1,15 @@
+flowchart LR
+  subgraph Keep["Stored intentionally"]
+    Identity["Class access identity<br/>display name, class membership"]
+    Work["Artifacts + events<br/>submissions, joins, completion"]
+    Staff["Staff/admin accounts<br/>roles, org assignments"]
+  end
+  subgraph Avoid["Not stored by default"]
+    Prompts["Helper prompt archive"]
+    Scores["Surveillance scoring"]
+    Ads["Ad-tech profiles"]
+  end
+  Keep --> Access["Teacher/staff access is bounded<br/>by class, role, and organization"]
+  Avoid --> Trust["Families can be told plainly<br/>what is not retained"]
+  Access --> Retention["Retention + deletion remain explicit operator workflows"]
+  Trust --> Retention

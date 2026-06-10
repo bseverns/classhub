@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="title desc">
+  <title id="title">Risk and data posture</title>
+  <desc id="desc">Diagram showing what ClassHub stores intentionally and what it avoids storing by default.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .keep { fill: #dcfce7; stroke: #15803d; stroke-width: 2; rx: 18; ry: 18; }
+      .avoid { fill: #fee2e2; stroke: #b91c1c; stroke-width: 2; rx: 18; ry: 18; }
+      .box { fill: #ffffff; stroke: #1f2937; stroke-width: 2; rx: 18; ry: 18; }
+      .line { stroke: #334155; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .label { font: 700 24px Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .small { font: 400 18px Arial, sans-serif; fill: #334155; text-anchor: middle; }
+      .caption { font: 600 20px Arial, sans-serif; fill: #0f172a; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1280" height="420"/>
+  <text class="caption" x="55" y="45">Risk posture: keep only what class delivery needs, avoid turning helper use into surveillance data</text>
+  <rect class="keep" x="55" y="82" width="470" height="165"/>
+  <text class="label" x="290" y="118">Stored intentionally</text>
+  <rect class="box" x="80" y="140" width="130" height="78"/>
+  <text class="label" x="145" y="170">Identity</text>
+  <text class="small" x="145" y="195">display name</text>
+  <rect class="box" x="225" y="140" width="140" height="78"/>
+  <text class="label" x="295" y="170">Artifacts</text>
+  <text class="small" x="295" y="195">submissions, events</text>
+  <rect class="box" x="380" y="140" width="120" height="78"/>
+  <text class="label" x="440" y="170">Staff</text>
+  <text class="small" x="440" y="195">roles, orgs</text>
+  <rect class="avoid" x="575" y="82" width="340" height="165"/>
+  <text class="label" x="745" y="118">Not stored by default</text>
+  <rect class="box" x="600" y="140" width="125" height="78"/>
+  <text class="label" x="662" y="168">Prompt</text>
+  <text class="small" x="662" y="193">archive</text>
+  <rect class="box" x="735" y="140" width="90" height="78"/>
+  <text class="label" x="780" y="168">Scores</text>
+  <rect class="box" x="835" y="140" width="55" height="78"/>
+  <text class="label" x="862" y="168">Ads</text>
+  <rect class="box" x="250" y="305" width="330" height="78"/>
+  <text class="label" x="415" y="335">Bounded staff access</text>
+  <text class="small" x="415" y="360">class, role, organization</text>
+  <rect class="box" x="715" y="305" width="380" height="78"/>
+  <text class="label" x="905" y="335">Retention + deletion workflow</text>
+  <text class="small" x="905" y="360">plain-language and operationally explicit</text>
+  <path class="line" d="M415 247 V305"/>
+  <path class="line" d="M745 247 C745 275, 790 290, 835 305"/>
+  <path class="line" d="M580 344 H715"/>
+</svg>

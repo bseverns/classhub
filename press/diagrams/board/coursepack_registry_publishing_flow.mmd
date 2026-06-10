@@ -1,0 +1,5 @@
+flowchart LR
+  Author["Author files<br/>course content in repo"] --> Build["Build coursepack<br/>zip + sha256 + index entry"]
+  Build --> Publish["Publish static registry<br/>index.json + artifacts/"]
+  Publish --> Verify["ClassHub verifies<br/>host allowlist, size, sha256"]
+  Verify --> Import["Import into class<br/>safe unzip + normal course import"]

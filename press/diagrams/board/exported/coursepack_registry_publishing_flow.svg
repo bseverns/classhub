@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="250" viewBox="0 0 1200 250" role="img" aria-labelledby="title desc">
+  <title id="title">Coursepack registry publishing flow</title>
+  <desc id="desc">Coursepack publishing flow from authored files to imported class content.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .box { fill: #ffffff; stroke: #1f2937; stroke-width: 2; rx: 18; ry: 18; }
+      .line { stroke: #334155; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .label { font: 700 22px Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .small { font: 400 17px Arial, sans-serif; fill: #334155; text-anchor: middle; }
+      .caption { font: 600 20px Arial, sans-serif; fill: #0f172a; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="250"/>
+  <text class="caption" x="55" y="42">Static registry flow: author once, publish plain files, verify before import</text>
+  <rect class="box" x="50" y="95" width="200" height="92"/>
+  <text class="label" x="150" y="128">Author files</text>
+  <text class="small" x="150" y="157">course content in repo</text>
+  <rect class="box" x="300" y="95" width="230" height="92"/>
+  <text class="label" x="415" y="128">Build coursepack</text>
+  <text class="small" x="415" y="157">zip, sha256, index entry</text>
+  <rect class="box" x="580" y="95" width="220" height="92"/>
+  <text class="label" x="690" y="128">Publish registry</text>
+  <text class="small" x="690" y="157">index.json and artifacts</text>
+  <rect class="box" x="850" y="95" width="190" height="92"/>
+  <text class="label" x="945" y="128">Verify</text>
+  <text class="small" x="945" y="157">allowlist, size, sha256</text>
+  <rect class="box" x="1070" y="95" width="95" height="92"/>
+  <text class="label" x="1117" y="128">Import</text>
+  <text class="small" x="1117" y="157">into class</text>
+  <path class="line" d="M250 141 H300"/>
+  <path class="line" d="M530 141 H580"/>
+  <path class="line" d="M800 141 H850"/>
+  <path class="line" d="M1040 141 H1070"/>
+</svg>

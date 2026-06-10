@@ -11,6 +11,28 @@ ClassHub is designed to support teaching and reporting without expanding into st
 - make reporting exportable without storing helper prompt content
 - document retention and recovery instead of relying on guesswork
 
+## Posture in one view
+
+```mermaid
+flowchart LR
+  subgraph Keep["Stored intentionally"]
+    Identity["Class access identity<br/>display name, class membership"]
+    Work["Artifacts + events<br/>submissions, joins, completion"]
+    Staff["Staff/admin accounts<br/>roles, org assignments"]
+  end
+  subgraph Avoid["Not stored by default"]
+    Prompts["Helper prompt archive"]
+    Scores["Surveillance scoring"]
+    Ads["Ad-tech profiles"]
+  end
+  Keep --> Access["Teacher/staff access is bounded<br/>by class, role, and organization"]
+  Avoid --> Trust["Families can be told plainly<br/>what is not retained"]
+  Access --> Retention["Retention + deletion remain explicit operator workflows"]
+  Trust --> Retention
+```
+
+Read this as a boundary statement: the system keeps enough to run class and reporting, but it does not quietly turn helper use into a hidden behavior archive.
+
 ## Data handling table
 
 | Data type | Stored? | Where | Retention | Who can access? |
