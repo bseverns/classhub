@@ -24,7 +24,8 @@ A reader should understand the system scope, deployment shape, and privacy stanc
 ## Key features
 - Student join by class code + pseudonym display name (no student password accounts in the current release).
 - Plain-language trust page (`/trust`) and student self-service data controls (`/student/my-data`).
-- Multi-lingual UI support on student-facing content.
+- Multi-lingual UI support on the bounded family/student tranche (`en`, `es`, `so`, and provisional `ksw` pending native-speaker review).
+- Portable course content through file-first authoring, coursepack builds, static registry publishing/import, and print-friendly HTML handouts with simple PDF fallback downloads.
 - Student home centered on `This week`, `Course links`, and `Account` so first actions are obvious.
 - Artifact-first student workflow: portfolio history at `/student/portfolio` and student opt-in + teacher-moderated gallery sharing at `/student/gallery`.
 - Progressive disclosure in student UI (collapsed modules/helper/forms) to reduce overload.

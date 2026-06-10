@@ -30,7 +30,7 @@ ClassHub is a self-hosted learning hub for running classes, enrolling students w
 ## What success looks like
 
 - Programs can run with low login friction for students.
-- Multi-lingual UI support on student-facing content.
+- Multi-lingual UI support on the bounded family/student tranche (`en`, `es`, `so`, and provisional `ksw` pending native-speaker review).
 - Staff can see who joined, what was submitted, and which students completed sessions.
 - Funders and partners can receive bounded exports instead of anecdotal updates.
 - The organization owns its own infrastructure, backups, and recovery path.
