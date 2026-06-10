@@ -12,6 +12,7 @@ Class Hub is a self-hosted classroom platform with a separate Homework Helper se
 6. If docs feel overlapping, use [CANONICAL_TRUTHS.md](CANONICAL_TRUTHS.md) to identify one source per policy area.
 
 If you are reading this as leadership rather than as a technical evaluator, start with:
+- [START_HERE_BOARD.md](START_HERE_BOARD.md)
 - [START_HERE_ED.md](START_HERE_ED.md)
 - [START_HERE_FUNDRAISING.md](START_HERE_FUNDRAISING.md)
 - [RISK_AND_DATA_POSTURE.md](RISK_AND_DATA_POSTURE.md)
@@ -44,7 +45,8 @@ If this page is useful, you should be able to answer: who this is for, what it d
 - Student home starts with a clear weekly launch path (`This week` + `Course links` + `Account`).
 - Artifact-first student flow (`/student/portfolio`) with opt-in gallery sharing (`/student/gallery`) and teacher moderation.
 - Help-first facilitation support board surfaces “I'm stuck”, deletion requests, upload errors, and context without rankings.
-- Multi-lingual UI support on student-facing content (`en`, `es`, `so`).
+- Multi-lingual UI support on the bounded family/student tranche (`en`, `es`, `so`, and provisional `ksw` pending native-speaker review).
+- Course content stays portable through file-first authoring, coursepack builds, static registry publishing/import, and print-friendly HTML handouts with simple PDF fallback downloads.
 - Public website hardening options (content-security policy, safe-site modes, and proxy protections).
 - Self-hosted architecture using widely used components (Django, Postgres, Redis, Caddy).
 - Helper support is lesson-scoped and does not archive student prompts.
@@ -95,6 +97,7 @@ Captured workflow references:
 ![Data lifespan export terminal](images/press/21-data-lifespan-export-terminal.png)
 
 Public screenshots are current in `press/screenshots/` and `docs/images/press/`.
+The public screenshot set is complete through `21`, plus optional companion `19-rbac-tools-tab-approval-on.png`.
 No pending captures are currently tracked in `press/screenshots/PLACEHOLDERS.md`.
 Capture instructions live in `press/screenshots/SHOTLIST.md`.
 

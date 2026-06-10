@@ -5,6 +5,38 @@ This page is the live snapshot of what ClassHub currently ships on `main`.
 It is updated manually when shipped capabilities change.
 Last reviewed: 2026-06-09
 
+## Current state at a glance
+
+### Classroom/student experience
+- Students join with a class code or invite link plus a display name.
+- Student home, lesson pages, uploads, portfolio, gallery, and My Data are live.
+- Reading-level controls (`simple` / `standard`) are available on family-visible and core learner routes.
+
+### Handouts, language, and course portability
+- Lesson pages support belonging-layer metadata, print-friendly HTML handouts, and simple PDF fallback downloads.
+- Lesson and handout routes support explicit `?lang=en|es|so|ksw` selection for operator-printed handouts.
+- Course authoring, syllabus import, coursepack builds, and static registry import/publishing workflows are live.
+
+### Teacher/program operations
+- Teacher portal supports roster, lesson release controls, submissions, moderation, outcomes, certificates, and class closeout workflows.
+- Superuser org, staff, class assignment, coursepack import, and content/import audit tools are live.
+- Teacher day-of-class shell and top-task choreography are wired into `/teach`.
+
+### Trust, privacy, and org boundaries
+- `/trust`, `/student/my-data`, retention presets, student rename/export/delete controls, and privacy-safe support tags are live.
+- Organization boundaries, RBAC capability checks, scoped grants, custom roles, and policy bundle import/export are live, with some workflows feature-flagged.
+- Student-facing artifact and feedback flows avoid rankings and leaderboards.
+
+### Ops/reliability
+- Health checks, smoke checks, docs truth checks, view budgets, migration gates, and dependency/container scans are part of the guardrail set.
+- Data lifespan dashboard and CSV/JSON export are live at `/teach/data-lifespan`.
+- Runbook, restore rehearsal, incident response, and deployment docs are maintained as operator-facing controls.
+
+### Advanced/flagged infrastructure
+- Homework Helper runs as a separate Django service behind `/helper/*`.
+- Optional curriculum-only RAG, private model-host topology, and bounded remote helper compute controls are implemented with explicit operator boundaries.
+- Scoped RBAC grants, delegated approval workflow, kiosk mode, and some telemetry split paths remain controlled rollout surfaces.
+
 ## What is live now
 - Student access uses class code + display name, with return-code/device-hint rejoin.
 - Student trust controls are live: `/trust` and `/student/my-data`.

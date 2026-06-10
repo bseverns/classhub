@@ -42,6 +42,7 @@ nav:
   - Current State: CURRENT_STATE.md
   - Start Here:
       - Overview: START_HERE.md
+      - Board Demo: START_HERE_BOARD.md
       - Evaluator (Non-Technical): START_HERE_EVALUATOR.md
       - Executive Director: START_HERE_ED.md
       - Ops Director: START_HERE_OD.md
@@ -59,6 +60,7 @@ nav:
       - Teacher Portal: TEACHER_PORTAL.md
       - Compiled Coursepacks: TEACHER_COURSE_IMPORT.md
       - Course Authoring: COURSE_AUTHORING.md
+      - Coursepack Registry Publishing: COURSEPACK_REGISTRY_PUBLISHING.md
       - Teaching Playbook: TEACHING_PLAYBOOK.md
       - Learning Paths: LEARNING_PATHS.md
       - Pilot Playbook: PILOT_PLAYBOOK.md
@@ -120,7 +122,6 @@ nav:
       - Request Safety: REQUEST_SAFETY.md
       - Helper Evals: HELPER_EVALS.md
       - Merge Readiness: MERGE_READINESS.md
-      - Bootstrap Server: BOOTSTRAP_SERVER.md
       - Docs Maintenance: CONTRIBUTING_DOCS.md
       - Docs Truth Mechanism: DOCS_TRUTH_MECHANISM.md
 
