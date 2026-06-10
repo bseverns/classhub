@@ -1719,6 +1719,7 @@ Execution ownership and gates:
   - `/course/<course_slug>/<lesson_slug>/handout`
   - `/course/<course_slug>/<lesson_slug>/handout.pdf`
 - Treat the HTML handout as the primary export surface and keep the current PDF path positioned as a simple fallback download rather than a publication-grade multilingual layout renderer.
+- Let operators request a specific shipped UI language on lesson/handout routes with `?lang=<code>` so printed handouts can be produced in Spanish, Somali, or Karen without changing the whole operator session language.
 - Keep reading-level support deterministic:
   - `reading_level=simple|standard`
   - authored overrides live in `offline_handout.reading_levels`

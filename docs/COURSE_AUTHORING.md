@@ -249,6 +249,7 @@ Offline handout export:
 - The HTML handout is the primary export surface; the current PDF path is a basic text-first fallback and does not preserve the full HTML handout layout.
 - The handout uses `offline_handout` front matter when present and otherwise falls back to existing lesson metadata.
 - Reading-level selection is deterministic and query-based: `?reading_level=simple` or `?reading_level=standard`.
+- Operators can print a handout in a specific shipped UI language without switching their whole browser session by adding `?lang=en|es|so|ksw` to the lesson, handout, or handout PDF route; the lesson page now exposes direct handout links for those language variants.
 - The syllabus ingest path preserves `Local anchors`, `Example variants`, `Community glossary`, and `Offline handout` sections from teacher-authored `.md`, `.docx`, or `.zip` sources by compiling them into lesson front matter.
 - In teacher-authored source files, use bullet labels like `Goal:`, `Do now:`, `Simple goal:`, `Simple do now:`, and `Standard do now:` inside the `Offline handout` section when you want distinct simple/standard wording to survive import.
 

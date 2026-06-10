@@ -4,7 +4,8 @@ import logging
 
 from django.http import HttpResponse
 from django.shortcuts import render
-from config.localization import localization_from_request
+from django.utils import translation
+from config.localization import localization_from_request, request_language_override, resolve_request_language
 
 from ..services.lesson_handouts import (
     build_handout_context,
@@ -38,8 +39,8 @@ def _load_handout_source(course_slug: str, lesson_slug: str):
 
 
 def _build_handout(request, *, course_slug: str, lesson_slug: str, manifest: dict, front_matter: dict) -> tuple[str, dict]:
-    localization = localization_from_request(request)
     selected_reading_level = resolve_reading_level(request.GET.get("reading_level"))
+    localization = localization_from_request(request)
     handout = build_handout_context(
         course_slug=course_slug,
         lesson_slug=lesson_slug,
@@ -58,26 +59,29 @@ def course_lesson_handout(request, course_slug: str, lesson_slug: str):
     if error_response is not None:
         return error_response
 
-    selected_reading_level, handout = _build_handout(
-        request,
-        course_slug=course_slug,
-        lesson_slug=lesson_slug,
-        manifest=manifest,
-        front_matter=front_matter,
-    )
-    return render(
-        request,
-        "lesson_handout.html",
-        {
-            "course_slug": course_slug,
-            "lesson_slug": lesson_slug,
-            "course": manifest,
-            "front_matter": front_matter,
-            "selected_reading_level": selected_reading_level,
-            "lesson_handout": handout,
-            "handout_qr_svg": build_handout_qr_svg(handout["online_url"]),
-        },
-    )
+    requested_language = resolve_request_language(request, request.GET.get("lang"))
+    with request_language_override(request, requested_language):
+        selected_reading_level, handout = _build_handout(
+            request,
+            course_slug=course_slug,
+            lesson_slug=lesson_slug,
+            manifest=manifest,
+            front_matter=front_matter,
+        )
+        with translation.override(localization_from_request(request).code):
+            return render(
+                request,
+                "lesson_handout.html",
+                {
+                    "course_slug": course_slug,
+                    "lesson_slug": lesson_slug,
+                    "course": manifest,
+                    "front_matter": front_matter,
+                    "selected_reading_level": selected_reading_level,
+                    "lesson_handout": handout,
+                    "handout_qr_svg": build_handout_qr_svg(handout["online_url"]),
+                },
+            )
 
 
 def course_lesson_handout_pdf(request, course_slug: str, lesson_slug: str):
@@ -85,14 +89,17 @@ def course_lesson_handout_pdf(request, course_slug: str, lesson_slug: str):
     if error_response is not None:
         return error_response
 
-    _selected_reading_level, handout = _build_handout(
-        request,
-        course_slug=course_slug,
-        lesson_slug=lesson_slug,
-        manifest=manifest,
-        front_matter=front_matter,
-    )
-    response = HttpResponse(build_handout_pdf_bytes(handout), content_type="application/pdf")
+    requested_language = resolve_request_language(request, request.GET.get("lang"))
+    with request_language_override(request, requested_language):
+        _selected_reading_level, handout = _build_handout(
+            request,
+            course_slug=course_slug,
+            lesson_slug=lesson_slug,
+            manifest=manifest,
+            front_matter=front_matter,
+        )
+        with translation.override(localization_from_request(request).code):
+            response = HttpResponse(build_handout_pdf_bytes(handout), content_type="application/pdf")
     response["Content-Disposition"] = f'attachment; filename="{course_slug}-{lesson_slug}-handout.pdf"'
     return response
 

@@ -5,6 +5,8 @@ from __future__ import annotations
 from io import BytesIO
 from urllib.parse import urlencode
 
+from django.conf import settings
+from django.utils.translation import gettext as _
 import qrcode
 from qrcode.image.svg import SvgPathImage
 
@@ -20,6 +22,46 @@ def resolve_reading_level(raw_value: str) -> str:
     if value == READING_LEVEL_SIMPLE:
         return READING_LEVEL_SIMPLE
     return READING_LEVEL_STANDARD
+
+
+def _path_with_query(path: str, *, reading_level: str = "", language_code: str = "") -> str:
+    params: dict[str, str] = {}
+    if reading_level:
+        params["reading_level"] = reading_level
+    if language_code:
+        params["lang"] = language_code
+    if not params:
+        return path
+    return f"{path}?{urlencode(params)}"
+
+
+def _handout_language_options(*, online_path: str, reading_level: str) -> list[dict[str, str]]:
+    options: list[dict[str, str]] = []
+    for code, label in getattr(settings, "LANGUAGES", []):
+        normalized_code = str(code or "").strip().lower()
+        if not normalized_code:
+            continue
+        lesson_url = _path_with_query(online_path, reading_level=reading_level, language_code=normalized_code)
+        handout_url = _path_with_query(
+            f"{online_path}/handout",
+            reading_level=reading_level,
+            language_code=normalized_code,
+        )
+        pdf_url = _path_with_query(
+            f"{online_path}/handout.pdf",
+            reading_level=reading_level,
+            language_code=normalized_code,
+        )
+        options.append(
+            {
+                "code": normalized_code,
+                "label": str(label or normalized_code),
+                "lesson_url": lesson_url,
+                "handout_url": handout_url,
+                "pdf_url": pdf_url,
+            }
+        )
+    return options
 
 
 def _clean_text(value, *, max_length: int = 240) -> str:
@@ -223,9 +265,36 @@ def build_handout_context(
         "example_variants": example_variants[:3],
         "community_glossary": community_glossary[:4],
         "reading_level": reading_level,
-        "online_url": request.build_absolute_uri(online_path),
-        "print_url": f"{online_path}/handout?{urlencode({'reading_level': reading_level})}",
-        "pdf_url": f"{online_path}/handout.pdf?{urlencode({'reading_level': reading_level})}",
+        "language_code": language_code,
+        "online_url": request.build_absolute_uri(
+            _path_with_query(online_path, reading_level=reading_level, language_code=language_code)
+        ),
+        "print_url": _path_with_query(
+            f"{online_path}/handout",
+            reading_level=reading_level,
+            language_code=language_code,
+        ),
+        "pdf_url": _path_with_query(
+            f"{online_path}/handout.pdf",
+            reading_level=reading_level,
+            language_code=language_code,
+        ),
+        "reading_level_urls": {
+            READING_LEVEL_SIMPLE: _path_with_query(
+                f"{online_path}/handout",
+                reading_level=READING_LEVEL_SIMPLE,
+                language_code=language_code,
+            ),
+            READING_LEVEL_STANDARD: _path_with_query(
+                f"{online_path}/handout",
+                reading_level=READING_LEVEL_STANDARD,
+                language_code=language_code,
+            ),
+        },
+        "language_options": _handout_language_options(
+            online_path=online_path,
+            reading_level=reading_level,
+        ),
     }
     return handout
 
@@ -261,19 +330,19 @@ def _handout_lines(handout: dict) -> list[str]:
         handout.get("title") or "Lesson handout",
         handout.get("subtitle") or "",
         "",
-        f"Reading level: {handout.get('reading_level', READING_LEVEL_STANDARD).title()}",
+        f"{_('Reading level:')} {handout.get('reading_level', READING_LEVEL_STANDARD).title()}",
     ]
     goal = _clean_text(handout.get("goal"), max_length=180)
     if goal:
-        lines.extend(["", f"Goal: {goal}"])
+        lines.extend(["", f"{_('Goal:')} {goal}"])
 
     for label, values in (
-        ("Do this now", handout.get("do_now") or []),
-        ("What to submit", handout.get("submit") or []),
-        ("Safety", handout.get("safety") or []),
-        ("Peer feedback", handout.get("comment") or []),
-        ("Local anchors", handout.get("local_anchors") or []),
-        ("Example variants", handout.get("example_variants") or []),
+        (_("Do this now"), handout.get("do_now") or []),
+        (_("What to submit"), handout.get("submit") or []),
+        (_("Safety"), handout.get("safety") or []),
+        (_("Peer feedback"), handout.get("comment") or []),
+        (_("Local anchors"), handout.get("local_anchors") or []),
+        (_("Example variants"), handout.get("example_variants") or []),
     ):
         if not values:
             continue
@@ -284,12 +353,12 @@ def _handout_lines(handout: dict) -> list[str]:
 
     glossary = handout.get("community_glossary") or []
     if glossary:
-        lines.extend(["", "Community glossary:"])
+        lines.extend(["", f"{_('Community glossary')}:"])
         for row in glossary:
             wrapped = _wrap_text(f"- {row['term']}: {row['definition']}")
             lines.extend(wrapped)
 
-    lines.extend(["", "Open online:", *(_wrap_text(handout.get("online_url") or ""))])
+    lines.extend(["", _("Open online:"), *(_wrap_text(handout.get("online_url") or ""))])
     return lines
 
 

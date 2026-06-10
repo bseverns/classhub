@@ -1,4 +1,6 @@
 from ._shared import *  # noqa: F401,F403
+from django.utils import translation
+from django.utils.translation import gettext as _
 
 
 class I18nSmokeTests(TestCase):
@@ -175,6 +177,31 @@ Draw, test, and explain one loop.
         self.assertEqual(resp.wsgi_request.localization.helper_code, "es")
         self.assertEqual(resp.context["localization"].code, "es")
 
+    def test_handout_service_labels_translate_in_shipped_languages(self):
+        expectations = {
+            "es": {
+                "submit": "Qué entregar",
+                "peer_feedback": "Comentarios entre compañeros",
+                "download_pdf": "Descargar PDF de la guía",
+            },
+            "so": {
+                "submit": "Waxa la gudbinayo",
+                "peer_feedback": "Faallooyinka ardayda kale",
+                "download_pdf": "Soo dejiso PDF-ka warqadda casharka",
+            },
+            "ksw": {
+                "submit": "ပာ်ဃုာ်တၢ်မနုၤလဲၣ်",
+                "peer_feedback": "တီၤဖိအတၢ်စံးဆၢ",
+                "download_pdf": "ဒုးလီၤကလ့ၣ် handout PDF",
+            },
+        }
+
+        for language_code, labels in expectations.items():
+            with self.subTest(language_code=language_code), translation.override(language_code):
+                self.assertEqual(_("What to submit"), labels["submit"])
+                self.assertEqual(_("Peer feedback"), labels["peer_feedback"])
+                self.assertEqual(_("Download handout PDF"), labels["download_pdf"])
+
     def test_student_helper_widget_uses_request_localization(self):
         self._set_student_session()
 
@@ -288,6 +315,53 @@ Draw, test, and explain one loop.
             expected_section_label="စးထီၣ်ဖဲအံၤ",
         )
 
+    def test_course_lesson_page_sets_html_lang_to_active_language(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir)
+            self._write_lesson_locale_fixture(content_root)
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.get(
+                    "/course/neighborhood_circuits/s01-neighborhood-circuits?reading_level=simple",
+                    HTTP_ACCEPT_LANGUAGE="so",
+                )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '<html lang="so">')
+
+    def test_course_lesson_page_query_lang_override_sets_active_language(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir)
+            self._write_lesson_locale_fixture(content_root)
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.get(
+                    "/course/neighborhood_circuits/s01-neighborhood-circuits?reading_level=simple&lang=es",
+                    HTTP_ACCEPT_LANGUAGE="en",
+                )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '<html lang="es">')
+        self.assertContains(resp, "Nivel de lectura:")
+
+    def test_course_lesson_page_exposes_language_specific_handout_links(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir)
+            self._write_lesson_locale_fixture(content_root)
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.get(
+                    "/course/neighborhood_circuits/s01-neighborhood-circuits?reading_level=simple",
+                    HTTP_ACCEPT_LANGUAGE="en",
+                )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(
+            resp,
+            "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple&amp;lang=es",
+        )
+        self.assertContains(
+            resp,
+            "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple&amp;lang=so",
+        )
+
     def test_course_lesson_handout_spanish_renders_translated_reading_level_label(self):
         self._assert_lesson_route_i18n(
             route="/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple",
@@ -327,6 +401,24 @@ Draw, test, and explain one loop.
 
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, '<html lang="so">')
+
+    def test_course_lesson_handout_query_lang_override_renders_requested_language(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir)
+            self._write_lesson_locale_fixture(content_root)
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.get(
+                    "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple&lang=es",
+                    HTTP_ACCEPT_LANGUAGE="en",
+                )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '<html lang="es">')
+        self.assertContains(resp, "Nivel de lectura:")
+        self.assertContains(
+            resp,
+            "/course/neighborhood_circuits/s01-neighborhood-circuits/handout.pdf?reading_level=simple&amp;lang=es",
+        )
 
     def test_teach_home_day_mode_spanish_renders_translated_core_copy(self):
         teacher = get_user_model().objects.create_user(

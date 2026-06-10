@@ -1325,16 +1325,12 @@ msgid "No syllabus courses found."
 msgstr "No se encontraron cursos de programa."
 
 #: services/classhub/templates/lesson_handout.html:26
-#, fuzzy
-#| msgid "Open lesson"
 msgid "Open online:"
-msgstr "Abrir lección"
+msgstr "Abrir en línea:"
 
 #: services/classhub/templates/lesson_handout.html:26
-#, fuzzy
-#| msgid "Open lesson"
 msgid "Online lesson:"
-msgstr "Abrir lección"
+msgstr "Lección en línea:"
 
 #: services/classhub/templates/lesson_handout.html:32
 #: services/classhub/templates/lesson_page.html:185
@@ -1347,10 +1343,8 @@ msgid "Do this now"
 msgstr "Haz esto ahora"
 
 #: services/classhub/templates/lesson_handout.html:44
-#, fuzzy
-#| msgid "Open lesson"
 msgid "Open online"
-msgstr "Abrir lección"
+msgstr "Abrir en línea"
 
 #: services/classhub/templates/lesson_handout.html:51
 #: services/classhub/templates/lesson_page.html:200
@@ -1359,10 +1353,8 @@ msgstr "Entregar"
 
 #: services/classhub/templates/lesson_handout.html:51
 #: services/classhub/templates/lesson_page.html:200
-#, fuzzy
-#| msgid "Submitted"
 msgid "Submit"
-msgstr "Entregados"
+msgstr "Enviar"
 
 #: services/classhub/templates/lesson_handout.html:62
 #: services/classhub/templates/lesson_page.html:208
@@ -1408,15 +1400,21 @@ msgstr "Glosario comunitario"
 msgid "Feedback starters"
 msgstr "Frases para empezar comentarios"
 
+#: services/classhub/hub/services/lesson_handouts.py:338
+msgid "Peer feedback"
+msgstr "Comentarios entre compañeros"
+
 #: services/classhub/templates/lesson_handout.html:106
 msgid "Peer feedback starters"
 msgstr "Frases para comentarios entre compañeros"
 
+#: services/classhub/hub/services/lesson_handouts.py:337
+msgid "What to submit"
+msgstr "Qué entregar"
+
 #: services/classhub/templates/lesson_page.html:19
-#, fuzzy
-#| msgid "Course"
 msgid "Course:"
-msgstr "Curso"
+msgstr "Curso:"
 
 #: services/classhub/templates/lesson_page.html:30
 msgid "Today you will:"
@@ -1431,16 +1429,12 @@ msgid "Makes:"
 msgstr "Crea:"
 
 #: services/classhub/templates/lesson_page.html:44
-#, fuzzy
-#| msgid "Lesson tracker"
 msgid "Lesson locked"
-msgstr "Seguimiento de lecciones"
+msgstr "Lección bloqueada"
 
 #: services/classhub/templates/lesson_page.html:46
-#, fuzzy
-#| msgid "Lesson"
 msgid "Lesson open"
-msgstr "Leccion"
+msgstr "Lección abierta"
 
 #
 # ── Student My Data page ─────────────────────────────────────────────
@@ -1454,36 +1448,28 @@ msgid "Back to class"
 msgstr "Volver a la clase"
 
 #: services/classhub/templates/lesson_page.html:52
-#, fuzzy
-#| msgid "Open now"
 msgid "Open handout"
-msgstr "Abrir ahora"
+msgstr "Abrir guía"
 
 #: services/classhub/templates/lesson_page.html:52
 msgid "Print handout"
 msgstr "Imprimir guía"
 
 #: services/classhub/templates/lesson_page.html:53
-#, fuzzy
-#| msgid "Download"
 msgid "Download handout"
-msgstr "Descargar"
+msgstr "Descargar guía"
 
 #: services/classhub/templates/lesson_page.html:53
-#, fuzzy
-#| msgid "Download PDF"
 msgid "Download handout PDF"
-msgstr "Descargar PDF"
+msgstr "Descargar PDF de la guía"
 
 #: services/classhub/templates/lesson_page.html:55
 msgid "Edit Markdown"
 msgstr "Editar Markdown"
 
 #: services/classhub/templates/lesson_page.html:58
-#, fuzzy
-#| msgid "Export my portfolio"
 msgid "Export portfolio"
-msgstr "Exportar mi portafolio"
+msgstr "Exportar portafolio"
 
 #: services/classhub/templates/lesson_page.html:61
 msgid "← Back"
@@ -1494,10 +1480,8 @@ msgid "← Prev"
 msgstr "← Anterior"
 
 #: services/classhub/templates/lesson_page.html:64
-#, fuzzy
-#| msgid "Open lesson"
 msgid "Next lesson →"
-msgstr "Abrir lección"
+msgstr "Siguiente lección →"
 
 #: services/classhub/templates/lesson_page.html:64
 msgid "Next →"
@@ -1508,10 +1492,8 @@ msgid "When this opens"
 msgstr "Cuándo se abre"
 
 #: services/classhub/templates/lesson_page.html:71
-#, fuzzy
-#| msgid "Lesson videos"
 msgid "Lesson schedule"
-msgstr "videos de lecciones"
+msgstr "Calendario de la lección"
 
 #: services/classhub/templates/lesson_page.html:72
 msgid "Intro-only mode"

@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from dataclasses import dataclass
 
 from django.conf import settings
-from django.utils.translation import get_language_info
+from django.utils import translation
+from django.utils.translation import get_language_from_request, get_language_info
 
 
 _SUPPORTED_HELPER_LANGUAGES = {"en", "es", "so", "ksw"}
@@ -40,6 +42,36 @@ def normalize_helper_language_code(raw: str) -> str:
     return "en"
 
 
+def available_language_codes() -> set[str]:
+    codes: set[str] = set()
+    for lang_code, _lang_name in getattr(settings, "LANGUAGES", []):
+        codes.add(_normalize_language_code(lang_code))
+    return codes or {"en"}
+
+
+def resolve_language_override(raw: str) -> str:
+    if not str(raw or "").strip():
+        return ""
+    code = _normalize_language_code(raw)
+    if code in available_language_codes():
+        return code
+    return ""
+
+
+def resolve_request_language(request, raw_override: str = "") -> str:
+    override_code = resolve_language_override(raw_override)
+    if override_code:
+        return override_code
+    default_language = str(getattr(settings, "LANGUAGE_CODE", "en") or "en")
+    requested = (
+        getattr(request, "LANGUAGE_CODE", "")
+        or translation.get_language()
+        or get_language_from_request(request, check_path=False)
+        or default_language
+    )
+    return _normalize_language_code(requested or default_language)
+
+
 def _resolve_language_name(code: str) -> str:
     for lang_code, lang_name in getattr(settings, "LANGUAGES", []):
         if str(lang_code or "").strip().lower() == code:
@@ -61,7 +93,13 @@ def _resolve_is_rtl(code: str) -> bool:
 
 def build_localization_context(request) -> LocalizationContext:
     default_language = str(getattr(settings, "LANGUAGE_CODE", "en") or "en")
-    code = _normalize_language_code(getattr(request, "LANGUAGE_CODE", default_language))
+    resolved = (
+        getattr(request, "LANGUAGE_CODE", "")
+        or translation.get_language()
+        or get_language_from_request(request, check_path=False)
+        or default_language
+    )
+    code = _normalize_language_code(resolved or default_language)
     return LocalizationContext(
         code=code,
         html_lang=code,
@@ -90,3 +128,31 @@ def reset_localization_context(token: Token) -> None:
 
 def get_localization_context() -> LocalizationContext | None:
     return _localization_var.get()
+
+
+@contextmanager
+def request_language_override(request, raw_code: str):
+    active_language = _normalize_language_code(translation.get_language() or getattr(request, "LANGUAGE_CODE", "en"))
+    override_code = resolve_language_override(raw_code) or active_language
+
+    had_language = hasattr(request, "LANGUAGE_CODE")
+    previous_language = getattr(request, "LANGUAGE_CODE", "")
+    had_localization = hasattr(request, "localization")
+    previous_localization = getattr(request, "localization", None)
+
+    request.LANGUAGE_CODE = override_code
+    if had_localization:
+        delattr(request, "localization")
+
+    with translation.override(override_code):
+        try:
+            yield localization_from_request(request)
+        finally:
+            if had_language:
+                request.LANGUAGE_CODE = previous_language
+            elif hasattr(request, "LANGUAGE_CODE"):
+                delattr(request, "LANGUAGE_CODE")
+            if had_localization:
+                request.localization = previous_localization
+            elif hasattr(request, "localization"):
+                delattr(request, "localization")

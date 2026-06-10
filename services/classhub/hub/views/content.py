@@ -5,8 +5,13 @@ import logging
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils import translation
 from common.helper_scope import issue_scope_token
-from config.localization import localization_from_request
+from config.localization import (
+    localization_from_request,
+    request_language_override,
+    resolve_request_language,
+)
 
 from ..services.content_links import (
     normalize_lesson_videos,
@@ -57,7 +62,17 @@ def _staff_preview_classroom(request):
 
 def course_lesson(request, course_slug: str, lesson_slug: str):
     """Render a markdown lesson page from disk."""
-    localization = localization_from_request(request)
+    requested_language = resolve_request_language(request, request.GET.get("lang"))
+    with request_language_override(request, requested_language) as localization:
+        return _render_course_lesson(
+            request=request,
+            course_slug=course_slug,
+            lesson_slug=lesson_slug,
+            localization=localization,
+        )
+
+
+def _render_course_lesson(*, request, course_slug: str, lesson_slug: str, localization):
     manifest = load_course_manifest(course_slug)
     if not manifest:
         return HttpResponse("Course not found", status=404)
@@ -183,35 +198,36 @@ def course_lesson(request, course_slug: str, lesson_slug: str):
         helper_scope_token=helper_scope_token,
     )
 
-    return render(
-        request,
-        "lesson_page.html",
-        {
-            "course_slug": course_slug,
-            "course": manifest,
-            "lesson_slug": lesson_slug,
-            "front_matter": fm,
-            "lesson_html": html,
-            "lesson_videos": lesson_videos,
-            "prev": prev_l,
-            "next": next_l,
-            "helper_widget": helper_widget,
-            "student": getattr(request, "student", None),
-            "classroom": effective_classroom,
-            "lesson_submission": lesson_submission,
-            "lesson_upload_material": lesson_upload_material,
-            "lesson_upload_status": lesson_upload_status,
-            "lesson_locked": lesson_locked,
-            "lesson_available_on": lesson_available_on,
-            "ui_density_mode": ui_density_mode,
-            "can_edit_lesson_override": staff_can_manage_classroom(request.user, effective_classroom),
-            "selected_reading_level": selected_reading_level,
-            "local_anchors": resolve_local_anchors(front_matter=fm),
-            "example_variants": resolve_example_variants(course_manifest=manifest, front_matter=fm),
-            "community_glossary": resolve_community_glossary(course_manifest=manifest, front_matter=fm),
-            "lesson_handout": handout,
-        },
-    )
+    with translation.override(localization.code):
+        return render(
+            request,
+            "lesson_page.html",
+            {
+                "course_slug": course_slug,
+                "course": manifest,
+                "lesson_slug": lesson_slug,
+                "front_matter": fm,
+                "lesson_html": html,
+                "lesson_videos": lesson_videos,
+                "prev": prev_l,
+                "next": next_l,
+                "helper_widget": helper_widget,
+                "student": getattr(request, "student", None),
+                "classroom": effective_classroom,
+                "lesson_submission": lesson_submission,
+                "lesson_upload_material": lesson_upload_material,
+                "lesson_upload_status": lesson_upload_status,
+                "lesson_locked": lesson_locked,
+                "lesson_available_on": lesson_available_on,
+                "ui_density_mode": ui_density_mode,
+                "can_edit_lesson_override": staff_can_manage_classroom(request.user, effective_classroom),
+                "selected_reading_level": selected_reading_level,
+                "local_anchors": resolve_local_anchors(front_matter=fm),
+                "example_variants": resolve_example_variants(course_manifest=manifest, front_matter=fm),
+                "community_glossary": resolve_community_glossary(course_manifest=manifest, front_matter=fm),
+                "lesson_handout": handout,
+            },
+        )
 __all__ = [
     "course_lesson",
 ]

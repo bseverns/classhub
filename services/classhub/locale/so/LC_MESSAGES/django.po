@@ -1381,9 +1381,17 @@ msgstr "Qaamuuska bulshada"
 msgid "Feedback starters"
 msgstr "Bilowga faallooyinka"
 
+#: services/classhub/hub/services/lesson_handouts.py:338
+msgid "Peer feedback"
+msgstr "Faallooyinka ardayda kale"
+
 #: services/classhub/templates/lesson_handout.html:106
 msgid "Peer feedback starters"
 msgstr "Bilowga faallooyinka ardayda kale"
+
+#: services/classhub/hub/services/lesson_handouts.py:337
+msgid "What to submit"
+msgstr "Waxa la gudbinayo"
 
 #: services/classhub/templates/lesson_page.html:19
 msgid "Course:"
@@ -1430,20 +1438,16 @@ msgid "Download handout"
 msgstr "Soo dejiso warqadda casharka"
 
 #: services/classhub/templates/lesson_page.html:53
-#, fuzzy
-#| msgid "Download PDF"
 msgid "Download handout PDF"
-msgstr "Soo dejiso PDF"
+msgstr "Soo dejiso PDF-ka warqadda casharka"
 
 #: services/classhub/templates/lesson_page.html:55
 msgid "Edit Markdown"
 msgstr "Wax ka beddel Markdown"
 
 #: services/classhub/templates/lesson_page.html:58
-#, fuzzy
-#| msgid "Export my portfolio"
 msgid "Export portfolio"
-msgstr "Dhoofinta portfolio-gayga"
+msgstr "Dhoofi boortifooliyada"
 
 #: services/classhub/templates/lesson_page.html:61
 msgid "← Back"

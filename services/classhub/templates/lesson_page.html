@@ -1,6 +1,6 @@
 {% load static hub_extras i18n %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
 
 <head>
   <meta charset="utf-8" />
@@ -20,8 +20,8 @@
           </div>
           <h1>{{ front_matter.title|default:lesson_slug }}</h1>
           <div class="muted">
-            <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple">{% trans "Simple" %}</a>
-            · <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard">{% trans "Standard" %}</a>
+            <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple{% if lesson_handout.language_code %}&lang={{ lesson_handout.language_code }}{% endif %}">{% trans "Simple" %}</a>
+            · <a href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard{% if lesson_handout.language_code %}&lang={{ lesson_handout.language_code }}{% endif %}">{% trans "Standard" %}</a>
             · {% trans "Reading level:" %}
             {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
           </div>
@@ -50,8 +50,8 @@
         </div>
         <div class="nav">
           <a class="btn" href="/student?reading_level={{ selected_reading_level }}">{% trans "Back to class" %}</a>
-          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}{% trans "Open handout" %}{% else %}{% trans "Print handout" %}{% endif %}</a>
-          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}/handout.pdf?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}{% trans "Download handout" %}{% else %}{% trans "Download handout PDF" %}{% endif %}</a>
+          <a class="btn" href="{{ lesson_handout.print_url }}">{% if selected_reading_level == "simple" %}{% trans "Open handout" %}{% else %}{% trans "Print handout" %}{% endif %}</a>
+          <a class="btn" href="{{ lesson_handout.pdf_url }}">{% if selected_reading_level == "simple" %}{% trans "Download handout" %}{% else %}{% trans "Download handout PDF" %}{% endif %}</a>
           {% if can_edit_lesson_override and classroom %}
           <a class="btn" href="/teach/course/{{ course_slug }}/lesson/{{ lesson_slug }}/edit?class_id={{ classroom.id }}">{% trans "Edit Markdown" %}</a>
           {% endif %}
@@ -59,10 +59,10 @@
           <a class="btn" href="/student/portfolio-export">{% trans "Export portfolio" %}</a>
           {% endif %}
           {% if prev %}
-          <a class="btn" href="/course/{{ course_slug }}/{{ prev.slug }}?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}{% trans "← Back" %}{% else %}{% trans "← Prev" %}{% endif %}</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ prev.slug }}?reading_level={{ selected_reading_level }}{% if lesson_handout.language_code %}&lang={{ lesson_handout.language_code }}{% endif %}">{% if selected_reading_level == "simple" %}{% trans "← Back" %}{% else %}{% trans "← Prev" %}{% endif %}</a>
           {% endif %}
           {% if next %}
-          <a class="btn" href="/course/{{ course_slug }}/{{ next.slug }}?reading_level={{ selected_reading_level }}">{% if selected_reading_level == "simple" %}{% trans "Next lesson →" %}{% else %}{% trans "Next →" %}{% endif %}</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ next.slug }}?reading_level={{ selected_reading_level }}{% if lesson_handout.language_code %}&lang={{ lesson_handout.language_code }}{% endif %}">{% if selected_reading_level == "simple" %}{% trans "Next lesson →" %}{% else %}{% trans "Next →" %}{% endif %}</a>
           {% endif %}
         </div>
       </div>
@@ -185,9 +185,15 @@
       <div class="card">
         <h2 class="card-title">{% if selected_reading_level == "simple" %}{% trans "Start here" %}{% else %}{% trans "Do this now" %}{% endif %}</h2>
         <div class="nav">
-          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple">{% trans "Simple" %}</a>
-          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard">{% trans "Standard" %}</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=simple{% if lesson_handout.language_code %}&lang={{ lesson_handout.language_code }}{% endif %}">{% trans "Simple" %}</a>
+          <a class="btn" href="/course/{{ course_slug }}/{{ lesson_slug }}?reading_level=standard{% if lesson_handout.language_code %}&lang={{ lesson_handout.language_code }}{% endif %}">{% trans "Standard" %}</a>
           <span class="muted">{% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}</span>
+        </div>
+        <div class="nav">
+          <span class="muted">{% trans "Language" %}</span>
+          {% for option in lesson_handout.language_options %}
+          <a class="btn" href="{{ option.handout_url }}">{{ option.label }}</a>
+          {% endfor %}
         </div>
         {% if lesson_handout.goal %}
         <p class="muted">{{ lesson_handout.goal }}</p>
