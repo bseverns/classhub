@@ -38,6 +38,8 @@ mkdocs build --strict
 
 - Docs deploy workflow: `.github/workflows/docs.yml`
 - Triggered when docs files, `mkdocs.yml`, or `requirements-docs.txt` change.
+- Publishes with `mkdocs gh-deploy --force` to the repo's `gh-pages` branch.
+- Repo Settings > Pages must point to the `gh-pages` branch for the published site to serve.
 - Registry-backed docs drift guard: `python3 scripts/check_docs_truth.py`
 - Registry note: [DOCS_TRUTH_MECHANISM.md](DOCS_TRUTH_MECHANISM.md)
 

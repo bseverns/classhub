@@ -59,6 +59,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Spanish/Somali localization parity](#spanishsomali-localization-parity)
 - [Feature maturity ledger and evaluator quickstart](#feature-maturity-ledger-and-evaluator-quickstart)
 - [Docs Mermaid readability defaults](#docs-mermaid-readability-defaults)
+- [Docs publishing path: gh-pages branch deploy](#docs-publishing-path-gh-pages-branch-deploy)
 - [Secret handling: env-only secret sources](#secret-handling-env-only-secret-sources)
 - [Operator profile white-labeling](#operator-profile-white-labeling)
 - [Compose env dollar escaping](#compose-env-dollar-escaping)
@@ -1066,6 +1067,22 @@ Execution ownership and gates:
 - Keeps diagrams readable in normal page flow while preserving a large-focus view for dense content.
 - Reduces friction for non-technical readers by making zoom behavior discoverable (click diagram) instead of requiring horizontal scroll.
 - Reduces supply-chain fragility for docs rendering by avoiding runtime fetches from external script CDNs.
+
+## Docs publishing path: gh-pages branch deploy
+
+**Current decision:**
+- Publish MkDocs output by pushing generated site content to the repository `gh-pages` branch via `mkdocs gh-deploy --force` in `.github/workflows/docs.yml`.
+- Do not use the `actions/configure-pages` auto-enable path for this repository:
+  - the default workflow `GITHUB_TOKEN` cannot create or enable a Pages site,
+  - the repository already carries a dedicated `gh-pages` publish branch,
+  - branch-publish keeps the docs deploy path aligned with the existing local scaffold in `setup_docs.sh`.
+- Treat GitHub Pages repository settings as a one-time admin prerequisite:
+  - Pages source must point at the `gh-pages` branch for the published site to serve.
+
+**Why this remains active:**
+- Avoids recurring CI failures caused by attempting Pages-site creation with insufficient workflow token privileges.
+- Keeps the docs deploy path boring: build in CI, push static output to the dedicated publish branch, serve from standard Pages branch mode.
+- Preserves a simpler fallback model operators can inspect manually by looking at the `gh-pages` branch contents.
 
 ## Secret handling: env-only secret sources
 
