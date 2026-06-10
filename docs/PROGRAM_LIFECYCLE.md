@@ -29,6 +29,8 @@ Read it left to right: each stage produces the next stage's evidence instead of 
 
 ## Lifecycle visuals
 
+The screenshots below are examples of lifecycle stages, not a required reading path.
+
 Current captures:
 
 ![Student join](images/press/01-student-join.png)

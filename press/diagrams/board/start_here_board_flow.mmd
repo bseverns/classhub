@@ -1,9 +1,5 @@
 flowchart LR
-  Join["Students join<br/>class code or invite"] --> Learn["Lessons + helper<br/>day-of-class flow"]
-  Learn --> Make["Artifacts<br/>submissions, portfolio, gallery"]
-  Make --> Report["Teacher evidence<br/>exports, certificates, closeout"]
-  Trust["Trust controls<br/>retention, deletion, plain-language data pages"] -. shapes every step .-> Join
-  Trust -. shapes every step .-> Learn
-  Trust -. shapes every step .-> Make
-  Trust -. shapes every step .-> Report
-  Ops["Operator ownership<br/>deployment, backup, recovery"] -. keeps the system accountable .-> Report
+  Fragile["Fragile program memory<br/>staff know-how, folders, ad hoc spreadsheets,<br/>improvised reporting, handoff risk"] --> Hub["ClassHub<br/>shared program infrastructure"]
+  Hub --> Durable["Repeatable programs<br/>clear handoffs, exports, governance,<br/>curriculum portability, operational continuity"]
+  Trust["Trust boundaries<br/>minimal student identity, retention, data controls"] -. are explicit inside .-> Hub
+  Ops["Operator ownership<br/>deployment, backup, recovery"] -. keeps it durable .-> Durable

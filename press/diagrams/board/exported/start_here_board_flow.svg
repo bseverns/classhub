@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
-  <title id="title">ClassHub board flow</title>
-  <desc id="desc">Students join, learn, make artifacts, and create teacher evidence, with trust controls and operator ownership surrounding the flow.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="430" viewBox="0 0 1280 430" role="img" aria-labelledby="title desc">
+  <title id="title">ClassHub board thesis</title>
+  <desc id="desc">ClassHub turns fragile program memory into shared program infrastructure, leading to repeatable programs, clearer handoffs, reporting, and governance.</desc>
   <defs>
     <style>
       .bg { fill: #f8fafc; }
@@ -17,32 +17,28 @@
       <path d="M0,0 L12,6 L0,12 z" fill="#334155"/>
     </marker>
   </defs>
-  <rect class="bg" width="1200" height="420"/>
-  <rect class="box" x="70" y="120" width="190" height="90"/>
-  <text class="label" x="165" y="155">Students join</text>
-  <text class="small" x="165" y="185">class code or invite</text>
-  <rect class="box" x="320" y="120" width="190" height="90"/>
-  <text class="label" x="415" y="155">Lessons + helper</text>
-  <text class="small" x="415" y="185">day-of-class flow</text>
-  <rect class="box" x="570" y="120" width="190" height="90"/>
-  <text class="label" x="665" y="155">Artifacts</text>
-  <text class="small" x="665" y="185">submissions, portfolio, gallery</text>
-  <rect class="box" x="820" y="120" width="220" height="90"/>
-  <text class="label" x="930" y="155">Teacher evidence</text>
-  <text class="small" x="930" y="185">exports, certificates, closeout</text>
-  <path class="line" d="M260 165 H320"/>
-  <path class="line" d="M510 165 H570"/>
-  <path class="line" d="M760 165 H820"/>
-  <rect class="accent" x="170" y="275" width="680" height="92"/>
-  <text class="label" x="510" y="312">Trust controls</text>
-  <text class="small" x="510" y="342">retention, deletion, plain-language data pages</text>
-  <path class="dash" d="M240 275 C230 245, 210 225, 190 210"/>
-  <path class="dash" d="M410 275 C410 240, 412 225, 415 210"/>
-  <path class="dash" d="M600 275 C620 245, 645 225, 665 210"/>
-  <path class="dash" d="M780 275 C840 240, 895 220, 930 210"/>
-  <rect class="ops" x="895" y="275" width="240" height="92"/>
-  <text class="label" x="1015" y="312">Operator ownership</text>
-  <text class="small" x="1015" y="342">deployment, backup, recovery</text>
-  <path class="dash" d="M965 275 C955 248, 945 230, 935 210"/>
-  <text class="caption" x="70" y="55">ClassHub board view: join, teach, make, report, with trust and operations built in</text>
+  <rect class="bg" width="1280" height="430"/>
+  <rect class="box" x="55" y="125" width="330" height="120"/>
+  <text class="label" x="220" y="162">Fragile program memory</text>
+  <text class="small" x="220" y="192">staff know-how, folders,</text>
+  <text class="small" x="220" y="217">ad hoc spreadsheets, reporting drift,</text>
+  <text class="small" x="220" y="242">handoff risk</text>
+  <rect class="accent" x="470" y="125" width="300" height="120"/>
+  <text class="label" x="620" y="167">ClassHub</text>
+  <text class="small" x="620" y="202">shared program infrastructure</text>
+  <rect class="box" x="855" y="125" width="370" height="120"/>
+  <text class="label" x="1040" y="162">Repeatable programs</text>
+  <text class="small" x="1040" y="192">clear handoffs, exports, governance,</text>
+  <text class="small" x="1040" y="217">curriculum portability, continuity</text>
+  <path class="line" d="M385 185 H470"/>
+  <path class="line" d="M770 185 H855"/>
+  <rect class="accent" x="420" y="300" width="390" height="86"/>
+  <text class="label" x="615" y="332">Trust boundaries</text>
+  <text class="small" x="615" y="358">minimal identity, retention, data controls</text>
+  <path class="dash" d="M615 300 V245"/>
+  <rect class="ops" x="910" y="300" width="290" height="86"/>
+  <text class="label" x="1055" y="332">Operator ownership</text>
+  <text class="small" x="1055" y="358">deployment, backup, recovery</text>
+  <path class="dash" d="M1040 300 V245"/>
+  <text class="caption" x="55" y="58">ClassHub board view: turning fragile program memory into shared infrastructure</text>
 </svg>
