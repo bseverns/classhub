@@ -59,6 +59,15 @@ git clone https://github.com/bseverns/classhub.git
 cd classhub
 ```
 
+If you prefer Git over SSH instead of HTTPS:
+
+```bash
+mkdir -p ~/classhub-demo
+cd ~/classhub-demo
+git clone git@github.com:bseverns/classhub.git
+cd classhub
+```
+
 Verification signal:
 
 ```bash
@@ -99,6 +108,52 @@ ssh user@SERVER_IP
 cd /srv/lms/app
 ls compose scripts docs services
 ```
+
+To verify that the source and target are on the same revision:
+
+On your laptop:
+
+```bash
+git rev-parse HEAD
+```
+
+On the target machine:
+
+```bash
+cd /srv/lms/app
+git rev-parse HEAD
+```
+
+If the target machine already has GitHub access, cloning directly there is usually simpler than copying:
+
+```bash
+ssh user@SERVER_IP
+mkdir -p ~/classhub-demo
+cd ~/classhub-demo
+git clone https://github.com/bseverns/classhub.git app
+cd app
+ls compose scripts docs services
+```
+
+### Update an existing checkout
+
+If you already have the repo on a machine and just need the latest `main` before running the demo:
+
+```bash
+cd /srv/lms/app  # or your repo root
+git fetch origin
+git switch main
+git pull --ff-only origin main
+```
+
+Verification signal:
+
+```bash
+git status --short
+git log -1 --oneline
+```
+
+Expected: `git status --short` prints nothing, and `git log -1 --oneline` shows the commit you expect to run.
 
 For an actual internet-facing deployment, use [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md), [BOOTSTRAP_SERVER.md](BOOTSTRAP_SERVER.md), and [RUNBOOK.md](RUNBOOK.md) instead of treating this local demo guide as the deployment plan.
 

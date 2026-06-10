@@ -3620,8 +3620,7 @@ Execution ownership and gates:
 - Reduces cognitive load in a high-traffic teacher dashboard service without changing behavior.
 - Makes future tracker changes easier to review and less likely to re-form a single-file hotspot.
 
-<a id="teacher-roster-class-export-split-seam"></a>
-## Teacher roster class export split seam (2026-03-12)
+## Teacher roster class export split seam (2026-03-12) { #teacher-roster-class-export-split-seam }
 
 **Current decision:**
 - Keep `services/classhub/hub/services/teacher_roster_class_exports.py` as a compatibility facade exposing:
@@ -3639,8 +3638,7 @@ Execution ownership and gates:
 - Reduces cognitive load in roster export logic without changing export behavior.
 - Prevents the export layer from reforming as a single-file hotspot.
 
-<a id="teacher-class-endpoint-split-seam"></a>
-## Teacher class endpoint split seam (2026-03-12)
+## Teacher class endpoint split seam (2026-03-12) { #teacher-class-endpoint-split-seam }
 
 **Current decision:**
 - Keep `services/classhub/hub/views/teacher_parts/roster_class.py` as a compatibility facade for class-level roster endpoints.
@@ -3656,8 +3654,7 @@ Execution ownership and gates:
 - Reduces cognitive load in one of the highest-churn teacher class endpoint surfaces without route behavior changes.
 - Preserves compatibility for existing tests/imports while preventing the split modules from silently regrowing.
 
-<a id="teacher-materials-endpoint-split-seam"></a>
-## Teacher materials endpoint split seam (2026-03-12)
+## Teacher materials endpoint split seam (2026-03-12) { #teacher-materials-endpoint-split-seam }
 
 **Current decision:**
 - Keep `services/classhub/hub/views/teacher_parts/roster_materials.py` as a compatibility facade for teacher module/material/submission endpoints.
@@ -3674,8 +3671,7 @@ Execution ownership and gates:
 - Reduces cognitive load in teacher content-authoring endpoints without changing behavior.
 - Keeps module/material flow growth bounded so it does not reform into another single-file hotspot.
 
-<a id="teacher-students-endpoint-split-seam"></a>
-## Teacher students endpoint split seam (2026-03-12)
+## Teacher students endpoint split seam (2026-03-12) { #teacher-students-endpoint-split-seam }
 
 **Current decision:**
 - Keep `services/classhub/hub/views/teacher_parts/roster_students.py` as a compatibility facade for student roster endpoints.
@@ -3694,8 +3690,7 @@ Execution ownership and gates:
 - Reduces cognitive load in student roster maintenance endpoints without changing behavior.
 - Keeps student merge/delete complexity bounded so it does not silently re-aggregate.
 
-<a id="teacher-invites-endpoint-split-seam"></a>
-## Teacher invites endpoint split seam (2026-03-12)
+## Teacher invites endpoint split seam (2026-03-12) { #teacher-invites-endpoint-split-seam }
 
 **Current decision:**
 - Keep `services/classhub/hub/views/teacher_parts/roster_invites.py` as a compatibility facade for invite/export endpoints.
@@ -3710,8 +3705,7 @@ Execution ownership and gates:
 - Reduces cognitive load in invite/export endpoint logic without behavior changes.
 - Prevents invite/enrollment/export complexity from silently re-forming as a single hotspot file.
 
-<a id="teacher-support-endpoint-split-seam"></a>
-## Teacher support endpoint split seam (2026-03-12)
+## Teacher support endpoint split seam (2026-03-12) { #teacher-support-endpoint-split-seam }
 
 **Current decision:**
 - Keep `services/classhub/hub/views/teacher_parts/roster_support.py` as a compatibility facade.
@@ -3728,8 +3722,7 @@ Execution ownership and gates:
 - Reduces cognitive load in facilitator-support actions without changing behavior.
 - Keeps support-flow complexity bounded across signals and tags so the file does not regrow as a hotspot.
 
-<a id="teacher-org-endpoints-split-seam"></a>
-## Teacher org endpoints split seam (2026-03-12)
+## Teacher org endpoints split seam (2026-03-12) { #teacher-org-endpoints-split-seam }
 
 **Current decision:**
 - Keep `services/classhub/hub/views/teacher_parts/roster_orgs.py` as a compatibility facade for superuser org endpoints.
@@ -3748,8 +3741,7 @@ Execution ownership and gates:
 - Reduces cognitive load in org/governance endpoints without changing behavior.
 - Keeps superuser org-management growth bounded across lifecycle vs membership/policy concerns.
 
-<a id="teacher-account-endpoints-split-seam"></a>
-## Teacher account endpoints split seam (2026-03-12)
+## Teacher account endpoints split seam (2026-03-12) { #teacher-account-endpoints-split-seam }
 
 **Current decision:**
 - Keep `services/classhub/hub/views/teacher_parts/auth_teacher_accounts.py` as a compatibility facade.
@@ -3770,8 +3762,7 @@ Execution ownership and gates:
 - Reduces cognitive load in superuser teacher-account management endpoints without behavior changes.
 - Keeps onboarding/invite flows separated from account-control flows so they do not re-aggregate.
 
-<a id="teacher-home-context-split-seam"></a>
-## Teacher home context split seam (2026-03-12)
+## Teacher home context split seam (2026-03-12) { #teacher-home-context-split-seam }
 
 **Current decision:**
 - Keep `services/classhub/hub/views/teacher_parts/content_home_context.py` as a compatibility facade for `teach_home` context helpers.
@@ -3793,8 +3784,7 @@ Execution ownership and gates:
 - Reduces cognitive load in `teach_home` context assembly without changing behavior.
 - Keeps portal mode, state read, and payload shaping concerns explicitly bounded so they do not regrow into a single hotspot module.
 
-<a id="teacher-sso-endpoint-split-seam"></a>
-## Teacher SSO endpoint split seam (2026-03-12)
+## Teacher SSO endpoint split seam (2026-03-12) { #teacher-sso-endpoint-split-seam }
 
 **Current decision:**
 - Keep `services/classhub/hub/views/teacher_parts/auth_sso.py` as the compatibility seam module for teacher SSO routes and test patch points.
@@ -3817,8 +3807,7 @@ Execution ownership and gates:
 - Reduces cognitive load in teacher SSO endpoint code without changing route behavior.
 - Keeps provider/state primitives separate from Google flow orchestration while preserving test seam stability.
 
-<a id="teacher-landing-update-helper-seam"></a>
-## Teacher landing update helper seam (2026-03-12)
+## Teacher landing update helper seam (2026-03-12) { #teacher-landing-update-helper-seam }
 
 **Current decision:**
 - Keep `services/classhub/hub/views/teacher_parts/roster_landing.py::teach_update_class_landing` under the dense function threshold by extracting request parsing, redirect composition, save, and audit helpers within the module.
