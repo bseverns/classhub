@@ -12,6 +12,12 @@ This is the shortest evidence bundle for external evaluators who need a factual 
 ## Verification signal
 A reviewer can explain what is live, what is optional/advanced, and what trust controls exist in under 10 minutes.
 
+## Framing visual
+
+![ClassHub board thesis diagram](diagrams/board/exported/start_here_board_flow.svg)
+
+Read this left to right: ClassHub turns fragile program memory into shared infrastructure, so programs become easier to repeat, hand off, govern, and report on.
+
 ## Core screenshot set (6)
 
 ### 1) Student join flow

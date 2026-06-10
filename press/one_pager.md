@@ -11,6 +11,12 @@ Class Hub is a self-hosted, classroom-first learning platform with a separate Ho
 ## Verification signal
 A reader should understand the system scope, deployment shape, and privacy stance in under five minutes.
 
+## Board view
+
+![ClassHub board thesis diagram](diagrams/board/exported/start_here_board_flow.svg)
+
+Read this left to right: ClassHub turns fragile program memory into shared infrastructure, so programs become easier to repeat, hand off, govern, and report on.
+
 ## What it is
 - Django-based class hub for lesson delivery and teacher workflows.
 - Separate helper service routed under `/helper/*`.
