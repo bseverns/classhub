@@ -33,15 +33,74 @@ At the end, you should be able to: (a) join as a student using a class code, (b)
 ## Prerequisites
 - Docker Engine
 - Docker Compose v2
+- Git if you are cloning the repo from GitHub
+- SSH access if you are copying the repo to another machine
 
 Check:
 
 ```bash
 docker --version
 docker compose version
+git --version
 ```
 
-Expected: both commands print versions without errors.
+Expected: all three commands print versions without errors.
+
+## 0) Get the repo onto your machine
+
+Use this section if someone sent you the project link and you are starting from a blank terminal.
+
+### Normal path: clone from GitHub
+
+```bash
+mkdir -p ~/classhub-demo
+cd ~/classhub-demo
+git clone https://github.com/bseverns/classhub.git
+cd classhub
+```
+
+Verification signal:
+
+```bash
+pwd
+ls compose scripts docs services
+git status --short
+```
+
+Expected: `pwd` ends in `classhub`, the folders exist, and `git status --short` prints nothing.
+
+### If you downloaded a ZIP instead
+
+```bash
+cd ~/Downloads
+unzip classhub-main.zip
+cd classhub-main
+```
+
+This works for a quick read-through or demo, but `git clone` is better if you plan to update the repo later.
+
+### Copy the repo to another machine
+
+If you already cloned the repo on your laptop and want to copy it to a lab server or demo box, use `rsync` from your laptop:
+
+```bash
+rsync -av --delete \
+  --exclude ".git" \
+  --exclude ".venv" \
+  --exclude ".venv_docs" \
+  --exclude "site" \
+  ./ user@SERVER_IP:/srv/lms/app/
+```
+
+Then SSH into the target:
+
+```bash
+ssh user@SERVER_IP
+cd /srv/lms/app
+ls compose scripts docs services
+```
+
+For an actual internet-facing deployment, use [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md), [BOOTSTRAP_SERVER.md](BOOTSTRAP_SERVER.md), and [RUNBOOK.md](RUNBOOK.md) instead of treating this local demo guide as the deployment plan.
 
 ## 1) Configure local demo env
 
