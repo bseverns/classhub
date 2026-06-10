@@ -68,6 +68,8 @@ Draw, test, and explain one loop.
                 self.assertContains(resp, "Start here")
                 self.assertContains(resp, "Draw one circuit.")
                 self.assertContains(resp, "Download handout")
+                self.assertContains(resp, "Choose a language")
+                self.assertContains(resp, "Use these buttons to open the handout in the language your class reads best.")
 
                 handout = self.client.get(
                     "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple"
@@ -77,6 +79,18 @@ Draw, test, and explain one loop.
                 self.assertContains(handout, "<svg", html=False)
                 self.assertContains(handout, "Turn in")
                 self.assertContains(handout, "Upload one PDF page.")
+                self.assertContains(handout, "Choose a language")
+                self.assertContains(handout, "Use these links to open the same handout in the language your class reads best.")
+
+                standard_handout = self.client.get(
+                    "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=standard"
+                )
+                self.assertEqual(standard_handout.status_code, 200)
+                self.assertContains(standard_handout, "Handout language")
+                self.assertContains(
+                    standard_handout,
+                    "Use these links to switch the printable handout into another language before you print or share it.",
+                )
 
                 pdf = self.client.get(
                     "/course/neighborhood_circuits/s01-neighborhood-circuits/handout.pdf?reading_level=simple"

@@ -190,11 +190,18 @@
           <span class="muted">{% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}</span>
         </div>
         <div class="nav">
-          <span class="muted">{% trans "Language" %}</span>
+          <span class="muted">{% if selected_reading_level == "simple" %}{% trans "Choose a language" %}{% else %}{% trans "Handout language" %}{% endif %}</span>
           {% for option in lesson_handout.language_options %}
           <a class="btn" href="{{ option.handout_url }}">{{ option.label }}</a>
           {% endfor %}
         </div>
+        <p class="muted">
+          {% if selected_reading_level == "simple" %}
+          {% trans "Use these buttons to open the handout in the language your class reads best." %}
+          {% else %}
+          {% trans "Use these buttons to switch the printable handout into another language before you print or share it." %}
+          {% endif %}
+        </p>
         {% if lesson_handout.goal %}
         <p class="muted">{{ lesson_handout.goal }}</p>
         {% endif %}

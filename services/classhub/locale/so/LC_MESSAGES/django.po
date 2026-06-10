@@ -1313,6 +1313,29 @@ msgstr "Ku fur onlayn:"
 msgid "Online lesson:"
 msgstr "Casharka onlaynka:"
 
+#: services/classhub/templates/lesson_handout.html:19
+#: services/classhub/templates/lesson_page.html:193
+msgid "Choose a language"
+msgstr "Dooro luqad"
+
+#: services/classhub/templates/lesson_handout.html:19
+#: services/classhub/templates/lesson_page.html:193
+msgid "Handout language"
+msgstr "Luqadda warqadda casharka"
+
+#: services/classhub/templates/lesson_handout.html:24
+msgid "Use these links to open the same handout in the language your class reads best."
+msgstr "Isticmaal xiriirradan si aad isla warqadda casharka ugu furto luqadda ay fasalkaagu sida fiican ugu akhriyaan."
+
+#: services/classhub/templates/lesson_handout.html:24
+#: services/classhub/templates/lesson_page.html:199
+msgid "Use these buttons to switch the printable handout into another language before you print or share it."
+msgstr "Isticmaal badhamadan si aad warqadda casharka la daabici karo ugu beddesho luqad kale ka hor intaadan daabicin ama wadaagin."
+
+#: services/classhub/templates/lesson_page.html:199
+msgid "Use these buttons to open the handout in the language your class reads best."
+msgstr "Isticmaal badhamadan si aad warqadda casharka ugu furto luqadda ay fasalkaagu sida fiican ugu akhriyaan."
+
 #: services/classhub/templates/lesson_handout.html:32
 #: services/classhub/templates/lesson_page.html:185
 msgid "Start here"

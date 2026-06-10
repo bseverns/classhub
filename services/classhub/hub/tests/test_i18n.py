@@ -180,27 +180,49 @@ Draw, test, and explain one loop.
     def test_handout_service_labels_translate_in_shipped_languages(self):
         expectations = {
             "es": {
+                "choose_language": "Elige un idioma",
+                "handout_language": "Idioma de la guía",
                 "submit": "Qué entregar",
                 "peer_feedback": "Comentarios entre compañeros",
                 "download_pdf": "Descargar PDF de la guía",
+                "simple_language_help": "Usa estos enlaces para abrir la misma guía en el idioma que tu clase lee mejor.",
+                "standard_language_help": "Usa estos botones para cambiar la guía imprimible a otro idioma antes de imprimirla o compartirla.",
             },
             "so": {
+                "choose_language": "Dooro luqad",
+                "handout_language": "Luqadda warqadda casharka",
                 "submit": "Waxa la gudbinayo",
                 "peer_feedback": "Faallooyinka ardayda kale",
                 "download_pdf": "Soo dejiso PDF-ka warqadda casharka",
+                "simple_language_help": "Isticmaal xiriirradan si aad isla warqadda casharka ugu furto luqadda ay fasalkaagu sida fiican ugu akhriyaan.",
+                "standard_language_help": "Isticmaal badhamadan si aad warqadda casharka la daabici karo ugu beddesho luqad kale ka hor intaadan daabicin ama wadaagin.",
             },
             "ksw": {
+                "choose_language": "ဃုထၢ ကျိာ်",
+                "handout_language": "handout အကျိာ်",
                 "submit": "ပာ်ဃုာ်တၢ်မနုၤလဲၣ်",
                 "peer_feedback": "တီၤဖိအတၢ်စံးဆၢ",
                 "download_pdf": "ဒုးလီၤကလ့ၣ် handout PDF",
+                "simple_language_help": "သူၣ်ထီၣ် link တဖၣ်အံၤ ဒ်သိးနကအိးထီၣ် handout တပုာ်ဃီ လၢကျိာ်လၢနတီၤဖိဖးတၢ်အဂ့ၤကတၢၢ်တခါ.",
+                "standard_language_help": "သူၣ်ထီၣ် button တဖၣ်အံၤ ဒ်သိးနကလဲၤလိာ် printable handout ဆူကျိာ်အဂၤတခါ ဖဲနတချုး print မ့တမ့ၢ် share တချုး.",
             },
         }
 
         for language_code, labels in expectations.items():
             with self.subTest(language_code=language_code), translation.override(language_code):
+                self.assertEqual(_("Choose a language"), labels["choose_language"])
+                self.assertEqual(_("Handout language"), labels["handout_language"])
                 self.assertEqual(_("What to submit"), labels["submit"])
                 self.assertEqual(_("Peer feedback"), labels["peer_feedback"])
                 self.assertEqual(_("Download handout PDF"), labels["download_pdf"])
+                self.assertEqual(
+                    _("Use these links to open the same handout in the language your class reads best."),
+                    labels["simple_language_help"],
+                )
+                self.assertEqual(
+                    _("Use these buttons to switch the printable handout into another language before you print or share it."),
+                    labels["standard_language_help"],
+                )
 
     def test_student_helper_widget_uses_request_localization(self):
         self._set_student_session()

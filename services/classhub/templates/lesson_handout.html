@@ -21,10 +21,17 @@
           <a href="{{ lesson_handout.reading_level_urls.standard }}">{% trans "Standard" %}</a>
         </p>
         <p class="subtitle">
-          {% trans "Language" %}:
+          {% if selected_reading_level == "simple" %}{% trans "Choose a language" %}{% else %}{% trans "Handout language" %}{% endif %}:
           {% for option in lesson_handout.language_options %}
           <a href="{{ option.handout_url }}">{{ option.label }}</a>{% if not forloop.last %} · {% endif %}
           {% endfor %}
+        </p>
+        <p class="subtitle">
+          {% if selected_reading_level == "simple" %}
+          {% trans "Use these links to open the same handout in the language your class reads best." %}
+          {% else %}
+          {% trans "Use these links to switch the printable handout into another language before you print or share it." %}
+          {% endif %}
         </p>
       </div>
       <div class="meta">

@@ -1332,6 +1332,29 @@ msgstr "Abrir en línea:"
 msgid "Online lesson:"
 msgstr "Lección en línea:"
 
+#: services/classhub/templates/lesson_handout.html:19
+#: services/classhub/templates/lesson_page.html:193
+msgid "Choose a language"
+msgstr "Elige un idioma"
+
+#: services/classhub/templates/lesson_handout.html:19
+#: services/classhub/templates/lesson_page.html:193
+msgid "Handout language"
+msgstr "Idioma de la guía"
+
+#: services/classhub/templates/lesson_handout.html:24
+msgid "Use these links to open the same handout in the language your class reads best."
+msgstr "Usa estos enlaces para abrir la misma guía en el idioma que tu clase lee mejor."
+
+#: services/classhub/templates/lesson_handout.html:24
+#: services/classhub/templates/lesson_page.html:199
+msgid "Use these buttons to switch the printable handout into another language before you print or share it."
+msgstr "Usa estos botones para cambiar la guía imprimible a otro idioma antes de imprimirla o compartirla."
+
+#: services/classhub/templates/lesson_page.html:199
+msgid "Use these buttons to open the handout in the language your class reads best."
+msgstr "Usa estos botones para abrir la guía en el idioma que tu clase lee mejor."
+
 #: services/classhub/templates/lesson_handout.html:32
 #: services/classhub/templates/lesson_page.html:185
 msgid "Start here"
