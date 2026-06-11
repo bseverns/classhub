@@ -53,7 +53,7 @@ flowchart LR
   Helper["Homework Helper app (/helper/*)"]
   Data["Postgres + Redis + uploads"]
   Model["Private model host<br/>tailnet-only"]
-  Control["Headscale VPS<br/>control plane only"]
+  Control["Jetson_B / Headscale<br/>control plane only"]
 
   You --> Edge
   Edge --> Hub
@@ -77,15 +77,15 @@ Then open:
 - Student join: `http://localhost/`
 - Teacher login: `http://localhost/teach/login` (or `http://localhost/admin/login/` for admin console access)
 
-The quickstart and deploy scripts now default to a bundled CPU-local helper smoke path via Ollama. That local path is intentionally small and bounded so operators can validate the LMS stack on modest hardware without turning the LMS host into the serious production inference node. If you later move the helper to a private remote model host, the serious production path is a public LMS plus a private tailnet-only model endpoint that only Homework Helper can reach. For createMPLS-style deployments, the recommended control plane for that private path is a self-hosted Headscale server on a tiny Ubuntu VPS. A Gemma-family model on the remote private host is now the recommended open-model example, while the ClassHub runtime remains provider-neutral (`LLM_BACKEND`, `LLM_BASE_URL`, `LLM_API_KEY`).
+The quickstart and deploy scripts now default to a bundled CPU-local helper smoke path via Ollama. That local path is intentionally small and bounded so operators can validate the LMS stack on modest hardware without turning the LMS host into the serious production inference node. If you later move the helper to a private remote model host, the serious production path is a public LMS plus a private tailnet-only model endpoint that only Homework Helper can reach. For the current createMPLS deployment, Jetson_B primarily runs Headscale at `hs.creatempls.org` while the class LLM lives on a Thundercompute vGPU tailnet endpoint. The ClassHub runtime remains provider-neutral (`LLM_BACKEND`, `LLM_BASE_URL`, `LLM_API_KEY`).
 
 ## Production posture (important)
 
 - Domain/TLS deployments should start from `compose/.env.example.domain`.
 - Production default is strict org boundary: `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1`.
 - Local/dev and migration scenarios may temporarily use `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=0`.
-- Serious private-LLM production path: keep `lms.creatempls.org` public, keep the model host private, and route only Homework Helper server-to-server traffic over the tailnet.
-- For createMPLS-style deployments, Headscale on a tiny Ubuntu VPS is the recommended tailnet control plane; the ClassHub runtime itself stays control-plane-agnostic and uses `LLM_BASE_URL` + `LLM_API_KEY`.
+- Serious private-LLM production path: keep `lms.creatempls.org` public, keep the Thundercompute vGPU model host private, and route only Homework Helper server-to-server traffic over the tailnet.
+- For the current createMPLS deployment, Jetson_B runs the Headscale control plane at `hs.creatempls.org`; the ClassHub runtime itself stays control-plane-agnostic and uses `LLM_BASE_URL` + `LLM_API_KEY`.
 
 ## Next docs
 
@@ -95,7 +95,7 @@ The quickstart and deploy scripts now default to a bundled CPU-local helper smok
 - Runbook and operations: [`docs/RUNBOOK.md`](docs/RUNBOOK.md)
 - Private LLM topology: [`docs/PRIVATE_LLM_BACKEND.md`](docs/PRIVATE_LLM_BACKEND.md)
 - Headscale operator guide: [`docs/HEADSCALE_CONTROL_PLANE.md`](docs/HEADSCALE_CONTROL_PLANE.md)
-- Jetson-B helper route: [`docs/JETSON_B_HELPER_BACKEND.md`](docs/JETSON_B_HELPER_BACKEND.md)
+- Jetson_B Headscale role: [`docs/JETSON_B_HEADSCALE_ROLE.md`](docs/JETSON_B_HEADSCALE_ROLE.md)
 - Remote compute lease control: [`docs/REMOTE_HELPER_COMPUTE_CONTROL.md`](docs/REMOTE_HELPER_COMPUTE_CONTROL.md)
 - Remote compute evidence: [`docs/EVIDENCE_REMOTE_COMPUTE.md`](docs/EVIDENCE_REMOTE_COMPUTE.md)
 - Infrastructure hardening roadmap: [`docs/INFRASTRUCTURE_HARDENING_ROADMAP.md`](docs/INFRASTRUCTURE_HARDENING_ROADMAP.md)

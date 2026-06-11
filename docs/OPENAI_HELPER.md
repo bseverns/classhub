@@ -26,8 +26,8 @@ The helper service is a Django app that exposes:
 - `GET /helper/internal/rag-status` (token-protected internal evidence/status contract)
 
 By default, the helper is wired to a small local LLM path (via Ollama) for self-hosted smoke validation and predictable day-1 ops.
-For the serious private scale-out path, prefer a Gemma-family model on a private GPU host and let Homework Helper reach it over the host-to-host tailnet through Ollama or another compatible private backend.
-For createMPLS-style deployments, the recommended control plane behind that path is Headscale on a tiny Ubuntu VPS.
+For the serious private scale-out path, use the Thundercompute vGPU private model endpoint and let Homework Helper reach it over the host-to-host tailnet through an OpenAI-compatible or Ollama-compatible private backend.
+For the current createMPLS deployment, Jetson_B runs the Headscale control plane behind that path at `hs.creatempls.org`.
 Hosted OpenAI remains an explicit optional path via the **Responses API** and must be intentionally acknowledged before use.
 
 Hosted OpenAI path note:
@@ -229,22 +229,21 @@ explicitly when the model's default context window is too large for your
 runtime. A value like `4096` is a practical starting point for smoke checks and
 short classroom hints.
 
-### Private remote model host (Gemma-family example over private tailnet)
+### Private remote model host (Thundercompute vGPU over private tailnet)
 
 Recommended production pattern:
 - keep the tailnet client host-managed, not in `docker-compose.yml`
-- run the model server on the GPU host
+- run the model server on the Thundercompute vGPU host
 - publish it privately as a tailnet-only HTTPS endpoint
-- point Class Hub at the GPU host's private HTTPS hostname
-- for createMPLS-style deployments, recommend Headscale as the control plane behind that private path
-- for open-model deployments, a Gemma-family model is the recommended example for the private GPU host
+- point Class Hub at the Thundercompute host's private HTTPS hostname
+- for the current createMPLS deployment, Jetson_B runs Headscale behind that private path
 
 Why this is the preferred remote pattern:
 - keeps the app Compose stack least-privilege
 - avoids public edge proxies between `helper_web` and the private model backend
 - gives operators a stable URL that works in both browsers and env config
 
-GPU host bring-up:
+Thundercompute host bring-up:
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
@@ -254,7 +253,7 @@ tailscale serve --bg 443 http://127.0.0.1:11434
 tailscale serve status
 ```
 
-If the GPU environment does not run `systemd`, start `tailscaled` manually in
+If the Thundercompute environment does not run `systemd`, start `tailscaled` manually in
 userspace-networking mode before `tailscale up`:
 
 ```bash
@@ -273,30 +272,30 @@ LMS host env example:
 
 ```bash
 LLM_ENABLED=1
-LLM_BACKEND=ollama
-LLM_BASE_URL=https://llm-gpu.tail.creatempls.org
+LLM_BACKEND=openai_compatible
+LLM_BASE_URL=https://thundercompute-vgpu.tail.creatempls.org
 LLM_API_KEY=REPLACE_ME_STRONG
-LLM_MODEL=llama3.2:3b
+LLM_MODEL=REPLACE_ME_WITH_THUNDERCOMPUTE_MODEL_ID
 LLM_TIMEOUT_SECONDS=45
 LLM_NUM_CTX=4096
 LLM_MAX_TOKENS=64
 HELPER_REMOTE_MODE_ACKNOWLEDGED=1
 
-HELPER_RAG_EMBED_BASE_URL=https://llm-gpu.tail.creatempls.org
+HELPER_RAG_EMBED_BASE_URL=https://thundercompute-vgpu.tail.creatempls.org
 HELPER_RAG_EMBED_MODEL=nomic-embed-text
 ```
 
 Verification flow:
 
 ```bash
-curl https://llm-gpu.tail.creatempls.org/api/tags
-curl --max-time 60 https://llm-gpu.tail.creatempls.org/api/chat \
+curl https://thundercompute-vgpu.tail.creatempls.org/v1/models
+curl --max-time 60 https://thundercompute-vgpu.tail.creatempls.org/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -H 'User-Agent: ClassHub-HomeworkHelper/1.0' \
-  --data '{"model":"llama3.2:3b","messages":[{"role":"system","content":"Be brief."},{"role":"user","content":"Give one short Scratch hint about moving a sprite."}],"stream":false,"options":{"num_ctx":4096,"num_predict":64}}'
+  --data '{"model":"REPLACE_ME_WITH_THUNDERCOMPUTE_MODEL_ID","messages":[{"role":"system","content":"Be brief."},{"role":"user","content":"Give one short Scratch hint about moving a sprite."}],"max_tokens":64,"temperature":0.2}'
 ```
 
-Smoke check recommendation for remote GPUs:
+Smoke check recommendation for remote vGPU:
 
 ```bash
 SMOKE_TIMEOUT_SECONDS=45 \

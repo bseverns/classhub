@@ -10,7 +10,7 @@ For the createMPLS deployment at `lms.creatempls.org`, the expected mental model
 - Homework Helper is the only component that talks to the model host
 - private LLM traffic is host-to-host only
 - the tailnet exists only for LLM traffic and related operator/admin troubleshooting
-- for this deployment class, the recommended control plane is a self-hosted Headscale server on a tiny Ubuntu VPS
+- for this deployment, Jetson_B primarily runs the Headscale control plane at `hs.creatempls.org`
 - Headscale is a control-plane concern; ClassHub runtime remains control-plane-agnostic
 
 Current deploy/test default:
@@ -18,17 +18,14 @@ Current deploy/test default:
 - use the bundled CPU-local Ollama service only for day-1 compose deploys and bounded smoke checks
 - keep that local smoke path intentionally small so modest LMS nodes can still validate `/helper/chat`
 - treat remote private-backend validation as optional pass/fail evidence, not as a blocker for the rest of the stack
-- for the serious private backend, prefer a Gemma-family model on the private GPU host, served through Ollama or another compatible private backend
+- for the serious private backend, use the Thundercompute vGPU private model endpoint, served through an OpenAI-compatible or Ollama-compatible private backend
 
-Current `lab_mind` placement truth:
+Current createMPLS placement truth:
 
-- R900 is the infrastructure spine for storage, backups, monitoring, dashboards, docs mirror, and operational memory.
-- Jetson-A Orin Nano is the normal assistant/model node.
-- Jetson-B and Jetson-C are edge/support nodes, not the canonical assistant/model hosts.
-- Raspberry Pis stay disposable edge appliances.
-- Headscale is the private control plane only.
-
-For this ClassHub deployment, [JETSON_B_HELPER_BACKEND.md](JETSON_B_HELPER_BACKEND.md) prepares a bounded Jetson-B helper route as an explicit exception to that map. Do not read the Jetson-B route as a general instruction to move `lab_mind` model serving off Jetson-A.
+- the deployed ClassHub server owns the public LMS and Homework Helper runtime at `lms.creatempls.org`
+- Jetson_B is the Headscale control-plane host for `hs.creatempls.org`
+- the Thundercompute vGPU host is the class LLM/model compute node
+- [JETSON_B_HELPER_BACKEND.md](JETSON_B_HELPER_BACKEND.md) is deprecated reference material for an older Jetson-B model-serving route
 
 ```mermaid
 flowchart TD
@@ -37,9 +34,9 @@ flowchart TD
   H -->|HTTPS over tailnet| T[Tailnet-only endpoint]
   T --> P[Private auth proxy]
   P --> M[Model server on 127.0.0.1]
-  HS[Headscale VPS<br/>hs.creatempls.org<br/>control plane only]
+  HS[Jetson_B / Headscale<br/>hs.creatempls.org<br/>control plane only]
 
-  HS -. coordinates LMS and model nodes .- H
+  HS -. coordinates deployed LMS and Thundercompute nodes .- H
   HS -. does not proxy request traffic .- M
 ```
 
@@ -81,20 +78,20 @@ Private tailnet traffic:
 
 ## Why this boundary exists
 
-- Student and teacher browsers never reach the GPU node directly.
+- Student and teacher browsers never reach the Thundercompute vGPU node directly.
 - Homework Helper is the only component that talks to the model host.
 - The helper can redact obvious identifiers before upstream calls.
 - The LMS keeps the policy boundary, request logs, and classroom context.
-- The GPU node is treated as replaceable compute, not the source of truth.
-- The Headscale VPS stays small and stable because it only coordinates the private path.
+- The Thundercompute vGPU node is treated as replaceable compute, not the source of truth.
+- Jetson_B stays small and stable because it only coordinates the private path through Headscale.
 
 ## Control plane recommendation
 
-For createMPLS-style production deployments, recommend:
+For the current createMPLS deployment, use:
 
-- a self-hosted Headscale server on a tiny Ubuntu VPS
-- a separate public hostname such as `hs.creatempls.org`
-- only the LMS host and private model host joined by default
+- Jetson_B as the self-hosted Headscale control-plane host
+- `hs.creatempls.org` as the Headscale hostname
+- only the deployed ClassHub server and Thundercompute vGPU model host joined by default
 
 Important:
 
@@ -112,7 +109,7 @@ The ClassHub runtime stays agnostic here. It only depends on:
 
 ## Bounded remote compute activation
 
-For expensive remote GPU/provider capacity, the repo now supports a bounded staff-only activation lease:
+For expensive remote vGPU/provider capacity, the repo now supports a bounded staff-only activation lease:
 
 - remote helper compute stays off by default
 - a teacher/admin can activate it for a live class window from `/teach/class/<id>`
@@ -133,7 +130,7 @@ Reference:
 
 - `LLM_BACKEND=ollama`
   - practical path for local smoke and for remote private hosts that expose an Ollama-compatible API
-  - common serious deployment example: a Gemma-family model on the private GPU host behind a tailnet-only HTTPS endpoint
+  - use only if the Thundercompute vGPU endpoint exposes an Ollama-compatible API
 - `LLM_BACKEND=openai_compatible`
   - swap-ready path for vLLM, TGI, or another OpenAI-compatible private server
 - `LLM_BACKEND=mock`
@@ -149,10 +146,10 @@ Example separation between public LMS and private model endpoint:
 DOMAIN=lms.creatempls.org
 
 LLM_ENABLED=1
-LLM_BACKEND=ollama
-LLM_BASE_URL=https://llm-gpu.tail.creatempls.org
+LLM_BACKEND=openai_compatible
+LLM_BASE_URL=https://thundercompute-vgpu.tail.creatempls.org
 LLM_API_KEY=REPLACE_ME_STRONG
-LLM_MODEL=gemma3:4b
+LLM_MODEL=REPLACE_ME_WITH_THUNDERCOMPUTE_MODEL_ID
 LLM_TIMEOUT_SECONDS=30
 LLM_MAX_TOKENS=256
 LLM_NUM_CTX=4096
@@ -223,7 +220,7 @@ This architecture is privacy-forward, not privacy-magical.
 FERPA-style caution:
 
 - do not enable raw prompt/response retention by default
-- do not place unrestricted staff notes or student dossiers on the GPU node
+- do not place unrestricted staff notes or student dossiers on the Thundercompute vGPU node
 - document any exception before enabling it
 
 ## Warm / stop / replace
@@ -236,12 +233,12 @@ bash scripts/check_llm_backend.sh --probe-chat
 
 Stop:
 
-- stop the systemd unit on the GPU node
+- stop the model-serving unit on the Thundercompute vGPU node
 - keep the LMS up; helper should degrade gracefully
 
 Replace:
 
-1. build a fresh GPU node
+1. build or reprovision the Thundercompute vGPU node
 2. restore `/etc/classhub/llm-server.env`
 3. re-enable tailnet client + model service + proxy
 4. rerun `bash scripts/check_llm_backend.sh --probe-chat`
@@ -262,7 +259,7 @@ Fast classifications:
 - `malformed_response`
   - proxy or access page returned non-JSON
 
-The operator runbook and GPU-host artifacts live in:
+The operator runbook and model-host artifacts live in:
 
 - [RUNBOOK.md](RUNBOOK.md)
 - [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md)

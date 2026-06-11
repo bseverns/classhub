@@ -41,7 +41,7 @@ The app treats `thunder_webhook` as a replaceable adapter seam, not as a hard-co
 Activate:
 
 ```json
-{"ok": true, "state": "starting", "request_id": "req-123", "detail": "booting Thunder GPU node"}
+{"ok": true, "state": "starting", "request_id": "req-123", "detail": "booting Thundercompute vGPU node"}
 ```
 
 Health:

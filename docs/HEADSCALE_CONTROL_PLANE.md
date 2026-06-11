@@ -9,13 +9,13 @@ For this deployment class:
 - the model host stays private
 - only Homework Helper talks to the model host
 - the private path is host-to-host over a tailnet
-- the recommended tailnet control plane is a self-hosted Headscale server on a tiny Ubuntu VPS
+- Jetson_B is the self-hosted Headscale control-plane host for `hs.creatempls.org`
 
 Headscale is coordinating the private path. It is not serving the model and it is not serving the public LMS.
 
 ## Purpose
 
-Use the Headscale VPS for one job only:
+Use Jetson_B's Headscale role for one job only:
 
 - coordinate private tailnet membership for the LMS host and the private model host
 
@@ -36,13 +36,11 @@ Keep the Headscale control plane separate from the LMS for boring operations:
 
 ## Recommended host
 
-Minimal default for this deployment class:
+Current default for this deployment:
 
-- tiny Ubuntu VPS
-- 1 vCPU
-- 1 GB RAM
-- small persistent disk
-- stable public IP or stable DNS front door
+- Jetson_B
+- stable DNS front door at `hs.creatempls.org`
+- persistent storage for Headscale config, state, policy, and backups
 
 This node is coordination-only. It does not need GPU, large storage, or public web app capacity.
 
@@ -53,15 +51,15 @@ Recommended hostname/subdomain:
 Keep it distinct from:
 
 - public LMS: `lms.creatempls.org`
-- private model endpoint: for example `llm-gpu.tail.creatempls.org`, or `jetson-b.tail.creatempls.org` for the bounded `lab_mind` Jetson-B route
+- private model endpoint: `thundercompute-vgpu.tail.creatempls.org` until the final Thundercompute tailnet hostname is chosen
 
 ## Ubuntu-first assumptions
 
 Assume:
 
-- Ubuntu LTS on the Headscale VPS
+- Ubuntu LTS or equivalent Linux on Jetson_B as the Headscale host
 - Ubuntu or another Linux distribution on the LMS host
-- Ubuntu or another Linux distribution on the private model host
+- Ubuntu or another Linux distribution on the Thundercompute vGPU private model host
 
 This repo now ships a narrow Headscale ops bundle in `ops/headscale/`:
 
@@ -78,11 +76,11 @@ The ClassHub app still does not depend on Headscale internals at runtime.
 
 Use the repo bundle to make the control plane reproducible instead of memory-driven.
 
-Recommended runtime root on the Headscale VPS:
+Recommended runtime root on Jetson_B:
 
 - `/srv/headscale`
 
-Recommended repo checkout on the Headscale VPS:
+Recommended repo checkout on Jetson_B:
 
 - `/srv/headscale/app`
 
@@ -98,16 +96,16 @@ sudo systemctl enable --now classhub-headscale
 sudo systemctl enable --now classhub-headscale-backup.timer
 ```
 
-This keeps the Headscale VPS deployment path aligned with the rest of the repo's operator bundle style.
+This keeps the Jetson_B Headscale deployment path aligned with the rest of the repo's operator bundle style.
 
 ## What joins the tailnet
 
 Default nodes:
 
 - LMS application host running ClassHub + Homework Helper
-- private model host running the model server and optional auth proxy
+- Thundercompute vGPU private model host running the model server and optional auth proxy
 
-For the current `lab_mind` integration, that private model host is Jetson-B only by explicit ClassHub exception. The refreshed `lab_mind` role map still treats Jetson-A Orin Nano as the normal assistant/model node, Jetson-B/C as edge/support nodes, R900 as the infrastructure spine, and Raspberry Pis as disposable edge appliances.
+Jetson_B itself is the Headscale control plane for this topology, not the model host. The older Jetson-B helper-model route is deprecated and kept only in [JETSON_B_HELPER_BACKEND.md](JETSON_B_HELPER_BACKEND.md).
 
 Optional, narrow-use nodes:
 
@@ -149,8 +147,8 @@ flowchart LR
   Browser["Browser"]
   LMS["Public LMS<br/>lms.creatempls.org"]
   Helper["Homework Helper"]
-  Model["Private model host<br/>llm-gpu.tail.creatempls.org or jetson-b.tail.creatempls.org"]
-  HS["Headscale VPS<br/>hs.creatempls.org"]
+  Model["Thundercompute vGPU model host<br/>thundercompute-vgpu.tail.creatempls.org"]
+  HS["Jetson_B / Headscale<br/>hs.creatempls.org"]
 
   Browser -->|HTTPS| LMS
   LMS --> Helper
@@ -161,7 +159,7 @@ flowchart LR
 
 Important:
 
-- request traffic does not transit through the Headscale VPS
+- request traffic does not transit through Jetson_B/Headscale
 - Headscale coordinates the private path; it does not proxy model traffic, serve the model, or serve the public LMS
 
 ## LMS-side relation to helper config
@@ -179,8 +177,8 @@ Example separation:
 DOMAIN=lms.creatempls.org
 
 LLM_ENABLED=1
-LLM_BACKEND=ollama
-LLM_BASE_URL=https://llm-gpu.tail.creatempls.org
+LLM_BACKEND=openai_compatible
+LLM_BASE_URL=https://thundercompute-vgpu.tail.creatempls.org
 LLM_API_KEY=REPLACE_ME_STRONG
 HELPER_REMOTE_MODE_ACKNOWLEDGED=1
 ```
@@ -188,7 +186,7 @@ HELPER_REMOTE_MODE_ACKNOWLEDGED=1
 That config means:
 
 - browsers use `https://lms.creatempls.org`
-- only Homework Helper uses `https://llm-gpu.tail.creatempls.org`
+- only Homework Helper uses `https://thundercompute-vgpu.tail.creatempls.org`
 
 ## Backup expectations
 
@@ -199,7 +197,7 @@ Back up the control plane like a small but important coordination service:
 - any ACL/policy files
 - bootstrap or registration secrets used to enroll nodes
 
-Keep backups off the VPS.
+Keep backups off the Headscale host.
 
 Canonical repo-side backup command:
 
@@ -215,9 +213,9 @@ sudo systemctl enable --now classhub-headscale-backup.timer
 
 ## Replacement and recovery expectations
 
-Treat the Headscale VPS as important but replaceable:
+Treat Jetson_B's Headscale role as important but replaceable:
 
-1. restore Headscale config/state onto a fresh tiny Ubuntu VPS
+1. restore Headscale config/state onto a replacement Headscale host
 2. keep the same hostname if possible (`hs.creatempls.org`)
 3. confirm the LMS host and private model host rejoin cleanly
 4. rerun helper probing from the LMS host
@@ -243,7 +241,7 @@ sudo bash scripts/headscale_restore_rehearsal_evidence.sh \
 
 That wrapper:
 
-- can bootstrap the fresh Ubuntu VPS with `ops/headscale/install.sh`
+- can bootstrap the replacement Headscale host with `ops/headscale/install.sh`
 - runs the shipped restore path against one backup archive
 - re-enables the Headscale stack and backup timer
 - captures local `systemctl`, `docker compose ps`, metrics, logs, and node-list evidence
@@ -254,7 +252,7 @@ The public LMS and model service remain separate concerns. Replacing the control
 
 What this does not mean:
 
-- the repo has not already proven blank-VPS recovery on your infrastructure
+- the repo has not already proven blank-host recovery on your infrastructure
 - node enrollment, DNS ownership, and LMS-host helper probing are still operator-reviewed steps
 - Headscale is still coordination only, not a request proxy or public LMS dependency
 
@@ -268,15 +266,15 @@ bash scripts/check_llm_backend.sh --probe-chat
 curl -fsS https://lms.creatempls.org/healthz
 ```
 
-From the private model host:
+From the Thundercompute vGPU private model host:
 
 ```bash
-curl -fsS http://127.0.0.1:11434/api/tags
+curl -fsS http://127.0.0.1:8000/v1/models
 ```
 
-For the Jetson-B llama.cpp route, use [JETSON_B_HELPER_BACKEND.md](JETSON_B_HELPER_BACKEND.md) and `bash scripts/check_jetson_b_route.sh --probe-chat` from the LMS host instead of the Ollama `/api/tags` check.
+The older Jetson-B llama.cpp route is deprecated reference material. For the active path, probe the configured Thundercompute backend from the LMS host with `bash scripts/check_llm_backend.sh --probe-chat`.
 
-From the Headscale VPS:
+From Jetson_B / Headscale:
 
 ```bash
 systemctl status classhub-headscale --no-pager
@@ -285,7 +283,7 @@ cd /srv/headscale && docker compose ps
 curl -fsS http://127.0.0.1:9090/metrics >/dev/null
 ```
 
-Use the Headscale VPS to confirm control-plane health, not to test public site routing.
+Use Jetson_B to confirm control-plane health, not to test public site routing.
 
 ## Related docs
 
@@ -293,6 +291,6 @@ Use the Headscale VPS to confirm control-plane health, not to test public site r
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [RUNBOOK.md](RUNBOOK.md)
 - [DAY1_DEPLOY_CHECKLIST.md](DAY1_DEPLOY_CHECKLIST.md)
-- [JETSON_B_HELPER_BACKEND.md](JETSON_B_HELPER_BACKEND.md)
+- [JETSON_B_HEADSCALE_ROLE.md](JETSON_B_HEADSCALE_ROLE.md)
 - repo ops bundle: `ops/headscale/README.md`
 - repo ops bundle: `ops/llm-server/README.md`

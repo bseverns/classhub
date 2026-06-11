@@ -51,16 +51,15 @@ flowchart TD
   - `CLASSHUB_UPLOAD_MAX_MB` (default `200`)
 - Configure LLM backend (default is Ollama; ensure it is running)
   - Treat the local LMS-hosted model path as a bounded smoke/day-1 validation lane, not as the serious long-term inference node.
-  - If using a remote GPU, keep the browser on the public LMS site and let Homework Helper reach the model host privately over a tailnet:
+  - If using the remote vGPU path, keep the browser on the public LMS site and let Homework Helper reach the model host privately over a tailnet:
     - public LMS example: `DOMAIN=lms.creatempls.org`
-    - private model endpoint example: `LLM_BASE_URL=https://llm-gpu.tail.creatempls.org`
-    - recommended control plane for createMPLS-style production: Headscale on a tiny Ubuntu VPS such as `hs.creatempls.org`
-    - canonical repo bundle for that VPS now lives in `ops/headscale/` (`install.sh`, Compose stack, backup, restore, systemd timer)
-    - recommended open-model example on the private GPU host: a Gemma-family model
-    - set `LLM_BACKEND=ollama`
+    - private model endpoint example: `LLM_BASE_URL=https://thundercompute-vgpu.tail.creatempls.org`
+    - control plane for createMPLS-style production: Jetson_B running Headscale at `hs.creatempls.org`
+    - canonical repo bundle for Jetson_B now lives in `ops/headscale/` (`install.sh`, Compose stack, backup, restore, systemd timer)
+    - set `LLM_BACKEND=openai_compatible` unless the Thundercompute endpoint exposes an Ollama-compatible API
     - set `LLM_API_KEY=<shared proxy bearer token>`
     - set `HELPER_REMOTE_MODE_ACKNOWLEDGED=1`
-    - For remote GPU smoke stability, set `LLM_NUM_CTX=4096` as a starting point
+    - For remote vGPU smoke stability, set `LLM_NUM_CTX=4096` as a starting point if the selected backend honors it
     - Keep the tailnet limited to helper-to-model traffic and related operator/admin troubleshooting only
   - Legacy note: `OLLAMA_BASE_URL` still works as a fallback, but `LLM_*` names are the preferred contract for new deploys.
   - If you keep both canonical and legacy helper keys in `compose/.env`, keep them identical:
@@ -88,11 +87,11 @@ flowchart TD
   - `bash scripts/migration_gate.sh`
 - Run deterministic production deploy + smoke:
   - `bash scripts/deploy_with_smoke.sh`
-  - Remote GPU recommended smoke invocation:
+  - Remote vGPU recommended smoke invocation:
     - `SMOKE_TIMEOUT_SECONDS=45 SMOKE_HELPER_MESSAGE='Give one short Scratch hint about moving a sprite.' make smoke-full`
 - Run one-command end-to-end diagnostic:
   - `bash scripts/system_doctor.sh`
-  - Remote GPU operator reference:
+  - Remote vGPU operator reference:
     - [PRIVATE_LLM_BACKEND.md](PRIVATE_LLM_BACKEND.md)
     - [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md)
 - Manual production compose fallback (if needed):

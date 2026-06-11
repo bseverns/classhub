@@ -56,10 +56,10 @@
       "note": "Security CI scans the built Class Hub and Homework Helper images for OS and library vulnerabilities."
     },
     "private_llm_topology": {
-      "note": "Serious remote-LLM production posture is documented as: public LMS, private model host, helper-only server-to-server tailnet traffic, a Headscale-recommended control plane for createMPLS-style deployments, and a Gemma-family model as the recommended open-model example on the remote private host."
+      "note": "Serious remote-LLM production posture is documented as: public LMS at `lms.creatempls.org`, Thundercompute vGPU private model host, helper-only server-to-server tailnet traffic, and Jetson_B running the Headscale control plane at `hs.creatempls.org`."
     },
     "headscale_ops_bundle": {
-      "note": "Repo now ships a narrow Headscale control-plane ops bundle for createMPLS-style deployments: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`."
+      "note": "Repo now ships a narrow Headscale control-plane ops bundle for the Jetson_B/`hs.creatempls.org` role: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`."
     },
     "remote_helper_compute_control": {
       "note": "Helper now ships a staff-only bounded remote compute control for class sessions; provider control URLs stay server-side, the remote backend is used only when state is `ready`, helper requests fall back to local/default mode when remote compute is off, not ready, or unavailable, and the bridge receives explicit control-request/idempotency metadata."
@@ -72,8 +72,8 @@
     "current_state_required_notes": [
       "Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded.",
       "Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.",
-      "Serious remote-LLM production posture is documented as: public LMS, private model host, helper-only server-to-server tailnet traffic, a Headscale-recommended control plane for createMPLS-style deployments, and a Gemma-family model as the recommended open-model example on the remote private host.",
-      "Repo now ships a narrow Headscale control-plane ops bundle for createMPLS-style deployments: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`.",
+      "Serious remote-LLM production posture is documented as: public LMS at `lms.creatempls.org`, Thundercompute vGPU private model host, helper-only server-to-server tailnet traffic, and Jetson_B running the Headscale control plane at `hs.creatempls.org`.",
+      "Repo now ships a narrow Headscale control-plane ops bundle for the Jetson_B/`hs.creatempls.org` role: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`.",
       "Helper now ships a staff-only bounded remote compute control for class sessions; provider control URLs stay server-side, the remote backend is used only when state is `ready`, and helper requests fall back to local/default mode when remote compute is off, not ready, or unavailable.",
       "Remote helper compute now produces durable class-scoped lease evidence: requested duration, time spent in `starting`/`ready`/`degraded`, remote route and fallback counts, leased minutes, auto-stop/manual-stop counts, recent events, and an optional approximate cost estimate when operator pricing assumptions are configured.",
       "Remote helper control now emits explicit bridge correlation/idempotency metadata and treats duplicate same-class activate/deactivate requests as calm bounded no-op control actions.",
@@ -87,13 +87,13 @@
       "[`docs/PRIVATE_LLM_BACKEND.md`](docs/PRIVATE_LLM_BACKEND.md)",
       "[`docs/HEADSCALE_CONTROL_PLANE.md`](docs/HEADSCALE_CONTROL_PLANE.md)",
       "[`docs/REMOTE_HELPER_COMPUTE_CONTROL.md`](docs/REMOTE_HELPER_COMPUTE_CONTROL.md)",
-      "A Gemma-family model on the remote private host is now the recommended open-model example"
+      "Jetson_B Headscale role"
     ],
     "private_llm_required_snippets": [
       "Homework Helper is the only component that talks to the model host.",
       "the tailnet exists only for LLM traffic and related operator/admin troubleshooting",
       "Headscale is a control-plane concern; ClassHub runtime remains control-plane-agnostic",
-      "prefer a Gemma-family model on the private GPU host"
+      "use the Thundercompute vGPU private model endpoint"
     ],
     "headscale_required_snippets": [
       "Headscale coordinates the private path; it does not proxy model traffic, serve the model, or serve the public LMS",

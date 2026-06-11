@@ -1,9 +1,21 @@
 # Jetson-B Helper Backend
 
-## Summary
-This is the concrete route for using `lab_mind` Jetson-B as the private Homework Helper backend.
+!!! warning "Deprecated reference"
 
-This is an intentional exception to the current `lab_mind` role map. In `lab_mind`, Jetson-B is normally an edge/support node, not the main assistant or primary model host. For this ClassHub route, treat Jetson-B as a small, bounded helper-model appliance:
+    This page documents an older experimental route where Jetson-B served as a small helper-model endpoint. It is not the active topology now.
+
+    Current active topology:
+
+    `browser -> lms.creatempls.org -> Homework Helper -> tailnet -> Thundercompute vGPU model endpoint`
+
+    Jetson_B now primarily fills the Headscale control-plane role for `hs.creatempls.org`. Use [JETSON_B_HEADSCALE_ROLE.md](JETSON_B_HEADSCALE_ROLE.md) and [HEADSCALE_CONTROL_PLANE.md](HEADSCALE_CONTROL_PLANE.md) for active operator guidance.
+
+## Summary
+This is a deprecated reference route for using `lab_mind` Jetson-B as a private Homework Helper backend.
+
+This was an intentional exception to the `lab_mind` role map. In the current ClassHub topology, do not treat Jetson-B as the class LLM host. Keep this page only for historical reference if the old route needs to be understood or removed later.
+
+The historical route treated Jetson-B as a small, bounded helper-model appliance:
 
 - use a small model only
 - keep the endpoint tailnet-only
@@ -29,7 +41,7 @@ This ClassHub route does not change that placement map. It only adds a narrowly 
 flowchart LR
   Browser["Student/teacher browser"]
   LMS["ClassHub + Homework Helper"]
-  HS["Headscale VPS<br/>control plane only"]
+  HS["Headscale control plane<br/>historical route"]
   Jetson["lab_mind Jetson-B<br/>small llama.cpp /v1 API"]
 
   Browser -->|HTTPS public LMS| LMS

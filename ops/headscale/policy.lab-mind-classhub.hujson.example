@@ -1,5 +1,10 @@
 {
-  // Narrow Headscale policy for ClassHub Homework Helper using lab_mind Jetson-B.
+  // Deprecated reference policy for the old ClassHub Homework Helper
+  // lab_mind Jetson-B model route.
+  //
+  // Current active topology:
+  // - Jetson_B runs Headscale for hs.creatempls.org.
+  // - Thundercompute vGPU serves the class LLM on the tailnet.
   //
   // Expected nodes:
   // - ClassHub LMS/helper host: tag:classhub-lms

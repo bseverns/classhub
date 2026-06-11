@@ -1,10 +1,10 @@
 # Headscale Control Plane Ops
 
-This directory is the repo-shipped bootstrap and recovery bundle for the createMPLS Headscale VPS.
+This directory is the repo-shipped bootstrap and recovery bundle for Jetson_B running the createMPLS Headscale control plane.
 
 Use it to make the Headscale control plane more boring:
 
-- one canonical VPS layout
+- one canonical Headscale host layout
 - one canonical Compose stack
 - one canonical systemd wrapper
 - one canonical backup command
@@ -19,15 +19,13 @@ It is not for general office VPN routing.
 
 ## Recommended host
 
-- tiny Ubuntu VPS
-- 1 vCPU
-- 1 GB RAM
+- Jetson_B
 - stable hostname such as `hs.creatempls.org`
 - Docker Engine + Docker Compose plugin
 
 ## Canonical layout
 
-Recommended root on the Headscale VPS:
+Recommended root on Jetson_B:
 
 - repo checkout: `/srv/headscale/app`
 - runtime root: `/srv/headscale`
@@ -46,14 +44,14 @@ Runtime root contents after bootstrap:
 
 ## Files
 
-- `install.sh`: Ubuntu-first bootstrap for the Headscale VPS
+- `install.sh`: Ubuntu-first bootstrap for the Headscale host
 - `docker-compose.yml`: canonical Headscale + Caddy stack
 - `env.example`: env template copied to `/srv/headscale/.env`
 - `Caddyfile`: public HTTPS front door for `hs.creatempls.org`
 - `config.yaml.example`: minimal Headscale config template
 - `policy.hujson.example`: narrow ACL/tag policy starting point
 - `backup.sh`: one-command backup bundle creator
-- `restore.sh`: one-command restore helper for a replacement VPS
+- `restore.sh`: one-command restore helper for a replacement Headscale host
 - `classhub-headscale.service`: systemd wrapper for the Headscale Compose stack
 - `classhub-headscale-backup.service`: systemd wrapper for periodic backups
 - `classhub-headscale-backup.timer`: daily backup timer
@@ -61,7 +59,7 @@ Runtime root contents after bootstrap:
 
 ## Fresh bootstrap
 
-On a fresh Ubuntu VPS with the repo already present:
+On Jetson_B or a replacement Headscale host with the repo already present:
 
 ```bash
 cd /srv/headscale/app
@@ -88,7 +86,7 @@ sudo systemctl enable --now classhub-headscale
 
 ## First verification
 
-From the Headscale VPS:
+From Jetson_B / Headscale:
 
 ```bash
 sudo systemctl status classhub-headscale --no-pager
@@ -135,9 +133,9 @@ Backups land under:
 
 - `/srv/headscale/backups`
 
-Keep a copy off the VPS as well.
+Keep a copy off the Headscale host as well.
 
-## Restore onto a replacement VPS
+## Restore onto a replacement Headscale host
 
 Bootstrap the replacement host first:
 
@@ -187,7 +185,7 @@ Default artifact location:
 
 - `artifacts/stability/<date>/headscale_restore_rehearsal/<timestamp>/`
 
-What the wrapper captures automatically on the Headscale VPS:
+What the wrapper captures automatically on the Headscale host:
 
 - bootstrap/install output when not skipped
 - restore output
@@ -210,7 +208,7 @@ Recovery should not require improvisation.
 
 The intended sequence is:
 
-1. bootstrap replacement VPS
+1. bootstrap replacement Headscale host
 2. restore one archived Headscale bundle
 3. start the stack
 4. verify metrics + container state

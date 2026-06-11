@@ -26,10 +26,10 @@ Treat Priorities 1-3 as effectively complete for this release line, keep Priorit
 This roadmap turns the current infrastructure review into a bounded next-step plan for the createMPLS deployment style:
 
 - public LMS at `lms.creatempls.org`
-- private model host
+- Thundercompute vGPU private model host
 - Homework Helper as the only model client
 - host-to-host tailnet for helper/model traffic only
-- Headscale on a tiny Ubuntu VPS as the recommended control plane
+- Jetson_B running Headscale at `hs.creatempls.org` as the control plane
 - remote helper compute off by default, staff-only, class-scoped, and cost-aware
 
 This is not a platform-expansion roadmap. It is a hardening roadmap for making the current architecture quieter, more honest, and less dependent on operator memory.
@@ -180,7 +180,7 @@ The architecture is already good. The remaining risk is operator drift around bo
 - one canonical Headscale bootstrap path
 - example systemd units where appropriate
 - backup script or equivalent repeatable command path
-- restore checklist validated against a blank VPS
+- restore checklist validated against a blank Headscale host
 - one canonical bridge/bootstrap env template
 
 ### Repo-facing work
@@ -193,11 +193,11 @@ Current status:
 
 - the repo now ships a narrow Headscale bundle in `ops/headscale/` for bootstrap, Compose/systemd, backup, and restore
 - the repo now also ships `scripts/headscale_restore_rehearsal_evidence.sh` so a replacement-host drill can produce one canonical artifact set instead of relying on operator memory
-- the remaining proof step is to run that rehearsal on a real blank VPS and record the resulting evidence
+- the remaining proof step is to run that rehearsal on a real blank Headscale host and record the resulting evidence
 
 ### Done looks like
 
-- replacing the Headscale VPS or bridge host does not require improvisation
+- replacing the Headscale host or bridge host does not require improvisation
 
 ## Priority 5: Bridge Idempotency And Audit Trail
 
@@ -238,11 +238,11 @@ Once the lease lifecycle is real production behavior, duplicate clicks and repea
 - do not make the LMS depend on Headscale APIs
 - do not broaden the tailnet into general office or site routing
 - do not add Kubernetes, service mesh, or large observability stack complexity
-- do not make remote GPU the default helper path
+- do not make remote vGPU the default helper path
 
 ## Recommended Sequence
 
-1. Record one real blank-host Headscale restore rehearsal artifact set.
+1. Record one real blank-host Headscale restore rehearsal artifact set for Jetson_B's control-plane role.
 2. Finish bridge idempotency and stronger lease audit-trail correlation.
 3. Re-run one boring remote lease lifecycle from activate to stop and archive the evidence.
 4. Reclassify this roadmap to historical hardening record once those proofs exist.
@@ -251,7 +251,7 @@ Once the lease lifecycle is real production behavior, duplicate clicks and repea
 
 This roadmap is working if the repo can demonstrate all five of these:
 
-1. One boring Headscale restore onto a replacement VPS.
+1. One boring Headscale restore onto a replacement Headscale host.
 2. One boring remote lease lifecycle from activate to stop.
 3. Evidence that fallback is graceful and relatively rare.
 4. One small operator view showing active lease, expiry, backend mode, and recent fallbacks.

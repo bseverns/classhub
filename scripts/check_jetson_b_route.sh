@@ -13,9 +13,10 @@ usage() {
   cat <<'EOF'
 Usage: bash scripts/check_jetson_b_route.sh [options]
 
-Checks the private ClassHub -> lab_mind Jetson-B model route from the
-machine where the command runs. Run it on the LMS host after Headscale
-enrollment and Jetson Tailscale Serve setup.
+Deprecated reference check for the old private ClassHub -> lab_mind Jetson-B
+model route. The active current topology uses Jetson_B for Headscale and a
+Thundercompute vGPU model endpoint. Run this only when investigating the old
+Jetson-B helper route.
 
 Options:
   --env-file <path>         Env file to read (default: compose/.env)

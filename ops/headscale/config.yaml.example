@@ -1,4 +1,4 @@
-# Minimal Headscale config for the createMPLS control-plane VPS.
+# Minimal Headscale config for the createMPLS Jetson_B control-plane host.
 # Validate after editing:
 #   cd /srv/headscale
 #   docker compose exec headscale headscale configtest

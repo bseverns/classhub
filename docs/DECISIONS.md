@@ -108,7 +108,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Helper YAML config layering](#helper-yaml-config-layering)
 - [Helper uses a provider abstraction for private LLM backends (2026-03-28)](#helper-uses-a-provider-abstraction-for-private-llm-backends-2026-03-28)
 - [Hosted OpenAI Responses now uses the shared provider layer (2026-04-11)](#hosted-openai-responses-now-uses-the-shared-provider-layer-2026-04-11)
-- [Private Ollama remains the active remote path; vLLM stays swap-ready (2026-03-28)](#private-ollama-remains-the-active-remote-path-vllm-stays-swap-ready-2026-03-28)
+- [Private model backend remains provider-neutral; Thundercompute is the active host (2026-03-28)](#private-model-backend-remains-provider-neutral-thundercompute-is-the-active-host-2026-03-28)
 - [Bounded remote helper compute lease control (2026-04-08)](#bounded-remote-helper-compute-lease-control-2026-04-08)
 - [Production transport hardening](#production-transport-hardening)
 - [Content parse caching](#content-parse-caching)
@@ -206,19 +206,19 @@ Historical implementation logs and superseded decisions are archived by month in
 - Makes backend naming, health probes, and retry behavior consistent across Ollama, hosted OpenAI, and OpenAI-compatible servers.
 - Reduces drift risk between docs, runtime behavior, and operator tooling.
 
-## Private Ollama remains the active remote path; vLLM stays swap-ready (2026-03-28)
+## Private model backend remains provider-neutral; Thundercompute is the active host (2026-03-28)
 
 **Current decision:**
-- Treat private remote Ollama over a host-to-host tailnet as the active first-pass deployment target.
-- Keep vLLM artifacts documented and ready, but position them as the next swap path rather than the current required runtime.
+- Treat the Thundercompute vGPU private endpoint over a host-to-host tailnet as the active serious deployment target.
+- Keep Ollama-compatible and OpenAI-compatible private backends supported through `LLM_BACKEND`.
 - Require remote-backend acknowledgement and a direct helper-container connectivity check before full smoke.
-- Keep the GPU node loopback-bound and tailnet-only; browsers never reach it directly.
-- For createMPLS-style production deployments, recommend Headscale on a tiny Ubuntu VPS as the control plane behind that private path while keeping the app runtime control-plane-agnostic.
+- Keep the model host loopback-bound or privately proxied and tailnet-only; browsers never reach it directly.
+- For the current createMPLS deployment, use Jetson_B/Headscale as the control plane behind that private path while keeping the app runtime control-plane-agnostic.
 
 **Why this remains active:**
-- Matches the current operator reality: the deployment is already using an Ollama distribution.
-- Preserves a boring, low-change path to a private remote model host now, without foreclosing a later move to a cleaner OpenAI-compatible endpoint.
-- Keeps the GPU host replaceable and least-privilege by default.
+- Matches the current operator reality: ClassHub runs on the deployed server, Headscale runs on Jetson_B, and class model compute runs on Thundercompute.
+- Preserves a boring, low-change path to private remote model hosting without binding the app to one provider API shape.
+- Keeps the model host replaceable and least-privilege by default.
 
 ## Bounded remote helper compute lease control (2026-04-08)
 
@@ -275,7 +275,7 @@ Historical implementation logs and superseded decisions are archived by month in
   - activations that never actually routed remotely.
 
 **Why this remains active:**
-- Makes expensive remote GPU capacity cost-aware without turning it into an always-on dependency.
+- Makes expensive remote vGPU capacity cost-aware without turning it into an always-on dependency.
 - Preserves the public LMS boundary while still giving staff a practical session-time control.
 - Keeps orchestration-specific details behind a small auditable seam instead of spreading provider logic through the app.
 - Survives helper worker restarts and cold-cache boots without forgetting whether a lease is still active or whether recent remote usage was worth the cost.
@@ -4006,22 +4006,22 @@ Execution ownership and gates:
 - Prevents valid tutoring exchanges from breaking after the first turn just because the latest student reply is too short to overlap with lesson topic metadata on its own.
 - Limits the relaxation to context-dependent follow-ups so the helper still redirects genuine topic switches.
 
-## Helper exposes Ollama context-window cap for remote GPU deploys (2026-03-26)
+## Helper exposes Ollama context-window cap for remote model deploys (2026-03-26)
 
 **Current decision:**
 - Add `OLLAMA_NUM_CTX` as an optional helper setting and pass it through to Ollama `options.num_ctx`.
 - Keep the default at `0` so existing local deployments continue using the model default unless operators opt in.
 
 **Why this remains active:**
-- Some remote GPU Ollama deployments advertise very large default context windows that are unnecessary for short tutoring prompts and can cause `/api/chat` to stall even when local `ollama run` works.
+- Some remote Ollama-compatible deployments advertise very large default context windows that are unnecessary for short tutoring prompts and can cause `/api/chat` to stall even when local `ollama run` works.
 - Exposing the knob in env/YAML lets operators stabilize inference and smoke checks without patching model files or hard-coding a global context size into the app.
 
 ## Remote Ollama should prefer host-managed Tailscale Serve (2026-03-26)
 
 **Current decision:**
 - Keep Tailscale out of the default Compose stack.
-- For private remote GPU inference, run Tailscale on the hosts and publish Ollama from the GPU node with `tailscale serve`.
-- Point `OLLAMA_BASE_URL` and `HELPER_RAG_EMBED_BASE_URL` at the GPU node's MagicDNS HTTPS URL.
+- For private remote Ollama-compatible inference, run Tailscale on the hosts and publish the model endpoint from the model host with `tailscale serve`.
+- Point `OLLAMA_BASE_URL` and `HELPER_RAG_EMBED_BASE_URL` at the model host's private tailnet HTTPS URL when using the Ollama-compatible path.
 
 **Why this remains active:**
 - Preserves the current least-privilege Compose posture instead of introducing a privileged VPN sidecar with `/dev/net/tun` or `NET_ADMIN`.
@@ -4262,31 +4262,49 @@ Execution ownership and gates:
 - The inventory guard is meant to preserve critical flow coverage, not block legitimate test-suite decomposition.
 - The ClassHub image still runs with a read-only root filesystem; writable curriculum state remains isolated to the explicit content bind mount.
 
-## Jetson-B private helper route (2026-05-27)
+## Jetson_B Headscale control-plane role (2026-06-10)
 
 **Current decision:**
+- Treat Jetson_B as the primary Headscale control-plane host for `hs.creatempls.org`.
+- Keep ClassHub live on the deployed server at `lms.creatempls.org`.
+- Keep the class LLM on the Thundercompute vGPU private model endpoint, using a placeholder tailnet hostname of `https://thundercompute-vgpu.tail.creatempls.org` until the final operator hostname is chosen.
+- Keep Jetson_B/Headscale as coordination only:
+  - no ClassHub app runtime,
+  - no model serving,
+  - no model request proxying,
+  - no student/teacher browser traffic.
+- Keep the old Jetson-B llama.cpp/Tailscale Serve helper route as deprecated reference material only.
+
+**Why this remains active:**
+- Aligns docs with the intended production ownership map: deployed server for ClassHub, Thundercompute for class model compute, Jetson_B for Headscale.
+- Prevents the previous Jetson-B helper route from being mistaken for the current class LLM path.
+- Keeps the runtime provider-neutral through `LLM_BACKEND`, `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL`.
+
+## Jetson-B private helper route (2026-05-27)
+
+**Superseded decision:**
 - Prepare a Headscale-only private route for ClassHub Homework Helper to use `lab_mind` Jetson-B as a small helper-model endpoint.
 - Treat Jetson-B usage as an explicit exception to the current `lab_mind` role map, where Jetson-B is normally an edge/support node rather than the primary assistant/model host.
 - Use a tailnet-only HTTPS endpoint (`https://jetson-b.tail.creatempls.org`) with `LLM_BACKEND=openai_compatible`, because the prepared Jetson-B route serves llama.cpp's OpenAI-compatible `/v1` API.
 - Add a Jetson-B lab overlay that runs a small llama.cpp service plus a localhost-only Caddy bearer-token proxy, then publish only that proxy through Tailscale Serve.
 - Keep Headscale as the control plane only; student/teacher browsers still never talk directly to Jetson-B.
 
-**Why this remains active:**
-- This gives the site a concrete, testable route to lab compute without widening the public LMS boundary.
-- The explicit exception note prevents Jetson-B from silently becoming general-purpose infrastructure.
-- The auth proxy keeps ClassHub's helper provider contract (`LLM_API_KEY`) intact even when the underlying lab model server is simple.
+**Why this remains documented:**
+- It records the older route and explains the deprecated `ops/lab-mind` overlay, `compose/env.jetson-b.example`, and `scripts/check_jetson_b_route.sh` artifacts.
+- It should not be used as the active class LLM topology.
 
 ## Lab Mind machine-map docs truth (2026-05-27)
 
 **Current decision:**
 - Treat the refreshed `lab_mind` docs as the source of truth for lab machine roles when documenting ClassHub helper routing.
-- Describe R900 as the infrastructure spine, Jetson-A Orin Nano as the normal assistant/model node, Jetson-B/C as edge/support nodes, Raspberry Pis as disposable edge appliances, and Headscale as private control plane only.
-- Keep the Jetson-B helper backend documented as a bounded ClassHub-specific exception, not as a rewrite of the canonical `lab_mind` placement matrix.
-- Use "private model host" in route-agnostic Headscale docs, and reserve Jetson-B wording for the explicit ClassHub lab route.
+- Describe Jetson_B as the current Headscale control-plane host for ClassHub, not as the class LLM host.
+- Describe Thundercompute vGPU as the current class LLM/model compute path.
+- Keep the Jetson-B helper backend documented as deprecated historical reference, not as a live exception to the placement matrix.
+- Use "private model host" in route-agnostic Headscale docs only when the specific provider is not relevant; use "Thundercompute vGPU" in current createMPLS topology docs.
 
 **Why this remains active:**
-- Prevents stale "GPU host" shorthand from making Jetson-B look like the lab's primary assistant/model node.
-- Lets ClassHub prepare the requested Jetson-B route while preserving the lab's current operational ownership map.
+- Prevents stale "model host" shorthand from making Jetson_B look like the class LLM node.
+- Keeps the docs aligned with the active ownership map instead of the deprecated Jetson-B helper route.
 - Keeps Headscale's role clear: reachability control, not public LMS routing or request proxying.
 
 ## RFC and roadmap closeout posture (2026-06-08)

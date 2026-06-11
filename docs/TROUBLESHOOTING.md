@@ -175,7 +175,7 @@ SMOKE_FULL_LOCAL_HELPER_BACKEND_MAX_ATTEMPTS=1 \
 make smoke-full
 ```
 
-If the serious deployment target is a private GPU host, prefer solving that path there with a Gemma-family model instead of trying to turn the LMS VPS into the long-term inference node.
+If the serious deployment target is the Thundercompute vGPU host, solve that path there instead of trying to turn the LMS server into the long-term inference node.
 
 If both canonical and legacy helper keys are present, keep them aligned:
 
@@ -191,13 +191,13 @@ OLLAMA_TIMEOUT_SECONDS=30
 ```
 
 If using non-compose Ollama, ensure `OLLAMA_BASE_URL` points to a host reachable from containers.
-If you are using a private GPU node, ensure `LLM_BASE_URL`/`OLLAMA_BASE_URL` points at the tailnet-only hostname and that the private proxy/API key still match.
-If this deployment uses Headscale, confirm the Headscale VPS is healthy as a control plane, but do not treat it as a request-path proxy for the model traffic.
+If you are using the Thundercompute vGPU node, ensure `LLM_BASE_URL`/`OLLAMA_BASE_URL` points at the tailnet-only hostname and that the private proxy/API key still match.
+If this deployment uses Headscale, confirm Jetson_B is healthy as a control plane, but do not treat it as a request-path proxy for the model traffic.
 
 Recommended separation check:
 
 - public LMS stays at `https://lms.creatempls.org`
-- private model endpoint stays at a tailnet-only hostname such as `https://llm-gpu.tail.creatempls.org`
+- private model endpoint stays at a tailnet-only hostname such as `https://thundercompute-vgpu.tail.creatempls.org`
 - only Homework Helper talks to that private endpoint
 
 If bounded remote helper compute control is enabled, also check:

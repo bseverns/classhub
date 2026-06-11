@@ -1,4 +1,8 @@
-# Jetson-B route adapter for ClassHub Homework Helper.
+# Deprecated reference: Jetson-B route adapter for ClassHub Homework Helper.
+#
+# This overlay is not the active current topology. Jetson_B now primarily runs
+# Headscale for hs.creatempls.org, while the class LLM lives on the
+# Thundercompute vGPU tailnet endpoint.
 #
 # Use this as an extra overlay with the lab_mind Jetson-B compose file.
 # It adds a small llama.cpp backend plus a localhost-only auth proxy.

@@ -172,7 +172,7 @@ Notes:
 - Default retry delays are `SMOKE_HELPER_CHAT_RETRY_DELAY_SECONDS=3` for transport/`ollama_error`, and `SMOKE_HELPER_CHAT_BUSY_RETRY_DELAY_SECONDS=30` for `busy`.
 - Increase those values in `compose/.env` if Ollama cold starts or queue wait regularly exceed your current retry budget.
 
-### Remote GPU over private tailnet
+### Remote vGPU over private tailnet
 
 Current recommended path:
 
@@ -180,14 +180,14 @@ Current recommended path:
 - Caddy routes `/helper/*` to `helper_web`
 - `helper_web` is the only service that talks to the remote model host
 - that model hop goes over a private tailnet to a tailnet-only endpoint
-- the GPU host keeps the model server loopback-bound behind its local auth proxy
-- for createMPLS-style production deployments, the recommended tailnet control plane is a self-hosted Headscale server on a tiny Ubuntu VPS
-- the Headscale server is control plane only; it does not proxy request traffic
+- the Thundercompute vGPU host keeps the model server loopback-bound behind its local auth proxy when an auth proxy is used
+- for the current createMPLS deployment, Jetson_B runs the Headscale control plane at `hs.creatempls.org`
+- Jetson_B/Headscale is control plane only; it does not proxy request traffic
 
 Operational meaning:
 
-- if the GPU node is unavailable, the LMS should still load and core classroom flows should stay up
-- `bash scripts/check_llm_backend.sh --probe-chat` is the fastest way to validate the helper-to-GPU path from the same runtime context the app uses
+- if the Thundercompute vGPU node is unavailable, the LMS should still load and core classroom flows should stay up
+- `bash scripts/check_llm_backend.sh --probe-chat` is the fastest way to validate the helper-to-model path from the same runtime context the app uses
 - use `LLM_BASE_URL` and the rest of the `LLM_*` env vars as the primary configuration surface; legacy `OLLAMA_*` names remain compatibility fallbacks
 - public browser traffic to `lms.creatempls.org` must never use the tailnet
 - the tailnet is reserved for helper-to-model traffic and related operator/admin troubleshooting
@@ -200,9 +200,9 @@ Reference:
 
 ### Headscale control-plane bundle
 
-If this deployment uses Headscale for the helper/model tailnet, use the repo bundle in `ops/headscale/` instead of a one-off VPS setup.
+If this deployment uses Headscale for the helper/model tailnet, use the repo bundle in `ops/headscale/` on Jetson_B instead of a one-off setup.
 
-Recommended bootstrap on the Headscale VPS:
+Recommended bootstrap on Jetson_B:
 
 ```bash
 cd /srv/headscale/app
@@ -220,7 +220,7 @@ Canonical backup command:
 sudo /usr/local/bin/classhub-headscale-backup --headscale-root /srv/headscale
 ```
 
-Canonical restore command on a replacement VPS:
+Canonical restore command on a replacement Headscale host:
 
 ```bash
 sudo /usr/local/bin/classhub-headscale-restore \
@@ -229,7 +229,7 @@ sudo /usr/local/bin/classhub-headscale-restore \
   --start-stack
 ```
 
-Canonical rehearsal evidence wrapper on a replacement VPS:
+Canonical rehearsal evidence wrapper on a replacement Headscale host:
 
 ```bash
 cd /srv/headscale/app
@@ -237,17 +237,17 @@ sudo bash scripts/headscale_restore_rehearsal_evidence.sh \
   --backup /srv/headscale/backups/headscale_<STAMP>.tgz \
   --host-class replacement-host \
   --host-label hs-replacement-01 \
-  --evidence-note "Quarterly blank-VPS Headscale recovery rehearsal"
+  --evidence-note "Quarterly blank-host Headscale recovery rehearsal"
 ```
 
 Operational intent:
 
-- keep the Headscale VPS small and replaceable
+- keep the Jetson_B Headscale role small and replaceable
 - back it up like coordination state, not like the LMS itself
 - recover it with one archive + one restore command + one LMS-side helper probe
 
 The Headscale bundle is not part of the public LMS Compose stack.
-It is a separate control-plane bundle for the separate VPS.
+It is a separate control-plane bundle for Jetson_B.
 
 The rehearsal wrapper writes a timestamped artifact directory under:
 
@@ -259,14 +259,14 @@ Expected artifacts:
 - `headscale_restore_rehearsal_metrics.json`
 - `headscale_restore_rehearsal_summary.md`
 - `manual_verification_checklist.md`
-- automated Headscale VPS captures (`systemctl`, `docker compose ps`, metrics sample, node list, logs)
-- LMS/GPU-side evidence placeholders for helper probe, node rejoin notes, and optional GPU health output
+- automated Headscale host captures (`systemctl`, `docker compose ps`, metrics sample, node list, logs)
+- LMS/Thundercompute-side evidence placeholders for helper probe, node rejoin notes, and optional model-host health output
 
 Important:
 
-- this wrapper is for operator rehearsal on the real Headscale VPS; it does not claim the repo has already proven blank-VPS recovery
+- this wrapper is for operator rehearsal on the real Headscale host; it does not claim the repo has already proven blank-host recovery
 - the LMS-side helper probe still needs to be run from the LMS host and attached to the artifact
-- do not treat the Headscale VPS as a place to test public LMS routing; keep public browser traffic on the public LMS path
+- do not treat Jetson_B as a place to test public LMS routing; keep public browser traffic on the public LMS path
 
 ### Staff-only remote helper compute lease
 

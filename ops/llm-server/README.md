@@ -1,18 +1,18 @@
 # Private LLM Server Ops
 
-This directory is the operator bundle for the private GPU-side inference node.
+This directory is the operator bundle for the private Thundercompute vGPU inference node.
 
 Current recommended path:
 
 - run the LMS publicly as usual
-- run the model server on the Thunder GPU node
+- run the model server on the Thundercompute vGPU node
 - keep the model server bound to loopback only
 - use a private tailnet for host-to-host connectivity only
-- for createMPLS-style production deployments, use a self-hosted Headscale server on a tiny Ubuntu VPS as the recommended control plane
-- publish a tailnet-only HTTPS endpoint from the GPU node
+- for the current createMPLS deployment, use Jetson_B running Headscale at `hs.creatempls.org` as the control plane
+- publish a tailnet-only HTTPS endpoint from the Thundercompute vGPU node
 - require a bearer token at the private edge if you are fronting Ollama with Caddy
 - keep the tailnet limited to LLM traffic and related operator/admin troubleshooting only
-- if you enable bounded remote helper compute control, treat this GPU node as lease-driven capacity for staff-run class windows, not as a student-facing feature
+- if you enable bounded remote helper compute control, treat this vGPU node as lease-driven capacity for staff-run class windows, not as a student-facing feature
 - if you use the Thunder-oriented control path, let the server-side bridge report `starting`/`ready` honestly so Homework Helper only routes remote traffic when the path is actually warm
 
 The helper app already supports two server-side paths:
@@ -27,15 +27,15 @@ flowchart LR
   H -->|HTTPS over tailnet| T[Tailnet-only endpoint]
   T --> P[Private auth proxy]
   P --> O[Ollama or vLLM on 127.0.0.1]
-  HS[Headscale VPS<br/>control plane only]
+  HS[Jetson_B / Headscale<br/>control plane only]
 
-  HS -. coordinates LMS/GPU nodes .- H
+  HS -. coordinates LMS/Thundercompute nodes .- H
   HS -. does not proxy request traffic .- O
 ```
 
 ## Files
 
-- `env.example`: variables for the GPU node
+- `env.example`: variables for the Thundercompute vGPU node
 - `install.sh`: base host bootstrap for Ubuntu-class nodes
 - `run-ollama.sh`: loopback-only Ollama launcher
 - `ollama.service`: systemd unit for the loopback-only Ollama process
@@ -52,7 +52,7 @@ If you are already committed to an Ollama distribution:
 
 1. Install the tailnet client and Ollama with `install.sh`.
 2. Run Ollama on `127.0.0.1:11434` only.
-3. Install Caddy on the GPU node and copy `Caddyfile.private` + `run-private-proxy.sh`.
+3. Install Caddy on the Thundercompute vGPU node and copy `Caddyfile.private` + `run-private-proxy.sh`.
 4. Start the included private Caddy wrapper in front of Ollama so the LMS must send `Authorization: Bearer ...`.
 5. Publish the wrapper as a tailnet-only HTTPS endpoint, not the raw Ollama socket.
 6. Point ClassHub `LLM_BASE_URL` at the private tailnet hostname.
@@ -103,11 +103,11 @@ tailscale serve status
 ```
 
 That example assumes the private Caddy wrapper is listening on `127.0.0.1:8443`.
-If you are using Headscale, this is still a data-plane publish step on the GPU node; the Headscale VPS only coordinates node reachability.
+If you are using Headscale, this is still a data-plane publish step on the Thundercompute vGPU node; Jetson_B/Headscale only coordinates node reachability.
 
 ## Key rotation
 
-- rotate `LLM_SHARED_API_KEY` in the GPU node env file
+- rotate `LLM_SHARED_API_KEY` in the Thundercompute vGPU node env file
 - restart the private wrapper / model service
 - update `LLM_API_KEY` in `compose/.env` on the LMS host
 - recreate `helper_web`
@@ -115,7 +115,7 @@ If you are using Headscale, this is still a data-plane publish step on the GPU n
 
 ## Snapshots and replaceable nodes
 
-- treat the GPU node as disposable compute
+- treat the Thundercompute vGPU node as disposable compute
 - keep long-lived config in `/etc/classhub/llm-server.env`
 - keep model cache on attached volume if available
 - snapshot after:
@@ -128,7 +128,7 @@ If the node is rebuilt, restore the env file, re-enable the services, re-run the
 
 ## Privacy boundaries
 
-- Browsers never call the GPU node directly.
+- Browsers never call the Thundercompute vGPU node directly.
 - The LMS sends only server-to-server requests over the tailnet.
 - Prompt redaction is enabled by default in the helper.
 - Full prompt logging is off by default.
@@ -156,7 +156,7 @@ If bounded remote helper compute is enabled, also check `/teach/class/<id>`:
 - `ready` means helper traffic for that class may use the remote backend
 - `degraded`, `stopping`, or `error` means helper should stay on local/default compute
 
-From the GPU host:
+From the Thundercompute vGPU host:
 
 ```bash
 tailscale status
@@ -167,7 +167,7 @@ journalctl -u classhub-ollama -n 200 --no-pager
 journalctl -u classhub-vllm -n 200 --no-pager
 ```
 
-From the Headscale VPS:
+From Jetson_B / Headscale:
 
 ```bash
 systemctl status headscale

@@ -5,8 +5,8 @@ flowchart TB
   Helper["Homework Helper Django"]
   Data["Postgres + Redis + uploads"]
   Tail["Tailnet-only remote endpoint"]
-  Model["Private model host"]
-  Headscale["Headscale VPS<br/>control plane only"]
+  Model["Thundercompute vGPU model host"]
+  Headscale["Jetson_B / Headscale<br/>control plane only"]
 
   Browser -->|HTTPS| Edge
   Edge --> Hub

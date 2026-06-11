@@ -188,7 +188,7 @@ HELPER_INTERNAL_REMOTE_COMPUTE_CONTROL_URL=http://helper_web:8000/helper/interna
 HELPER_INTERNAL_REMOTE_COMPUTE_TIMEOUT_SECONDS=2
 
 # Remote helper target used only when state == ready
-REMOTE_LLM_BASE_URL=https://llm-gpu.tail.creatempls.org
+REMOTE_LLM_BASE_URL=https://thundercompute-vgpu.tail.creatempls.org
 REMOTE_LLM_API_KEY=REPLACE_ME_STRONG
 REMOTE_LLM_MODEL=llama3.2:3b
 REMOTE_LLM_TIMEOUT_SECONDS=45
@@ -230,7 +230,7 @@ The first-pass webhook contract is intentionally small.
 Activation response:
 
 ```json
-{"ok": true, "state": "starting", "request_id": "req-123", "detail": "booting Thunder GPU node"}
+{"ok": true, "state": "starting", "request_id": "req-123", "detail": "booting Thundercompute vGPU node"}
 ```
 
 Healthcheck response:
@@ -268,7 +268,7 @@ Recommended on-site class-day flow:
 
 Plain-language cost posture for staff:
 
-- keep it off unless the class window actually needs remote GPU capacity
+- keep it off unless the class window actually needs remote vGPU capacity
 - use the shortest reasonable lease
 - stop it after class
 - do not treat it as “turn on AI forever”

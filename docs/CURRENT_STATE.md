@@ -59,8 +59,8 @@ Last reviewed: 2026-06-09
 - Remote helper compute now produces durable class-scoped lease evidence: requested duration, time spent in `starting`/`ready`/`degraded`, remote route and fallback counts, leased minutes, auto-stop/manual-stop counts, recent events, and an optional approximate cost estimate when operator pricing assumptions are configured.
 - Remote helper control now emits explicit bridge correlation/idempotency metadata and treats duplicate same-class activate/deactivate requests as calm bounded no-op control actions.
 - `/teach/class/<id>` now surfaces a tighter remote-compute evidence slice for staff: recent lease sessions, recent events, and a simple cost-risk state alongside the existing control/export path.
-- Repo now ships a narrow Headscale control-plane ops bundle for createMPLS-style deployments: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`.
-- Repo now also ships a Headscale replacement-host rehearsal wrapper (`bash scripts/headscale_restore_rehearsal_evidence.sh --backup ...`) that captures control-plane restore artifacts plus LMS/GPU-side verification placeholders.
+- Repo now ships a narrow Headscale control-plane ops bundle for the Jetson_B/`hs.creatempls.org` role: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`.
+- Repo now also ships a Headscale replacement-host rehearsal wrapper (`bash scripts/headscale_restore_rehearsal_evidence.sh --backup ...`) that captures control-plane restore artifacts plus LMS/Thundercompute-side verification placeholders.
 - Helper classroom-quality eval tooling is live (`scripts/run_helper_classroom_eval.sh` + classroom prompt pack in `services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl`).
 - Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts, checksum sidecars, static registry index create/validate/list/fetch flows), and ClassHub can now import directly from a static registry index via `manage.py import_coursepack_registry` as well as superuser browser flows in `/teach` and `/admin`.
 - `/teach` now includes a filtered content/import audit feed for recent registry imports, upload imports, syllabus compilation, template generation, and syllabus export operations.
@@ -92,7 +92,7 @@ Last reviewed: 2026-06-09
 - Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
 - System validation command: `bash scripts/validate_env_secrets.sh`.
 - System validation command: `bash scripts/system_doctor.sh --smoke-mode golden`.
-- Serious remote-LLM production posture is documented as: public LMS, private model host, helper-only server-to-server tailnet traffic, a Headscale-recommended control plane for createMPLS-style deployments, and a Gemma-family model as the recommended open-model example on the remote private host.
+- Serious remote-LLM production posture is documented as: public LMS at `lms.creatempls.org`, Thundercompute vGPU private model host, helper-only server-to-server tailnet traffic, and Jetson_B running the Headscale control plane at `hs.creatempls.org`.
 
 ## Current product posture
 - Privacy-forward default: minimal student identity model.

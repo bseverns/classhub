@@ -77,8 +77,8 @@ nav:
       - Staff Account Operations: STAFF_ACCOUNT_OPS.md
       - Minimum Viable Operator: MINIMUM_VIABLE_OPERATOR.md
       - Headscale Control Plane: HEADSCALE_CONTROL_PLANE.md
+      - Jetson_B Headscale Role: JETSON_B_HEADSCALE_ROLE.md
       - Private LLM Backend: PRIVATE_LLM_BACKEND.md
-      - Jetson-B Helper Backend: JETSON_B_HELPER_BACKEND.md
       - Remote Helper Compute Control: REMOTE_HELPER_COMPUTE_CONTROL.md
       - Remote Compute Evidence: EVIDENCE_REMOTE_COMPUTE.md
       - Runbook: RUNBOOK.md

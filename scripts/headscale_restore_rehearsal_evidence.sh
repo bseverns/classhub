@@ -28,10 +28,10 @@ Runs the repo-shipped Headscale bootstrap + restore path as a rehearsal wrapper 
 captures evidence suitable for artifacts/stability/<date>/headscale_restore_rehearsal/.
 
 What it does:
-1) optionally runs ops/headscale/install.sh on a fresh Ubuntu VPS
+1) optionally runs ops/headscale/install.sh on a fresh/replacement Headscale host
 2) restores one Headscale backup archive
 3) re-enables the runtime stack and backup timer when systemd units are installed
-4) captures local status evidence from the Headscale VPS
+4) captures local status evidence from the Headscale host
 5) creates manual verification placeholders for LMS/model-host checks
 6) writes log, metrics JSON, checklist, and markdown summary artifacts
 
@@ -361,7 +361,7 @@ BACKUP_REFERENCE_PATH="${AUTOMATED_DIR}/backup_reference.txt"
 copy_or_template \
   "${MANUAL_DIR}/lms_helper_probe.txt" \
   "${HELPER_PROBE_OUTPUT}" \
-"Run from the LMS host after the Headscale VPS restore completes:
+"Run from the LMS host after the Headscale host restore completes:
 
 ${HELPER_PROBE_COMMAND}
 
@@ -372,7 +372,7 @@ copy_or_template \
   "${NODE_MEMBERSHIP_OUTPUT}" \
 "Record whether the LMS host and private model host rejoined cleanly after the restore.
 
-Suggested command from the Headscale VPS:
+Suggested command from the Headscale host:
 cd ${HEADSCALE_ROOT} && docker compose exec -T headscale headscale nodes list
 
 Expected outcome:
