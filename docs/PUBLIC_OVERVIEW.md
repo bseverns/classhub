@@ -46,7 +46,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 - Artifact-first student flow (`/student/portfolio`) with opt-in gallery sharing (`/student/gallery`) and teacher moderation.
 - Help-first facilitation support board surfaces “I'm stuck”, deletion requests, upload errors, and context without rankings.
 - Multi-lingual UI support on the bounded family/student tranche (`en`, `es`, `so`, and provisional `ksw` pending native-speaker review).
-- Course content stays portable through file-first authoring, coursepack builds, static registry publishing/import, and print-friendly HTML handouts with simple PDF fallback downloads.
+- Course content stays portable through file-first authoring, coursepack builds, static registry publishing/import, and print-friendly HTML handouts with basic text-first PDF fallback downloads.
 - Public website hardening options (content-security policy, safe-site modes, and proxy protections).
 - Self-hosted architecture using widely used components (Django, Postgres, Redis, Caddy).
 - Helper support is lesson-scoped and does not archive student prompts.

@@ -1,6 +1,6 @@
 """Django settings for Class Hub.
 
-This is intentionally minimal: a Day-1 scaffold.
+This file is the production-aware settings spine for the ClassHub service.
 
 Key idea:
 - Teachers/admins use Django auth sessions (password by default, flagged Google SSO path optional).
@@ -8,10 +8,11 @@ Key idea:
 
 Reading order for non-developers:
 1) identity + host/domain settings
-2) apps + middleware
-3) database + cache
-4) static/uploads
-5) security flags for reverse proxy deployments
+2) secrets and deployment safety checks
+3) apps + middleware
+4) database + cache
+5) static/uploads
+6) security flags for reverse proxy deployments
 """
 
 import os

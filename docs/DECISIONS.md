@@ -55,6 +55,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - [Registry-backed docs truth spine (2026-04-04)](#registry-backed-docs-truth-spine-2026-04-04)
 - [Teacher docs journey layering](#teacher-docs-journey-layering)
 - [Public docs plain-language default](#public-docs-plain-language-default)
+- [Public topology disclosure boundary](#public-topology-disclosure-boundary)
 - [Family-visible reading-level controls](#family-visible-reading-level-controls)
 - [Spanish/Somali localization parity](#spanishsomali-localization-parity)
 - [Feature maturity ledger and evaluator quickstart](#feature-maturity-ledger-and-evaluator-quickstart)
@@ -986,6 +987,21 @@ Execution ownership and gates:
 - Plain language improves trust and reduces onboarding friction in school/community contexts.
 - Labeled advanced sections preserve technical accuracy without overwhelming non-technical readers.
 
+## Public topology disclosure boundary
+
+**Current decision:**
+- Keep current deployment topology details in public operator docs when they clarify shipped behavior, guardrail expectations, or recovery procedures.
+- Treat public hostnames, provider names, and role labels as operator-memory details, not secrets.
+- Do not publish secrets, tokens, private IPs, credentials, bearer values, or provider console details.
+- If a deployment's threat model changes, move site-specific topology details into a private operator appendix and keep public docs provider-neutral.
+- Use docs-truth checks to keep the public shipped-state page honest about what is active versus deprecated.
+
+**Why this remains active:**
+- The current repo is being used as a live operating manual, not just a generic product brochure.
+- Concrete topology names reduce drift during deployment and handoff.
+- The security boundary should rely on secret handling, network policy, and access controls, not obscurity of hostnames alone.
+- The decision is reversible if the deployment requires a stricter public/private documentation split.
+
 ## Family-visible reading-level controls
 
 **Current decision:**
@@ -1591,6 +1607,11 @@ Execution ownership and gates:
 - Makes the RFC real without introducing a hosted registry service before there is evidence that one is needed.
 - Gives operators a low-friction, auditable content distribution primitive that works offline from local files and online from static hosting.
 - Keeps trust posture simple in the first slice: explicit checksum files plus fetch-time digest and byte-size verification, with a bounded remote-host allowlist instead of arbitrary URL fetch.
+
+**Next stewardship pass:**
+- Add explicit fetch timeouts and streamed response-size enforcement for remote indexes, checksums, and artifacts.
+- Stream artifact SHA-256 verification instead of reading the full artifact into memory before checking checksum and byte size.
+- Return clear operator errors when an allowed registry host serves an oversized, slow, or malformed response.
 
 ## Redirect target validation
 

@@ -232,6 +232,28 @@ Once the lease lifecycle is real production behavior, duplicate clicks and repea
 
 - operators can reconstruct a remote lease lifecycle without reading provider consoles first
 
+## Secondary Stewardship: Registry Fetch Resource Controls
+
+Status: Not pre-demo work; keep as the next coursepack-registry hardening pass.
+
+### Goal
+
+Keep static registry import safe even when an allowed remote host misbehaves or serves unexpectedly large artifacts.
+
+### Required outcomes
+
+- explicit timeout on remote registry index, checksum, and artifact fetches
+- maximum response size checked before read when `Content-Length` is present
+- maximum response size enforced during read when `Content-Length` is absent or wrong
+- streamed SHA-256 calculation instead of reading the entire artifact into memory before checksum verification
+- clear operator-facing error when an index, checksum, or artifact exceeds the configured limit
+
+### Done looks like
+
+- allowlisted remote registries remain usable
+- oversized or slow remote responses fail predictably
+- import memory use stays bounded by chunk size, not artifact size
+
 ## What Not To Do During This Hardening Pass
 
 - do not route public browser traffic over the tailnet

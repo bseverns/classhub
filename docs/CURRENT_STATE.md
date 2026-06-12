@@ -13,7 +13,8 @@ Last reviewed: 2026-06-09
 - Reading-level controls (`simple` / `standard`) are available on family-visible and core learner routes.
 
 ### Handouts, language, and course portability
-- Lesson pages support belonging-layer metadata, print-friendly HTML handouts, and simple PDF fallback downloads.
+- Lesson pages support belonging-layer metadata and print-friendly HTML handouts as the primary export surface.
+- PDF handout downloads are a basic text-first fallback, not a publication-grade multilingual layout renderer.
 - Lesson and handout routes support explicit `?lang=en|es|so|ksw` selection for operator-printed handouts.
 - Course authoring, syllabus import, coursepack builds, and static registry import/publishing workflows are live.
 
@@ -50,7 +51,8 @@ Last reviewed: 2026-06-09
 - Operator data-lifespan dashboard is live at `/teach/data-lifespan` with retention trend rows and CSV/JSON snapshot export (`/teach/data-lifespan/export`).
 - `/teach/data-lifespan` now also surfaces aggregate remote-helper-compute posture: active lease status, low-noise trend summary, and recent class activity rows from helper-owned evidence.
 - Repo now ships an unattended remote-compute evidence watcher (`python3 scripts/remote_compute_operator_watch.py`) plus reference systemd timer units for bounded webhook alerting from the helper-owned operator snapshot.
-- Lesson pages now support belonging-layer metadata (`local_anchors`, `example_variants`, `community_glossary`) plus print-friendly offline handout export and a simple PDF fallback download.
+- Lesson pages now support belonging-layer metadata (`local_anchors`, `example_variants`, `community_glossary`) plus print-friendly offline handout export.
+- The HTML handout is the primary print/export surface; the PDF route remains a simple fallback download.
 - Teacher syllabus import now preserves belonging-layer and offline-handout sections instead of dropping them during coursepack compilation.
 - Homework Helper runs as a separate Django service behind `/helper/*`.
 - Homework Helper supports optional bounded local curriculum RAG (pgvector) with curriculum-only retrieval scope.
@@ -93,6 +95,7 @@ Last reviewed: 2026-06-09
 - System validation command: `bash scripts/validate_env_secrets.sh`.
 - System validation command: `bash scripts/system_doctor.sh --smoke-mode golden`.
 - Serious remote-LLM production posture is documented as: public LMS at `lms.creatempls.org`, Thundercompute vGPU private model host, helper-only server-to-server tailnet traffic, and Jetson_B running the Headscale control plane at `hs.creatempls.org`.
+- Public topology identifiers in this repo are intentional operator-memory documentation, not secrets. If a deployment's threat model changes, move site-specific hostnames and provider names into a private operator appendix and keep public docs provider-neutral.
 
 ## Current product posture
 - Privacy-forward default: minimal student identity model.

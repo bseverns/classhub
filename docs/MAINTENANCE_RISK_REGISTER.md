@@ -4,6 +4,20 @@
 
 This register names the five highest long-term maintenance risks visible in the current ClassHub repo. Each risk is grounded in the current code or docs, not hypothetical future scope.
 
+## Cross-cutting posture: ecosystem requires gardeners
+
+ClassHub is no longer just one small tool. It is an ecosystem of student flows, teacher operations, course portability, trust controls, helper infrastructure, Headscale operations, telemetry scaffolding, release guardrails, and public documentation.
+
+That breadth is useful only if it stays gardened:
+
+- every new feature surface needs an owner, a review cadence, and a rollback/deprecation path
+- public claims should describe shipped behavior, not aspirations
+- operational docs should identify what is current, optional, deprecated, or historical
+- guardrails should continue forcing decomposition before files and routes become unreviewable
+- roadmap items should close, merge into runbooks, or be explicitly retired rather than accumulating as wish lists
+
+Use this register as a pruning tool, not just a warning list.
+
 ## Risk 1: Teacher portal surface area is broad and expensive to keep coherent
 
 - Risk title: Teacher portal complexity exceeds what one maintainer should hold in their head
