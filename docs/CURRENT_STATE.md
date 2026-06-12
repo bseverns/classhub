@@ -65,6 +65,7 @@ Last reviewed: 2026-06-09
 - Repo now also ships a Headscale replacement-host rehearsal wrapper (`bash scripts/headscale_restore_rehearsal_evidence.sh --backup ...`) that captures control-plane restore artifacts plus LMS/Thundercompute-side verification placeholders.
 - Helper classroom-quality eval tooling is live (`scripts/run_helper_classroom_eval.sh` + classroom prompt pack in `services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl`).
 - Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts, checksum sidecars, static registry index create/validate/list/fetch flows), and ClassHub can now import directly from a static registry index via `manage.py import_coursepack_registry` as well as superuser browser flows in `/teach` and `/admin`.
+- Registry remote fetches are timeout-bounded and byte-capped for indexes, checksum sidecars, and artifact downloads; artifact verification streams SHA-256 calculation instead of loading the full remote payload into memory first.
 - `/teach` now includes a filtered content/import audit feed for recent registry imports, upload imports, syllabus compilation, template generation, and syllabus export operations.
 - Teacher syllabus zip import now maps session-prefixed support images into lesson assets.
 - Organization boundaries and RBAC capability checks are live.

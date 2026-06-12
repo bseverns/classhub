@@ -234,7 +234,7 @@ Once the lease lifecycle is real production behavior, duplicate clicks and repea
 
 ## Secondary Stewardship: Registry Fetch Resource Controls
 
-Status: Not pre-demo work; keep as the next coursepack-registry hardening pass.
+Status: Shipped in bounded form.
 
 ### Goal
 

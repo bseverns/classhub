@@ -26,6 +26,11 @@ COURSE_SLUG_RE = re.compile(r"^[A-Za-z0-9_-]+$")
 VERSION_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
 SAFE_FILENAME_RE = re.compile(r"^[A-Za-z0-9._-]+$")
+REMOTE_FETCH_CHUNK_BYTES = 1024 * 1024
+DEFAULT_REMOTE_FETCH_TIMEOUT_SECONDS = 10
+DEFAULT_REMOTE_INDEX_MAX_BYTES = 1024 * 1024
+DEFAULT_REMOTE_CHECKSUM_MAX_BYTES = 64 * 1024
+DEFAULT_REMOTE_ARTIFACT_MAX_BYTES = 100 * 1024 * 1024
 
 
 class CoursepackRegistryError(Exception):
@@ -62,6 +67,45 @@ def _allowed_registry_remote_hosts() -> set[str]:
     else:
         values = raw_value or ()
     return {_normalized_registry_host(value) for value in values if _normalized_registry_host(value)}
+
+
+def _positive_int_setting(name: str, default: int) -> int:
+    raw_value = getattr(settings, name, default)
+    try:
+        value = int(raw_value)
+    except (TypeError, ValueError) as exc:
+        raise CoursepackRegistryError(f"{name} must be a positive integer.") from exc
+    if value <= 0:
+        raise CoursepackRegistryError(f"{name} must be a positive integer.")
+    return value
+
+
+def _remote_fetch_timeout_seconds() -> int:
+    return _positive_int_setting(
+        "CLASSHUB_COURSEPACK_REGISTRY_FETCH_TIMEOUT_SECONDS",
+        DEFAULT_REMOTE_FETCH_TIMEOUT_SECONDS,
+    )
+
+
+def _remote_index_max_bytes() -> int:
+    return _positive_int_setting(
+        "CLASSHUB_COURSEPACK_REGISTRY_INDEX_MAX_BYTES",
+        DEFAULT_REMOTE_INDEX_MAX_BYTES,
+    )
+
+
+def _remote_checksum_max_bytes() -> int:
+    return _positive_int_setting(
+        "CLASSHUB_COURSEPACK_REGISTRY_CHECKSUM_MAX_BYTES",
+        DEFAULT_REMOTE_CHECKSUM_MAX_BYTES,
+    )
+
+
+def _remote_artifact_max_bytes() -> int:
+    return _positive_int_setting(
+        "CLASSHUB_COURSEPACK_REGISTRY_ARTIFACT_MAX_BYTES",
+        DEFAULT_REMOTE_ARTIFACT_MAX_BYTES,
+    )
 
 
 def _registry_remote_url(
@@ -106,6 +150,61 @@ def _registry_remote_url(
     return urlunparse(("https", host, parsed.path or "/", "", "", ""))
 
 
+def _response_content_length(handle: Any, *, label: str) -> int | None:
+    value: Any = None
+    headers = getattr(handle, "headers", None)
+    if headers is not None:
+        try:
+            value = headers.get("Content-Length")
+        except AttributeError:
+            value = None
+    if value is None:
+        getheader = getattr(handle, "getheader", None)
+        if callable(getheader):
+            value = getheader("Content-Length")
+    if value in {None, ""}:
+        return None
+    try:
+        length = int(value)
+    except (TypeError, ValueError) as exc:
+        raise CoursepackRegistryError(f"{label} response Content-Length is invalid.") from exc
+    if length < 0:
+        raise CoursepackRegistryError(f"{label} response Content-Length is invalid.")
+    return length
+
+
+def _enforce_response_size_header(handle: Any, *, label: str, max_bytes: int) -> None:
+    content_length = _response_content_length(handle, label=label)
+    if content_length is not None and content_length > max_bytes:
+        raise CoursepackRegistryError(
+            f"{label} response is too large: {content_length} bytes exceeds limit {max_bytes}."
+        )
+
+
+def _read_bounded_response(handle: Any, *, label: str, max_bytes: int) -> bytes:
+    chunks: list[bytes] = []
+    total = 0
+    while True:
+        block = handle.read(REMOTE_FETCH_CHUNK_BYTES)
+        if not block:
+            break
+        if not isinstance(block, bytes):
+            raise CoursepackRegistryError(f"{label} response must be bytes.")
+        total += len(block)
+        if total > max_bytes:
+            raise CoursepackRegistryError(
+                f"{label} response exceeded limit {max_bytes} bytes while reading."
+            )
+        chunks.append(block)
+    return b"".join(chunks)
+
+
+def _read_remote_bytes(url: str, *, label: str, max_bytes: int) -> bytes:
+    with urlopen(url, timeout=_remote_fetch_timeout_seconds()) as handle:
+        _enforce_response_size_header(handle, label=label, max_bytes=max_bytes)
+        return _read_bounded_response(handle, label=label, max_bytes=max_bytes)
+
+
 def _registry_file_url_to_path(raw_url: str, *, label: str) -> Path:
     parsed = urlparse(str(raw_url or "").strip())
     if parsed.scheme != "file":
@@ -146,6 +245,78 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _stream_local_file_to_path(
+    source_path: Path,
+    output_path: Path,
+    *,
+    label: str,
+    max_bytes: int,
+) -> tuple[int, str]:
+    source_path = Path(source_path).resolve()
+    output_path = Path(output_path).resolve()
+    source_size = source_path.stat().st_size
+    if source_size > max_bytes:
+        raise CoursepackRegistryError(
+            f"{label} file is too large: {source_size} bytes exceeds limit {max_bytes}."
+        )
+    if source_path == output_path:
+        return source_size, sha256_file(source_path)
+
+    digest = hashlib.sha256()
+    total = 0
+    try:
+        with source_path.open("rb") as source_handle, output_path.open("wb") as output_handle:
+            while True:
+                block = source_handle.read(REMOTE_FETCH_CHUNK_BYTES)
+                if not block:
+                    break
+                total += len(block)
+                if total > max_bytes:
+                    raise CoursepackRegistryError(
+                        f"{label} file exceeded limit {max_bytes} bytes while reading."
+                    )
+                digest.update(block)
+                output_handle.write(block)
+    except Exception:
+        output_path.unlink(missing_ok=True)
+        raise
+    return total, digest.hexdigest()
+
+
+def _stream_remote_url_to_path(
+    url: str,
+    output_path: Path,
+    *,
+    label: str,
+    max_bytes: int,
+) -> tuple[int, str]:
+    digest = hashlib.sha256()
+    total = 0
+    try:
+        with (
+            urlopen(url, timeout=_remote_fetch_timeout_seconds()) as handle,
+            Path(output_path).open("wb") as output_handle,
+        ):
+            _enforce_response_size_header(handle, label=label, max_bytes=max_bytes)
+            while True:
+                block = handle.read(REMOTE_FETCH_CHUNK_BYTES)
+                if not block:
+                    break
+                if not isinstance(block, bytes):
+                    raise CoursepackRegistryError(f"{label} response must be bytes.")
+                total += len(block)
+                if total > max_bytes:
+                    raise CoursepackRegistryError(
+                        f"{label} response exceeded limit {max_bytes} bytes while reading."
+                    )
+                digest.update(block)
+                output_handle.write(block)
+    except Exception:
+        Path(output_path).unlink(missing_ok=True)
+        raise
+    return total, digest.hexdigest()
+
+
 def write_checksum_file(path: Path, sha256: str) -> Path:
     artifact_path = Path(path).resolve()
     checksum_name = f"{artifact_path.name}.sha256"
@@ -168,6 +339,65 @@ def _resolved_output_path(raw_path: str | Path, *, fallback_name: str) -> Path:
     parent = candidate.parent.resolve()
     filename = _safe_registry_filename(candidate.name, default=fallback_name)
     return parent / filename
+
+
+def _checksum_digest_from_payload(payload: bytes, *, label: str) -> str:
+    try:
+        text = payload.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise CoursepackRegistryError(f"{label} file must be UTF-8 text.") from exc
+    first_token = ""
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped:
+            first_token = stripped.split()[0].lower()
+            break
+    if not SHA256_RE.fullmatch(first_token):
+        raise CoursepackRegistryError(f"{label} file does not contain a valid SHA-256 digest.")
+    return first_token
+
+
+def _verify_registry_checksum_sidecar(
+    source: RegistrySource,
+    checksum_url: str,
+    *,
+    expected_sha256: str,
+) -> str:
+    resolved_location = resolve_registry_artifact_location(
+        source,
+        checksum_url,
+        label="Registry checksum",
+    )
+    parsed = urlparse(resolved_location)
+    if parsed.scheme == "https":
+        payload = _read_remote_bytes(
+            resolved_location,
+            label="Registry checksum",
+            max_bytes=_remote_checksum_max_bytes(),
+        )
+    else:
+        checksum_path = _registry_local_path(
+            source.base_path or Path("."),
+            checksum_url,
+            label="Registry checksum",
+        )
+        if not checksum_path.exists() or not checksum_path.is_file():
+            raise CoursepackRegistryError(f"Registry checksum file not found: {checksum_path}")
+        checksum_size = checksum_path.stat().st_size
+        max_bytes = _remote_checksum_max_bytes()
+        if checksum_size > max_bytes:
+            raise CoursepackRegistryError(
+                f"Registry checksum file is too large: {checksum_size} bytes exceeds limit {max_bytes}."
+            )
+        payload = checksum_path.read_bytes()
+
+    sidecar_sha256 = _checksum_digest_from_payload(payload, label="Registry checksum")
+    if sidecar_sha256 != expected_sha256:
+        raise CoursepackRegistryError(
+            "Registry checksum sidecar does not match the registry index digest: "
+            f"expected {expected_sha256}, got {sidecar_sha256}"
+        )
+    return resolved_location
 
 
 def load_course_manifest(slug: str, *, courses_root: Path = COURSES_ROOT) -> dict[str, Any]:
@@ -368,8 +598,11 @@ def read_registry_document(index_location: str) -> tuple[dict[str, Any], Registr
     parsed = urlparse(location)
     if parsed.scheme in {"http", "https"}:
         remote_location = _registry_remote_url(location, label="Registry index")
-        with urlopen(remote_location) as handle:
-            raw = handle.read().decode("utf-8")
+        raw = _read_remote_bytes(
+            remote_location,
+            label="Registry index",
+            max_bytes=_remote_index_max_bytes(),
+        ).decode("utf-8")
         source = RegistrySource(location=remote_location, base_url=remote_location)
     elif parsed.scheme == "file":
         index_path = _registry_file_url_to_path(location, label="Registry index")
@@ -443,19 +676,24 @@ def upsert_registry_entry(
     }
 
 
-def resolve_registry_artifact_location(source: RegistrySource, artifact_url: str) -> str:
+def resolve_registry_artifact_location(
+    source: RegistrySource,
+    artifact_url: str,
+    *,
+    label: str = "Registry artifact",
+) -> str:
     raw = str(artifact_url or "").strip()
     if not raw:
-        raise CoursepackRegistryError("Artifact URL is required.")
+        raise CoursepackRegistryError(f"{label} URL is required.")
 
     parsed = urlparse(raw)
     if source.base_path is not None:
-        return str(_registry_local_path(source.base_path, raw, label="Registry artifact"))
+        return str(_registry_local_path(source.base_path, raw, label=label))
     if source.base_url:
         resolved = raw if parsed.scheme in {"http", "https"} else urljoin(source.base_url, raw)
         return _registry_remote_url(
             resolved,
-            label="Registry artifact",
+            label=label,
             allowed_hosts={_normalized_registry_host(urlparse(source.base_url).hostname or "")},
             expected_origin=source.base_url,
         )
@@ -498,33 +736,24 @@ def fetch_registry_artifact(
     artifact_url = str(artifact.get("url") or "").strip()
     expected_sha256 = str(artifact.get("sha256") or "").strip().lower()
     expected_bytes = int(artifact.get("bytes") or 0)
+    max_artifact_bytes = _remote_artifact_max_bytes()
+    if expected_bytes > max_artifact_bytes:
+        raise CoursepackRegistryError(
+            f"Registry artifact declared size {expected_bytes} bytes exceeds limit {max_artifact_bytes}."
+        )
+
     resolved_location = resolve_registry_artifact_location(source, artifact_url)
     parsed = urlparse(resolved_location)
-
-    if parsed.scheme == "https":
-        with urlopen(resolved_location) as handle:
-            payload = handle.read()
-    else:
-        local_artifact_path = _registry_local_path(
-            source.base_path or Path("."),
-            artifact_url,
-            label="Registry artifact",
+    checksum_location = str((artifact.get("checksum_url") or "")).strip()
+    resolved_checksum_location = (
+        _verify_registry_checksum_sidecar(
+            source,
+            checksum_location,
+            expected_sha256=expected_sha256,
         )
-        if not local_artifact_path.exists() or not local_artifact_path.is_file():
-            raise CoursepackRegistryError(f"Registry artifact file not found: {local_artifact_path}")
-        payload = local_artifact_path.read_bytes()
-
-    actual_sha256 = hashlib.sha256(payload).hexdigest()
-    if actual_sha256 != expected_sha256:
-        raise CoursepackRegistryError(
-            f"Checksum mismatch for '{entry.get('slug')}' version '{entry.get('version')}': "
-            f"expected {expected_sha256}, got {actual_sha256}"
-        )
-    if expected_bytes and len(payload) != expected_bytes:
-        raise CoursepackRegistryError(
-            f"Byte-size mismatch for '{entry.get('slug')}' version '{entry.get('version')}': "
-            f"expected {expected_bytes}, got {len(payload)}"
-        )
+        if checksum_location
+        else ""
+    )
 
     if output_path is None:
         output_path = _safe_registry_filename(
@@ -533,20 +762,55 @@ def fetch_registry_artifact(
         )
     output_path = _resolved_output_path(
         output_path,
-        fallback_name=_safe_registry_filename(Path(urlparse(artifact_url).path).name, default="registry-artifact.zip"),
+        fallback_name=_safe_registry_filename(
+            Path(urlparse(artifact_url).path).name,
+            default="registry-artifact.zip",
+        ),
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_bytes(payload)
-    checksum_path = write_checksum_file(output_path, actual_sha256)
 
-    checksum_location = str((artifact.get("checksum_url") or "")).strip()
-    resolved_checksum_location = resolve_registry_artifact_location(source, checksum_location) if checksum_location else ""
+    if parsed.scheme == "https":
+        actual_bytes, actual_sha256 = _stream_remote_url_to_path(
+            resolved_location,
+            output_path,
+            label="Registry artifact",
+            max_bytes=expected_bytes,
+        )
+    else:
+        local_artifact_path = _registry_local_path(
+            source.base_path or Path("."),
+            artifact_url,
+            label="Registry artifact",
+        )
+        if not local_artifact_path.exists() or not local_artifact_path.is_file():
+            raise CoursepackRegistryError(f"Registry artifact file not found: {local_artifact_path}")
+        actual_bytes, actual_sha256 = _stream_local_file_to_path(
+            local_artifact_path,
+            output_path,
+            label="Registry artifact",
+            max_bytes=expected_bytes,
+        )
+
+    if actual_sha256 != expected_sha256:
+        output_path.unlink(missing_ok=True)
+        raise CoursepackRegistryError(
+            f"Checksum mismatch for '{entry.get('slug')}' version '{entry.get('version')}': "
+            f"expected {expected_sha256}, got {actual_sha256}"
+        )
+    if expected_bytes and actual_bytes != expected_bytes:
+        output_path.unlink(missing_ok=True)
+        raise CoursepackRegistryError(
+            f"Byte-size mismatch for '{entry.get('slug')}' version '{entry.get('version')}': "
+            f"expected {expected_bytes}, got {actual_bytes}"
+        )
+
+    checksum_path = write_checksum_file(output_path, actual_sha256)
 
     return {
         "slug": str(entry.get("slug") or "").strip(),
         "version": str(entry.get("version") or "").strip(),
         "artifact": str(output_path),
-        "bytes": len(payload),
+        "bytes": actual_bytes,
         "sha256": actual_sha256,
         "source_artifact_url": artifact_url,
         "resolved_artifact_location": resolved_location,

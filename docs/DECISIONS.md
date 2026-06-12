@@ -1608,10 +1608,10 @@ Execution ownership and gates:
 - Gives operators a low-friction, auditable content distribution primitive that works offline from local files and online from static hosting.
 - Keeps trust posture simple in the first slice: explicit checksum files plus fetch-time digest and byte-size verification, with a bounded remote-host allowlist instead of arbitrary URL fetch.
 
-**Next stewardship pass:**
-- Add explicit fetch timeouts and streamed response-size enforcement for remote indexes, checksums, and artifacts.
-- Stream artifact SHA-256 verification instead of reading the full artifact into memory before checking checksum and byte size.
-- Return clear operator errors when an allowed registry host serves an oversized, slow, or malformed response.
+**Stewardship hardening now included:**
+- Remote index, checksum, and artifact fetches use explicit timeout and byte-size caps.
+- Remote artifact downloads stream bytes to disk while calculating SHA-256 instead of reading the full artifact into memory first.
+- Operator-facing errors now distinguish oversized `Content-Length`, oversized streams, checksum-sidecar mismatch, SHA-256 mismatch, and byte-size mismatch.
 
 ## Redirect target validation
 

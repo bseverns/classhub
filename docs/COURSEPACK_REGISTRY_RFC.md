@@ -8,7 +8,7 @@
   - live coursepack import via `import_coursepack`
   - browser/admin import paths for repo-style coursepack ZIPs and teacher source files
   - downloadable scratch-built coursepack ZIP generation from teacher source uploads
-- Static registry/distribution metadata is now live in a first bounded slice:
+- Static registry/distribution metadata is now live in a bounded static-index slice:
   - the SDK can emit checksum sidecars for built artifacts,
   - the SDK can create/update a machine-readable JSON registry index,
   - the SDK can validate/list/fetch registry entries with checksum + byte-size verification,
@@ -16,6 +16,8 @@
   - operators now have a concrete static publishing guide,
   - ClassHub can now import directly from a registry index with `manage.py import_coursepack_registry`,
   - superusers can now import from a registry index through `/teach` and `/admin`,
+  - remote registry fetches now use explicit timeout and byte-size controls for indexes, checksum sidecars, and artifact downloads,
+  - remote artifact downloads verify checksum sidecars and stream SHA-256 calculation instead of reading the full artifact into memory first,
   - registry-backed imports now emit explicit audit provenance metadata,
   - `/teach` now includes a filtered content/import audit surface for recent packaging and import operations,
   - operators can deep-link into a selected audit row and inspect stored provenance metadata without leaving `/teach`,
@@ -24,10 +26,13 @@
 
 ## Closure recommendation
 
-Treat Phase 1 and the initial Phase 2 registry slice as complete. Narrow the remaining work to:
+Close this RFC as implemented for the current release line. Phase 1 and the bounded Phase 2 static-index slice are complete.
+
+Remaining items are deferred product/governance decisions, not active implementation commitments:
 
 1. Optional signed-artifact policy if checksum-only trust proves insufficient.
-2. Defer any hosted registry service or desktop app until a real distribution bottleneck appears.
+2. Hosted registry service only if static file distribution creates a real bottleneck.
+3. Desktop authoring app only if CLI plus browser import proves insufficient for actual educators.
 
 ## Summary
 ClassHub should treat curriculum as versioned source code, not only LMS-uploaded artifacts.
@@ -42,7 +47,7 @@ This RFC defines a phased path:
 - Supports inspectability: changes are diffable, reviewable, and reversible.
 - Supports non-technical educators through guided local tooling instead of ad-hoc YAML editing.
 
-## Current status (March 2026)
+## Current status (June 2026)
 
 Implemented now:
 - `scripts/validate_coursepack.py` validates manifest/front-matter structure.
@@ -66,7 +71,7 @@ Still not implemented:
 
 ### Phase 2: Registry metadata + index
 
-Status: first bounded slice is now live.
+Status: bounded static-index slice is now live.
 
 - Define a machine-readable index format:
   - slug
@@ -84,16 +89,18 @@ Implemented now:
 - `docs/COURSEPACK_REGISTRY_PUBLISHING.md` now documents the recommended static directory layout and publishing flow.
 - `python manage.py import_coursepack_registry ...` now imports a verified registry artifact directly into ClassHub using the existing safe ZIP import path.
 - `/teach/import-coursepack-registry` and `/admin/hub/class/import-coursepack/` now expose browser-based registry import paths for superusers.
+- Remote index/checksum/artifact fetches are timeout-bounded and byte-capped.
+- Remote artifact imports stream bytes to disk while calculating SHA-256, then import only after checksum and byte-size verification pass.
 - Registry-backed imports now record source metadata in audit events so operators can trace index, version, artifact URL, and verification details after the fact.
 
 ### Phase 3: Optional distribution service
 
 Park this until static index publishing has real operator usage and a proven gap.
 
-- Add optional pull/sync tooling for operators:
-  - fetch pinned version by checksum,
-  - verify integrity before import,
-  - keep audit log of imported versions.
+- Add hosted discovery/sync orchestration if static indexes become insufficient:
+  - signed discovery metadata,
+  - trust-policy distribution,
+  - registry-side version promotion channels.
 
 ### Phase 4: Educator-facing desktop app (optional)
 
@@ -112,7 +119,8 @@ Park this unless the CLI + browser import path proves insufficient for actual te
 - Registry sync/import operations must remain auditable.
 
 Current implementation note:
-- The first registry slice satisfies checksum verification with emitted `.sha256` sidecars plus fetch-time SHA-256 and byte-size verification.
+- The registry slice satisfies checksum verification with emitted `.sha256` sidecars plus fetch-time SHA-256 and byte-size verification.
+- Remote fetches are bounded by explicit timeout and maximum byte settings; artifact verification streams instead of loading the full remote payload into memory first.
 - Static index validation/listing works fully offline from local files.
 - HTTP(S) index/artifact consumption is optional and uses the same static JSON contract.
 

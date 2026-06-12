@@ -112,12 +112,21 @@ docker compose exec classhub_web python manage.py import_coursepack_registry \
 
 Notes:
 - If `--registry-version` is omitted, the command imports the most recently generated registry entry for that slug.
-- The command verifies SHA-256 and byte size before importing.
+- The command verifies checksum sidecar, SHA-256, and byte size before importing.
+- Remote fetches are timeout-bounded and byte-capped before/during read.
 - The command reuses the existing safe ZIP extraction/import path after verification.
 - Remote indexes are rejected unless their host is listed in `CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS`.
 - Absolute local indexes must use `file://...`; plain local paths are treated as relative to the ClassHub process working directory.
 - Use `--overwrite-content` if the extracted course already exists under `CONTENT_ROOT/courses/<slug>`.
 - Use `--replace` if the class already has module/material layout that should be rebuilt from the imported coursepack.
+
+Remote fetch controls:
+- `CLASSHUB_COURSEPACK_REGISTRY_FETCH_TIMEOUT_SECONDS` defaults to `10`.
+- `CLASSHUB_COURSEPACK_REGISTRY_INDEX_MAX_BYTES` defaults to `1048576` (1 MiB).
+- `CLASSHUB_COURSEPACK_REGISTRY_CHECKSUM_MAX_BYTES` defaults to `65536` (64 KiB).
+- `CLASSHUB_COURSEPACK_REGISTRY_ARTIFACT_MAX_BYTES` defaults to `104857600` (100 MiB).
+
+If `Content-Length` is present and exceeds the relevant limit, ClassHub rejects the response before reading the body. If `Content-Length` is absent or wrong, ClassHub stops while streaming once the limit is exceeded.
 
 ## Browser-based import paths
 
@@ -131,7 +140,7 @@ Current UI paths:
   - supports either upload-based import or registry-based import from the same page
 
 Both UI paths:
-- verify SHA-256 and byte size before import,
+- verify checksum sidecar, SHA-256, and byte size before import,
 - reuse the same safe ZIP extraction/import flow as the command path,
 - write audit events with registry provenance metadata.
 - are now visible in the Teacher Portal content/import audit feed when advanced tools are enabled.

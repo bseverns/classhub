@@ -109,6 +109,22 @@ CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS = [
     for host in env("CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS", default="").split(",")
     if host.strip()
 ]
+CLASSHUB_COURSEPACK_REGISTRY_FETCH_TIMEOUT_SECONDS = env.int(
+    "CLASSHUB_COURSEPACK_REGISTRY_FETCH_TIMEOUT_SECONDS",
+    default=10,
+)
+CLASSHUB_COURSEPACK_REGISTRY_INDEX_MAX_BYTES = env.int(
+    "CLASSHUB_COURSEPACK_REGISTRY_INDEX_MAX_BYTES",
+    default=1024 * 1024,
+)
+CLASSHUB_COURSEPACK_REGISTRY_CHECKSUM_MAX_BYTES = env.int(
+    "CLASSHUB_COURSEPACK_REGISTRY_CHECKSUM_MAX_BYTES",
+    default=64 * 1024,
+)
+CLASSHUB_COURSEPACK_REGISTRY_ARTIFACT_MAX_BYTES = env.int(
+    "CLASSHUB_COURSEPACK_REGISTRY_ARTIFACT_MAX_BYTES",
+    default=100 * 1024 * 1024,
+)
 
 # Use when serving via domain + HTTPS so Django accepts browser CSRF tokens
 # coming from those origins.
@@ -220,7 +236,9 @@ CLASSHUB_TELEMETRY_READ_MODE = _normalize_mode_setting(
     allowed=_TELEMETRY_READ_MODE_ALLOWED,
     default="core",
 )
-if (CLASSHUB_TELEMETRY_WRITE_MODE != "off" or CLASSHUB_TELEMETRY_READ_MODE == "telemetry") and not CLASSHUB_TELEMETRY_DATABASE_URL:
+if (
+    CLASSHUB_TELEMETRY_WRITE_MODE != "off" or CLASSHUB_TELEMETRY_READ_MODE == "telemetry"
+) and not CLASSHUB_TELEMETRY_DATABASE_URL:
     raise RuntimeError(
         "CLASSHUB_TELEMETRY_DATABASE_URL is required when telemetry write mode is not 'off' or read mode is 'telemetry'"
     )
