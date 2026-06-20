@@ -10,5 +10,5 @@ qrcode==7.4.2
 # Content packs (course.yaml + markdown lesson rendering)
 PyYAML==6.0.2
 Markdown==3.8.1
-bleach==6.1.0
+bleach==6.4.0
 defusedxml==0.7.1
