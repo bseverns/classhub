@@ -2,6 +2,7 @@
 
 ## Status
 
+- Closed for the current release line on `main` as of 2026-06-20.
 - Local authoring/package tooling is live and should be treated as the shipped source-of-truth workflow.
 - Live import/export flows are also real on `main`, including:
   - local SDK validation/build/package via `scripts/coursepack_sdk.py`
@@ -22,11 +23,11 @@
   - `/teach` now includes a filtered content/import audit surface for recent packaging and import operations,
   - operators can deep-link into a selected audit row and inspect stored provenance metadata without leaving `/teach`,
   - class dashboards now include shortcuts into the class-scoped audit feed.
-- Remote registry service, signed discovery API, and desktop GUI authoring remain optional future work and should not be implied as active roadmap commitments without a concrete operator need.
+- Remote registry service, signed discovery API, and desktop GUI authoring remain parked future work and should not be implied as active roadmap commitments without a concrete operator need.
 
-## Closure recommendation
+## Closure
 
-Close this RFC as implemented for the current release line. Phase 1 and the bounded Phase 2 static-index slice are complete.
+This RFC is implemented for the current release line. Phase 1 and the bounded Phase 2 static-index slice are complete.
 
 Remaining items are deferred product/governance decisions, not active implementation commitments:
 
@@ -57,7 +58,7 @@ Implemented now:
   - `package`: package only (skip validation)
 - `docs/COURSE_AUTHORING.md` now documents SDK usage as the primary local workflow.
 
-Still not implemented:
+Parked future work:
 - Remote registry service/API for signed discovery and sync orchestration.
 - Desktop GUI app for drag-drop authoring/packaging.
 - District-grade signed artifact verification and trust policy management.

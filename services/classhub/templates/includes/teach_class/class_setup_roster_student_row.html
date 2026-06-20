@@ -70,14 +70,14 @@
       />
       <button type="submit">Rename</button>
     </form>
-    <form method="post" action="/teach/class/{{ classroom.id }}/delete-student-data" class="delete-row" data-confirm="Permanently delete all stored data for this student now? This cannot be undone.">
+    <form method="post" action="/teach/class/{{ classroom.id }}/delete-student-data" class="delete-row" data-confirm="Permanently delete all stored class data for this student now? This removes submissions and activity history and cannot be undone.">
       {% csrf_token %}
       <input type="hidden" name="student_id" value="{{ st.id }}" />
       <label class="inline-check-label">
         <input type="checkbox" name="confirm_delete" value="1" class="inline-check-input" required />
-        I understand this permanently deletes this student's data
+        I understand this permanently deletes this student's submissions and activity history
       </label>
-      <button type="submit" class="danger-inline">Delete student data now</button>
+      <button type="submit" class="danger-inline">Permanently delete student data</button>
     </form>
   </td>
 </tr>

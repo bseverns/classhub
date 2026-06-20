@@ -2,32 +2,32 @@
           <div class="card card-secondary">
             <div class="row">
               <h2 class="section-title-tight">Start Here Today</h2>
-              <div class="muted">Teacher top-task choreography (daily first, operator second).</div>
+              <div class="muted">Classroom actions first. Operator and policy work stays below the daily path.</div>
             </div>
 
             <h3 class="section-title-compact">Daily teaching workflows (tasks 1-8)</h3>
             <ol class="start-here-list">
-              <li><a href="{{ setup_mode_url }}#panel-quick-actions">Create class</a></li>
+              <li><a href="{{ setup_mode_url }}#panel-quick-actions">Create class workspace</a></li>
               {% if teacher_start_class %}
-                <li><a href="/teach/class/{{ teacher_start_class.id }}/join-card" target="_blank" rel="noopener">Share join access (print join card)</a></li>
-                <li><a href="/teach/class/{{ teacher_start_class.id }}">Open class dashboard</a></li>
+                <li><a href="/teach/class/{{ teacher_start_class.id }}/join-card" target="_blank" rel="noopener">Print join card</a></li>
+                <li><a href="/teach/class/{{ teacher_start_class.id }}">Open class</a></li>
                 {% if teacher_start_submission_material_id %}
-                  <li><a href="/teach/material/{{ teacher_start_submission_material_id }}/submissions">Review submission queue</a></li>
+                  <li><a href="/teach/material/{{ teacher_start_submission_material_id }}/submissions">Review submissions</a></li>
                 {% else %}
-                  <li><a href="/teach/class/{{ teacher_start_class.id }}">Review submission queue</a></li>
+                  <li><a href="/teach/class/{{ teacher_start_class.id }}#section-lesson-tracker">Review submissions</a></li>
                 {% endif %}
-                <li><a href="/teach/class/{{ teacher_start_class.id }}">Close/open class access</a></li>
-                <li><a href="/teach/lessons?class_id={{ teacher_start_class.id }}">Set lesson release + helper scope</a></li>
-                <li><a href="/teach/class/{{ teacher_start_class.id }}/export-summary-csv">Export day-of-class outputs</a></li>
-                <li><a href="/teach/class/{{ teacher_start_class.id }}">Correct roster identity mistakes</a></li>
+                <li><a href="/teach/class/{{ teacher_start_class.id }}">Lock or unlock class access</a></li>
+                <li><a href="/teach/lessons?class_id={{ teacher_start_class.id }}">Lessons</a></li>
+                <li><a href="/teach/class/{{ teacher_start_class.id }}/export-summary-csv">Export summary CSV</a></li>
+                <li><a href="/teach/class/{{ teacher_start_class.id }}#section-roster">Fix roster identity issues</a></li>
               {% else %}
-                <li class="muted">Share join access (available after first class is created)</li>
-                <li class="muted">Open class dashboard (available after first class is created)</li>
-                <li class="muted">Review submission queue (available after first class is created)</li>
-                <li class="muted">Close/open class access (available after first class is created)</li>
-                <li class="muted">Set lesson release + helper scope (available after first class is created)</li>
-                <li class="muted">Export day-of-class outputs (available after first class is created)</li>
-                <li class="muted">Correct roster identity mistakes (available after first class is created)</li>
+                <li class="muted">Print join card (available after first class is created)</li>
+                <li class="muted">Open class (available after first class is created)</li>
+                <li class="muted">Review submissions (available after first class is created)</li>
+                <li class="muted">Lock or unlock class access (available after first class is created)</li>
+                <li class="muted">Lessons (available after first class is created)</li>
+                <li class="muted">Export summary CSV (available after first class is created)</li>
+                <li class="muted">Fix roster identity issues (available after first class is created)</li>
               {% endif %}
             </ol>
 

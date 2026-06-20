@@ -30,9 +30,9 @@
             <div id="copy-status" class="muted copy-status" role="status" aria-live="polite"></div>
           </div>
           <nav class="btnline btnline--compact" aria-label="{% trans 'Class actions' %}">
-            <a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">{% trans "Join card" %}</a>
-            <a href="/teach/lessons?class_id={{ classroom.id }}">{% trans "Lesson tracker" %}</a>
-            <a href="/teach/class/{{ classroom.id }}/export-summary-csv">{% trans "Summary CSV" %}</a>
+            <a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">{% trans "Print join card" %}</a>
+            <a href="/teach/lessons?class_id={{ classroom.id }}">{% trans "Lessons" %}</a>
+            <a href="/teach/class/{{ classroom.id }}/export-summary-csv">{% trans "Export summary CSV" %}</a>
           </nav>
         </div>
 
@@ -47,8 +47,9 @@
             <div class="class-focus-column">
               <h3 class="section-title-compact">{% trans "Run class now" %}</h3>
               <ul class="class-focus-list">
-                <li><a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">{% trans "Print or share join card" %}</a></li>
-                <li><a href="/teach/lessons?class_id={{ classroom.id }}">{% trans "Open lesson tracker + release controls" %}</a></li>
+                <li><a href="/teach/class/{{ classroom.id }}/join-card" target="_blank" rel="noopener">{% trans "Print join card" %}</a></li>
+                <li><a href="/teach/lessons?class_id={{ classroom.id }}">{% trans "Lessons" %}</a></li>
+                <li><a href="#section-lesson-tracker">{% trans "Review submissions" %}</a></li>
                 <li><a href="#section-support-board">{% trans "Check facilitator support board" %}</a></li>
                 <li><a href="#section-outcomes">{% trans "Check outcomes snapshot" %}</a></li>
               </ul>

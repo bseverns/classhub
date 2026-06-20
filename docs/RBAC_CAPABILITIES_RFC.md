@@ -2,17 +2,17 @@
 
 ## Status
 
-- This RFC is mostly implemented on `main`.
+- Closed for architecture on `main` as of 2026-06-20.
 - The evaluator, scoped grants, simulation tools, policy import/export, custom role persistence, and delegated approval queue foundation are all real.
 - The remaining work is not core RBAC existence; it is operational polish for district-scale approval routing and higher-level administration UX.
 
-## Closure recommendation
+## Closure
 
-Treat this RFC as effectively closed for architecture. Ongoing work should move under implementation docs and maturity tracking:
+Treat this RFC as historical architecture rationale. Ongoing work should move under implementation docs and maturity tracking:
 
 - keep [RBAC_GUIDE.md](RBAC_GUIDE.md) as the operator/how-to source,
 - keep [FEATURE_MATURITY.md](FEATURE_MATURITY.md) as the rollout truth,
-- reserve this RFC for historical architecture rationale plus the small list of remaining non-shipped items.
+- reserve this RFC for the rationale that led to the shipped model plus the small list of remaining non-shipped polish items.
 
 ## Summary
 ClassHub currently uses organization roles (`owner`, `admin`, `teacher`, `viewer`) with coarse permissions. This RFC defines a capability-driven RBAC model that supports district-grade policy needs while preserving current behavior during rollout.
@@ -67,7 +67,7 @@ Implemented on `main`:
   - `CLASSHUB_RBAC_POLICY_APPROVAL_REQUIRED=1`
   - policy mutations queue `RbacPolicyChangeRequest` and require separate reviewer approval.
 
-Still RFC/pending:
+Still parked/future polish:
 - Hardened district-scale approval routing (multi-step approvers, notification routing, SLA escalation).
 - More polished custom-role administration UX beyond the current operator tooling surface.
 

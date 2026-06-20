@@ -4343,3 +4343,47 @@ Execution ownership and gates:
 - Reduces drift between repo documentation and actual platform behavior.
 - Makes it easier to decide what should be built next versus what should stop pretending to be near-term.
 - Keeps roadmap language honest for operators, contributors, and future product decisions.
+
+## Teacher first-contact wording baseline (2026-06-20)
+
+**Current decision:**
+- Keep `/teach` and `/teach/class/<id>` first-contact CTAs aligned to one small vocabulary:
+  - `Create class workspace`
+  - `Print join card`
+  - `Open class`
+  - `Review submissions`
+  - `Lessons`
+  - `Export summary CSV`
+- Keep operator/import/policy language below the classroom-first path when both are visible.
+- Treat destructive class-dashboard actions as copy-sensitive controls:
+  - permanent roster/student deletion copy must say what is deleted and that it cannot be undone,
+  - helper conversation reset copy should describe cache clearing and optional export, not imply the same permanence as roster deletion.
+
+**Why this remains active:**
+- Reduces first-time teacher ambiguity without adding routes, models, or workflows.
+- Keeps copy/order stabilization tied to the top-task contract in `docs/TEACHER_TOP_TASKS.md`.
+- Makes irreversible actions easier to distinguish from reversible or cache-only maintenance actions.
+
+## Implemented RFCs stay historical once live (2026-06-20)
+
+**Current decision:**
+- Mark `docs/RBAC_CAPABILITIES_RFC.md` closed for architecture; use `docs/RBAC_GUIDE.md` and `docs/FEATURE_MATURITY.md` for live RBAC operation and rollout truth.
+- Mark `docs/COURSEPACK_REGISTRY_RFC.md` closed for the current release line; use `docs/COURSEPACK_REGISTRY_PUBLISHING.md` and `docs/COURSE_AUTHORING.md` for live workflow.
+- Keep the RFCs in the docs tree as historical rationale and bounded future-polish records, not active implementation backlogs.
+
+**Why this remains active:**
+- Prevents shipped architecture from continuing to look speculative.
+- Points operators and future agents to the docs that describe current behavior.
+- Keeps optional future work parked until concrete operator need appears.
+
+## Remote compute metric accounting split (2026-06-20)
+
+**Current decision:**
+- Keep `tutor/remote_compute_control.py` responsible for lease lifecycle, provider state refresh, readiness, and routing decisions.
+- Move per-class accounting counters into `tutor/remote_compute_metrics.py`.
+- Keep the public control API unchanged while reducing the size and responsibility of the lifecycle controller.
+
+**Why this remains active:**
+- Makes the remote-compute hot spot easier to review without changing behavior.
+- Keeps future bridge/idempotency hardening focused on lifecycle and audit semantics instead of mixed metric bookkeeping.
+- Preserves durable metric behavior through the existing `remote_compute_store` persistence layer.

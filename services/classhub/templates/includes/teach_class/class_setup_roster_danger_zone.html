@@ -1,31 +1,31 @@
 <div class="danger-zone">
-  <strong>Reset roster (destructive)</strong>
+  <strong>Reset roster and delete submissions (permanent)</strong>
   <p class="muted mini danger-copy">
-    This removes all students in this class and deletes their submissions. Active student sessions are invalidated immediately.
+    This permanently removes every student record in this class, deletes their submissions, and invalidates active student sessions immediately.
   </p>
-  <form method="post" action="/teach/class/{{ classroom.id }}/reset-roster" data-confirm="Reset roster for this class now? This permanently deletes all students and submissions in this class.">
+  <form method="post" action="/teach/class/{{ classroom.id }}/reset-roster" data-confirm="Permanently reset this roster now? This deletes all students and submissions in this class and cannot be undone.">
     {% csrf_token %}
     <label class="inline-check-label no-top-margin">
       <input type="checkbox" name="rotate_code" value="1" checked class="inline-check-input" />
-      Rotate class join code after roster reset
+      Rotate class join code so old printed cards stop working
     </label>
-    <button type="submit">Reset roster now (delete roster + submissions)</button>
+    <button type="submit">Permanently reset roster now</button>
   </form>
   <hr class="danger-divider" />
-  <strong>Reset helper conversations (destructive)</strong>
+  <strong>Clear helper conversation cache</strong>
   <p class="muted mini danger-copy">
-    Exports a class helper snapshot (for internal research) and then clears cached helper chat history for this class only.
+    This clears cached helper chat history for this class only. Keep the export option checked when you need an internal quality-review snapshot before clearing.
   </p>
-  <form method="post" action="/teach/class/{{ classroom.id }}/reset-helper-conversations" data-confirm="Reset helper conversations for this class now? Cached helper chat history for this class will be cleared.">
+  <form method="post" action="/teach/class/{{ classroom.id }}/reset-helper-conversations" data-confirm="Clear cached helper conversations for this class now? Keep the export option checked if you need a review snapshot first.">
     {% csrf_token %}
     <input type="hidden" name="export_before_reset" value="0" />
     <label class="inline-check-label no-top-margin">
       <input type="checkbox" name="export_before_reset" value="1" checked class="inline-check-input" />
-      Export snapshot before clearing cache
+      Export snapshot before clearing helper cache
     </label>
     <p class="muted mini merge-note">
       Access to exported helper data is limited to class teachers and createMPLS administrators.
     </p>
-    <button type="submit">Reset helper conversations now</button>
+    <button type="submit">Clear helper conversation cache now</button>
   </form>
 </div>

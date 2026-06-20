@@ -38,11 +38,11 @@
                 ></textarea>
               </div>
               {% if request.user.is_superuser %}
-              <details class="support-collapsible" open>
+              <details class="support-collapsible">
                 <summary class="support-summary">
                   <span class="support-summary-text">
                     <span class="support-summary-title">{% trans "Import content into this class" %}</span>
-                    <span class="support-summary-note muted">{% trans "Optional. Accepts a coursepack ZIP or a `.md`, `.docx`, or source ZIP file and writes it to live course content." %}</span>
+                    <span class="support-summary-note muted">{% trans "Optional operator step after the class plan is set. Accepts a coursepack ZIP or a `.md`, `.docx`, or source ZIP file and writes it to live course content." %}</span>
                   </span>
                 </summary>
                 <div class="support-collapsible-body">

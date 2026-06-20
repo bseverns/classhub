@@ -3,7 +3,7 @@
 ## Summary
 This page is the live snapshot of what ClassHub currently ships on `main`.
 It is updated manually when shipped capabilities change.
-Last reviewed: 2026-06-09
+Last reviewed: 2026-06-20
 
 ## Current state at a glance
 
@@ -21,7 +21,7 @@ Last reviewed: 2026-06-09
 ### Teacher/program operations
 - Teacher portal supports roster, lesson release controls, submissions, moderation, outcomes, certificates, and class closeout workflows.
 - Superuser org, staff, class assignment, coursepack import, and content/import audit tools are live.
-- Teacher day-of-class shell and top-task choreography are wired into `/teach`.
+- Teacher day-of-class shell and top-task choreography are wired into `/teach`, with stabilized first-contact CTA wording for create/open class, join-card sharing, submission review, lessons, and summary export.
 
 ### Trust, privacy, and org boundaries
 - `/trust`, `/student/my-data`, retention presets, student rename/export/delete controls, and privacy-safe support tags are live.
@@ -64,11 +64,11 @@ Last reviewed: 2026-06-09
 - Repo now ships a narrow Headscale control-plane ops bundle for the Jetson_B/`hs.creatempls.org` role: bootstrap, Compose stack, backup, restore, and systemd timer artifacts live under `ops/headscale/`.
 - Repo now also ships a Headscale replacement-host rehearsal wrapper (`bash scripts/headscale_restore_rehearsal_evidence.sh --backup ...`) that captures control-plane restore artifacts plus LMS/Thundercompute-side verification placeholders.
 - Helper classroom-quality eval tooling is live (`scripts/run_helper_classroom_eval.sh` + classroom prompt pack in `services/homework_helper/tutor/fixtures/eval_prompts_classroom_realistic.jsonl`).
-- Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts, checksum sidecars, static registry index create/validate/list/fetch flows), and ClassHub can now import directly from a static registry index via `manage.py import_coursepack_registry` as well as superuser browser flows in `/teach` and `/admin`.
+- Coursepack Authoring SDK is live via `scripts/coursepack_sdk.py` (validate/build/package local content artifacts, checksum sidecars, static registry index create/validate/list/fetch flows), and ClassHub can now import directly from a static registry index via `manage.py import_coursepack_registry` as well as superuser browser flows in `/teach` and `/admin`. The coursepack registry RFC is closed for the current release line; live operator workflow belongs in `COURSEPACK_REGISTRY_PUBLISHING.md` and `COURSE_AUTHORING.md`.
 - Registry remote fetches are timeout-bounded and byte-capped for indexes, checksum sidecars, and artifact downloads; artifact verification streams SHA-256 calculation instead of loading the full remote payload into memory first.
 - `/teach` now includes a filtered content/import audit feed for recent registry imports, upload imports, syllabus compilation, template generation, and syllabus export operations.
 - Teacher syllabus zip import now maps session-prefixed support images into lesson assets.
-- Organization boundaries and RBAC capability checks are live.
+- Organization boundaries and RBAC capability checks are live. The RBAC capabilities RFC is closed for architecture; live operator guidance belongs in `RBAC_GUIDE.md` and rollout truth belongs in `FEATURE_MATURITY.md`.
 - Scoped RBAC grants are live behind `CLASSHUB_RBAC_SCOPED_GRANTS_ENABLED`.
 - RBAC simulation and policy bundle import/export endpoints are live for operators.
 - RBAC custom roles are live (role definitions, capabilities, and staff assignments) in teacher RBAC tools and policy bundles.
@@ -84,7 +84,7 @@ Last reviewed: 2026-06-09
 - Telemetry split Phase 1 Slice 0/1/2/3/4/5/6 scaffolding is live (validated telemetry mode envs, optional telemetry DB registration in settings, telemetry router + dedicated `hub_telemetry` schema app, centralized dual-write service seam for event/outcome emit paths, read abstraction for support/rollup/lifespan event queries, baseline split-write instrumentation counters/log fields, an idempotent `backfill_telemetry_events` command with dry-run/batch resume controls, and a strict `check_telemetry_parity` command for cutover gates). Slice 7 release-cycle evidence capture is complete at `artifacts/stability/2026-03-10/telemetry/` (parity + strict smoke + rollback drill).
 - Telemetry evidence tooling now also renders machine-checked `slo_summary.md` artifacts from explicit metric inputs and can include telemetry DB backup/restore validation in restore rehearsal evidence when telemetry split is active.
 - Superuser runtime policy lock checks are live in `/teach?advanced=1&portal_mode=admin` and in stability guardrails via `scripts/check_runtime_policy_lock.py`.
-- Teacher top-task choreography and `Start Here Today` contract wiring are live in `/teach` and guarded by `scripts/check_teacher_top_tasks_contract.py`.
+- Teacher top-task choreography and `Start Here Today` contract wiring are live in `/teach` and guarded by `scripts/check_teacher_top_tasks_contract.py`; the current wording baseline uses `Create class workspace`, `Print join card`, `Open class`, `Review submissions`, `Lessons`, and `Export summary CSV`.
 - Registry-backed docs truth checks are live via `docs/_registry/runtime_contracts.json` and `scripts/check_docs_truth.py`.
 
 ## Deployment and reliability posture
@@ -130,4 +130,4 @@ Last reviewed: 2026-06-09
 - Infrastructure hardening roadmap: [INFRASTRUCTURE_HARDENING_ROADMAP.md](INFRASTRUCTURE_HARDENING_ROADMAP.md)
 - Ops execution: [RUNBOOK.md](RUNBOOK.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 - Remote-compute evidence: [EVIDENCE_REMOTE_COMPUTE.md](EVIDENCE_REMOTE_COMPUTE.md)
-- RBAC implementation and policy ops: [RBAC_GUIDE.md](RBAC_GUIDE.md), [RBAC_CAPABILITIES_RFC.md](RBAC_CAPABILITIES_RFC.md)
+- RBAC implementation and policy ops: [RBAC_GUIDE.md](RBAC_GUIDE.md), [FEATURE_MATURITY.md](FEATURE_MATURITY.md), [RBAC_CAPABILITIES_RFC.md](RBAC_CAPABILITIES_RFC.md) for historical architecture rationale.

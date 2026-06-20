@@ -112,10 +112,10 @@ nav:
       - Facilitator CLI (hubctl): HUBCTL.md
       - Localization: LOCALIZATION.md
       - Somali Review Packet: LOCALIZATION_SO_REVIEW_PACKET.md
-      - Coursepack Registry RFC: COURSEPACK_REGISTRY_RFC.md
+      - Coursepack Registry RFC (Historical): COURSEPACK_REGISTRY_RFC.md
       - Async Self-Paced RFC: ASYNC_SELF_PACED_RFC.md
       - Identity SSO Expansion Plan: IDENTITY_SSO_EXPANSION_PLAN.md
-      - RBAC Capabilities RFC: RBAC_CAPABILITIES_RFC.md
+      - RBAC Capabilities RFC (Historical): RBAC_CAPABILITIES_RFC.md
       - Telemetry DB Split Plan: TELEMETRY_DB_SPLIT_PLAN.md
       - Runtime Lock Profiles: RUNTIME_LOCK_PROFILES.md
       - Classroom Kiosk PWA: KIOSK_PWA.md

@@ -25,8 +25,18 @@ from .remote_compute_evidence import (
     record_remote_route as record_evidence_remote_route,
     sync_session_from_payload,
 )
+from .remote_compute_metrics import (
+    finalize_unused_activation_from_payload,
+    load_metric_payload,
+    record_activation,
+    record_degraded_transition,
+    record_fallback_local,
+    record_provider_unreachable_if_needed,
+    record_ready_transition,
+    record_remote_route,
+)
 from .remote_compute_provider import build_remote_compute_provider
-from .remote_compute_store import delete_state, load_metrics, load_state, persist_metrics, persist_state
+from .remote_compute_store import delete_state, load_state, persist_state
 
 _DEFAULT_DURATION_MINUTES = 90
 _MAX_DURATION_MINUTES = 240
@@ -261,7 +271,7 @@ def activate_remote_compute(
         control_request_id=_control_request_id(control_request_id),
     )
     if not provider_result.ok:
-        _record_provider_unreachable_if_needed(class_id=class_id, error_code=provider_result.error_code)
+        record_provider_unreachable_if_needed(class_id=class_id, error_code=provider_result.error_code)
         error_payload = {
             "state": "error",
             "class_id": int(class_id),
@@ -280,7 +290,7 @@ def activate_remote_compute(
             status_code=int(provider_result.status_code),
         )
 
-    _finalize_unused_activation_from_payload(_load_cached_state())
+    finalize_unused_activation_from_payload(_load_cached_state())
     now = _utc_now()
     expires_at = now + timedelta(minutes=duration)
     state = _normalize_state(provider_result.state, default="ready")
@@ -330,9 +340,9 @@ def activate_remote_compute(
             reason_code=last_readiness_reason_code,
             detail=status_detail,
         )
-    _record_activation(class_id=class_id, requested_at=payload["requested_at"])
+    record_activation(class_id=class_id, requested_at=payload["requested_at"])
     if state == "ready":
-        _record_ready_transition(class_id=class_id, requested_at=payload["requested_at"])
+        record_ready_transition(class_id=class_id, requested_at=payload["requested_at"])
     return RemoteComputeActionResult(
         ok=True,
         action="activate",
@@ -385,7 +395,7 @@ def deactivate_remote_compute(
         stop_reason=stop_reason,
     )
     if not provider_result.ok:
-        _record_provider_unreachable_if_needed(class_id=class_id, error_code=provider_result.error_code)
+        record_provider_unreachable_if_needed(class_id=class_id, error_code=provider_result.error_code)
         payload = _load_cached_state()
         if payload:
             payload["state"] = "error"
@@ -415,7 +425,7 @@ def deactivate_remote_compute(
                 detail=payload["status_detail"],
                 stop_mode=_stop_mode_for_reason(stop_reason),
             )
-        _finalize_unused_activation_from_payload(payload)
+        finalize_unused_activation_from_payload(payload)
         _delete_state()
     else:
         payload = _load_cached_state()
@@ -461,7 +471,7 @@ def mark_remote_compute_degraded(*, class_id: int, error_code: str) -> None:
         detail=payload["status_detail"],
     )
     if prior_state != "degraded":
-        _record_degraded_transition(class_id=class_id, error_code=error_code)
+        record_degraded_transition(class_id=class_id, error_code=error_code)
 
 
 def mark_remote_compute_fallback_local(*, class_id: int, error_code: str) -> None:
@@ -472,7 +482,7 @@ def mark_remote_compute_fallback_local(*, class_id: int, error_code: str) -> Non
             reason_code=str(error_code or "").strip()[:80],
             detail="Remote helper compute fell back to local/default mode.",
         )
-    _record_fallback_local(class_id=class_id)
+    record_fallback_local(class_id=class_id)
     mark_remote_compute_degraded(class_id=class_id, error_code=error_code)
 
 
@@ -485,7 +495,7 @@ def mark_remote_compute_routed(*, class_id: int) -> None:
     payload["last_routed_at"] = _utc_now().isoformat()
     _persist_state(payload, timeout_seconds=_state_timeout_seconds(payload))
     record_evidence_remote_route(payload=payload)
-    _record_remote_route(class_id=class_id)
+    record_remote_route(class_id=class_id)
 
 
 def update_remote_compute_telemetry(
@@ -553,10 +563,10 @@ def _expire_elapsed_lease(payload: dict) -> dict:
             detail=payload["status_detail"],
             stop_mode="auto",
         )
-        _finalize_unused_activation_from_payload(payload)
+        finalize_unused_activation_from_payload(payload)
         _delete_state()
         return {}
-    _record_provider_unreachable_if_needed(class_id=_safe_int(payload.get("class_id")), error_code=result.error_code)
+    record_provider_unreachable_if_needed(class_id=_safe_int(payload.get("class_id")), error_code=result.error_code)
     payload["state"] = "error"
     payload["last_error_code"] = result.error_code or "remote_compute_expiry_stop_failed"
     payload["status_detail"] = "Lease expired, but remote helper compute did not confirm shutdown."
@@ -601,10 +611,10 @@ def _auto_stop_if_idle(payload: dict) -> dict:
             detail=payload["status_detail"],
             stop_mode="auto",
         )
-        _finalize_unused_activation_from_payload(payload)
+        finalize_unused_activation_from_payload(payload)
         _delete_state()
         return {}
-    _record_provider_unreachable_if_needed(class_id=_safe_int(payload.get("class_id")), error_code=result.error_code)
+    record_provider_unreachable_if_needed(class_id=_safe_int(payload.get("class_id")), error_code=result.error_code)
     payload["state"] = "error"
     payload["last_error_code"] = result.error_code or "remote_compute_idle_stop_failed"
     payload["status_detail"] = "Idle auto-stop could not return remote helper compute to off."
@@ -644,7 +654,7 @@ def _refresh_state_from_provider(payload: dict) -> dict:
     payload["last_healthcheck_at"] = _utc_now().isoformat()
     probe_detail = ""
     if not result.ok:
-        _record_provider_unreachable_if_needed(class_id=_safe_int(payload.get("class_id")), error_code=result.error_code)
+        record_provider_unreachable_if_needed(class_id=_safe_int(payload.get("class_id")), error_code=result.error_code)
         if state in {"requested", "starting"}:
             payload["status_detail"] = payload.get("status_detail") or "Remote helper compute is still starting."
         else:
@@ -653,7 +663,7 @@ def _refresh_state_from_provider(payload: dict) -> dict:
             payload["status_detail"] = "Remote helper compute healthcheck failed; helper stays on local/default mode."
             payload["last_transition_at"] = _utc_now().isoformat()
             if state != "degraded":
-                _record_degraded_transition(
+                record_degraded_transition(
                     class_id=_safe_int(payload.get("class_id")),
                     error_code=result.error_code or "remote_compute_healthcheck_failed",
                 )
@@ -676,7 +686,7 @@ def _refresh_state_from_provider(payload: dict) -> dict:
             event_type="provider_reconciled_off",
             detail=payload["status_detail"],
         )
-        _finalize_unused_activation_from_payload(payload)
+        finalize_unused_activation_from_payload(payload)
         _delete_state()
         return {}
     if next_state == "ready":
@@ -695,7 +705,7 @@ def _refresh_state_from_provider(payload: dict) -> dict:
             else:
                 payload["state"] = "degraded"
                 if state != "degraded":
-                    _record_degraded_transition(
+                    record_degraded_transition(
                         class_id=_safe_int(payload.get("class_id")),
                         error_code=probe_error_code,
                     )
@@ -719,7 +729,7 @@ def _refresh_state_from_provider(payload: dict) -> dict:
             detail=probe_detail,
         )
     if state in {"requested", "starting"} and next_state == "ready":
-        _record_ready_transition(
+        record_ready_transition(
             class_id=_safe_int(payload.get("class_id")),
             requested_at=str(payload.get("requested_at") or "").strip(),
         )
@@ -755,7 +765,7 @@ def _lease_from_payload(payload: dict, *, class_id: int) -> RemoteComputeLease:
     if expires_at is not None:
         remaining_minutes = max(int((expires_at - _utc_now()).total_seconds() // 60), 0)
     metrics_class_id = int(class_id) if int(class_id or 0) > 0 else active_class_id
-    metrics = _load_metrics(metrics_class_id)
+    metrics = load_metric_payload(metrics_class_id)
     ready_transition_count = _safe_int(metrics.get("ready_transition_count"))
     cumulative_ready_seconds = _safe_int(metrics.get("cumulative_ready_seconds"))
     avg_ready_seconds = 0
@@ -934,77 +944,6 @@ def _remote_backend_ready_probe() -> tuple[bool, str, str]:
             f"Remote helper warm probe exceeded {int(budget_seconds)} second(s).",
         )
     return True, "", f"Remote helper warm probe succeeded in {elapsed:.1f} second(s)."
-
-
-def _load_metrics(class_id: int) -> dict:
-    return load_metrics(class_id)
-
-
-def _persist_metrics(class_id: int, payload: dict) -> None:
-    persist_metrics(class_id, payload)
-
-
-def _record_activation(*, class_id: int, requested_at: str) -> None:
-    metrics = _load_metrics(class_id)
-    metrics["activation_count"] = _safe_int(metrics.get("activation_count")) + 1
-    metrics["last_activation_at"] = str(requested_at or "").strip()[:64]
-    _persist_metrics(class_id, metrics)
-
-
-def _record_ready_transition(*, class_id: int, requested_at: str) -> None:
-    metrics = _load_metrics(class_id)
-    metrics["ready_transition_count"] = _safe_int(metrics.get("ready_transition_count")) + 1
-    metrics["last_ready_at"] = _utc_now().isoformat()
-    requested_at_dt = _parse_iso_datetime(str(requested_at or "").strip())
-    if requested_at_dt is not None:
-        elapsed_seconds = max(int((_utc_now() - requested_at_dt).total_seconds()), 0)
-        metrics["cumulative_ready_seconds"] = _safe_int(metrics.get("cumulative_ready_seconds")) + elapsed_seconds
-    _persist_metrics(class_id, metrics)
-
-
-def _record_remote_route(*, class_id: int) -> None:
-    metrics = _load_metrics(class_id)
-    metrics["remote_route_count"] = _safe_int(metrics.get("remote_route_count")) + 1
-    _persist_metrics(class_id, metrics)
-
-
-def _record_fallback_local(*, class_id: int) -> None:
-    metrics = _load_metrics(class_id)
-    metrics["fallback_local_count"] = _safe_int(metrics.get("fallback_local_count")) + 1
-    metrics["last_fallback_at"] = _utc_now().isoformat()
-    _persist_metrics(class_id, metrics)
-
-
-def _record_degraded_transition(*, class_id: int, error_code: str) -> None:
-    metrics = _load_metrics(class_id)
-    metrics["degraded_transition_count"] = _safe_int(metrics.get("degraded_transition_count")) + 1
-    _persist_metrics(class_id, metrics)
-
-
-def _record_provider_unreachable_if_needed(*, class_id: int, error_code: str) -> None:
-    if not _looks_unreachable_error(error_code):
-        return
-    metrics = _load_metrics(class_id)
-    metrics["provider_unreachable_count"] = _safe_int(metrics.get("provider_unreachable_count")) + 1
-    _persist_metrics(class_id, metrics)
-
-
-def _finalize_unused_activation_from_payload(payload: dict) -> None:
-    class_id = _safe_int(payload.get("class_id"))
-    if class_id <= 0:
-        return
-    requested_at = str(payload.get("requested_at") or "").strip()
-    if not requested_at:
-        return
-    if str(payload.get("last_routed_at") or "").strip():
-        return
-    metrics = _load_metrics(class_id)
-    metrics["unused_activation_count"] = _safe_int(metrics.get("unused_activation_count")) + 1
-    _persist_metrics(class_id, metrics)
-
-
-def _looks_unreachable_error(error_code: str) -> bool:
-    return "unreachable" in str(error_code or "").strip().lower()
 
 
 __all__ = [

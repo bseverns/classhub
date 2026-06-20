@@ -114,7 +114,9 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, 'name="student_landing_title"', html=False)
         self.assertContains(resp, 'name="student_landing_message"', html=False)
         self.assertContains(resp, 'name="first_module_title"', html=False)
-        self.assertContains(resp, 'class="support-collapsible" open', html=False)
+        self.assertContains(resp, 'class="support-collapsible"', html=False)
+        self.assertNotContains(resp, 'class="support-collapsible" open', html=False)
+        self.assertContains(resp, "Optional operator step after the class plan is set.")
         self.assertContains(resp, 'name="class_content_import"', html=False)
         self.assertContains(resp, 'name="class_content_import_intent"', html=False)
         self.assertContains(resp, "Create class and import content")
@@ -1328,4 +1330,3 @@ title: "Build"
         self.assertEqual(pdf_resp["Content-Type"], "application/pdf")
         self.assertIn(".pdf", pdf_resp["Content-Disposition"])
         self.assertTrue(pdf_resp.content.startswith(b"%PDF-1.4"))
-

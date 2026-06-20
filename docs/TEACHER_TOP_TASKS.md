@@ -7,12 +7,19 @@ Use it for:
 - copy/order decisions in teacher surfaces
 - release readiness checks against real teacher workflows
 
-Last updated: March 11, 2026
+Last updated: June 20, 2026
 
 Current UI contract:
 - `/teach` now surfaces a **Start Here Today** block that maps this list into:
   - daily teaching workflows (tasks 1-8),
   - operator/policy workflows (tasks 9-10, superuser + advanced mode).
+- First-contact CTA wording is intentionally stable across `/teach` and `/teach/class/<id>`:
+  - `Create class workspace`
+  - `Print join card`
+  - `Open class`
+  - `Review submissions`
+  - `Lessons`
+  - `Export summary CSV`
 
 ## Task Map
 
@@ -20,11 +27,11 @@ Current UI contract:
 | --- | --- | --- | --- |
 | 1 | Create a class | `POST /teach/create-class` from `/teach` | New class row appears with join code and open status. |
 | 2 | Share join access with students | `GET /teach/class/<id>/join-card`, copy class join code on `/teach` or `/teach/class/<id>` | Students can join via class code or printed join card. |
-| 3 | Open class dashboard for live teaching | `GET /teach/class/<id>` | Class dashboard loads with roster, modules, and status controls. |
+| 3 | Open class for live teaching | `GET /teach/class/<id>` | Class dashboard loads with roster, modules, and status controls. |
 | 4 | Review submission queue and download work | `GET /teach/material/<material_id>/submissions`, `GET /submission/<id>/download` | Teacher can see missing/submitted rows and retrieve files. |
 | 5 | Close/open class access at session boundaries | `POST /teach/class/<id>/toggle-lock` (and closeout lock action) | Class state pill changes (`Open`/`Locked`) and student join behavior changes accordingly. |
 | 6 | Set lesson release schedule and helper scope | `POST /teach/lessons/release` from class lesson release grid | Release date/scope values persist and appear in lesson release table. |
-| 7 | Export day-of-class outputs | `GET /teach/class/<id>/export-submissions-today`, `GET /teach/class/<id>/export-outcomes-csv`, `GET /teach/class/<id>/export-summary-csv` | Export downloads succeed and include current class data. |
+| 7 | Export summary and day-of-class outputs | `GET /teach/class/<id>/export-submissions-today`, `GET /teach/class/<id>/export-outcomes-csv`, `GET /teach/class/<id>/export-summary-csv` | Export downloads succeed and include current class data. |
 | 8 | Correct roster identity mistakes | `POST /teach/class/<id>/rename-student`, `POST /teach/class/<id>/merge-students` | Target student names/records update without duplicate roster confusion. |
 | 9 | Create/invite and maintain teacher accounts (admin/superuser) | `POST /teach/create-teacher`, `POST /teach/teacher-account/*` actions | Teacher account row reflects expected active/superuser/invite state. |
 | 10 | Maintain organization boundaries and assignments (admin/superuser) | `POST /teach/org-membership/upsert`, `POST /teach/class-staff-assignment/upsert`, `POST /teach/class-organization/set` | Membership/assignment rows update and class scope reflects intended org boundary. |
