@@ -56,7 +56,7 @@ jobs:
           DJANGO_SECRET_KEY: ci-only-not-used-but-long-enough-for-guards
           CLASSHUB_UPLOAD_ROOT: /tmp/classhub_uploads
         run: |
-          coverage run --branch --source=services/classhub/hub services/classhub/manage.py test hub.tests
+          coverage run --branch --source=services/classhub/hub services/classhub/manage.py test hub
           coverage report -m
           coverage json -o coverage-classhub.json
           coverage xml -o coverage-classhub.xml

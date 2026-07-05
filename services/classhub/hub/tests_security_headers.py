@@ -58,6 +58,13 @@ class SecurityHeaderDriftTests(TestCase):
             original_filename="diagram.png",
             file=SimpleUploadedFile("diagram.png", b"\x89PNG\r\n\x1a\n\x00\x00\x00\x00"),
         )
+        Material.objects.create(
+            module=self.module,
+            title="Diagram asset",
+            type=Material.TYPE_LINK,
+            url=f"/lesson-asset/{self.asset.id}/download",
+            order_index=1,
+        )
         self.staff = get_user_model().objects.create_user(
             username="teacher_headers",
             password="pw12345",
