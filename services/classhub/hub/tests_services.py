@@ -530,6 +530,16 @@ class MarkdownContentServiceTests(SimpleTestCase):
         self.assertIn("Hi", html)
         self.assertNotIn("<script", html)
 
+    def test_render_markdown_to_safe_html_strips_details_and_summary_tags(self):
+        html = render_markdown_to_safe_html(
+            "<details><summary>Teacher notes</summary>Use paired debugging.</details>"
+        )
+
+        self.assertIn("Teacher notes", html)
+        self.assertIn("Use paired debugging.", html)
+        self.assertNotIn("<details", html.lower())
+        self.assertNotIn("<summary", html.lower())
+
     def test_render_markdown_to_safe_html_keeps_heading_anchor_ids(self):
         html = render_markdown_to_safe_html("# Intro Heading")
         self.assertIn('id="intro-heading"', html)

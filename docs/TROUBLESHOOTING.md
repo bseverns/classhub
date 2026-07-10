@@ -546,7 +546,7 @@ Verification pattern:
 ```bash
 cd /srv/lms/app/compose
 docker compose up -d --build classhub_web helper_web
-docker compose exec -T classhub_web python manage.py test hub.tests hub.tests_services
+docker compose exec -T classhub_web python manage.py test hub
 docker compose exec -T helper_web python manage.py test tutor.tests
 ```
 

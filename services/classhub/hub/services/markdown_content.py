@@ -334,8 +334,6 @@ def render_markdown_to_safe_html(markdown_text: str) -> str:
             "tr",
             "th",
             "td",
-            "details",
-            "summary",
         }
     )
     if allow_images:
