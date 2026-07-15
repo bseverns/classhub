@@ -318,6 +318,34 @@ gets a `Homework dropbox` material automatically. Accepted file extensions are
 taken from `submission.accepted` (or inferred from `submission.naming` if needed).
 Students can open the dropbox from the lesson page and from `/student`.
 
+## Declarative lesson materials
+
+Coursepacks can recreate the existing checklist, reflection, rubric, and moderated-gallery materials from lesson front matter:
+
+```yaml
+materials:
+  - type: checklist
+    title: Pre-flight check
+    items:
+      - Props removed on the bench
+      - Backup saved
+  - type: reflection
+    title: Design log
+    prompt: What changed, what evidence did you collect, and what will you test next?
+  - type: rubric
+    title: Readiness self-check
+    scale_max: 4
+    criteria:
+      - Safe operation
+      - Evidence-based iteration
+  - type: gallery
+    title: Showcase artifact
+    accepted: [.png, .pdf]
+    max_upload_mb: 20
+```
+
+Use the existing `submission: {type: file}` field for a private homework dropbox. Use `gallery` only when student opt-in plus teacher moderation is appropriate.
+
 ## Helper configuration (optional)
 
 - Per-course reference: set `helper_reference` in `course.yaml`.
