@@ -208,9 +208,12 @@ CONTRACTS: tuple[EndpointContract, ...] = (
         required_tokens=("staff_can_view_submissions(",),
     ),
     EndpointContract(
-        path="services/classhub/hub/views/student.py",
+        path="services/classhub/hub/views/student_downloads.py",
         function="submission_download",
-        required_tokens=("staff_can_view_submissions(", "module_id=s.material.module_id"),
+        required_tokens=(
+            "staff_can_view_submissions(",
+            "module_id=submission.material.module_id",
+        ),
     ),
 )
 
