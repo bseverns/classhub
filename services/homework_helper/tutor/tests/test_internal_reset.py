@@ -138,6 +138,49 @@ class HelperInternalResetTests(TestCase):
         self.assertEqual(actor_result.deleted_conversations, 0)
         self.assertIsNone(cache.get(engine_memory.conversation_actor_index_key(actor_key=actor_key)))
 
+    def test_class_reset_preserves_index_when_payload_delete_is_unconfirmed(self):
+        class_id = 55
+        class_index_key = engine_memory.conversation_class_index_key(class_id=class_id)
+        conversation_key = "helper:conversation:student:55:9001:noscope:abc"
+
+        for failure_mode in ("false", "raise"):
+            with self.subTest(failure_mode=failure_mode):
+                backend = _ScriptedCacheBackend()
+                backend.values[class_index_key] = [conversation_key]
+                backend.values[conversation_key] = {"turns": []}
+                if failure_mode == "false":
+                    backend.delete_false_keys.add(conversation_key)
+                else:
+                    backend.delete_error_keys.add(conversation_key)
+
+                result = engine_memory.clear_class_conversations(
+                    cache_backend=backend,
+                    class_id=class_id,
+                )
+
+                self.assertFalse(result.ok)
+                self.assertEqual(result.error_code, "conversation_delete_failed")
+                self.assertEqual(backend.get(class_index_key), [conversation_key])
+
+    @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
+    @patch("tutor.views_reset.engine_memory.clear_class_conversations")
+    def test_internal_class_reset_surfaces_unconfirmed_delete(self, clear_mock):
+        clear_mock.return_value = engine_memory.ConversationClearResult(
+            ok=False,
+            deleted_conversations=1,
+            error_code="conversation_delete_failed",
+        )
+
+        resp = self.client.post(
+            "/helper/internal/reset-class-conversations",
+            data=json.dumps({"class_id": 55}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION="Bearer token-123",
+        )
+
+        self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.json()["error"], "class_reset_unconfirmed")
+
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     def test_internal_actor_clear_uses_actor_index_only(self):
         target_key = engine_memory.conversation_cache_key(

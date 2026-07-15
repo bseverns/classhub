@@ -120,13 +120,14 @@ _CONTEXT_DEPENDENT_WORDS = {
 }
 
 _AUTHORITY_OR_RELATIONSHIP = (
-    r"(?:my )?(?:dad|father|mom|mother|parent|guardian|uncle|aunt|sibling|brother|sister|"
+    r"(?:my )?(?:dad|father|mom|mother|parent|guardian|stepdad|stepfather|stepmom|stepmother|uncle|aunt|sibling|brother|sister|"
     r"teacher|coach|babysitter|caregiver)|an? adult|someone|he|she|they"
 )
 
 _SAFEGUARDING_PATTERNS = {
     "abuse": (
         re.compile(r"\b(?:being abused|abusing me|hit me at home)\b"),
+        re.compile(r"\bi was punched by (?:my )?(?:stepdad|stepfather|dad|father|parent|guardian)\b"),
         re.compile(
             rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+"
             r"(?:hits?|hit|beats?|beat|hurts?|hurt|abuses?|abused)\s+me\b"
@@ -136,6 +137,11 @@ _SAFEGUARDING_PATTERNS = {
         re.compile(rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+(?:touched|touches)\s+me\b"),
         re.compile(rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+(?:raped|sexually assaulted)\s+me\b"),
         re.compile(r"\b(?:i was|i am being|im being)\s+(?:raped|sexually assaulted)\b"),
+        re.compile(r"\bi was forced to (?:undress|take off my clothes|get undressed)\b"),
+        re.compile(
+            rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+(?:makes?|made)\s+me\s+"
+            r"(?:undress|take off my clothes|take my clothes off|get undressed)\b"
+        ),
     ),
     "unsafe": (
         re.compile(r"\bi (?:do not|dont) feel safe at home\b"),
@@ -146,12 +152,14 @@ _SAFEGUARDING_PATTERNS = {
         re.compile(r"\bi (?:have|have access to|can get) (?:a )?(?:gun|firearm|weapon)\b"),
         re.compile(r"\b(?:someone|he|she|they) has a gun\b"),
         re.compile(r"\bhas a gun\b"),
+        re.compile(r"\bi have a knife in my (?:backpack|bag)\b"),
     ),
     "self_harm": (
         re.compile(r"\b(?:kill|hurt|cut) myself\b"),
         re.compile(r"\bself harm\b"),
         re.compile(r"\bsuicid(?:e|al)\b"),
         re.compile(r"\b(?:i )?(?:want|wish) to die\b"),
+        re.compile(r"\bi (?:do not|dont) want to be alive\b"),
     ),
     "threat": (
         re.compile(r"\b(?:i(?: am|m)? going to|i will|im about to|i am about to)\s+(?:kill|hurt|shoot|stab)\s+(?:someone|him|her|them|you)\b"),
@@ -173,6 +181,9 @@ _GAME_ONLY_DANGER_PATTERNS = (
         r"\b(?:kill|hurt|shoot|stab)(?:ing)? someone in (?:my|the|a) (?:video )?game\b"
     ),
 )
+_QUOTED_CLASSROOM_EXAMPLE_PATTERNS = (
+    re.compile(r"\b(?:english|literature) class\b.*\b(?:narrator|character)\s+(?:says|said)\b"),
+)
 
 
 def parse_csv_list(raw: str) -> list[str]:
@@ -191,6 +202,8 @@ def contains_any_phrase(text: str, phrases: list[str]) -> bool:
 
 def safeguarding_risk(message: str) -> str:
     lowered = (message or "").lower().replace("'", "").replace("’", "")
+    if any(pattern.search(lowered) for pattern in _QUOTED_CLASSROOM_EXAMPLE_PATTERNS):
+        return ""
     normalized = re.sub(r"[^a-z0-9]+", " ", lowered).strip()
     if not normalized:
         return ""

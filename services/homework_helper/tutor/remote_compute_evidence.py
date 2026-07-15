@@ -202,7 +202,7 @@ def record_local_fallback(*, payload: dict, reason_code: str, detail: str = "") 
 
 def build_class_evidence(*, class_id: int, recent_limit: int = 8, event_limit: int = 12) -> RemoteComputeEvidenceSnapshot:
     try:
-        sessions = list(RemoteComputeLeaseSession.objects.filter(class_id=int(class_id)).order_by("-requested_at", "-id")[:recent_limit])
+        sessions = list(RemoteComputeLeaseSession.objects.filter(class_id=int(class_id)).order_by("-requested_at", "-id"))
         recent_events = list(
             RemoteComputeLeaseEvent.objects.filter(lease_session__class_id=int(class_id))
             .select_related("lease_session")
@@ -224,7 +224,7 @@ def build_class_evidence(*, class_id: int, recent_limit: int = 8, event_limit: i
     approximate_cost_total = Decimal("0.00")
 
     recent_session_rows: list[dict] = []
-    for session in sessions:
+    for index, session in enumerate(sessions):
         snapshot = _session_snapshot(session)
         activation_count += 1
         requested_duration_minutes_total += snapshot["requested_duration_minutes"]
@@ -237,7 +237,8 @@ def build_class_evidence(*, class_id: int, recent_limit: int = 8, event_limit: i
         fallback_local_count += snapshot["fallback_local_count"]
         leased_minutes_total += snapshot["leased_minutes"]
         approximate_cost_total += Decimal(snapshot["estimated_cost_usd"] or "0.00")
-        recent_session_rows.append(snapshot)
+        if index < max(int(recent_limit), 0):
+            recent_session_rows.append(snapshot)
 
     recent_event_rows = [
         {

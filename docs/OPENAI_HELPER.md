@@ -251,7 +251,7 @@ Thundercompute host bring-up:
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
-tailscale up --ssh
+tailscale up --login-server=https://hs.creatempls.org --auth-key=REPLACE_WITH_PREAUTH_KEY --advertise-tags=tag:thundercompute-gpu --ssh
 curl http://127.0.0.1:11434/api/tags
 tailscale serve --bg 443 http://127.0.0.1:11434
 tailscale serve status
@@ -267,7 +267,7 @@ sudo nohup tailscaled \
   --socket=/run/tailscale/tailscaled.sock \
   --tun=userspace-networking \
   >/tmp/tailscaled.log 2>&1 &
-sudo tailscale --socket=/run/tailscale/tailscaled.sock up --ssh
+sudo tailscale --socket=/run/tailscale/tailscaled.sock up --login-server=https://hs.creatempls.org --auth-key=REPLACE_WITH_PREAUTH_KEY --advertise-tags=tag:thundercompute-gpu --ssh
 sudo tailscale --socket=/run/tailscale/tailscaled.sock serve --bg 443 http://127.0.0.1:11434
 sudo tailscale --socket=/run/tailscale/tailscaled.sock serve status
 ```

@@ -552,7 +552,7 @@ def _expire_elapsed_lease(payload: dict) -> dict:
         control_request_id=_automatic_control_request_id(payload=payload, reason="lease_expired"),
         stop_reason="lease_expired",
     )
-    if result.ok:
+    if result.ok and _normalize_state(result.state) == "off":
         payload["state"] = "off"
         payload["status_detail"] = "Lease expired; remote helper compute returned to off."
         payload["last_transition_at"] = _utc_now().isoformat()
@@ -588,10 +588,12 @@ def _auto_stop_if_idle(payload: dict) -> dict:
     state = _normalize_state(payload.get("state"))
     if state not in {"requested", "starting", "ready", "degraded"}:
         return payload
-    last_routed_at = _parse_iso_datetime(str(payload.get("last_routed_at") or "").strip())
-    if last_routed_at is None:
+    idle_reference_at = _parse_iso_datetime(str(payload.get("last_routed_at") or "").strip())
+    if idle_reference_at is None:
+        idle_reference_at = _parse_iso_datetime(str(payload.get("requested_at") or "").strip())
+    if idle_reference_at is None:
         return payload
-    if (_utc_now() - last_routed_at).total_seconds() < idle_timeout:
+    if (_utc_now() - idle_reference_at).total_seconds() < idle_timeout:
         return payload
     provider = build_remote_compute_provider()
     result = provider.deactivate(
@@ -600,7 +602,7 @@ def _auto_stop_if_idle(payload: dict) -> dict:
         control_request_id=_automatic_control_request_id(payload=payload, reason="idle_timeout"),
         stop_reason="idle_timeout",
     )
-    if result.ok:
+    if result.ok and _normalize_state(result.state) == "off":
         payload["state"] = "off"
         payload["status_detail"] = "Idle auto-stop returned remote helper compute to off."
         payload["last_transition_at"] = _utc_now().isoformat()

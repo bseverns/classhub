@@ -494,34 +494,71 @@ def summarize_turns(
     return _coerce_summary(summary, max_chars=cap)
 
 
-def clear_class_conversations(*, cache_backend, class_id: int, max_keys: int = 4000) -> int:
+def clear_class_conversations(
+    *, cache_backend, class_id: int, max_keys: int = 4000
+) -> ConversationClearResult:
     class_key = conversation_class_index_key(class_id=class_id)
     try:
         indexed = cache_backend.get(class_key)
     except Exception:
         logger.warning("conversation_memory_cache_get_failed key=%s", class_key)
-        return 0
+        return ConversationClearResult(ok=False, error_code="class_index_read_failed")
 
     keys = _coerce_key_list(indexed, max_items=max(int(max_keys), 1))
     if not keys:
         try:
-            cache_backend.delete(class_key)
+            index_deleted = cache_backend.delete(class_key)
         except Exception:
             logger.warning("conversation_memory_cache_delete_failed key=%s", class_key)
-        return 0
+            return ConversationClearResult(ok=False, error_code="class_index_delete_failed")
+        if not index_deleted:
+            try:
+                index_absent = cache_backend.get(class_key) is None
+            except Exception:
+                index_absent = False
+            if not index_absent:
+                return ConversationClearResult(ok=False, error_code="class_index_delete_failed")
+        return ConversationClearResult(ok=True)
 
     deleted = 0
+    delete_failed = False
     for key in keys:
         try:
-            cache_backend.delete(key)
-            deleted += 1
+            if cache_backend.delete(key):
+                deleted += 1
+            elif cache_backend.get(key) is not None:
+                delete_failed = True
+                logger.warning("conversation_memory_cache_delete_unconfirmed key=%s", key)
         except Exception:
+            delete_failed = True
             logger.warning("conversation_memory_cache_delete_failed key=%s", key)
+    if delete_failed:
+        return ConversationClearResult(
+            ok=False,
+            deleted_conversations=deleted,
+            error_code="conversation_delete_failed",
+        )
     try:
-        cache_backend.delete(class_key)
+        index_deleted = cache_backend.delete(class_key)
     except Exception:
         logger.warning("conversation_memory_cache_delete_failed key=%s", class_key)
-    return deleted
+        return ConversationClearResult(
+            ok=False,
+            deleted_conversations=deleted,
+            error_code="class_index_delete_failed",
+        )
+    if not index_deleted:
+        try:
+            index_absent = cache_backend.get(class_key) is None
+        except Exception:
+            index_absent = False
+        if not index_absent:
+            return ConversationClearResult(
+                ok=False,
+                deleted_conversations=deleted,
+                error_code="class_index_delete_failed",
+            )
+    return ConversationClearResult(ok=True, deleted_conversations=deleted)
 
 
 def snapshot_class_conversations(

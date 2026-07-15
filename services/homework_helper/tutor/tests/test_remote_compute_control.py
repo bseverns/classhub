@@ -20,6 +20,8 @@ from ..remote_compute_control import (
     mark_remote_compute_degraded,
     mark_remote_compute_routed,
 )
+from ..remote_compute_evidence import build_class_evidence
+from ..remote_compute_provider import GenericWebhookRemoteComputeProvider
 
 
 class RemoteComputeControlTests(TestCase):
@@ -29,6 +31,52 @@ class RemoteComputeControlTests(TestCase):
         RemoteComputeLeaseSession.objects.all().delete()
         RemoteComputeLeaseRecord.objects.all().delete()
         RemoteComputeClassMetric.objects.all().delete()
+
+    @patch.dict(
+        "os.environ",
+        {"HELPER_REMOTE_COMPUTE_ACTIVATE_URL": "https://ops.example.org/activate"},
+        clear=False,
+    )
+    @patch("tutor.remote_compute_provider.urllib.request.urlopen")
+    def test_provider_rejects_malformed_success_response(self, urlopen_mock):
+        response = MagicMock()
+        response.__enter__.return_value = response
+        response.status = 200
+        response.read.return_value = b"<html>upstream proxy page</html>"
+        urlopen_mock.return_value = response
+
+        result = GenericWebhookRemoteComputeProvider().activate(
+            class_id=7,
+            requested_by="teacher1",
+            duration_minutes=60,
+        )
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.error_code, "remote_compute_provider_invalid_response")
+        self.assertEqual(result.status_code, 200)
+
+    def test_class_evidence_totals_all_sessions_while_recent_list_stays_bounded(self):
+        now = timezone.now()
+        for offset in range(9):
+            requested_at = now - timedelta(hours=offset + 1)
+            RemoteComputeLeaseSession.objects.create(
+                class_id=44,
+                requested_by="teacher1",
+                requested_at=requested_at,
+                requested_duration_minutes=10,
+                active=False,
+                current_state="off",
+                last_transition_at=requested_at + timedelta(minutes=10),
+                ended_at=requested_at + timedelta(minutes=10),
+                remote_route_count=1,
+            )
+
+        evidence = build_class_evidence(class_id=44)
+
+        self.assertEqual(evidence.activation_count, 9)
+        self.assertEqual(evidence.requested_duration_minutes_total, 90)
+        self.assertEqual(evidence.remote_route_count, 9)
+        self.assertEqual(len(evidence.recent_sessions), 8)
 
     @patch.dict(
         "os.environ",
@@ -355,6 +403,44 @@ class RemoteComputeControlTests(TestCase):
         },
         clear=False,
     )
+    @patch("tutor.remote_compute_provider.urllib.request.urlopen")
+    def test_empty_accepted_stop_response_retains_retryable_lease(self, urlopen_mock):
+        response = MagicMock()
+        response.__enter__.return_value = response
+        response.status = 202
+        response.read.return_value = b""
+        urlopen_mock.return_value = response
+        RemoteComputeLeaseRecord.objects.update_or_create(
+            slot="active",
+            defaults={
+                "state": "ready",
+                "class_id": 22,
+                "requested_by": "teacher1",
+                "requested_at": timezone.now() - timedelta(minutes=5),
+                "expires_at": timezone.now() + timedelta(minutes=55),
+            },
+        )
+
+        result = deactivate_remote_compute(class_id=22, requested_by="teacher1")
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.error_code, "remote_compute_provider_invalid_response")
+        self.assertTrue(result.lease.active)
+        self.assertEqual(result.lease.state, "error")
+        self.assertTrue(RemoteComputeLeaseRecord.objects.filter(slot="active").exists())
+
+    @patch.dict(
+        "os.environ",
+        {
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED": "1",
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED": "1",
+            "REMOTE_LLM_BASE_URL": "https://llm-gpu.tail.creatempls.org",
+            "REMOTE_LLM_API_KEY": "remote-api-key-1234567890",
+            "REMOTE_LLM_MODEL": "llama3.2:3b",
+            "HELPER_REMOTE_COMPUTE_DEACTIVATE_URL": "https://ops.example.org/deactivate",
+        },
+        clear=False,
+    )
     @patch("tutor.remote_compute_control.build_remote_compute_provider")
     def test_deactivate_is_noop_when_lease_is_already_off(self, provider_factory_mock):
         result = deactivate_remote_compute(
@@ -482,3 +568,42 @@ class RemoteComputeControlTests(TestCase):
                 reason_code="lease_expired",
             ).exists()
         )
+
+    @patch.dict(
+        "os.environ",
+        {
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED": "1",
+            "CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED": "1",
+            "REMOTE_LLM_BASE_URL": "https://llm-gpu.tail.creatempls.org",
+            "REMOTE_LLM_API_KEY": "remote-api-key-1234567890",
+            "REMOTE_LLM_MODEL": "llama3.2:3b",
+            "HELPER_REMOTE_COMPUTE_DEACTIVATE_URL": "https://ops.example.org/deactivate",
+            "HELPER_REMOTE_COMPUTE_IDLE_TIMEOUT_SECONDS": "300",
+        },
+        clear=False,
+    )
+    @patch("tutor.remote_compute_control.build_remote_compute_provider")
+    def test_unused_activation_uses_requested_at_for_idle_stop(self, provider_factory_mock):
+        now = timezone.now()
+        RemoteComputeLeaseRecord.objects.update_or_create(
+            slot="active",
+            defaults={
+                "state": "ready",
+                "class_id": 22,
+                "requested_by": "teacher1",
+                "requested_at": now - timedelta(minutes=6),
+                "expires_at": now + timedelta(minutes=54),
+                "last_routed_at": None,
+            },
+        )
+        provider_factory_mock.return_value.deactivate.return_value = MagicMock(
+            ok=True,
+            state="off",
+            detail="stopped",
+            error_code="",
+        )
+
+        lease = current_remote_compute_lease(class_id=22)
+
+        self.assertEqual(lease.state, "off")
+        provider_factory_mock.return_value.deactivate.assert_called_once()

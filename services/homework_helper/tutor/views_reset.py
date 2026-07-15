@@ -187,11 +187,27 @@ def reset_class_conversations(request):
                     class_id=class_id,
                 )
 
-    deleted = engine_memory.clear_class_conversations(
+    clear_result = engine_memory.clear_class_conversations(
         cache_backend=cache,
         class_id=class_id,
         max_keys=max_keys,
     )
+    if not clear_result.ok:
+        _log_internal_event(
+            "error",
+            "internal_reset_failed",
+            request=request,
+            request_id=request_id,
+            class_id=class_id,
+            deleted_conversations=clear_result.deleted_conversations,
+            error_code=clear_result.error_code,
+        )
+        return _json_response(
+            {"error": "class_reset_unconfirmed"},
+            status=503,
+            request_id=request_id,
+        )
+    deleted = clear_result.deleted_conversations
     _log_chat_event(
         "info",
         "class_conversations_reset",

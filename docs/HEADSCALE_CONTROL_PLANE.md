@@ -98,6 +98,14 @@ sudo systemctl enable --now classhub-headscale-backup.timer
 
 This keeps the Jetson_B Headscale deployment path aligned with the rest of the repo's operator bundle style.
 
+Enroll the LMS/helper host with the canonical LMS tag and this Headscale server, using an operator-created preauth key:
+
+```bash
+sudo tailscale up --login-server=https://hs.creatempls.org --auth-key=REPLACE_WITH_PREAUTH_KEY --advertise-tags=tag:classhub-lms
+```
+
+The Thundercompute model host uses `tag:thundercompute-gpu`; the default policy permits only `tag:classhub-lms` to reach that host on HTTPS port 443. `tag:ops` retains SSH-only access to the LMS and GPU nodes for break-glass maintenance.
+
 ## What joins the tailnet
 
 Default nodes:

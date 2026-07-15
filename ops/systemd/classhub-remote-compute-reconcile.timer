@@ -1,0 +1,12 @@
+[Unit]
+Description=Reconcile ClassHub remote helper compute every two minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+AccuracySec=15s
+Persistent=true
+Unit=classhub-remote-compute-reconcile.service
+
+[Install]
+WantedBy=timers.target

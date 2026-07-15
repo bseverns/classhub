@@ -50,7 +50,6 @@ class GenericWebhookRemoteComputeProvider:
                     control_request_id=control_request_id,
                 ),
             },
-            default_state="ready",
             control_request_id=control_request_id,
             class_id=class_id,
         )
@@ -76,7 +75,6 @@ class GenericWebhookRemoteComputeProvider:
                 ),
                 "stop_reason": str(stop_reason or "").strip()[:80],
             },
-            default_state="off",
             control_request_id=control_request_id,
             class_id=class_id,
         )
@@ -103,7 +101,6 @@ class GenericWebhookRemoteComputeProvider:
             "GET",
             f"{url}{delimiter}{query}",
             payload=None,
-            default_state="ready",
             control_request_id=control_request_id,
             idempotency_key=_idempotency_key(
                 action="healthcheck",
@@ -120,7 +117,6 @@ class GenericWebhookRemoteComputeProvider:
         action: str,
         *,
         payload: dict,
-        default_state: str,
         control_request_id: str = "",
         class_id: int = 0,
     ) -> RemoteComputeProviderResult:
@@ -131,7 +127,6 @@ class GenericWebhookRemoteComputeProvider:
             "POST",
             url,
             payload=payload,
-            default_state=default_state,
             control_request_id=control_request_id,
             idempotency_key=_idempotency_key(
                 action=action,
@@ -146,7 +141,6 @@ class GenericWebhookRemoteComputeProvider:
         url: str,
         *,
         payload: dict | None,
-        default_state: str,
         control_request_id: str = "",
         idempotency_key: str = "",
     ) -> RemoteComputeProviderResult:
@@ -200,7 +194,13 @@ class GenericWebhookRemoteComputeProvider:
                 error_code=str(payload_dict.get("error") or "remote_compute_provider_error").strip()[:80],
                 status_code=status,
             )
-        state = _normalize_state(payload_dict.get("state"), default=default_state)
+        state = _recognized_state(payload_dict.get("state"))
+        if payload_dict.get("ok") is not True or state is None:
+            return RemoteComputeProviderResult(
+                ok=False,
+                error_code="remote_compute_provider_invalid_response",
+                status_code=status,
+            )
         detail = str(payload_dict.get("detail") or payload_dict.get("message") or state).strip()[:160]
         provider_request_id = str(
             payload_dict.get("request_id") or payload_dict.get("provider_request_id") or ""
@@ -228,17 +228,19 @@ def build_remote_compute_provider():
     return GenericWebhookRemoteComputeProvider(provider_name=adapter or "generic_webhook")
 
 
-def _normalize_state(value, *, default: str = "error") -> str:
+def _recognized_state(value) -> str | None:
     token = str(value or "").strip().lower()
     if token in _ALLOWED_STATES:
         return token
-    if token in {"warming", "booting"}:
-        return "starting"
-    if token in {"running", "healthy"}:
-        return "ready"
-    if token in {"stopped", "inactive"}:
-        return "off"
-    return default if default in _ALLOWED_STATES else "error"
+    aliases = {
+        "warming": "starting",
+        "booting": "starting",
+        "running": "ready",
+        "healthy": "ready",
+        "stopped": "off",
+        "inactive": "off",
+    }
+    return aliases.get(token)
 
 
 def _safe_json_dict(raw: str) -> dict:

@@ -271,6 +271,20 @@ class HeuristicsEngineTests(SimpleTestCase):
             with self.subTest(message=message):
                 self.assertEqual(heuristics.safeguarding_risk(message), expected)
 
+    def test_safeguarding_recognizes_ordinary_first_person_disclosures_without_flagging_literary_quote(self):
+        cases = {
+            "I was punched by my stepdad": "disclosure",
+            "I was forced to undress": "disclosure",
+            "An adult makes me take my clothes off": "disclosure",
+            "I do not want to be alive": "disclosure",
+            "I have a knife in my backpack": "imminent",
+            'In English class, the narrator says "I was punched by my stepdad" to show conflict.': "",
+        }
+
+        for message, expected in cases.items():
+            with self.subTest(message=message):
+                self.assertEqual(heuristics.safeguarding_risk(message), expected)
+
     def test_safeguarding_recognizes_relationship_and_authority_perpetrators(self):
         cases = (
             "My uncle hits me",

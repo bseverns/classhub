@@ -7,26 +7,21 @@
   },
 
   "tagOwners": {
-    "tag:lms": ["group:ops"],
-    "tag:gpu": ["group:ops"],
+    "tag:classhub-lms": ["group:ops"],
+    "tag:thundercompute-gpu": ["group:ops"],
     "tag:ops": ["group:ops"]
   },
 
   "acls": [
     {
       "action": "accept",
-      "src": ["tag:lms"],
-      "dst": ["tag:gpu:*"]
-    },
-    {
-      "action": "accept",
-      "src": ["tag:gpu"],
-      "dst": ["tag:lms:*"]
+      "src": ["tag:classhub-lms"],
+      "dst": ["tag:thundercompute-gpu:443"]
     },
     {
       "action": "accept",
       "src": ["tag:ops"],
-      "dst": ["tag:lms:*", "tag:gpu:*"]
+      "dst": ["tag:classhub-lms:22", "tag:thundercompute-gpu:22"]
     }
   ],
 

@@ -108,6 +108,20 @@ Current shipped behavior is:
 - `/teach/class/<id>/export-helper-remote-snapshot?format=json|csv` exports the current class-scoped helper snapshot and records `class.remote_helper_snapshot_export`
 - `/helper/internal/remote-compute-evidence` exposes the same bounded evidence to staff/operator callers behind the internal token + CIDR guard
 
+### Required periodic reconciliation
+
+Startup reconciliation is not sufficient for idle cost control on a long-running deployment. Install and enable the shipped two-minute systemd timer on the LMS host:
+
+```bash
+sudo cp ops/systemd/classhub-remote-compute-reconcile.service /etc/systemd/system/
+sudo cp ops/systemd/classhub-remote-compute-reconcile.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now classhub-remote-compute-reconcile.timer
+sudo systemctl status classhub-remote-compute-reconcile.timer --no-pager
+```
+
+The unit runs the existing `reconcile_remote_compute_state` command inside `helper_web`. Adjust `User`, `Group`, and `/srv/lms/app` only if the deployment uses a different non-root Compose operator or checkout path. This timer narrows the local detection window; it does not replace a provider-side hard TTL, which remains required protection against LMS, network, or bridge failure.
+
 ## What is measured now
 
 The lease is now a measurable object, not just a transient state label.

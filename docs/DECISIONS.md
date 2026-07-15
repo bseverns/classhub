@@ -4399,3 +4399,19 @@ Execution ownership and gates:
 **Why this remains active:**
 - Keeps the main student/session/upload view module within its size budget without weakening the guardrail.
 - Isolates file-delivery authorization and download safety headers as one reviewable concern.
+
+## Remote compute confirmation and reconciliation fail closed (2026-07-15)
+
+**Current decision:**
+- Accept a remote-compute bridge success only when a 2xx body is a JSON object with `ok` exactly `true` and an explicit recognized state.
+- Delete a lease after a stop only when the bridge explicitly reports `off`; ambiguous or asynchronous responses retain retryable local state.
+- Use `requested_at` as the idle reference for activations that have never routed a helper request.
+- Make 30 minutes the staff control's default activation window; longer windows remain an explicit choice.
+- Run the shipped two-minute reconciliation timer on the LMS host, while retaining a provider-side hard TTL as the independent cost boundary.
+- Aggregate class evidence across every historical lease session while bounding only the recent-session presentation.
+- Treat unconfirmed class-wide conversation cache deletion as a failed reset and preserve the class index for retry.
+
+**Why this remains active:**
+- Provider HTTP status alone is not proof of compute lifecycle state.
+- Idle and historical accounting must cover unused and older activations, not only active traffic or the display window.
+- Destructive cache controls must not acknowledge completion while retry evidence remains.
