@@ -24,7 +24,7 @@ This is the single source of truth for edge-vs-app security ownership.
   - Report-only override: `DJANGO_CSP_REPORT_ONLY_POLICY`
   - Template no-inline guardrails are enforced in CI by `scripts/check_no_inline_template_js.py` and `scripts/check_no_inline_template_css.py`
   - Strict CSP is the target state for shipped templates.
-  - Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
+  - The domain/TLS production example defaults to `DJANGO_CSP_MODE=strict`; the general example remains report-only and the Django code fallback remains relaxed when unset.
   - `relaxed` means enforced relaxed + strict report-only when `DJANGO_CSP_MODE` is unset.
   - Transitional strict-script canary is allowed via `DJANGO_CSP_MODE=strict` + explicit `DJANGO_CSP_POLICY` that keeps `script-src 'self'` while temporarily allowing `style-src 'unsafe-inline'`
 - Framing policy:

@@ -9,7 +9,7 @@ COMPOSE_MODE="prod"
 WINDOW_DAYS="7"
 SMOKE_TIMEOUT_SECONDS="20"
 HELPER_MESSAGE="Help me with AP calculus limits."
-FAIL_IMPACT="critical"
+FAIL_IMPACT="serious"
 A11Y_TIMEOUT_MS="30000"
 INSTALL_BROWSERS=0
 BASE_URL=""
@@ -37,7 +37,7 @@ Options:
   --window-days <n>                 Telemetry parity window days (default: 7)
   --timeout-seconds <seconds>       Smoke timeout seconds (default: 20)
   --helper-message <text>           Helper message for smoke checks
-  --fail-impact <impact>            a11y fail impact threshold (default: critical)
+  --fail-impact <impact>            a11y fail impact threshold (default: serious)
   --a11y-timeout-ms <ms>            a11y timeout in milliseconds (default: 30000)
   --install-browsers                Install Playwright browsers in a11y check
   --base-url <url>                  Optional base URL override for smoke/a11y/telemetry smoke

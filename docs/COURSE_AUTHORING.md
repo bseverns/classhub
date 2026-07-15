@@ -79,6 +79,10 @@ Notes:
     2. inferred from `Grade level` / `Age band`
     3. `--default-ui-level` (fallback `secondary`)
 - Per-session overrides are supported by adding `UI Level: ...` near the top of a session body.
+- `Lesson slug (for course.yaml): sNN-explicit-slug` is preserved when supplied; otherwise the slug is derived from the session number and title.
+- Missing age/grade metadata stays missing; ingestion does not invent an age band.
+- A `Submission` section accepts `Type:`, `Accepted:`, and `Naming:` bullets and compiles to the existing `submission` front matter.
+- A `ClassHub materials` section compiles the existing material schema with pipe-delimited rows: `Checklist | Title | item; item`, `Reflection | Title | prompt`, `Rubric | Title | criterion; criterion | scale`, and `Gallery | Title | .png,.jpg | max MB`.
 
 ## Generate teacher templates (`.md` + `.docx`)
 
@@ -101,7 +105,7 @@ Default output folder:
 - `docs/examples/course_authoring/<slug>-public-overview-template.docx`
 
 These files are formatted to match the ingest parser in `scripts/ingest_syllabus_md.py`
-(`Session NN: Title`, `Mission`, `Teacher prep`, `Materials`, `Checkpoints`,
+(`Session NN: Title`, `Mission`, `Teacher prep`, `Materials`, `Submission`, `ClassHub materials`, `Checkpoints`,
 `Common stuck points + fixes`, `Local anchors`, `Example variants`,
 `Community glossary`, `Offline handout`, `Extensions`).
 
@@ -252,6 +256,7 @@ Offline handout export:
 - Operators can print a handout in a specific shipped UI language without switching their whole browser session by adding `?lang=en|es|so|ksw` to the lesson, handout, or handout PDF route; the lesson page now exposes direct handout links for those language variants.
 - The syllabus ingest path preserves `Local anchors`, `Example variants`, `Community glossary`, and `Offline handout` sections from teacher-authored `.md`, `.docx`, or `.zip` sources by compiling them into lesson front matter.
 - In teacher-authored source files, use bullet labels like `Goal:`, `Do now:`, `Simple goal:`, `Simple do now:`, and `Standard do now:` inside the `Offline handout` section when you want distinct simple/standard wording to survive import.
+- Handout content is never machine translated at runtime. Add explicit `offline_handout.localized.<language-code>` variants in lesson YAML, or `Spanish goal:`, `Spanish do now:`, `Spanish submit:`, and `Spanish safety:` bullets in ingested source. Missing localized fields fall back to the English/base handout while reading-level selection continues to work.
 
 ## Static registry workflow
 

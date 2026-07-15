@@ -64,6 +64,8 @@ SECTION_NAMES = {
     "example variants",
     "community glossary",
     "offline handout",
+    "submission",
+    "classhub materials",
 }
 
 SUPPORTED_EXTENSIONS = {".md", ".docx", ".zip"}

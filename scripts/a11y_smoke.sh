@@ -9,7 +9,7 @@ COMPOSE_MODE="${COMPOSE_MODE:-prod}" # prod|dev
 CLASS_NAME="${CLASS_NAME:-Smoke Validation Class}"
 TEACHER_USERNAME="${TEACHER_USERNAME:-smoke_teacher}"
 A11Y_BASE_URL="${A11Y_BASE_URL:-}"
-A11Y_FAIL_IMPACT="${A11Y_FAIL_IMPACT:-critical}"
+A11Y_FAIL_IMPACT="${A11Y_FAIL_IMPACT:-serious}"
 A11Y_TIMEOUT_MS="${A11Y_TIMEOUT_MS:-30000}"
 A11Y_INSTALL_BROWSERS="${A11Y_INSTALL_BROWSERS:-0}"
 
@@ -22,7 +22,7 @@ Options:
   --base-url <url>            Base URL to scan (default: derived from compose/.env)
   --class-name <name>         Class fixture name (default: Smoke Validation Class)
   --teacher-username <name>   Teacher fixture username (default: smoke_teacher)
-  --fail-impact <impact>      Violation threshold: minor|moderate|serious|critical (default: critical)
+  --fail-impact <impact>      Violation threshold: minor|moderate|serious|critical (default: serious)
   --timeout-ms <ms>           Per-page navigation timeout (default: 30000)
   --install-browsers          Install Playwright chromium + system deps before scan
   -h, --help                  Show this help
@@ -147,17 +147,21 @@ if [[ "${A11Y_INSTALL_BROWSERS}" == "1" ]]; then
   npm --prefix "${A11Y_DIR}" run install-browsers
 fi
 
-echo "[a11y] preparing teacher session"
+echo "[a11y] preparing teacher and student sessions"
 SESSION_OUTPUT="$(run_compose exec -T \
   -e SMOKE_CLASS_NAME="${CLASS_NAME}" \
   -e SMOKE_TEACHER_USERNAME="${TEACHER_USERNAME}" \
   classhub_web \
   python manage.py shell -c \
-  "import os; from django.contrib.auth import BACKEND_SESSION_KEY, HASH_SESSION_KEY, SESSION_KEY, get_user_model; from django.contrib.sessions.backends.db import SessionStore; from django_otp.plugins.otp_totp.models import TOTPDevice; from hub.models import Class; cls = Class.objects.get(name=os.environ['SMOKE_CLASS_NAME']); user = get_user_model().objects.get(username=os.environ['SMOKE_TEACHER_USERNAME']); device, _ = TOTPDevice.objects.get_or_create(user=user, name='teacher-primary', defaults={'confirmed': True}); device.confirmed = True; device.save(update_fields=['confirmed']); session = SessionStore(); session[SESSION_KEY] = str(user.pk); session[BACKEND_SESSION_KEY] = 'django.contrib.auth.backends.ModelBackend'; session[HASH_SESSION_KEY] = user.get_session_auth_hash(); session['otp_device_id'] = device.persistent_id; session.save(); print(f'{cls.id}:{session.session_key}')")"
+  "import json, os; from django.contrib.auth import BACKEND_SESSION_KEY, HASH_SESSION_KEY, SESSION_KEY, get_user_model; from django.contrib.sessions.backends.db import SessionStore; from django_otp.plugins.otp_totp.models import TOTPDevice; from hub.models import Class, Material, StudentIdentity; cls = Class.objects.get(name=os.environ['SMOKE_CLASS_NAME']); user = get_user_model().objects.get(username=os.environ['SMOKE_TEACHER_USERNAME']); device, _ = TOTPDevice.objects.get_or_create(user=user, name='teacher-primary', defaults={'confirmed': True}); device.confirmed = True; device.save(update_fields=['confirmed']); teacher = SessionStore(); teacher[SESSION_KEY] = str(user.pk); teacher[BACKEND_SESSION_KEY] = 'django.contrib.auth.backends.ModelBackend'; teacher[HASH_SESSION_KEY] = user.get_session_auth_hash(); teacher['otp_device_id'] = device.persistent_id; teacher.save(); student, _ = StudentIdentity.objects.get_or_create(classroom=cls, display_name='Accessibility Smoke Student'); learner = SessionStore(); learner['student_id'] = student.id; learner['class_id'] = cls.id; learner['class_epoch'] = cls.session_epoch; learner.save(); upload = Material.objects.filter(module__classroom=cls, type=Material.TYPE_UPLOAD).order_by('id').first(); lesson = Material.objects.filter(module__classroom=cls, type=Material.TYPE_LINK, url__startswith='/course/').order_by('id').first(); print(json.dumps({'class_id': cls.id, 'teacher_session': teacher.session_key, 'student_session': learner.session_key, 'upload_path': f'/material/{upload.id}/upload' if upload else '', 'lesson_path': lesson.url if lesson else ''}))")"
 SESSION_OUTPUT="$(echo "${SESSION_OUTPUT}" | tr -d '\r' | tail -n1)"
-CLASS_ID="${SESSION_OUTPUT%%:*}"
-A11Y_TEACHER_SESSION_KEY="${SESSION_OUTPUT#*:}"
-if [[ -z "${CLASS_ID}" || -z "${A11Y_TEACHER_SESSION_KEY}" || "${SESSION_OUTPUT}" != *:* ]]; then
+A11Y_SESSION_JSON="${SESSION_OUTPUT}"
+CLASS_ID="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["class_id"])' "${A11Y_SESSION_JSON}" 2>/dev/null || true)"
+A11Y_TEACHER_SESSION_KEY="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["teacher_session"])' "${A11Y_SESSION_JSON}" 2>/dev/null || true)"
+A11Y_STUDENT_SESSION_KEY="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["student_session"])' "${A11Y_SESSION_JSON}" 2>/dev/null || true)"
+A11Y_UPLOAD_PATH="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["upload_path"])' "${A11Y_SESSION_JSON}" 2>/dev/null || true)"
+A11Y_LESSON_PATH="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["lesson_path"])' "${A11Y_SESSION_JSON}" 2>/dev/null || true)"
+if [[ -z "${CLASS_ID}" || -z "${A11Y_TEACHER_SESSION_KEY}" || -z "${A11Y_STUDENT_SESSION_KEY}" ]]; then
   echo "[a11y] FAIL: unable to mint teacher session; run golden smoke first" >&2
   exit 1
 fi
@@ -168,6 +172,9 @@ echo "[a11y] scanning ${A11Y_BASE_URL} (class_id=${CLASS_ID}, fail-impact=${A11Y
 A11Y_BASE_URL="${A11Y_BASE_URL}" \
 A11Y_CLASS_ID="${CLASS_ID}" \
 A11Y_TEACHER_SESSION_KEY="${A11Y_TEACHER_SESSION_KEY}" \
+A11Y_STUDENT_SESSION_KEY="${A11Y_STUDENT_SESSION_KEY}" \
+A11Y_UPLOAD_PATH="${A11Y_UPLOAD_PATH}" \
+A11Y_LESSON_PATH="${A11Y_LESSON_PATH}" \
 A11Y_FAIL_IMPACT="${A11Y_FAIL_IMPACT}" \
 A11Y_TIMEOUT_MS="${A11Y_TIMEOUT_MS}" \
 npm --prefix "${A11Y_DIR}" run smoke

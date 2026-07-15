@@ -32,7 +32,7 @@ Evidence:
 
 ```bash
 cd /srv/lms/app
-bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact critical
+bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact serious
 ```
 
 Expected:

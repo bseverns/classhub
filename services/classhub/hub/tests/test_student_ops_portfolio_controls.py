@@ -1,4 +1,5 @@
 from ._shared import *  # noqa: F401,F403
+from types import SimpleNamespace
 
 
 class StudentPortfolioExportTests(TestCase):
@@ -143,7 +144,16 @@ class StudentDataControlsTests(TestCase):
         self.assertNotContains(resp, "onsubmit=\"return confirm(", html=False)
         self.assertContains(resp, "My submissions")
         self.assertContains(resp, "portfolio.sb3")
-        self.assertContains(resp, "class activity events in this class")
+
+    @patch("hub.views.student.clear_helper_actor_conversations")
+    def test_student_delete_work_clears_transient_helper_context(self, clear_mock):
+        clear_mock.return_value = SimpleNamespace(ok=True, deleted_conversations=2)
+        self._login_student()
+        resp = self.client.post("/student/delete-work")
+        self.assertEqual(resp.status_code, 302)
+        clear_mock.assert_called_once()
+        self.assertEqual(clear_mock.call_args.kwargs["class_id"], self.classroom.id)
+        self.assertEqual(clear_mock.call_args.kwargs["student_id"], self.student.id)
 
     def test_student_my_data_page_simple_reading_level_uses_simpler_copy(self):
         self._login_student()

@@ -21,6 +21,8 @@ When compiling the ZIP, you will see a form allowing several optional inputs:
 
 Compilation runs in temporary scratch space. The teacher portal returns a downloadable coursepack ZIP and does **not** overwrite repository course folders or mutate live curriculum content.
 
+The compiler preserves an explicit `Lesson slug (for course.yaml): ...` line. It also compiles `Submission` bullets (`Type`, `Accepted`, `Naming`) and pipe-delimited `ClassHub materials` rows for checklist, reflection, rubric, and gallery materials. If no age/grade is supplied, none is invented.
+
 ### Zip Handling Rules
 If you upload an entire `.zip` bundle of curriculum material:
 - The importer automatically scans `.md` and `.docx` files in the archive.

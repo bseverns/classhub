@@ -29,6 +29,7 @@ from ..models import (
 )
 from ..services.export_service import build_student_portfolio_export_response
 from ..services.helper_widget import build_helper_prompt_sets_json
+from ..services.helper_control import clear_actor_conversations as clear_helper_actor_conversations
 from ..services.lesson_handouts import resolve_reading_level
 from ..services.ip_privacy import minimize_student_event_ip
 from ..services.join_flow_service import clear_device_hint_cookie
@@ -253,6 +254,13 @@ def student_delete_work(request):
         notice = _("Deletion request sent to your teacher.")
         return redirect("/student/my-data?" + urlencode({"notice": notice}))
 
+    helper_clear = clear_helper_actor_conversations(
+        class_id=request.classroom.id,
+        student_id=request.student.id,
+        endpoint_url=getattr(settings, "HELPER_INTERNAL_ACTOR_CLEAR_URL", ""),
+        internal_token=getattr(settings, "HELPER_INTERNAL_API_TOKEN", ""),
+        timeout_seconds=getattr(settings, "HELPER_INTERNAL_RESET_TIMEOUT_SECONDS", 2.0),
+    )
     submissions_qs = Submission.objects.filter(
         student=request.student,
         material__module__classroom=request.classroom,
@@ -277,12 +285,14 @@ def student_delete_work(request):
         ).delete()
 
     notice = _(
-        "Deleted %(submissions)s submission(s), %(events)s class event record(s), and %(outcomes)s outcome record(s)."
+        "Deleted %(submissions)s submission(s), %(events)s class event record(s), %(outcomes)s outcome record(s), and transient helper context."
     ) % {
         "submissions": deleted_submissions,
         "events": deleted_events,
         "outcomes": deleted_outcomes,
     }
+    if not helper_clear.ok:
+        notice += " " + _("The helper service could not confirm its context clear; ask your teacher to retry.")
     return redirect("/student/my-data?" + urlencode({"notice": notice}))
 
 

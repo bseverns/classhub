@@ -54,6 +54,8 @@ class ChatDeps:
     build_score_condition_debug_text: Callable[..., str]
     is_wellbeing_reset_question: Callable[[str], bool]
     build_wellbeing_reset_text: Callable[..., str]
+    safeguarding_risk: Callable[[str], str]
+    build_safeguarding_response: Callable[[str], str]
     is_context_dependent_follow_up: Callable[[str], bool]
     allowed_topic_overlap: Callable[..., bool]
     build_instructions: Callable[..., str]
@@ -247,6 +249,33 @@ async def handle_chat(
         model_message = f"{conversation_prompt}\n\nStudent (latest):\n{message}"
 
     backend = execution_config.backend
+    safeguarding_risk = deps.safeguarding_risk(message)
+    if safeguarding_risk:
+        deps.log_chat_event(
+            "warning",
+            "policy_safeguarding_pause",
+            request_id=request_id,
+            actor_type=actor_type,
+            risk=safeguarding_risk,
+        )
+        if conversation_enabled:
+            deps.clear_conversation_turns(
+                conversation_id=conversation_id,
+                actor_key=actor_key,
+                scope_fingerprint=conversation_scope_fp,
+            )
+        return _response(
+            {
+                "text": deps.build_safeguarding_response(safeguarding_risk),
+                "model": "",
+                "backend": backend,
+                "attempts": 0,
+                "scope_verified": scope_verified,
+                "citations": [],
+                "safeguarding": True,
+                "follow_up_suggestions": [],
+            }
+        )
     if not execution_config.llm_enabled:
         deps.log_chat_event("warning", "llm_disabled", request_id=request_id, backend=backend)
         return _response({"error": "llm_disabled"}, status=503)

@@ -153,7 +153,7 @@ def reset_class_conversations(request):
         return _json_response({"error": "invalid_class_id"}, status=400, request_id=request_id)
 
     max_keys = max(_env_int("HELPER_CLASS_RESET_MAX_KEYS", 4000), 1)
-    archive_enabled = _env_bool("HELPER_CLASS_RESET_ARCHIVE_ENABLED", True)
+    archive_enabled = _env_bool("HELPER_CLASS_RESET_ARCHIVE_ENABLED", False)
     archive_requested = _payload_bool(payload.get("export_before_reset"))
     archive_before_reset = archive_enabled and archive_requested
     archive_path = ""
@@ -222,4 +222,58 @@ def reset_class_conversations(request):
     return _json_response(response_payload, request_id=request_id)
 
 
-__all__ = ["reset_class_conversations"]
+@csrf_exempt
+@require_POST
+def clear_actor_conversations(request):
+    """Clear transient helper context for one ClassHub student actor."""
+    request_id = _request_id(request)
+    configured_token = _internal_api_token()
+    provided_token = _extract_bearer_token(request)
+    if not configured_token:
+        return _json_response({"error": "internal_token_not_configured"}, status=503, request_id=request_id)
+    if not provided_token or not hmac.compare_digest(configured_token, provided_token):
+        _log_internal_event("warning", "internal_actor_clear_unauthorized", request=request, request_id=request_id)
+        return _json_response({"error": "unauthorized"}, status=401, request_id=request_id)
+    allowed, _client_ip = authorize_internal_request(
+        request=request,
+        request_id=request_id,
+        event_prefix="internal_actor_clear",
+    )
+    if not allowed:
+        return _json_response({"error": "forbidden"}, status=403, request_id=request_id)
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        return _json_response({"error": "bad_json"}, status=400, request_id=request_id)
+    if not isinstance(payload, dict):
+        return _json_response({"error": "bad_json"}, status=400, request_id=request_id)
+    try:
+        class_id = int(payload.get("class_id") or 0)
+        student_id = int(payload.get("student_id") or 0)
+    except Exception:
+        class_id = student_id = 0
+    if class_id <= 0 or student_id <= 0:
+        return _json_response({"error": "invalid_actor"}, status=400, request_id=request_id)
+
+    actor_key = f"student:{class_id}:{student_id}"
+    deleted = engine_memory.clear_actor_conversations(
+        cache_backend=cache,
+        actor_key=actor_key,
+        max_keys=max(_env_int("HELPER_ACTOR_CLEAR_MAX_KEYS", 1200), 1),
+    )
+    _log_internal_event(
+        "info",
+        "internal_actor_clear_completed",
+        request=request,
+        request_id=request_id,
+        class_id=class_id,
+        student_id=student_id,
+        deleted_conversations=deleted,
+    )
+    return _json_response(
+        {"ok": True, "class_id": class_id, "student_id": student_id, "deleted_conversations": deleted},
+        request_id=request_id,
+    )
+
+
+__all__ = ["clear_actor_conversations", "reset_class_conversations"]

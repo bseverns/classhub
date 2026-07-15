@@ -10,12 +10,26 @@ needs:
   - "Class code"
 privacy:
   - "Use a nickname/display name, not full legal names."
-videos:
-  - id: V01
-    title: "Demo walkthrough (replace with your own clip)"
-    minutes: 2
-    outcome: "See the join flow and first lesson navigation."
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+offline_handout:
+  goal: "Join class, open the lesson, and save a short local note."
+  do_now:
+    - "Join with the class code and your display name."
+    - "Open Session 1 and write two lines in a local text file."
+  submit:
+    - "Save the note locally so you can use it in Session 2."
+  safety:
+    - "Use a nickname or display name instead of a full legal name."
+  localized:
+    es:
+      title: "Unirse, abrir la lección y guardar el primer trabajo"
+      goal: "Únete a la clase, abre la lección y guarda una nota breve en tu dispositivo."
+      do_now:
+        - "Únete con el código de clase y tu nombre para mostrar."
+        - "Abre la Sesión 1 y escribe dos líneas en un archivo de texto."
+      submit:
+        - "Guarda la nota en tu dispositivo para usarla en la Sesión 2."
+      safety:
+        - "Usa un apodo o nombre para mostrar en vez de tu nombre legal completo."
 done_looks_like:
   - "Student joins the class and opens Session 1."
   - "Student records one takeaway in plain text."
@@ -48,8 +62,8 @@ helper_allowed_topics:
 1. Join with class code + display name.
 2. Open this lesson.
 3. Write two lines in a local text file:
-   - One thing that worked
-   - One thing to try next
+    - One thing that worked
+    - One thing to try next
 
 ## Rubric / checklist
 - [ ] Joined the correct class
@@ -60,4 +74,3 @@ helper_allowed_topics:
 Use the helper like this:
 
 > "I joined class but I am unsure what to do next. Ask me what I already tried and give one next step, not the full answer."
-

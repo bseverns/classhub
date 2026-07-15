@@ -301,6 +301,19 @@ def _extract_session_ui_level(body_lines: list[str]) -> str:
     return ""
 
 
+def _extract_lesson_slug(body_lines: list[str]) -> str:
+    for line in body_lines[:40]:
+        parsed = _parse_metadata_line(line)
+        if not parsed:
+            continue
+        key = _normalize_meta_key(parsed[0])
+        if key in {"lesson_slug", "lesson_slug_(for_course.yaml)"}:
+            slug = str(parsed[1] or "").strip().lower()
+            if re.fullmatch(r"[a-z0-9_-]+", slug):
+                return slug
+    return ""
+
+
 def _parse_sessions(raw: str, *, session_parse_mode: str = "auto") -> list[dict]:
     lines = raw.splitlines()
     indices = []
@@ -332,6 +345,7 @@ def _parse_sessions(raw: str, *, session_parse_mode: str = "auto") -> list[dict]
                 "title": title,
                 "body_lines": body_lines,
                 "ui_level_override": ui_level_override,
+                "lesson_slug": _extract_lesson_slug(body_lines),
             }
         )
     return sessions
@@ -364,6 +378,7 @@ def _session_from_filename(path: str, raw_text: str) -> dict | None:
         "title": title,
         "body_lines": lines,
         "ui_level_override": _extract_session_ui_level(lines),
+        "lesson_slug": _extract_lesson_slug(lines),
     }
 
 

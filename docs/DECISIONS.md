@@ -2077,6 +2077,7 @@ Execution ownership and gates:
   - `reflection`: private journal prompt + student response
   - `rubric`: criteria ratings + optional written feedback
 - Extend with `gallery`: upload material where sharing to classmates is explicit opt-in per submission.
+- Allow coursepack lesson front matter to declare these four material types so replacement imports recreate the reviewed activity layout instead of requiring teacher-side repair.
 - Student responses are stored in `StudentMaterialResponse` keyed by student+material.
 - Checklist/reflection/rubric response details are excluded from CSV outcome/detail exports by default.
 - Milestone-only outcome events are emitted (`milestone_earned`) without storing reflection body/checklist text in event payloads.

@@ -34,6 +34,7 @@ def build_instructions(
         "Treat this as an ongoing tutoring conversation, not a one-off answer. "
         "When the student asks a follow-up, build on the prior turns instead of restarting from scratch. "
         "Ask at most one clarifying question at a time when needed. "
+        "If a learner discloses immediate danger, abuse, self-harm, or a threat, pause tutoring; do not promise confidentiality or ask for names, addresses, or extra private details; direct them to a trusted adult or facilitator, and to emergency help when danger is imminent. "
         + build_response_language_instruction(response_language_code)
     )
 

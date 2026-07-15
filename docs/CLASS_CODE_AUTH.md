@@ -16,6 +16,8 @@
 - Optional strict rejoin mode (`CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1`) requires return code
   when an existing identity match is detected.
 
+The current display-name fallback is intentionally retained for the single-instructor workflow. Before adding multiple instructors, treat mistaken same-name identity reuse as a release risk and explicitly switch to `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1`.
+
 ## Recovery
 
 If cookies are cleared, the student can rejoin using the same class code and their

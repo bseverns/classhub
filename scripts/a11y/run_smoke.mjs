@@ -3,23 +3,32 @@ import { chromium } from "playwright";
 
 const baseUrl = (process.env.A11Y_BASE_URL || "http://localhost").trim().replace(/\/$/, "");
 const teacherSessionKey = (process.env.A11Y_TEACHER_SESSION_KEY || "").trim();
+const studentSessionKey = (process.env.A11Y_STUDENT_SESSION_KEY || "").trim();
+const uploadPath = (process.env.A11Y_UPLOAD_PATH || "").trim();
+const lessonPath = (process.env.A11Y_LESSON_PATH || "").trim();
 const classIdRaw = (process.env.A11Y_CLASS_ID || "").trim();
 const classId = Number.parseInt(classIdRaw, 10);
 const timeoutMs = Number.parseInt(process.env.A11Y_TIMEOUT_MS || "30000", 10);
-const failImpactRaw = (process.env.A11Y_FAIL_IMPACT || "critical").trim().toLowerCase();
+const failImpactRaw = (process.env.A11Y_FAIL_IMPACT || "serious").trim().toLowerCase();
 const impactRank = {
   minor: 1,
   moderate: 2,
   serious: 3,
   critical: 4,
 };
-const failImpactThreshold = impactRank[failImpactRaw] || impactRank.critical;
+const failImpactThreshold = impactRank[failImpactRaw] || impactRank.serious;
 
 const routes = [
   { name: "Student Join", path: "/", auth: "none" },
   { name: "Teacher Home", path: "/teach", auth: "teacher" },
   { name: "Teacher Lessons", path: "/teach/lessons", auth: "teacher" },
+  { name: "Student Home + Helper Widget", path: "/student", auth: "student" },
+  { name: "My Data", path: "/student/my-data", auth: "student" },
+  { name: "Portfolio", path: "/student/portfolio", auth: "student" },
+  { name: "Gallery", path: "/student/gallery", auth: "student" },
 ];
+if (lessonPath) routes.push({ name: "Student Lesson + Helper Widget", path: lessonPath, auth: "student" });
+if (uploadPath) routes.push({ name: "Student Upload", path: uploadPath, auth: "student" });
 
 if (Number.isFinite(classId) && classId > 0) {
   routes.push(
@@ -56,6 +65,9 @@ async function runRoute(page, route) {
     if (blockedByLogin) {
       throw new Error(`${route.name}: expected authenticated teacher view but was redirected to ${finalUrl}`);
     }
+  }
+  if (route.auth === "student" && (finalUrl.endsWith("/") || finalUrl.includes("/teach/login"))) {
+    throw new Error(`${route.name}: expected authenticated student view but was redirected to ${finalUrl}`);
   }
 
   await page.waitForTimeout(250);
@@ -94,20 +106,13 @@ function printRouteSummary(result) {
 
 async function main() {
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext();
-
-  if (teacherSessionKey) {
-    await context.addCookies([
-      {
-        name: "sessionid",
-        value: teacherSessionKey,
-        url: baseUrl,
-        sameSite: "Lax",
-      },
-    ]);
-  }
-
-  const page = await context.newPage();
+  const teacherContext = await browser.newContext();
+  const studentContext = await browser.newContext();
+  if (teacherSessionKey) await teacherContext.addCookies([{ name: "sessionid", value: teacherSessionKey, url: baseUrl, sameSite: "Lax" }]);
+  if (studentSessionKey) await studentContext.addCookies([{ name: "sessionid", value: studentSessionKey, url: baseUrl, sameSite: "Lax" }]);
+  const publicPage = await (await browser.newContext()).newPage();
+  const teacherPage = await teacherContext.newPage();
+  const studentPage = await studentContext.newPage();
   const results = [];
 
   for (const route of routes) {
@@ -115,12 +120,18 @@ async function main() {
       console.log(`[a11y] SKIP ${route.name}: no A11Y_TEACHER_SESSION_KEY provided`);
       continue;
     }
+    if (route.auth === "student" && !studentSessionKey) {
+      console.log(`[a11y] SKIP ${route.name}: no A11Y_STUDENT_SESSION_KEY provided`);
+      continue;
+    }
+    const page = route.auth === "teacher" ? teacherPage : route.auth === "student" ? studentPage : publicPage;
     const result = await runRoute(page, route);
     results.push(result);
     printRouteSummary(result);
   }
 
-  await context.close();
+  await teacherContext.close();
+  await studentContext.close();
   await browser.close();
 
   const totalFailViolations = results.reduce((acc, row) => acc + row.failViolations.length, 0);

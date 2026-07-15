@@ -35,6 +35,12 @@ HELPER_STRICTNESS=light
 HELPER_STRICTNESS=strict
 ```
 
+## Youth safeguarding
+
+- Immediate danger, abuse, self-harm, or threats pause tutoring.
+- Never promise confidentiality and do not ask for names, addresses, or extra private details.
+- Direct the learner to a trusted adult, teacher, or facilitator; direct imminent danger to local emergency help.
+
 ## Piper Hardware Eval Notes
 
 - Include lesson-scoped prompts that mention StoryMode missions, jumper wires, breadboard rows, and shared ground.

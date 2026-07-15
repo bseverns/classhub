@@ -84,6 +84,34 @@ class HelperInternalResetTests(TestCase):
         self.assertIn('"class_id": 55', captured.records[0].getMessage())
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
+    def test_internal_actor_clear_uses_actor_index_only(self):
+        target_key = engine_memory.conversation_cache_key(
+            actor_key="student:55:9001", scope_fp="noscope", conversation_id="target"
+        )
+        other_key = engine_memory.conversation_cache_key(
+            actor_key="student:55:9002", scope_fp="noscope", conversation_id="other"
+        )
+        for key, actor in ((target_key, "student:55:9001"), (other_key, "student:55:9002")):
+            engine_memory.save_state(
+                cache_backend=cache,
+                key=key,
+                turns=[{"role": "student", "content": "Need help"}],
+                summary="",
+                ttl_seconds=300,
+                actor_key=actor,
+            )
+        resp = self.client.post(
+            "/helper/internal/clear-actor-conversations",
+            data=json.dumps({"class_id": 55, "student_id": 9001}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION="Bearer token-123",
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()["deleted_conversations"], 1)
+        self.assertIsNone(cache.get(target_key))
+        self.assertIsNotNone(cache.get(other_key))
+
+    @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     @patch.dict(
         "os.environ",
         {

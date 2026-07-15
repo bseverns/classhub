@@ -76,17 +76,20 @@
       </div>
 
       <div class="card">
-        <form id="join-form" novalidate>
+        <form id="join-form" action="/join" method="post" novalidate>
           {% csrf_token %}
           {% if invite_join_error %}
           <div class="error" role="alert">{{ invite_join_error_message }}</div>
+          {% endif %}
+          {% if join_form_error %}
+          <div class="error" role="alert">{{ join_form_error }}</div>
           {% endif %}
           {% if invite_join_classroom %}
           <input id="code" name="class_code" value="{{ invite_join_classroom.join_code }}" type="hidden" />
           <input id="invite_token" name="invite_token" value="{{ invite_join_token }}" type="hidden" />
           {% else %}
           <label for="code">{% trans "Class code" %}</label>
-          <input id="code" name="class_code" placeholder="ABCD1234" autocomplete="off" required />
+          <input id="code" name="class_code" value="{{ prefill_class_code }}" placeholder="ABCD1234" autocomplete="off" required />
           <input id="invite_token" name="invite_token" value="" type="hidden" />
           {% endif %}
 

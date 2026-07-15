@@ -8,6 +8,7 @@ urlpatterns = [
     path("helper/healthz", views.healthz),
     path("helper/chat", views.chat),
     path("helper/internal/reset-class-conversations", views.reset_class_conversations),
+    path("helper/internal/clear-actor-conversations", views.clear_actor_conversations),
     path("helper/internal/rag-status", views.internal_rag_status),
     path("helper/internal/remote-compute-status", views_remote_compute.internal_remote_compute_status),
     path("helper/internal/remote-compute-evidence", views_remote_compute.internal_remote_compute_evidence),

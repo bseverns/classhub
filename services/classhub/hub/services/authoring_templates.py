@@ -69,6 +69,17 @@ Teacher prep
 Materials
 - <hardware, accounts, files, handouts>
 
+Submission
+- Type: file
+- Accepted: .pdf, .png
+- Naming: s{session_num:02d}-project.pdf
+
+ClassHub materials
+- Checklist | Build checklist | First observable step; Second observable step
+- Reflection | Exit reflection | What changed after your last test?
+- Rubric | Project rubric | Clear evidence; Safe process | 4
+- Gallery | Share a finished image | .png,.jpg | 10
+
 Agenda
 - 0-10 min: <intro/check-in>
 - 10-45 min: <build time>
@@ -106,6 +117,10 @@ Offline handout
 - Simple do now: <simpler wording for a task step>
 - Simple submit: <simpler wording for the hand-in step>
 - Standard do now: <explicit standard-language wording if it differs>
+- Spanish goal: <human-authored Spanish goal; optional>
+- Spanish do now: <human-authored Spanish task step; optional>
+- Spanish submit: <human-authored Spanish hand-in step; optional>
+- Spanish safety: <human-authored Spanish safety step; optional>
 
 Extensions
 - <optional stretch for early finishers>
@@ -117,13 +132,14 @@ def teacher_plan_markdown(slug: str, title: str, sessions: int, duration: int, a
         f"# Teacher Session Plan Template: {title}",
         "",
         f"Course slug: {slug}",
-        f"Grade level: {age_band}",
         f"Session length: {duration} minutes",
         f"Total sessions: {sessions}",
         "",
         "Use `Session NN: Title` headings exactly so `scripts/ingest_syllabus_md.py` can parse this file.",
         "",
     ]
+    if age_band:
+        lines.insert(4, f"Grade level: {age_band}")
     for idx in range(1, sessions + 1):
         lines.append(_session_block(idx).strip())
         lines.append("")
@@ -136,7 +152,6 @@ def public_overview_markdown(slug: str, title: str, sessions: int, duration: int
         f"# {title}",
         "",
         f"Course slug: {slug}",
-        f"Grade level: {age_band}",
         f"Meeting time: {meeting_time}",
         "Platform: <platform/tool name>",
         "",
@@ -153,6 +168,8 @@ def public_overview_markdown(slug: str, title: str, sessions: int, duration: int
         "## Materials and prerequisites",
         "- <required accounts/devices or setup>",
     ]
+    if age_band:
+        lines.insert(4, f"Grade level: {age_band}")
     return "\n".join(lines).rstrip() + "\n"
 
 

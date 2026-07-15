@@ -26,6 +26,7 @@ REMOTE_COMPUTE_ACK_KEYS = (
 )
 INTERNAL_URL_CONTRACTS = {
     "HELPER_INTERNAL_RESET_URL": "/helper/internal/reset-class-conversations",
+    "HELPER_INTERNAL_ACTOR_CLEAR_URL": "/helper/internal/clear-actor-conversations",
     "HELPER_INTERNAL_RAG_STATUS_URL": "/helper/internal/rag-status",
     "CLASSHUB_INTERNAL_EVENTS_URL": "/internal/events/helper-chat-access",
 }
@@ -386,6 +387,21 @@ def run_preflight(env_path: Path) -> tuple[list[Issue], list[Issue]]:
         domain_mode=(caddy_template != "Caddyfile.local"),
     )
     _check_remote_compute(values, issues, template_mode=template_mode)
+
+    if _bool_value(_value(values, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF"), default=False):
+        _add_issue(
+            issues,
+            "WARN",
+            "organization_assignment_required",
+            "Strict multi-org mode is enabled: verify every class has an organization before release; legacy organization-less classes are not visible to scoped staff.",
+        )
+    if not _bool_value(_value(values, "CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN"), default=False):
+        _add_issue(
+            issues,
+            "WARN",
+            "display_name_rejoin_single_instructor_risk",
+            "Display-name rejoin is suitable only for the current single-instructor workflow; when multiple instructors are introduced, set CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1.",
+        )
 
     failures = [issue for issue in issues if issue.level == "FAIL"]
     warnings = [issue for issue in issues if issue.level == "WARN"]

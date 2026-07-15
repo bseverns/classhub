@@ -25,9 +25,9 @@ From repo root:
 
 ```bash
 DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret python services/classhub/manage.py check
-DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret python services/classhub/manage.py test
+DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret python services/classhub/manage.py test hub
 DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret python services/homework_helper/manage.py check
-DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret python services/homework_helper/manage.py test
+DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret python services/homework_helper/manage.py test tutor.tests
 ```
 
 For stack-level confidence:

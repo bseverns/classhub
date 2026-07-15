@@ -92,7 +92,7 @@ heuristics:
     - kotlin
 
 reset_archives:
-  enabled: true
+  enabled: false
   directory: /uploads/helper_reset_exports
   max_keys: 4000
   max_messages: 120

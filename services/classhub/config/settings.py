@@ -408,8 +408,8 @@ CLASSHUB_AUTHORING_TEMPLATE_DIR = Path(
 )
 CLASSHUB_AUTHORING_TEMPLATE_AGE_BAND_DEFAULT = os.environ.get(
     "CLASSHUB_AUTHORING_TEMPLATE_AGE_BAND_DEFAULT",
-    "5th-7th",
-).strip() or "5th-7th"
+    "",
+).strip()
 
 # Conservative defaults; raise if you expect large assets.
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB (larger files stream to disk)
@@ -499,6 +499,10 @@ LLM_BASE_URL = (
 HELPER_INTERNAL_RESET_URL = env(
     "HELPER_INTERNAL_RESET_URL",
     default="http://helper_web:8000/helper/internal/reset-class-conversations",
+).strip()
+HELPER_INTERNAL_ACTOR_CLEAR_URL = env(
+    "HELPER_INTERNAL_ACTOR_CLEAR_URL",
+    default="http://helper_web:8000/helper/internal/clear-actor-conversations",
 ).strip()
 HELPER_INTERNAL_RAG_STATUS_URL = env(
     "HELPER_INTERNAL_RAG_STATUS_URL",

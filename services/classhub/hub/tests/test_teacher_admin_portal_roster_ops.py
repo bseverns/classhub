@@ -1,9 +1,12 @@
 from ._shared import *  # noqa: F401,F403
 from ._teacher_admin_portal_base import TeacherPortalBaseTests
+from types import SimpleNamespace
 
 
 class TeacherPortalRosterOpsTests(TeacherPortalBaseTests):
-    def test_teach_delete_student_data_removes_submissions_and_detaches_events(self):
+    @patch("hub.views.teacher_parts.roster_students_lifecycle.clear_helper_actor_conversations")
+    def test_teach_delete_student_data_removes_submissions_and_detaches_events(self, clear_mock):
+        clear_mock.return_value = SimpleNamespace(ok=True, deleted_conversations=1)
         classroom = Class.objects.create(name="Delete Data Class", join_code="DEL12345")
         module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
         upload = Material.objects.create(

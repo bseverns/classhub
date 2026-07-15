@@ -46,6 +46,15 @@ offline_handout:
         - Show where energy moves.
       submit:
         - Upload one PDF page.
+  localized:
+    es:
+      goal: Completa un plan de circuito que puedas explicar.
+      do_now:
+        - Dibuja un circuito y marca la ruta de energía.
+      submit:
+        - Entrega una página PDF.
+      safety:
+        - No incluyas nombres privados en el archivo.
 ---
 ## Build
 
@@ -98,3 +107,13 @@ Draw, test, and explain one loop.
                 self.assertEqual(pdf.status_code, 200)
                 self.assertEqual(pdf["Content-Type"], "application/pdf")
                 self.assertTrue(pdf.content.startswith(b"%PDF-1.4"))
+
+                spanish = self.client.get(
+                    "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=standard&lang=es"
+                )
+                self.assertEqual(spanish.status_code, 200)
+                self.assertContains(spanish, "Completa un plan de circuito que puedas explicar.")
+                self.assertContains(spanish, "Dibuja un circuito y marca la ruta de energía.")
+                self.assertContains(spanish, "Entrega una página PDF.")
+                self.assertContains(spanish, "No incluyas nombres privados en el archivo.")
+                self.assertNotContains(spanish, "Sketch one circuit idea.")

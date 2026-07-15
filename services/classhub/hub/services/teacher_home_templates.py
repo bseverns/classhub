@@ -69,7 +69,7 @@ def generate_authoring_templates_from_form(
             error="Session duration must be between 15 and 240 minutes.",
         )
 
-    age_band = (getattr(settings, "CLASSHUB_AUTHORING_TEMPLATE_AGE_BAND_DEFAULT", "5th-7th") or "5th-7th").strip()
+    age_band = (getattr(settings, "CLASSHUB_AUTHORING_TEMPLATE_AGE_BAND_DEFAULT", "") or "").strip()
     output_dir = Path(getattr(settings, "CLASSHUB_AUTHORING_TEMPLATE_DIR", "/uploads/authoring_templates"))
 
     try:

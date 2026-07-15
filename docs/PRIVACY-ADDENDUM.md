@@ -91,11 +91,13 @@ flowchart LR
   - `descriptive`: `<class>_<student>_portfolio_YYYYMMDD.zip`.
 - Retention maintenance entrypoint: `scripts/retention_maintenance.sh`.
 - Helper reset archive retention defaults:
+  - Helper reset archive creation is disabled by default (`HELPER_CLASS_RESET_ARCHIVE_ENABLED=0`).
   - `RETENTION_HELPER_EXPORT_DAYS=30` (set `0` to skip age-based cleanup)
   - `RETENTION_HELPER_EXPORT_DIR=/uploads/helper_reset_exports`
   - Access expectation: archives are operator-only artifacts for teachers/createMPLS admins and are not public web routes.
   - `scripts/retention_maintenance.sh` enforces helper archive path scope under `/uploads` and applies conservative permissions (`0700` dir, `0600` files).
   - Helper reset archives are not included in student-facing portfolio exports.
+  - Opted-in snapshot files are not a transactional per-student store and cannot promise per-student deletion from historical files; use the retention process to delete them.
 - Backups should be pruned with the same policy window used for live data.
 
 ## Data That Stays Local
@@ -110,7 +112,7 @@ flowchart LR
 
 ## Deletion Paths
 - Student self-service:
-  - `/student/my-data` -> `Delete my work now` (deletes submissions, checklist/rubric/reflection responses, and student-linked class activity/outcome events for that student in-class).
+  - `/student/my-data` -> `Delete my work now` (deletes submissions, checklist/rubric/reflection responses, student-linked class activity/outcome events, and that actor's transient helper conversation cache for the class).
   - If `CLASSHUB_STUDENT_SELF_DELETE_MODE=request`, `/student/my-data` sends a staff request instead of immediate deletion.
   - `/student/my-data` -> `End my session on this device`.
 - Teacher control:

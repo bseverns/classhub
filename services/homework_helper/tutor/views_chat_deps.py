@@ -84,6 +84,8 @@ def build_chat_deps(
         build_score_condition_debug_text=build_score_condition_debug_text_fn,
         is_wellbeing_reset_question=is_wellbeing_reset_question_fn,
         build_wellbeing_reset_text=build_wellbeing_reset_text_fn,
+        safeguarding_risk=engine_heuristics.safeguarding_risk,
+        build_safeguarding_response=engine_heuristics.build_safeguarding_response,
         is_context_dependent_follow_up=engine_heuristics.is_context_dependent_follow_up,
         allowed_topic_overlap=engine_heuristics.allowed_topic_overlap,
         build_instructions=build_instructions_fn,

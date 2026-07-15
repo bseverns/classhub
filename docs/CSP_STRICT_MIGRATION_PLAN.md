@@ -17,7 +17,8 @@ There are four distinct layers to keep separate:
 
 | Layer | Current posture |
 | --- | --- |
-| Repo-shipped env examples | `DJANGO_CSP_MODE=report-only` |
+| Domain/TLS production example | `DJANGO_CSP_MODE=strict` |
+| General/local example | `DJANGO_CSP_MODE=report-only` |
 | Django code fallback when unset | `relaxed` |
 | Recommended production posture today | `report-only` until deployment-specific violations are understood, then `strict` |
 | Intended end state | `strict` enforced CSP without inline script allowance and without the temporary inline-style canary |

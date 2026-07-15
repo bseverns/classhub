@@ -10,6 +10,8 @@ from django.middleware.csrf import rotate_token
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
+from django.shortcuts import redirect
+from urllib.parse import urlencode
 
 from common.request_safety import client_ip_from_request, fixed_window_allow
 
@@ -61,11 +63,36 @@ def _join_rate_limit_exceeded(request, *, client_ip: str) -> bool:
     )
 
 
-def _parse_join_request(request) -> tuple[dict, str, JsonResponse | None]:
-    try:
-        payload = json.loads(request.body.decode("utf-8"))
-    except Exception:
-        return {}, "", _json_no_store_response({"error": "bad_json"}, status=400)
+def _is_form_request(request) -> bool:
+    return "application/x-www-form-urlencoded" in (request.content_type or "") or "multipart/form-data" in (request.content_type or "")
+
+
+def _join_error_response(request, code: str, *, status: int, message: str = ""):
+    if not _is_form_request(request):
+        payload = {"error": code}
+        if message:
+            payload["message"] = message
+        return _json_no_store_response(payload, status=status)
+    params = {"join_error": code}
+    class_code = (request.POST.get("class_code") or "").strip()
+    invite_token = (request.POST.get("invite_token") or "").strip()
+    if class_code:
+        params["class_code"] = class_code
+    if invite_token:
+        params["invite"] = invite_token
+    response = redirect("/?" + urlencode(params))
+    apply_no_store(response, private=True, pragma=True)
+    return response
+
+
+def _parse_join_request(request) -> tuple[dict, str, object | None]:
+    if _is_form_request(request):
+        payload = request.POST
+    else:
+        try:
+            payload = json.loads(request.body.decode("utf-8"))
+        except Exception:
+            return {}, "", _join_error_response(request, "bad_json", status=400)
 
     client_ip = client_ip_from_request(
         request,
@@ -73,7 +100,7 @@ def _parse_join_request(request) -> tuple[dict, str, JsonResponse | None]:
         xff_index=getattr(settings, "REQUEST_SAFETY_XFF_INDEX", 0),
     )
     if _join_rate_limit_exceeded(request, client_ip=client_ip):
-        return {}, client_ip, _json_no_store_response({"error": "rate_limited"}, status=429)
+        return {}, client_ip, _join_error_response(request, "rate_limited", status=429)
 
     fields = {
         "code": (payload.get("class_code") or "").strip().upper(),
@@ -82,7 +109,7 @@ def _parse_join_request(request) -> tuple[dict, str, JsonResponse | None]:
         "invite_token": (payload.get("invite_token") or "").strip(),
     }
     if not fields["name"] or (not fields["code"] and not fields["invite_token"]):
-        return {}, client_ip, _json_no_store_response({"error": "missing_fields"}, status=400)
+        return {}, client_ip, _join_error_response(request, "missing_fields", status=400)
     return fields, client_ip, None
 
 
@@ -235,7 +262,7 @@ def join_class(request):
                     "email_pattern": _("That looks like an email address. Please use a nickname or display name instead."),
                     "phone_pattern": _("That looks like a phone number. Please use a nickname or display name instead."),
                 }.get(reason, _("Please use a nickname or display name instead of personal information."))
-                return _json_no_store_response({"error": "name_rejected", "message": friendly}, status=400)
+                return _join_error_response(request, "name_rejected", status=400, message=friendly)
             # warn mode: allow but attach warning to success response
             name_warning = {
                 "email_pattern": _("Heads-up: that looks like an email address. A nickname is safer."),
@@ -247,7 +274,7 @@ def join_class(request):
         invite_token=fields["invite_token"],
     )
     if resolve_error:
-        return _json_no_store_response({"error": resolve_error}, status=resolve_status)
+        return _join_error_response(request, resolve_error, status=resolve_status)
 
     student, classroom, invite, rejoined, join_mode, txn_error, txn_status = _complete_join_transaction(
         request,
@@ -257,7 +284,7 @@ def join_class(request):
         return_code=fields["return_code"],
     )
     if txn_error:
-        return _json_no_store_response({"error": txn_error}, status=txn_status)
+        return _join_error_response(request, txn_error, status=txn_status)
 
     _establish_student_session(request, student=student, classroom=classroom)
     epoch = int(getattr(classroom, "session_epoch", 1) or 1)
@@ -274,7 +301,11 @@ def join_class(request):
     if name_warning:
         payload["name_warning"] = name_warning
 
-    response = _json_no_store_response(payload)
+    if _is_form_request(request):
+        response = redirect("/student")
+        apply_no_store(response, private=True, pragma=True)
+    else:
+        response = _json_no_store_response(payload)
     apply_device_hint_cookie(response, classroom=classroom, student=student)
     _emit_student_event(
         event_type=_join_event_type(join_mode),

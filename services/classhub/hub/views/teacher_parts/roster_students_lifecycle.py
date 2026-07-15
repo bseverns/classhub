@@ -1,5 +1,8 @@
 """Teacher student merge/delete lifecycle endpoints."""
 
+from django.conf import settings
+
+from ...services.helper_control import clear_actor_conversations as clear_helper_actor_conversations
 from ...services.submission_quota import invalidate_classroom_submission_quota_cache
 from .shared import (
     HttpResponse,
@@ -156,6 +159,13 @@ def teach_delete_student_data(request, class_id: int):
 
     submission_count = Submission.objects.filter(student=student).count()
     student_event_count = StudentEvent.objects.filter(student=student).count()
+    helper_clear = clear_helper_actor_conversations(
+        class_id=classroom.id,
+        student_id=student.id,
+        endpoint_url=getattr(settings, "HELPER_INTERNAL_ACTOR_CLEAR_URL", ""),
+        internal_token=getattr(settings, "HELPER_INTERNAL_API_TOKEN", ""),
+        timeout_seconds=getattr(settings, "HELPER_INTERNAL_RESET_TIMEOUT_SECONDS", 2.0),
+    )
     student.delete()
     invalidate_classroom_submission_quota_cache(classroom_id=classroom.id)
 
@@ -173,12 +183,17 @@ def teach_delete_student_data(request, class_id: int):
             "submissions_deleted": submission_count,
             "student_events_detached": student_event_count,
             "session_epoch": classroom.session_epoch,
+            "helper_context_clear_ok": helper_clear.ok,
+            "helper_conversations_deleted": helper_clear.deleted_conversations,
         },
     )
     notice = (
         f"Deleted student data for student #{student_id}: "
-        f"{submission_count} submission(s), {student_event_count} event record(s) detached from student identity."
+        f"{submission_count} submission(s), {student_event_count} event record(s) detached from student identity, "
+        "and transient helper context cleared."
     )
+    if not helper_clear.ok:
+        notice += " Helper context clear could not be confirmed; retry the helper reset when service is available."
     return _safe_internal_redirect(
         request,
         _with_notice(_teach_class_path(classroom.id), notice=notice),

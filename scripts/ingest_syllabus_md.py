@@ -90,6 +90,8 @@ SECTION_NAMES = {
     "example variants",
     "community glossary",
     "offline handout",
+    "submission",
+    "classhub materials",
 }
 
 
@@ -163,6 +165,49 @@ def _yaml_offline_handout(offline_handout: dict[str, list[str] | str]) -> str:
         if reading_level_lines:
             out += "  reading_levels:\n"
             out += reading_level_lines
+    localized = offline_handout.get("localized")
+    if isinstance(localized, dict):
+        localized_lines = ""
+        for language_code in ("es", "so", "ksw"):
+            selected = localized.get(language_code)
+            if not isinstance(selected, dict):
+                continue
+            body = _yaml_offline_handout_fields(selected, indent=6)
+            if body:
+                localized_lines += f"    {language_code}:\n{body}"
+        if localized_lines:
+            out += "  localized:\n"
+            out += localized_lines
+    return out
+
+
+def _yaml_submission(submission: dict) -> str:
+    if not submission:
+        return ""
+    out = "submission:\n"
+    for key in ("type", "naming"):
+        value = str(submission.get(key) or "").strip()
+        if value:
+            out += f"  {key}: {_yaml_quote(value)}\n"
+    out += _yaml_list("accepted", list(submission.get("accepted") or []), indent=2)
+    return out
+
+
+def _yaml_materials(rows: list[dict]) -> str:
+    if not rows:
+        return ""
+    out = "materials:\n"
+    for row in rows:
+        out += f"  - type: {_yaml_quote(str(row['type']))}\n"
+        out += f"    title: {_yaml_quote(str(row['title']))}\n"
+        if row.get("prompt"):
+            out += f"    prompt: {_yaml_quote(str(row['prompt']))}\n"
+        for key in ("items", "criteria", "accepted"):
+            if row.get(key):
+                out += _yaml_list(key, list(row[key]), indent=4)
+        for key in ("scale_max", "max_upload_mb"):
+            if row.get(key):
+                out += f"    {key}: {int(row[key])}\n"
     return out
 
 
@@ -306,9 +351,23 @@ def _parse_offline_handout(lines: list[str]) -> dict[str, list[str] | str]:
                 reading_level = candidate
                 key = key[len(prefix) :]
                 break
+        localized_language = ""
+        for label, code in (("spanish", "es"), ("somali", "so"), ("sgaw_karen", "ksw"), ("karen", "ksw")):
+            prefix = f"{label}_"
+            if key.startswith(prefix):
+                localized_language = code
+                key = key[len(prefix) :]
+                break
         if key not in scalar_fields and key not in list_fields:
             continue
         target = parsed
+        if localized_language:
+            localized = parsed.setdefault("localized", {})
+            if not isinstance(localized, dict):
+                continue
+            target = localized.setdefault(localized_language, {})
+            if not isinstance(target, dict):
+                continue
         if reading_level:
             reading_levels = parsed.setdefault("reading_levels", {})
             if not isinstance(reading_levels, dict):
@@ -326,11 +385,45 @@ def _parse_offline_handout(lines: list[str]) -> dict[str, list[str] | str]:
     return parsed
 
 
+def _parse_submission(lines: list[str]) -> dict:
+    parsed: dict = {}
+    for item in _extract_bullets(lines):
+        key_raw, _, value = item.partition(":")
+        key = _normalize_meta_key(key_raw)
+        value = value.strip()
+        if key in {"type", "naming"} and value:
+            parsed[key] = value.lower() if key == "type" else value
+        elif key == "accepted" and value:
+            parsed[key] = [part.strip() for part in re.split(r"[,|]", value) if part.strip()]
+    return parsed
+
+
+def _parse_classhub_materials(lines: list[str]) -> list[dict]:
+    rows: list[dict] = []
+    for item in _extract_bullets(lines):
+        parts = [part.strip() for part in item.split("|")]
+        if len(parts) < 3:
+            continue
+        material_type, title, body = parts[:3]
+        material_type = material_type.lower()
+        if material_type == "checklist":
+            rows.append({"type": material_type, "title": title, "items": [v.strip() for v in body.split(";") if v.strip()]})
+        elif material_type == "reflection":
+            rows.append({"type": material_type, "title": title, "prompt": body})
+        elif material_type == "rubric":
+            rows.append({"type": material_type, "title": title, "criteria": [v.strip() for v in body.split(";") if v.strip()], "scale_max": int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 4})
+        elif material_type == "gallery":
+            rows.append({"type": material_type, "title": title, "accepted": [v.strip() for v in re.split(r"[,;]", body) if v.strip()], "max_upload_mb": int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 50})
+    return rows
+
+
 _METADATA_ONLY_SECTIONS = {
     "local anchors",
     "example variants",
     "community glossary",
     "offline handout",
+    "submission",
+    "classhub materials",
 }
 
 
@@ -534,13 +627,28 @@ def _extract_session_ui_level(body_lines: list[str]) -> str:
     return ""
 
 
+def _lesson_slug(session: dict) -> str:
+    for line in list(session.get("body_lines") or [])[:40]:
+        match = META_RE.match(line.strip())
+        if not match:
+            continue
+        key = _normalize_meta_key(match.group(1))
+        if key not in {"lesson_slug", "lesson_slug_(for_course.yaml)"}:
+            continue
+        value = match.group(2).strip().lower()
+        if re.fullmatch(r"[a-z0-9_-]+", value):
+            return value
+    session_num = int(session["session"])
+    return f"s{session_num:02d}-{_slugify(str(session['title']))}"
+
+
 def _strip_session_config_lines(body_lines: list[str]) -> list[str]:
     out: list[str] = []
     for line in body_lines:
         m = META_RE.match(line.strip())
         if m:
             key = _normalize_meta_key(m.group(1))
-            if key in {"ui_level", "program_profile", "learner_level", "grade_band", "age_band"}:
+            if key in {"ui_level", "program_profile", "learner_level", "grade_band", "age_band", "lesson_slug", "lesson_slug_(for_course.yaml)"}:
                 continue
         out.append(line)
     return out
@@ -562,11 +670,14 @@ def _build_lesson_front_matter(
     example_variants: list[str] | None = None,
     community_glossary: list[dict[str, str]] | None = None,
     offline_handout: dict[str, list[str] | str] | None = None,
+    lesson_slug: str = "",
+    submission: dict | None = None,
+    materials: list[dict] | None = None,
 ) -> str:
     out = "---\n"
     out += f"course: {course_slug}\n"
     out += f"session: {session_num}\n"
-    out += f"slug: s{session_num:02d}-{_slugify(title)}\n"
+    out += f"slug: {lesson_slug or f's{session_num:02d}-{_slugify(title)}'}\n"
     out += f"title: {_yaml_quote(title)}\n"
     out += f"duration_minutes: {duration}\n"
     if ui_level_override:
@@ -586,6 +697,8 @@ def _build_lesson_front_matter(
     out += _yaml_list("example_variants", example_variants or [])
     out += _yaml_mapping_list("community_glossary", community_glossary or [])
     out += _yaml_offline_handout(offline_handout or {})
+    out += _yaml_submission(submission or {})
+    out += _yaml_materials(materials or [])
     out += "---\n"
     return out
 
@@ -605,7 +718,7 @@ def _render_course_yaml(
     for session in sessions:
         session_num = session["session"]
         lesson_title = session["title"]
-        lesson_slug = f"s{session_num:02d}-{_slugify(lesson_title)}"
+        lesson_slug = _lesson_slug(session)
         filename = f"{session_num:02d}-{_slugify(lesson_title)}.md"
         lesson_entries.append(
             f"""  - session: {session_num}
@@ -649,7 +762,7 @@ def _build_lesson_payload(course_slug: str, session: dict, duration: int) -> dic
             break
 
     sections = _collect_sections(body_lines)
-    needs_items = _extract_bullets(_find_section(sections, "materials"))
+    needs_items = _extract_bullets(sections.get("materials", []))
     checkpoints = _extract_bullets(_find_section(sections, "checkpoints"))
     quick_fixes = _extract_bullets(_find_section(sections, "common stuck points"))
     if not quick_fixes:
@@ -660,6 +773,8 @@ def _build_lesson_payload(course_slug: str, session: dict, duration: int) -> dic
     example_variants = _extract_bullets(_find_section(sections, "example variants"))
     community_glossary = _parse_glossary_entries(_find_section(sections, "community glossary"))
     offline_handout = _parse_offline_handout(_find_section(sections, "offline handout"))
+    submission = _parse_submission(sections.get("submission", []))
+    materials = _parse_classhub_materials(sections.get("classhub materials", []))
 
     ui_level_override = str(session.get("ui_level_override") or "").strip()
     front_matter = _build_lesson_front_matter(
@@ -678,6 +793,9 @@ def _build_lesson_payload(course_slug: str, session: dict, duration: int) -> dic
         example_variants=example_variants,
         community_glossary=community_glossary,
         offline_handout=offline_handout,
+        lesson_slug=_lesson_slug(session),
+        submission=submission,
+        materials=materials,
     )
     cleaned_body = "\n".join(_strip_front_matter_sections(_strip_session_config_lines(body_lines))).strip()
     if not cleaned_body:
@@ -791,7 +909,7 @@ def main() -> int:
 
     duration = args.duration or derived_duration or 75
     grade_band = args.grade_band or _pick_first(merged_info, "grade_band", "grade_level")
-    age_band = args.age_band or _pick_first(merged_info, "age_band") or "5th-7th"
+    age_band = args.age_band or _pick_first(merged_info, "age_band")
     needs = []
     platform = _pick_first(merged_info, "platform")
     if platform:

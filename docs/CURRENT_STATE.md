@@ -92,7 +92,7 @@ Last reviewed: 2026-06-20
 - Domain mode: `compose/Caddyfile.domain` (or `Caddyfile.domain.assets`) with Caddy-managed TLS.
 - Cookie transport in local HTTP mode: `DJANGO_SESSION_COOKIE_SECURE=0`, `DJANGO_CSRF_COOKIE_SECURE=0`.
 - Cookie transport in domain/TLS mode: both values set to `1`.
-- Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
+- The domain/TLS production example defaults to `DJANGO_CSP_MODE=strict`; the general example remains report-only and the Django code fallback remains relaxed when unset.
 - System validation command: `bash scripts/validate_env_secrets.sh`.
 - System validation command: `bash scripts/system_doctor.sh --smoke-mode golden`.
 - Serious remote-LLM production posture is documented as: public LMS at `lms.creatempls.org`, Thundercompute vGPU private model host, helper-only server-to-server tailnet traffic, and Jetson_B running the Headscale control plane at `hs.creatempls.org`.

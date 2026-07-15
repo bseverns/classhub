@@ -20,6 +20,48 @@ class HelperResetResult:
     status_code: int = 0
 
 
+def clear_actor_conversations(
+    *, class_id: int, student_id: int, endpoint_url: str, internal_token: str, timeout_seconds: float
+) -> HelperResetResult:
+    request_id = _request_id_value("")
+    if class_id <= 0 or student_id <= 0:
+        return HelperResetResult(ok=False, request_id=request_id, error_code="invalid_actor")
+    if not endpoint_url:
+        return HelperResetResult(ok=False, request_id=request_id, error_code="helper_endpoint_not_configured")
+    if not internal_token:
+        return HelperResetResult(ok=False, request_id=request_id, error_code="helper_token_not_configured")
+    payload = json.dumps({"class_id": int(class_id), "student_id": int(student_id)}).encode("utf-8")
+    request = urllib.request.Request(
+        endpoint_url,
+        data=payload,
+        method="POST",
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {internal_token}",
+            "X-Request-ID": request_id,
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=max(float(timeout_seconds), 0.2)) as response:  # nosec B310
+            status = int(getattr(response, "status", 200) or 200)
+            body = response.read().decode("utf-8", errors="replace")
+            response_request_id = _response_request_id(response=response, body=body, fallback=request_id)
+    except urllib.error.HTTPError as exc:
+        return HelperResetResult(ok=False, request_id=request_id, error_code="helper_http_error", status_code=int(exc.code or 0))
+    except urllib.error.URLError:
+        return HelperResetResult(ok=False, request_id=request_id, error_code="helper_unreachable")
+    except Exception:
+        return HelperResetResult(ok=False, request_id=request_id, error_code="helper_request_failed")
+    parsed = _safe_json_dict(body)
+    if not parsed.get("ok"):
+        return HelperResetResult(ok=False, request_id=response_request_id, error_code=str(parsed.get("error") or "helper_clear_failed"), status_code=status)
+    try:
+        deleted = int(parsed.get("deleted_conversations") or 0)
+    except Exception:
+        deleted = 0
+    return HelperResetResult(ok=True, deleted_conversations=max(deleted, 0), request_id=response_request_id, status_code=status)
+
+
 @dataclass(frozen=True)
 class HelperRagStatusResult:
     ok: bool

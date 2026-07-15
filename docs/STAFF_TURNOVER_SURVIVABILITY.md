@@ -31,7 +31,7 @@ The new maintainer should be able to:
 - identify the two-service architecture (`classhub` + `homework_helper`)
 - find the production env/secrets source of truth
 - run smoke checks without editing application code
-- explain the privacy boundary: no surveillance analytics, no helper prompt archive
+- explain the privacy boundary: no surveillance analytics; helper archives are disabled by default and require explicit operator opt-in
 - locate the docs for restore, retention, accessibility, and teacher operations
 
 ### First day

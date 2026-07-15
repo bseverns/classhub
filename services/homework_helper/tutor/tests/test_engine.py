@@ -242,6 +242,20 @@ class HeuristicsEngineTests(SimpleTestCase):
         self.assertIn("ongoing tutoring conversation", lowered)
         self.assertIn("follow-up", lowered)
         self.assertIn("instead of restarting from scratch", lowered)
+        self.assertIn("do not promise confidentiality", lowered)
+
+    def test_safeguarding_disclosure_pauses_tutoring_without_collecting_pii(self):
+        self.assertEqual(heuristics.safeguarding_risk("Someone is abusing me at home"), "disclosure")
+        text = heuristics.build_safeguarding_response("disclosure").lower()
+        self.assertIn("pausing tutoring", text)
+        self.assertIn("trusted adult", text)
+        self.assertIn("can't promise", text)
+        self.assertIn("do not need to share names", text)
+
+    def test_safeguarding_imminent_threat_directs_to_emergency_help(self):
+        self.assertEqual(heuristics.safeguarding_risk("I am about to hurt myself right now"), "imminent")
+        text = heuristics.build_safeguarding_response("imminent").lower()
+        self.assertIn("emergency services now", text)
 
     def test_build_instructions_enforces_normalized_response_language(self):
         instructions = policy.build_instructions(

@@ -245,6 +245,30 @@ def clear_turns(*, cache_backend, key: str) -> None:
         logger.warning("conversation_memory_cache_delete_failed key=%s", key)
 
 
+def clear_actor_conversations(*, cache_backend, actor_key: str, max_keys: int = 1200) -> int:
+    """Delete cached conversations registered for one authenticated actor."""
+    actor_index_key = conversation_actor_index_key(actor_key=actor_key)
+    try:
+        indexed = cache_backend.get(actor_index_key)
+    except Exception:
+        logger.warning("conversation_memory_cache_get_failed key=%s", actor_index_key)
+        return 0
+
+    keys = _coerce_key_list(indexed, max_items=max(int(max_keys), 1))
+    deleted = 0
+    for key in keys:
+        try:
+            cache_backend.delete(key)
+            deleted += 1
+        except Exception:
+            logger.warning("conversation_memory_cache_delete_failed key=%s", key)
+    try:
+        cache_backend.delete(actor_index_key)
+    except Exception:
+        logger.warning("conversation_memory_cache_delete_failed key=%s", actor_index_key)
+    return deleted
+
+
 def _format_turn_line(row: dict[str, str]) -> str:
     role = _ROLE_LABELS.get(row["role"], "Tutor")
     content = row["content"]

@@ -97,9 +97,9 @@
           {% endif %}
           {% else %}
           {% if selected_reading_level == "simple" %}
-          {% trans "Delete now removes your uploads, class responses, and class activity history for this class." %}
+            {% trans "Delete now removes your uploads, class responses, and class activity history, plus temporary helper context for this class." %}
           {% else %}
-          {% trans "Deletion is immediate for your submissions, checklist/rubric/reflection responses, and your class activity events in this class." %}
+          {% trans "Deletion is immediate for your submissions, checklist/rubric/reflection responses, and your class activity events in this class; it also clears temporary helper context." %}
           {% endif %}
           {% endif %}
         </p>

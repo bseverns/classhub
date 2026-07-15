@@ -131,7 +131,7 @@ from .views_chat_runtime import (
 )
 from .views_internal_rag_status import internal_rag_status
 from .views_remote_compute import internal_remote_compute_control, internal_remote_compute_status
-from .views_reset import reset_class_conversations
+from .views_reset import clear_actor_conversations, reset_class_conversations
 
 logger = logging.getLogger(__name__)
 
@@ -508,4 +508,5 @@ __all__ = [
     "internal_remote_compute_control",
     "internal_remote_compute_status",
     "reset_class_conversations",
+    "clear_actor_conversations",
 ]

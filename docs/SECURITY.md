@@ -156,9 +156,11 @@ Field-level lifecycle details (exact fields, TTL knobs, deletion controls): [PRI
 - Upload checks now include lightweight content validation (for example `.sb3` must be a valid zip with `project.json`).
 - File cleanup signals remove stored files on row delete/cascade delete and file replacement.
 - Helper reset archives (`/uploads/helper_reset_exports`) are operator-only artifacts:
+  - disabled by default and created only after explicit opt-in,
   - not publicly served by Caddy routes,
   - not included in student-facing portfolio exports,
   - intended access scope is teachers + createMPLS admins only.
+  - snapshot files do not provide a safe transactional per-student archive-deletion guarantee; student deletion clears actor-scoped transient Redis context.
 
 #### Upload flow (Map D2)
 
@@ -263,7 +265,7 @@ Current posture:
   - `scripts/check_no_inline_template_css.py` blocks inline `<style>` blocks and `style=` attributes.
 - New template work should assume external static assets and data attributes, not inline code.
 - Strict CSP is the intended end state.
-- Repo-shipped env examples currently default to `DJANGO_CSP_MODE=report-only`; the Django code fallback remains `relaxed` when the setting is unset.
+- The domain/TLS production example defaults to `DJANGO_CSP_MODE=strict`; the general example remains report-only and the Django code fallback remains relaxed when unset.
 - Treat `relaxed` as fallback behavior, not as a production posture recommendation.
 - The explicit movement plan from `report-only` to `strict` lives in [CSP_STRICT_MIGRATION_PLAN.md](CSP_STRICT_MIGRATION_PLAN.md).
 

@@ -49,7 +49,7 @@ If this page is useful, you should be able to answer: who this is for, what it d
 - Course content stays portable through file-first authoring, coursepack builds, static registry publishing/import, and print-friendly HTML handouts with basic text-first PDF fallback downloads.
 - Public website hardening options (content-security policy, safe-site modes, and proxy protections).
 - Self-hosted architecture using widely used components (Django, Postgres, Redis, Caddy).
-- Helper support is lesson-scoped and does not archive student prompts.
+- Helper support is lesson-scoped; recent turns are transiently cached for continuity, and conversation archives are off by default unless an operator explicitly opts in.
 
 ## What it will not do
 - No student surveillance scoring.

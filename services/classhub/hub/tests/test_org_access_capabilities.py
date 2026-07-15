@@ -1,5 +1,15 @@
 from ._shared import *  # noqa: F401,F403
 
+
+class OrganizationDeployCheckTests(TestCase):
+    @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True)
+    def test_strict_mode_warns_for_organization_less_class(self):
+        from hub.checks import organization_assignment_check
+
+        Class.objects.create(name="Legacy Class", join_code="LEGACY01", organization=None)
+        warnings = organization_assignment_check(None)
+        self.assertEqual([warning.id for warning in warnings], ["hub.W001"])
+
 from ..models import (
     ClassStaffModuleScopeGrant,
     OrganizationCustomRole,

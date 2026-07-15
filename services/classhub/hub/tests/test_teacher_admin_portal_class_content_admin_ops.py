@@ -165,6 +165,56 @@ Mission: Build one circuit idea you can explain.
             self.assertNotIn("## Local anchors", lesson_text)
             self.assertNotIn("## Offline handout", lesson_text)
 
+    def test_syllabus_compile_preserves_slug_and_compiles_submission_and_materials(self):
+        _force_login_staff_verified(self.client, self.staff)
+        source_md = """# Evidence Studio
+
+Session 01: Test and Share
+Lesson slug (for course.yaml): s01-explicit-evidence
+Mission: Test one change and explain the evidence.
+
+## Submission
+- Type: file
+- Accepted: .pdf, .png
+- Naming: evidence-v1.pdf
+
+## ClassHub materials
+- Checklist | Test checklist | Change one thing; Retest the same condition
+- Reflection | Exit reflection | What evidence changed your mind?
+- Rubric | Evidence rubric | Clear claim; Specific evidence | 5
+- Gallery | Share image | .png,.jpg | 12
+"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/import-syllabus-source",
+                    {
+                        "import_course_slug": "evidence_studio",
+                        "import_course_title": "",
+                        "import_default_ui_level": "secondary",
+                        "import_session_parse_mode": "auto",
+                        "syllabus_source": SimpleUploadedFile("evidence.md", source_md.encode("utf-8")),
+                    },
+                )
+        self.assertEqual(resp.status_code, 200)
+        with zipfile.ZipFile(BytesIO(b"".join(resp.streaming_content))) as zf:
+            course_yaml = zf.read("evidence_studio/course.yaml").decode("utf-8")
+            lesson_text = zf.read("evidence_studio/lessons/01-test-and-share.md").decode("utf-8")
+        self.assertIn("slug: s01-explicit-evidence", course_yaml)
+        self.assertNotIn("age_band:", course_yaml)
+        self.assertIn("slug: s01-explicit-evidence", lesson_text)
+        self.assertIn('type: "file"', lesson_text)
+        self.assertIn('accepted:\n    - ".pdf"\n    - ".png"', lesson_text)
+        self.assertIn('type: "checklist"', lesson_text)
+        self.assertIn('type: "reflection"', lesson_text)
+        self.assertIn('type: "rubric"', lesson_text)
+        self.assertIn("scale_max: 5", lesson_text)
+        self.assertIn('type: "gallery"', lesson_text)
+        self.assertIn("max_upload_mb: 12", lesson_text)
+        self.assertNotIn("## Submission", lesson_text)
+        self.assertNotIn("## ClassHub materials", lesson_text)
+
     def test_generate_authoring_templates_include_belonging_and_handout_sections(self):
         from ..services.authoring_templates import generate_authoring_templates
 

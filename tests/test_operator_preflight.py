@@ -26,6 +26,22 @@ def run_preflight(env_text: str) -> subprocess.CompletedProcess[str]:
 
 
 class OperatorPreflightTests(unittest.TestCase):
+    def test_database_urls_expand_password_variable_not_literal_redaction(self) -> None:
+        compose_text = (REPO_ROOT / "compose" / "docker-compose.yml").read_text(encoding="utf-8")
+        rendered = (
+            compose_text.replace("${POSTGRES_USER}", "classhub")
+            .replace("${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}", "runtime-secret")
+            .replace("${POSTGRES_DB}", "classhub")
+        )
+        database_lines = [line.strip() for line in rendered.splitlines() if "DATABASE_URL:" in line]
+        self.assertEqual(len(database_lines), 2)
+        self.assertTrue(all(":runtime-secret@postgres:" in line for line in database_lines))
+        self.assertTrue(all(":***@" not in line for line in database_lines))
+
+        rehearsal = (REPO_ROOT / "scripts" / "backup_restore_rehearsal.sh").read_text(encoding="utf-8")
+        self.assertIn("${POSTGRES_PASSWORD_URLENCODED}@${POSTGRES_HOST}", rehearsal)
+        self.assertNotIn("postgres://${POSTGRES_USER_ESCAPED}:***@", rehearsal)
+
     def test_local_mode_valid_contract_passes(self) -> None:
         result = run_preflight(
             """
@@ -35,6 +51,7 @@ class OperatorPreflightTests(unittest.TestCase):
             DJANGO_SESSION_COOKIE_SECURE=0
             DJANGO_CSRF_COOKIE_SECURE=0
             HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
             HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
             CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
             LLM_ENABLED=1
@@ -58,6 +75,7 @@ class OperatorPreflightTests(unittest.TestCase):
             DJANGO_CSRF_COOKIE_SECURE=1
             REQUEST_SAFETY_TRUST_PROXY_HEADERS=1
             HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
             HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
             CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
             LLM_ENABLED=1
@@ -78,6 +96,7 @@ class OperatorPreflightTests(unittest.TestCase):
             DJANGO_SESSION_COOKIE_SECURE=0
             DJANGO_CSRF_COOKIE_SECURE=0
             HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
             HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
             CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
             HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL=http://helper_web:8000/helper/internal/remote-compute-status
@@ -97,6 +116,27 @@ class OperatorPreflightTests(unittest.TestCase):
         )
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("missing_remote_llm_base_url", result.stdout)
+
+    def test_preflight_warns_for_simple_rejoin_and_strict_org_assignment(self) -> None:
+        result = run_preflight(
+            """
+            CADDYFILE_TEMPLATE=Caddyfile.local
+            DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+            CSRF_TRUSTED_ORIGINS=http://localhost
+            DJANGO_SESSION_COOKIE_SECURE=0
+            DJANGO_CSRF_COOKIE_SECURE=0
+            HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
+            HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+            CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+            LLM_ENABLED=0
+            REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=1
+            CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=0
+            """
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("organization_assignment_required", result.stdout)
+        self.assertIn("CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1", result.stdout)
 
 
 if __name__ == "__main__":

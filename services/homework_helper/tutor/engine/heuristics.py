@@ -119,6 +119,23 @@ _CONTEXT_DEPENDENT_WORDS = {
     "yes",
 }
 
+_SAFEGUARDING_PHRASES = (
+    "kill myself",
+    "hurt myself",
+    "self harm",
+    "suicide",
+    "want to die",
+    "being abused",
+    "abusing me",
+    "touches me",
+    "hit me at home",
+    "going to hurt someone",
+    "kill someone",
+    "has a gun",
+    "immediate danger",
+)
+_IMMINENT_PHRASES = ("right now", "tonight", "about to", "has a gun", "immediate danger")
+
 
 def parse_csv_list(raw: str) -> list[str]:
     return [part.strip().lower() for part in (raw or "").split(",") if part.strip()]
@@ -132,6 +149,26 @@ def contains_text_language(message: str, keywords: list[str]) -> bool:
 def contains_any_phrase(text: str, phrases: list[str]) -> bool:
     lowered = (text or "").lower()
     return any(phrase and phrase in lowered for phrase in phrases)
+
+
+def safeguarding_risk(message: str) -> str:
+    lowered = (message or "").lower()
+    if not any(phrase in lowered for phrase in _SAFEGUARDING_PHRASES):
+        return ""
+    if any(phrase in lowered for phrase in _IMMINENT_PHRASES):
+        return "imminent"
+    return "disclosure"
+
+
+def build_safeguarding_response(risk: str) -> str:
+    base = (
+        "I'm pausing tutoring because your safety matters more than the lesson. "
+        "I can't promise to keep danger or abuse secret. Please tell a trusted adult, teacher, or facilitator now. "
+        "You do not need to share names, an address, or more private details with me."
+    )
+    if risk == "imminent":
+        return base + " If you or anyone else may be in immediate danger, move to a safer place and call local emergency services now."
+    return base + " If the danger becomes immediate, call local emergency services."
 
 
 def is_scratch_context(context_value: str, topics: list[str], reference_text: str) -> bool:

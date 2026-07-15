@@ -90,6 +90,20 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(resp.json().get("response_language"), "en")
 
     @patch("tutor.views._call_backend_with_retries")
+    def test_imminent_self_harm_pauses_tutoring_without_backend_or_prompt_log(self, backend_mock):
+        self._set_student_session()
+        disclosure = "I am about to hurt myself right now"
+        with self.assertLogs("tutor.views_chat_helpers", level="WARNING") as captured:
+            resp = self._post_chat({"message": disclosure})
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        self.assertTrue(body["safeguarding"])
+        self.assertIn("emergency services now", body["text"].lower())
+        self.assertIn("trusted adult", body["text"].lower())
+        backend_mock.assert_not_called()
+        self.assertNotIn(disclosure, "\n".join(record.getMessage() for record in captured.records))
+
+    @patch("tutor.views._call_backend_with_retries")
     def test_chat_falls_back_to_local_when_remote_compute_errors(self, call_backend_mock):
         self._set_student_session(class_id=22)
         cache.set(

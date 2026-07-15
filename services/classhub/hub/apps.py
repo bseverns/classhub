@@ -10,3 +10,4 @@ class HubConfig(AppConfig):
     def ready(self):
         # Register file-cleanup signal handlers.
         import_module("hub.signals")
+        import_module("hub.checks")

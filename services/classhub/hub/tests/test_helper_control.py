@@ -7,6 +7,7 @@ from unittest.mock import patch
 from django.test import SimpleTestCase
 
 from hub.services.helper_control import (
+    clear_actor_conversations,
     fetch_rag_status,
     fetch_remote_compute_operator_snapshot,
     reset_class_conversations,
@@ -15,6 +16,23 @@ from hub.services.helper_control import (
 
 
 class HelperControlServiceTests(SimpleTestCase):
+    @patch("hub.services.helper_control.urllib.request.urlopen")
+    def test_clear_actor_conversations_sends_scoped_ids(self, urlopen_mock):
+        response = SimpleNamespace(status=200, headers={"X-Request-ID": "actor-clear-1"})
+        response.read = lambda: b'{"ok": true, "deleted_conversations": 2}'
+        urlopen_mock.return_value.__enter__.return_value = response
+        result = clear_actor_conversations(
+            class_id=7,
+            student_id=11,
+            endpoint_url="http://helper_web:8000/helper/internal/clear-actor-conversations",
+            internal_token="token",
+            timeout_seconds=2,
+        )
+        self.assertTrue(result.ok)
+        self.assertEqual(result.deleted_conversations, 2)
+        request = urlopen_mock.call_args.args[0]
+        self.assertEqual(json.loads(request.data), {"class_id": 7, "student_id": 11})
+
     @patch("hub.services.helper_control.urllib.request.urlopen")
     def test_reset_class_conversations_sends_request_id_header_and_reads_response_request_id(self, urlopen_mock):
         response = SimpleNamespace(status=200, headers={"X-Request-ID": "helper-req-1"})

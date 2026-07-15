@@ -9,7 +9,7 @@ COMPOSE_MODE="prod"
 BASE_URL=""
 SMOKE_TIMEOUT_SECONDS="20"
 HELPER_MESSAGE="Help me with AP calculus limits."
-FAIL_IMPACT="critical"
+FAIL_IMPACT="serious"
 A11Y_TIMEOUT_MS="30000"
 INSTALL_BROWSERS=0
 RELEASE_ZIP_PATH=""
@@ -33,7 +33,7 @@ Options:
   --base-url <url>                  Optional base URL override for smoke + a11y
   --timeout-seconds <seconds>       Smoke timeout seconds (default: 20)
   --helper-message <text>           Helper message for smoke checks
-  --fail-impact <impact>            a11y fail impact threshold (default: critical)
+  --fail-impact <impact>            a11y fail impact threshold (default: serious)
   --a11y-timeout-ms <ms>            a11y timeout in milliseconds (default: 30000)
   --install-browsers                Install Playwright browsers in a11y check
   --release-zip <path>              Existing release zip to lint (default: generate one)

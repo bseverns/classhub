@@ -137,12 +137,13 @@ HELPER_INTERNAL_ALLOWED_CIDRS=127.0.0.0/8,::1/128,10.0.0.0/8,172.16.0.0/12,192.1
 HELPER_INTERNAL_TRUST_PROXY_HEADERS=0
 HELPER_INTERNAL_XFF_INDEX=0
 HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
 HELPER_INTERNAL_RESET_TIMEOUT_SECONDS=2
 HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
 HELPER_INTERNAL_RAG_STATUS_TIMEOUT_SECONDS=1.2
 HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE=1
 HELPER_CLASS_RESET_MAX_KEYS=4000
-HELPER_CLASS_RESET_ARCHIVE_ENABLED=1
+HELPER_CLASS_RESET_ARCHIVE_ENABLED=0
 HELPER_CLASS_RESET_ARCHIVE_DIR=/uploads/helper_reset_exports
 HELPER_CLASS_RESET_ARCHIVE_MAX_MESSAGES=120
 ```
@@ -167,7 +168,7 @@ Precedence:
 
 Conversation behavior:
 - Each chat request can include a `conversation_id`; the helper now returns one on every response.
-- Recent redacted turns are cached per `(actor, scope token, conversation_id)` with TTL, so follow-up questions can build on prior context.
+- Recent redacted student and tutor turns are transiently cached in Redis per `(actor, scope token, conversation_id)` for `HELPER_CONVERSATION_TTL_SECONDS` (default two hours, refreshed when that conversation is saved), so follow-up questions can build on prior context.
 - When history exceeds `HELPER_CONVERSATION_MAX_MESSAGES`, older turns are compacted into a rolling summary to preserve context while keeping prompts short.
 - Each response includes an `intent` tag (`debug`, `concept`, `strategy`, etc.) derived from the latest student message.
 - Each response includes `follow_up_suggestions` (bounded by `HELPER_FOLLOW_UP_SUGGESTIONS_MAX`) so the UI can offer one-tap next questions.
@@ -175,9 +176,12 @@ Conversation behavior:
 - Helper output language follows the active UI locale deterministically. Student message wording alone does not change the helper language.
 - `ksw` currently uses S'gaw Karen as the canonical Karen code; helper widget chrome and quick-prompt payloads now have provisional Karen translations, while broader deterministic Karen copy still falls back to English until reviewed translations are added.
 - Reset by starting a new `conversation_id` (UI `Reset chat` does this), or clear all student helper conversations for a class via teacher dashboard action (`/teach/class/<id>/reset-helper-conversations`).
-- On class reset, helper can export a JSON snapshot before cache deletion (controlled by `HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE` and `HELPER_CLASS_RESET_ARCHIVE_ENABLED`).
+- Student immediate deletion calls the authenticated actor-clear endpoint and removes every cached conversation registered to that student actor.
+- On class reset, helper can export a JSON snapshot before cache deletion only when explicitly opted in (`HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE` and `HELPER_CLASS_RESET_ARCHIVE_ENABLED=1`). Production/domain defaults do not archive helper conversations.
 
 Archive access + audit:
+- Archives are off by default. When opted in, a snapshot contains class id, archive time, request id, cache/conversation identifiers, actor key, scope fingerprint, rolling summary, and bounded redacted turns.
+- Existing snapshots are files, not an indexed per-student store. Although current snapshots include a parsed actor key, the archive lifecycle does not provide a safe transactional per-student deletion guarantee; student self-deletion clears transient cache only. Operators who opt into archives must handle archive access/deletion under their approved retention process.
 - Helper reset archives are written under uploads storage (default `/uploads/helper_reset_exports`) and are not served by public routes.
 - Teacher-triggered reset actions create audit metadata in Class Hub, including archive path/count when export occurs.
 - Ops should keep archive filesystem access restricted to trusted teacher/admin operators.

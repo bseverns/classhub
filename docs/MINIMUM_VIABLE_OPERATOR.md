@@ -18,7 +18,7 @@ Run from `/srv/lms/app`:
 
 ```bash
 bash scripts/system_doctor.sh --compose-mode prod --smoke-mode golden
-bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact critical
+bash scripts/a11y_smoke.sh --compose-mode prod --fail-impact serious
 python3 scripts/check_runtime_policy_lock.py --profile baseline --env-file compose/.env
 ```
 

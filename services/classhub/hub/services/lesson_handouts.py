@@ -150,6 +150,19 @@ def _handout_goal(*, offline_handout: dict, reading_level: str, front_matter: di
     return _clean_text(front_matter.get("makes"))
 
 
+def _localized_offline_handout(offline_handout: dict, language_code: str) -> dict:
+    """Overlay an explicitly authored language variant, with English/base fallback."""
+    resolved = dict(offline_handout)
+    variants = offline_handout.get("localized")
+    normalized = str(language_code or "").strip().lower().split("-", 1)[0]
+    if normalized != "en" and isinstance(variants, dict):
+        selected = variants.get(normalized)
+        if isinstance(selected, dict):
+            resolved.update(selected)
+    resolved.pop("localized", None)
+    return resolved
+
+
 def resolve_local_anchors(*, front_matter: dict) -> list[str]:
     raw = front_matter.get("local_anchors")
     if isinstance(raw, dict):
@@ -196,6 +209,7 @@ def build_handout_context(
     language_code: str,
 ) -> dict:
     offline_handout = front_matter.get("offline_handout") if isinstance(front_matter.get("offline_handout"), dict) else {}
+    offline_handout = _localized_offline_handout(offline_handout, language_code)
     local_anchors = resolve_local_anchors(front_matter=front_matter)
     example_variants = resolve_example_variants(course_manifest=course_manifest, front_matter=front_matter)
     community_glossary = resolve_community_glossary(course_manifest=course_manifest, front_matter=front_matter)

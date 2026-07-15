@@ -5,6 +5,24 @@ class JoinClassTests(TestCase):
     def setUp(self):
         self.classroom = Class.objects.create(name="Join Test", join_code="JOIN1234")
 
+    def test_join_accepts_standard_form_post_without_javascript(self):
+        resp = self.client.post(
+            "/join",
+            {"class_code": self.classroom.join_code, "display_name": "Form Student"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "/student")
+        self.assertIsNotNone(self.client.session.get("student_id"))
+
+    def test_join_json_path_remains_json(self):
+        resp = self.client.post(
+            "/join",
+            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "JSON Student"}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json()["ok"])
+
     @override_settings(
         SECRET_KEY="primary-secret-key-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         DEVICE_HINT_SIGNING_KEY="device-hint-key-bbbbbbbbbbbbbbbbbbbbbbbbbbbb",
@@ -640,4 +658,3 @@ class OrphanUploadScavengerCommandTests(TestCase):
 
                 self.assertIn("Deleted orphan files: 1", output)
                 self.assertFalse(orphan.exists())
-
