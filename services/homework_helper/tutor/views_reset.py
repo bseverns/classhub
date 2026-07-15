@@ -256,11 +256,16 @@ def clear_actor_conversations(request):
         return _json_response({"error": "invalid_actor"}, status=400, request_id=request_id)
 
     actor_key = f"student:{class_id}:{student_id}"
+    tombstone_ttl_seconds = max(
+        _env_int("HELPER_CONVERSATION_TTL_SECONDS", 7200),
+        _env_int("HELPER_SCOPE_TOKEN_MAX_AGE_SECONDS", 7200),
+        1,
+    )
     clear_result = engine_memory.clear_actor_conversations(
         cache_backend=cache,
         actor_key=actor_key,
         max_keys=max(_env_int("HELPER_ACTOR_CLEAR_MAX_KEYS", 1200), 1),
-        retry_ttl_seconds=max(_env_int("HELPER_CONVERSATION_TTL_SECONDS", 7200), 1),
+        retry_ttl_seconds=tombstone_ttl_seconds,
     )
     if not clear_result.ok:
         _log_internal_event(

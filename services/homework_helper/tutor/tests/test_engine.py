@@ -271,8 +271,47 @@ class HeuristicsEngineTests(SimpleTestCase):
             with self.subTest(message=message):
                 self.assertEqual(heuristics.safeguarding_risk(message), expected)
 
+    def test_safeguarding_recognizes_relationship_and_authority_perpetrators(self):
+        cases = (
+            "My uncle hits me",
+            "My aunt hurt me",
+            "My sibling beats me",
+            "My teacher abuses me",
+            "My coach hit me",
+            "My babysitter hurts me",
+            "My caregiver beats me",
+            "An adult hit me",
+            "My uncle touched me",
+            "My aunt sexually assaulted me",
+            "My sibling touched me",
+            "My teacher touched me",
+            "My coach sexually assaulted me",
+            "My babysitter touched me",
+            "My caregiver touched me",
+            "An adult touched me",
+        )
+        for message in cases:
+            with self.subTest(message=message):
+                self.assertEqual(heuristics.safeguarding_risk(message), "disclosure")
+
     def test_safeguarding_ignores_obvious_game_violence(self):
-        self.assertEqual(heuristics.safeguarding_risk("How do I kill someone in my game?"), "")
+        cases = (
+            "How do I kill someone in my game?",
+            "I have a gun in my game",
+            "someone has a gun in my game",
+        )
+        for message in cases:
+            with self.subTest(message=message):
+                self.assertEqual(heuristics.safeguarding_risk(message), "")
+
+    def test_game_context_does_not_hide_separate_real_world_danger(self):
+        cases = (
+            "I have a gun in my game, but someone has a gun at school",
+            "I kill someone in my game and I am about to hurt someone right now",
+        )
+        for message in cases:
+            with self.subTest(message=message):
+                self.assertEqual(heuristics.safeguarding_risk(message), "imminent")
 
     def test_build_instructions_enforces_normalized_response_language(self):
         instructions = policy.build_instructions(

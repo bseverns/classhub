@@ -74,6 +74,11 @@ def conversation_actor_index_key(*, actor_key: str) -> str:
     return f"helper:conversation:index:actor:{actor}"
 
 
+def conversation_actor_clearing_key(*, actor_key: str) -> str:
+    actor = _ACTOR_SANITIZE_RE.sub("_", (actor_key or "").strip())[:96] or "unknown"
+    return f"helper:conversation:clearing:actor:{actor}"
+
+
 def _class_id_from_actor_key(actor_key: str) -> int | None:
     match = _STUDENT_ACTOR_CLASS_RE.match((actor_key or "").strip())
     if not match:
@@ -162,14 +167,14 @@ def _register_index_key(
     conversation_key: str,
     ttl_seconds: int,
     max_entries: int = 1200,
-) -> None:
+) -> bool:
     if not index_key:
-        return
+        return False
     try:
         existing = cache_backend.get(index_key)
     except Exception:
         logger.warning("conversation_memory_cache_get_failed key=%s", index_key)
-        return
+        return False
     values = _coerce_key_list(existing, max_items=max_entries)
     if conversation_key in values:
         values = [item for item in values if item != conversation_key]
@@ -177,9 +182,31 @@ def _register_index_key(
     if max_entries > 0 and len(values) > max_entries:
         values = values[-max_entries:]
     try:
-        cache_backend.set(index_key, values, timeout=max(int(ttl_seconds), 1))
+        result = cache_backend.set(index_key, values, timeout=max(int(ttl_seconds), 1))
     except Exception:
         logger.warning("conversation_memory_cache_set_failed key=%s", index_key)
+        return False
+    if result is False:
+        logger.warning("conversation_memory_cache_set_unconfirmed key=%s", index_key)
+        return False
+    return True
+
+
+def _delete_after_failed_save(*, cache_backend, key: str) -> None:
+    try:
+        deleted = cache_backend.delete(key)
+    except Exception:
+        logger.warning("conversation_memory_cache_delete_failed key=%s", key)
+        return
+    if deleted:
+        return
+    try:
+        absent = cache_backend.get(key) is None
+    except Exception:
+        logger.warning("conversation_memory_cache_get_failed key=%s", key)
+        return
+    if not absent:
+        logger.warning("conversation_memory_cache_delete_unconfirmed key=%s", key)
 
 
 def save_state(
@@ -191,6 +218,16 @@ def save_state(
     ttl_seconds: int,
     actor_key: str = "",
 ) -> None:
+    actor_clearing_key = conversation_actor_clearing_key(actor_key=actor_key)
+    try:
+        clearing = cache_backend.get(actor_clearing_key)
+    except Exception:
+        logger.warning("conversation_memory_cache_get_failed key=%s", actor_clearing_key)
+        return
+    if clearing is not None:
+        _delete_after_failed_save(cache_backend=cache_backend, key=key)
+        return
+
     normalized = _coerce_turns(turns)
     payload = {
         "v": 2,
@@ -199,25 +236,47 @@ def save_state(
     }
     timeout = max(int(ttl_seconds), 1)
     try:
-        cache_backend.set(key, payload, timeout=timeout)
+        state_saved = cache_backend.set(key, payload, timeout=timeout)
     except Exception:
         logger.warning("conversation_memory_cache_set_failed key=%s", key)
         return
+    if state_saved is False:
+        logger.warning("conversation_memory_cache_set_unconfirmed key=%s", key)
+        _delete_after_failed_save(cache_backend=cache_backend, key=key)
+        return
     actor_index_key = conversation_actor_index_key(actor_key=actor_key)
-    _register_index_key(
+    actor_registered = _register_index_key(
         cache_backend=cache_backend,
         index_key=actor_index_key,
         conversation_key=key,
         ttl_seconds=timeout,
     )
+    if not actor_registered:
+        _delete_after_failed_save(cache_backend=cache_backend, key=key)
+        return
     class_id = _class_id_from_actor_key(actor_key)
     if class_id is not None:
-        _register_index_key(
+        class_registered = _register_index_key(
             cache_backend=cache_backend,
             index_key=conversation_class_index_key(class_id=class_id),
             conversation_key=key,
             ttl_seconds=timeout,
         )
+        if not class_registered:
+            _delete_after_failed_save(cache_backend=cache_backend, key=key)
+            return
+
+    # A clear can begin after the first check but before this save is indexed.
+    # Recheck only after registration so the clearer either observes this key or
+    # this writer removes the just-written conversation itself.
+    try:
+        clearing = cache_backend.get(actor_clearing_key)
+    except Exception:
+        logger.warning("conversation_memory_cache_get_failed key=%s", actor_clearing_key)
+        _delete_after_failed_save(cache_backend=cache_backend, key=key)
+        return
+    if clearing is not None:
+        _delete_after_failed_save(cache_backend=cache_backend, key=key)
 
 
 def load_turns(*, cache_backend, key: str, max_messages: int) -> list[dict[str, str]]:
@@ -262,62 +321,110 @@ def clear_actor_conversations(
 ) -> ConversationClearResult:
     """Delete cached conversations registered for one authenticated actor."""
     actor_index_key = conversation_actor_index_key(actor_key=actor_key)
+    actor_clearing_key = conversation_actor_clearing_key(actor_key=actor_key)
+    tombstone = uuid.uuid4().hex
+    retry_ttl = max(int(retry_ttl_seconds), 1)
+    try:
+        marker_set = cache_backend.set(actor_clearing_key, tombstone, timeout=retry_ttl)
+    except Exception:
+        logger.warning("conversation_memory_cache_set_failed key=%s", actor_clearing_key)
+        return ConversationClearResult(ok=False, error_code="clearing_marker_set_failed")
+    if marker_set is False:
+        logger.warning("conversation_memory_cache_set_unconfirmed key=%s", actor_clearing_key)
+        return ConversationClearResult(ok=False, error_code="clearing_marker_set_failed")
+    try:
+        marker_value = cache_backend.get(actor_clearing_key)
+    except Exception:
+        logger.warning("conversation_memory_cache_get_failed key=%s", actor_clearing_key)
+        return ConversationClearResult(ok=False, error_code="clearing_marker_read_failed")
+    if marker_value != tombstone:
+        logger.warning("conversation_memory_cache_set_unconfirmed key=%s", actor_clearing_key)
+        return ConversationClearResult(ok=False, error_code="clearing_marker_set_failed")
+
     try:
         indexed = cache_backend.get(actor_index_key)
     except Exception:
         logger.warning("conversation_memory_cache_get_failed key=%s", actor_index_key)
         return ConversationClearResult(ok=False, error_code="actor_index_read_failed")
 
-    all_keys = _coerce_key_list(indexed, max_items=0)
-    if not all_keys and indexed is None:
-        return ConversationClearResult(ok=True)
-
     key_limit = max(int(max_keys), 1)
-    keys = all_keys[-key_limit:]
-    retry_keys = all_keys[:-key_limit]
+    remaining_budget = key_limit
     deleted = 0
-    for key in keys:
-        try:
-            if cache_backend.delete(key):
-                deleted += 1
-            else:
+    while True:
+        all_keys = _coerce_key_list(indexed, max_items=0)
+        keys = all_keys[-remaining_budget:]
+        retry_keys = all_keys[:-remaining_budget]
+        remaining_budget -= len(keys)
+        for key in keys:
+            try:
+                if cache_backend.delete(key):
+                    deleted += 1
+                else:
+                    try:
+                        absent = cache_backend.get(key) is None
+                    except Exception:
+                        absent = False
+                        logger.warning("conversation_memory_cache_get_failed key=%s", key)
+                    if not absent:
+                        retry_keys.append(key)
+                        logger.warning("conversation_memory_cache_delete_unconfirmed key=%s", key)
+            except Exception:
                 retry_keys.append(key)
-                logger.warning("conversation_memory_cache_delete_unconfirmed key=%s", key)
-        except Exception:
-            retry_keys.append(key)
-            logger.warning("conversation_memory_cache_delete_failed key=%s", key)
-    if retry_keys:
-        try:
-            cache_backend.set(
-                actor_index_key,
-                retry_keys,
-                timeout=max(int(retry_ttl_seconds), 1),
+                logger.warning("conversation_memory_cache_delete_failed key=%s", key)
+        if retry_keys:
+            # The index has not been removed, so it remains the retry record.
+            return ConversationClearResult(
+                ok=False,
+                deleted_conversations=deleted,
+                error_code="conversation_delete_failed",
             )
-        except Exception:
-            logger.warning("conversation_memory_cache_set_failed key=%s", actor_index_key)
-        return ConversationClearResult(
-            ok=False,
-            deleted_conversations=deleted,
-            error_code="conversation_delete_failed",
-        )
 
-    try:
-        index_deleted = cache_backend.delete(actor_index_key)
-    except Exception:
-        logger.warning("conversation_memory_cache_delete_failed key=%s", actor_index_key)
-        return ConversationClearResult(
-            ok=False,
-            deleted_conversations=deleted,
-            error_code="actor_index_delete_failed",
-        )
-    if not index_deleted:
-        logger.warning("conversation_memory_cache_delete_unconfirmed key=%s", actor_index_key)
-        return ConversationClearResult(
-            ok=False,
-            deleted_conversations=deleted,
-            error_code="actor_index_delete_failed",
-        )
-    return ConversationClearResult(ok=True, deleted_conversations=deleted)
+        try:
+            index_deleted = cache_backend.delete(actor_index_key)
+        except Exception:
+            logger.warning("conversation_memory_cache_delete_failed key=%s", actor_index_key)
+            return ConversationClearResult(
+                ok=False,
+                deleted_conversations=deleted,
+                error_code="actor_index_delete_failed",
+            )
+        if not index_deleted:
+            try:
+                index_absent = cache_backend.get(actor_index_key) is None
+            except Exception:
+                logger.warning("conversation_memory_cache_get_failed key=%s", actor_index_key)
+                return ConversationClearResult(
+                    ok=False,
+                    deleted_conversations=deleted,
+                    error_code="actor_index_delete_failed",
+                )
+            if not index_absent:
+                logger.warning("conversation_memory_cache_delete_unconfirmed key=%s", actor_index_key)
+                return ConversationClearResult(
+                    ok=False,
+                    deleted_conversations=deleted,
+                    error_code="actor_index_delete_failed",
+                )
+
+        # This read closes the window where an in-flight save registers after
+        # the preceding index read. If it finds a key, clear that final batch too.
+        try:
+            indexed = cache_backend.get(actor_index_key)
+        except Exception:
+            logger.warning("conversation_memory_cache_get_failed key=%s", actor_index_key)
+            return ConversationClearResult(
+                ok=False,
+                deleted_conversations=deleted,
+                error_code="actor_index_read_failed",
+            )
+        if not _coerce_key_list(indexed, max_items=0):
+            return ConversationClearResult(ok=True, deleted_conversations=deleted)
+        if remaining_budget <= 0:
+            return ConversationClearResult(
+                ok=False,
+                deleted_conversations=deleted,
+                error_code="conversation_delete_failed",
+            )
 
 
 def _format_turn_line(row: dict[str, str]) -> str:

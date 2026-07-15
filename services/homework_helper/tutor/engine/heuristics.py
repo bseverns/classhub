@@ -119,14 +119,22 @@ _CONTEXT_DEPENDENT_WORDS = {
     "yes",
 }
 
+_AUTHORITY_OR_RELATIONSHIP = (
+    r"(?:my )?(?:dad|father|mom|mother|parent|guardian|uncle|aunt|sibling|brother|sister|"
+    r"teacher|coach|babysitter|caregiver)|an? adult|someone|he|she|they"
+)
+
 _SAFEGUARDING_PATTERNS = {
     "abuse": (
         re.compile(r"\b(?:being abused|abusing me|hit me at home)\b"),
-        re.compile(r"\b(?:my (?:dad|father|mom|mother|parent|guardian)|an? adult|someone|he|she|they)\s+(?:hits?|hit|beats?|beat|hurts?|hurt|abuses?|abused)\s+me\b"),
+        re.compile(
+            rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+"
+            r"(?:hits?|hit|beats?|beat|hurts?|hurt|abuses?|abused)\s+me\b"
+        ),
     ),
     "sexual_harm": (
-        re.compile(r"\b(?:an? adult|someone|he|she|they)\s+(?:touched|touches)\s+me\b"),
-        re.compile(r"\b(?:someone|he|she|they)\s+(?:raped|sexually assaulted)\s+me\b"),
+        re.compile(rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+(?:touched|touches)\s+me\b"),
+        re.compile(rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+(?:raped|sexually assaulted)\s+me\b"),
         re.compile(r"\b(?:i was|i am being|im being)\s+(?:raped|sexually assaulted)\b"),
     ),
     "unsafe": (
@@ -156,8 +164,14 @@ _IMMINENT_PATTERNS = (
     re.compile(r"\bi (?:have|have access to|can get) (?:a )?(?:gun|firearm|weapon)\b"),
     re.compile(r"\bhas a gun\b"),
 )
-_GAME_VIOLENCE_RE = re.compile(
-    r"\b(?:kill|hurt|shoot|stab)(?:ing)? someone in (?:my|the|a) (?:video )?game\b"
+_GAME_ONLY_DANGER_PATTERNS = (
+    re.compile(
+        r"\b(?:i (?:have|have access to|can get)|(?:someone|he|she|they) has) "
+        r"(?:a )?(?:gun|firearm|weapon) in (?:my|the|a) (?:video )?game\b"
+    ),
+    re.compile(
+        r"\b(?:kill|hurt|shoot|stab)(?:ing)? someone in (?:my|the|a) (?:video )?game\b"
+    ),
 )
 
 
@@ -180,16 +194,17 @@ def safeguarding_risk(message: str) -> str:
     normalized = re.sub(r"[^a-z0-9]+", " ", lowered).strip()
     if not normalized:
         return ""
+    safety_text = normalized
+    for pattern in _GAME_ONLY_DANGER_PATTERNS:
+        safety_text = pattern.sub(" ", safety_text)
     matched_categories = {
         category
         for category, patterns in _SAFEGUARDING_PATTERNS.items()
-        if any(pattern.search(normalized) for pattern in patterns)
+        if any(pattern.search(safety_text) for pattern in patterns)
     }
-    if matched_categories == {"threat"} and _GAME_VIOLENCE_RE.search(normalized):
-        return ""
     if not matched_categories:
         return ""
-    if "weapon" in matched_categories or any(pattern.search(normalized) for pattern in _IMMINENT_PATTERNS):
+    if "weapon" in matched_categories or any(pattern.search(safety_text) for pattern in _IMMINENT_PATTERNS):
         return "imminent"
     return "disclosure"
 
