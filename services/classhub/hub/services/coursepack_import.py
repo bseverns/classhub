@@ -296,6 +296,9 @@ def import_coursepack_to_class(
         submission_type = str(submission.get("type") or "").strip().lower()
         exts = _normalize_submission_extensions(submission, naming)
         support_image_paths = _normalize_support_image_paths(fm.get("support_images"))
+        declared_materials = fm.get("materials") or []
+        if not isinstance(declared_materials, list):
+            raise CoursepackImportError(f"Lesson '{lesson_slug}' materials must be a list.")
 
         if submission_type == "file":
             Material.objects.create(
@@ -324,6 +327,43 @@ def import_coursepack_to_class(
                 body="\n".join(summary_lines),
                 order_index=1,
             )
+            created_materials += 1
+
+        material_types = {
+            "checklist": Material.TYPE_CHECKLIST,
+            "reflection": Material.TYPE_REFLECTION,
+            "rubric": Material.TYPE_RUBRIC,
+            "gallery": Material.TYPE_GALLERY,
+        }
+        for order_index, row in enumerate(declared_materials, start=3):
+            if not isinstance(row, dict):
+                raise CoursepackImportError(f"Lesson '{lesson_slug}' material entries must be mappings.")
+            material_type = str(row.get("type") or "").strip().lower()
+            title = str(row.get("title") or "").strip()
+            if material_type not in material_types or not title:
+                raise CoursepackImportError(
+                    f"Lesson '{lesson_slug}' material needs a title and a supported type: "
+                    "checklist, reflection, rubric, or gallery."
+                )
+
+            material = Material(module=mod, title=title, type=material_types[material_type], order_index=order_index)
+            if material_type in {"checklist", "rubric"}:
+                values = row.get("items") if material_type == "checklist" else row.get("criteria")
+                if not isinstance(values, list) or not all(str(value).strip() for value in values):
+                    raise CoursepackImportError(f"Lesson '{lesson_slug}' {material_type} needs a non-empty list.")
+                material.body = "\n".join(str(value).strip() for value in values)
+            elif material_type == "reflection":
+                material.body = str(row.get("prompt") or "").strip()
+                if not material.body:
+                    raise CoursepackImportError(f"Lesson '{lesson_slug}' reflection needs a prompt.")
+            else:
+                material.accepted_extensions = ",".join(
+                    _normalize_submission_extensions({"accepted": row.get("accepted")}, "")
+                )
+                material.max_upload_mb = max(1, int(row.get("max_upload_mb") or 50))
+            if material_type == "rubric":
+                material.rubric_scale_max = max(2, min(int(row.get("scale_max") or 4), 10))
+            material.save()
             created_materials += 1
 
         support_order_index = 10

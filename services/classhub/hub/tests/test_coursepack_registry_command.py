@@ -38,6 +38,27 @@ submission:
   type: file
   accepted:
     - .sb3
+materials:
+  - type: checklist
+    title: "Pre-flight check"
+    items:
+      - "Props removed on the bench"
+      - "Backup saved"
+  - type: reflection
+    title: "Design log"
+    prompt: "What changed, what evidence did you collect, and what will you test next?"
+  - type: rubric
+    title: "Readiness self-check"
+    scale_max: 4
+    criteria:
+      - "Safe operation"
+      - "Evidence-based iteration"
+  - type: gallery
+    title: "Showcase artifact"
+    accepted:
+      - .png
+      - .pdf
+    max_upload_mb: 20
 ---
 # Build
 """,
@@ -109,6 +130,20 @@ lessons:
             self.assertEqual(classroom.modules.count(), 1)
             self.assertTrue(Material.objects.filter(module__classroom=classroom, title="Open lesson").exists())
             self.assertTrue(Material.objects.filter(module__classroom=classroom, title="Homework dropbox").exists())
+            checklist = Material.objects.get(module__classroom=classroom, title="Pre-flight check")
+            reflection = Material.objects.get(module__classroom=classroom, title="Design log")
+            rubric = Material.objects.get(module__classroom=classroom, title="Readiness self-check")
+            gallery = Material.objects.get(module__classroom=classroom, title="Showcase artifact")
+            self.assertEqual(checklist.type, Material.TYPE_CHECKLIST)
+            self.assertEqual(checklist.body, "Props removed on the bench\nBackup saved")
+            self.assertEqual(reflection.type, Material.TYPE_REFLECTION)
+            self.assertIn("what evidence", reflection.body)
+            self.assertEqual(rubric.type, Material.TYPE_RUBRIC)
+            self.assertEqual(rubric.body, "Safe operation\nEvidence-based iteration")
+            self.assertEqual(rubric.rubric_scale_max, 4)
+            self.assertEqual(gallery.type, Material.TYPE_GALLERY)
+            self.assertEqual(gallery.accepted_extensions, ".png,.pdf")
+            self.assertEqual(gallery.max_upload_mb, 20)
             self.assertIn("Version: 20260608T210000Z", out.getvalue())
             event = AuditEvent.objects.filter(action="coursepack.registry.import", classroom=classroom).first()
             self.assertIsNotNone(event)
