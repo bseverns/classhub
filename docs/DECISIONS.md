@@ -223,16 +223,17 @@ Historical implementation logs and superseded decisions are archived by month in
 
 ## Bounded remote helper compute lease control (2026-04-08)
 
-## Django upload header bypass patch level (2026-05-13)
+## Django security patch level (updated 2026-07-14)
 
 **Current decision:**
-- Pin both Django services to `Django==5.2.15` and continue taking patch releases on the `5.2.x` line as advisories land.
+- Pin both Django services to `Django==5.2.16` and continue taking patch releases on the `5.2.x` line as advisories land.
 - Do not treat `FILE_UPLOAD_MAX_MEMORY_SIZE` as a sufficient standalone control.
 - Require request body size limits at the web server/edge layer (Caddy or upstream proxy) for defense in depth.
 
 **Why this remains active:**
 - `Django==5.2.13` is in the affected advisory range for ASGI upload requests with missing or understated `Content-Length`.
 - `Django==5.2.14` now also carries 2026 advisory fixes that land in `5.2.15`.
+- `Django==5.2.15` is affected by `PYSEC-2026-2090`, `PYSEC-2026-2091`, and `PYSEC-2026-2092`; `5.2.16` is the fixed release on the existing LTS line.
 - Patch-level upgrades remove the known bypass/vulnerability classes in supported branches.
 - Edge request-size limits prevent oversized body abuse even when app-layer checks are bypassed or misconfigured.
 
