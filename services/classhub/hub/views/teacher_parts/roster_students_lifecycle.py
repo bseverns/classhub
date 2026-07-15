@@ -166,6 +166,15 @@ def teach_delete_student_data(request, class_id: int):
         internal_token=getattr(settings, "HELPER_INTERNAL_API_TOKEN", ""),
         timeout_seconds=getattr(settings, "HELPER_INTERNAL_RESET_TIMEOUT_SECONDS", 2.0),
     )
+    if not helper_clear.ok:
+        return _safe_internal_redirect(
+            request,
+            _with_notice(
+                _teach_class_path(classroom.id),
+                error="Nothing was deleted because the helper service could not confirm its context clear. Retry deletion when the helper is available.",
+            ),
+            fallback=_teach_class_path(classroom.id),
+        )
     student.delete()
     invalidate_classroom_submission_quota_cache(classroom_id=classroom.id)
 
@@ -192,8 +201,6 @@ def teach_delete_student_data(request, class_id: int):
         f"{submission_count} submission(s), {student_event_count} event record(s) detached from student identity, "
         "and transient helper context cleared."
     )
-    if not helper_clear.ok:
-        notice += " Helper context clear could not be confirmed; retry the helper reset when service is available."
     return _safe_internal_redirect(
         request,
         _with_notice(_teach_class_path(classroom.id), notice=notice),

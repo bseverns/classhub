@@ -261,6 +261,12 @@ def student_delete_work(request):
         internal_token=getattr(settings, "HELPER_INTERNAL_API_TOKEN", ""),
         timeout_seconds=getattr(settings, "HELPER_INTERNAL_RESET_TIMEOUT_SECONDS", 2.0),
     )
+    if not helper_clear.ok:
+        notice = _(
+            "Nothing was deleted because the helper service could not confirm its context clear. Please try again."
+        )
+        return redirect("/student/my-data?" + urlencode({"notice": notice}))
+
     submissions_qs = Submission.objects.filter(
         student=request.student,
         material__module__classroom=request.classroom,
@@ -291,8 +297,6 @@ def student_delete_work(request):
         "events": deleted_events,
         "outcomes": deleted_outcomes,
     }
-    if not helper_clear.ok:
-        notice += " " + _("The helper service could not confirm its context clear; ask your teacher to retry.")
     return redirect("/student/my-data?" + urlencode({"notice": notice}))
 
 

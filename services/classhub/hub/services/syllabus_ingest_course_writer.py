@@ -12,6 +12,7 @@ from .syllabus_ingest_contracts import (
     HANDOUT_READING_LEVELS,
     SyllabusIngestError,
     _ZipLessonImage,
+    validate_final_lesson_slugs,
 )
 from .syllabus_ingest_text_parse import (
     _collect_sections,
@@ -467,6 +468,7 @@ def _write_course(
     overwrite: bool,
     lesson_images: list[_ZipLessonImage] | None = None,
 ) -> Path:
+    validate_final_lesson_slugs(sessions)
     safe_slug = str(slug or "").strip().lower()
     if not COURSE_SLUG_RE.fullmatch(safe_slug):
         raise SyllabusIngestError("Course slug can use lowercase letters, numbers, underscores, and dashes.")

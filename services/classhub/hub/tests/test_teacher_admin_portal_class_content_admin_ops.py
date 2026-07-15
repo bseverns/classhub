@@ -215,6 +215,51 @@ Mission: Test one change and explain the evidence.
         self.assertNotIn("## Submission", lesson_text)
         self.assertNotIn("## ClassHub materials", lesson_text)
 
+    def test_syllabus_compile_rejects_duplicate_final_lesson_slugs(self):
+        _force_login_staff_verified(self.client, self.staff)
+        source_md = """# Duplicate Slugs
+
+Session 01: First Build
+Lesson slug (for course.yaml): s01-same-build
+
+Session 01: Second Build
+Lesson slug (for course.yaml): s01-same-build
+"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/import-syllabus-source",
+                    {
+                        "import_course_slug": "duplicate_slugs",
+                        "syllabus_source": SimpleUploadedFile("duplicate.md", source_md.encode("utf-8")),
+                    },
+                )
+                self.assertFalse((content_root / "courses" / "duplicate_slugs").exists())
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("Duplicate+lesson+slug", resp["Location"])
+
+    def test_syllabus_compile_rejects_malformed_explicit_lesson_slug(self):
+        _force_login_staff_verified(self.client, self.staff)
+        source_md = """# Malformed Slug
+
+Session 01: First Build
+Lesson slug (for course.yaml): S01_bad_slug
+"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir) / "content"
+            with override_settings(CONTENT_ROOT=content_root):
+                resp = self.client.post(
+                    "/teach/import-syllabus-source",
+                    {
+                        "import_course_slug": "malformed_slug",
+                        "syllabus_source": SimpleUploadedFile("malformed.md", source_md.encode("utf-8")),
+                    },
+                )
+                self.assertFalse((content_root / "courses" / "malformed_slug").exists())
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("sNN-lowercase-dashes", resp["Location"])
+
     def test_generate_authoring_templates_include_belonging_and_handout_sections(self):
         from ..services.authoring_templates import generate_authoring_templates
 

@@ -33,7 +33,7 @@ python3 -m venv .venv
 python3 -m pip install --upgrade pip
 python3 -m pip install -r services/homework_helper/requirements.txt
 DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 python3 services/homework_helper/manage.py check
-DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 python3 services/homework_helper/manage.py test
+DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 python3 services/homework_helper/manage.py test tutor.tests
 ```
 
 For full-stack behavior (redis, routing, classhub integration), run Compose:

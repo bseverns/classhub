@@ -308,9 +308,7 @@ def _extract_lesson_slug(body_lines: list[str]) -> str:
             continue
         key = _normalize_meta_key(parsed[0])
         if key in {"lesson_slug", "lesson_slug_(for_course.yaml)"}:
-            slug = str(parsed[1] or "").strip().lower()
-            if re.fullmatch(r"[a-z0-9_-]+", slug):
-                return slug
+            return str(parsed[1] or "").strip()
     return ""
 
 

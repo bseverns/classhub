@@ -1,6 +1,7 @@
 """E2E tests for the privacy page and student delete-work flow."""
 
 from ._shared import *  # noqa: F401,F403
+from types import SimpleNamespace
 
 
 class PrivacyPageTests(TestCase):
@@ -56,6 +57,10 @@ class PrivacyPageTests(TestCase):
 
 class StudentDeleteWorkTests(TestCase):
     def setUp(self):
+        self.helper_clear_patcher = patch("hub.views.student.clear_helper_actor_conversations")
+        self.helper_clear_mock = self.helper_clear_patcher.start()
+        self.addCleanup(self.helper_clear_patcher.stop)
+        self.helper_clear_mock.return_value = SimpleNamespace(ok=True, deleted_conversations=0)
         self.classroom = Class.objects.create(name="Privacy Class", join_code="PRV12345")
         self.module = Module.objects.create(
             classroom=self.classroom, title="Session 1", order_index=0

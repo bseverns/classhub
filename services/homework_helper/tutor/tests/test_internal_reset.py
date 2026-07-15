@@ -9,6 +9,31 @@ from django.test import TestCase, override_settings
 
 from tutor.engine import memory as engine_memory
 
+
+class _FailingCacheBackend:
+    def __init__(self, *, indexed=None, get_error=False, delete_result=True, delete_error=False):
+        self.indexed = indexed
+        self.get_error = get_error
+        self.delete_result = delete_result
+        self.delete_error = delete_error
+        self.deleted_keys = []
+        self.set_values = []
+
+    def get(self, _key):
+        if self.get_error:
+            raise RuntimeError("cache read failed")
+        return self.indexed
+
+    def delete(self, key):
+        self.deleted_keys.append(key)
+        if self.delete_error:
+            raise RuntimeError("cache delete failed")
+        return self.delete_result
+
+    def set(self, key, value, timeout=None):
+        self.set_values.append((key, value, timeout))
+        self.indexed = value
+
 class HelperInternalResetTests(TestCase):
     def setUp(self):
         cache.clear()
@@ -110,6 +135,55 @@ class HelperInternalResetTests(TestCase):
         self.assertEqual(resp.json()["deleted_conversations"], 1)
         self.assertIsNone(cache.get(target_key))
         self.assertIsNotNone(cache.get(other_key))
+
+    def test_actor_clear_reports_index_get_exception(self):
+        result = engine_memory.clear_actor_conversations(
+            cache_backend=_FailingCacheBackend(get_error=True),
+            actor_key="student:55:9001",
+        )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.error_code, "actor_index_read_failed")
+        self.assertEqual(result.deleted_conversations, 0)
+
+    def test_actor_clear_keeps_index_when_conversation_delete_raises(self):
+        conversation_key = "helper:conversation:student:55:9001:noscope:abc"
+        backend = _FailingCacheBackend(indexed=[conversation_key], delete_error=True)
+        result = engine_memory.clear_actor_conversations(
+            cache_backend=backend,
+            actor_key="student:55:9001",
+        )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.deleted_conversations, 0)
+        self.assertEqual(backend.deleted_keys, [conversation_key])
+        self.assertEqual(backend.indexed, [conversation_key])
+
+    def test_actor_clear_does_not_count_false_delete_or_remove_index(self):
+        conversation_key = "helper:conversation:student:55:9001:noscope:abc"
+        backend = _FailingCacheBackend(indexed=[conversation_key], delete_result=False)
+        result = engine_memory.clear_actor_conversations(
+            cache_backend=backend,
+            actor_key="student:55:9001",
+        )
+        self.assertFalse(result.ok)
+        self.assertEqual(result.deleted_conversations, 0)
+        self.assertEqual(backend.deleted_keys, [conversation_key])
+        self.assertEqual(backend.indexed, [conversation_key])
+
+    @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
+    @patch("tutor.views_reset.engine_memory.clear_actor_conversations")
+    def test_internal_actor_clear_propagates_cache_failure(self, clear_mock):
+        clear_mock.return_value = engine_memory.ConversationClearResult(
+            ok=False,
+            error_code="conversation_delete_failed",
+        )
+        resp = self.client.post(
+            "/helper/internal/clear-actor-conversations",
+            data=json.dumps({"class_id": 55, "student_id": 9001}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION="Bearer token-123",
+        )
+        self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.json()["error"], "actor_clear_unconfirmed")
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     @patch.dict(

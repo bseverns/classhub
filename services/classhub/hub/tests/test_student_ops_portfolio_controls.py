@@ -107,6 +107,10 @@ class StudentPortfolioExportTests(TestCase):
 
 class StudentDataControlsTests(TestCase):
     def setUp(self):
+        self.helper_clear_patcher = patch("hub.views.student.clear_helper_actor_conversations")
+        self.helper_clear_mock = self.helper_clear_patcher.start()
+        self.addCleanup(self.helper_clear_patcher.stop)
+        self.helper_clear_mock.return_value = SimpleNamespace(ok=True, deleted_conversations=0)
         self.classroom = Class.objects.create(name="Data Controls Class", join_code="DATA1234")
         self.module = Module.objects.create(classroom=self.classroom, title="Session 1", order_index=0)
         self.upload = Material.objects.create(
@@ -154,6 +158,23 @@ class StudentDataControlsTests(TestCase):
         clear_mock.assert_called_once()
         self.assertEqual(clear_mock.call_args.kwargs["class_id"], self.classroom.id)
         self.assertEqual(clear_mock.call_args.kwargs["student_id"], self.student.id)
+
+    def test_student_delete_work_fails_closed_when_helper_clear_is_unconfirmed(self):
+        submission = Submission.objects.create(
+            material=self.upload,
+            student=self.student,
+            original_filename="project.sb3",
+            file=SimpleUploadedFile("project.sb3", b"demo"),
+        )
+        self.helper_clear_mock.return_value = SimpleNamespace(ok=False, deleted_conversations=0)
+        self._login_student()
+
+        resp = self.client.post("/student/delete-work")
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("Nothing+was+deleted", resp["Location"])
+        self.assertTrue(Submission.objects.filter(id=submission.id).exists())
+        self.assertTrue(StudentIdentity.objects.filter(id=self.student.id).exists())
 
     def test_student_my_data_page_simple_reading_level_uses_simpler_copy(self):
         self._login_student()

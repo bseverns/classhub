@@ -36,6 +36,7 @@ META_RE = re.compile(r"^\*{0,2}(.+?)\*{0,2}\s*:\s*(.+)$")
 GRADE_RANGE_RE = re.compile(r"\b(k|\d{1,2})\s*(?:-|to|through|–|—)\s*(\d{1,2})\b", re.IGNORECASE)
 AGE_RANGE_RE = re.compile(r"\bages?\s*(\d{1,2})\s*(?:-|to|through|–|—)\s*(\d{1,2})\b", re.IGNORECASE)
 SESSION_COUNT_RE = re.compile(r"(\d{1,2})\s*(?:sessions?|meetings?|weeks?)\b", re.IGNORECASE)
+LESSON_SLUG_RE = re.compile(r"^s(?P<session>\d{2})-[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 UI_LEVEL_VALUES = {"elementary", "secondary", "advanced"}
 HANDOUT_READING_LEVELS = ("simple", "standard")
@@ -635,11 +636,27 @@ def _lesson_slug(session: dict) -> str:
         key = _normalize_meta_key(match.group(1))
         if key not in {"lesson_slug", "lesson_slug_(for_course.yaml)"}:
             continue
-        value = match.group(2).strip().lower()
-        if re.fullmatch(r"[a-z0-9_-]+", value):
-            return value
+        value = match.group(2).strip()
+        slug_match = LESSON_SLUG_RE.fullmatch(value)
+        session_num = int(session["session"])
+        if not slug_match:
+            raise ValueError(
+                f"Lesson slug for session {session_num:02d} must use sNN-lowercase-dashes format."
+            )
+        if int(slug_match.group("session")) != session_num:
+            raise ValueError(f"Lesson slug '{value}' does not match session {session_num:02d}.")
+        return value
     session_num = int(session["session"])
     return f"s{session_num:02d}-{_slugify(str(session['title']))}"
+
+
+def _validate_final_lesson_slugs(sessions: list[dict]) -> None:
+    seen: set[str] = set()
+    for session in sessions:
+        lesson_slug = _lesson_slug(session)
+        if lesson_slug in seen:
+            raise ValueError(f"Duplicate lesson slug: {lesson_slug}")
+        seen.add(lesson_slug)
 
 
 def _strip_session_config_lines(body_lines: list[str]) -> list[str]:
@@ -818,6 +835,7 @@ def _write_course(
     ui_level: str,
     program_profile: str,
 ) -> Path:
+    _validate_final_lesson_slugs(sessions)
     course_dir = COURSES_ROOT / slug
     lessons_dir = course_dir / "lessons"
     course_dir.mkdir(parents=True, exist_ok=True)
@@ -918,6 +936,11 @@ def main() -> int:
     expected_sessions = args.sessions or derived_sessions
     if expected_sessions and expected_sessions != len(sessions):
         print(f"[warn] Parsed {len(sessions)} sessions, but metadata indicates {expected_sessions}.")
+
+    try:
+        _validate_final_lesson_slugs(sessions)
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
 
     course_dir = COURSES_ROOT / args.slug
     if course_dir.exists() and any(course_dir.iterdir()) and not args.force:

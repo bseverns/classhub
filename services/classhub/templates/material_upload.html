@@ -139,6 +139,7 @@
           {% if not upload_locked %}
             <form method="post" enctype="multipart/form-data" class="upload-form">
               {% csrf_token %}
+              {{ form.file.label_tag }}
               {{ form.file }}
               {{ form.remix_of_submission_id }}
               {% if remix_source %}

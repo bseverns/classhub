@@ -257,6 +257,23 @@ class HeuristicsEngineTests(SimpleTestCase):
         text = heuristics.build_safeguarding_response("imminent").lower()
         self.assertIn("emergency services now", text)
 
+    def test_safeguarding_recognizes_common_direct_disclosures(self):
+        cases = {
+            "My dad hits me": "disclosure",
+            "an adult touched me": "disclosure",
+            "I do not feel safe at home": "disclosure",
+            "I have a gun": "imminent",
+            "someone raped me": "disclosure",
+            "I want to kill myself": "disclosure",
+            "I am going to hurt someone": "disclosure",
+        }
+        for message, expected in cases.items():
+            with self.subTest(message=message):
+                self.assertEqual(heuristics.safeguarding_risk(message), expected)
+
+    def test_safeguarding_ignores_obvious_game_violence(self):
+        self.assertEqual(heuristics.safeguarding_risk("How do I kill someone in my game?"), "")
+
     def test_build_instructions_enforces_normalized_response_language(self):
         instructions = policy.build_instructions(
             "light",

@@ -25,7 +25,7 @@ There are four distinct layers to keep separate:
 
 Important:
 
-- `report-only` is the repo-shipped deployment default, not the final security target.
+- `report-only` is the general/local repo-shipped example default; the domain/TLS production example is already `strict`.
 - `relaxed` is a code fallback for unset configuration, not the recommended production posture.
 - `strict` is the intended end state.
 
@@ -102,7 +102,7 @@ curl -I https://lms.creatempls.org/helper/healthz
 
 ## Movement plan
 
-1. Keep repo defaults at `report-only` while staged acceptance checks remain the policy.
+1. Keep the general/local shipped examples at `report-only` while staged acceptance checks remain the policy; keep the domain/TLS production example at `strict`.
 2. Keep blocking inline JS/CSS regressions in CI.
 3. Use the strict-script canary only when a deployment needs temporary inline-style allowance.
 4. Remove temporary `style-src 'unsafe-inline'` once style cleanup is complete.
@@ -110,7 +110,7 @@ curl -I https://lms.creatempls.org/helper/healthz
 
 ## Out of scope
 
-- This page does not claim the repo is already strict by default.
+- This page does not claim every shipped example is strict: domain/TLS is strict, while general/local examples remain report-only.
 - This page does not change live deployment env values by itself.
 - This page does not replace deployment-specific CSP violation review.
 

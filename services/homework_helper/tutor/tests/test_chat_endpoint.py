@@ -104,6 +104,17 @@ class HelperChatAuthTests(TestCase):
         self.assertNotIn(disclosure, "\n".join(record.getMessage() for record in captured.records))
 
     @patch("tutor.views._call_backend_with_retries")
+    def test_direct_abuse_disclosure_pauses_without_logging_content(self, backend_mock):
+        self._set_student_session()
+        disclosure = "My dad hits me"
+        with self.assertLogs("tutor.views_chat_helpers", level="WARNING") as captured:
+            resp = self._post_chat({"message": disclosure})
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json()["safeguarding"])
+        backend_mock.assert_not_called()
+        self.assertNotIn(disclosure, "\n".join(record.getMessage() for record in captured.records))
+
+    @patch("tutor.views._call_backend_with_retries")
     def test_chat_falls_back_to_local_when_remote_compute_errors(self, call_backend_mock):
         self._set_student_session(class_id=22)
         cache.set(

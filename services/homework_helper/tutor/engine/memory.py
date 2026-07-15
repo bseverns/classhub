@@ -7,6 +7,7 @@ import logging
 import re
 import uuid
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,13 @@ _ALLOWED_INTENTS = {
 _UUID_HEX_RE = re.compile(r"^[a-f0-9]{32}$")
 _ACTOR_SANITIZE_RE = re.compile(r"[^a-zA-Z0-9:_-]")
 _STUDENT_ACTOR_CLASS_RE = re.compile(r"^student:(\d+):\d+$")
+
+
+@dataclass(frozen=True)
+class ConversationClearResult:
+    ok: bool
+    deleted_conversations: int = 0
+    error_code: str = ""
 
 
 def _normalize_intent(raw: str) -> str:
@@ -245,28 +253,71 @@ def clear_turns(*, cache_backend, key: str) -> None:
         logger.warning("conversation_memory_cache_delete_failed key=%s", key)
 
 
-def clear_actor_conversations(*, cache_backend, actor_key: str, max_keys: int = 1200) -> int:
+def clear_actor_conversations(
+    *,
+    cache_backend,
+    actor_key: str,
+    max_keys: int = 1200,
+    retry_ttl_seconds: int = 7200,
+) -> ConversationClearResult:
     """Delete cached conversations registered for one authenticated actor."""
     actor_index_key = conversation_actor_index_key(actor_key=actor_key)
     try:
         indexed = cache_backend.get(actor_index_key)
     except Exception:
         logger.warning("conversation_memory_cache_get_failed key=%s", actor_index_key)
-        return 0
+        return ConversationClearResult(ok=False, error_code="actor_index_read_failed")
 
-    keys = _coerce_key_list(indexed, max_items=max(int(max_keys), 1))
+    all_keys = _coerce_key_list(indexed, max_items=0)
+    if not all_keys and indexed is None:
+        return ConversationClearResult(ok=True)
+
+    key_limit = max(int(max_keys), 1)
+    keys = all_keys[-key_limit:]
+    retry_keys = all_keys[:-key_limit]
     deleted = 0
     for key in keys:
         try:
-            cache_backend.delete(key)
-            deleted += 1
+            if cache_backend.delete(key):
+                deleted += 1
+            else:
+                retry_keys.append(key)
+                logger.warning("conversation_memory_cache_delete_unconfirmed key=%s", key)
         except Exception:
+            retry_keys.append(key)
             logger.warning("conversation_memory_cache_delete_failed key=%s", key)
+    if retry_keys:
+        try:
+            cache_backend.set(
+                actor_index_key,
+                retry_keys,
+                timeout=max(int(retry_ttl_seconds), 1),
+            )
+        except Exception:
+            logger.warning("conversation_memory_cache_set_failed key=%s", actor_index_key)
+        return ConversationClearResult(
+            ok=False,
+            deleted_conversations=deleted,
+            error_code="conversation_delete_failed",
+        )
+
     try:
-        cache_backend.delete(actor_index_key)
+        index_deleted = cache_backend.delete(actor_index_key)
     except Exception:
         logger.warning("conversation_memory_cache_delete_failed key=%s", actor_index_key)
-    return deleted
+        return ConversationClearResult(
+            ok=False,
+            deleted_conversations=deleted,
+            error_code="actor_index_delete_failed",
+        )
+    if not index_deleted:
+        logger.warning("conversation_memory_cache_delete_unconfirmed key=%s", actor_index_key)
+        return ConversationClearResult(
+            ok=False,
+            deleted_conversations=deleted,
+            error_code="actor_index_delete_failed",
+        )
+    return ConversationClearResult(ok=True, deleted_conversations=deleted)
 
 
 def _format_turn_line(row: dict[str, str]) -> str:

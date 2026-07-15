@@ -33,7 +33,7 @@ python3 -m venv .venv
 python3 -m pip install --upgrade pip
 python3 -m pip install -r services/classhub/requirements.txt
 DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 python3 services/classhub/manage.py check
-DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 python3 services/classhub/manage.py test
+DJANGO_DEBUG=1 DJANGO_SECRET_KEY=dev-secret-dev-secret-dev-secret-123 python3 services/classhub/manage.py test hub
 ```
 
 If you’re running the full stack, use compose for realistic routing/storage behavior:

@@ -256,11 +256,28 @@ def clear_actor_conversations(request):
         return _json_response({"error": "invalid_actor"}, status=400, request_id=request_id)
 
     actor_key = f"student:{class_id}:{student_id}"
-    deleted = engine_memory.clear_actor_conversations(
+    clear_result = engine_memory.clear_actor_conversations(
         cache_backend=cache,
         actor_key=actor_key,
         max_keys=max(_env_int("HELPER_ACTOR_CLEAR_MAX_KEYS", 1200), 1),
+        retry_ttl_seconds=max(_env_int("HELPER_CONVERSATION_TTL_SECONDS", 7200), 1),
     )
+    if not clear_result.ok:
+        _log_internal_event(
+            "error",
+            "internal_actor_clear_failed",
+            request=request,
+            request_id=request_id,
+            class_id=class_id,
+            student_id=student_id,
+            deleted_conversations=clear_result.deleted_conversations,
+            error_code=clear_result.error_code,
+        )
+        return _json_response(
+            {"error": "actor_clear_unconfirmed"},
+            status=503,
+            request_id=request_id,
+        )
     _log_internal_event(
         "info",
         "internal_actor_clear_completed",
@@ -268,10 +285,15 @@ def clear_actor_conversations(request):
         request_id=request_id,
         class_id=class_id,
         student_id=student_id,
-        deleted_conversations=deleted,
+        deleted_conversations=clear_result.deleted_conversations,
     )
     return _json_response(
-        {"ok": True, "class_id": class_id, "student_id": student_id, "deleted_conversations": deleted},
+        {
+            "ok": True,
+            "class_id": class_id,
+            "student_id": student_id,
+            "deleted_conversations": clear_result.deleted_conversations,
+        },
         request_id=request_id,
     )
 

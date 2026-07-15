@@ -50,10 +50,10 @@ Run project tests in your target service environment:
 
 ```bash
 # Class Hub
-python3 services/classhub/manage.py test
+python3 services/classhub/manage.py test hub
 
 # Homework Helper
-python3 services/homework_helper/manage.py test
+python3 services/homework_helper/manage.py test tutor.tests
 ```
 
 If you use Docker-first local dev, run equivalent checks via `docker compose exec`.

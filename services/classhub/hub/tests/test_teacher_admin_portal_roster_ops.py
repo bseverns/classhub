@@ -46,6 +46,25 @@ class TeacherPortalRosterOpsTests(TeacherPortalBaseTests):
         self.assertEqual(StudentEvent.objects.filter(student_id=student.id).count(), 0)
         self.assertEqual(StudentEvent.objects.filter(classroom=classroom).count(), 1)
 
+    @patch("hub.views.teacher_parts.roster_students_lifecycle.clear_helper_actor_conversations")
+    def test_teach_delete_student_data_fails_closed_when_helper_clear_is_unconfirmed(self, clear_mock):
+        clear_mock.return_value = SimpleNamespace(ok=False, deleted_conversations=0)
+        classroom = Class.objects.create(name="Retry Delete Class", join_code="RTY12345")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        _force_login_staff_verified(self.client, self.staff)
+        start_epoch = classroom.session_epoch
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/delete-student-data",
+            {"student_id": str(student.id), "confirm_delete": "1"},
+        )
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("error=", resp["Location"])
+        self.assertTrue(StudentIdentity.objects.filter(id=student.id).exists())
+        classroom.refresh_from_db()
+        self.assertEqual(classroom.session_epoch, start_epoch)
+
     def test_teacher_can_rename_student(self):
         classroom = Class.objects.create(name="Period Rename", join_code="REN12345")
         student = StudentIdentity.objects.create(classroom=classroom, display_name="Ari")
