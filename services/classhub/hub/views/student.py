@@ -1,11 +1,10 @@
 """Student/session/upload endpoint callables."""
 
 import logging
-from pathlib import Path
 from urllib.parse import urlencode
 
 from django.conf import settings
-from django.http import FileResponse, HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.middleware.csrf import get_token
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
@@ -17,7 +16,7 @@ from common.helper_scope import issue_scope_token
 from config.localization import localization_from_request
 
 from ..forms import SubmissionUploadForm
-from ..http.headers import apply_download_safety, apply_no_store, safe_attachment_filename
+from ..http.headers import apply_no_store
 from ..models import (
     Class,
     Material,
@@ -33,7 +32,6 @@ from ..services.helper_control import clear_actor_conversations as clear_helper_
 from ..services.lesson_handouts import resolve_reading_level
 from ..services.ip_privacy import minimize_student_event_ip
 from ..services.join_flow_service import clear_device_hint_cookie
-from ..services.org_access import staff_can_view_submissions
 from ..services.peer_feedback import resolve_peer_feedback_starters
 from ..services.student_home import (
     build_class_landing_context,
@@ -60,6 +58,7 @@ from ..services.submission_service import (
 from ..services.submission_quota import invalidate_classroom_submission_quota_cache
 from ..services.telemetry_events import write_student_event
 from ..services.ui_density import resolve_ui_density_mode_for_modules
+from .student_downloads import submission_download
 from .student_micro_checks import latest_micro_check_state
 
 logger = logging.getLogger(__name__)
@@ -416,52 +415,6 @@ def material_upload(request, material_id: int):
         },
         status=response_status,
     )
-    apply_no_store(response, private=True, pragma=True)
-    return response
-
-
-def submission_download(request, submission_id: int):
-    """Download a submission for staff, the owner, or an allowed gallery peer."""
-    s = (
-        Submission.objects.select_related("student", "material__module__classroom")
-        .filter(id=submission_id)
-        .first()
-    )
-    if not s:
-        return HttpResponse("Not found", status=404)
-
-    if request.user.is_authenticated and request.user.is_staff:
-        module = getattr(getattr(s, "material", None), "module", None)
-        if module is None:
-            return HttpResponse("Not found", status=404)
-        if not staff_can_view_submissions(
-            request.user,
-            module.classroom,
-            module_id=s.material.module_id,
-        ):
-            return HttpResponse("Forbidden", status=403)
-    else:
-        if getattr(request, "student", None) is None:
-            return redirect("/")
-        can_download_own = s.student_id == request.student.id
-        can_download_shared_gallery = (
-            s.material.type == Material.TYPE_GALLERY
-            and bool(s.is_published)
-            and bool(s.is_gallery_shared)
-            and request.student.classroom_id == s.material.module.classroom_id
-        )
-        if not can_download_own and not can_download_shared_gallery:
-            return HttpResponse("Forbidden", status=403)
-
-    raw_filename = s.original_filename or Path(s.file.name).name or "submission"
-    filename = safe_attachment_filename(raw_filename, fallback="submission")
-    response = FileResponse(
-        s.file.open("rb"),
-        as_attachment=True,
-        filename=filename,
-        content_type="application/octet-stream",
-    )
-    apply_download_safety(response)
     apply_no_store(response, private=True, pragma=True)
     return response
 

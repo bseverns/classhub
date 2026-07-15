@@ -4389,3 +4389,13 @@ Execution ownership and gates:
 - Makes the remote-compute hot spot easier to review without changing behavior.
 - Keeps future bridge/idempotency hardening focused on lifecycle and audit semantics instead of mixed metric bookkeeping.
 - Preserves durable metric behavior through the existing `remote_compute_store` persistence layer.
+
+## Student submission download view split (2026-07-14)
+
+**Current decision:**
+- Keep the submission download authorization and response hardening in `hub.views.student_downloads`.
+- Re-export `submission_download` from `hub.views.student` and the package-level `hub.views` surface so existing routes and imports remain compatible.
+
+**Why this remains active:**
+- Keeps the main student/session/upload view module within its size budget without weakening the guardrail.
+- Isolates file-delivery authorization and download safety headers as one reviewable concern.
