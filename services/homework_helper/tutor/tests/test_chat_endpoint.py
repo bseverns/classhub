@@ -447,6 +447,35 @@ class HelperChatAuthTests(TestCase):
         self.assertNotIn("Initial answer", second_backend_message)
 
     @patch("tutor.engine.backends.invoke_backend")
+    def test_chat_reset_only_clears_cached_turns_without_backend_call(self, invoke_backend_mock):
+        self._set_student_session()
+        invoke_backend_mock.side_effect = [
+            ("Initial answer", "fake-model"),
+            ("After reset", "fake-model"),
+        ]
+        conversation_id = "123e4567-e89b-12d3-a456-426614174003"
+
+        first = self._post_chat({"message": "Initial question", "conversation_id": conversation_id})
+        self.assertEqual(first.status_code, 200)
+
+        reset = self._post_chat(
+            {
+                "message": "",
+                "conversation_id": conversation_id,
+                "reset_conversation": True,
+            }
+        )
+        self.assertEqual(reset.status_code, 200)
+        self.assertTrue(reset.json().get("conversation_reset"))
+        self.assertEqual(invoke_backend_mock.call_count, 1)
+
+        after_reset = self._post_chat({"message": "New question", "conversation_id": conversation_id})
+        self.assertEqual(after_reset.status_code, 200)
+        backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
+        self.assertNotIn("Initial question", backend_message)
+        self.assertNotIn("Initial answer", backend_message)
+
+    @patch("tutor.engine.backends.invoke_backend")
     def test_chat_isolates_conversation_history_by_actor_and_scope(self, invoke_backend_mock):
         invoke_backend_mock.side_effect = [
             ("Scope A answer 1", "fake-model"),

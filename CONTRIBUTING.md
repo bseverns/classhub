@@ -66,18 +66,18 @@ For repository admins, keep `main` protected with:
 - Require conversation resolution before merge.
 - Require status checks to pass before merge.
 
-Recommended required checks (by workflow job):
+Required checks currently enforced on `main`:
 
-- `lint / ruff`
-- `test-suite / release-artifact-check`
-- `test-suite / classhub-tests`
-- `test-suite / helper-tests`
-- `migration-gate / classhub`
-- `migration-gate / helper`
-- `security / secret-scan`
-- `security / dependency-audit`
-- `security / sast-bandit`
-- `stack-smoke / doctor`
+- `ruff`
+- `release-artifact-check`
+- `classhub-tests`
+- `helper-tests`
+- `secret-scan`
+- `Analyze (Python)`
+
+Rules apply to administrators, dismiss stale approvals, require linear history, block force pushes/deletion, and require resolved review conversations.
+
+TODO: add a second GitHub collaborator/reviewer. Until then, the required one-person approval cannot be satisfied by the sole collaborator.
 
 ## Scope control
 - Keep PRs narrow and explain what is explicitly out of scope.

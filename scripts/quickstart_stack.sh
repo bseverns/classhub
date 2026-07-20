@@ -8,6 +8,7 @@ COMPOSE_FILE="${COMPOSE_DIR}/docker-compose.yml"
 COMPOSE_ENV_LIB="${ROOT_DIR}/scripts/lib/compose_env.sh"
 
 MODE=""
+DOMAIN_NAME="${DOMAIN:-}"
 HELPER_BACKEND=""
 WITH_ADMIN=""
 WITH_DEMO=""
@@ -16,6 +17,7 @@ NON_INTERACTIVE=0
 ADMIN_USERNAME="${ADMIN_USERNAME:-}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-}"
+ADMIN_PASSWORD_GENERATED=0
 
 log() { echo -e "\n[quickstart] $*\n"; }
 warn() { echo -e "\n[quickstart][warn] $*\n" >&2; }
@@ -27,6 +29,7 @@ Usage: bash scripts/quickstart_stack.sh [options]
 
 Options:
   --mode <local|domain>         Stack mode (default: local)
+  --domain <name>               Public hostname (required for non-interactive domain mode)
   --helper-backend <name>       Helper backend (default: ollama)
   --with-admin                  Create/update Django superuser
   --without-admin               Skip superuser setup
@@ -134,6 +137,10 @@ parse_args() {
         MODE="${2:-}"
         shift 2
         ;;
+      --domain)
+        DOMAIN_NAME="${2:-}"
+        shift 2
+        ;;
       --helper-backend)
         HELPER_BACKEND="${2:-}"
         shift 2
@@ -207,9 +214,17 @@ choose_defaults() {
   if [[ "${WITH_ADMIN}" == "yes" ]]; then
     ADMIN_USERNAME="${ADMIN_USERNAME:-$(prompt_default "Admin username" "admin")}"
     ADMIN_EMAIL="${ADMIN_EMAIL:-$(prompt_default "Admin email" "admin@example.org")}"
-    if [[ -z "${ADMIN_PASSWORD}" && "${NON_INTERACTIVE}" == "0" ]]; then
-      read -r -s -p "Admin password: " ADMIN_PASSWORD
-      echo
+    if [[ -z "${ADMIN_PASSWORD}" ]]; then
+      if [[ "${NON_INTERACTIVE}" == "1" ]]; then
+        ADMIN_PASSWORD="$(generate_secret)"
+        ADMIN_PASSWORD_GENERATED=1
+      else
+        read -r -s -p "Admin password: " ADMIN_PASSWORD
+        echo
+      fi
+    fi
+    if is_placeholder_value "${ADMIN_PASSWORD}"; then
+      die "admin password must not be empty or a placeholder"
     fi
   fi
 }
@@ -236,11 +251,22 @@ prepare_env_file() {
     env_set "DJANGO_ALLOWED_HOSTS" "localhost,127.0.0.1" "${ENV_FILE}"
   else
     env_set "CADDYFILE_TEMPLATE" "Caddyfile.domain" "${ENV_FILE}"
-    if is_placeholder_value "$(env_get "DOMAIN" "${ENV_FILE}")"; then
-      local domain_value
-      domain_value="$(prompt_default "Domain for production mode" "lms.example.org")"
-      env_set "DOMAIN" "${domain_value}" "${ENV_FILE}"
+    local domain_value
+    domain_value="${DOMAIN_NAME:-$(env_get "DOMAIN" "${ENV_FILE}")}"
+    if [[ -z "${domain_value}" || "${domain_value}" == "lms.example.org" ]]; then
+      if [[ "${NON_INTERACTIVE}" == "1" ]]; then
+        die "--domain is required for non-interactive domain mode"
+      fi
+      domain_value="$(prompt_default "Domain for production mode" "")"
     fi
+    [[ "${domain_value}" =~ ^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$ ]] || die "domain must be a hostname without a URL scheme or path"
+    [[ "${domain_value}" != *..* ]] || die "domain must not contain consecutive dots"
+    env_set "DOMAIN" "${domain_value}" "${ENV_FILE}"
+    env_set "DJANGO_ALLOWED_HOSTS" "${domain_value}" "${ENV_FILE}"
+    env_set "CSRF_TRUSTED_ORIGINS" "https://${domain_value}" "${ENV_FILE}"
+    env_set "DJANGO_SESSION_COOKIE_SECURE" "1" "${ENV_FILE}"
+    env_set "DJANGO_CSRF_COOKIE_SECURE" "1" "${ENV_FILE}"
+    env_set "REQUEST_SAFETY_TRUST_PROXY_HEADERS" "1" "${ENV_FILE}"
   fi
 
   env_set "HELPER_LLM_BACKEND" "${HELPER_BACKEND}" "${ENV_FILE}"
@@ -307,6 +333,13 @@ create_or_update_admin() {
     classhub_web \
     python manage.py shell -c \
       "import os; U=__import__('django.contrib.auth').contrib.auth.get_user_model(); u=os.environ['DJANGO_SUPERUSER_USERNAME']; e=os.environ['DJANGO_SUPERUSER_EMAIL']; p=os.environ['DJANGO_SUPERUSER_PASSWORD']; obj, created = U.objects.get_or_create(username=u, defaults={'email': e, 'is_staff': True, 'is_superuser': True, 'is_active': True}); obj.email = e; obj.is_staff = True; obj.is_superuser = True; obj.is_active = True; obj.set_password(p); obj.save(); print('created' if created else 'updated')"
+
+  log "provisioning admin authenticator"
+  run_compose exec -T classhub_web python manage.py bootstrap_admin_otp \
+    --username "${ADMIN_USERNAME}" --with-static-backup --if-missing
+  if [[ "${ADMIN_PASSWORD_GENERATED}" == "1" ]]; then
+    echo "Generated admin password (store now): ${ADMIN_PASSWORD}"
+  fi
 }
 
 main() {
@@ -321,6 +354,12 @@ main() {
   choose_defaults
   prepare_env_file
   seed_required_secrets
+
+  if [[ "${MODE}" == "domain" ]]; then
+    require_cmd python3
+    log "checking domain deployment settings"
+    python3 "${ROOT_DIR}/scripts/operator_preflight.py" --env-file "${ENV_FILE}"
+  fi
 
   log "starting stack (docker compose up -d --build)"
   run_compose up -d --build
@@ -345,10 +384,14 @@ main() {
   fi
 
   log "done"
-  echo "Student join: http://localhost/"
-  echo "Teacher login: http://localhost/admin/login/"
-  echo "Teacher portal: http://localhost/teach"
-  echo "Health: http://localhost/healthz and http://localhost/helper/healthz"
+  local base_url="http://localhost"
+  if [[ "${MODE}" == "domain" ]]; then
+    base_url="https://${DOMAIN_NAME:-$(env_get "DOMAIN" "${ENV_FILE}")}"
+  fi
+  echo "Student join: ${base_url}/"
+  echo "Teacher login: ${base_url}/admin/login/"
+  echo "Teacher portal: ${base_url}/teach"
+  echo "Health: ${base_url}/healthz and ${base_url}/helper/healthz"
 }
 
 main "$@"

@@ -30,6 +30,8 @@ Add one row per drill.
 | 2026-03-10 | ben | FAIL | FAIL | no | Backup-maintainer drill not yet executed end-to-end for this cycle; closeout evidence is complete, but final sign-off remains open until this drill is run and documented. | no | `artifacts/stability/2026-03-10/` | 2026-03-17 | Tracking row keeps the remaining R5 turnover blocker explicit after telemetry closeout passed. |
 | YYYY-MM-DD | names | PASS/FAIL | PASS/FAIL | yes/no | short list | yes/no | `artifacts/stability/<date>/` | YYYY-MM-DD | drill summary |
 
+TODO: schedule and record an independent takeover drill with backup owner Mel Whiting.
+
 ## Acceptance Rule
 
 A turnover drill is complete only when:

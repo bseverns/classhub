@@ -100,6 +100,13 @@ class HelperWidgetFailureCopyTests(SimpleTestCase):
         self.assertIn('appendTurn("assistant", errorText);\n          setOutput("");', source)
         self.assertNotIn("`${copy.errorPrefix}: ${errorCode}`", source)
 
+    def test_helper_widget_reset_requests_backend_clear_before_clearing_ui(self):
+        source = (Path(__file__).resolve().parents[1] / "static/js/helper_widget.js").read_text(encoding="utf-8")
+
+        self.assertIn("const resetConversation = async () =>", source)
+        self.assertIn("reset_conversation: true", source)
+        self.assertIn("setOutput(helperErrorTextFromStatus(res.status, chromeCopy));", source)
+
 
 class TeacherUxPriorityPassTests(TeacherPortalBaseTests):
     def test_day_mode_leads_with_activity_and_omits_onboarding_and_duplicate_class_table(self):

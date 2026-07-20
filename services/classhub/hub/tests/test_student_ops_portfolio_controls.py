@@ -476,3 +476,12 @@ class OperatorProfileTemplateTests(TestCase):
         self.assertNotContains(admin_login_resp, "<style>", html=False)
         self.assertNotContains(admin_login_resp, 'style="margin:8px 0 0 0;"', html=False)
         self.assertNotContains(admin_login_resp, 'var form = document.getElementById("login-form")', html=False)
+
+    @override_settings(CLASSHUB_OPERATOR_NAME="Northside Public Schools")
+    def test_helper_privacy_does_not_claim_another_operator_has_access(self):
+        self._login_student()
+
+        resp = self.client.get("/student")
+
+        self.assertContains(resp, "approved administrators can access helper records and exports")
+        self.assertNotContains(resp, "createMPLS administrators")

@@ -69,8 +69,10 @@ flowchart LR
 
 ```bash
 bash scripts/quickstart_stack.sh --yes --mode local --with-admin \
-  --admin-username admin --admin-email admin@example.org --admin-password 'CHANGE_ME'
+  --admin-username admin --admin-email admin@example.org
 ```
+
+The wrapper generates and prints a one-time admin password when none is supplied, rejects placeholder passwords, and provisions the first admin authenticator plus a backup token.
 
 Then open:
 

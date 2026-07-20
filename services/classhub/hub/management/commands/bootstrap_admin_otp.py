@@ -24,12 +24,18 @@ class Command(BaseCommand):
             action="store_true",
             help="Also generate a one-time static backup token",
         )
+        parser.add_argument(
+            "--if-missing",
+            action="store_true",
+            help="Keep an existing device instead of failing",
+        )
 
     def handle(self, *args, **options):
         username = (options["username"] or "").strip()
         device_name = (options["device_name"] or "").strip() or "admin-primary"
         rotate = bool(options["rotate"])
         with_static_backup = bool(options["with_static_backup"])
+        if_missing = bool(options["if_missing"])
 
         User = get_user_model()
         user = User.objects.filter(username=username).first()
@@ -41,6 +47,9 @@ class Command(BaseCommand):
             raise CommandError(f"User {username} is inactive")
 
         existing = TOTPDevice.objects.filter(user=user, name=device_name)
+        if existing.exists() and if_missing:
+            self.stdout.write(f"TOTP device '{device_name}' already exists for {username}.")
+            return
         if existing.exists() and not rotate:
             raise CommandError(
                 f"TOTP device '{device_name}' already exists for {username}. Use --rotate to replace it."

@@ -417,3 +417,18 @@ class BootstrapAdminOTPCommandTests(TestCase):
         )
         with self.assertRaises(CommandError):
             call_command("bootstrap_admin_otp", username="teacher")
+
+    def test_bootstrap_admin_otp_if_missing_preserves_existing_device(self):
+        user = get_user_model().objects.create_superuser(
+            username="admin",
+            password="pw12345",
+            email="admin@example.org",
+        )
+        existing = TOTPDevice.objects.create(user=user, name="admin-primary", confirmed=True)
+        out = StringIO()
+
+        call_command("bootstrap_admin_otp", username="admin", if_missing=True, stdout=out)
+
+        self.assertEqual(TOTPDevice.objects.filter(user=user, name="admin-primary").count(), 1)
+        self.assertTrue(TOTPDevice.objects.filter(pk=existing.pk).exists())
+        self.assertIn("already exists", out.getvalue())

@@ -1232,9 +1232,11 @@ Execution ownership and gates:
   - initialize `compose/.env` from mode-aware examples,
   - generate required secrets when placeholder values are present,
   - set helper YAML config path (`HELPER_CONFIG_FILE=/app/config/helper.config.yaml`),
+  - reject placeholder admin passwords, generate one when omitted in non-interactive mode, and provision admin OTP when missing,
+  - require a real hostname in non-interactive domain mode, derive Django host/CSRF settings, and run operator preflight before startup,
   - start compose + run migrations,
   - optionally create/update admin account,
-  - optionally load demo content and run `system_doctor.sh --smoke-mode golden`.
+  - optionally load demo content through the mounted `/content` root and run `system_doctor.sh --smoke-mode golden`.
 - Keep existing lower-level scripts (`deploy_with_smoke.sh`, `system_doctor.sh`, `load_demo_coursepack.sh`) as composable primitives beneath this wrapper.
 
 **Why this remains active:**
@@ -1390,6 +1392,7 @@ Execution ownership and gates:
   - `services/classhub/templates/lesson_page.html` (moved to `services/classhub/hub/static/js/lesson_page.js`)
   - `services/classhub/templates/admin/login.html` (moved to `services/classhub/hub/static/js/admin_login.js`)
 - Remaining inline form confirm handler in `services/classhub/templates/student_my_data.html` was replaced with `data-confirm` + `services/classhub/hub/static/js/confirm_forms.js`.
+- Template links must use normal routes rather than `javascript:` URLs; the static inline-JS guard enforces this for strict-CSP compatibility.
 - Review report-only violations on Monday, March 2, 2026, then decide whether strict CSP can be enabled without class-day regressions.
 
 **Why this remains active:**
@@ -1492,7 +1495,7 @@ Execution ownership and gates:
   - `HELPER_CONVERSATION_TTL_SECONDS`
   - `HELPER_CONVERSATION_TURN_MAX_CHARS`
   - `HELPER_CONVERSATION_HISTORY_MAX_CHARS`
-- Student UI now shows a transcript and includes a `Reset chat` action that starts a fresh conversation id.
+- Student UI shows a transcript; `Reset chat` clears the active backend cache before clearing the browser transcript and starting a fresh conversation id.
 
 **Why this remains active:**
 - Makes helper responses meaningfully conversational without introducing long-term transcript retention by default.
@@ -1508,6 +1511,8 @@ Execution ownership and gates:
 - Class-level helper reset now exports a JSON archive snapshot (`HELPER_CLASS_RESET_ARCHIVE_DIR`) before deletion when `HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE=1` and `HELPER_CLASS_RESET_ARCHIVE_ENABLED=1`.
 - Helper reset archive retention is managed by `scripts/retention_maintenance.sh` (`RETENTION_HELPER_EXPORT_DAYS`, default 30), with path guardrails (`/uploads/*`) and periodic permission tightening (`0700` dir, `0600` files).
 - Helper reset archives are operator-only artifacts: not served as public Caddy routes and not included in student-facing portfolio exports.
+- Recommended pilots keep helper reset archives disabled until a dated archive-specific notice, participant choice, contact, retention period, and named custodian are active.
+- Helper access copy refers to class teachers and approved administrators rather than naming one deployment operator.
 - Helper chat access events now include summarized telemetry fields (`intent`, `follow_up_suggestions_count`, `conversation_compacted`) and `/teach/class/<id>` renders a “Helper Signals” panel for the last `CLASSHUB_HELPER_SIGNAL_WINDOW_HOURS`.
 - Internal helper reset endpoint requires `Authorization: Bearer <HELPER_INTERNAL_API_TOKEN>` and clears only indexed student conversation keys for the target class.
 
@@ -3388,6 +3393,7 @@ Execution ownership and gates:
 **Current decision:**
 - Keep `scripts/make_release_zip.sh` as a tracked-source-only archive path (`git ls-files` + release artifact lint).
 - Treat release-cycle evidence under `artifacts/stability/<release-date>/` as a companion artifact set, not part of the source zip contract.
+- Attach the source ZIP, evidence TGZ, and checksum file to each promoted GitHub release; post-release reconstruction must state any missing production evidence instead of implying contemporaneous closeout.
 - Require evaluator/operator handoff language in docs to point reviewers to:
   - source bundle (`dist/classhub_release_*.zip`)
   - companion evidence bundle (`artifacts/stability/<release-date>/`, typically packaged as `dist/classhub_evidence_<release-date>.tgz`)

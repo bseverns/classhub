@@ -79,8 +79,10 @@ These are optional unless you are installing, testing, or operating a server.
 - Guided one-command bootstrap:
 
 ```bash
-bash scripts/quickstart_stack.sh --yes --mode local --with-admin --admin-username admin --admin-email admin@example.org --admin-password 'CHANGE_ME'
+bash scripts/quickstart_stack.sh --yes --mode local --with-admin --admin-username admin --admin-email admin@example.org
 ```
+
+The command prints generated admin and authenticator credentials once; store them before closing the terminal.
 
 - Deploy-time config gate:
 

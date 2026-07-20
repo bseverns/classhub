@@ -38,7 +38,7 @@ Reporting captures:
 - Reports to funders can be assembled from exports instead of manual narrative reconstruction.
 - Certificates and submissions become reusable program artifacts.
 - Staff can explain the data posture clearly to families, schools, and partners.
-- Program renewal conversations are based on attendance/completion evidence, not invasive analytics.
+- Program renewal conversations are based on recorded session-completion and artifact evidence, not invasive analytics.
 
 ## Risks avoided
 

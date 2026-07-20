@@ -167,7 +167,8 @@ async def handle_chat(
     if max_conversation_messages <= 0:
         conversation_enabled = False
 
-    if conversation_enabled and bool(payload.get("reset_conversation")):
+    reset_requested = bool(payload.get("reset_conversation"))
+    if conversation_enabled and reset_requested:
         deps.clear_conversation_turns(
             conversation_id=conversation_id,
             actor_key=actor_key,
@@ -188,6 +189,8 @@ async def handle_chat(
 
     message = (payload.get("message") or "").strip()
     if not message:
+        if reset_requested:
+            return _response({"conversation_reset": True})
         return _response({"error": "missing_message"}, status=400)
 
     response_language_code = deps.normalize_response_language(str(payload.get("language_code") or ""))
