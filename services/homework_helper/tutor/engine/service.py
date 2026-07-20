@@ -17,6 +17,7 @@ from ..llm import (
 )
 from .context_envelope import ScopeResolutionError, resolve_context_envelope
 from .execution_config import resolve_execution_config
+from .memory import ConversationClearResult
 from .runtime_config import resolve_policy_bundle
 
 
@@ -75,7 +76,7 @@ class ChatDeps:
     load_conversation_state: Callable[..., dict]
     save_conversation_state: Callable[..., None]
     compact_conversation: Callable[..., tuple[str, list[dict], bool]]
-    clear_conversation_turns: Callable[..., None]
+    clear_conversation_turns: Callable[..., ConversationClearResult]
     format_conversation_for_prompt: Callable[..., str]
     classify_intent: Callable[[str], str]
     build_follow_up_suggestions: Callable[..., list[str]]
@@ -169,11 +170,21 @@ async def handle_chat(
 
     reset_requested = bool(payload.get("reset_conversation"))
     if conversation_enabled and reset_requested:
-        deps.clear_conversation_turns(
+        clear_result = deps.clear_conversation_turns(
             conversation_id=conversation_id,
             actor_key=actor_key,
             scope_fingerprint=conversation_scope_fp,
+            ttl_seconds=conversation_ttl_seconds,
         )
+        if not clear_result.ok:
+            deps.log_chat_event(
+                "warning",
+                "conversation_reset_failed",
+                request_id=request_id,
+                actor_type=actor_type,
+                error_code=clear_result.error_code,
+            )
+            return _response({"error": "conversation_reset_failed"}, status=503)
 
     history_turns: list[dict] = []
     history_summary = ""
@@ -266,6 +277,7 @@ async def handle_chat(
                 conversation_id=conversation_id,
                 actor_key=actor_key,
                 scope_fingerprint=conversation_scope_fp,
+                ttl_seconds=conversation_ttl_seconds,
             )
         return _response(
             {

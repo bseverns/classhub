@@ -162,6 +162,78 @@ class HelperInternalResetTests(TestCase):
                 self.assertEqual(result.error_code, "conversation_delete_failed")
                 self.assertEqual(backend.get(class_index_key), [conversation_key])
 
+    def test_single_conversation_clear_removes_actor_and_class_indexes(self):
+        actor_key = "student:55:9001"
+        conversation_key = engine_memory.conversation_cache_key(
+            actor_key=actor_key,
+            scope_fp="noscope",
+            conversation_id="single-reset",
+        )
+        remaining_key = engine_memory.conversation_cache_key(
+            actor_key=actor_key,
+            scope_fp="noscope",
+            conversation_id="keep-this-conversation",
+        )
+        backend = _ScriptedCacheBackend()
+        for key, content in (
+            (conversation_key, "Private question"),
+            (remaining_key, "Keep this question"),
+        ):
+            engine_memory.save_state(
+                cache_backend=backend,
+                key=key,
+                turns=[{"role": "student", "content": content}],
+                summary="",
+                ttl_seconds=300,
+                actor_key=actor_key,
+            )
+
+        result = engine_memory.clear_turns(
+            cache_backend=backend,
+            key=conversation_key,
+            actor_key=actor_key,
+            ttl_seconds=300,
+        )
+
+        self.assertTrue(result.ok)
+        self.assertIsNone(backend.get(conversation_key))
+        self.assertEqual(
+            backend.get(engine_memory.conversation_actor_index_key(actor_key=actor_key)),
+            [remaining_key],
+        )
+        self.assertEqual(
+            backend.get(engine_memory.conversation_class_index_key(class_id=55)),
+            [remaining_key],
+        )
+        snapshot = engine_memory.snapshot_class_conversations(cache_backend=backend, class_id=55)
+        self.assertEqual([row["cache_key"] for row in snapshot], [remaining_key])
+
+    def test_single_conversation_clear_reports_unconfirmed_delete(self):
+        actor_key = "student:55:9001"
+        conversation_key = engine_memory.conversation_cache_key(
+            actor_key=actor_key,
+            scope_fp="noscope",
+            conversation_id="failed-reset",
+        )
+        for failure_mode in ("false", "raise"):
+            with self.subTest(failure_mode=failure_mode):
+                backend = _ScriptedCacheBackend()
+                backend.values[conversation_key] = {"turns": []}
+                if failure_mode == "false":
+                    backend.delete_false_keys.add(conversation_key)
+                else:
+                    backend.delete_error_keys.add(conversation_key)
+
+                result = engine_memory.clear_turns(
+                    cache_backend=backend,
+                    key=conversation_key,
+                    actor_key=actor_key,
+                    ttl_seconds=300,
+                )
+
+                self.assertFalse(result.ok)
+                self.assertEqual(result.error_code, "conversation_delete_failed")
+
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     @patch("tutor.views_reset.engine_memory.clear_class_conversations")
     def test_internal_class_reset_surfaces_unconfirmed_delete(self, clear_mock):

@@ -221,15 +221,19 @@ def _save_conversation_state(
     )
 
 
-def _clear_conversation_turns(*, conversation_id: str, actor_key: str, scope_fingerprint: str) -> None:
+def _clear_conversation_turns(
+    *, conversation_id: str, actor_key: str, scope_fingerprint: str, ttl_seconds: int
+) -> engine_memory.ConversationClearResult:
     key = engine_memory.conversation_cache_key(
         actor_key=actor_key,
         scope_fp=scope_fingerprint,
         conversation_id=conversation_id,
     )
-    engine_memory.clear_turns(
+    return engine_memory.clear_turns(
         cache_backend=cache,
         key=key,
+        actor_key=actor_key,
+        ttl_seconds=ttl_seconds,
     )
 
 

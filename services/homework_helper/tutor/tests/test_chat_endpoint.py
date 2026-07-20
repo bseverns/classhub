@@ -14,6 +14,7 @@ from django.test import TestCase, override_settings
 from common.helper_scope import issue_scope_token
 
 from .. import views
+from ..engine import memory as engine_memory
 from ..engine.config_source import clear_helper_config_cache
 from ..llm import LLMUpstreamUnavailableError
 from ..remote_compute_control import current_remote_compute_lease
@@ -474,6 +475,26 @@ class HelperChatAuthTests(TestCase):
         backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
         self.assertNotIn("Initial question", backend_message)
         self.assertNotIn("Initial answer", backend_message)
+
+    @patch("tutor.views._clear_conversation_turns")
+    def test_chat_reset_reports_unconfirmed_cache_clear(self, clear_mock):
+        self._set_student_session()
+        clear_mock.return_value = engine_memory.ConversationClearResult(
+            ok=False,
+            error_code="conversation_delete_failed",
+        )
+
+        reset = self._post_chat(
+            {
+                "message": "",
+                "conversation_id": "123e4567-e89b-12d3-a456-426614174004",
+                "reset_conversation": True,
+            }
+        )
+
+        self.assertEqual(reset.status_code, 503)
+        self.assertEqual(reset.json().get("error"), "conversation_reset_failed")
+        self.assertNotIn("conversation_reset", reset.json())
 
     @patch("tutor.engine.backends.invoke_backend")
     def test_chat_isolates_conversation_history_by_actor_and_scope(self, invoke_backend_mock):

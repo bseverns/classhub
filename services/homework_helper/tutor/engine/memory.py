@@ -305,11 +305,90 @@ def save_turns(
     )
 
 
-def clear_turns(*, cache_backend, key: str) -> None:
+def _delete_key_confirmed(*, cache_backend, key: str) -> bool:
     try:
-        cache_backend.delete(key)
+        deleted = cache_backend.delete(key)
     except Exception:
         logger.warning("conversation_memory_cache_delete_failed key=%s", key)
+        return False
+    if deleted:
+        return True
+    try:
+        absent = cache_backend.get(key) is None
+    except Exception:
+        logger.warning("conversation_memory_cache_get_failed key=%s", key)
+        return False
+    if not absent:
+        logger.warning("conversation_memory_cache_delete_unconfirmed key=%s", key)
+    return absent
+
+
+def _remove_conversation_from_index(
+    *,
+    cache_backend,
+    index_key: str,
+    conversation_key: str,
+    ttl_seconds: int,
+) -> bool:
+    try:
+        indexed = cache_backend.get(index_key)
+    except Exception:
+        logger.warning("conversation_memory_cache_get_failed key=%s", index_key)
+        return False
+    keys = _coerce_key_list(indexed, max_items=0)
+    remaining = [key for key in keys if key != conversation_key]
+    if remaining == keys:
+        return True
+    if not remaining:
+        return _delete_key_confirmed(cache_backend=cache_backend, key=index_key)
+    try:
+        updated = cache_backend.set(index_key, remaining, timeout=max(int(ttl_seconds), 1))
+    except Exception:
+        logger.warning("conversation_memory_cache_set_failed key=%s", index_key)
+        return False
+    if updated is False:
+        logger.warning("conversation_memory_cache_set_unconfirmed key=%s", index_key)
+        return False
+    try:
+        confirmed = conversation_key not in _coerce_key_list(cache_backend.get(index_key), max_items=0)
+    except Exception:
+        logger.warning("conversation_memory_cache_get_failed key=%s", index_key)
+        return False
+    if not confirmed:
+        logger.warning("conversation_memory_cache_set_unconfirmed key=%s", index_key)
+    return confirmed
+
+
+def clear_turns(
+    *,
+    cache_backend,
+    key: str,
+    actor_key: str,
+    ttl_seconds: int,
+) -> ConversationClearResult:
+    """Delete one conversation and unregister it from actor/class indexes."""
+    if not _delete_key_confirmed(cache_backend=cache_backend, key=key):
+        return ConversationClearResult(ok=False, error_code="conversation_delete_failed")
+
+    actor_index_key = conversation_actor_index_key(actor_key=actor_key)
+    if not _remove_conversation_from_index(
+        cache_backend=cache_backend,
+        index_key=actor_index_key,
+        conversation_key=key,
+        ttl_seconds=ttl_seconds,
+    ):
+        return ConversationClearResult(ok=False, deleted_conversations=1, error_code="actor_index_update_failed")
+
+    class_id = _class_id_from_actor_key(actor_key)
+    if class_id is not None and not _remove_conversation_from_index(
+        cache_backend=cache_backend,
+        index_key=conversation_class_index_key(class_id=class_id),
+        conversation_key=key,
+        ttl_seconds=ttl_seconds,
+    ):
+        return ConversationClearResult(ok=False, deleted_conversations=1, error_code="class_index_update_failed")
+
+    return ConversationClearResult(ok=True, deleted_conversations=1)
 
 
 def clear_actor_conversations(

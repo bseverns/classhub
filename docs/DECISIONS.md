@@ -1496,6 +1496,8 @@ Execution ownership and gates:
   - `HELPER_CONVERSATION_TURN_MAX_CHARS`
   - `HELPER_CONVERSATION_HISTORY_MAX_CHARS`
 - Student UI shows a transcript; `Reset chat` clears the active backend cache before clearing the browser transcript and starting a fresh conversation id.
+- A reset is acknowledged only after cache deletion is confirmed; failed or unconfirmed deletion returns an error so the browser does not clear a transcript that the backend may still retain.
+- Successful single-conversation resets unregister the cache key from both actor and class indexes so reset conversations are not enumerated by later class snapshots.
 
 **Why this remains active:**
 - Makes helper responses meaningfully conversational without introducing long-term transcript retention by default.
