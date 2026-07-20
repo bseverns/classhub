@@ -15,6 +15,17 @@ class I18nSmokeTests(TestCase):
         session.save()
         return classroom, student
 
+    def _set_student_session_with_course_link(self) -> tuple[Class, StudentIdentity]:
+        classroom, student = self._set_student_session()
+        module = Module.objects.create(classroom=classroom, title="I18N lesson")
+        Material.objects.create(
+            module=module,
+            title="I18N course lesson",
+            type=Material.TYPE_LINK,
+            url="/course/demo-course/demo-lesson",
+        )
+        return classroom, student
+
     def _write_lesson_locale_fixture(self, content_root: Path) -> None:
         manifest = """
 title: "Neighborhood Circuits"
@@ -290,21 +301,21 @@ Draw, test, and explain one loop.
             self.assertEqual(resp.status_code, 200)
 
     def test_student_class_page_spanish_renders_translated_core_copy(self):
-        self._set_student_session()
+        self._set_student_session_with_course_link()
 
         resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="es")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Enlaces del curso")
 
     def test_student_class_page_somali_renders_translated_core_copy(self):
-        self._set_student_session()
+        self._set_student_session_with_course_link()
 
         resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="so")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Xiriirrada koorsada")
 
     def test_student_class_page_sgaw_karen_renders_translated_core_copy(self):
-        self._set_student_session()
+        self._set_student_session_with_course_link()
 
         resp = self.client.get("/student", HTTP_ACCEPT_LANGUAGE="ksw")
         self.assertEqual(resp.status_code, 200)
