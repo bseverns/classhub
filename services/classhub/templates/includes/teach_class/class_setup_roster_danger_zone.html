@@ -9,6 +9,10 @@
       <input type="checkbox" name="rotate_code" value="1" checked class="inline-check-input" />
       Rotate class join code so old printed cards stop working
     </label>
+    <label>
+      Type <strong>{{ classroom.join_code }}</strong> to confirm
+      <input name="confirm_join_code" type="text" autocomplete="off" required />
+    </label>
     <button type="submit">Permanently reset roster now</button>
   </form>
   <hr class="danger-divider" />

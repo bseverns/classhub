@@ -112,6 +112,24 @@ submission:
         self.assertEqual(event.metadata["import_channel"], "teacher_portal")
         self.assertEqual(event.metadata["source_metadata"]["registry_version"], "20260608T223000Z")
 
+    @patch("hub.views.teacher_parts.content_registry_import.import_coursepack_registry")
+    def test_registry_live_course_replacement_requires_typed_confirmation(self, import_mock):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            "/teach/import-coursepack-registry",
+            {
+                "registry_index": "https://example.org/classhub-coursepacks/index.json",
+                "registry_course_slug": "protected_course",
+                "registry_replace": "1",
+                "confirm_overwrite_content": "WRONG",
+            },
+        )
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("error=", resp["Location"])
+        import_mock.assert_not_called()
+
     def test_non_superuser_cannot_import_registry_coursepack_from_teach_home(self):
         teacher = get_user_model().objects.create_user(
             username="staff_teacher_registry_blocked",

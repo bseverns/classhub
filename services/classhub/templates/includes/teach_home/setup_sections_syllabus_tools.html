@@ -112,6 +112,8 @@
               <input id="registry-overwrite-content" name="registry_overwrite_content" type="checkbox" value="1" {% if registry_overwrite_content %}checked{% endif %} />
               {% trans "Overwrite existing live course folder" %}
             </label>
+            <label for="registry-confirm-overwrite">{% trans "Type OVERWRITE to confirm live course replacement" %}</label>
+            <input id="registry-confirm-overwrite" name="confirm_overwrite_content" autocomplete="off" />
           </div>
         </div>
         <p class="muted">

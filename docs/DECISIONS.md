@@ -2234,6 +2234,7 @@ Execution ownership and gates:
   - delete submissions now,
   - end session on this device.
 - Add teacher per-student data deletion control from class roster, with explicit confirmation and session invalidation.
+- Require the current class join code before the server accepts a permanent whole-roster reset.
 - Add explicit helper backend visibility in UI (`Local model (Ollama)` vs `Remote model (OpenAI)` badge).
 - Make remote helper mode (`openai`) require explicit operator acknowledgment (`HELPER_REMOTE_MODE_ACKNOWLEDGED=1`) before chat is allowed.
 - Add project-level [PRIVACY-ADDENDUM.md](PRIVACY-ADDENDUM.md) as field-level source of truth for lifecycle and deletion paths.
@@ -2361,7 +2362,7 @@ Execution ownership and gates:
   - `StudentEvent.delete()` is blocked unless a retention-only context is active.
   - `StudentEventQuerySet.delete()` is also blocked by default, closing the bulk-delete gap.
   - Retention command path (`manage.py prune_student_events`) now enables a scoped privileged delete context explicitly.
-- Teacher roster "delete student data" no longer hard-deletes StudentEvent rows; events are retained and detached from deleted student identities via FK `SET_NULL`.
+- Teacher roster "delete student data" removes student-linked event rows from core and configured telemetry stores before deleting the identity.
 - Add teacher-generated `ClassInviteLink` records for no-login student onboarding:
   - invite URL `/invite/<token>` bridges into join flow,
   - optional expiry (`expires_at`),
@@ -4225,6 +4226,7 @@ Execution ownership and gates:
 - Accept reviewed repo-style coursepack `.zip` files directly, and accept `.md`, `.docx`, or source `.zip` files by first compiling them into a live coursepack under `CONTENT_ROOT/courses/<slug>/`.
 - Keep the existing teacher `/teach/import-syllabus-source` flow as a scratch compiler that returns a downloadable ZIP and does not mutate live content.
 - Make superuser import the explicit live-content path: safely write one course into `CONTENT_ROOT/courses/<slug>/`, then create modules/materials in the selected or newly-created class.
+- Require operators to type `OVERWRITE` before Teacher Portal, class-creation import, or Django admin paths may replace existing class modules/materials or a live course folder.
 - Reuse the same coursepack-to-class importer for both the admin GUI and `import_coursepack` management command.
 - Emit `admin.coursepack_zip.import` and `class.content_import` audit events with course slug, target class, source kind/files, and module/material/asset counts.
 - Keep the ClassHub container root filesystem read-only while mounting `CLASSHUB_CONTENT_ROOT=/content` from `data/classhub_content`.

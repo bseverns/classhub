@@ -489,6 +489,30 @@ title: "Build"
         self.assertIn("error=", resp["Location"])
         self.assertFalse(Class.objects.filter(name="Missing File Import Cohort").exists())
 
+    @patch("hub.views.teacher_parts.roster_class_import.import_content_upload_to_class")
+    def test_create_class_live_content_overwrite_requires_typed_confirmation(self, import_mock):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            "/teach/create-class",
+            {
+                "name": "Protected Import Cohort",
+                "class_content_import_intent": "1",
+                "import_overwrite_content": "1",
+                "confirm_overwrite_content": "WRONG",
+                "class_content_import": SimpleUploadedFile(
+                    "protected.zip",
+                    b"not read before confirmation",
+                    content_type="application/zip",
+                ),
+            },
+        )
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("error=", resp["Location"])
+        self.assertFalse(Class.objects.filter(name="Protected Import Cohort").exists())
+        import_mock.assert_not_called()
+
     @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=False)
     def test_non_superuser_teach_create_class_cannot_import_live_content(self):
         staff_user = get_user_model().objects.create_user(

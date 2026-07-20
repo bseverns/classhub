@@ -110,6 +110,11 @@ class CoursepackZipImportForm(forms.Form):
         required=False,
         help_text="Required when CONTENT_ROOT already contains this course slug.",
     )
+    confirm_overwrite_content = forms.CharField(
+        label="Type OVERWRITE to confirm live course replacement",
+        required=False,
+        max_length=20,
+    )
     default_ui_level = forms.ChoiceField(
         label="Default UI level",
         required=False,
@@ -131,6 +136,10 @@ class CoursepackZipImportForm(forms.Form):
         registry_course_slug = (cleaned.get("registry_course_slug") or "").strip()
         if class_code and class_name:
             raise forms.ValidationError("Use class code or class name, not both.")
+        if (cleaned.get("replace") or cleaned.get("overwrite_content")) and cleaned.get(
+            "confirm_overwrite_content"
+        ) != "OVERWRITE":
+            self.add_error("confirm_overwrite_content", "Type OVERWRITE to confirm live course replacement.")
         upload = cleaned.get("coursepack_zip")
         registry_requested = bool(registry_index or registry_course_slug)
         if upload and registry_requested:

@@ -133,29 +133,24 @@ def teach_delete_student_data(request, class_id: int):
         return HttpResponse("Not found", status=404)
     if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
+    class_path = _teach_class_path(classroom.id)
 
     student_id = _parse_student_id(request.POST.get("student_id"))
     confirmed = (request.POST.get("confirm_delete") or "").strip() == "1"
 
     if not student_id:
         return _safe_internal_redirect(
-            request,
-            _with_notice(_teach_class_path(classroom.id), error="Invalid student selection."),
-            fallback=_teach_class_path(classroom.id),
+            request, _with_notice(class_path, error="Invalid student selection."), fallback=class_path
         )
     if not confirmed:
         return _safe_internal_redirect(
-            request,
-            _with_notice(_teach_class_path(classroom.id), error="Confirm deletion before continuing."),
-            fallback=_teach_class_path(classroom.id),
+            request, _with_notice(class_path, error="Confirm deletion before continuing."), fallback=class_path
         )
 
     student = StudentIdentity.objects.filter(id=student_id, classroom=classroom).first()
     if student is None:
         return _safe_internal_redirect(
-            request,
-            _with_notice(_teach_class_path(classroom.id), error="Student not found in this class."),
-            fallback=_teach_class_path(classroom.id),
+            request, _with_notice(class_path, error="Student not found in this class."), fallback=class_path
         )
 
     submission_count = Submission.objects.filter(student=student).count()
@@ -170,20 +165,20 @@ def teach_delete_student_data(request, class_id: int):
         return _safe_internal_redirect(
             request,
             _with_notice(
-                _teach_class_path(classroom.id),
+                class_path,
                 error="Nothing was deleted because the helper service could not confirm its context clear. Retry deletion when the helper is available.",
             ),
-            fallback=_teach_class_path(classroom.id),
+            fallback=class_path,
         )
     deleted_history = delete_student_event_history(classroom_id=classroom.id, student_id=student.id)
     if not deleted_history.ok:
         return _safe_internal_redirect(
             request,
             _with_notice(
-                _teach_class_path(classroom.id),
+                class_path,
                 error="Student records were not deleted because the activity-history store could not confirm deletion. Retry when it is available.",
             ),
-            fallback=_teach_class_path(classroom.id),
+            fallback=class_path,
         )
     student.delete()
     invalidate_classroom_submission_quota_cache(classroom_id=classroom.id)
@@ -215,9 +210,7 @@ def teach_delete_student_data(request, class_id: int):
         "and transient helper context cleared."
     )
     return _safe_internal_redirect(
-        request,
-        _with_notice(_teach_class_path(classroom.id), notice=notice),
-        fallback=_teach_class_path(classroom.id),
+        request, _with_notice(class_path, notice=notice), fallback=class_path
     )
 
 

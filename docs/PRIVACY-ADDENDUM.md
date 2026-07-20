@@ -119,7 +119,7 @@ flowchart LR
   - `/teach/class/<id>` facilitator board -> `Mark addressed` on deletion requests.
   - `/teach/class/<id>` roster -> `Delete student data` (student identity + related submissions/events).
 - Class reset:
-  - `/teach/class/<id>` -> `Reset roster now` (deletes all students/submissions in class and bumps session epoch).
+  - `/teach/class/<id>` -> `Reset roster now` (requires the current join code, deletes all students/submissions in class, and bumps session epoch).
 - Admin/ops retention:
   - `manage.py prune_submissions`
   - `manage.py prune_student_events`

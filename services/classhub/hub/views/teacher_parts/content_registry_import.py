@@ -35,6 +35,7 @@ def _registry_import_form_state(request):
         "create_class": create_class,
         "replace": replace,
         "overwrite_content": overwrite_content,
+        "overwrite_confirmed": (request.POST.get("confirm_overwrite_content") or "").strip() == "OVERWRITE",
         "form_values": {
             "registry_index": index,
             "registry_course_slug": course_slug,
@@ -68,6 +69,8 @@ def _validate_registry_import_state(state: dict) -> str:
         return "Registry course slug is required."
     if class_code and class_name:
         return "Use a class code or class name, not both."
+    if (state.get("replace") or state.get("overwrite_content")) and not state.get("overwrite_confirmed"):
+        return "Type OVERWRITE to confirm live course replacement."
     return ""
 
 

@@ -37,6 +37,9 @@ def teach_reset_roster(request, class_id: int):
         return HttpResponse("Not found", status=404)
     if not staff_can_manage_roster(request.user, classroom):
         return HttpResponse("Forbidden", status=403)
+    confirmation = (request.POST.get("confirm_join_code") or "").strip().upper()
+    if confirmation != classroom.join_code.upper():
+        return HttpResponse("Type the current class join code to confirm roster reset.", status=400)
 
     rotate_code = (request.POST.get("rotate_code") or "1").strip() == "1"
 

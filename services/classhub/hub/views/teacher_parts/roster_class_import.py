@@ -129,6 +129,12 @@ def teach_create_class(request):
             return redirect("/teach")
         if import_requested and not _class_content_import_upload(request):
             return redirect(_with_notice("/teach", error="Import requested but no file found."))
+        if (
+            import_requested
+            and _class_content_import_options(request)["overwrite_content"]
+            and (request.POST.get("confirm_overwrite_content") or "").strip() != "OVERWRITE"
+        ):
+            return redirect(_with_notice("/teach", error="Type OVERWRITE to confirm live course replacement."))
 
         classroom = Class.objects.create(
             organization=staff_default_organization(request.user),

@@ -213,7 +213,7 @@ class TeacherPortalRosterOpsTests(TeacherPortalBaseTests):
         _force_login_staff_verified(self.client, self.staff)
         resp = self.client.post(
             f"/teach/class/{classroom.id}/reset-roster",
-            {"rotate_code": "1"},
+            {"rotate_code": "1", "confirm_join_code": old_code},
         )
         self.assertEqual(resp.status_code, 302)
 
@@ -226,3 +226,17 @@ class TeacherPortalRosterOpsTests(TeacherPortalBaseTests):
         student_resp = student_client.get("/student")
         self.assertEqual(student_resp.status_code, 302)
         self.assertEqual(student_resp["Location"], "/")
+
+    def test_roster_reset_requires_current_join_code(self):
+        classroom = Class.objects.create(name="Protected Roster", join_code="SAFE1234")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Mia")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/reset-roster",
+            {"rotate_code": "1", "confirm_join_code": "WRONG"},
+        )
+
+        self.assertEqual(resp.status_code, 400)
+        self.assertTrue(StudentIdentity.objects.filter(id=student.id).exists())
+        self.assertEqual(AuditEvent.objects.filter(action="class.reset_roster").count(), 0)

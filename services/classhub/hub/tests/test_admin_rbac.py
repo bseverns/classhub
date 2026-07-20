@@ -292,6 +292,28 @@ lessons:
         self.assertEqual(event.target_id, "admin_zip_course")
         self.assertEqual(event.metadata["created_modules"], 2)
 
+    def test_admin_live_content_overwrite_requires_typed_confirmation(self):
+        _force_login_staff_verified(self.client, self.admin_user)
+
+        resp = self.client.post(
+            "/admin/hub/class/import-coursepack/",
+            {
+                "class_name": "Protected Admin Import",
+                "create_class": "on",
+                "overwrite_content": "on",
+                "confirm_overwrite_content": "WRONG",
+                "coursepack_zip": SimpleUploadedFile(
+                    "admin_zip_course.zip",
+                    self._coursepack_zip(),
+                    content_type="application/zip",
+                ),
+            },
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Type OVERWRITE to confirm live course replacement.")
+        self.assertFalse(Class.objects.filter(name="Protected Admin Import").exists())
+
     def test_course_content_import_rejects_unsupported_upload(self):
         _force_login_staff_verified(self.client, self.admin_user)
 
