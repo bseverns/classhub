@@ -4,6 +4,7 @@ from django.conf import settings
 
 from ...services.helper_control import clear_actor_conversations as clear_helper_actor_conversations
 from ...services.submission_quota import invalidate_classroom_submission_quota_cache
+from ...services.telemetry_events import delete_student_event_history
 from .shared import (
     HttpResponse,
     StudentEvent,
@@ -158,7 +159,6 @@ def teach_delete_student_data(request, class_id: int):
         )
 
     submission_count = Submission.objects.filter(student=student).count()
-    student_event_count = StudentEvent.objects.filter(student=student).count()
     helper_clear = clear_helper_actor_conversations(
         class_id=classroom.id,
         student_id=student.id,
@@ -172,6 +172,16 @@ def teach_delete_student_data(request, class_id: int):
             _with_notice(
                 _teach_class_path(classroom.id),
                 error="Nothing was deleted because the helper service could not confirm its context clear. Retry deletion when the helper is available.",
+            ),
+            fallback=_teach_class_path(classroom.id),
+        )
+    deleted_history = delete_student_event_history(classroom_id=classroom.id, student_id=student.id)
+    if not deleted_history.ok:
+        return _safe_internal_redirect(
+            request,
+            _with_notice(
+                _teach_class_path(classroom.id),
+                error="Student records were not deleted because the activity-history store could not confirm deletion. Retry when it is available.",
             ),
             fallback=_teach_class_path(classroom.id),
         )
@@ -190,7 +200,10 @@ def teach_delete_student_data(request, class_id: int):
         metadata={
             "student_id": student_id,
             "submissions_deleted": submission_count,
-            "student_events_detached": student_event_count,
+            "core_student_events_deleted": deleted_history.core_events_deleted,
+            "core_student_outcomes_deleted": deleted_history.core_outcomes_deleted,
+            "telemetry_student_events_deleted": deleted_history.telemetry_events_deleted,
+            "telemetry_student_outcomes_deleted": deleted_history.telemetry_outcomes_deleted,
             "session_epoch": classroom.session_epoch,
             "helper_context_clear_ok": helper_clear.ok,
             "helper_conversations_deleted": helper_clear.deleted_conversations,
@@ -198,7 +211,7 @@ def teach_delete_student_data(request, class_id: int):
     )
     notice = (
         f"Deleted student data for student #{student_id}: "
-        f"{submission_count} submission(s), {student_event_count} event record(s) detached from student identity, "
+        f"{submission_count} submission(s), {deleted_history.total_deleted} event record(s), "
         "and transient helper context cleared."
     )
     return _safe_internal_redirect(

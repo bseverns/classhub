@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 
 DEFAULT_TEXT_LANGUAGE_KEYWORDS = [
     "pascal",
@@ -130,11 +131,12 @@ _SAFEGUARDING_PATTERNS = {
         re.compile(r"\bi was punched by (?:my )?(?:stepdad|stepfather|dad|father|parent|guardian)\b"),
         re.compile(
             rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+"
-            r"(?:hits?|hit|beats?|beat|hurts?|hurt|abuses?|abused)\s+me\b"
+            r"(?:hits?|hit|beats?|beat|punch(?:es|ed)?|hurts?|hurt|abuses?|abused)\s+me\b"
         ),
+        re.compile(r"\bmi (?:papa|padre|mama|madre) me pega(?:n)?(?: en casa)?\b"),
     ),
     "sexual_harm": (
-        re.compile(rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+(?:touched|touches)\s+me\b"),
+        re.compile(rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+(?:(?:is )?touching|touched|touches)\s+me\b"),
         re.compile(rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+(?:raped|sexually assaulted)\s+me\b"),
         re.compile(r"\b(?:i was|i am being|im being)\s+(?:raped|sexually assaulted)\b"),
         re.compile(r"\bi was forced to (?:undress|take off my clothes|get undressed)\b"),
@@ -142,10 +144,12 @@ _SAFEGUARDING_PATTERNS = {
             rf"\b(?:{_AUTHORITY_OR_RELATIONSHIP})\s+(?:makes?|made)\s+me\s+"
             r"(?:undress|take off my clothes|take my clothes off|get undressed)\b"
         ),
+        re.compile(r"\bmi (?:maestro|maestra|profesor|profesora) me esta tocando\b"),
     ),
     "unsafe": (
         re.compile(r"\bi (?:do not|dont) feel safe at home\b"),
         re.compile(r"\bi(?: am|m)? not safe at home\b"),
+        re.compile(r"\bi cant stay safe at home\b"),
         re.compile(r"\bimmediate danger\b"),
     ),
     "weapon": (
@@ -160,6 +164,9 @@ _SAFEGUARDING_PATTERNS = {
         re.compile(r"\bsuicid(?:e|al)\b"),
         re.compile(r"\b(?:i )?(?:want|wish) to die\b"),
         re.compile(r"\bi (?:do not|dont) want to be alive\b"),
+        re.compile(r"\bi (?:have|got) pills\b.*\b(?:plan|planning|going|want) to overdose\b"),
+        re.compile(r"\bi(?: am)? (?:planning|going) to overdose\b"),
+        re.compile(r"\bwaxaan rabaa inaan is dilo\b"),
     ),
     "threat": (
         re.compile(r"\b(?:i(?: am|m)? going to|i will|im about to|i am about to)\s+(?:kill|hurt|shoot|stab)\s+(?:someone|him|her|them|you)\b"),
@@ -204,7 +211,12 @@ def safeguarding_risk(message: str) -> str:
     lowered = (message or "").lower().replace("'", "").replace("’", "")
     if any(pattern.search(lowered) for pattern in _QUOTED_CLASSROOM_EXAMPLE_PATTERNS):
         return ""
-    normalized = re.sub(r"[^a-z0-9]+", " ", lowered).strip()
+    folded = "".join(
+        character
+        for character in unicodedata.normalize("NFKD", lowered)
+        if not unicodedata.combining(character)
+    )
+    normalized = re.sub(r"[^\w]+", " ", folded, flags=re.UNICODE).strip()
     if not normalized:
         return ""
     safety_text = normalized

@@ -1,8 +1,9 @@
+from contextlib import nullcontext
 from unittest.mock import patch
 
 from ._shared import *  # noqa: F401,F403
 
-from hub.services.telemetry_events import write_student_event, write_student_outcome_event
+from hub.services.telemetry_events import delete_student_event_history, write_student_event, write_student_outcome_event
 from hub.services.telemetry_split import dual_write_counters, reset_dual_write_counters
 
 
@@ -126,3 +127,52 @@ class TelemetryEventWriteModeTests(TestCase):
             {"attempts": 1, "successes": 0, "failures": 1},
         )
 
+
+class TelemetryEventDeleteTests(SimpleTestCase):
+    @patch("hub.services.telemetry_events.transaction.atomic", side_effect=lambda **_kwargs: nullcontext())
+    @patch("hub.services.telemetry_events._telemetry_db_configured", return_value=True)
+    @patch("hub.services.telemetry_events.StudentOutcomeEvent.objects.filter")
+    @patch("hub.services.telemetry_events.StudentEvent.objects.filter")
+    @patch("hub.services.telemetry_events.TelemetryStudentOutcomeEvent.objects.using")
+    @patch("hub.services.telemetry_events.TelemetryStudentEvent.objects.using")
+    def test_delete_removes_split_rows_and_core_rows(
+        self,
+        telemetry_events_using,
+        telemetry_outcomes_using,
+        core_events_filter,
+        core_outcomes_filter,
+        _configured,
+        _atomic,
+    ):
+        telemetry_events_using.return_value.filter.return_value.delete.return_value = (2, {})
+        telemetry_outcomes_using.return_value.filter.return_value.delete.return_value = (3, {})
+        core_events_filter.return_value.delete.return_value = (2, {})
+        core_outcomes_filter.return_value.delete.return_value = (3, {})
+
+        result = delete_student_event_history(classroom_id=7, student_id=11)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.total_deleted, 10)
+        telemetry_events_using.return_value.filter.assert_called_once_with(classroom_id=7, student_id=11)
+        telemetry_outcomes_using.return_value.filter.assert_called_once_with(classroom_id=7, student_id=11)
+        core_events_filter.assert_called_once_with(classroom_id=7, student_id=11)
+        core_outcomes_filter.assert_called_once_with(classroom_id=7, student_id=11)
+
+    @patch("hub.services.telemetry_events.transaction.atomic", side_effect=lambda **_kwargs: nullcontext())
+    @patch("hub.services.telemetry_events._telemetry_db_configured", return_value=True)
+    @patch("hub.services.telemetry_events.StudentEvent.objects.filter")
+    @patch("hub.services.telemetry_events.TelemetryStudentEvent.objects.using")
+    def test_delete_fails_closed_when_split_store_is_unavailable(
+        self,
+        telemetry_events_using,
+        core_events_filter,
+        _configured,
+        _atomic,
+    ):
+        telemetry_events_using.return_value.filter.return_value.delete.side_effect = RuntimeError("telemetry down")
+
+        result = delete_student_event_history(classroom_id=7, student_id=11)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.error, "telemetry_delete_failed")
+        core_events_filter.assert_not_called()

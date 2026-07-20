@@ -90,6 +90,9 @@ Draw, test, and explain one loop.
                 self.assertContains(handout, "Upload one PDF page.")
                 self.assertContains(handout, "Choose a language")
                 self.assertContains(handout, "Use these links to open the same handout in the language your class reads best.")
+                self.assertContains(handout, "lang=es")
+                self.assertNotContains(handout, "lang=so")
+                self.assertNotContains(handout, "lang=ksw")
 
                 standard_handout = self.client.get(
                     "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=standard"

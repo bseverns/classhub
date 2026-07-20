@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 class TeacherPortalRosterOpsTests(TeacherPortalBaseTests):
     @patch("hub.views.teacher_parts.roster_students_lifecycle.clear_helper_actor_conversations")
-    def test_teach_delete_student_data_removes_submissions_and_detaches_events(self, clear_mock):
+    def test_teach_delete_student_data_removes_submissions_and_events(self, clear_mock):
         clear_mock.return_value = SimpleNamespace(ok=True, deleted_conversations=1)
         classroom = Class.objects.create(name="Delete Data Class", join_code="DEL12345")
         module = Module.objects.create(classroom=classroom, title="Session 1", order_index=0)
@@ -44,7 +44,7 @@ class TeacherPortalRosterOpsTests(TeacherPortalBaseTests):
         self.assertFalse(StudentIdentity.objects.filter(id=student.id).exists())
         self.assertEqual(Submission.objects.filter(student_id=student.id).count(), 0)
         self.assertEqual(StudentEvent.objects.filter(student_id=student.id).count(), 0)
-        self.assertEqual(StudentEvent.objects.filter(classroom=classroom).count(), 1)
+        self.assertEqual(StudentEvent.objects.filter(classroom=classroom).count(), 0)
 
     @patch("hub.views.teacher_parts.roster_students_lifecycle.clear_helper_actor_conversations")
     def test_teach_delete_student_data_fails_closed_when_helper_clear_is_unconfirmed(self, clear_mock):
@@ -64,6 +64,28 @@ class TeacherPortalRosterOpsTests(TeacherPortalBaseTests):
         self.assertTrue(StudentIdentity.objects.filter(id=student.id).exists())
         classroom.refresh_from_db()
         self.assertEqual(classroom.session_epoch, start_epoch)
+
+    @patch("hub.views.teacher_parts.roster_students_lifecycle.delete_student_event_history")
+    @patch("hub.views.teacher_parts.roster_students_lifecycle.clear_helper_actor_conversations")
+    def test_teach_delete_student_data_fails_closed_when_event_history_clear_fails(
+        self,
+        clear_mock,
+        delete_events,
+    ):
+        clear_mock.return_value = SimpleNamespace(ok=True, deleted_conversations=1)
+        delete_events.return_value = SimpleNamespace(ok=False, error="telemetry_delete_failed")
+        classroom = Class.objects.create(name="Telemetry Retry Class", join_code="TRY12345")
+        student = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/delete-student-data",
+            {"student_id": str(student.id), "confirm_delete": "1"},
+        )
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("error=", resp["Location"])
+        self.assertTrue(StudentIdentity.objects.filter(id=student.id).exists())
 
     def test_teacher_can_rename_student(self):
         classroom = Class.objects.create(name="Period Rename", join_code="REN12345")

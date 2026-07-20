@@ -115,6 +115,17 @@ class HelperChatAuthTests(TestCase):
         self.assertNotIn(disclosure, "\n".join(record.getMessage() for record in captured.records))
 
     @patch("tutor.views._call_backend_with_retries")
+    def test_spanish_and_somali_disclosures_pause_without_backend(self, backend_mock):
+        self._set_student_session()
+        for disclosure in ("Mi papá me pega en casa", "Waxaan rabaa inaan is dilo"):
+            with self.subTest(disclosure=disclosure):
+                with self.assertLogs("tutor.views_chat_helpers", level="WARNING"):
+                    resp = self._post_chat({"message": disclosure})
+                self.assertEqual(resp.status_code, 200)
+                self.assertTrue(resp.json()["safeguarding"])
+        backend_mock.assert_not_called()
+
+    @patch("tutor.views._call_backend_with_retries")
     def test_chat_falls_back_to_local_when_remote_compute_errors(self, call_backend_mock):
         self._set_student_session(class_id=22)
         cache.set(

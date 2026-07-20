@@ -172,6 +172,22 @@ class StudentDeleteWorkTests(TestCase):
         # Class events for the deleting student should be gone
         self.assertEqual(StudentEvent.objects.filter(student=self.student, classroom=self.classroom).count(), 0)
 
+    @patch("hub.views.student.delete_student_event_history")
+    def test_delete_work_fails_closed_when_event_history_clear_fails(self, delete_events):
+        delete_events.return_value = SimpleNamespace(ok=False, error="telemetry_delete_failed")
+        self._login_student()
+        StudentMaterialResponse.objects.create(
+            student=self.student,
+            material=self.material,
+            reflection_text="Keep this if deletion fails.",
+        )
+
+        resp = self.client.post("/student/delete-work")
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("Nothing+else+was+deleted", resp["Location"])
+        self.assertTrue(StudentMaterialResponse.objects.filter(student=self.student).exists())
+
     def test_delete_work_does_not_remove_other_students_data(self):
         self._login_student()
 

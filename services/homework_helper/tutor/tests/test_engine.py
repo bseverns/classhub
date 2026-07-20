@@ -285,6 +285,21 @@ class HeuristicsEngineTests(SimpleTestCase):
             with self.subTest(message=message):
                 self.assertEqual(heuristics.safeguarding_risk(message), expected)
 
+    def test_safeguarding_recognizes_audit_disclosures(self):
+        cases = {
+            "My dad punches me every night": "disclosure",
+            "My teacher is touching me and I am scared": "disclosure",
+            "I can't stay safe at home": "disclosure",
+            "I have pills and plan to overdose tonight": "imminent",
+            "Mi papá me pega en casa": "disclosure",
+            "Mi maestro me está tocando": "disclosure",
+            "Waxaan rabaa inaan is dilo": "disclosure",
+        }
+
+        for message, expected in cases.items():
+            with self.subTest(message=message):
+                self.assertEqual(heuristics.safeguarding_risk(message), expected)
+
     def test_safeguarding_recognizes_relationship_and_authority_perpetrators(self):
         cases = (
             "My uncle hits me",

@@ -23,7 +23,6 @@ from ..models import (
     StudentEvent,
     StudentIdentity,
     StudentMaterialResponse,
-    StudentOutcomeEvent,
     Submission,
 )
 from ..services.export_service import build_student_portfolio_export_response
@@ -56,7 +55,7 @@ from ..services.submission_service import (
     validate_upload_content,
 )
 from ..services.submission_quota import invalidate_classroom_submission_quota_cache
-from ..services.telemetry_events import write_student_event
+from ..services.telemetry_events import delete_student_event_history, write_student_event
 from ..services.ui_density import resolve_ui_density_mode_for_modules
 from .student_downloads import submission_download
 from .student_micro_checks import latest_micro_check_state
@@ -266,6 +265,16 @@ def student_delete_work(request):
         )
         return redirect("/student/my-data?" + urlencode({"notice": notice}))
 
+    deleted_history = delete_student_event_history(
+        classroom_id=request.classroom.id,
+        student_id=request.student.id,
+    )
+    if not deleted_history.ok:
+        notice = _(
+            "Nothing else was deleted because the activity-history store could not confirm deletion. Please try again."
+        )
+        return redirect("/student/my-data?" + urlencode({"notice": notice}))
+
     submissions_qs = Submission.objects.filter(
         student=request.student,
         material__module__classroom=request.classroom,
@@ -278,23 +287,12 @@ def student_delete_work(request):
         material__module__classroom=request.classroom,
     ).delete()
 
-    with StudentEvent.allow_retention_delete():
-        deleted_events, _details = StudentEvent.objects.filter(
-            student=request.student,
-            classroom=request.classroom,
-        ).delete()
-    with StudentOutcomeEvent.allow_retention_delete():
-        deleted_outcomes, _details = StudentOutcomeEvent.objects.filter(
-            student=request.student,
-            classroom=request.classroom,
-        ).delete()
-
     notice = _(
         "Deleted %(submissions)s submission(s), %(events)s class event record(s), %(outcomes)s outcome record(s), and transient helper context."
     ) % {
         "submissions": deleted_submissions,
-        "events": deleted_events,
-        "outcomes": deleted_outcomes,
+        "events": deleted_history.core_events_deleted + deleted_history.telemetry_events_deleted,
+        "outcomes": deleted_history.core_outcomes_deleted + deleted_history.telemetry_outcomes_deleted,
     }
     return redirect("/student/my-data?" + urlencode({"notice": notice}))
 

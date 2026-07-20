@@ -253,10 +253,10 @@ Offline handout export:
 - The HTML handout is the primary export surface; the current PDF path is a basic text-first fallback and does not preserve the full HTML handout layout.
 - The handout uses `offline_handout` front matter when present and otherwise falls back to existing lesson metadata.
 - Reading-level selection is deterministic and query-based: `?reading_level=simple` or `?reading_level=standard`.
-- Operators can print a handout in a specific shipped UI language without switching their whole browser session by adding `?lang=en|es|so|ksw` to the lesson, handout, or handout PDF route; the lesson page now exposes direct handout links for those language variants.
+- Operators can request a shipped UI language without switching their whole browser session by adding `?lang=en|es|so|ksw` to the lesson, handout, or handout PDF route. The lesson page exposes direct handout links only for content variants explicitly authored under `offline_handout.localized`.
 - The syllabus ingest path preserves `Local anchors`, `Example variants`, `Community glossary`, and `Offline handout` sections from teacher-authored `.md`, `.docx`, or `.zip` sources by compiling them into lesson front matter.
 - In teacher-authored source files, use bullet labels like `Goal:`, `Do now:`, `Simple goal:`, `Simple do now:`, and `Standard do now:` inside the `Offline handout` section when you want distinct simple/standard wording to survive import.
-- Handout content is never machine translated at runtime. Add explicit `offline_handout.localized.<language-code>` variants in lesson YAML, or `Spanish goal:`, `Spanish do now:`, `Spanish submit:`, and `Spanish safety:` bullets in ingested source. Missing localized fields fall back to the English/base handout while reading-level selection continues to work.
+- Handout content is never machine translated at runtime. Add explicit `offline_handout.localized.<language-code>` variants in lesson YAML, or `Spanish goal:`, `Spanish do now:`, `Spanish submit:`, and `Spanish safety:` bullets in ingested source. Missing fields inside an authored variant fall back to the English/base handout; languages without an authored variant are not offered in the handout switcher.
 
 ## Static registry workflow
 

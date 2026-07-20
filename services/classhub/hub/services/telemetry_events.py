@@ -6,6 +6,7 @@ import logging
 from dataclasses import dataclass
 
 from django.conf import settings
+from django.db import transaction
 
 from hub_telemetry.models import TelemetryStudentEvent, TelemetryStudentOutcomeEvent
 
@@ -31,11 +32,34 @@ class TelemetryWriteResult:
     telemetry_error: str = ""
 
 
+@dataclass(frozen=True)
+class TelemetryDeleteResult:
+    ok: bool
+    core_events_deleted: int = 0
+    core_outcomes_deleted: int = 0
+    telemetry_events_deleted: int = 0
+    telemetry_outcomes_deleted: int = 0
+    error: str = ""
+
+    @property
+    def total_deleted(self) -> int:
+        return (
+            self.core_events_deleted
+            + self.core_outcomes_deleted
+            + self.telemetry_events_deleted
+            + self.telemetry_outcomes_deleted
+        )
+
+
 def _write_mode() -> str:
     value = str(getattr(settings, "CLASSHUB_TELEMETRY_WRITE_MODE", _WRITE_MODE_OFF) or _WRITE_MODE_OFF).strip().lower()
     if value not in {_WRITE_MODE_OFF, _WRITE_MODE_DUAL, _WRITE_MODE_TELEMETRY_ONLY}:
         return _WRITE_MODE_OFF
     return value
+
+
+def _telemetry_db_configured() -> bool:
+    return "telemetry" in getattr(settings, "DATABASES", {})
 
 
 def _scalar_id(*, obj=None, explicit_id=None) -> int | None:
@@ -239,8 +263,76 @@ def write_student_outcome_event(
     )
 
 
+def delete_student_event_history(*, classroom_id, student_id) -> TelemetryDeleteResult:
+    classroom_pk = _scalar_id(explicit_id=classroom_id)
+    student_pk = _scalar_id(explicit_id=student_id)
+    if classroom_pk is None or student_pk is None:
+        return TelemetryDeleteResult(ok=False, error="invalid_scope")
+
+    telemetry_events_deleted = 0
+    telemetry_outcomes_deleted = 0
+    if _telemetry_db_configured():
+        try:
+            with transaction.atomic(using="telemetry"):
+                with (
+                    TelemetryStudentEvent.allow_retention_delete(),
+                    TelemetryStudentOutcomeEvent.allow_retention_delete(),
+                ):
+                    telemetry_events_deleted, _details = (
+                        TelemetryStudentEvent.objects.using("telemetry")
+                        .filter(classroom_id=classroom_pk, student_id=student_pk)
+                        .delete()
+                    )
+                    telemetry_outcomes_deleted, _details = (
+                        TelemetryStudentOutcomeEvent.objects.using("telemetry")
+                        .filter(classroom_id=classroom_pk, student_id=student_pk)
+                        .delete()
+                    )
+        except Exception:
+            logger.exception(
+                "telemetry_student_history_delete_failed classroom_id=%s student_id=%s",
+                classroom_pk,
+                student_pk,
+            )
+            return TelemetryDeleteResult(ok=False, error="telemetry_delete_failed")
+
+    try:
+        with transaction.atomic():
+            with StudentEvent.allow_retention_delete(), StudentOutcomeEvent.allow_retention_delete():
+                core_events_deleted, _details = StudentEvent.objects.filter(
+                    classroom_id=classroom_pk,
+                    student_id=student_pk,
+                ).delete()
+                core_outcomes_deleted, _details = StudentOutcomeEvent.objects.filter(
+                    classroom_id=classroom_pk,
+                    student_id=student_pk,
+                ).delete()
+    except Exception:
+        logger.exception(
+            "core_student_history_delete_failed classroom_id=%s student_id=%s",
+            classroom_pk,
+            student_pk,
+        )
+        return TelemetryDeleteResult(
+            ok=False,
+            telemetry_events_deleted=telemetry_events_deleted,
+            telemetry_outcomes_deleted=telemetry_outcomes_deleted,
+            error="core_delete_failed",
+        )
+
+    return TelemetryDeleteResult(
+        ok=True,
+        core_events_deleted=core_events_deleted,
+        core_outcomes_deleted=core_outcomes_deleted,
+        telemetry_events_deleted=telemetry_events_deleted,
+        telemetry_outcomes_deleted=telemetry_outcomes_deleted,
+    )
+
+
 __all__ = [
+    "TelemetryDeleteResult",
     "TelemetryWriteResult",
+    "delete_student_event_history",
     "write_student_event",
     "write_student_outcome_event",
 ]

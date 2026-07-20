@@ -375,7 +375,7 @@ Draw, test, and explain one loop.
         self.assertContains(resp, '<html lang="es">')
         self.assertContains(resp, "Nivel de lectura:")
 
-    def test_course_lesson_page_exposes_language_specific_handout_links(self):
+    def test_course_lesson_page_hides_unavailable_handout_languages(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             content_root = Path(temp_dir)
             self._write_lesson_locale_fixture(content_root)
@@ -386,14 +386,10 @@ Draw, test, and explain one loop.
                 )
 
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(
-            resp,
-            "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple&amp;lang=es",
-        )
-        self.assertContains(
-            resp,
-            "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple&amp;lang=so",
-        )
+        self.assertNotContains(resp, "Choose a language")
+        self.assertNotContains(resp, "/handout?reading_level=simple&amp;lang=es")
+        self.assertNotContains(resp, "/handout?reading_level=simple&amp;lang=so")
+        self.assertNotContains(resp, "/handout?reading_level=simple&amp;lang=ksw")
 
     def test_course_lesson_handout_spanish_renders_translated_reading_level_label(self):
         self._assert_lesson_route_i18n(

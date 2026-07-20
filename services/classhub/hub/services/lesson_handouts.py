@@ -35,11 +35,20 @@ def _path_with_query(path: str, *, reading_level: str = "", language_code: str =
     return f"{path}?{urlencode(params)}"
 
 
-def _handout_language_options(*, online_path: str, reading_level: str) -> list[dict[str, str]]:
+def _handout_language_options(*, online_path: str, reading_level: str, offline_handout: dict) -> list[dict[str, str]]:
+    variants = offline_handout.get("localized")
+    available_codes = {"en"}
+    if isinstance(variants, dict):
+        available_codes.update(
+            str(code or "").strip().lower().split("-", 1)[0]
+            for code, value in variants.items()
+            if isinstance(value, dict) and value
+        )
+
     options: list[dict[str, str]] = []
     for code, label in getattr(settings, "LANGUAGES", []):
         normalized_code = str(code or "").strip().lower()
-        if not normalized_code:
+        if not normalized_code or normalized_code.split("-", 1)[0] not in available_codes:
             continue
         lesson_url = _path_with_query(online_path, reading_level=reading_level, language_code=normalized_code)
         handout_url = _path_with_query(
@@ -208,8 +217,9 @@ def build_handout_context(
     online_path: str,
     language_code: str,
 ) -> dict:
-    offline_handout = front_matter.get("offline_handout") if isinstance(front_matter.get("offline_handout"), dict) else {}
-    offline_handout = _localized_offline_handout(offline_handout, language_code)
+    raw_offline_handout = front_matter.get("offline_handout")
+    offline_handout_source = raw_offline_handout if isinstance(raw_offline_handout, dict) else {}
+    offline_handout = _localized_offline_handout(offline_handout_source, language_code)
     local_anchors = resolve_local_anchors(front_matter=front_matter)
     example_variants = resolve_example_variants(course_manifest=course_manifest, front_matter=front_matter)
     community_glossary = resolve_community_glossary(course_manifest=course_manifest, front_matter=front_matter)
@@ -308,6 +318,7 @@ def build_handout_context(
         "language_options": _handout_language_options(
             online_path=online_path,
             reading_level=reading_level,
+            offline_handout=offline_handout_source,
         ),
     }
     return handout

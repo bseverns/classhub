@@ -383,6 +383,7 @@ Historical implementation logs and superseded decisions are archived by month in
   - use dual-write + read toggles for a near-zero-downtime migration,
   - require parity checks before any telemetry-only write mode.
 - Do not split core submission/class metadata in Phase 1.
+- Student self-delete and teacher student deletion remove matching event/outcome rows from both core and configured telemetry stores; persistent deletion stops if the telemetry store cannot confirm removal.
 
 Execution runbook:
 - [TELEMETRY_DB_SPLIT_PLAN.md](TELEMETRY_DB_SPLIT_PLAN.md)
@@ -1753,10 +1754,11 @@ Execution ownership and gates:
   - `/course/<course_slug>/<lesson_slug>/handout`
   - `/course/<course_slug>/<lesson_slug>/handout.pdf`
 - Treat the HTML handout as the primary export surface and keep the current PDF path positioned as a simple fallback download rather than a publication-grade multilingual layout renderer.
-- Let operators request a specific shipped UI language on lesson/handout routes with `?lang=<code>` so printed handouts can be produced in Spanish, Somali, or Karen without changing the whole operator session language.
-- Keep the lesson and handout language switch affordance explicit for operators:
+- Let operators request a specific shipped UI language on lesson/handout routes with `?lang=<code>` without changing the whole operator session language.
+- Show lesson and handout language switches only for explicitly authored `offline_handout.localized` variants:
   - lesson page labels it as `Choose a language` / `Handout language`
   - handout page explains that the switch changes the printable handout language before print/share
+  - unavailable content languages are not offered as translated handouts
 - Keep reading-level support deterministic:
   - `reading_level=simple|standard`
   - authored overrides live in `offline_handout.reading_levels`
@@ -4424,3 +4426,14 @@ Execution ownership and gates:
 - Students and facilitators need to answer “what do I do now?” before reading recovery, setup, or infrastructure detail.
 - Native disclosures and existing account/setup surfaces reduce cognitive load without adding routes, models, or JavaScript frameworks.
 - Human failure recovery preserves trust when optional helper infrastructure is unavailable.
+
+## Deterministic safeguarding phrase coverage (2026-07-20)
+
+**Current decision:**
+- Keep safeguarding detection in the shared deterministic heuristic before any model call.
+- Normalize Unicode accents with the Python standard library and cover the audited English, Spanish, and Somali disclosure phrases with regression tests.
+- Do not invent or machine-translate S'gaw Karen safety phrases; add them only after review by a proficient speaker.
+
+**Why this remains active:**
+- Recognized disclosures must pause tutoring even when the model backend is unavailable or unsafe.
+- Safety-critical language needs reviewed wording rather than plausible-looking generated translations.
