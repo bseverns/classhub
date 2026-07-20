@@ -60,19 +60,15 @@ class StudentUxPriorityPassTests(TestCase):
         self.assertContains(response, "Privacy")
         self.assertContains(response, "Trust notes")
 
-    def test_upload_retry_is_hidden_until_a_queued_upload_exists(self):
+    def test_upload_uses_plain_form_without_unsafe_offline_queue(self):
         self._login_student()
 
         response = self.client.get(f"/material/{self.upload.id}/upload")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            'id="upload-queue-retry" type="button" class="queue-retry-btn" hidden',
-            html=False,
-        )
-        css = (Path(__file__).resolve().parents[1] / "static/css/material_upload.css").read_text(encoding="utf-8")
-        self.assertIn(".queue-retry-btn[hidden]", css)
+        self.assertContains(response, '<form method="post" enctype="multipart/form-data" class="upload-form">', html=False)
+        self.assertNotContains(response, "upload-queue-panel")
+        self.assertNotContains(response, "student_upload_queue.js")
 
     def test_my_data_separates_delete_controls_from_account_actions(self):
         self._login_student()

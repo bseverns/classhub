@@ -60,17 +60,17 @@ Non-allowlisted student routes redirect back to class home.
 
 | Device/browser | Installability target | Required checks | Status |
 |---|---|---|---|
-| iPadOS Safari (latest stable) | Add to Home Screen succeeds from `/?kiosk=1` | Join -> class -> upload, offline queue, reconnect flush, relaunch behavior | Pending per deployment |
-| Android tablet Chrome (latest stable) | Install App prompt available from `/?kiosk=1` | Join -> class -> upload, offline queue, reconnect flush, relaunch behavior | Pending per deployment |
+| iPadOS Safari (latest stable) | Add to Home Screen succeeds from `/?kiosk=1` | Join -> class -> online upload, failed-request recovery, relaunch behavior | Pending per deployment |
+| Android tablet Chrome (latest stable) | Install App prompt available from `/?kiosk=1` | Join -> class -> online upload, failed-request recovery, relaunch behavior | Pending per deployment |
 
 ## Unstable-network drill checklist
 Use `bash scripts/kiosk_resilience_check.sh --class-code <CODE>` and record outcomes:
 1. Confirm `/student-shell.webmanifest` and `/student-upload-sync-sw.js` checks pass.
 2. Open kiosk mode and verify non-allowlisted routes redirect to class flow.
-3. On upload page, force Offline in devtools and submit a small file.
-4. Verify queued-upload status message appears and session remains usable.
-5. Restore Online and confirm queue flushes automatically or via retry button.
-6. Confirm uploaded file appears in `Your uploads` after reconnect.
+3. On the upload page, force Offline in devtools and submit a small file.
+4. Verify the browser reports the failed request without claiming the file was queued.
+5. Restore Online, select the file again, and submit it.
+6. Confirm the uploaded file appears in `Your uploads`.
 7. Relaunch installed app and verify join/class/upload flows still function.
 
 ## Related docs

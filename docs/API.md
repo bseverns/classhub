@@ -145,7 +145,7 @@ Returns the accessible curriculum tree for the student's classroom.
 ### `GET /api/v1/student/csrf`
 
 Returns a fresh CSRF token for session-authenticated student write calls
-(used by resilient upload clients and offline queue flush).
+(reserved for API upload clients; the browser-local offline queue is currently disabled).
 
 **Response** (200):
 ```json

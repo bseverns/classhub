@@ -315,9 +315,9 @@ run_manual_checklist() {
     "Open ${BASE_URL}/?kiosk=1 on a tablet (or tablet emulator) and confirm install prompt/add-to-home-screen option appears."
     "Join a class and open /material/<id>/upload in kiosk mode."
     "In browser devtools, set network to Offline, choose a small file, then submit."
-    "Confirm UI message indicates queued upload pending and the page remains usable."
-    "Restore network (Online), wait up to 90 seconds or click 'Retry queued uploads now'."
-    "Confirm queued upload syncs, appears in 'Your uploads', and no data loss occurred."
+    "Confirm the browser reports the failed request without claiming the file was queued."
+    "Restore network (Online), choose the file again, and submit it."
+    "Confirm the uploaded file appears in 'Your uploads'."
     "Close and relaunch the installed kiosk app, then verify class/join flow still works."
   )
 
@@ -362,7 +362,7 @@ report_line "## Automated checks"
 http_check "health" "${BASE_URL}/healthz" "200" || true
 http_check "kiosk manifest endpoint" "${BASE_URL}/student-shell.webmanifest" "200" || true
 manifest_payload_check || true
-http_check "upload sync service worker endpoint" "${BASE_URL}/student-upload-sync-sw.js" "200" || true
+http_check "student shell service worker endpoint" "${BASE_URL}/student-upload-sync-sw.js" "200" || true
 service_worker_header_check || true
 kiosk_cookie_check || true
 kiosk_route_guard_check "/?kiosk=1" || true

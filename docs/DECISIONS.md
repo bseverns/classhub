@@ -348,21 +348,14 @@ Historical implementation logs and superseded decisions are archived by month in
 ## Offline upload queue for intermittent networks
 
 **Current decision:**
-- Add a browser-local upload queue for the student upload workflow (`/material/<id>/upload`) using IndexedDB.
-- Keep normal student authentication/session boundaries; queued uploads flush through session-scoped API endpoints:
-  - `GET /api/v1/student/csrf`
-  - `POST /api/v1/student/material/<id>/upload`
-- Use low-bandwidth sync behavior:
-  - immediate flush attempt on submit,
-  - queue on transient failures/offline conditions,
-  - retry on reconnect, manual retry button, and modest interval retries.
-- Do not add high-frequency polling loops or new background telemetry.
-- Keep queue state local to the browser/device and class session; no new student PII fields are introduced.
+- Disable the browser-local IndexedDB upload queue on student upload pages.
+- Keep the ordinary session-scoped Django multipart upload form as the only active submission path.
+- Retain the queue implementation as inactive code until it has runnable checks for assignment scope, student-session scope, logout/deletion cleanup, and multi-tab exclusivity.
 
 **Why this remains active:**
-- Prevents student data loss when connectivity is unstable.
-- Keeps classroom flow resilient in low-infrastructure deployments.
-- Preserves privacy and minimal data collection while improving reliability.
+- The previous origin-global queue could flush a stored file through the currently open material page and authenticated student session.
+- Disabling the enhancement prevents cross-assignment and cross-student submission while preserving the boring server-rendered upload path.
+- Intermittent-network retry returns only after the browser-local records are safely bound to their originating assignment and student session.
 
 ## Student kiosk shell mode
 
@@ -373,12 +366,12 @@ Historical implementation logs and superseded decisions are archived by month in
   - join,
   - class home,
   - material upload and core lesson routes.
-- Student templates expose an installable manifest (`/student-shell.webmanifest`) and register the existing upload sync service worker with secure-context guardrails.
+- Student templates expose an installable manifest (`/student-shell.webmanifest`) and register the existing minimal service worker with secure-context guardrails.
 - Keep teacher/admin routes outside kiosk route gating.
 
 **Why this remains active:**
 - Supports tablet/shared-device classrooms with lower navigation complexity.
-- Keeps the resilient upload queue path intact while making the shell installable.
+- Keeps kiosk navigation installable without depending on the disabled browser-local upload queue.
 - Preserves operator control by making kiosk behavior explicit and reversible per deployment.
 
 ## Database workload split roadmap

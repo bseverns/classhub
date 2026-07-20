@@ -27,11 +27,13 @@ from ..services.org_access import (
     CAP_SUBMISSION_VIEW,
     CAP_SYLLABUS_EXPORT,
     evaluate_staff_capability,
+    staff_accessible_classes_ranked,
     staff_can,
     staff_can_access_classroom,
     staff_can_create_classes,
     staff_can_export_syllabi,
     staff_can_manage_classroom,
+    staff_classroom_or_none,
 )
 
 
@@ -135,6 +137,31 @@ class StaffCapabilityEvaluatorTests(TestCase):
         self.assertTrue(staff_can(viewer, CAP_SUBMISSION_VIEW, classroom=self.class_a))
         self.assertFalse(staff_can(viewer, CAP_SUBMISSION_DELETE, classroom=self.class_a))
         self.assertFalse(staff_can_access_classroom(viewer, self.class_b))
+
+    def test_class_view_override_removes_class_from_shared_access_helpers(self):
+        viewer = self.User.objects.create_user(
+            username="viewer-without-class-view",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=self.org_a,
+            user=viewer,
+            role=OrganizationMembership.ROLE_VIEWER,
+            is_active=True,
+        )
+        OrganizationRoleCapability.objects.create(
+            organization=self.org_a,
+            role=OrganizationMembership.ROLE_VIEWER,
+            capability=OrganizationRoleCapability.CAP_SUBMISSION_VIEW,
+            is_active=True,
+        )
+
+        self.assertFalse(staff_can(viewer, CAP_CLASS_VIEW, classroom=self.class_a))
+        classes, _assigned_ids = staff_accessible_classes_ranked(viewer)
+        self.assertNotIn(self.class_a, classes)
+        self.assertIsNone(staff_classroom_or_none(viewer, self.class_a.id))
 
     def test_teacher_role_can_manage_but_not_export(self):
         teacher = self.User.objects.create_user(

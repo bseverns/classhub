@@ -16,22 +16,7 @@
     data-kiosk-home-url="/student?kiosk=1"
     data-kiosk-sw-url="/student-upload-sync-sw.js"
     data-i18n-kiosk-blocked="{% trans 'Kiosk mode keeps navigation inside the student class flow.' %}"
-    data-student-id="{{ student.id }}"
-    data-class-id="{{ classroom.id }}"
-    data-material-id="{{ material.id }}"
-    data-upload-api-url="/api/v1/student/material/{{ material.id }}/upload"
-    data-upload-csrf-url="/api/v1/student/csrf"
-    data-upload-sync-interval-ms="90000"
-    data-i18n-status-starter-added="{% trans 'Sentence starter added.' %}"
-    data-i18n-queue-queued="{% trans 'Upload queued. It will sync when connection returns.' %}"
-    data-i18n-queue-syncing="{% trans 'Syncing queued uploads...' %}"
-    data-i18n-queue-synced="{% trans 'Queued upload synced.' %}"
-    data-i18n-queue-sync-error="{% trans 'Queued upload still waiting for server connection.' %}"
-    data-i18n-queue-retry="{% trans 'Retry queued uploads now' %}"
-    data-i18n-queue-none="{% trans 'No queued uploads.' %}"
-    data-i18n-upload-saved="{% trans 'Upload saved.' %}"
-    data-i18n-upload-failed="{% trans 'Upload failed. Try again when connected.' %}"
-    data-i18n-queue-pending-count="{% trans 'Queued uploads pending: __COUNT__.' %}">
+    data-i18n-status-starter-added="{% trans 'Sentence starter added.' %}">
     <a class="skip-link" href="#main-content">{% trans "Skip to main content" %}</a>
     <div class="shell">
       <main id="main-content">
@@ -131,11 +116,6 @@
           {% if notice %}
             <div class="notice" role="status" aria-live="polite">{{ notice }}</div>
           {% endif %}
-          <div id="upload-queue-panel" class="queue-panel" role="status" aria-live="polite">
-            <p id="upload-queue-status" class="muted">{% trans "No queued uploads." %}</p>
-            <button id="upload-queue-retry" type="button" class="queue-retry-btn" hidden>{% trans "Retry queued uploads now" %}</button>
-          </div>
-
           {% if not upload_locked %}
             <form method="post" enctype="multipart/form-data" class="upload-form">
               {% csrf_token %}
@@ -253,6 +233,5 @@
     <p id="kiosk-shell-status" class="muted" role="status" aria-live="polite"></p>
     <script src="{% static 'js/student_kiosk_shell.js' %}" defer></script>
     <script src="{% static 'js/student_class.js' %}" defer></script>
-    <script src="{% static 'js/student_upload_queue.js' %}" defer></script>
   </body>
 </html>

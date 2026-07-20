@@ -49,10 +49,21 @@ def staff_accessible_classes_queryset(user) -> QuerySet[Class]:
         if require_org_membership_for_staff():
             # Strict boundary mode still exposes legacy unscoped classes so
             # older deployments can operate while org bindings are completed.
-            return Class.objects.filter(organization__isnull=True)
-        return Class.objects.all()
-    org_ids = memberships.values_list("organization_id", flat=True)
-    return Class.objects.filter(organization_id__in=org_ids)
+            candidates = Class.objects.filter(organization__isnull=True)
+        else:
+            candidates = Class.objects.all()
+    else:
+        org_ids = memberships.values_list("organization_id", flat=True)
+        candidates = Class.objects.filter(organization_id__in=org_ids)
+
+    # ponytail: staff class lists are small; keep policy evaluation centralized
+    # here unless measured query volume warrants a bulk policy evaluator.
+    allowed_ids = [
+        classroom.id
+        for classroom in candidates.only("id", "organization_id")
+        if staff_can(user, CAP_CLASS_VIEW, classroom=classroom)
+    ]
+    return candidates.filter(id__in=allowed_ids)
 
 
 def staff_assigned_class_ids(user, *, class_ids: list[int] | None = None) -> set[int]:

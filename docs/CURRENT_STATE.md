@@ -44,7 +44,7 @@ Last reviewed: 2026-06-20
 - Family-visible join/privacy/trust/upload pages now support deterministic `simple` / `standard` reading-level copy via query parameter.
 - Student portfolio and session gallery flows are live with teacher-first visibility defaults.
 - Student artifact remix actions are live on portfolio/gallery/upload flows, with per-submission lineage preserved.
-- Student upload flow includes offline queue/retry behavior for intermittent networks.
+- Student uploads use the ordinary session-scoped form; the unsafe browser-local offline queue is disabled pending assignment/session isolation checks.
 - Student kiosk shell mode is available behind `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED` (manifest + route allowlist + focused nav constraints).
 - Teacher portal includes roster, submissions, moderation, outcomes, and certificate workflows.
 - Google teacher SSO is shipped behind deployment flags; Microsoft and custom OIDC providers remain scaffolded.
