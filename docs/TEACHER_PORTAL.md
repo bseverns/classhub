@@ -172,7 +172,7 @@ Use this section in two passes:
 - `/teach/2fa/setup`:
   - teacher self-service TOTP enrollment
   - supports signed invite links from onboarding emails
-  - invite links are one-time use and expire after `TEACHER_2FA_INVITE_MAX_AGE_SECONDS` (default 24h)
+  - invite links are one-time use, expire after `TEACHER_2FA_INVITE_MAX_AGE_SECONDS` (default 24h), and are consumed only after a valid authenticator code
   - shows QR + manual secret and verifies one-time code
 
 ### Advanced admin and policy controls

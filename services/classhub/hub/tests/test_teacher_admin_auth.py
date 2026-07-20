@@ -74,14 +74,30 @@ class Teacher2FASetupTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["Location"], "/teach/2fa/setup?next=%2Fteach%2Flessons")
 
-    def test_invite_link_is_one_time_use(self):
+    def test_invite_link_is_consumed_only_after_totp_confirmation(self):
         token = self._invite_token()
         first = self.client.get(f"/teach/2fa/setup?token={token}")
         self.assertEqual(first.status_code, 302)
 
         second = self.client.get(f"/teach/2fa/setup?token={token}")
-        self.assertEqual(second.status_code, 400)
-        self.assertContains(second, "already used", status_code=400)
+        self.assertEqual(second.status_code, 302)
+
+        self.client.get(second["Location"])
+        device = TOTPDevice.objects.get(user=self.teacher, name="teacher-primary")
+        otp_value = totp(
+            device.bin_key,
+            step=device.step,
+            t0=device.t0,
+            digits=device.digits,
+            drift=device.drift,
+        )
+        otp_token = f"{otp_value:0{int(device.digits)}d}"
+        confirmed = self.client.post("/teach/2fa/setup", {"otp_token": otp_token})
+        self.assertEqual(confirmed.status_code, 302)
+
+        consumed = self.client.get(f"/teach/2fa/setup?token={token}")
+        self.assertEqual(consumed.status_code, 400)
+        self.assertContains(consumed, "already used", status_code=400)
 
     def test_invalid_invite_link_returns_400(self):
         resp = self.client.get("/teach/2fa/setup?token=bad-token")

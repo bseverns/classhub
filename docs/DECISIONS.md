@@ -1705,11 +1705,13 @@ Execution ownership and gates:
 
 **Current decision:**
 - Teacher 2FA setup invite links are one-time use.
-- Invite links are consumed when first opened and immediately redirected to a tokenless setup URL.
+- Invite links are validated when opened, retained in the server-side setup session, and immediately redirected to a tokenless URL.
+- The one-time token is consumed only after the teacher submits a valid authenticator code.
 - Default invite TTL is 24 hours (`TEACHER_2FA_INVITE_MAX_AGE_SECONDS=86400`).
 
 **Why this remains active:**
 - Reduces bearer-token exposure via browser history, screenshots, and accidental link reuse.
+- Prevents email scanners, link previews, and abandoned setup attempts from consuming a teacher's invitation.
 - Preserves simple onboarding while adding practical replay resistance.
 
 ## Lint/editor baseline
