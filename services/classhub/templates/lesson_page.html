@@ -51,7 +51,9 @@
         <div class="nav">
           <a class="btn" href="/student?reading_level={{ selected_reading_level }}">{% trans "Back to class" %}</a>
           <a class="btn" href="{{ lesson_handout.print_url }}">{% if selected_reading_level == "simple" %}{% trans "Open handout" %}{% else %}{% trans "Print handout" %}{% endif %}</a>
+          {% if lesson_handout.pdf_available %}
           <a class="btn" href="{{ lesson_handout.pdf_url }}">{% if selected_reading_level == "simple" %}{% trans "Download handout" %}{% else %}{% trans "Download handout PDF" %}{% endif %}</a>
+          {% endif %}
           {% if can_edit_lesson_override and classroom %}
           <a class="btn" href="/teach/course/{{ course_slug }}/lesson/{{ lesson_slug }}/edit?class_id={{ classroom.id }}">{% trans "Edit Markdown" %}</a>
           {% endif %}

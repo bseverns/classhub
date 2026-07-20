@@ -418,6 +418,27 @@ Draw, test, and explain one loop.
             expected_section_label="စးထီၣ်ဖဲအံၤ",
         )
 
+    def test_sgaw_karen_handout_disables_lossy_pdf_export(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            content_root = Path(temp_dir)
+            self._write_lesson_locale_fixture(content_root)
+            with override_settings(CONTENT_ROOT=content_root):
+                lesson = self.client.get(
+                    "/course/neighborhood_circuits/s01-neighborhood-circuits?reading_level=simple&lang=ksw"
+                )
+                handout = self.client.get(
+                    "/course/neighborhood_circuits/s01-neighborhood-circuits/handout?reading_level=simple&lang=ksw"
+                )
+                pdf = self.client.get(
+                    "/course/neighborhood_circuits/s01-neighborhood-circuits/handout.pdf?reading_level=simple&lang=ksw"
+                )
+
+        self.assertEqual(lesson.status_code, 200)
+        self.assertEqual(handout.status_code, 200)
+        self.assertNotContains(lesson, "/handout.pdf")
+        self.assertNotContains(handout, "/handout.pdf")
+        self.assertEqual(pdf.status_code, 404)
+
     def test_course_lesson_handout_sets_html_lang_to_active_language(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             content_root = Path(temp_dir)

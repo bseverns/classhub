@@ -321,6 +321,7 @@ def build_handout_context(
             offline_handout=offline_handout_source,
         ),
     }
+    handout["pdf_available"] = _handout_pdf_supported(handout)
     return handout
 
 
@@ -339,7 +340,7 @@ def build_handout_qr_svg(url: str) -> str:
 
 
 def _pdf_escape(value: str) -> str:
-    ascii_value = (value or "").encode("latin-1", "replace").decode("latin-1")
+    ascii_value = (value or "").encode("latin-1").decode("latin-1")
     return ascii_value.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
 
 
@@ -387,13 +388,21 @@ def _handout_lines(handout: dict) -> list[str]:
     return lines
 
 
+def _handout_pdf_supported(handout: dict) -> bool:
+    try:
+        "\n".join(_handout_lines(handout)).encode("latin-1")
+    except UnicodeEncodeError:
+        return False
+    return True
+
+
 def _pdf_text_stream(lines: list[str]) -> bytes:
     stream_lines = ["BT", "/F1 11 Tf", "14 TL", "54 760 Td"]
     for line in lines:
         stream_lines.append(f"({_pdf_escape(line)}) Tj")
         stream_lines.append("T*")
     stream_lines.append("ET")
-    return ("\n".join(stream_lines) + "\n").encode("latin-1", "replace")
+    return ("\n".join(stream_lines) + "\n").encode("latin-1")
 
 
 def _pdf_document_from_stream(stream: bytes) -> bytes:

@@ -39,7 +39,9 @@
       <div class="meta">
         <p><strong>{% trans "Reading level:" %}</strong> {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}</p>
         <p><strong>{% if selected_reading_level == "simple" %}{% trans "Open online:" %}{% else %}{% trans "Online lesson:" %}{% endif %}</strong> {{ lesson_handout.online_url }}</p>
+        {% if lesson_handout.pdf_available %}
         <p><a href="{{ lesson_handout.pdf_url }}"><strong>{% trans "Download handout PDF" %}</strong></a></p>
+        {% endif %}
       </div>
     </header>
 

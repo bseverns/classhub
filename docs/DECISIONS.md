@@ -1753,7 +1753,7 @@ Execution ownership and gates:
 - Expose a print-friendly lesson handout surface at:
   - `/course/<course_slug>/<lesson_slug>/handout`
   - `/course/<course_slug>/<lesson_slug>/handout.pdf`
-- Treat the HTML handout as the primary export surface and keep the current PDF path positioned as a simple fallback download rather than a publication-grade multilingual layout renderer.
+- Treat the HTML handout as the primary export surface and keep the current Latin-1 PDF path positioned as a simple fallback download rather than a publication-grade multilingual layout renderer; hide and reject PDF export instead of replacing unsupported script characters with `?`.
 - Let operators request a specific shipped UI language on lesson/handout routes with `?lang=<code>` without changing the whole operator session language.
 - Show lesson and handout language switches only for explicitly authored `offline_handout.localized` variants:
   - lesson page labels it as `Choose a language` / `Handout language`

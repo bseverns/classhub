@@ -99,6 +99,8 @@ def course_lesson_handout_pdf(request, course_slug: str, lesson_slug: str):
             front_matter=front_matter,
         )
         with translation.override(localization_from_request(request).code):
+            if not handout.get("pdf_available"):
+                return HttpResponse(status=404)
             response = HttpResponse(build_handout_pdf_bytes(handout), content_type="application/pdf")
     response["Content-Disposition"] = f'attachment; filename="{course_slug}-{lesson_slug}-handout.pdf"'
     return response
