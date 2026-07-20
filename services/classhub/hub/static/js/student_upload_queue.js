@@ -45,7 +45,12 @@
     if (!queuePanel || !queueStatus) return;
     const finalMessage = message || (count && count > 0 ? renderPendingCount(count) : i18n.queueNone);
     queueStatus.textContent = finalMessage;
-    queuePanel.classList.toggle("queue-panel--active", Number(count || 0) > 0);
+    const hasQueuedUploads = Number(count || 0) > 0;
+    queuePanel.classList.toggle("queue-panel--active", hasQueuedUploads);
+    if (retryButton) {
+      retryButton.hidden = !hasQueuedUploads;
+      retryButton.disabled = !hasQueuedUploads;
+    }
   };
 
   const setRetryEnabled = (enabled) => {

@@ -17,7 +17,10 @@
   data-i18n-empty-message="{% trans 'Type a question before asking.' %}"
   data-i18n-thinking="{% trans 'Thinking...' %}"
   data-i18n-no-output="{% trans '(no output)' %}"
-  data-i18n-network-failure="{% trans 'Helper error: network_failure' %}"
+  data-i18n-unavailable="{% trans 'The helper is offline right now. Ask your facilitator or try again later.' %}"
+  data-i18n-rate-limited="{% trans 'The helper is busy right now. Wait a minute and try again.' %}"
+  data-i18n-refresh-required="{% trans 'Refresh the page and try asking again.' %}"
+  data-i18n-request-failure="{% trans 'The helper could not answer right now. Try again or ask your facilitator.' %}"
   data-i18n-quick-title="{% trans 'Quick asks (tap to send):' %}"
   data-i18n-quick-aria-label="{% trans 'Quick helper prompts' %}"
   data-i18n-input-label="{% trans 'Question for helper' %}"
@@ -25,7 +28,6 @@
   data-i18n-ask-button="{% trans 'Ask' %}"
   data-i18n-reset-button="{% trans 'Reset chat' %}"
   data-i18n-citations-title="{% trans 'Lesson references used' %}"
-  data-i18n-error-prefix="{% trans 'Helper error' %}"
 >
   <details class="helper-shell">
     <summary class="helper-shell-summary">
@@ -35,7 +37,6 @@
 
     <div class="helper-title-row">
       <h2 class="helper-title">{{ helper_title|default:"Homework Helper" }}</h2>
-      <span class="helper-backend-badge">{{ helper_backend_label|default:"Local model (Ollama)" }}</span>
     </div>
     <p class="helper-description">{{ helper_description|default:"Ask the helper for hints, steps, or feedback." }}</p>
     <p class="helper-context-note">{% trans "Follow-up questions stay in one lesson thread in this browser session until you reset chat." %}</p>

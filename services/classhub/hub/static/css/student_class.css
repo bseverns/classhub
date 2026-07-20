@@ -205,6 +205,12 @@
 .my-data-actions form {
   margin: 0;
 }
+.account-secondary-links {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 .danger-inline {
   background: linear-gradient(155deg, #7d2020, #631717);
 }

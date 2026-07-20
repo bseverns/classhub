@@ -103,7 +103,7 @@ def _end_student_session_response(request):
     return response
 def _student_home_helper_widget(*, request, classroom: Class, ui_density_mode: str, privacy_meta: dict) -> str:
     localization = localization_from_request(request)
-    helper_description = _("This is a Day-1 wire-up. It will become smarter once it can cite your class materials.")
+    helper_description = _("This helper can coach you through the next step. It may not know every class resource yet.")
     if ui_density_mode == "compact":
         helper_description = _("Need help? Ask for one small next step at a time.")
     elif ui_density_mode == "expanded":

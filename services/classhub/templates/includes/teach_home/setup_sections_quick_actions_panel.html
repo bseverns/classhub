@@ -95,4 +95,22 @@
                 <button type="submit">{% trans "Create class workspace" %}</button>
               </div>
             </form>
+            {% if classes %}
+            <div class="class-setup-existing">
+              <h3>{% trans "Existing classes" %}</h3>
+              <ul>
+                {% for classroom in classes %}
+                <li>
+                  <strong>{{ classroom.name }}</strong> ·
+                  <a href="/teach/class/{{ classroom.id }}">{% trans "Open class" %}</a> ·
+                  <a href="/teach/lessons?class_id={{ classroom.id }}">{% trans "Lessons" %}</a>
+                  {% if request.user.is_superuser %}
+                  · <a href="/teach?portal_mode=setup&org_admin=1&class_assignment_class_id={{ classroom.id }}">{% trans "Assign teacher" %}</a>
+                  · <a href="/teach?portal_mode=setup&org_admin=1&class_move_class_id={{ classroom.id }}">{% trans "Set organization" %}</a>
+                  {% endif %}
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% endif %}
           </section>

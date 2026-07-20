@@ -451,8 +451,27 @@ def _pick_highlight_lesson(*, lesson_links: list[dict], today, preferred_module_
 def build_class_landing_context(*, classroom: Class, modules: list[Module], material_access: dict[int, dict]) -> dict:
     lesson_links: list[dict] = []
     module_release_map: dict[int, dict] = {}
+    next_open_module: dict | None = None
     for module in modules:
-        for material in _sorted_module_materials(module):
+        module_materials = _sorted_module_materials(module)
+        first_access = material_access.get(module_materials[0].id) if module_materials else None
+        if first_access is not None:
+            module_release_map[module.id] = {
+                "is_locked": bool(first_access.get("is_locked")),
+                "available_on": first_access.get("available_on"),
+            }
+        if next_open_module is None:
+            first_open_material = next(
+                (material for material in module_materials if not bool((material_access.get(material.id) or {}).get("is_locked"))),
+                None,
+            )
+            if first_open_material is not None:
+                next_open_module = {
+                    "module_id": module.id,
+                    "module_title": module.title,
+                }
+
+        for material in module_materials:
             if material.type != Material.TYPE_LINK or not material.url:
                 continue
             parsed = parse_course_lesson_url(material.url)
@@ -469,10 +488,6 @@ def build_class_landing_context(*, classroom: Class, modules: list[Module], mate
                     "available_on": access.get("available_on"),
                 }
             )
-            module_release_map[module.id] = {
-                "is_locked": bool(access.get("is_locked")),
-                "available_on": access.get("available_on"),
-            }
             break
 
     today = timezone.localdate()
@@ -482,7 +497,7 @@ def build_class_landing_context(*, classroom: Class, modules: list[Module], mate
         preferred_module_id=getattr(classroom, "student_landing_default_module_id", None),
     )
 
-    highlight_module_id = int(highlight["module_id"]) if highlight else 0
+    highlight_module_id = int(highlight["module_id"]) if highlight else int((next_open_module or {}).get("module_id") or 0)
     for row in lesson_links:
         row["is_highlight"] = bool(highlight and int(row["module_id"]) == highlight_module_id)
 
@@ -495,6 +510,7 @@ def build_class_landing_context(*, classroom: Class, modules: list[Module], mate
         "landing_message": landing_message,
         "landing_hero_url": _normalize_landing_hero_url(getattr(classroom, "student_landing_hero_url", "")),
         "highlight_lesson": highlight,
+        "next_open_module": next_open_module if not highlight else None,
         "highlight_module_id": highlight_module_id,
         "module_release_map": module_release_map,
         "course_lesson_links": lesson_links,

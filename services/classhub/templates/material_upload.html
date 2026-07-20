@@ -133,7 +133,7 @@
           {% endif %}
           <div id="upload-queue-panel" class="queue-panel" role="status" aria-live="polite">
             <p id="upload-queue-status" class="muted">{% trans "No queued uploads." %}</p>
-            <button id="upload-queue-retry" type="button" class="queue-retry-btn">{% trans "Retry queued uploads now" %}</button>
+            <button id="upload-queue-retry" type="button" class="queue-retry-btn" hidden>{% trans "Retry queued uploads now" %}</button>
           </div>
 
           {% if not upload_locked %}

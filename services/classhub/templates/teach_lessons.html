@@ -33,7 +33,6 @@
           <form method="get" class="row filter-form">
             <label for="class_id">{% trans "Class" %}</label>
             <select name="class_id" id="class_id">
-              <option value="0" {% if not selected_class_id %}selected{% endif %}>{% trans "All classes" %}</option>
               {% for classroom in classes %}
                 <option value="{{ classroom.id }}" {% if selected_class_id == classroom.id %}selected{% endif %}>{{ classroom.name }}</option>
               {% endfor %}
@@ -69,6 +68,11 @@
                         <th scope="row" class="module-cell"><strong>{{ row.module.title }}</strong></th>
                         <td class="lesson-cell">
                           <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
+                          <details class="lesson-controls">
+                            <summary>
+                              {% trans "Manage lesson" %} ·
+                              {% if row.release_state.is_locked %}{% trans "Locked" %}{% else %}{% trans "Open" %}{% endif %}
+                            </summary>
                           <details class="lesson-slug-detail">
                             <summary>{% trans "Technical IDs" %}</summary>
                             <div class="muted">{{ row.course_slug }} / {{ row.lesson_slug }}</div>
@@ -151,6 +155,7 @@
                               </div>
                             {% endwith %}
                           </div>
+                          </details>
                         </td>
                         <td class="dropbox-cell">
                           {% if row.dropboxes %}

@@ -84,7 +84,7 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
 
         resp = self.client.get("/teach?portal_mode=day")
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Start Here Today")
+        self.assertNotContains(resp, "Start Here Today")
         self.assertContains(resp, "Portal modes")
         self.assertContains(resp, "Classroom focus")
         self.assertContains(resp, "Recent submissions")

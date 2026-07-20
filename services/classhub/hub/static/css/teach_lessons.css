@@ -39,6 +39,14 @@
 .lesson-cell {
   min-width: 360px;
 }
+.lesson-controls {
+  margin-top: 10px;
+}
+.lesson-controls > summary {
+  cursor: pointer;
+  color: #1b4258;
+  font-weight: 700;
+}
 .lesson-slug-detail {
   margin-top: 6px;
 }

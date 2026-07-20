@@ -30,6 +30,22 @@
   margin-top: 16px;
 }
 
+.return-code-entry {
+  margin-top: 14px;
+  padding: 10px 0 0;
+  border-top: 1px solid rgba(22, 59, 80, 0.14);
+}
+
+.return-code-entry summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #17384d;
+}
+
+.return-code-entry[open] summary {
+  margin-bottom: 10px;
+}
+
 .return-code-help {
   margin: 6px 0 0 0;
 }
@@ -90,6 +106,10 @@
 
 .entry-note {
   margin-top: 16px;
+}
+
+.hero .language-chooser {
+  margin-top: 10px;
 }
 
 .privacy-note {

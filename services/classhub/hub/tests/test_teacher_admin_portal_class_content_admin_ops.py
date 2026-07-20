@@ -732,13 +732,16 @@ Session 02: Final Build
         self.assertIsNotNone(event)
         self.assertEqual(event.actor_user_id, self.staff.id)
 
-    def test_superuser_teach_home_shows_assign_teacher_link_per_class(self):
+    def test_superuser_class_setup_shows_assign_teacher_link_per_class(self):
         _force_login_staff_verified(self.client, self.staff)
         classroom = Class.objects.create(name="Per Class Assign Link", join_code="ASGN0002")
 
-        resp = self.client.get("/teach?portal_mode=day")
+        resp = self.client.get("/teach?portal_mode=setup")
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, f"/teach?org_admin=1&class_assignment_class_id={classroom.id}")
+        self.assertContains(
+            resp,
+            f"/teach?portal_mode=setup&org_admin=1&class_assignment_class_id={classroom.id}",
+        )
 
     def test_superuser_teach_class_dashboard_shows_teaching_staff_assignments_panel(self):
         _force_login_staff_verified(self.client, self.staff)

@@ -65,13 +65,15 @@
           </div>
         </section>
 
-        {% include "includes/teach_home/start_here_today.html" %}
-
         {% include "includes/teach_home/operator_status_cards.html" %}
+
+        {% include "includes/teach_home/day_sections.html" %}
 
         {% include "includes/teach_home/classroom_focus.html" %}
 
-        {% include "includes/teach_home/day_sections.html" %}
+        {% if not show_day_sections %}
+          {% include "includes/teach_home/start_here_today.html" %}
+        {% endif %}
 
         {% include "includes/teach_home/setup_sections.html" %}
       </main>

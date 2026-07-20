@@ -57,27 +57,11 @@
   const widgets = document.querySelectorAll(".helper-widget");
 
   const hasKeyword = (text, words) => words.some((w) => text.includes(w));
-  const helperErrorCodeFromStatus = (status) => {
-    if (status === 400) return "bad_request";
-    if (status === 401) return "unauthorized";
-    if (status === 403) return "csrf_forbidden";
-    if (status === 404) return "not_found";
-    if (status === 429) return "rate_limited";
-    if (status >= 500 && status < 600) return "backend_error";
-    return `http_${status}`;
-  };
-  const formatHelperErrorText = ({ status, data, headerRequestId, copy }) => {
-    const errorCode = data && typeof data.error === "string" ? data.error : helperErrorCodeFromStatus(status);
-    const requestId =
-      (data && typeof data.request_id === "string" && data.request_id) || headerRequestId || "";
-    let text = `${copy.errorPrefix}: ${errorCode}`;
-    if (requestId) {
-      text += ` (request ${requestId})`;
-    }
-    if (data && typeof data.message === "string" && data.message.trim()) {
-      text += `. ${data.message.trim()}`;
-    }
-    return text;
+  const helperErrorTextFromStatus = (status, copy) => {
+    if (status === 404) return copy.unavailable;
+    if (status === 429) return copy.rateLimited;
+    if (status === 401 || status === 403) return copy.refreshRequired;
+    return copy.requestFailure;
   };
   const detectPromptGroup = (ref, context, topics) => {
     const meta = `${ref} ${context} ${topics}`.toLowerCase();
@@ -148,7 +132,16 @@
       emptyMessage: readI18n("empty-message", "Type a question before asking."),
       thinking: readI18n("thinking", "Thinking..."),
       noOutput: readI18n("no-output", "(no output)"),
-      networkFailure: readI18n("network-failure", "Helper error: network_failure"),
+      unavailable: readI18n(
+        "unavailable",
+        "The helper is offline right now. Ask your facilitator or try again later.",
+      ),
+      rateLimited: readI18n("rate-limited", "The helper is busy right now. Wait a minute and try again."),
+      refreshRequired: readI18n("refresh-required", "Refresh the page and try asking again."),
+      requestFailure: readI18n(
+        "request-failure",
+        "The helper could not answer right now. Try again or ask your facilitator.",
+      ),
       quickTitle: readI18n("quick-title", "Quick asks (tap to send):"),
       quickAriaLabel: readI18n("quick-aria-label", "Quick helper prompts"),
       inputLabel: readI18n("input-label", "Question for helper"),
@@ -156,7 +149,6 @@
       askButton: readI18n("ask-button", "Ask"),
       resetButton: readI18n("reset-button", "Reset chat"),
       citationsTitle: readI18n("citations-title", "Lesson references used"),
-      errorPrefix: readI18n("error-prefix", "Helper error"),
     };
     const promptSets = parsePromptSets(widget);
     const storageKey = `helper-widget:${hashString(
@@ -382,15 +374,9 @@
         }
 
         if (!res.ok) {
-          const requestIdHeader = (res.headers.get("X-Request-ID") || "").trim();
-          const errorText = formatHelperErrorText({
-            status: res.status,
-            data,
-            headerRequestId: requestIdHeader,
-            copy: chromeCopy,
-          });
+          const errorText = helperErrorTextFromStatus(res.status, chromeCopy);
           appendTurn("assistant", errorText);
-          setOutput(errorText);
+          setOutput("");
           renderCitations([]);
           return;
         }
@@ -403,9 +389,9 @@
         renderCitations((data && data.citations) || []);
         textarea.focus();
       } catch (_err) {
-        const errText = chromeCopy.networkFailure;
+        const errText = chromeCopy.unavailable;
         appendTurn("assistant", errText);
-        setOutput(errText);
+        setOutput("");
         renderCitations([]);
       } finally {
         setControlsBusy(false);

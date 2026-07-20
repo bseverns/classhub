@@ -55,6 +55,9 @@ input[type="file"] {
   padding: 6px 10px;
   cursor: pointer;
 }
+.queue-retry-btn[hidden] {
+  display: none;
+}
 .queue-retry-btn:disabled {
   opacity: 0.65;
   cursor: default;

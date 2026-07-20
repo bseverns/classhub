@@ -4415,3 +4415,19 @@ Execution ownership and gates:
 - Provider HTTP status alone is not proof of compute lifecycle state.
 - Idle and historical accounting must cover unused and older activations, not only active traffic or the display window.
 - Destructive cache controls must not acknowledge completion while retry evidence remains.
+
+## Classroom UX prioritizes the next action over recovery and inventory controls (2026-07-20)
+
+**Current decision:**
+- Put language selection before join instructions and keep optional return-code recovery in a native returning-student disclosure.
+- When no calendar-linked lesson exists, promote and open the first module that has an available material instead of leading with empty course-link states.
+- Keep student navigation focused on the class; portfolio, export, privacy, and trust links live with account controls.
+- Map helper transport failures to one actionable student-facing message. Backend names, status codes, and request diagnostics belong in operator surfaces and logs, not the student transcript.
+- Hide offline-upload retry controls while the queue is empty, and separate irreversible class-data deletion from export and device-session actions.
+- In teacher day mode, lead with activity changes and classroom focus; keep onboarding and the full class inventory in setup mode.
+- Default the lesson tracker to one accessible class and keep per-lesson management controls collapsed until selected.
+
+**Why this remains active:**
+- Students and facilitators need to answer “what do I do now?” before reading recovery, setup, or infrastructure detail.
+- Native disclosures and existing account/setup surfaces reduce cognitive load without adding routes, models, or JavaScript frameworks.
+- Human failure recovery preserves trust when optional helper infrastructure is unavailable.

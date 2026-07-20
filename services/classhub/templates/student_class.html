@@ -36,21 +36,10 @@
     <main id="main-content">
       <div class="top">
         <div>
-          <div class="muted">
+          <nav class="muted student-primary-nav" aria-label="{% trans 'Student links' %}">
             <a href="/student">{% trans "Student home" %}</a>
-            {% if ui_density_mode != "compact" %}
-            · <a href="/" data-kiosk-hide>{% trans "Join page" %}</a>
-            · <a href="/student/portfolio" data-kiosk-hide>{% trans "What I made" %}</a>
-            · <a href="/student/gallery" data-kiosk-hide>{% trans "Session gallery" %}</a>
-            · <a href="/student/portfolio-export" data-kiosk-hide>{% trans "Export my portfolio" %}</a>
-            · <a href="/privacy?reading_level={{ selected_reading_level }}" data-kiosk-hide>{% trans "Privacy" %}</a>
-            · <a href="/trust?reading_level={{ selected_reading_level }}" data-kiosk-hide>{% trans "Trust notes" %}</a>
             {% if ui_density_mode == "expanded" %}
             · <a href="#studio-handles" data-kiosk-hide>{% trans "Studio handles" %}</a>
-            {% endif %}
-            {% else %}
-            · <a href="/privacy?reading_level={{ selected_reading_level }}" data-kiosk-hide>{% trans "Privacy" %}</a>
-            · <a href="/trust?reading_level={{ selected_reading_level }}" data-kiosk-hide>{% trans "Trust notes" %}</a>
             {% endif %}
             {% if student_kiosk_pwa_enabled %}
             {% if request.classhub_kiosk_mode %}
@@ -59,7 +48,7 @@
             · <a href="/student?kiosk=1">{% trans "Enable kiosk mode" %}</a>
             {% endif %}
             {% endif %}
-          </div>
+          </nav>
           <h1>{{ classroom.name }}</h1>
           <div class="muted">
             <a href="/student?reading_level=simple">Simple</a> ·
@@ -135,15 +124,24 @@
               {% endif %}
             </div>
           </div>
+          {% elif class_landing.next_open_module %}
+          <div class="landing-highlight">
+            <div class="muted">{% trans "Next open task" %}</div>
+            <p class="landing-highlight-title">{{ class_landing.next_open_module.module_title }}</p>
+            <p class="landing-primary-action-wrap">
+              <a class="landing-primary-action" href="#module-{{ class_landing.next_open_module.module_id }}">{% trans "Start next task" %}</a>
+            </p>
+            <span class="state-pill state-pill--open">{% trans "Open" %}</span>
+          </div>
           {% else %}
           <p class="muted">{% trans "No calendar-linked lessons yet. Ask your teacher when your first lesson opens." %}
           </p>
           {% endif %}
         </section>
 
+        {% if class_landing.course_lesson_links %}
         <section class="landing-section">
           <h3>{% trans "Course links" %}</h3>
-          {% if class_landing.course_lesson_links %}
           <details class="landing-course-map" {% if ui_density_mode == "expanded" %}open{% endif %}>
             <summary>{% trans "View full course lesson links" %}</summary>
             <ul>
@@ -165,10 +163,8 @@
               {% endfor %}
             </ul>
           </details>
-          {% else %}
-          <p class="muted">{% trans "Course lesson links will appear here after your teacher connects a course." %}</p>
-          {% endif %}
         </section>
+        {% endif %}
       </div>
 
       <div class="card micro-check-card">
@@ -558,6 +554,10 @@
           </form>
         </div>
         {% endif %}
+        <div class="account-secondary-links" data-kiosk-hide>
+          <a href="/privacy?reading_level={{ selected_reading_level }}">{% trans "Privacy" %}</a>
+          <a href="/trust?reading_level={{ selected_reading_level }}">{% trans "Trust notes" %}</a>
+        </div>
       </div>
 
       {% if helper_widget %}

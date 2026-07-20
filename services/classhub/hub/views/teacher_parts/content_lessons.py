@@ -28,11 +28,11 @@ def teach_lessons(request):
         class_id = int((request.GET.get("class_id") or "0").strip())
     except Exception:
         class_id = 0
-    selected_class = next((c for c in classes if c.id == class_id), None)
+    selected_class = next((c for c in classes if c.id == class_id), None) or (classes[0] if classes else None)
     notice = (request.GET.get("notice") or "").strip()
     error = (request.GET.get("error") or "").strip()
 
-    target_classes = [selected_class] if selected_class else classes
+    target_classes = [selected_class] if selected_class else []
     class_rows = []
     for classroom in target_classes:
         if not classroom:

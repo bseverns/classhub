@@ -74,21 +74,14 @@
         <div class="actions">
           <a href="/student/portfolio">{% trans "What I made" %}</a>
           <a href="/student/portfolio-export">{% trans "Download my work" %}</a>
-          <form method="post" action="/student/delete-work"
-            data-confirm="{% if student_self_delete_mode == 'request' %}{% trans 'Send a deletion request to your teacher?' %}{% else %}{% trans 'Delete all of your submissions now?' %}{% endif %}">
-            {% csrf_token %}
-            {% if student_self_delete_mode == 'request' %}
-            <button type="submit">{% trans "Request deletion" %}</button>
-            {% else %}
-            <button type="submit" class="danger">{% trans "Delete my work now" %}</button>
-            {% endif %}
-          </form>
           <form method="post" action="/student/end-session">
             {% csrf_token %}
             <button type="submit">{% trans "End my session on this device" %}</button>
           </form>
         </div>
-        <p class="muted top-gap-10">
+        <section class="danger-zone" aria-labelledby="delete-class-data-heading">
+          <h3 id="delete-class-data-heading">{% trans "Delete my class data" %}</h3>
+          <p class="muted">
           {% if student_self_delete_mode == "request" %}
           {% if selected_reading_level == "simple" %}
           {% trans "A teacher reviews deletion requests before your work is removed." %}
@@ -102,7 +95,17 @@
           {% trans "Deletion is immediate for your submissions, checklist/rubric/reflection responses, and your class activity events in this class; it also clears temporary helper context." %}
           {% endif %}
           {% endif %}
-        </p>
+          </p>
+          <form method="post" action="/student/delete-work"
+            data-confirm="{% if student_self_delete_mode == 'request' %}{% trans 'Send a deletion request to your teacher?' %}{% else %}{% trans 'Delete all of your submissions now?' %}{% endif %}">
+            {% csrf_token %}
+            {% if student_self_delete_mode == 'request' %}
+            <button type="submit">{% trans "Request deletion" %}</button>
+            {% else %}
+            <button type="submit" class="danger">{% trans "Delete my work now" %}</button>
+            {% endif %}
+          </form>
+        </section>
       </div>
 
       <div class="card">
