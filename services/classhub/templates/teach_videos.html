@@ -209,7 +209,7 @@
                           {% if class_id %}<input type="hidden" name="class_id" value="{{ class_id }}" />{% endif %}
                           <button type="submit" aria-label="Move video {{ row.title }} down">↓</button>
                         </form>
-                        <form method="post">
+                        <form method="post" data-confirm="Permanently delete this lesson video entry? Any uploaded file is also removed. This cannot be undone.">
                           {% csrf_token %}
                           <input type="hidden" name="action" value="delete" />
                           <input type="hidden" name="course_slug" value="{{ selected_course_slug }}" />
@@ -230,5 +230,6 @@
         </div>
       </main>
     </div>
+    <script src="{% static 'js/confirm_forms.js' %}" defer></script>
   </body>
 </html>

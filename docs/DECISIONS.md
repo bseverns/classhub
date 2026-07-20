@@ -665,6 +665,7 @@ Execution ownership and gates:
 - Lesson assets are served as attachments by default.
 - Inline rendering is restricted to allow-listed media/PDF MIME types only.
 - Asset responses include `X-Content-Type-Options: nosniff`; inline responses include CSP sandbox.
+- Permanent lesson asset and video deletion forms use the shared browser confirmation helper before submitting.
 
 **Why this remains active:**
 - Reduces stored-XSS risk from HTML/script-like teacher uploads served on the LMS origin.

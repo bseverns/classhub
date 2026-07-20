@@ -188,7 +188,7 @@
                           <input type="hidden" name="active" value="{% if row.is_active %}0{% else %}1{% endif %}" />
                           <button type="submit">{% if row.is_active %}Hide{% else %}Publish{% endif %}</button>
                         </form>
-                        <form method="post">
+                        <form method="post" data-confirm="Permanently delete this lesson asset? The stored file is also removed. This cannot be undone.">
                           {% csrf_token %}
                           <input type="hidden" name="action" value="delete" />
                           <input type="hidden" name="asset_id" value="{{ row.id }}" />
@@ -210,5 +210,6 @@
         </div>
       </main>
     </div>
+    <script src="{% static 'js/confirm_forms.js' %}" defer></script>
   </body>
 </html>

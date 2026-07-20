@@ -932,6 +932,22 @@ title: "Build"
         self.assertNotContains(resp, 'style="margin:0"', html=False)
         self.assertNotContains(resp, 'name="title" placeholder="e.g., Save privately: Download to your computer" required', html=False)
 
+    def test_teach_videos_delete_form_requires_confirmation(self):
+        LessonVideo.objects.create(
+            course_slug="energy_electronics_circuits_9_session",
+            lesson_slug="s01-energy-is-everywhere",
+            title="Disposable video",
+            source_url="https://example.com/video",
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(
+            "/teach/videos?course_slug=energy_electronics_circuits_9_session&lesson_slug=s01-energy-is-everywhere"
+        )
+
+        self.assertContains(resp, "/static/js/confirm_forms.js")
+        self.assertContains(resp, 'data-confirm="Permanently delete this lesson video entry?', html=False)
+
     def test_teach_videos_can_add_youtube_url_without_manual_title(self):
         _force_login_staff_verified(self.client, self.staff)
 
@@ -1023,6 +1039,20 @@ title: "Build"
         self.assertContains(resp, "Lesson Assets")
         self.assertNotContains(resp, "<style>", html=False)
         self.assertNotContains(resp, 'style="margin:0"', html=False)
+
+    def test_teach_assets_delete_form_requires_confirmation(self):
+        folder = LessonAssetFolder.objects.create(path="audit", display_name="Audit")
+        LessonAsset.objects.create(
+            folder=folder,
+            title="Disposable asset",
+            file="lesson_assets/audit/disposable.pdf",
+        )
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/assets?folder_id={folder.id}")
+
+        self.assertContains(resp, "/static/js/confirm_forms.js")
+        self.assertContains(resp, 'data-confirm="Permanently delete this lesson asset?', html=False)
 
     def test_teach_class_shows_helper_signal_panel(self):
         classroom = Class.objects.create(name="Period Signals", join_code="SIG12345")
