@@ -187,7 +187,7 @@ class OperatorPreflightTests(unittest.TestCase):
             CADDYFILE_TEMPLATE=Caddyfile.domain
             CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site
             CADDY_STATIC_SITE_ROOT_HOST=/srv/cM_orgsite
-            CADDY_STATIC_SITE_DOMAINS=creatempls.org,www.creatempls.org
+            CADDY_STATIC_SITE_DOMAINS=creatempls.org, www.creatempls.org
             DOMAIN=lms.creatempls.org
             DJANGO_ALLOWED_HOSTS=lms.creatempls.org
             CSRF_TRUSTED_ORIGINS=https://lms.creatempls.org
@@ -202,6 +202,29 @@ class OperatorPreflightTests(unittest.TestCase):
             """
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_static_site_extra_requires_caddy_address_spacing(self) -> None:
+        result = run_preflight(
+            """
+            CADDYFILE_TEMPLATE=Caddyfile.domain
+            CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site
+            CADDY_STATIC_SITE_ROOT_HOST=/srv/cM_orgsite
+            CADDY_STATIC_SITE_DOMAINS=creatempls.org,www.creatempls.org
+            DOMAIN=lms.creatempls.org
+            DJANGO_ALLOWED_HOSTS=lms.creatempls.org
+            CSRF_TRUSTED_ORIGINS=https://lms.creatempls.org
+            DJANGO_SESSION_COOKIE_SECURE=1
+            DJANGO_CSRF_COOKIE_SECURE=1
+            REQUEST_SAFETY_TRUST_PROXY_HEADERS=1
+            HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
+            HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+            CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+            LLM_ENABLED=0
+            """
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("invalid_static_site_domain_separator", result.stdout)
 
     def test_static_site_extra_requires_domain_mode_root_and_domains(self) -> None:
         result = run_preflight(

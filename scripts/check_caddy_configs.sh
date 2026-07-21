@@ -12,7 +12,7 @@ validate_config() {
   docker run --rm \
     -e DOMAIN=lms.school.example \
     -e ASSET_DOMAIN=assets.school.example \
-    -e CADDY_STATIC_SITE_DOMAINS=school.example,www.school.example \
+    -e "CADDY_STATIC_SITE_DOMAINS=school.example, www.school.example" \
     -v "${ROOT_DIR}/compose/${primary_template}:/etc/caddy/Caddyfile:ro" \
     -v "${ROOT_DIR}/compose/${extra_template}:/etc/caddy/Caddyfile.extra:ro" \
     -v "${ROOT_DIR}/compose/static-site.empty:/srv/caddy-static-site:ro" \

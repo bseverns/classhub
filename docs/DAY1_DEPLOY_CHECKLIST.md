@@ -125,7 +125,7 @@ Use `.env` as the single selector (no ad-hoc file renames):
   - keep `CADDYFILE_TEMPLATE` in a domain/TLS mode
   - set `CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site`
   - set `CADDY_STATIC_SITE_ROOT_HOST` to a dedicated host directory containing `index.html`
-  - set `CADDY_STATIC_SITE_DOMAINS` to one or more comma-separated public hostnames
+  - set `CADDY_STATIC_SITE_DOMAINS` to one or more comma-separated public hostnames, with a space after each comma as required by Caddy
   - do not reuse `DOMAIN` or `ASSET_DOMAIN`; the operator preflight rejects hostname collisions
 
 Example:
@@ -133,7 +133,7 @@ Example:
 ```dotenv
 CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site
 CADDY_STATIC_SITE_ROOT_HOST=/srv/example_orgsite
-CADDY_STATIC_SITE_DOMAINS=example.org,www.example.org
+CADDY_STATIC_SITE_DOMAINS=example.org, www.example.org
 ```
 
 The directory is mounted read-only at `/srv/caddy-static-site`. The shipped fragment blocks repository metadata and supports both `.html` files and extensionless routes. Keep the default `Caddyfile.extra.empty` when no additional site is needed.

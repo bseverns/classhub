@@ -303,10 +303,18 @@ def _check_caddy_extra(values: dict[str, str], issues: list[Issue], *, caddy_tem
             "CADDY_STATIC_SITE_ROOT_HOST must identify a dedicated site directory",
         )
 
-    static_domains = _split_csv(_value(values, "CADDY_STATIC_SITE_DOMAINS"))
+    static_domains_raw = _value(values, "CADDY_STATIC_SITE_DOMAINS")
+    static_domains = _split_csv(static_domains_raw)
     if not static_domains:
         _add_issue(issues, "FAIL", "missing_static_site_domains", "CADDY_STATIC_SITE_DOMAINS must be set")
         return
+    if re.search(r",(?!\s)", static_domains_raw):
+        _add_issue(
+            issues,
+            "FAIL",
+            "invalid_static_site_domain_separator",
+            "CADDY_STATIC_SITE_DOMAINS requires a space after each comma for Caddy address parsing",
+        )
 
     reserved_domains = {_value(values, "DOMAIN").lower(), _value(values, "ASSET_DOMAIN").lower()} - {""}
     for hostname in static_domains:

@@ -548,6 +548,9 @@ case "${CADDY_EXTRA_CONFIG_TEMPLATE}" in
     if [[ -z "${CADDY_STATIC_SITE_DOMAINS}" ]]; then
       fail "CADDY_STATIC_SITE_DOMAINS is required when using Caddyfile.extra.static-site"
     fi
+    if [[ "${CADDY_STATIC_SITE_DOMAINS}" =~ ,[^[:space:]] ]]; then
+      fail "CADDY_STATIC_SITE_DOMAINS requires a space after each comma for Caddy address parsing"
+    fi
     IFS=',' read -r -a static_site_domains <<< "${CADDY_STATIC_SITE_DOMAINS}"
     for static_site_domain in "${static_site_domains[@]}"; do
       static_site_domain="$(trim_spaces "${static_site_domain}")"
