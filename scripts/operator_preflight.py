@@ -226,6 +226,8 @@ def _check_domain_mode(values: dict[str, str], issues: list[Issue], *, template_
     elif _is_placeholder_host(asset_domain):
         level = "WARN" if template_mode else "FAIL"
         _add_issue(issues, level, "placeholder_asset_domain", "ASSET_DOMAIN still looks like a placeholder")
+    elif hostname_error := public_dns_hostname_error(asset_domain):
+        _add_issue(issues, "FAIL", "invalid_public_asset_domain", hostname_error)
 
     if asset_domain and asset_domain not in allowed_hosts:
         level = "WARN" if template_mode else "FAIL"

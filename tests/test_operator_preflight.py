@@ -159,6 +159,28 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("missing_asset_base_url", result.stdout)
 
+    def test_asset_mode_rejects_non_public_asset_hostname(self) -> None:
+        result = run_preflight(
+            """
+            CADDYFILE_TEMPLATE=Caddyfile.domain.assets
+            DOMAIN=lms.creatempls.org
+            ASSET_DOMAIN=localhost
+            CLASSHUB_ASSET_BASE_URL=https://localhost
+            DJANGO_ALLOWED_HOSTS=lms.creatempls.org,localhost
+            CSRF_TRUSTED_ORIGINS=https://lms.creatempls.org
+            DJANGO_SESSION_COOKIE_SECURE=1
+            DJANGO_CSRF_COOKIE_SECURE=1
+            REQUEST_SAFETY_TRUST_PROXY_HEADERS=1
+            HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
+            HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+            CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+            LLM_ENABLED=0
+            """
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("invalid_public_asset_domain", result.stdout)
+
     def test_domain_mode_rejects_non_public_hostname(self) -> None:
         result = run_preflight(
             """
