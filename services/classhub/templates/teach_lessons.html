@@ -155,7 +155,28 @@
                               </div>
                             {% endwith %}
                           </div>
-                          </details>{% endif %}
+                          </details>{% else %}
+                          <div class="release-box">
+                            {% with release=row.release_state %}
+                              <div class="release-status">
+                                {% trans "Release:" %}
+                                {% if release.is_locked %}
+                                  <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
+                                {% else %}
+                                  <span class="state-pill state-pill--open">{% trans "Open" %}</span>
+                                {% endif %}
+                                {% if release.available_on %}
+                                  · {% trans "Date" %} <strong>{{ release.available_on|date:"M j, Y" }}</strong>
+                                {% endif %}
+                                {% if release.has_override %}
+                                  · {% trans "Override active" %}
+                                {% else %}
+                                  · {% trans "Content default" %}
+                                {% endif %}
+                              </div>
+                            {% endwith %}
+                          </div>
+                          {% endif %}
                         </td>
                         <td class="dropbox-cell">
                           {% if row.dropboxes %}

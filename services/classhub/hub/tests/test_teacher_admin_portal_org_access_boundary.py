@@ -131,6 +131,7 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
         self.assertEqual(lessons.status_code, 200)
         self.assertContains(lessons, "Alpha Cohort")
         self.assertContains(lessons, "Session 1")
+        self.assertContains(lessons, 'class="release-status"')
         self.assertNotContains(lessons, "/teach/lessons/release")
 
     def test_viewer_membership_cannot_set_enrollment_mode(self):
