@@ -69,8 +69,10 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 Common causes:
 
 - wrong Caddy template mounted
+- wrong or missing optional Caddy fragment mounted
 - wrong `DOMAIN`
 - ACME/DNS mismatch
+- a public hostname points at the LMS edge but is absent from every active Caddy site block
 
 Checks:
 
@@ -78,14 +80,17 @@ Checks:
 cd /srv/lms/app/compose
 docker inspect classhub_caddy --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
 docker compose logs --tail=200 caddy
-grep -E '^(CADDYFILE_TEMPLATE|DOMAIN)=' .env
+grep -E '^(CADDYFILE_TEMPLATE|CADDY_EXTRA_CONFIG_TEMPLATE|CADDY_STATIC_SITE_ROOT_HOST|CADDY_STATIC_SITE_DOMAINS|DOMAIN)=' .env
 ```
 
 Look for:
 
 - expected template (`Caddyfile.domain` or `Caddyfile.domain.assets` for public TLS)
+- expected extra fragment (`Caddyfile.extra.empty` or `Caddyfile.extra.static-site`)
 - correct domain in logs and `.env`
 - ACME identifier/certificate errors
+
+If the LMS hostname works but another hostname on the same IP fails during TLS negotiation, inspect the adapted Caddy host matchers. A static site on the same edge must use the tracked `Caddyfile.extra.static-site` fragment and read-only root mount; do not rely on an ad-hoc runtime Caddy configuration that the next deploy will replace.
 
 ## Symptom: deploy logs repeated `The "<token>" variable is not set` warnings
 

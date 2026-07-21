@@ -121,6 +121,24 @@ Use `.env` as the single selector (no ad-hoc file renames):
   - if using sibling subdomains, set:
     - `DJANGO_SESSION_COOKIE_DOMAIN=.yourdomain.tld`
     - `DJANGO_CSRF_COOKIE_DOMAIN=.yourdomain.tld`
+- Optional static organization site on the same Caddy edge:
+  - keep `CADDYFILE_TEMPLATE` in a domain/TLS mode
+  - set `CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site`
+  - set `CADDY_STATIC_SITE_ROOT_HOST` to a dedicated host directory containing `index.html`
+  - set `CADDY_STATIC_SITE_DOMAINS` to one or more comma-separated public hostnames
+  - do not reuse `DOMAIN` or `ASSET_DOMAIN`; the operator preflight rejects hostname collisions
+
+Example:
+
+```dotenv
+CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site
+CADDY_STATIC_SITE_ROOT_HOST=/srv/example_orgsite
+CADDY_STATIC_SITE_DOMAINS=example.org,www.example.org
+```
+
+The directory is mounted read-only at `/srv/caddy-static-site`. The shipped fragment blocks repository metadata and supports both `.html` files and extensionless routes. Keep the default `Caddyfile.extra.empty` when no additional site is needed.
+
+Validate every shipped domain combination with `bash scripts/check_caddy_configs.sh` on a host with Docker available.
 
 Then deploy/reload:
 
@@ -187,6 +205,16 @@ curl -I https://$ASSET_DOMAIN/lesson-video/1/stream
 
 Expected behavior: both hosts answer health checks; asset host serves only `/lesson-asset/*` and `/lesson-video/*`.
 If `CADDY_EXPOSE_UPSTREAM_HEALTHZ=0`, both `/upstream-healthz` checks should return `404`.
+
+When the optional static site is enabled, also verify:
+
+```bash
+curl -I https://example.org/
+curl -I https://example.org/about
+curl -I https://example.org/.git/config
+```
+
+Expected behavior: public pages return `200`; repository metadata returns `404`.
 
 Service exposure defaults:
 - Postgres/Redis are internal-only on Docker networking.

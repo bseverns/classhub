@@ -81,6 +81,27 @@ python3 "${OPERATOR_PREFLIGHT}" --env-file "${ROOT_DIR}/compose/.env"
 echo "[deploy] running migration gate"
 "${MIGRATION_GATE}"
 
+extra_template_from_env="$(env_file_value CADDY_EXTRA_CONFIG_TEMPLATE)"
+extra_template_from_env="${extra_template_from_env:-Caddyfile.extra.empty}"
+static_site_root_from_env="$(env_file_value CADDY_STATIC_SITE_ROOT_HOST)"
+static_site_root_from_env="${static_site_root_from_env:-./static-site.empty}"
+if [[ "${static_site_root_from_env}" == /* ]]; then
+  EXPECTED_STATIC_SITE_ROOT="${static_site_root_from_env}"
+else
+  EXPECTED_STATIC_SITE_ROOT="${ROOT_DIR}/compose/${static_site_root_from_env#./}"
+fi
+if [[ "${extra_template_from_env}" == "Caddyfile.extra.static-site" ]]; then
+  if [[ ! -d "${EXPECTED_STATIC_SITE_ROOT}" ]]; then
+    echo "[deploy] static site root not found: ${EXPECTED_STATIC_SITE_ROOT}" >&2
+    exit 1
+  fi
+  EXPECTED_STATIC_SITE_ROOT="$(cd "${EXPECTED_STATIC_SITE_ROOT}" && pwd -P)"
+  if [[ ! -f "${EXPECTED_STATIC_SITE_ROOT}/index.html" ]]; then
+    echo "[deploy] static site index not found: ${EXPECTED_STATIC_SITE_ROOT}/index.html" >&2
+    exit 1
+  fi
+fi
+
 echo "[deploy] launching production compose (docker-compose.yml only)"
 run_compose up -d --build
 
@@ -117,6 +138,29 @@ if [[ "${ACTUAL_CADDYFILE}" != "${EXPECTED_CADDYFILE}" ]]; then
 fi
 
 echo "[deploy] caddy mount guardrail OK"
+
+EXPECTED_CADDY_EXTRA="${ROOT_DIR}/compose/${extra_template_from_env}"
+ACTUAL_CADDY_EXTRA="$(docker inspect classhub_caddy --format '{{range .Mounts}}{{if eq .Destination "/etc/caddy/Caddyfile.extra"}}{{.Source}}{{end}}{{end}}' 2>/dev/null || true)"
+if [[ "${ACTUAL_CADDY_EXTRA}" != "${EXPECTED_CADDY_EXTRA}" ]]; then
+  echo "[deploy] caddy extra config guardrail failed" >&2
+  echo "[deploy] expected: ${EXPECTED_CADDY_EXTRA}" >&2
+  echo "[deploy] actual:   ${ACTUAL_CADDY_EXTRA:-missing}" >&2
+  rollback_if_configured
+  exit 1
+fi
+
+if [[ "${extra_template_from_env}" == "Caddyfile.extra.static-site" ]]; then
+  ACTUAL_STATIC_SITE_ROOT="$(docker inspect classhub_caddy --format '{{range .Mounts}}{{if eq .Destination "/srv/caddy-static-site"}}{{.Source}}{{end}}{{end}}' 2>/dev/null || true)"
+  if [[ "${ACTUAL_STATIC_SITE_ROOT}" != "${EXPECTED_STATIC_SITE_ROOT}" ]]; then
+    echo "[deploy] caddy static site mount guardrail failed" >&2
+    echo "[deploy] expected: ${EXPECTED_STATIC_SITE_ROOT}" >&2
+    echo "[deploy] actual:   ${ACTUAL_STATIC_SITE_ROOT:-missing}" >&2
+    rollback_if_configured
+    exit 1
+  fi
+fi
+
+echo "[deploy] caddy extra mount guardrail OK"
 
 CADDY_RUNNING="$(docker inspect classhub_caddy --format '{{.State.Running}}' 2>/dev/null || true)"
 if [[ "${CADDY_RUNNING}" != "true" ]]; then
