@@ -1,6 +1,7 @@
 {% load i18n %}
           <section class="top-tab-panel" id="panel-quick-actions" role="tabpanel" aria-labelledby="tab-quick-actions">
             <h2 class="section-title">{% trans "Create a class workspace" %}</h2>
+            {% if can_compile_coursepack %}
             <form method="post" action="/teach/create-class" enctype="multipart/form-data">
               {% csrf_token %}
               <div class="create-class-name-wrap">
@@ -97,6 +98,15 @@
                 <button type="submit">{% trans "Create class workspace" %}</button>
               </div>
             </form>
+            {% else %}
+            <p class="muted">
+              {% if has_active_org_membership %}
+                {% trans "Your organization role does not allow you to create a class." %}
+              {% else %}
+                {% trans "You need an active organization membership before you can create a class." %}
+              {% endif %}
+            </p>
+            {% endif %}
             {% if classes %}
             <div class="class-setup-existing">
               <h3>{% trans "Existing classes" %}</h3>

@@ -17,7 +17,9 @@ from ...services.teacher_roster_class import build_dashboard_context
 from .roster_class_remote_compute import remote_compute_status_context
 from .shared_auth import (
     staff_can_create_classes,
+    staff_can_manage_classroom,
     staff_can_manage_policy,
+    staff_can_manage_roster,
     staff_classroom_or_none,
     staff_default_organization,
     staff_member_required,
@@ -90,7 +92,10 @@ def teach_class_dashboard(request, class_id: int):
     notice = (request.GET.get("notice") or "").strip()
     error = (request.GET.get("error") or "").strip()
     class_assignment_panel = _class_assignment_panel_context(request=request, classroom=classroom)
-    can_manage_remote_compute = bool(staff_can_manage_policy(request.user, classroom))
+    can_manage_classroom = bool(staff_can_manage_classroom(request.user, classroom))
+    can_manage_roster = bool(staff_can_manage_roster(request.user, classroom))
+    can_manage_policy = bool(staff_can_manage_policy(request.user, classroom))
+    can_manage_remote_compute = can_manage_policy
     get_token(request)
 
     response = render(
@@ -102,6 +107,9 @@ def teach_class_dashboard(request, class_id: int):
             "invite_links": invite_links,
             "notice": notice,
             "error": error,
+            "can_manage_classroom": can_manage_classroom,
+            "can_manage_roster": can_manage_roster,
+            "can_manage_policy": can_manage_policy,
             "can_manage_helper_remote_compute": can_manage_remote_compute,
             **remote_compute_status_context(
                 can_manage_remote_compute=can_manage_remote_compute,

@@ -68,7 +68,7 @@
                         <th scope="row" class="module-cell"><strong>{{ row.module.title }}</strong></th>
                         <td class="lesson-cell">
                           <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
-                          <details class="lesson-controls">
+                          {% if group.can_manage_policy %}<details class="lesson-controls">
                             <summary>
                               {% trans "Manage lesson" %} ·
                               {% if row.release_state.is_locked %}{% trans "Locked" %}{% else %}{% trans "Open" %}{% endif %}
@@ -155,7 +155,28 @@
                               </div>
                             {% endwith %}
                           </div>
-                          </details>
+                          </details>{% else %}
+                          <div class="release-box">
+                            {% with release=row.release_state %}
+                              <div class="release-status">
+                                {% trans "Release:" %}
+                                {% if release.is_locked %}
+                                  <span class="state-pill state-pill--locked">{% trans "Locked" %}</span>
+                                {% else %}
+                                  <span class="state-pill state-pill--open">{% trans "Open" %}</span>
+                                {% endif %}
+                                {% if release.available_on %}
+                                  · {% trans "Date" %} <strong>{{ release.available_on|date:"M j, Y" }}</strong>
+                                {% endif %}
+                                {% if release.has_override %}
+                                  · {% trans "Override active" %}
+                                {% else %}
+                                  · {% trans "Content default" %}
+                                {% endif %}
+                              </div>
+                            {% endwith %}
+                          </div>
+                          {% endif %}
                         </td>
                         <td class="dropbox-cell">
                           {% if row.dropboxes %}

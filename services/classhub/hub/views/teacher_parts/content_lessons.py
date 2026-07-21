@@ -15,7 +15,6 @@ from .shared import (
     require_POST,
     staff_accessible_classes_ranked,
     staff_can_manage_policy,
-    staff_can_manage_classroom,
     staff_classroom_or_none,
     staff_member_required,
 )
@@ -52,6 +51,7 @@ def teach_lessons(request):
                 "classroom": classroom,
                 "student_count": student_count,
                 "lesson_rows": lesson_rows,
+                "can_manage_policy": bool(staff_can_manage_policy(request.user, classroom)),
             }
         )
 

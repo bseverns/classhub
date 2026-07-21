@@ -6,7 +6,11 @@
             </summary>
             <div class="section-body">
               {% include "includes/teach_class/class_setup_roster_table.html" %}
-              {% include "includes/teach_class/class_setup_roster_merge_zone.html" %}
-              {% include "includes/teach_class/class_setup_roster_danger_zone.html" %}
+              {% if can_manage_roster %}
+                {% include "includes/teach_class/class_setup_roster_merge_zone.html" %}
+              {% endif %}
+              {% if can_manage_roster or can_manage_policy %}
+                {% include "includes/teach_class/class_setup_roster_danger_zone.html" %}
+              {% endif %}
             </div>
           </details>

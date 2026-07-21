@@ -16,7 +16,7 @@
       · {% trans "Content default" %}
     {% endif %}
   </div>
-  <div class="release-actions">
+  {% if can_manage_policy %}<div class="release-actions">
     <form method="post" action="/teach/lessons/release">
       {% csrf_token %}
       <input type="hidden" name="class_id" value="{{ classroom.id }}" />
@@ -62,5 +62,5 @@
       <input type="hidden" name="return_to" value="/teach/class/{{ classroom.id }}" />
       <button type="submit">{% trans "Reset default" %}</button>
     </form>
-  </div>
+  </div>{% endif %}
 {% endwith %}

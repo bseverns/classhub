@@ -45,6 +45,7 @@ from .shared import (
     safe_attachment_filename,
     staff_member_required,
     staff_can_create_classes,
+    staff_has_explicit_memberships,
 )
 
 
@@ -181,6 +182,7 @@ def teach_home(request):
         **portal_mode_context,
         "org_membership_strict_mode": bool(getattr(settings, "REQUIRE_ORG_MEMBERSHIP_FOR_STAFF", False)),
         "can_compile_coursepack": bool(staff_can_create_classes(request.user)),
+        "has_active_org_membership": bool(staff_has_explicit_memberships(request.user)),
     }
     response = render(request, "teach_home.html", context)
     apply_no_store(response, private=True, pragma=True)

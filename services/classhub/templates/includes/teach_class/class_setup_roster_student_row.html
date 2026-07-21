@@ -33,12 +33,12 @@
           {% for tag in student_tags %}
             <li>
               <span class="pill">{{ tag.label }}</span>
-              <form method="post" action="/teach/class/{{ classroom.id }}/support-tag/remove" class="inline-remove-tag">
+              {% if can_manage_roster %}<form method="post" action="/teach/class/{{ classroom.id }}/support-tag/remove" class="inline-remove-tag">
                 {% csrf_token %}
                 <input type="hidden" name="student_id" value="{{ st.id }}" />
                 <input type="hidden" name="tag" value="{{ tag.value }}" />
                 <button type="submit">Remove</button>
-              </form>
+              </form>{% endif %}
             </li>
           {% endfor %}
         </ul>
@@ -46,7 +46,7 @@
         <span class="muted mini">No tags yet.</span>
       {% endif %}
     {% endwith %}
-    <form method="post" action="/teach/class/{{ classroom.id }}/support-tag/add" class="support-tag-row">
+    {% if can_manage_roster %}<form method="post" action="/teach/class/{{ classroom.id }}/support-tag/add" class="support-tag-row">
       {% csrf_token %}
       <input type="hidden" name="student_id" value="{{ st.id }}" />
       <label class="visually-hidden" for="support-tag-{{ st.id }}">Support tag for {{ st.display_name }}</label>
@@ -56,10 +56,10 @@
         {% endfor %}
       </select>
       <button type="submit">Add tag</button>
-    </form>
+    </form>{% endif %}
   </td>
   <td>
-    <form method="post" action="/teach/class/{{ classroom.id }}/rename-student" class="rename-row">
+    {% if can_manage_roster %}<form method="post" action="/teach/class/{{ classroom.id }}/rename-student" class="rename-row">
       {% csrf_token %}
       <input type="hidden" name="student_id" value="{{ st.id }}" />
       <input
@@ -78,6 +78,6 @@
         I understand this permanently deletes this student's submissions and activity history
       </label>
       <button type="submit" class="danger-inline">Permanently delete student data</button>
-    </form>
+    </form>{% endif %}
   </td>
 </tr>

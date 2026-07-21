@@ -4,7 +4,7 @@
               <span class="section-subtitle">Generate no-login links with optional expiry and seat caps.</span>
             </summary>
             <div class="section-body">
-              <form method="post" action="/teach/class/{{ classroom.id }}/create-invite-link" class="invite-create-form">
+              {% if can_manage_policy %}<form method="post" action="/teach/class/{{ classroom.id }}/create-invite-link" class="invite-create-form">
                 {% csrf_token %}
                 <label>
                   Label (optional)
@@ -19,7 +19,7 @@
                   <input name="seat_cap" type="number" min="1" max="5000" placeholder="e.g., 24" />
                 </label>
                 <button type="submit">Create invite link</button>
-              </form>
+              </form>{% endif %}
               {% if invite_links %}
                 <div class="roster-table-wrap invite-table-wrap">
                   <table>
@@ -69,7 +69,7 @@
                             {% endif %}
                           </td>
                           <td>
-                            {% if invite.is_active %}
+                            {% if can_manage_policy and invite.is_active %}
                               <form method="post" action="/teach/class/{{ classroom.id }}/disable-invite-link">
                                 {% csrf_token %}
                                 <input type="hidden" name="invite_id" value="{{ invite.id }}" />

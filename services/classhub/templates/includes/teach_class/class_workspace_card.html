@@ -38,7 +38,7 @@
               </div>
             </section>
 
-            <section class="workspace-panel">
+            {% if can_manage_policy %}<section class="workspace-panel">
               <h3 class="section-title-compact">Student access controls</h3>
               <div class="workspace-form-stack">
                 <form method="post" action="/teach/class/{{ classroom.id }}/set-enrollment-mode" class="workspace-inline-form">
@@ -82,9 +82,9 @@
                 <a href="/teach/class/{{ classroom.id }}/export-summary-csv">Export summary CSV</a>
                 <a href="#section-invite-links">Open invite link tools</a>
               </div>
-            </section>
+            </section>{% endif %}
 
-            <section class="workspace-panel">
+            {% if can_manage_policy %}<section class="workspace-panel">
               <h3 class="section-title-compact">Student first screen</h3>
               <form method="post" action="/teach/class/{{ classroom.id }}/update-landing-page" class="workspace-landing-form">
                 {% csrf_token %}
@@ -115,9 +115,9 @@
                 </select>
                 <button type="submit">Save student landing</button>
               </form>
-            </section>
+            </section>{% endif %}
 
-            <section class="workspace-panel">
+            {% if can_manage_classroom %}<section class="workspace-panel">
               <h3 class="section-title-compact">Build today&apos;s session</h3>
               <form method="post" action="/teach/class/{{ classroom.id }}/add-module" class="workspace-inline-form">
                 {% csrf_token %}
@@ -148,6 +148,6 @@
                 <a href="#section-lesson-tracker">Review lesson-linked modules</a>
                 <a href="#section-roster">Open roster fixes</a>
               </div>
-            </section>
+            </section>{% endif %}
           </div>
         </div>

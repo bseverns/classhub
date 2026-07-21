@@ -1,4 +1,4 @@
-          <details class="section-toggle" id="section-landing-page">
+          {% if can_manage_policy %}<details class="section-toggle" id="section-landing-page">
             <summary>
               <span class="section-title">Student Landing Page</span>
               <span class="section-subtitle">Set the title, message, and optional return image students see first at /student.</span>
@@ -43,4 +43,4 @@
                 <button type="submit">Save landing page</button>
               </form>
             </div>
-          </details>
+          </details>{% endif %}
