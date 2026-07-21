@@ -130,6 +130,12 @@ generate_secret() {
   openssl rand -hex 32
 }
 
+validate_domain_value() {
+  local domain_value="$1"
+  python3 "${ROOT_DIR}/scripts/operator_preflight.py" --validate-public-hostname "${domain_value}" || \
+    die "domain must be a public DNS hostname without a URL scheme or path"
+}
+
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -259,8 +265,7 @@ prepare_env_file() {
       fi
       domain_value="$(prompt_default "Domain for production mode" "")"
     fi
-    [[ "${domain_value}" =~ ^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$ ]] || die "domain must be a hostname without a URL scheme or path"
-    [[ "${domain_value}" != *..* ]] || die "domain must not contain consecutive dots"
+    validate_domain_value "${domain_value}"
     env_set "DOMAIN" "${domain_value}" "${ENV_FILE}"
     env_set "DJANGO_ALLOWED_HOSTS" "${domain_value}" "${ENV_FILE}"
     env_set "CSRF_TRUSTED_ORIGINS" "https://${domain_value}" "${ENV_FILE}"
@@ -353,11 +358,16 @@ main() {
   fi
 
   choose_defaults
+  if [[ "${MODE}" == "domain" ]]; then
+    require_cmd python3
+    if [[ -n "${DOMAIN_NAME}" ]]; then
+      validate_domain_value "${DOMAIN_NAME}"
+    fi
+  fi
   prepare_env_file
   seed_required_secrets
 
   if [[ "${MODE}" == "domain" ]]; then
-    require_cmd python3
     log "checking domain deployment settings"
     python3 "${ROOT_DIR}/scripts/operator_preflight.py" --env-file "${ENV_FILE}"
   fi

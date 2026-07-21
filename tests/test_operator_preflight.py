@@ -7,9 +7,9 @@ import textwrap
 import unittest
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = REPO_ROOT / "scripts" / "operator_preflight.py"
+QUICKSTART_PATH = REPO_ROOT / "scripts" / "quickstart_stack.sh"
 
 
 def run_preflight(env_text: str) -> subprocess.CompletedProcess[str]:
@@ -26,6 +26,42 @@ def run_preflight(env_text: str) -> subprocess.CompletedProcess[str]:
 
 
 class OperatorPreflightTests(unittest.TestCase):
+    def test_public_domain_hostname_validation(self):
+        for hostname in ("school.example.org", "lms-2.district.edu"):
+            with self.subTest(hostname=hostname):
+                result = subprocess.run(
+                    [sys.executable, str(SCRIPT_PATH), "--validate-public-hostname", hostname],
+                    cwd=REPO_ROOT,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+        for hostname in (
+            "localhost",
+            "203.0.113.10",
+            "foo-.example",
+            "-foo.example",
+            "foo..example",
+            "internal-only",
+        ):
+            with self.subTest(hostname=hostname):
+                result = subprocess.run(
+                    [sys.executable, str(SCRIPT_PATH), "--validate-public-hostname", hostname],
+                    cwd=REPO_ROOT,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                self.assertNotEqual(result.returncode, 0)
+
+    def test_quickstart_validates_explicit_domain_before_creating_env(self):
+        source = QUICKSTART_PATH.read_text(encoding="utf-8")
+        early_validation = source.index('validate_domain_value "${DOMAIN_NAME}"')
+        env_creation = source.index("prepare_env_file", source.index("main()"))
+        self.assertLess(early_validation, env_creation)
+
     def test_shipped_profiles_require_return_code_for_cross_device_rejoin(self):
         settings_source = (REPO_ROOT / "services/classhub/config/settings.py").read_text(encoding="utf-8")
         self.assertIn("_default_require_return_code_for_rejoin = True", settings_source)
@@ -39,7 +75,7 @@ class OperatorPreflightTests(unittest.TestCase):
             self.assertIn("CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1", source, relative_path)
 
     def test_guided_quickstart_provisions_real_admin_and_otp_credentials(self) -> None:
-        source = (REPO_ROOT / "scripts" / "quickstart_stack.sh").read_text(encoding="utf-8")
+        source = QUICKSTART_PATH.read_text(encoding="utf-8")
 
         self.assertIn('is_placeholder_value "${ADMIN_PASSWORD}"', source)
         self.assertIn("bootstrap_admin_otp", source)
@@ -49,7 +85,7 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertLess(password_output, otp_provisioning)
 
     def test_guided_domain_mode_sets_django_origin_contract(self) -> None:
-        source = (REPO_ROOT / "scripts" / "quickstart_stack.sh").read_text(encoding="utf-8")
+        source = QUICKSTART_PATH.read_text(encoding="utf-8")
 
         self.assertIn('--domain <name>', source)
         self.assertIn('env_set "DJANGO_ALLOWED_HOSTS" "${domain_value}"', source)
@@ -122,6 +158,26 @@ class OperatorPreflightTests(unittest.TestCase):
         )
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("missing_asset_base_url", result.stdout)
+
+    def test_domain_mode_rejects_non_public_hostname(self) -> None:
+        result = run_preflight(
+            """
+            CADDYFILE_TEMPLATE=Caddyfile.domain
+            DOMAIN=localhost
+            DJANGO_ALLOWED_HOSTS=localhost
+            CSRF_TRUSTED_ORIGINS=https://localhost
+            DJANGO_SESSION_COOKIE_SECURE=1
+            DJANGO_CSRF_COOKIE_SECURE=1
+            REQUEST_SAFETY_TRUST_PROXY_HEADERS=1
+            HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
+            HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+            CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+            LLM_ENABLED=0
+            """
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("invalid_public_domain", result.stdout)
 
     def test_remote_compute_mode_requires_remote_target_contract(self) -> None:
         result = run_preflight(

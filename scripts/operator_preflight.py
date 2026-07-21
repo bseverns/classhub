@@ -4,11 +4,11 @@
 from __future__ import annotations
 
 import argparse
-import sys
+import ipaddress
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
-
 
 DEFAULT_ENV_FILE = Path("compose/.env")
 ALLOWED_CADDY_TEMPLATES = {
@@ -34,6 +34,34 @@ REMOTE_COMPUTE_INTERNAL_URL_CONTRACTS = {
     "HELPER_INTERNAL_REMOTE_COMPUTE_STATUS_URL": "/helper/internal/remote-compute-status",
     "HELPER_INTERNAL_REMOTE_COMPUTE_CONTROL_URL": "/helper/internal/remote-compute-control",
 }
+
+_DNS_LABEL_RE = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$")
+
+
+def public_dns_hostname_error(raw: str) -> str:
+    hostname = str(raw or "").strip()
+    if not hostname:
+        return "hostname is required"
+    if len(hostname) > 253:
+        return "hostname must be at most 253 characters"
+    if hostname.lower() == "localhost":
+        return "localhost is not a public DNS hostname"
+    try:
+        ipaddress.ip_address(hostname)
+    except ValueError:
+        pass
+    else:
+        return "IP literals are not valid for public domain mode"
+    if "." not in hostname:
+        return "public domain mode requires a dotted DNS hostname"
+    labels = hostname.split(".")
+    if any(not _DNS_LABEL_RE.fullmatch(label) for label in labels):
+        return "hostname contains an invalid DNS label"
+    if labels[-1].isdigit():
+        return "hostname must not end in a numeric-only DNS label"
+    return ""
+
+
 REMOTE_COMPUTE_PROVIDER_URL_KEYS = (
     "HELPER_REMOTE_COMPUTE_ACTIVATE_URL",
     "HELPER_REMOTE_COMPUTE_DEACTIVATE_URL",
@@ -160,6 +188,8 @@ def _check_domain_mode(values: dict[str, str], issues: list[Issue], *, template_
     elif _is_placeholder_host(domain):
         level = "WARN" if template_mode else "FAIL"
         _add_issue(level == "WARN" and issues or issues, level, "placeholder_domain", "DOMAIN still looks like a placeholder")
+    elif hostname_error := public_dns_hostname_error(domain):
+        _add_issue(issues, "FAIL", "invalid_public_domain", hostname_error)
 
     allowed_hosts = _split_csv(_value(values, "DJANGO_ALLOWED_HOSTS"))
     if domain and domain not in allowed_hosts:
@@ -415,7 +445,18 @@ def main() -> int:
         default=str(DEFAULT_ENV_FILE),
         help="Path to env file (default: compose/.env)",
     )
+    parser.add_argument(
+        "--validate-public-hostname",
+        help="Validate one hostname for public domain mode and exit.",
+    )
     args = parser.parse_args()
+
+    if args.validate_public_hostname is not None:
+        if hostname_error := public_dns_hostname_error(args.validate_public_hostname):
+            print(f"[operator-preflight] FAIL: {hostname_error}")
+            return 1
+        print(f"[operator-preflight] OK (public hostname: {args.validate_public_hostname})")
+        return 0
 
     env_path = Path(args.env_file)
     try:

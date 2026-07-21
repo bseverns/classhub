@@ -1234,7 +1234,7 @@ Execution ownership and gates:
   - generate required secrets when placeholder values are present,
   - set helper YAML config path (`HELPER_CONFIG_FILE=/app/config/helper.config.yaml`),
   - reject placeholder admin passwords, generate one when omitted in non-interactive mode, print generated credentials before fallible OTP setup, and provision missing OTP or static-backup credentials,
-  - require a real hostname in non-interactive domain mode, derive Django host/CSRF settings, and run operator preflight before startup,
+  - require a dotted public DNS hostname in domain mode, reject localhost, IP literals, and malformed DNS labels before writing domain settings, derive Django host/CSRF settings, and run operator preflight before startup,
   - start compose + run migrations,
   - optionally create/update admin account,
   - optionally load demo content through the mounted `/content` root and run `system_doctor.sh --smoke-mode golden`.
