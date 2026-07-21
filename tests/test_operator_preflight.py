@@ -386,6 +386,10 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertIn('COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")', golden_smoke_text)
         self.assertIn("SMOKE_RETURN_CODE_FOR_DEPLOY", deploy_text)
         self.assertIn("SMOKE_RETURN_CODE_FOR_GOLDEN", golden_smoke_text)
+        self.assertIn("print(f'FOUND:{student.return_code}' if student else 'MISSING')", deploy_text)
+        self.assertIn("print(f'FOUND:{student.return_code}' if student else 'MISSING')", golden_smoke_text)
+        self.assertIn('== FOUND:*', deploy_text)
+        self.assertIn('== FOUND:*', golden_smoke_text)
         self.assertIn('RETURN_CODE="${SMOKE_RETURN_CODE:-}"', smoke_text)
         self.assertIn('"return_code":"%s"', smoke_text)
 

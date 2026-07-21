@@ -397,9 +397,14 @@ SMOKE_RETURN_CODE_FOR_GOLDEN="$(
     -e SMOKE_DISPLAY_NAME="${DISPLAY_NAME}" \
     classhub_web \
     python manage.py shell -c \
-    "import os; from hub.models import Class, StudentIdentity; classroom = Class.objects.filter(join_code__iexact=os.environ['SMOKE_CLASS_CODE'].strip()).first(); student = StudentIdentity.objects.filter(classroom=classroom, display_name__iexact=os.environ['SMOKE_DISPLAY_NAME'].strip()).order_by('id').first() if classroom else None; print(student.return_code if student else '')"
+    "import os; from hub.models import Class, StudentIdentity; classroom = Class.objects.filter(join_code__iexact=os.environ['SMOKE_CLASS_CODE'].strip()).first(); student = StudentIdentity.objects.filter(classroom=classroom, display_name__iexact=os.environ['SMOKE_DISPLAY_NAME'].strip()).order_by('id').first() if classroom else None; print(f'FOUND:{student.return_code}' if student else 'MISSING')"
 )"
 SMOKE_RETURN_CODE_FOR_GOLDEN="$(echo "${SMOKE_RETURN_CODE_FOR_GOLDEN}" | tr -d '\r' | tail -n1)"
+if [[ "${SMOKE_RETURN_CODE_FOR_GOLDEN}" == FOUND:* ]]; then
+  SMOKE_RETURN_CODE_FOR_GOLDEN="${SMOKE_RETURN_CODE_FOR_GOLDEN#FOUND:}"
+else
+  SMOKE_RETURN_CODE_FOR_GOLDEN=""
+fi
 SMOKE_ENV=(
   "SMOKE_CLASS_CODE=${CLASS_CODE}"
   "SMOKE_DISPLAY_NAME=${DISPLAY_NAME}"

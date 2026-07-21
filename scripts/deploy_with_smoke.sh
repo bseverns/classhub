@@ -260,9 +260,14 @@ if [[ "${SMOKE_MODE}" == "strict" && -z "${SMOKE_RETURN_CODE_FOR_DEPLOY}" ]]; th
         -e SMOKE_DISPLAY_NAME="${smoke_display_name}" \
         classhub_web \
         python manage.py shell -c \
-        "import os; from hub.models import Class, StudentIdentity; classroom = Class.objects.filter(join_code__iexact=os.environ['SMOKE_CLASS_CODE'].strip()).first(); student = StudentIdentity.objects.filter(classroom=classroom, display_name__iexact=os.environ['SMOKE_DISPLAY_NAME'].strip()).order_by('id').first() if classroom else None; print(student.return_code if student else '')"
+        "import os; from hub.models import Class, StudentIdentity; classroom = Class.objects.filter(join_code__iexact=os.environ['SMOKE_CLASS_CODE'].strip()).first(); student = StudentIdentity.objects.filter(classroom=classroom, display_name__iexact=os.environ['SMOKE_DISPLAY_NAME'].strip()).order_by('id').first() if classroom else None; print(f'FOUND:{student.return_code}' if student else 'MISSING')"
     )"
     SMOKE_RETURN_CODE_FOR_DEPLOY="$(echo "${SMOKE_RETURN_CODE_FOR_DEPLOY}" | tr -d '\r' | tail -n1)"
+    if [[ "${SMOKE_RETURN_CODE_FOR_DEPLOY}" == FOUND:* ]]; then
+      SMOKE_RETURN_CODE_FOR_DEPLOY="${SMOKE_RETURN_CODE_FOR_DEPLOY#FOUND:}"
+    else
+      SMOKE_RETURN_CODE_FOR_DEPLOY=""
+    fi
     if [[ -n "${SMOKE_RETURN_CODE_FOR_DEPLOY}" ]]; then
       echo "[deploy] reusing the existing smoke identity for strict rejoin"
     fi
