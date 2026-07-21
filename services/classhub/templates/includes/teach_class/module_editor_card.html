@@ -6,14 +6,14 @@
               <span class="section-subtitle">Order matters. Keep it predictable.</span>
             </summary>
             <div class="section-body">
-              <div class="module-editor-form-wrap">
+              {% if can_manage_classroom %}<div class="module-editor-form-wrap">
                 <form method="post" action="/teach/class/{{ classroom.id }}/add-module">
                   {% csrf_token %}
                   <label for="module-title">New module title</label>
                   <input id="module-title" name="title" placeholder="e.g., Session 5 — Scratch Motion + Loops" />
                   <button type="submit" class="module-add-button">Add module</button>
                 </form>
-              </div>
+              </div>{% endif %}
 
               {% if modules %}
                 {% for m in modules %}
@@ -23,7 +23,7 @@
                         <strong>{{ m.title }}</strong>
                         <div class="muted mini">{{ m.materials.all|length }} materials</div>
                       </div>
-                      <div class="btnline">
+                      {% if can_manage_classroom %}<div class="btnline">
                         <form method="post" action="/teach/class/{{ classroom.id }}/move-module">
                           {% csrf_token %}
                           <input type="hidden" name="module_id" value="{{ m.id }}" />
@@ -37,10 +37,10 @@
                           <button type="submit" aria-label="Move module {{ m.title }} down">↓</button>
                         </form>
                         <a href="/teach/module/{{ m.id }}">Open</a>
-                      </div>
+                      </div>{% else %}<div class="btnline"><a href="/teach/module/{{ m.id }}">Open</a></div>{% endif %}
                     </div>
 
-                    {% include "includes/teach_class/module_editor_inline_builder.html" %}
+                    {% if can_manage_classroom %}{% include "includes/teach_class/module_editor_inline_builder.html" %}{% endif %}
 
                     {% if m.materials.all %}
                       {% for mat in m.materials.all %}

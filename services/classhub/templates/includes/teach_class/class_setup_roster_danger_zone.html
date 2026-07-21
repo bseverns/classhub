@@ -1,4 +1,4 @@
-<div class="danger-zone">
+{% if can_manage_roster %}<div class="danger-zone">
   <strong>Reset roster and delete submissions (permanent)</strong>
   <p class="muted mini danger-copy">
     This permanently removes every student record in this class, deletes their submissions, and invalidates active student sessions immediately.
@@ -15,7 +15,8 @@
     </label>
     <button type="submit">Permanently reset roster now</button>
   </form>
-  <hr class="danger-divider" />
+  </div>{% endif %}
+{% if can_manage_policy %}<div class="danger-zone">
   <strong>Clear helper conversation cache</strong>
   <p class="muted mini danger-copy">
     This clears cached helper chat history for this class only. Keep the export option checked when you need an internal quality-review snapshot before clearing.
@@ -32,4 +33,4 @@
     </p>
     <button type="submit">Clear helper conversation cache now</button>
   </form>
-</div>
+</div>{% endif %}

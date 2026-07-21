@@ -68,7 +68,7 @@
                         <th scope="row" class="module-cell"><strong>{{ row.module.title }}</strong></th>
                         <td class="lesson-cell">
                           <strong><a href="{{ row.lesson_url }}" target="_blank" rel="noopener">{{ row.lesson_title }}</a></strong>
-                          <details class="lesson-controls">
+                          {% if group.can_manage_policy %}<details class="lesson-controls">
                             <summary>
                               {% trans "Manage lesson" %} ·
                               {% if row.release_state.is_locked %}{% trans "Locked" %}{% else %}{% trans "Open" %}{% endif %}
@@ -155,7 +155,7 @@
                               </div>
                             {% endwith %}
                           </div>
-                          </details>
+                          </details>{% endif %}
                         </td>
                         <td class="dropbox-cell">
                           {% if row.dropboxes %}

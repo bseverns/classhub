@@ -16,6 +16,19 @@ class PrivacyPageTests(TestCase):
         # Should mention data deletion or controls
         self.assertContains(resp, "delete", status_code=200)
 
+    def test_privacy_page_truthfully_describes_diagnostic_event_metadata(self):
+        resp = self.client.get("/privacy")
+
+        self.assertRegex(
+            resp.content.decode(),
+            r"These events link to your class and student record and may include an IP\s+address, which is truncated by default\.",
+        )
+        self.assertRegex(
+            resp.content.decode(),
+            r"They do not include helper prompts or uploaded file\s+contents\.",
+        )
+        self.assertNotContains(resp, "do not contain student identifying details")
+
     def test_trust_page_renders_for_anonymous_visitor(self):
         resp = self.client.get("/trust")
         self.assertEqual(resp.status_code, 200)

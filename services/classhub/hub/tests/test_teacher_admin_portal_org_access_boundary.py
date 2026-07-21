@@ -82,6 +82,34 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
         resp = self.client.post(f"/teach/class/{self.class_a.id}/toggle-lock")
         self.assertEqual(resp.status_code, 403)
 
+    def test_viewer_dashboard_keeps_class_data_but_hides_mutation_controls(self):
+        membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
+        membership.role = OrganizationMembership.ROLE_VIEWER
+        membership.save(update_fields=["role"])
+        module = Module.objects.create(classroom=self.class_a, title="Session 1", order_index=0)
+        Material.objects.create(
+            module=module,
+            title="Session 1 lesson",
+            type=Material.TYPE_LINK,
+            url="/course/demo/session-1",
+        )
+        StudentIdentity.objects.create(classroom=self.class_a, display_name="Ada")
+
+        dashboard = self.client.get(f"/teach/class/{self.class_a.id}")
+        self.assertEqual(dashboard.status_code, 200)
+        self.assertContains(dashboard, "Alpha Cohort")
+        self.assertContains(dashboard, "Session 1")
+        self.assertContains(dashboard, "Ada")
+        self.assertNotContains(dashboard, f"/teach/class/{self.class_a.id}/toggle-lock")
+        self.assertNotContains(dashboard, f"/teach/class/{self.class_a.id}/reset-roster")
+        self.assertNotContains(dashboard, "/teach/lessons/release")
+
+        lessons = self.client.get(f"/teach/lessons?class_id={self.class_a.id}")
+        self.assertEqual(lessons.status_code, 200)
+        self.assertContains(lessons, "Alpha Cohort")
+        self.assertContains(lessons, "Session 1")
+        self.assertNotContains(lessons, "/teach/lessons/release")
+
     def test_viewer_membership_cannot_set_enrollment_mode(self):
         membership = OrganizationMembership.objects.get(organization=self.org_a, user=self.staff)
         membership.role = OrganizationMembership.ROLE_VIEWER
@@ -284,6 +312,22 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
         resp = self.client.post("/teach/create-class", {"name": "Should Not Create"})
         self.assertEqual(resp.status_code, 403)
         self.assertFalse(Class.objects.filter(name="Should Not Create").exists())
+
+    @override_settings(REQUIRE_ORG_MEMBERSHIP_FOR_STAFF=True)
+    def test_strict_membership_without_membership_shows_create_class_guidance(self):
+        legacy_staff = get_user_model().objects.create_user(
+            username="legacy_staff_create_guidance",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        _force_login_staff_verified(self.client, legacy_staff)
+
+        resp = self.client.get("/teach")
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "You need an active organization membership before you can create a class.")
+        self.assertNotContains(resp, 'action="/teach/create-class"')
 
     def test_non_superuser_staff_cannot_manage_organizations_from_teach(self):
         resp = self.client.post("/teach/create-organization", {"org_name": "Blocked Org"})

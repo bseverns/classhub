@@ -1,4 +1,4 @@
-<details class="helper-tune">
+{% if can_manage_policy %}<details class="helper-tune">
   <summary>
     Helper tuning
     {% if row.helper_tuning.has_override %}
@@ -59,4 +59,4 @@
       · allowed {{ row.helper_tuning.default_allowed_topics|join:", " }}
     {% endif %}
   </div>
-</details>
+</details>{% endif %}
