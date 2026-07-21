@@ -30,6 +30,7 @@ _STUDENT_ACTOR_CLASS_RE = re.compile(r"^student:(\d+):\d+$")
 _INDEX_LOCK_TTL_SECONDS = 10
 _INDEX_LOCK_ATTEMPTS = 40
 _INDEX_LOCK_RETRY_SECONDS = 0.005
+_CONVERSATION_GENERATION_MIN_TTL_SECONDS = 7200
 
 
 @dataclass(frozen=True)
@@ -159,6 +160,10 @@ def _index_lock_key(index_key: str) -> str:
     return f"{index_key}:mutation-lock"
 
 
+def conversation_generation_key(*, conversation_key: str) -> str:
+    return f"{conversation_key}:generation"
+
+
 def _acquire_index_lock(*, cache_backend, index_key: str) -> str:
     lock_key = _index_lock_key(index_key)
     token = uuid.uuid4().hex
@@ -186,12 +191,21 @@ def _release_index_lock(*, cache_backend, index_key: str, token: str) -> None:
 
 
 def load_state(*, cache_backend, key: str, max_messages: int) -> dict[str, object]:
+    lock_token = _acquire_index_lock(cache_backend=cache_backend, index_key=key)
+    if not lock_token:
+        return {"summary": "", "turns": [], "generation": ""}
     try:
-        stored = cache_backend.get(key)
-    except Exception:
-        logger.warning("conversation_memory_cache_get_failed key=%s", key)
-        return {"summary": "", "turns": []}
-    return _coerce_state(stored, max_messages=max_messages)
+        try:
+            stored = cache_backend.get(key)
+            generation = cache_backend.get(conversation_generation_key(conversation_key=key))
+        except Exception:
+            logger.warning("conversation_memory_cache_get_failed key=%s", key)
+            return {"summary": "", "turns": [], "generation": ""}
+        state = _coerce_state(stored, max_messages=max_messages)
+        state["generation"] = str(generation or "")
+        return state
+    finally:
+        _release_index_lock(cache_backend=cache_backend, index_key=key, token=lock_token)
 
 
 def _register_index_key(
@@ -257,7 +271,46 @@ def save_state(
     summary: str,
     ttl_seconds: int,
     actor_key: str = "",
+    expected_generation: str | None = None,
 ) -> None:
+    lock_token = _acquire_index_lock(cache_backend=cache_backend, index_key=key)
+    if not lock_token:
+        return
+    try:
+        _save_state_locked(
+            cache_backend=cache_backend,
+            key=key,
+            turns=turns,
+            summary=summary,
+            ttl_seconds=ttl_seconds,
+            actor_key=actor_key,
+            expected_generation=expected_generation,
+        )
+    finally:
+        _release_index_lock(cache_backend=cache_backend, index_key=key, token=lock_token)
+
+
+def _save_state_locked(
+    *,
+    cache_backend,
+    key: str,
+    turns: list[dict[str, str]],
+    summary: str,
+    ttl_seconds: int,
+    actor_key: str,
+    expected_generation: str | None,
+) -> None:
+    if expected_generation is not None:
+        generation_key = conversation_generation_key(conversation_key=key)
+        try:
+            current_generation = str(cache_backend.get(generation_key) or "")
+        except Exception:
+            logger.warning("conversation_memory_cache_get_failed key=%s", generation_key)
+            return
+        if current_generation != expected_generation:
+            logger.info("conversation_memory_stale_save_rejected key=%s", key)
+            return
+
     actor_clearing_key = conversation_actor_clearing_key(actor_key=actor_key)
     try:
         clearing = cache_backend.get(actor_clearing_key)
@@ -413,28 +466,45 @@ def clear_turns(
     ttl_seconds: int,
 ) -> ConversationClearResult:
     """Delete one conversation and unregister it from actor/class indexes."""
-    if not _delete_key_confirmed(cache_backend=cache_backend, key=key):
-        return ConversationClearResult(ok=False, error_code="conversation_delete_failed")
+    lock_token = _acquire_index_lock(cache_backend=cache_backend, index_key=key)
+    if not lock_token:
+        return ConversationClearResult(ok=False, error_code="conversation_lock_unavailable")
+    try:
+        generation_key = conversation_generation_key(conversation_key=key)
+        marker_ttl = max(int(ttl_seconds), _CONVERSATION_GENERATION_MIN_TTL_SECONDS)
+        try:
+            marker_set = cache_backend.set(generation_key, uuid.uuid4().hex, timeout=marker_ttl)
+        except Exception:
+            logger.warning("conversation_memory_cache_set_failed key=%s", generation_key)
+            return ConversationClearResult(ok=False, error_code="generation_marker_set_failed")
+        if marker_set is False:
+            logger.warning("conversation_memory_cache_set_unconfirmed key=%s", generation_key)
+            return ConversationClearResult(ok=False, error_code="generation_marker_set_failed")
 
-    actor_index_key = conversation_actor_index_key(actor_key=actor_key)
-    if not _remove_conversation_from_index(
-        cache_backend=cache_backend,
-        index_key=actor_index_key,
-        conversation_key=key,
-        ttl_seconds=ttl_seconds,
-    ):
-        return ConversationClearResult(ok=False, deleted_conversations=1, error_code="actor_index_update_failed")
+        if not _delete_key_confirmed(cache_backend=cache_backend, key=key):
+            return ConversationClearResult(ok=False, error_code="conversation_delete_failed")
 
-    class_id = _class_id_from_actor_key(actor_key)
-    if class_id is not None and not _remove_conversation_from_index(
-        cache_backend=cache_backend,
-        index_key=conversation_class_index_key(class_id=class_id),
-        conversation_key=key,
-        ttl_seconds=ttl_seconds,
-    ):
-        return ConversationClearResult(ok=False, deleted_conversations=1, error_code="class_index_update_failed")
+        actor_index_key = conversation_actor_index_key(actor_key=actor_key)
+        if not _remove_conversation_from_index(
+            cache_backend=cache_backend,
+            index_key=actor_index_key,
+            conversation_key=key,
+            ttl_seconds=ttl_seconds,
+        ):
+            return ConversationClearResult(ok=False, deleted_conversations=1, error_code="actor_index_update_failed")
 
-    return ConversationClearResult(ok=True, deleted_conversations=1)
+        class_id = _class_id_from_actor_key(actor_key)
+        if class_id is not None and not _remove_conversation_from_index(
+            cache_backend=cache_backend,
+            index_key=conversation_class_index_key(class_id=class_id),
+            conversation_key=key,
+            ttl_seconds=ttl_seconds,
+        ):
+            return ConversationClearResult(ok=False, deleted_conversations=1, error_code="class_index_update_failed")
+
+        return ConversationClearResult(ok=True, deleted_conversations=1)
+    finally:
+        _release_index_lock(cache_backend=cache_backend, index_key=key, token=lock_token)
 
 
 def clear_actor_conversations(

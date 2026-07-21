@@ -101,6 +101,7 @@ async def handle_chat(
     conversation_enabled = False
     intent = ""
     conversation_compacted = False
+    conversation_generation = ""
     response_language_code = "en"
 
     def _response(body: dict, *, status: int = 200):
@@ -197,6 +198,7 @@ async def handle_chat(
         )
         history_turns = list(conversation_state.get("turns") or [])
         history_summary = str(conversation_state.get("summary") or "").strip()
+        conversation_generation = str(conversation_state.get("generation") or "")
 
     message = (payload.get("message") or "").strip()
     if not message:
@@ -237,6 +239,7 @@ async def handle_chat(
             turns=next_turns,
             summary=next_summary,
             ttl_seconds=conversation_ttl_seconds,
+            expected_generation=conversation_generation,
         )
         history_turns = next_turns
         history_summary = next_summary

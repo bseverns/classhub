@@ -4452,3 +4452,9 @@ Execution ownership and gates:
 **Why this remains active:**
 - Recognized disclosures must pause tutoring even when the model backend is unavailable or unsafe.
 - Safety-critical language needs reviewed wording rather than plausible-looking generated translations.
+
+# 2026-07-20: Conversation resets invalidate in-flight saves
+
+- A single-conversation reset advances a cache-backed generation marker before deleting the transcript and index entries.
+- Chat requests capture that generation while loading history and may persist their response only if it is still current.
+- Loading, saving, and resetting one conversation are serialized with a short-lived per-conversation cache lock, so a response that began before a reset cannot restore the cleared transcript.

@@ -205,6 +205,7 @@ def _save_conversation_state(
     turns: list[dict],
     summary: str,
     ttl_seconds: int,
+    expected_generation: str,
 ) -> None:
     key = engine_memory.conversation_cache_key(
         actor_key=actor_key,
@@ -218,6 +219,7 @@ def _save_conversation_state(
         summary=summary,
         ttl_seconds=ttl_seconds,
         actor_key=actor_key,
+        expected_generation=expected_generation,
     )
 
 

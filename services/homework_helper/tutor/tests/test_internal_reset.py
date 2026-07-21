@@ -247,6 +247,55 @@ class HelperInternalResetTests(TestCase):
                 self.assertFalse(result.ok)
                 self.assertEqual(result.error_code, "conversation_delete_failed")
 
+    def test_single_conversation_clear_rejects_save_started_before_reset(self):
+        actor_key = "student:55:9001"
+        conversation_key = engine_memory.conversation_cache_key(
+            actor_key=actor_key,
+            scope_fp="noscope",
+            conversation_id="in-flight-reset",
+        )
+        backend = _ScriptedCacheBackend()
+        engine_memory.save_state(
+            cache_backend=backend,
+            key=conversation_key,
+            turns=[{"role": "student", "content": "Old private question"}],
+            summary="",
+            ttl_seconds=300,
+            actor_key=actor_key,
+        )
+        state_loaded_before_reset = engine_memory.load_state(
+            cache_backend=backend,
+            key=conversation_key,
+            max_messages=20,
+        )
+
+        result = engine_memory.clear_turns(
+            cache_backend=backend,
+            key=conversation_key,
+            actor_key=actor_key,
+            ttl_seconds=300,
+        )
+        engine_memory.save_state(
+            cache_backend=backend,
+            key=conversation_key,
+            turns=[*state_loaded_before_reset["turns"], {"role": "assistant", "content": "Old answer"}],
+            summary="",
+            ttl_seconds=300,
+            actor_key=actor_key,
+            expected_generation=str(state_loaded_before_reset["generation"]),
+        )
+
+        self.assertTrue(result.ok)
+        self.assertIsNone(backend.get(conversation_key))
+        self.assertNotIn(
+            conversation_key,
+            backend.get(engine_memory.conversation_actor_index_key(actor_key=actor_key)) or [],
+        )
+        self.assertNotIn(
+            conversation_key,
+            backend.get(engine_memory.conversation_class_index_key(class_id=55)) or [],
+        )
+
     def test_index_removal_preserves_registration_waiting_on_mutation_lock(self):
         index_key = engine_memory.conversation_actor_index_key(actor_key="student:55:9001")
         removed_key = "conversation-remove"
