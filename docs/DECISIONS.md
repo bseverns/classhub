@@ -4490,3 +4490,16 @@ Execution ownership and gates:
 - Nested public TLS proxies complicate certificate ownership and can introduce redirect loops.
 - Proxying through Memory Engine's Caddy layer preserves its request-body limit and security headers without exposing its API directly.
 - An explicit shared edge allows the two stacks to remain independently deployable while making their production relationship inspectable and repeatable.
+
+## Deployment smoke reuses its return-code identity (2026-07-21)
+
+**Current decision:**
+- Let `smoke_check.sh` accept a process-scoped `SMOKE_RETURN_CODE` without adding that value to operator env examples.
+- Resolve the existing smoke identity's return code inside the trusted ClassHub container during strict and golden deployment workflows.
+- Keep first-run behavior unchanged: when no matching identity exists, smoke creates it through the normal public join flow.
+- Redirect the co-hosted Memory Engine bare hostname to `/kiosk/` at the public ClassHub Caddy edge.
+
+**Why this remains active:**
+- Strict return-code rejoin correctly rejects a fixed smoke display name from a new cookie jar, but deployment smoke must remain repeatable.
+- Reusing the dedicated identity avoids accumulating a new student record on every release and avoids persisting its return code in `compose/.env` or logs.
+- The root redirect preserves the established operator-facing Memory Engine entrypoint while `/healthz` and application routes continue through the same constrained upstream.

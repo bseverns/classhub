@@ -14,6 +14,7 @@ TEACHER_USERNAME="${TEACHER_USERNAME:-smoke_teacher}"
 TEACHER_EMAIL="${TEACHER_EMAIL:-smoke_teacher@example.org}"
 TEACHER_PASSWORD="${TEACHER_PASSWORD:-Sm0keTeacherPass123!}"
 HELPER_MESSAGE="${SMOKE_HELPER_MESSAGE:-Help me with AP calculus limits.}"
+DISPLAY_NAME="${SMOKE_DISPLAY_NAME:-}"
 
 COMPOSE_MODE="${COMPOSE_MODE:-prod}" # prod or dev
 BRING_UP=1
@@ -177,6 +178,9 @@ fi
 
 # shellcheck disable=SC1090
 source "${COMPOSE_ENV_LIB}"
+
+DISPLAY_NAME="${DISPLAY_NAME:-$(env_file_value SMOKE_DISPLAY_NAME)}"
+DISPLAY_NAME="${DISPLAY_NAME:-Smoke Student}"
 
 if [[ "${COMPOSE_MODE}" == "prod" ]]; then
   COMPOSE_ARGS=(-f "${ROOT_DIR}/compose/docker-compose.yml")
@@ -387,8 +391,19 @@ EFFECTIVE_HELPER_SMOKE_MODE="${HELPER_SMOKE_MODE}"
 if [[ "${EFFECTIVE_HELPER_SMOKE_MODE}" == "auto" ]]; then
   EFFECTIVE_HELPER_SMOKE_MODE="$(helper_smoke_mode_auto "${ENV_FILE}")"
 fi
+SMOKE_RETURN_CODE_FOR_GOLDEN="$(
+  run_compose exec -T \
+    -e SMOKE_CLASS_CODE="${CLASS_CODE}" \
+    -e SMOKE_DISPLAY_NAME="${DISPLAY_NAME}" \
+    classhub_web \
+    python manage.py shell -c \
+    "import os; from hub.models import Class, StudentIdentity; classroom = Class.objects.filter(join_code__iexact=os.environ['SMOKE_CLASS_CODE'].strip()).first(); student = StudentIdentity.objects.filter(classroom=classroom, display_name__iexact=os.environ['SMOKE_DISPLAY_NAME'].strip()).order_by('id').first() if classroom else None; print(student.return_code if student else '')"
+)"
+SMOKE_RETURN_CODE_FOR_GOLDEN="$(echo "${SMOKE_RETURN_CODE_FOR_GOLDEN}" | tr -d '\r' | tail -n1)"
 SMOKE_ENV=(
   "SMOKE_CLASS_CODE=${CLASS_CODE}"
+  "SMOKE_DISPLAY_NAME=${DISPLAY_NAME}"
+  "SMOKE_RETURN_CODE=${SMOKE_RETURN_CODE_FOR_GOLDEN}"
   "SMOKE_TEACHER_USERNAME=${TEACHER_USERNAME}"
   "SMOKE_TEACHER_PASSWORD=${TEACHER_PASSWORD}"
   "SMOKE_TEACHER_SESSION_KEY=${TEACHER_SESSION_KEY}"
