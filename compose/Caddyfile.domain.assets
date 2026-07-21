@@ -103,3 +103,4 @@
 }
 
 import /etc/caddy/Caddyfile.extra
+import /etc/caddy/Caddyfile.proxy

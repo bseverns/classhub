@@ -1,0 +1,4 @@
+{$CADDY_MEMORY_ENGINE_DOMAIN} {
+	header Strict-Transport-Security "max-age={$CADDY_HSTS_MAX_AGE:31536000}"
+	reverse_proxy {$CADDY_MEMORY_ENGINE_UPSTREAM}
+}

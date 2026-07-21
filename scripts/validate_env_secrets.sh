@@ -570,6 +570,43 @@ case "${CADDY_EXTRA_CONFIG_TEMPLATE}" in
     ;;
 esac
 
+CADDY_PROXY_CONFIG_TEMPLATE="$(env_file_value CADDY_PROXY_CONFIG_TEMPLATE)"
+CADDY_PROXY_CONFIG_TEMPLATE="${CADDY_PROXY_CONFIG_TEMPLATE:-Caddyfile.proxy.empty}"
+case "${CADDY_PROXY_CONFIG_TEMPLATE}" in
+  Caddyfile.proxy.empty) ;;
+  Caddyfile.proxy.memory-engine)
+    if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.local" ]]; then
+      fail "Caddyfile.proxy.memory-engine requires Caddyfile.domain or Caddyfile.domain.assets"
+    fi
+    CADDY_MEMORY_ENGINE_DOMAIN="$(env_file_value CADDY_MEMORY_ENGINE_DOMAIN)"
+    CADDY_MEMORY_ENGINE_UPSTREAM="$(env_file_value CADDY_MEMORY_ENGINE_UPSTREAM)"
+    if [[ -z "${CADDY_MEMORY_ENGINE_DOMAIN}" || "${CADDY_MEMORY_ENGINE_DOMAIN}" == "localhost" || "${CADDY_MEMORY_ENGINE_DOMAIN}" != *.* ]]; then
+      fail "CADDY_MEMORY_ENGINE_DOMAIN must be a public dotted DNS hostname"
+    fi
+    if contains_icase "${CADDY_MEMORY_ENGINE_DOMAIN}" "example.org" || contains_icase "${CADDY_MEMORY_ENGINE_DOMAIN}" "example.com"; then
+      fail "CADDY_MEMORY_ENGINE_DOMAIN contains a placeholder: ${CADDY_MEMORY_ENGINE_DOMAIN}"
+    fi
+    if [[ "${CADDY_MEMORY_ENGINE_DOMAIN}" == "$(env_file_value DOMAIN)" || "${CADDY_MEMORY_ENGINE_DOMAIN}" == "$(env_file_value ASSET_DOMAIN)" ]]; then
+      fail "CADDY_MEMORY_ENGINE_DOMAIN must not reuse DOMAIN or ASSET_DOMAIN"
+    fi
+    if [[ "${CADDY_EXTRA_CONFIG_TEMPLATE}" == "Caddyfile.extra.static-site" ]]; then
+      IFS=',' read -r -a active_static_site_domains <<< "$(env_file_value CADDY_STATIC_SITE_DOMAINS)"
+      for active_static_site_domain in "${active_static_site_domains[@]}"; do
+        active_static_site_domain="$(trim_spaces "${active_static_site_domain}")"
+        if [[ "${CADDY_MEMORY_ENGINE_DOMAIN}" == "${active_static_site_domain}" ]]; then
+          fail "CADDY_MEMORY_ENGINE_DOMAIN must not reuse a static-site hostname"
+        fi
+      done
+    fi
+    if [[ "${CADDY_MEMORY_ENGINE_UPSTREAM}" != "memory_engine_proxy:80" ]]; then
+      fail "CADDY_MEMORY_ENGINE_UPSTREAM must be memory_engine_proxy:80"
+    fi
+    ;;
+  *)
+    fail "CADDY_PROXY_CONFIG_TEMPLATE must be Caddyfile.proxy.empty or Caddyfile.proxy.memory-engine"
+    ;;
+esac
+
 CADDY_ADMIN_BASIC_AUTH_ENABLED="$(env_file_value CADDY_ADMIN_BASIC_AUTH_ENABLED)"
 CADDY_ADMIN_BASIC_AUTH_ENABLED="${CADDY_ADMIN_BASIC_AUTH_ENABLED:-0}"
 if [[ "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" != "0" && "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" != "1" ]]; then

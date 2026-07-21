@@ -6,6 +6,7 @@ SMOKE_SCRIPT="${ROOT_DIR}/scripts/smoke_check.sh"
 ENV_FILE="${ROOT_DIR}/compose/.env"
 ENSURE_LOCAL_OLLAMA_MODEL="${ROOT_DIR}/scripts/ensure_local_ollama_model.sh"
 COMPOSE_ENV_LIB="${ROOT_DIR}/scripts/lib/compose_env.sh"
+PUBLIC_EDGE_COMPOSE_FILE="${ROOT_DIR}/compose/docker-compose.public-edge.yml"
 
 COURSE_SLUG="${COURSE_SLUG:-piper_scratch_12_session}"
 CLASS_NAME="${CLASS_NAME:-Smoke Validation Class}"
@@ -184,6 +185,13 @@ elif [[ "${COMPOSE_MODE}" == "dev" ]]; then
 else
   echo "[golden-smoke] invalid --compose-mode '${COMPOSE_MODE}' (expected prod|dev)" >&2
   exit 1
+fi
+
+if [[ "$(env_file_value CADDY_PROXY_CONFIG_TEMPLATE)" == "Caddyfile.proxy.memory-engine" ]]; then
+  if [[ ! -f "${PUBLIC_EDGE_COMPOSE_FILE}" ]]; then
+    fail "missing public-edge compose overlay: ${PUBLIC_EDGE_COMPOSE_FILE}"
+  fi
+  COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")
 fi
 
 if llm_uses_local_ollama_compose "${ENV_FILE}"; then

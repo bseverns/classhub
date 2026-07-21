@@ -92,6 +92,8 @@ Look for:
 
 If the LMS hostname works but another hostname on the same IP fails during TLS negotiation, inspect the adapted Caddy host matchers. A static site on the same edge must use the tracked `Caddyfile.extra.static-site` fragment and read-only root mount; do not rely on an ad-hoc runtime Caddy configuration that the next deploy will replace.
 
+For a co-hosted Memory Engine, also check that `CADDY_PROXY_CONFIG_TEMPLATE=Caddyfile.proxy.memory-engine`, that both proxy containers appear in `docker network inspect public_edge`, and that `memory_engine_proxy` resolves from `classhub_caddy`. A missing public site block produces a TLS handshake failure; a missing shared-network upstream produces a `502` after TLS succeeds.
+
 ## Symptom: deploy logs repeated `The "<token>" variable is not set` warnings
 
 Example signal:

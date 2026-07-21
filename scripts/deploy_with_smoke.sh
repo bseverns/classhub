@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPOSE_FILE="${ROOT_DIR}/compose/docker-compose.yml"
+PUBLIC_EDGE_COMPOSE_FILE="${ROOT_DIR}/compose/docker-compose.public-edge.yml"
 MIGRATION_GATE="${ROOT_DIR}/scripts/migration_gate.sh"
 SMOKE_CHECK="${ROOT_DIR}/scripts/smoke_check.sh"
 GOLDEN_SMOKE="${ROOT_DIR}/scripts/golden_path_smoke.sh"
@@ -40,6 +41,9 @@ fi
 
 run_compose() {
   local compose_args=(-f "${COMPOSE_FILE}")
+  if [[ "$(env_file_value CADDY_PROXY_CONFIG_TEMPLATE)" == "Caddyfile.proxy.memory-engine" ]]; then
+    compose_args+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")
+  fi
   if [[ -f "${COMPOSE_ENV_LIB}" ]]; then
     # shellcheck disable=SC1090
     source "${COMPOSE_ENV_LIB}"
@@ -83,6 +87,9 @@ echo "[deploy] running migration gate"
 
 extra_template_from_env="$(env_file_value CADDY_EXTRA_CONFIG_TEMPLATE)"
 extra_template_from_env="${extra_template_from_env:-Caddyfile.extra.empty}"
+proxy_template_from_env="$(env_file_value CADDY_PROXY_CONFIG_TEMPLATE)"
+proxy_template_from_env="${proxy_template_from_env:-Caddyfile.proxy.empty}"
+memory_engine_domain_from_env="$(env_file_value CADDY_MEMORY_ENGINE_DOMAIN)"
 static_site_root_from_env="$(env_file_value CADDY_STATIC_SITE_ROOT_HOST)"
 static_site_root_from_env="${static_site_root_from_env:-./static-site.empty}"
 if [[ "${static_site_root_from_env}" == /* ]]; then
@@ -102,7 +109,18 @@ if [[ "${extra_template_from_env}" == "Caddyfile.extra.static-site" ]]; then
   fi
 fi
 
-echo "[deploy] launching production compose (docker-compose.yml only)"
+if [[ "${proxy_template_from_env}" == "Caddyfile.proxy.memory-engine" ]]; then
+  if [[ ! -f "${PUBLIC_EDGE_COMPOSE_FILE}" ]]; then
+    echo "[deploy] missing public-edge compose overlay: ${PUBLIC_EDGE_COMPOSE_FILE}" >&2
+    exit 1
+  fi
+  if ! docker network inspect public_edge >/dev/null 2>&1; then
+    echo "[deploy] external Docker network public_edge is required for the Memory Engine proxy" >&2
+    exit 1
+  fi
+fi
+
+echo "[deploy] launching selected production compose files"
 run_compose up -d --build
 
 echo "[deploy] ensuring local ollama model is ready when compose-local ollama is enabled"
@@ -162,6 +180,18 @@ fi
 
 echo "[deploy] caddy extra mount guardrail OK"
 
+EXPECTED_CADDY_PROXY="${ROOT_DIR}/compose/${proxy_template_from_env}"
+ACTUAL_CADDY_PROXY="$(docker inspect classhub_caddy --format '{{range .Mounts}}{{if eq .Destination "/etc/caddy/Caddyfile.proxy"}}{{.Source}}{{end}}{{end}}' 2>/dev/null || true)"
+if [[ "${ACTUAL_CADDY_PROXY}" != "${EXPECTED_CADDY_PROXY}" ]]; then
+  echo "[deploy] caddy proxy config guardrail failed" >&2
+  echo "[deploy] expected: ${EXPECTED_CADDY_PROXY}" >&2
+  echo "[deploy] actual:   ${ACTUAL_CADDY_PROXY:-missing}" >&2
+  rollback_if_configured
+  exit 1
+fi
+
+echo "[deploy] caddy proxy mount guardrail OK"
+
 CADDY_RUNNING="$(docker inspect classhub_caddy --format '{{.State.Running}}' 2>/dev/null || true)"
 if [[ "${CADDY_RUNNING}" != "true" ]]; then
   echo "[deploy] classhub_caddy is not running (state=${CADDY_RUNNING:-unknown})" >&2
@@ -170,6 +200,28 @@ if [[ "${CADDY_RUNNING}" != "true" ]]; then
 fi
 
 echo "[deploy] caddy runtime guardrail OK"
+
+if [[ "${proxy_template_from_env}" == "Caddyfile.proxy.memory-engine" ]]; then
+  CADDY_ON_PUBLIC_EDGE="$(docker inspect classhub_caddy --format '{{if index .NetworkSettings.Networks "public_edge"}}true{{end}}' 2>/dev/null || true)"
+  if [[ "${CADDY_ON_PUBLIC_EDGE}" != "true" ]]; then
+    echo "[deploy] classhub_caddy is not attached to public_edge" >&2
+    rollback_if_configured
+    exit 1
+  fi
+  if ! docker exec classhub_caddy getent hosts memory_engine_proxy >/dev/null; then
+    echo "[deploy] memory_engine_proxy does not resolve from classhub_caddy" >&2
+    rollback_if_configured
+    exit 1
+  fi
+  if ! docker exec classhub_caddy wget -qO- \
+      --header="Host: ${memory_engine_domain_from_env}" \
+      http://memory_engine_proxy/healthz >/dev/null; then
+    echo "[deploy] Memory Engine proxy health check failed across public_edge" >&2
+    rollback_if_configured
+    exit 1
+  fi
+  echo "[deploy] Memory Engine public-edge upstream guardrail OK"
+fi
 
 echo "[deploy] formatting caddy config in container temp path"
 if ! docker exec classhub_caddy sh -ec \
