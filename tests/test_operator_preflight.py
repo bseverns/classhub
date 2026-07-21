@@ -369,6 +369,7 @@ class OperatorPreflightTests(unittest.TestCase):
         overlay_text = (REPO_ROOT / "compose" / "docker-compose.public-edge.yml").read_text(encoding="utf-8")
         proxy_text = (REPO_ROOT / "compose" / "Caddyfile.proxy.memory-engine").read_text(encoding="utf-8")
         deploy_text = (REPO_ROOT / "scripts" / "deploy_with_smoke.sh").read_text(encoding="utf-8")
+        golden_smoke_text = (REPO_ROOT / "scripts" / "golden_path_smoke.sh").read_text(encoding="utf-8")
 
         self.assertIn(":/etc/caddy/Caddyfile.proxy:ro", compose_text)
         self.assertIn("reverse_proxy {$CADDY_MEMORY_ENGINE_UPSTREAM}", proxy_text)
@@ -379,6 +380,8 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertIn('eq .Destination "/etc/caddy/Caddyfile.proxy"', deploy_text)
         self.assertIn("getent hosts memory_engine_proxy", deploy_text)
         self.assertIn("http://memory_engine_proxy/healthz", deploy_text)
+        self.assertIn('env_file_value CADDY_PROXY_CONFIG_TEMPLATE', golden_smoke_text)
+        self.assertIn('COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")', golden_smoke_text)
 
     def test_domain_mode_rejects_non_public_hostname(self) -> None:
         result = run_preflight(
