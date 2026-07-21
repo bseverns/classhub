@@ -480,6 +480,7 @@ Execution ownership and gates:
 - Preserve explicit env override precedence:
   - profile defaults may set baseline behavior,
   - explicit env vars (`HELPER_STRICTNESS`, `HELPER_SCOPE_MODE`, `HELPER_TOPIC_FILTER_MODE`, `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN`) always win.
+- Require return codes for cross-device same-name rejoin by default in every profile; same-device signed hints remain available.
 - Use profile defaults to reduce pilot setup variance without adding new product primitives.
 
 **Why this remains active:**
@@ -1164,6 +1165,8 @@ Execution ownership and gates:
 **Current decision:**
 - Teacher/staff mutations emit append-only `AuditEvent` records.
 - Student join/rejoin/upload/helper-access metadata emits append-only `StudentEvent` records.
+- Privacy copy for student events states that records link to the class and student, may include an IP address
+  (truncated by default), and exclude helper prompts and uploaded file contents.
 - Retention is operator-managed using prune commands.
 - Successful retention command runs (`prune_submissions`, `prune_student_events`) now emit explicit audit stamps (`retention.prune_*`) so operators can verify last-run timestamps without reading host logs.
 - Operator retention verification is available in a read-only teacher-side dashboard at `/teach/data-lifespan` (owner/admin/superuser capability).
@@ -1233,7 +1236,7 @@ Execution ownership and gates:
   - generate required secrets when placeholder values are present,
   - set helper YAML config path (`HELPER_CONFIG_FILE=/app/config/helper.config.yaml`),
   - reject placeholder admin passwords, generate one when omitted in non-interactive mode, print generated credentials before fallible OTP setup, and provision missing OTP or static-backup credentials,
-  - require a real hostname in non-interactive domain mode, derive Django host/CSRF settings, and run operator preflight before startup,
+  - require dotted public DNS hostnames for both the primary and optional separate asset domains, reject localhost, IP literals, and malformed DNS labels before writing domain settings, derive Django host/CSRF settings, and run operator preflight before startup,
   - start compose + run migrations,
   - optionally create/update admin account,
   - optionally load demo content through the mounted `/content` root and run `system_doctor.sh --smoke-mode golden`.

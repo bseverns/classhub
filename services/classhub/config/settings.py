@@ -424,7 +424,7 @@ JOIN_RATE_LIMIT_PER_MINUTE = env.int(
 # Cookie used for same-device student rejoin hints.
 DEVICE_REJOIN_COOKIE_NAME = env("CLASSHUB_DEVICE_REJOIN_COOKIE_NAME", default="classhub_student_hint")
 DEVICE_REJOIN_MAX_AGE_DAYS = env.int("CLASSHUB_DEVICE_REJOIN_MAX_AGE_DAYS", default=30)
-_default_require_return_code_for_rejoin = CLASSHUB_PROGRAM_PROFILE == "elementary"
+_default_require_return_code_for_rejoin = True
 CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN = env.bool(
     "CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN",
     default=_default_require_return_code_for_rejoin,

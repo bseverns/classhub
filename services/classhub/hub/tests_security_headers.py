@@ -81,7 +81,7 @@ class SecurityHeaderDriftTests(TestCase):
     def test_join_post_uses_no_store_cache(self):
         resp = self.client.post(
             "/join",
-            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "Ada"}),
+            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "Grace"}),
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, 200)

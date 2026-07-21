@@ -83,8 +83,8 @@ HELPER_CLASS_RESET_ARCHIVE_DIR=/uploads/helper_reset_exports
 
 # Join rate limit (protect against accidental hammering / refresh storms).
 CLASSHUB_JOIN_RATE_LIMIT_PER_MINUTE=20
-# Optional explicit override (default is profile-driven):
-# CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=0
+# Optional explicit lock-in (secure default is enabled for every profile):
+# CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1
 
 # Retention maintenance script defaults (safe starting point).
 RETENTION_SUBMISSION_DAYS=90
