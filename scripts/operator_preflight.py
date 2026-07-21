@@ -20,6 +20,10 @@ ALLOWED_CADDY_EXTRA_CONFIGS = {
     "Caddyfile.extra.empty",
     "Caddyfile.extra.static-site",
 }
+ALLOWED_CADDY_PROXY_CONFIGS = {
+    "Caddyfile.proxy.empty",
+    "Caddyfile.proxy.memory-engine",
+}
 REMOTE_COMPUTE_ENABLED_KEYS = (
     "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED",
     "HELPER_REMOTE_COMPUTE_ENABLED",
@@ -336,6 +340,63 @@ def _check_caddy_extra(values: dict[str, str], issues: list[Issue], *, caddy_tem
             )
 
 
+def _check_caddy_proxy(values: dict[str, str], issues: list[Issue], *, caddy_template: str) -> None:
+    proxy_template = _value(values, "CADDY_PROXY_CONFIG_TEMPLATE") or "Caddyfile.proxy.empty"
+    if proxy_template not in ALLOWED_CADDY_PROXY_CONFIGS:
+        _add_issue(
+            issues,
+            "FAIL",
+            "invalid_caddy_proxy_config",
+            "CADDY_PROXY_CONFIG_TEMPLATE must be Caddyfile.proxy.empty or Caddyfile.proxy.memory-engine",
+        )
+        return
+    if proxy_template != "Caddyfile.proxy.memory-engine":
+        return
+
+    if caddy_template == "Caddyfile.local":
+        _add_issue(
+            issues,
+            "FAIL",
+            "memory_engine_proxy_requires_domain_mode",
+            "Caddyfile.proxy.memory-engine requires a domain/TLS Caddyfile template",
+        )
+
+    proxy_domain = _value(values, "CADDY_MEMORY_ENGINE_DOMAIN").lower()
+    if not proxy_domain:
+        _add_issue(issues, "FAIL", "missing_memory_engine_domain", "CADDY_MEMORY_ENGINE_DOMAIN must be set")
+    elif _is_placeholder_host(proxy_domain):
+        _add_issue(
+            issues,
+            "FAIL",
+            "placeholder_memory_engine_domain",
+            f"CADDY_MEMORY_ENGINE_DOMAIN is a placeholder: {proxy_domain}",
+        )
+    elif hostname_error := public_dns_hostname_error(proxy_domain):
+        _add_issue(issues, "FAIL", "invalid_memory_engine_domain", hostname_error)
+
+    reserved_domains = {_value(values, "DOMAIN").lower(), _value(values, "ASSET_DOMAIN").lower()} - {""}
+    if _value(values, "CADDY_EXTRA_CONFIG_TEMPLATE") == "Caddyfile.extra.static-site":
+        reserved_domains.update(
+            hostname.lower() for hostname in _split_csv(_value(values, "CADDY_STATIC_SITE_DOMAINS"))
+        )
+    if proxy_domain and proxy_domain in reserved_domains:
+        _add_issue(
+            issues,
+            "FAIL",
+            "conflicting_memory_engine_domain",
+            "CADDY_MEMORY_ENGINE_DOMAIN must not reuse an LMS, asset, or static-site hostname",
+        )
+
+    upstream = _value(values, "CADDY_MEMORY_ENGINE_UPSTREAM")
+    if upstream != "memory_engine_proxy:80":
+        _add_issue(
+            issues,
+            "FAIL",
+            "invalid_memory_engine_upstream",
+            "CADDY_MEMORY_ENGINE_UPSTREAM must be memory_engine_proxy:80",
+        )
+
+
 def _check_llm_contract(
     values: dict[str, str],
     issues: list[Issue],
@@ -481,6 +542,7 @@ def run_preflight(env_path: Path) -> tuple[list[Issue], list[Issue]]:
             )
 
     _check_caddy_extra(values, issues, caddy_template=caddy_template)
+    _check_caddy_proxy(values, issues, caddy_template=caddy_template)
 
     _check_internal_url_contracts(values, issues)
     _check_llm_contract(

@@ -4476,3 +4476,17 @@ Execution ownership and gates:
 - Reloading an LMS-only Caddy template can otherwise remove an ad-hoc organization-site virtual host while leaving the LMS healthy.
 - A constrained selector is easier to validate and audit than accepting an arbitrary configuration path.
 - A read-only, dedicated root prevents the edge container from mutating the static site and avoids exposing the entire application checkout.
+
+## Co-hosted services use a proxy-only shared edge (2026-07-21)
+
+**Current decision:**
+- Keep ClassHub Caddy as the sole public TLS terminator for co-hosted service hostnames.
+- Route Memory Engine through its own Caddy proxy over plain HTTP on the external `public_edge` Docker network.
+- Attach only the two proxy containers to that network; keep both applications, databases, caches, and object stores on their private Compose networks.
+- Use tracked opt-in Compose overlays and a constrained Caddy fragment rather than production-only edits.
+- Require the stable `memory_engine_proxy:80` upstream and verify DNS plus `/healthz` from `classhub_caddy` during deployment.
+
+**Why this remains active:**
+- Nested public TLS proxies complicate certificate ownership and can introduce redirect loops.
+- Proxying through Memory Engine's Caddy layer preserves its request-body limit and security headers without exposing its API directly.
+- An explicit shared edge allows the two stacks to remain independently deployable while making their production relationship inspectable and repeatable.

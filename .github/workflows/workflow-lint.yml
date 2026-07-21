@@ -54,5 +54,9 @@ jobs:
         uses: rhysd/actionlint@v1.7.10
       - name: Guard critical CI workflow coverage
         run: python scripts/check_ci_workflow_coverage.py
+      - name: Validate public-edge compose overlay
+        run: |
+          cp compose/.env.example.domain compose/.env
+          docker compose -f compose/docker-compose.yml -f compose/docker-compose.public-edge.yml config --quiet
       - name: Validate Caddy routing templates
         run: bash scripts/check_caddy_configs.sh

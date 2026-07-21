@@ -289,6 +289,97 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertIn('eq .Destination "/etc/caddy/Caddyfile.extra"', deploy_text)
         self.assertIn('eq .Destination "/srv/caddy-static-site"', deploy_text)
 
+    def test_memory_engine_proxy_valid_contract_passes(self) -> None:
+        result = run_preflight(
+            """
+            CADDYFILE_TEMPLATE=Caddyfile.domain.assets
+            CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site
+            CADDY_STATIC_SITE_ROOT_HOST=/srv/cM_orgsite
+            CADDY_STATIC_SITE_DOMAINS=creatempls.org, www.creatempls.org
+            CADDY_PROXY_CONFIG_TEMPLATE=Caddyfile.proxy.memory-engine
+            CADDY_MEMORY_ENGINE_DOMAIN=memory.creatempls.org
+            CADDY_MEMORY_ENGINE_UPSTREAM=memory_engine_proxy:80
+            DOMAIN=lms.creatempls.org
+            ASSET_DOMAIN=assets.creatempls.org
+            CLASSHUB_ASSET_BASE_URL=https://assets.creatempls.org
+            DJANGO_ALLOWED_HOSTS=lms.creatempls.org,assets.creatempls.org
+            CSRF_TRUSTED_ORIGINS=https://lms.creatempls.org
+            DJANGO_SESSION_COOKIE_SECURE=1
+            DJANGO_CSRF_COOKIE_SECURE=1
+            REQUEST_SAFETY_TRUST_PROXY_HEADERS=1
+            HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
+            HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+            CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+            LLM_ENABLED=0
+            """
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_memory_engine_proxy_rejects_local_mode_missing_domain_and_wrong_upstream(self) -> None:
+        result = run_preflight(
+            """
+            CADDYFILE_TEMPLATE=Caddyfile.local
+            CADDY_PROXY_CONFIG_TEMPLATE=Caddyfile.proxy.memory-engine
+            CADDY_MEMORY_ENGINE_UPSTREAM=memory-engine-api:8000
+            DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+            CSRF_TRUSTED_ORIGINS=http://localhost
+            DJANGO_SESSION_COOKIE_SECURE=0
+            DJANGO_CSRF_COOKIE_SECURE=0
+            HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
+            HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+            CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+            LLM_ENABLED=0
+            """
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("memory_engine_proxy_requires_domain_mode", result.stdout)
+        self.assertIn("missing_memory_engine_domain", result.stdout)
+        self.assertIn("invalid_memory_engine_upstream", result.stdout)
+
+    def test_memory_engine_proxy_rejects_static_site_hostname_conflict(self) -> None:
+        result = run_preflight(
+            """
+            CADDYFILE_TEMPLATE=Caddyfile.domain
+            CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site
+            CADDY_STATIC_SITE_ROOT_HOST=/srv/cM_orgsite
+            CADDY_STATIC_SITE_DOMAINS=creatempls.org, memory.creatempls.org
+            CADDY_PROXY_CONFIG_TEMPLATE=Caddyfile.proxy.memory-engine
+            CADDY_MEMORY_ENGINE_DOMAIN=memory.creatempls.org
+            CADDY_MEMORY_ENGINE_UPSTREAM=memory_engine_proxy:80
+            DOMAIN=lms.creatempls.org
+            DJANGO_ALLOWED_HOSTS=lms.creatempls.org
+            CSRF_TRUSTED_ORIGINS=https://lms.creatempls.org
+            DJANGO_SESSION_COOKIE_SECURE=1
+            DJANGO_CSRF_COOKIE_SECURE=1
+            REQUEST_SAFETY_TRUST_PROXY_HEADERS=1
+            HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
+            HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+            CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+            LLM_ENABLED=0
+            """
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("conflicting_memory_engine_domain", result.stdout)
+
+    def test_memory_engine_proxy_uses_tracked_fragment_and_public_edge_overlay(self) -> None:
+        compose_text = (REPO_ROOT / "compose" / "docker-compose.yml").read_text(encoding="utf-8")
+        overlay_text = (REPO_ROOT / "compose" / "docker-compose.public-edge.yml").read_text(encoding="utf-8")
+        proxy_text = (REPO_ROOT / "compose" / "Caddyfile.proxy.memory-engine").read_text(encoding="utf-8")
+        deploy_text = (REPO_ROOT / "scripts" / "deploy_with_smoke.sh").read_text(encoding="utf-8")
+
+        self.assertIn(":/etc/caddy/Caddyfile.proxy:ro", compose_text)
+        self.assertIn("reverse_proxy {$CADDY_MEMORY_ENGINE_UPSTREAM}", proxy_text)
+        self.assertIn("public_edge:", overlay_text)
+        self.assertIn("external: true", overlay_text)
+        self.assertNotIn("classhub_web:", overlay_text)
+        self.assertNotIn("helper_web:", overlay_text)
+        self.assertIn('eq .Destination "/etc/caddy/Caddyfile.proxy"', deploy_text)
+        self.assertIn("getent hosts memory_engine_proxy", deploy_text)
+        self.assertIn("http://memory_engine_proxy/healthz", deploy_text)
+
     def test_domain_mode_rejects_non_public_hostname(self) -> None:
         result = run_preflight(
             """
