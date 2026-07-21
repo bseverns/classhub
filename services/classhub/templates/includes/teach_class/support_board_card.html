@@ -19,14 +19,14 @@
                         <strong>{{ row.display_name }}</strong>
                         {% if row.module_title %} · {{ row.module_title }}{% endif %}
                         · {{ row.waiting_minutes }} min
-                        <form method="post" action="/teach/class/{{ classroom.id }}/resolve-stuck" class="inline-resolve-form">
+                        {% if can_manage_roster %}<form method="post" action="/teach/class/{{ classroom.id }}/resolve-stuck" class="inline-resolve-form">
                           {% csrf_token %}
                           <input type="hidden" name="student_id" value="{{ row.student_id }}" />
                           {% if row.module_id %}
                             <input type="hidden" name="module_id" value="{{ row.module_id }}" />
                           {% endif %}
                           <button type="submit">Mark resolved</button>
-                        </form>
+                        </form>{% endif %}
                       </li>
                     {% endfor %}
                   </ul>
@@ -47,11 +47,11 @@
                         <strong>{{ row.display_name }}</strong>
                         · requested {{ row.waiting_minutes }} min ago
                         · {{ row.requested_at|date:"M j, g:i a" }}
-                        <form method="post" action="/teach/class/{{ classroom.id }}/resolve-delete-request" class="inline-resolve-form">
+                        {% if can_manage_roster %}<form method="post" action="/teach/class/{{ classroom.id }}/resolve-delete-request" class="inline-resolve-form">
                           {% csrf_token %}
                           <input type="hidden" name="student_id" value="{{ row.student_id }}" />
                           <button type="submit">Mark addressed</button>
-                        </form>
+                        </form>{% endif %}
                       </li>
                     {% endfor %}
                   </ul>

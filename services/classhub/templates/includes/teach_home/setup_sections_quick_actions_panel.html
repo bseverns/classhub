@@ -100,7 +100,11 @@
             </form>
             {% else %}
             <p class="muted">
-              {% trans "You need an active organization membership before you can create a class." %}
+              {% if has_active_org_membership %}
+                {% trans "Your organization role does not allow you to create a class." %}
+              {% else %}
+                {% trans "You need an active organization membership before you can create a class." %}
+              {% endif %}
             </p>
             {% endif %}
             {% if classes %}

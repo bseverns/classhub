@@ -93,7 +93,21 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
             type=Material.TYPE_LINK,
             url="/course/demo/session-1",
         )
-        StudentIdentity.objects.create(classroom=self.class_a, display_name="Ada")
+        student = StudentIdentity.objects.create(classroom=self.class_a, display_name="Ada")
+        StudentEvent.objects.create(
+            classroom=self.class_a,
+            student=student,
+            event_type=StudentEvent.EVENT_MICRO_CHECK_STUCK,
+            source="test",
+            details={"module_id": module.id},
+        )
+        StudentEvent.objects.create(
+            classroom=self.class_a,
+            student=student,
+            event_type=StudentEvent.EVENT_STUDENT_DELETE_WORK_REQUEST,
+            source="test",
+            details={},
+        )
 
         dashboard = self.client.get(f"/teach/class/{self.class_a.id}")
         self.assertEqual(dashboard.status_code, 200)
@@ -103,7 +117,15 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
         self.assertNotContains(dashboard, f"/teach/module/{module.id}")
         self.assertNotContains(dashboard, f"/teach/class/{self.class_a.id}/toggle-lock")
         self.assertNotContains(dashboard, f"/teach/class/{self.class_a.id}/reset-roster")
+        self.assertNotContains(dashboard, f"/teach/class/{self.class_a.id}/resolve-stuck")
+        self.assertNotContains(dashboard, f"/teach/class/{self.class_a.id}/resolve-delete-request")
         self.assertNotContains(dashboard, "/teach/lessons/release")
+
+        home = self.client.get("/teach")
+        self.assertEqual(home.status_code, 200)
+        self.assertContains(home, "Your organization role does not allow you to create a class.")
+        self.assertNotContains(home, "You need an active organization membership before you can create a class.")
+        self.assertNotContains(home, 'action="/teach/create-class"')
 
         lessons = self.client.get(f"/teach/lessons?class_id={self.class_a.id}")
         self.assertEqual(lessons.status_code, 200)
