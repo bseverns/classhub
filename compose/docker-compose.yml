@@ -19,6 +19,9 @@ services:
       # - CADDYFILE_TEMPLATE=Caddyfile.local  (HTTP on localhost/day-1)
       # - CADDYFILE_TEMPLATE=Caddyfile.domain (real domain + automatic TLS)
       - ./${CADDYFILE_TEMPLATE:-Caddyfile.local}:/etc/caddy/Caddyfile:ro
+      - ./${CADDY_EXTRA_CONFIG_TEMPLATE:-Caddyfile.extra.empty}:/etc/caddy/Caddyfile.extra:ro
+      - ./${CADDY_PROXY_CONFIG_TEMPLATE:-Caddyfile.proxy.empty}:/etc/caddy/Caddyfile.proxy:ro
+      - ${CADDY_STATIC_SITE_ROOT_HOST:-./static-site.empty}:/srv/caddy-static-site:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:

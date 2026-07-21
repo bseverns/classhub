@@ -69,8 +69,10 @@ docker compose logs --tail=200 classhub_web helper_web caddy
 Common causes:
 
 - wrong Caddy template mounted
+- wrong or missing optional Caddy fragment mounted
 - wrong `DOMAIN`
 - ACME/DNS mismatch
+- a public hostname points at the LMS edge but is absent from every active Caddy site block
 
 Checks:
 
@@ -78,14 +80,23 @@ Checks:
 cd /srv/lms/app/compose
 docker inspect classhub_caddy --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
 docker compose logs --tail=200 caddy
-grep -E '^(CADDYFILE_TEMPLATE|DOMAIN)=' .env
+grep -E '^(CADDYFILE_TEMPLATE|CADDY_EXTRA_CONFIG_TEMPLATE|CADDY_STATIC_SITE_ROOT_HOST|CADDY_STATIC_SITE_DOMAINS|DOMAIN)=' .env
 ```
 
 Look for:
 
 - expected template (`Caddyfile.domain` or `Caddyfile.domain.assets` for public TLS)
+- expected extra fragment (`Caddyfile.extra.empty` or `Caddyfile.extra.static-site`)
 - correct domain in logs and `.env`
 - ACME identifier/certificate errors
+
+If the LMS hostname works but another hostname on the same IP fails during TLS negotiation, inspect the adapted Caddy host matchers. A static site on the same edge must use the tracked `Caddyfile.extra.static-site` fragment and read-only root mount; do not rely on an ad-hoc runtime Caddy configuration that the next deploy will replace.
+
+For a co-hosted Memory Engine, also check that `CADDY_PROXY_CONFIG_TEMPLATE=Caddyfile.proxy.memory-engine`, that both proxy containers appear in `docker network inspect public_edge`, and that `memory_engine_proxy` resolves from `classhub_caddy`. A missing public site block produces a TLS handshake failure; a missing shared-network upstream produces a `502` after TLS succeeds.
+
+The tracked Memory Engine proxy redirects its bare public hostname to `/kiosk/`. A healthy `/healthz` and `/kiosk/` paired with a bare-host `404` means the deployed proxy fragment predates that redirect.
+
+Strict deployment smoke reuses the existing smoke identity's return code from inside the trusted ClassHub container. This keeps repeated deploys compatible with `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1` without creating a new roster entry or storing the return code in `compose/.env`.
 
 ## Symptom: deploy logs repeated `The "<token>" variable is not set` warnings
 

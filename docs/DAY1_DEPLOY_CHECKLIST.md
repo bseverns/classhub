@@ -121,6 +121,42 @@ Use `.env` as the single selector (no ad-hoc file renames):
   - if using sibling subdomains, set:
     - `DJANGO_SESSION_COOKIE_DOMAIN=.yourdomain.tld`
     - `DJANGO_CSRF_COOKIE_DOMAIN=.yourdomain.tld`
+- Optional static organization site on the same Caddy edge:
+  - keep `CADDYFILE_TEMPLATE` in a domain/TLS mode
+  - set `CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site`
+  - set `CADDY_STATIC_SITE_ROOT_HOST` to a dedicated host directory containing `index.html`
+  - set `CADDY_STATIC_SITE_DOMAINS` to one or more comma-separated public hostnames, with a space after each comma as required by Caddy
+  - do not reuse `DOMAIN` or `ASSET_DOMAIN`; the operator preflight rejects hostname collisions
+
+Example:
+
+```dotenv
+CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site
+CADDY_STATIC_SITE_ROOT_HOST=/srv/example_orgsite
+CADDY_STATIC_SITE_DOMAINS=example.org, www.example.org
+```
+
+The directory is mounted read-only at `/srv/caddy-static-site`. The shipped fragment blocks repository metadata and supports both `.html` files and extensionless routes. Keep the default `Caddyfile.extra.empty` when no additional site is needed.
+
+- Optional co-hosted Memory Engine behind the same public Caddy edge:
+  - deploy Memory Engine's `docker-compose.public-edge.yml` overlay first
+  - keep `CADDYFILE_TEMPLATE` in a domain/TLS mode
+  - set `CADDY_PROXY_CONFIG_TEMPLATE=Caddyfile.proxy.memory-engine`
+  - set `CADDY_MEMORY_ENGINE_DOMAIN` to its public hostname
+  - keep `CADDY_MEMORY_ENGINE_UPSTREAM=memory_engine_proxy:80`
+  - verify the external `public_edge` network exists before deploying ClassHub
+
+Example:
+
+```dotenv
+CADDY_PROXY_CONFIG_TEMPLATE=Caddyfile.proxy.memory-engine
+CADDY_MEMORY_ENGINE_DOMAIN=memory.example.org
+CADDY_MEMORY_ENGINE_UPSTREAM=memory_engine_proxy:80
+```
+
+The deploy script automatically adds `compose/docker-compose.public-edge.yml`, verifies that `classhub_caddy` joined the external network, resolves the stable Memory Engine proxy alias, and checks `/healthz` before reloading the public Caddy configuration. The Memory Engine proxy retains its own request limits and security headers; ClassHub Caddy is the sole public TLS terminator.
+
+Validate every shipped domain combination with `bash scripts/check_caddy_configs.sh` on a host with Docker available.
 
 Then deploy/reload:
 
@@ -187,6 +223,25 @@ curl -I https://$ASSET_DOMAIN/lesson-video/1/stream
 
 Expected behavior: both hosts answer health checks; asset host serves only `/lesson-asset/*` and `/lesson-video/*`.
 If `CADDY_EXPOSE_UPSTREAM_HEALTHZ=0`, both `/upstream-healthz` checks should return `404`.
+
+When the optional static site is enabled, also verify:
+
+```bash
+curl -I https://example.org/
+curl -I https://example.org/about
+curl -I https://example.org/.git/config
+```
+
+Expected behavior: public pages return `200`; repository metadata returns `404`.
+
+When the optional Memory Engine proxy is enabled, also verify:
+
+```bash
+curl -i https://memory.example.org/healthz
+curl -I https://memory.example.org/kiosk/
+```
+
+Expected behavior: both routes return `200` through the Memory Engine proxy, while the LMS and organization-site checks remain unchanged.
 
 Service exposure defaults:
 - Postgres/Redis are internal-only on Docker networking.

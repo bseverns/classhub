@@ -6,6 +6,7 @@ SMOKE_SCRIPT="${ROOT_DIR}/scripts/smoke_check.sh"
 ENV_FILE="${ROOT_DIR}/compose/.env"
 ENSURE_LOCAL_OLLAMA_MODEL="${ROOT_DIR}/scripts/ensure_local_ollama_model.sh"
 COMPOSE_ENV_LIB="${ROOT_DIR}/scripts/lib/compose_env.sh"
+PUBLIC_EDGE_COMPOSE_FILE="${ROOT_DIR}/compose/docker-compose.public-edge.yml"
 
 COURSE_SLUG="${COURSE_SLUG:-piper_scratch_12_session}"
 CLASS_NAME="${CLASS_NAME:-Smoke Validation Class}"
@@ -13,6 +14,7 @@ TEACHER_USERNAME="${TEACHER_USERNAME:-smoke_teacher}"
 TEACHER_EMAIL="${TEACHER_EMAIL:-smoke_teacher@example.org}"
 TEACHER_PASSWORD="${TEACHER_PASSWORD:-Sm0keTeacherPass123!}"
 HELPER_MESSAGE="${SMOKE_HELPER_MESSAGE:-Help me with AP calculus limits.}"
+DISPLAY_NAME="${SMOKE_DISPLAY_NAME:-}"
 
 COMPOSE_MODE="${COMPOSE_MODE:-prod}" # prod or dev
 BRING_UP=1
@@ -177,6 +179,9 @@ fi
 # shellcheck disable=SC1090
 source "${COMPOSE_ENV_LIB}"
 
+DISPLAY_NAME="${DISPLAY_NAME:-$(env_file_value SMOKE_DISPLAY_NAME)}"
+DISPLAY_NAME="${DISPLAY_NAME:-Smoke Student}"
+
 if [[ "${COMPOSE_MODE}" == "prod" ]]; then
   COMPOSE_ARGS=(-f "${ROOT_DIR}/compose/docker-compose.yml")
 elif [[ "${COMPOSE_MODE}" == "dev" ]]; then
@@ -184,6 +189,13 @@ elif [[ "${COMPOSE_MODE}" == "dev" ]]; then
 else
   echo "[golden-smoke] invalid --compose-mode '${COMPOSE_MODE}' (expected prod|dev)" >&2
   exit 1
+fi
+
+if [[ "$(env_file_value CADDY_PROXY_CONFIG_TEMPLATE)" == "Caddyfile.proxy.memory-engine" ]]; then
+  if [[ ! -f "${PUBLIC_EDGE_COMPOSE_FILE}" ]]; then
+    fail "missing public-edge compose overlay: ${PUBLIC_EDGE_COMPOSE_FILE}"
+  fi
+  COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")
 fi
 
 if llm_uses_local_ollama_compose "${ENV_FILE}"; then
@@ -379,8 +391,24 @@ EFFECTIVE_HELPER_SMOKE_MODE="${HELPER_SMOKE_MODE}"
 if [[ "${EFFECTIVE_HELPER_SMOKE_MODE}" == "auto" ]]; then
   EFFECTIVE_HELPER_SMOKE_MODE="$(helper_smoke_mode_auto "${ENV_FILE}")"
 fi
+SMOKE_RETURN_CODE_FOR_GOLDEN="$(
+  run_compose exec -T \
+    -e SMOKE_CLASS_CODE="${CLASS_CODE}" \
+    -e SMOKE_DISPLAY_NAME="${DISPLAY_NAME}" \
+    classhub_web \
+    python manage.py shell -c \
+    "import os; from hub.models import Class, StudentIdentity; classroom = Class.objects.filter(join_code__iexact=os.environ['SMOKE_CLASS_CODE'].strip()).first(); student = StudentIdentity.objects.filter(classroom=classroom, display_name__iexact=os.environ['SMOKE_DISPLAY_NAME'].strip()).order_by('id').first() if classroom else None; print(f'FOUND:{student.return_code}' if student else 'MISSING')"
+)"
+SMOKE_RETURN_CODE_FOR_GOLDEN="$(echo "${SMOKE_RETURN_CODE_FOR_GOLDEN}" | tr -d '\r' | tail -n1)"
+if [[ "${SMOKE_RETURN_CODE_FOR_GOLDEN}" == FOUND:* ]]; then
+  SMOKE_RETURN_CODE_FOR_GOLDEN="${SMOKE_RETURN_CODE_FOR_GOLDEN#FOUND:}"
+else
+  SMOKE_RETURN_CODE_FOR_GOLDEN=""
+fi
 SMOKE_ENV=(
   "SMOKE_CLASS_CODE=${CLASS_CODE}"
+  "SMOKE_DISPLAY_NAME=${DISPLAY_NAME}"
+  "SMOKE_RETURN_CODE=${SMOKE_RETURN_CODE_FOR_GOLDEN}"
   "SMOKE_TEACHER_USERNAME=${TEACHER_USERNAME}"
   "SMOKE_TEACHER_PASSWORD=${TEACHER_PASSWORD}"
   "SMOKE_TEACHER_SESSION_KEY=${TEACHER_SESSION_KEY}"

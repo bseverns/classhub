@@ -529,6 +529,84 @@ if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.domain.assets" ]]; then
   fi
 fi
 
+CADDY_EXTRA_CONFIG_TEMPLATE="$(env_file_value CADDY_EXTRA_CONFIG_TEMPLATE)"
+CADDY_EXTRA_CONFIG_TEMPLATE="${CADDY_EXTRA_CONFIG_TEMPLATE:-Caddyfile.extra.empty}"
+case "${CADDY_EXTRA_CONFIG_TEMPLATE}" in
+  Caddyfile.extra.empty) ;;
+  Caddyfile.extra.static-site)
+    if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.local" ]]; then
+      fail "Caddyfile.extra.static-site requires Caddyfile.domain or Caddyfile.domain.assets"
+    fi
+    CADDY_STATIC_SITE_ROOT_HOST="$(env_file_value CADDY_STATIC_SITE_ROOT_HOST)"
+    CADDY_STATIC_SITE_DOMAINS="$(env_file_value CADDY_STATIC_SITE_DOMAINS)"
+    if [[ -z "${CADDY_STATIC_SITE_ROOT_HOST}" ]]; then
+      fail "CADDY_STATIC_SITE_ROOT_HOST is required when using Caddyfile.extra.static-site"
+    fi
+    case "${CADDY_STATIC_SITE_ROOT_HOST}" in
+      /|.|~) fail "CADDY_STATIC_SITE_ROOT_HOST must identify a dedicated site directory" ;;
+    esac
+    if [[ -z "${CADDY_STATIC_SITE_DOMAINS}" ]]; then
+      fail "CADDY_STATIC_SITE_DOMAINS is required when using Caddyfile.extra.static-site"
+    fi
+    if [[ "${CADDY_STATIC_SITE_DOMAINS}" =~ ,[^[:space:]] ]]; then
+      fail "CADDY_STATIC_SITE_DOMAINS requires a space after each comma for Caddy address parsing"
+    fi
+    IFS=',' read -r -a static_site_domains <<< "${CADDY_STATIC_SITE_DOMAINS}"
+    for static_site_domain in "${static_site_domains[@]}"; do
+      static_site_domain="$(trim_spaces "${static_site_domain}")"
+      if [[ -z "${static_site_domain}" || "${static_site_domain}" == "localhost" || "${static_site_domain}" != *.* ]]; then
+        fail "CADDY_STATIC_SITE_DOMAINS must contain public dotted DNS hostnames"
+      fi
+      if contains_icase "${static_site_domain}" "example.org" || contains_icase "${static_site_domain}" "example.com"; then
+        fail "CADDY_STATIC_SITE_DOMAINS contains a placeholder: ${static_site_domain}"
+      fi
+      if [[ "${static_site_domain}" == "$(env_file_value DOMAIN)" || "${static_site_domain}" == "$(env_file_value ASSET_DOMAIN)" ]]; then
+        fail "CADDY_STATIC_SITE_DOMAINS must not reuse DOMAIN or ASSET_DOMAIN: ${static_site_domain}"
+      fi
+    done
+    ;;
+  *)
+    fail "CADDY_EXTRA_CONFIG_TEMPLATE must be Caddyfile.extra.empty or Caddyfile.extra.static-site"
+    ;;
+esac
+
+CADDY_PROXY_CONFIG_TEMPLATE="$(env_file_value CADDY_PROXY_CONFIG_TEMPLATE)"
+CADDY_PROXY_CONFIG_TEMPLATE="${CADDY_PROXY_CONFIG_TEMPLATE:-Caddyfile.proxy.empty}"
+case "${CADDY_PROXY_CONFIG_TEMPLATE}" in
+  Caddyfile.proxy.empty) ;;
+  Caddyfile.proxy.memory-engine)
+    if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.local" ]]; then
+      fail "Caddyfile.proxy.memory-engine requires Caddyfile.domain or Caddyfile.domain.assets"
+    fi
+    CADDY_MEMORY_ENGINE_DOMAIN="$(env_file_value CADDY_MEMORY_ENGINE_DOMAIN)"
+    CADDY_MEMORY_ENGINE_UPSTREAM="$(env_file_value CADDY_MEMORY_ENGINE_UPSTREAM)"
+    if [[ -z "${CADDY_MEMORY_ENGINE_DOMAIN}" || "${CADDY_MEMORY_ENGINE_DOMAIN}" == "localhost" || "${CADDY_MEMORY_ENGINE_DOMAIN}" != *.* ]]; then
+      fail "CADDY_MEMORY_ENGINE_DOMAIN must be a public dotted DNS hostname"
+    fi
+    if contains_icase "${CADDY_MEMORY_ENGINE_DOMAIN}" "example.org" || contains_icase "${CADDY_MEMORY_ENGINE_DOMAIN}" "example.com"; then
+      fail "CADDY_MEMORY_ENGINE_DOMAIN contains a placeholder: ${CADDY_MEMORY_ENGINE_DOMAIN}"
+    fi
+    if [[ "${CADDY_MEMORY_ENGINE_DOMAIN}" == "$(env_file_value DOMAIN)" || "${CADDY_MEMORY_ENGINE_DOMAIN}" == "$(env_file_value ASSET_DOMAIN)" ]]; then
+      fail "CADDY_MEMORY_ENGINE_DOMAIN must not reuse DOMAIN or ASSET_DOMAIN"
+    fi
+    if [[ "${CADDY_EXTRA_CONFIG_TEMPLATE}" == "Caddyfile.extra.static-site" ]]; then
+      IFS=',' read -r -a active_static_site_domains <<< "$(env_file_value CADDY_STATIC_SITE_DOMAINS)"
+      for active_static_site_domain in "${active_static_site_domains[@]}"; do
+        active_static_site_domain="$(trim_spaces "${active_static_site_domain}")"
+        if [[ "${CADDY_MEMORY_ENGINE_DOMAIN}" == "${active_static_site_domain}" ]]; then
+          fail "CADDY_MEMORY_ENGINE_DOMAIN must not reuse a static-site hostname"
+        fi
+      done
+    fi
+    if [[ "${CADDY_MEMORY_ENGINE_UPSTREAM}" != "memory_engine_proxy:80" ]]; then
+      fail "CADDY_MEMORY_ENGINE_UPSTREAM must be memory_engine_proxy:80"
+    fi
+    ;;
+  *)
+    fail "CADDY_PROXY_CONFIG_TEMPLATE must be Caddyfile.proxy.empty or Caddyfile.proxy.memory-engine"
+    ;;
+esac
+
 CADDY_ADMIN_BASIC_AUTH_ENABLED="$(env_file_value CADDY_ADMIN_BASIC_AUTH_ENABLED)"
 CADDY_ADMIN_BASIC_AUTH_ENABLED="${CADDY_ADMIN_BASIC_AUTH_ENABLED:-0}"
 if [[ "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" != "0" && "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" != "1" ]]; then

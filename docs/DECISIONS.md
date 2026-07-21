@@ -4461,3 +4461,45 @@ Execution ownership and gates:
 - A single-conversation reset advances a cache-backed generation marker before deleting the transcript and index entries.
 - Chat requests capture that generation while loading history and may persist their response only if it is still current.
 - Loading, saving, and resetting one conversation are serialized with a short-lived per-conversation cache lock, so a response that began before a reset cannot restore the cleared transcript.
+
+## Optional static sites use a constrained Caddy fragment (2026-07-21)
+
+**Current decision:**
+- Keep the LMS and asset virtual hosts in the existing domain templates.
+- Allow one optional, tracked static-site fragment selected by `CADDY_EXTRA_CONFIG_TEMPLATE`.
+- Mount its host content into a fixed read-only container path and require a dedicated directory containing `index.html` before deploy.
+- Require explicit public hostnames that do not collide with `DOMAIN` or `ASSET_DOMAIN`.
+- Block repository metadata paths and support extensionless HTML routes in the shipped fragment.
+- Verify both the primary and optional Caddy mounts during deployment.
+
+**Why this remains active:**
+- Reloading an LMS-only Caddy template can otherwise remove an ad-hoc organization-site virtual host while leaving the LMS healthy.
+- A constrained selector is easier to validate and audit than accepting an arbitrary configuration path.
+- A read-only, dedicated root prevents the edge container from mutating the static site and avoids exposing the entire application checkout.
+
+## Co-hosted services use a proxy-only shared edge (2026-07-21)
+
+**Current decision:**
+- Keep ClassHub Caddy as the sole public TLS terminator for co-hosted service hostnames.
+- Route Memory Engine through its own Caddy proxy over plain HTTP on the external `public_edge` Docker network.
+- Attach only the two proxy containers to that network; keep both applications, databases, caches, and object stores on their private Compose networks.
+- Use tracked opt-in Compose overlays and a constrained Caddy fragment rather than production-only edits.
+- Require the stable `memory_engine_proxy:80` upstream and verify DNS plus `/healthz` from `classhub_caddy` during deployment.
+
+**Why this remains active:**
+- Nested public TLS proxies complicate certificate ownership and can introduce redirect loops.
+- Proxying through Memory Engine's Caddy layer preserves its request-body limit and security headers without exposing its API directly.
+- An explicit shared edge allows the two stacks to remain independently deployable while making their production relationship inspectable and repeatable.
+
+## Deployment smoke reuses its return-code identity (2026-07-21)
+
+**Current decision:**
+- Let `smoke_check.sh` accept a process-scoped `SMOKE_RETURN_CODE` without adding that value to operator env examples.
+- Resolve the existing smoke identity's return code inside the trusted ClassHub container during strict and golden deployment workflows.
+- Keep first-run behavior unchanged: when no matching identity exists, smoke creates it through the normal public join flow.
+- Redirect the co-hosted Memory Engine bare hostname to `/kiosk/` at the public ClassHub Caddy edge.
+
+**Why this remains active:**
+- Strict return-code rejoin correctly rejects a fixed smoke display name from a new cookie jar, but deployment smoke must remain repeatable.
+- Reusing the dedicated identity avoids accumulating a new student record on every release and avoids persisting its return code in `compose/.env` or logs.
+- The root redirect preserves the established operator-facing Memory Engine entrypoint while `/healthz` and application routes continue through the same constrained upstream.
