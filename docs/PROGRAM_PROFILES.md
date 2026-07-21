@@ -18,8 +18,8 @@ This does not create a separate product mode. It only sets safer defaults for ex
 | Profile | Join/rejoin default | Helper strictness default | Helper scope default | Helper topic filter default | UI density default |
 |---|---|---|---|---|---|
 | `elementary` | `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1` | `HELPER_STRICTNESS=strict` | `HELPER_SCOPE_MODE=strict` | `HELPER_TOPIC_FILTER_MODE=strict` | `compact` |
-| `secondary` | `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=0` | `HELPER_STRICTNESS=light` | `HELPER_SCOPE_MODE=soft` | `HELPER_TOPIC_FILTER_MODE=soft` | `standard` |
-| `advanced` | `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=0` | `HELPER_STRICTNESS=light` | `HELPER_SCOPE_MODE=soft` | `HELPER_TOPIC_FILTER_MODE=soft` | `expanded` |
+| `secondary` | `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1` | `HELPER_STRICTNESS=light` | `HELPER_SCOPE_MODE=soft` | `HELPER_TOPIC_FILTER_MODE=soft` | `standard` |
+| `advanced` | `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1` | `HELPER_STRICTNESS=light` | `HELPER_SCOPE_MODE=soft` | `HELPER_TOPIC_FILTER_MODE=soft` | `expanded` |
 
 ## Override precedence
 
@@ -45,7 +45,7 @@ HELPER_TOPIC_FILTER_MODE=strict
 ```dotenv
 CLASSHUB_PROGRAM_PROFILE=secondary
 # Optional explicit lock-ins:
-CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=0
+CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1
 HELPER_STRICTNESS=light
 HELPER_SCOPE_MODE=soft
 HELPER_TOPIC_FILTER_MODE=soft
@@ -56,7 +56,7 @@ HELPER_TOPIC_FILTER_MODE=soft
 ```dotenv
 CLASSHUB_PROGRAM_PROFILE=advanced
 # Optional explicit lock-ins:
-CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=0
+CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1
 HELPER_STRICTNESS=light
 HELPER_SCOPE_MODE=soft
 HELPER_TOPIC_FILTER_MODE=soft
@@ -64,7 +64,7 @@ HELPER_TOPIC_FILTER_MODE=soft
 
 ## Practical notes
 
-- For shared elementary devices, keep `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1` to reduce accidental identity reuse.
+- Keep `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1` for every profile to prevent cross-device same-name identity reuse.
 - If you need strict helper boundaries in any profile, set helper toggles explicitly; profile defaults are only a baseline.
 - Keep privacy posture unchanged across profiles: no prompt archive, no surveillance analytics.
 

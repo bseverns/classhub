@@ -26,6 +26,18 @@ def run_preflight(env_text: str) -> subprocess.CompletedProcess[str]:
 
 
 class OperatorPreflightTests(unittest.TestCase):
+    def test_shipped_profiles_require_return_code_for_cross_device_rejoin(self):
+        settings_source = (REPO_ROOT / "services/classhub/config/settings.py").read_text(encoding="utf-8")
+        self.assertIn("_default_require_return_code_for_rejoin = True", settings_source)
+
+        for relative_path in (
+            "compose/.env.example",
+            "compose/.env.example.local",
+            "compose/.env.example.domain",
+        ):
+            source = (REPO_ROOT / relative_path).read_text(encoding="utf-8")
+            self.assertIn("CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1", source, relative_path)
+
     def test_guided_quickstart_provisions_real_admin_and_otp_credentials(self) -> None:
         source = (REPO_ROOT / "scripts" / "quickstart_stack.sh").read_text(encoding="utf-8")
 

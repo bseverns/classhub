@@ -480,6 +480,7 @@ Execution ownership and gates:
 - Preserve explicit env override precedence:
   - profile defaults may set baseline behavior,
   - explicit env vars (`HELPER_STRICTNESS`, `HELPER_SCOPE_MODE`, `HELPER_TOPIC_FILTER_MODE`, `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN`) always win.
+- Require return codes for cross-device same-name rejoin by default in every profile; same-device signed hints remain available.
 - Use profile defaults to reduce pilot setup variance without adding new product primitives.
 
 **Why this remains active:**

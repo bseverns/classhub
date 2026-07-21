@@ -231,10 +231,11 @@ def resolve_join_student(
         join_mode = "return_code"
     else:
         if require_return_code_for_rejoin():
-            rejoin_candidate = load_device_hint_student(request, classroom, display_name)
-            if rejoin_candidate is None:
-                rejoin_candidate = load_name_match_student(classroom, display_name)
-            if rejoin_candidate is not None:
+            student = load_device_hint_student(request, classroom, display_name)
+            if student is not None:
+                rejoined = True
+                join_mode = "device_hint"
+            elif load_name_match_student(classroom, display_name) is not None:
                 raise JoinValidationError("return_code_required")
         else:
             student = load_device_hint_student(request, classroom, display_name)

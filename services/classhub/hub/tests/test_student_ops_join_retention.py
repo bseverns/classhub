@@ -68,12 +68,11 @@ class JoinClassTests(TestCase):
             data=json.dumps({"class_code": self.classroom.join_code, "display_name": "Ada"}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(self.client.session.get("student_id"), oldest.id)
-        event = StudentEvent.objects.order_by("-id").first()
-        self.assertIsNotNone(event)
-        self.assertEqual(event.details.get("join_mode"), "name_match")
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json().get("error"), "return_code_required")
+        self.assertIsNone(self.client.session.get("student_id"))
 
+    @override_settings(CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=False)
     def test_join_same_name_without_return_code_reuses_existing_identity(self):
         payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
         r1 = self.client.post("/join", data=json.dumps(payload), content_type="application/json")
@@ -100,24 +99,18 @@ class JoinClassTests(TestCase):
         self.assertEqual(second_event.event_type, StudentEvent.EVENT_REJOIN_DEVICE_HINT)
         self.assertEqual(second_event.details.get("join_mode"), "name_match")
 
-    def test_join_same_device_without_return_code_reuses_identity(self):
+    def test_explicit_logout_requires_return_code_despite_same_browser(self):
         payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
         r1 = self.client.post("/join", data=json.dumps(payload), content_type="application/json")
         self.assertEqual(r1.status_code, 200)
-        first_id = self.client.session.get("student_id")
 
         # Student logs out, then re-joins from the same browser/device.
         self.client.get("/logout")
         r2 = self.client.post("/join", data=json.dumps(payload), content_type="application/json")
-        self.assertEqual(r2.status_code, 200)
-        second_id = self.client.session.get("student_id")
-
-        self.assertEqual(first_id, second_id)
-        self.assertTrue(r2.json().get("rejoined"))
+        self.assertEqual(r2.status_code, 400)
+        self.assertEqual(r2.json().get("error"), "return_code_required")
+        self.assertIsNone(self.client.session.get("student_id"))
         self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 1)
-        event = StudentEvent.objects.order_by("-id").first()
-        self.assertIsNotNone(event)
-        self.assertEqual(event.event_type, StudentEvent.EVENT_REJOIN_DEVICE_HINT)
 
     def test_join_same_device_with_different_name_creates_new_identity(self):
         payload = {"class_code": self.classroom.join_code, "display_name": "Ada"}
@@ -138,6 +131,7 @@ class JoinClassTests(TestCase):
         self.assertFalse(r2.json().get("rejoined"))
         self.assertEqual(StudentIdentity.objects.filter(classroom=self.classroom).count(), 2)
 
+    @override_settings(CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=False)
     def test_join_name_match_avoids_new_row_when_duplicates_already_exist(self):
         oldest = StudentIdentity.objects.create(classroom=self.classroom, display_name="Ada")
         StudentIdentity.objects.create(classroom=self.classroom, display_name="ADA")
@@ -308,11 +302,14 @@ class JoinClassTests(TestCase):
             content_type="application/json",
         )
         self.assertEqual(first.status_code, 200)
+        return_code = first.json().get("return_code")
         self.client.get("/logout")
 
         second = self.client.post(
             "/join",
-            data=json.dumps({"display_name": "Ada", "invite_token": invite.token}),
+            data=json.dumps(
+                {"display_name": "Ada", "invite_token": invite.token, "return_code": return_code}
+            ),
             content_type="application/json",
         )
         self.assertEqual(second.status_code, 200)
