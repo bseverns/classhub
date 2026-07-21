@@ -32,6 +32,9 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertIn('is_placeholder_value "${ADMIN_PASSWORD}"', source)
         self.assertIn("bootstrap_admin_otp", source)
         self.assertIn("--if-missing", source)
+        password_output = source.index('echo "Generated admin password (store now): ${ADMIN_PASSWORD}"')
+        otp_provisioning = source.index('log "provisioning admin authenticator"')
+        self.assertLess(password_output, otp_provisioning)
 
     def test_guided_domain_mode_sets_django_origin_contract(self) -> None:
         source = (REPO_ROOT / "scripts" / "quickstart_stack.sh").read_text(encoding="utf-8")

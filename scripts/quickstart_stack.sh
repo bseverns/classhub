@@ -334,12 +334,13 @@ create_or_update_admin() {
     python manage.py shell -c \
       "import os; U=__import__('django.contrib.auth').contrib.auth.get_user_model(); u=os.environ['DJANGO_SUPERUSER_USERNAME']; e=os.environ['DJANGO_SUPERUSER_EMAIL']; p=os.environ['DJANGO_SUPERUSER_PASSWORD']; obj, created = U.objects.get_or_create(username=u, defaults={'email': e, 'is_staff': True, 'is_superuser': True, 'is_active': True}); obj.email = e; obj.is_staff = True; obj.is_superuser = True; obj.is_active = True; obj.set_password(p); obj.save(); print('created' if created else 'updated')"
 
-  log "provisioning admin authenticator"
-  run_compose exec -T classhub_web python manage.py bootstrap_admin_otp \
-    --username "${ADMIN_USERNAME}" --with-static-backup --if-missing
   if [[ "${ADMIN_PASSWORD_GENERATED}" == "1" ]]; then
     echo "Generated admin password (store now): ${ADMIN_PASSWORD}"
   fi
+
+  log "provisioning admin authenticator"
+  run_compose exec -T classhub_web python manage.py bootstrap_admin_otp \
+    --username "${ADMIN_USERNAME}" --with-static-backup --if-missing
 }
 
 main() {

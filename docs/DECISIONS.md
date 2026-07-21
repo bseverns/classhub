@@ -1232,7 +1232,7 @@ Execution ownership and gates:
   - initialize `compose/.env` from mode-aware examples,
   - generate required secrets when placeholder values are present,
   - set helper YAML config path (`HELPER_CONFIG_FILE=/app/config/helper.config.yaml`),
-  - reject placeholder admin passwords, generate one when omitted in non-interactive mode, and provision admin OTP when missing,
+  - reject placeholder admin passwords, generate one when omitted in non-interactive mode, print generated credentials before fallible OTP setup, and provision missing OTP or static-backup credentials,
   - require a real hostname in non-interactive domain mode, derive Django host/CSRF settings, and run operator preflight before startup,
   - start compose + run migrations,
   - optionally create/update admin account,
