@@ -37,7 +37,7 @@
                           <button type="submit" aria-label="Move module {{ m.title }} down">↓</button>
                         </form>
                         <a href="/teach/module/{{ m.id }}">Open</a>
-                      </div>{% else %}<div class="btnline"><a href="/teach/module/{{ m.id }}">Open</a></div>{% endif %}
+                      </div>{% endif %}
                     </div>
 
                     {% if can_manage_classroom %}{% include "includes/teach_class/module_editor_inline_builder.html" %}{% endif %}

@@ -100,6 +100,7 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
         self.assertContains(dashboard, "Alpha Cohort")
         self.assertContains(dashboard, "Session 1")
         self.assertContains(dashboard, "Ada")
+        self.assertNotContains(dashboard, f"/teach/module/{module.id}")
         self.assertNotContains(dashboard, f"/teach/class/{self.class_a.id}/toggle-lock")
         self.assertNotContains(dashboard, f"/teach/class/{self.class_a.id}/reset-roster")
         self.assertNotContains(dashboard, "/teach/lessons/release")
