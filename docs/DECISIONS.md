@@ -4461,3 +4461,18 @@ Execution ownership and gates:
 - A single-conversation reset advances a cache-backed generation marker before deleting the transcript and index entries.
 - Chat requests capture that generation while loading history and may persist their response only if it is still current.
 - Loading, saving, and resetting one conversation are serialized with a short-lived per-conversation cache lock, so a response that began before a reset cannot restore the cleared transcript.
+
+## Optional static sites use a constrained Caddy fragment (2026-07-21)
+
+**Current decision:**
+- Keep the LMS and asset virtual hosts in the existing domain templates.
+- Allow one optional, tracked static-site fragment selected by `CADDY_EXTRA_CONFIG_TEMPLATE`.
+- Mount its host content into a fixed read-only container path and require a dedicated directory containing `index.html` before deploy.
+- Require explicit public hostnames that do not collide with `DOMAIN` or `ASSET_DOMAIN`.
+- Block repository metadata paths and support extensionless HTML routes in the shipped fragment.
+- Verify both the primary and optional Caddy mounts during deployment.
+
+**Why this remains active:**
+- Reloading an LMS-only Caddy template can otherwise remove an ad-hoc organization-site virtual host while leaving the LMS healthy.
+- A constrained selector is easier to validate and audit than accepting an arbitrary configuration path.
+- A read-only, dedicated root prevents the edge container from mutating the static site and avoids exposing the entire application checkout.

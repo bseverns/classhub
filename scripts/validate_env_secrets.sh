@@ -529,6 +529,47 @@ if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.domain.assets" ]]; then
   fi
 fi
 
+CADDY_EXTRA_CONFIG_TEMPLATE="$(env_file_value CADDY_EXTRA_CONFIG_TEMPLATE)"
+CADDY_EXTRA_CONFIG_TEMPLATE="${CADDY_EXTRA_CONFIG_TEMPLATE:-Caddyfile.extra.empty}"
+case "${CADDY_EXTRA_CONFIG_TEMPLATE}" in
+  Caddyfile.extra.empty) ;;
+  Caddyfile.extra.static-site)
+    if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.local" ]]; then
+      fail "Caddyfile.extra.static-site requires Caddyfile.domain or Caddyfile.domain.assets"
+    fi
+    CADDY_STATIC_SITE_ROOT_HOST="$(env_file_value CADDY_STATIC_SITE_ROOT_HOST)"
+    CADDY_STATIC_SITE_DOMAINS="$(env_file_value CADDY_STATIC_SITE_DOMAINS)"
+    if [[ -z "${CADDY_STATIC_SITE_ROOT_HOST}" ]]; then
+      fail "CADDY_STATIC_SITE_ROOT_HOST is required when using Caddyfile.extra.static-site"
+    fi
+    case "${CADDY_STATIC_SITE_ROOT_HOST}" in
+      /|.|~) fail "CADDY_STATIC_SITE_ROOT_HOST must identify a dedicated site directory" ;;
+    esac
+    if [[ -z "${CADDY_STATIC_SITE_DOMAINS}" ]]; then
+      fail "CADDY_STATIC_SITE_DOMAINS is required when using Caddyfile.extra.static-site"
+    fi
+    if [[ "${CADDY_STATIC_SITE_DOMAINS}" =~ ,[^[:space:]] ]]; then
+      fail "CADDY_STATIC_SITE_DOMAINS requires a space after each comma for Caddy address parsing"
+    fi
+    IFS=',' read -r -a static_site_domains <<< "${CADDY_STATIC_SITE_DOMAINS}"
+    for static_site_domain in "${static_site_domains[@]}"; do
+      static_site_domain="$(trim_spaces "${static_site_domain}")"
+      if [[ -z "${static_site_domain}" || "${static_site_domain}" == "localhost" || "${static_site_domain}" != *.* ]]; then
+        fail "CADDY_STATIC_SITE_DOMAINS must contain public dotted DNS hostnames"
+      fi
+      if contains_icase "${static_site_domain}" "example.org" || contains_icase "${static_site_domain}" "example.com"; then
+        fail "CADDY_STATIC_SITE_DOMAINS contains a placeholder: ${static_site_domain}"
+      fi
+      if [[ "${static_site_domain}" == "$(env_file_value DOMAIN)" || "${static_site_domain}" == "$(env_file_value ASSET_DOMAIN)" ]]; then
+        fail "CADDY_STATIC_SITE_DOMAINS must not reuse DOMAIN or ASSET_DOMAIN: ${static_site_domain}"
+      fi
+    done
+    ;;
+  *)
+    fail "CADDY_EXTRA_CONFIG_TEMPLATE must be Caddyfile.extra.empty or Caddyfile.extra.static-site"
+    ;;
+esac
+
 CADDY_ADMIN_BASIC_AUTH_ENABLED="$(env_file_value CADDY_ADMIN_BASIC_AUTH_ENABLED)"
 CADDY_ADMIN_BASIC_AUTH_ENABLED="${CADDY_ADMIN_BASIC_AUTH_ENABLED:-0}"
 if [[ "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" != "0" && "${CADDY_ADMIN_BASIC_AUTH_ENABLED}" != "1" ]]; then

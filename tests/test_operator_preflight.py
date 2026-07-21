@@ -181,6 +181,114 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("invalid_public_asset_domain", result.stdout)
 
+    def test_static_site_extra_valid_contract_passes(self) -> None:
+        result = run_preflight(
+            """
+            CADDYFILE_TEMPLATE=Caddyfile.domain
+            CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site
+            CADDY_STATIC_SITE_ROOT_HOST=/srv/cM_orgsite
+            CADDY_STATIC_SITE_DOMAINS=creatempls.org, www.creatempls.org
+            DOMAIN=lms.creatempls.org
+            DJANGO_ALLOWED_HOSTS=lms.creatempls.org
+            CSRF_TRUSTED_ORIGINS=https://lms.creatempls.org
+            DJANGO_SESSION_COOKIE_SECURE=1
+            DJANGO_CSRF_COOKIE_SECURE=1
+            REQUEST_SAFETY_TRUST_PROXY_HEADERS=1
+            HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
+            HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+            CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+            LLM_ENABLED=0
+            """
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_static_site_extra_requires_caddy_address_spacing(self) -> None:
+        result = run_preflight(
+            """
+            CADDYFILE_TEMPLATE=Caddyfile.domain
+            CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site
+            CADDY_STATIC_SITE_ROOT_HOST=/srv/cM_orgsite
+            CADDY_STATIC_SITE_DOMAINS=creatempls.org,www.creatempls.org
+            DOMAIN=lms.creatempls.org
+            DJANGO_ALLOWED_HOSTS=lms.creatempls.org
+            CSRF_TRUSTED_ORIGINS=https://lms.creatempls.org
+            DJANGO_SESSION_COOKIE_SECURE=1
+            DJANGO_CSRF_COOKIE_SECURE=1
+            REQUEST_SAFETY_TRUST_PROXY_HEADERS=1
+            HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
+            HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+            CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+            LLM_ENABLED=0
+            """
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("invalid_static_site_domain_separator", result.stdout)
+
+    def test_static_site_extra_requires_domain_mode_root_and_domains(self) -> None:
+        result = run_preflight(
+            """
+            CADDYFILE_TEMPLATE=Caddyfile.local
+            CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site
+            DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+            CSRF_TRUSTED_ORIGINS=http://localhost
+            DJANGO_SESSION_COOKIE_SECURE=0
+            DJANGO_CSRF_COOKIE_SECURE=0
+            HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
+            HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+            CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+            LLM_ENABLED=0
+            """
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("static_site_requires_domain_mode", result.stdout)
+        self.assertIn("missing_static_site_root", result.stdout)
+        self.assertIn("missing_static_site_domains", result.stdout)
+
+    def test_static_site_extra_rejects_lms_hostname_conflict(self) -> None:
+        result = run_preflight(
+            """
+            CADDYFILE_TEMPLATE=Caddyfile.domain
+            CADDY_EXTRA_CONFIG_TEMPLATE=Caddyfile.extra.static-site
+            CADDY_STATIC_SITE_ROOT_HOST=/srv/cM_orgsite
+            CADDY_STATIC_SITE_DOMAINS=lms.creatempls.org
+            DOMAIN=lms.creatempls.org
+            DJANGO_ALLOWED_HOSTS=lms.creatempls.org
+            CSRF_TRUSTED_ORIGINS=https://lms.creatempls.org
+            DJANGO_SESSION_COOKIE_SECURE=1
+            DJANGO_CSRF_COOKIE_SECURE=1
+            REQUEST_SAFETY_TRUST_PROXY_HEADERS=1
+            HELPER_INTERNAL_RESET_URL=http://helper_web:8000/helper/internal/reset-class-conversations
+            HELPER_INTERNAL_ACTOR_CLEAR_URL=http://helper_web:8000/helper/internal/clear-actor-conversations
+            HELPER_INTERNAL_RAG_STATUS_URL=http://helper_web:8000/helper/internal/rag-status
+            CLASSHUB_INTERNAL_EVENTS_URL=http://classhub_web:8000/internal/events/helper-chat-access
+            LLM_ENABLED=0
+            """
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("conflicting_static_site_domain", result.stdout)
+
+    def test_static_site_extra_is_read_only_and_blocks_repository_metadata(self) -> None:
+        compose_text = (REPO_ROOT / "compose" / "docker-compose.yml").read_text(encoding="utf-8")
+        deploy_text = (REPO_ROOT / "scripts" / "deploy_with_smoke.sh").read_text(encoding="utf-8")
+        extra_text = (REPO_ROOT / "compose" / "Caddyfile.extra.static-site").read_text(encoding="utf-8")
+        domain_text = (REPO_ROOT / "compose" / "Caddyfile.domain").read_text(encoding="utf-8")
+        assets_text = (REPO_ROOT / "compose" / "Caddyfile.domain.assets").read_text(encoding="utf-8")
+
+        self.assertIn(":/srv/caddy-static-site:ro", compose_text)
+        self.assertIn(":/etc/caddy/Caddyfile.extra:ro", compose_text)
+        self.assertIn("/.git/*", extra_text)
+        self.assertIn("/README.md", extra_text)
+        self.assertIn("try_files {path} {path}.html", extra_text)
+        self.assertIn("import /etc/caddy/Caddyfile.extra", domain_text)
+        self.assertIn("import /etc/caddy/Caddyfile.extra", assets_text)
+        self.assertIn('! -d "${EXPECTED_STATIC_SITE_ROOT}"', deploy_text)
+        self.assertIn('! -f "${EXPECTED_STATIC_SITE_ROOT}/index.html"', deploy_text)
+        self.assertIn('eq .Destination "/etc/caddy/Caddyfile.extra"', deploy_text)
+        self.assertIn('eq .Destination "/srv/caddy-static-site"', deploy_text)
+
     def test_domain_mode_rejects_non_public_hostname(self) -> None:
         result = run_preflight(
             """

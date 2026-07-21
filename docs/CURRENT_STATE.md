@@ -90,6 +90,7 @@ Last reviewed: 2026-06-20
 ## Deployment and reliability posture
 - Day-1 local mode: `compose/Caddyfile.local` over HTTP.
 - Domain mode: `compose/Caddyfile.domain` (or `Caddyfile.domain.assets`) with Caddy-managed TLS.
+- Optional same-edge static sites use the constrained `Caddyfile.extra.static-site` fragment, a dedicated read-only host root, and explicit non-LMS public hostnames.
 - Cookie transport in local HTTP mode: `DJANGO_SESSION_COOKIE_SECURE=0`, `DJANGO_CSRF_COOKIE_SECURE=0`.
 - Cookie transport in domain/TLS mode: both values set to `1`.
 - The domain/TLS production example defaults to `DJANGO_CSP_MODE=strict`; the general example remains report-only and the Django code fallback remains relaxed when unset.

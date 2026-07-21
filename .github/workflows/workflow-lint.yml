@@ -54,3 +54,5 @@ jobs:
         uses: rhysd/actionlint@v1.7.10
       - name: Guard critical CI workflow coverage
         run: python scripts/check_ci_workflow_coverage.py
+      - name: Validate Caddy routing templates
+        run: bash scripts/check_caddy_configs.sh

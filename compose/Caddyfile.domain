@@ -70,3 +70,5 @@
 		}
 	}
 }
+
+import /etc/caddy/Caddyfile.extra

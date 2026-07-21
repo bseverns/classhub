@@ -1,0 +1,10 @@
+{$CADDY_STATIC_SITE_DOMAINS} {
+	encode gzip
+	root * /srv/caddy-static-site
+
+	@static_site_private path /.git /.git/* /.gitattributes /README.md /docs /docs/*
+	respond @static_site_private "not found" 404
+
+	try_files {path} {path}.html {path}/index.html
+	file_server
+}

@@ -16,6 +16,10 @@ ALLOWED_CADDY_TEMPLATES = {
     "Caddyfile.domain",
     "Caddyfile.domain.assets",
 }
+ALLOWED_CADDY_EXTRA_CONFIGS = {
+    "Caddyfile.extra.empty",
+    "Caddyfile.extra.static-site",
+}
 REMOTE_COMPUTE_ENABLED_KEYS = (
     "CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED",
     "HELPER_REMOTE_COMPUTE_ENABLED",
@@ -267,6 +271,71 @@ def _check_local_mode(values: dict[str, str], issues: list[Issue]) -> None:
         _add_issue(issues, "FAIL", "local_csrf_cookie_secure", "DJANGO_CSRF_COOKIE_SECURE must be 0 in local HTTP mode")
 
 
+def _check_caddy_extra(values: dict[str, str], issues: list[Issue], *, caddy_template: str) -> None:
+    extra_template = _value(values, "CADDY_EXTRA_CONFIG_TEMPLATE") or "Caddyfile.extra.empty"
+    if extra_template not in ALLOWED_CADDY_EXTRA_CONFIGS:
+        _add_issue(
+            issues,
+            "FAIL",
+            "invalid_caddy_extra_config",
+            "CADDY_EXTRA_CONFIG_TEMPLATE must be Caddyfile.extra.empty or Caddyfile.extra.static-site",
+        )
+        return
+    if extra_template != "Caddyfile.extra.static-site":
+        return
+
+    if caddy_template == "Caddyfile.local":
+        _add_issue(
+            issues,
+            "FAIL",
+            "static_site_requires_domain_mode",
+            "Caddyfile.extra.static-site requires a domain/TLS Caddyfile template",
+        )
+
+    root_path = _value(values, "CADDY_STATIC_SITE_ROOT_HOST")
+    if not root_path:
+        _add_issue(issues, "FAIL", "missing_static_site_root", "CADDY_STATIC_SITE_ROOT_HOST must be set")
+    elif root_path in {"/", ".", "~"}:
+        _add_issue(
+            issues,
+            "FAIL",
+            "unsafe_static_site_root",
+            "CADDY_STATIC_SITE_ROOT_HOST must identify a dedicated site directory",
+        )
+
+    static_domains_raw = _value(values, "CADDY_STATIC_SITE_DOMAINS")
+    static_domains = _split_csv(static_domains_raw)
+    if not static_domains:
+        _add_issue(issues, "FAIL", "missing_static_site_domains", "CADDY_STATIC_SITE_DOMAINS must be set")
+        return
+    if re.search(r",(?!\s)", static_domains_raw):
+        _add_issue(
+            issues,
+            "FAIL",
+            "invalid_static_site_domain_separator",
+            "CADDY_STATIC_SITE_DOMAINS requires a space after each comma for Caddy address parsing",
+        )
+
+    reserved_domains = {_value(values, "DOMAIN").lower(), _value(values, "ASSET_DOMAIN").lower()} - {""}
+    for hostname in static_domains:
+        if _is_placeholder_host(hostname):
+            _add_issue(
+                issues,
+                "FAIL",
+                "placeholder_static_site_domain",
+                f"static site hostname is a placeholder: {hostname}",
+            )
+        elif hostname_error := public_dns_hostname_error(hostname):
+            _add_issue(issues, "FAIL", "invalid_static_site_domain", f"{hostname}: {hostname_error}")
+        if hostname in reserved_domains:
+            _add_issue(
+                issues,
+                "FAIL",
+                "conflicting_static_site_domain",
+                f"static site hostname conflicts with an LMS or asset hostname: {hostname}",
+            )
+
+
 def _check_llm_contract(
     values: dict[str, str],
     issues: list[Issue],
@@ -410,6 +479,8 @@ def run_preflight(env_path: Path) -> tuple[list[Issue], list[Issue]]:
                 template_mode=template_mode,
                 assets_mode=(caddy_template == "Caddyfile.domain.assets"),
             )
+
+    _check_caddy_extra(values, issues, caddy_template=caddy_template)
 
     _check_internal_url_contracts(values, issues)
     _check_llm_contract(

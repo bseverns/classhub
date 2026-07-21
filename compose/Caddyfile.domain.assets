@@ -101,3 +101,5 @@
 		respond "not found" 404
 	}
 }
+
+import /etc/caddy/Caddyfile.extra
