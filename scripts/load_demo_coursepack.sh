@@ -42,8 +42,8 @@ fi
 
 echo "[demo] syncing demo coursepack into running classhub container"
 docker compose "${COMPOSE_ARGS[@]}" exec -T "${SERVICE}" \
-  sh -lc "mkdir -p /app/content/courses && rm -rf /app/content/courses/${COURSE_SLUG}"
-docker compose "${COMPOSE_ARGS[@]}" cp "${SRC_DIR}" "${SERVICE}:/app/content/courses/"
+  sh -lc "mkdir -p /content/courses && rm -rf /content/courses/${COURSE_SLUG}"
+docker compose "${COMPOSE_ARGS[@]}" cp "${SRC_DIR}" "${SERVICE}:/content/courses/"
 
 if [[ -f "${SRC_REF}" ]]; then
   echo "[demo] syncing demo helper reference into running helper container (best-effort)"

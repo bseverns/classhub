@@ -77,8 +77,8 @@ HELPER_STRICTNESS=light
 HELPER_SCOPE_MODE=strict
 HELPER_TOPIC_FILTER_MODE=strict
 HELPER_MAX_CONCURRENCY=2
-HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE=1
-HELPER_CLASS_RESET_ARCHIVE_ENABLED=1
+HELPER_INTERNAL_RESET_EXPORT_BEFORE_DELETE=0
+HELPER_CLASS_RESET_ARCHIVE_ENABLED=0
 HELPER_CLASS_RESET_ARCHIVE_DIR=/uploads/helper_reset_exports
 
 # Join rate limit (protect against accidental hammering / refresh storms).
@@ -100,5 +100,6 @@ RETENTION_SCAVENGE_MODE=report
 Profile map and overrides: [PROGRAM_PROFILES.md](PROGRAM_PROFILES.md)
 
 Research note:
-- When teachers reset class helper conversations, a JSON snapshot can be exported before cache clear for internal research.
-- Access to exported helper data should remain limited to class teachers and createMPLS administrators.
+- Keep helper reset archives disabled for the recommended pilot.
+- Enable them only after a dated notice, archive-specific participant choice, contact, retention period, and named custodian are in active use.
+- Access to any approved export must remain limited to class teachers and approved administrators.

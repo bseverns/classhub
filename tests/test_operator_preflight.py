@@ -26,6 +26,30 @@ def run_preflight(env_text: str) -> subprocess.CompletedProcess[str]:
 
 
 class OperatorPreflightTests(unittest.TestCase):
+    def test_guided_quickstart_provisions_real_admin_and_otp_credentials(self) -> None:
+        source = (REPO_ROOT / "scripts" / "quickstart_stack.sh").read_text(encoding="utf-8")
+
+        self.assertIn('is_placeholder_value "${ADMIN_PASSWORD}"', source)
+        self.assertIn("bootstrap_admin_otp", source)
+        self.assertIn("--if-missing", source)
+        password_output = source.index('echo "Generated admin password (store now): ${ADMIN_PASSWORD}"')
+        otp_provisioning = source.index('log "provisioning admin authenticator"')
+        self.assertLess(password_output, otp_provisioning)
+
+    def test_guided_domain_mode_sets_django_origin_contract(self) -> None:
+        source = (REPO_ROOT / "scripts" / "quickstart_stack.sh").read_text(encoding="utf-8")
+
+        self.assertIn('--domain <name>', source)
+        self.assertIn('env_set "DJANGO_ALLOWED_HOSTS" "${domain_value}"', source)
+        self.assertIn('env_set "CSRF_TRUSTED_ORIGINS" "https://${domain_value}"', source)
+        self.assertIn('operator_preflight.py" --env-file "${ENV_FILE}"', source)
+
+    def test_demo_coursepack_uses_mounted_content_root(self) -> None:
+        source = (REPO_ROOT / "scripts" / "load_demo_coursepack.sh").read_text(encoding="utf-8")
+
+        self.assertIn("/content/courses", source)
+        self.assertNotIn("/app/content/courses", source)
+
     def test_database_urls_expand_password_variable_not_literal_redaction(self) -> None:
         compose_text = (REPO_ROOT / "compose" / "docker-compose.yml").read_text(encoding="utf-8")
         rendered = (

@@ -4,6 +4,7 @@
 This blocks:
 - <script> tags without a src attribute
 - inline event handler attributes like onclick= / onsubmit=
+- javascript: links
 """
 
 from __future__ import annotations
@@ -16,6 +17,7 @@ from pathlib import Path
 SERVICES_ROOT = Path("services")
 INLINE_SCRIPT_RE = re.compile(r"<script\b(?![^>]*\bsrc\b)[^>]*>", re.IGNORECASE)
 INLINE_HANDLER_RE = re.compile(r"\b(on[a-z]+)\s*=\s*['\"]", re.IGNORECASE)
+JAVASCRIPT_LINK_RE = re.compile(r"\bhref\s*=\s*['\"]\s*javascript:", re.IGNORECASE)
 
 
 def _line_number(text: str, offset: int) -> int:
@@ -42,6 +44,10 @@ def _collect_violations(path: Path) -> list[str]:
         line = _line_number(text, match.start())
         attr = (match.group(1) or "").lower()
         violations.append(f"{path}:{line}: inline event handler attribute '{attr}'")
+
+    for match in JAVASCRIPT_LINK_RE.finditer(text):
+        line = _line_number(text, match.start())
+        violations.append(f"{path}:{line}: javascript: link")
 
     return violations
 

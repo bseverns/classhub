@@ -17,6 +17,7 @@ from ..llm import (
 )
 from .context_envelope import ScopeResolutionError, resolve_context_envelope
 from .execution_config import resolve_execution_config
+from .memory import ConversationClearResult
 from .runtime_config import resolve_policy_bundle
 
 
@@ -75,7 +76,7 @@ class ChatDeps:
     load_conversation_state: Callable[..., dict]
     save_conversation_state: Callable[..., None]
     compact_conversation: Callable[..., tuple[str, list[dict], bool]]
-    clear_conversation_turns: Callable[..., None]
+    clear_conversation_turns: Callable[..., ConversationClearResult]
     format_conversation_for_prompt: Callable[..., str]
     classify_intent: Callable[[str], str]
     build_follow_up_suggestions: Callable[..., list[str]]
@@ -100,6 +101,7 @@ async def handle_chat(
     conversation_enabled = False
     intent = ""
     conversation_compacted = False
+    conversation_generation = ""
     response_language_code = "en"
 
     def _response(body: dict, *, status: int = 200):
@@ -167,12 +169,23 @@ async def handle_chat(
     if max_conversation_messages <= 0:
         conversation_enabled = False
 
-    if conversation_enabled and bool(payload.get("reset_conversation")):
-        deps.clear_conversation_turns(
+    reset_requested = bool(payload.get("reset_conversation"))
+    if actor_key and reset_requested:
+        clear_result = deps.clear_conversation_turns(
             conversation_id=conversation_id,
             actor_key=actor_key,
             scope_fingerprint=conversation_scope_fp,
+            ttl_seconds=conversation_ttl_seconds,
         )
+        if not clear_result.ok:
+            deps.log_chat_event(
+                "warning",
+                "conversation_reset_failed",
+                request_id=request_id,
+                actor_type=actor_type,
+                error_code=clear_result.error_code,
+            )
+            return _response({"error": "conversation_reset_failed"}, status=503)
 
     history_turns: list[dict] = []
     history_summary = ""
@@ -185,9 +198,12 @@ async def handle_chat(
         )
         history_turns = list(conversation_state.get("turns") or [])
         history_summary = str(conversation_state.get("summary") or "").strip()
+        conversation_generation = str(conversation_state.get("generation") or "")
 
     message = (payload.get("message") or "").strip()
     if not message:
+        if reset_requested:
+            return _response({"conversation_reset": True})
         return _response({"error": "missing_message"}, status=400)
 
     response_language_code = deps.normalize_response_language(str(payload.get("language_code") or ""))
@@ -223,6 +239,7 @@ async def handle_chat(
             turns=next_turns,
             summary=next_summary,
             ttl_seconds=conversation_ttl_seconds,
+            expected_generation=conversation_generation,
         )
         history_turns = next_turns
         history_summary = next_summary
@@ -263,6 +280,7 @@ async def handle_chat(
                 conversation_id=conversation_id,
                 actor_key=actor_key,
                 scope_fingerprint=conversation_scope_fp,
+                ttl_seconds=conversation_ttl_seconds,
             )
         return _response(
             {

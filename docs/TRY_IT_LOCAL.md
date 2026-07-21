@@ -15,8 +15,10 @@ If you want one command instead of manual steps:
 
 ```bash
 bash scripts/quickstart_stack.sh --yes --mode local --with-admin \
-  --admin-username admin --admin-email admin@example.org --admin-password 'CHANGE_ME'
+  --admin-username admin --admin-email admin@example.org
 ```
+
+Store the generated admin password, authenticator URI/manual secret, and backup token when they are printed. Placeholder passwords are rejected.
 
 This wrapper:
 - prepares `compose/.env`,
@@ -24,8 +26,11 @@ This wrapper:
 - brings up Docker Compose,
 - runs migrations,
 - creates/updates admin,
+- provisions the admin authenticator when missing,
 - loads demo content,
 - runs `system_doctor.sh --smoke-mode golden`.
+
+For a real hostname, use `--mode domain --domain lms.your-org.org`. Domain mode writes the matching Django allowed-host and HTTPS CSRF-origin settings and runs the operator preflight before startup; `--domain` is required with `--yes`.
 
 ## Verification signal
 At the end, you should be able to: (a) join as a student using a class code, (b) sign in at `/admin/login/`, and (c) open `/teach` with a class that contains 2 demo lessons.

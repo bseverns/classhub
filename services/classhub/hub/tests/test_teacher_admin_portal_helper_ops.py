@@ -3,6 +3,16 @@ from ._teacher_admin_portal_base import TeacherPortalBaseTests
 
 
 class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
+    @override_settings(CLASSHUB_OPERATOR_NAME="Northside Public Schools")
+    def test_helper_reset_copy_does_not_claim_another_operator_has_access(self):
+        classroom = Class.objects.create(name="Period Helper Copy", join_code="HLC12345")
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(f"/teach/class/{classroom.id}")
+
+        self.assertContains(resp, "limited to class teachers and approved administrators")
+        self.assertNotContains(resp, "createMPLS administrators")
+
     @patch("hub.views.teacher_parts.roster_class._reset_helper_class_conversations")
     def test_teacher_can_reset_helper_conversations(self, reset_mock):
         classroom = Class.objects.create(name="Period Helper", join_code="HLP12345")

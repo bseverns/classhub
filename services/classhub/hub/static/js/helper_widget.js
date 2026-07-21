@@ -316,6 +316,11 @@
       }
       if (resetButton) {
         resetButton.disabled = disabled;
+        if (disabled) {
+          resetButton.setAttribute("aria-busy", "true");
+        } else {
+          resetButton.removeAttribute("aria-busy");
+        }
       }
       if (!quickActions) return;
       quickActions.querySelectorAll(".helper-quick-action").forEach((quickBtn) => {
@@ -393,6 +398,36 @@
         appendTurn("assistant", errText);
         setOutput("");
         renderCitations([]);
+      } finally {
+        setControlsBusy(false);
+      }
+    };
+
+    const resetConversation = async () => {
+      setControlsBusy(true);
+      try {
+        const payload = {
+          message: "",
+          conversation_id: conversationId,
+          reset_conversation: true,
+        };
+        if (scopeToken) payload.scope_token = scopeToken;
+        const res = await fetch("/helper/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken(),
+          },
+          credentials: "same-origin",
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          setOutput(helperErrorTextFromStatus(res.status, chromeCopy));
+          return;
+        }
+        clearTranscript();
+      } catch (_err) {
+        setOutput(chromeCopy.unavailable);
       } finally {
         setControlsBusy(false);
       }
@@ -483,9 +518,9 @@
     });
 
     if (resetButton) {
-      resetButton.addEventListener("click", () => {
+      resetButton.addEventListener("click", async () => {
         if (button.disabled) return;
-        clearTranscript();
+        await resetConversation();
       });
     }
   });

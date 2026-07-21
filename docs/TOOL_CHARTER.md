@@ -19,13 +19,24 @@ This tool is not for:
 ## 2) Ownership
 
 - Primary owner: Ben Severns (createMPLS)
-- Backup owner: `TBD (name + role required before production sign-off)`
+- Backup owner: Mel Whiting (createMPLS)
 
 Owner responsibilities:
 - approve production changes,
 - maintain retention and security settings,
 - coordinate incident response and communications,
+- keep the named contacts and rehearsal record in [SAFEGUARDING_HANDOFF.md](SAFEGUARDING_HANDOFF.md) current,
 - ensure quarterly policy + access review is completed.
+
+Canonical operational binder (repository paths):
+- [RUNBOOK.md](RUNBOOK.md)
+- [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
+- [SECURITY.md](SECURITY.md)
+- [INCIDENT_RESPONSE.md](INCIDENT_RESPONSE.md)
+- [TURNOVER_PACKET.md](TURNOVER_PACKET.md)
+- [TURNOVER_DRILL_LOG.md](TURNOVER_DRILL_LOG.md)
+- [OPS_CADENCE_CHECKLIST.md](OPS_CADENCE_CHECKLIST.md)
+- [STAFF_TURNOVER_SURVIVABILITY.md](STAFF_TURNOVER_SURVIVABILITY.md)
 
 ## 3) Support Boundary
 

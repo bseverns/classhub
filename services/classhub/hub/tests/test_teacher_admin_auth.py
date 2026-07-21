@@ -1,5 +1,6 @@
 from ._shared import *  # noqa: F401,F403
 from django.core.cache import cache
+from django_otp.plugins.otp_static.models import StaticDevice, StaticToken
 
 class Teacher2FASetupTests(TestCase):
     def setUp(self):
@@ -417,3 +418,40 @@ class BootstrapAdminOTPCommandTests(TestCase):
         )
         with self.assertRaises(CommandError):
             call_command("bootstrap_admin_otp", username="teacher")
+
+    def test_bootstrap_admin_otp_if_missing_preserves_existing_device(self):
+        user = get_user_model().objects.create_superuser(
+            username="admin",
+            password="pw12345",
+            email="admin@example.org",
+        )
+        existing = TOTPDevice.objects.create(user=user, name="admin-primary", confirmed=True)
+        out = StringIO()
+
+        call_command("bootstrap_admin_otp", username="admin", if_missing=True, stdout=out)
+
+        self.assertEqual(TOTPDevice.objects.filter(user=user, name="admin-primary").count(), 1)
+        self.assertTrue(TOTPDevice.objects.filter(pk=existing.pk).exists())
+        self.assertIn("already exists", out.getvalue())
+
+    def test_bootstrap_admin_otp_if_missing_adds_requested_static_backup(self):
+        user = get_user_model().objects.create_superuser(
+            username="admin",
+            password="pw12345",
+            email="admin@example.org",
+        )
+        existing = TOTPDevice.objects.create(user=user, name="admin-primary", confirmed=True)
+        out = StringIO()
+
+        call_command(
+            "bootstrap_admin_otp",
+            username="admin",
+            if_missing=True,
+            with_static_backup=True,
+            stdout=out,
+        )
+
+        self.assertTrue(TOTPDevice.objects.filter(pk=existing.pk).exists())
+        backup_device = StaticDevice.objects.get(user=user, name="admin-primary-backup")
+        self.assertEqual(StaticToken.objects.filter(device=backup_device).count(), 1)
+        self.assertIn("Generated one-time static backup token", out.getvalue())

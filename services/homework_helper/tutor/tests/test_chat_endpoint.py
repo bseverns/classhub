@@ -14,6 +14,7 @@ from django.test import TestCase, override_settings
 from common.helper_scope import issue_scope_token
 
 from .. import views
+from ..engine import memory as engine_memory
 from ..engine.config_source import clear_helper_config_cache
 from ..llm import LLMUpstreamUnavailableError
 from ..remote_compute_control import current_remote_compute_lease
@@ -445,6 +446,88 @@ class HelperChatAuthTests(TestCase):
         second_backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
         self.assertNotIn("Initial question", second_backend_message)
         self.assertNotIn("Initial answer", second_backend_message)
+
+    @patch("tutor.engine.backends.invoke_backend")
+    def test_chat_reset_only_clears_cached_turns_without_backend_call(self, invoke_backend_mock):
+        self._set_student_session()
+        invoke_backend_mock.side_effect = [
+            ("Initial answer", "fake-model"),
+            ("After reset", "fake-model"),
+        ]
+        conversation_id = "123e4567-e89b-12d3-a456-426614174003"
+
+        first = self._post_chat({"message": "Initial question", "conversation_id": conversation_id})
+        self.assertEqual(first.status_code, 200)
+
+        reset = self._post_chat(
+            {
+                "message": "",
+                "conversation_id": conversation_id,
+                "reset_conversation": True,
+            }
+        )
+        self.assertEqual(reset.status_code, 200)
+        self.assertTrue(reset.json().get("conversation_reset"))
+        self.assertEqual(invoke_backend_mock.call_count, 1)
+
+        after_reset = self._post_chat({"message": "New question", "conversation_id": conversation_id})
+        self.assertEqual(after_reset.status_code, 200)
+        backend_message = str(invoke_backend_mock.call_args_list[1].kwargs["message"])
+        self.assertNotIn("Initial question", backend_message)
+        self.assertNotIn("Initial answer", backend_message)
+
+    @patch("tutor.views._clear_conversation_turns")
+    def test_chat_reset_reports_unconfirmed_cache_clear(self, clear_mock):
+        self._set_student_session()
+        clear_mock.return_value = engine_memory.ConversationClearResult(
+            ok=False,
+            error_code="conversation_delete_failed",
+        )
+
+        reset = self._post_chat(
+            {
+                "message": "",
+                "conversation_id": "123e4567-e89b-12d3-a456-426614174004",
+                "reset_conversation": True,
+            }
+        )
+
+        self.assertEqual(reset.status_code, 503)
+        self.assertEqual(reset.json().get("error"), "conversation_reset_failed")
+        self.assertNotIn("conversation_reset", reset.json())
+
+    @patch.dict("os.environ", {"HELPER_CONVERSATION_ENABLED": "0"}, clear=False)
+    def test_chat_reset_clears_existing_cache_when_new_conversations_are_disabled(self):
+        self._set_student_session()
+        conversation_id = "123e4567-e89b-12d3-a456-426614174005"
+        actor_key = "student:5:101"
+        conversation_key = engine_memory.conversation_cache_key(
+            actor_key=actor_key,
+            scope_fp=views._conversation_scope_fingerprint(self._scope_token()),
+            conversation_id=conversation_id,
+        )
+        engine_memory.save_state(
+            cache_backend=cache,
+            key=conversation_key,
+            turns=[{"role": "student", "content": "Old retained question"}],
+            summary="",
+            ttl_seconds=300,
+            actor_key=actor_key,
+        )
+
+        reset = self._post_chat(
+            {
+                "message": "",
+                "conversation_id": conversation_id,
+                "reset_conversation": True,
+            }
+        )
+
+        self.assertEqual(reset.status_code, 200)
+        self.assertTrue(reset.json().get("conversation_reset"))
+        self.assertIsNone(cache.get(conversation_key))
+        self.assertIsNone(cache.get(engine_memory.conversation_actor_index_key(actor_key=actor_key)))
+        self.assertIsNone(cache.get(engine_memory.conversation_class_index_key(class_id=5)))
 
     @patch("tutor.engine.backends.invoke_backend")
     def test_chat_isolates_conversation_history_by_actor_and_scope(self, invoke_backend_mock):

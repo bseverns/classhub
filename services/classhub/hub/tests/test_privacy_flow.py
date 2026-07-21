@@ -37,6 +37,8 @@ class PrivacyPageTests(TestCase):
         resp = self.client.get("/privacy")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'href="/trust"')
+        self.assertContains(resp, 'href="/trust">&larr; Back</a>', html=False)
+        self.assertNotContains(resp, "javascript:", html=False)
 
     def test_privacy_page_simple_reading_level_uses_simpler_copy(self):
         resp = self.client.get("/privacy?reading_level=simple")

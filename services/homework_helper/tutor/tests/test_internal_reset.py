@@ -1,6 +1,8 @@
 import json
 import os
 import tempfile
+import threading
+import time
 from pathlib import Path
 from unittest.mock import patch
 
@@ -22,11 +24,22 @@ class _ScriptedCacheBackend:
         self.set_values = []
         self.after_set = None
         self.after_delete = None
+        self.after_get = None
 
     def get(self, key):
         if key in self.get_error_keys:
             raise RuntimeError("cache read failed")
-        return self.values.get(key)
+        value = self.values.get(key)
+        if self.after_get is not None:
+            self.after_get(key)
+        return value
+
+    def add(self, key, value, timeout=None):
+        if key in self.values:
+            return False
+        self.values[key] = value
+        self.timeouts[key] = timeout
+        return True
 
     def delete(self, key):
         self.deleted_keys.append(key)
@@ -161,6 +174,179 @@ class HelperInternalResetTests(TestCase):
                 self.assertFalse(result.ok)
                 self.assertEqual(result.error_code, "conversation_delete_failed")
                 self.assertEqual(backend.get(class_index_key), [conversation_key])
+
+    def test_single_conversation_clear_removes_actor_and_class_indexes(self):
+        actor_key = "student:55:9001"
+        conversation_key = engine_memory.conversation_cache_key(
+            actor_key=actor_key,
+            scope_fp="noscope",
+            conversation_id="single-reset",
+        )
+        remaining_key = engine_memory.conversation_cache_key(
+            actor_key=actor_key,
+            scope_fp="noscope",
+            conversation_id="keep-this-conversation",
+        )
+        backend = _ScriptedCacheBackend()
+        for key, content in (
+            (conversation_key, "Private question"),
+            (remaining_key, "Keep this question"),
+        ):
+            engine_memory.save_state(
+                cache_backend=backend,
+                key=key,
+                turns=[{"role": "student", "content": content}],
+                summary="",
+                ttl_seconds=300,
+                actor_key=actor_key,
+            )
+
+        result = engine_memory.clear_turns(
+            cache_backend=backend,
+            key=conversation_key,
+            actor_key=actor_key,
+            ttl_seconds=300,
+        )
+
+        self.assertTrue(result.ok)
+        self.assertIsNone(backend.get(conversation_key))
+        self.assertEqual(
+            backend.get(engine_memory.conversation_actor_index_key(actor_key=actor_key)),
+            [remaining_key],
+        )
+        self.assertEqual(
+            backend.get(engine_memory.conversation_class_index_key(class_id=55)),
+            [remaining_key],
+        )
+        snapshot = engine_memory.snapshot_class_conversations(cache_backend=backend, class_id=55)
+        self.assertEqual([row["cache_key"] for row in snapshot], [remaining_key])
+
+    def test_single_conversation_clear_reports_unconfirmed_delete(self):
+        actor_key = "student:55:9001"
+        conversation_key = engine_memory.conversation_cache_key(
+            actor_key=actor_key,
+            scope_fp="noscope",
+            conversation_id="failed-reset",
+        )
+        for failure_mode in ("false", "raise"):
+            with self.subTest(failure_mode=failure_mode):
+                backend = _ScriptedCacheBackend()
+                backend.values[conversation_key] = {"turns": []}
+                if failure_mode == "false":
+                    backend.delete_false_keys.add(conversation_key)
+                else:
+                    backend.delete_error_keys.add(conversation_key)
+
+                result = engine_memory.clear_turns(
+                    cache_backend=backend,
+                    key=conversation_key,
+                    actor_key=actor_key,
+                    ttl_seconds=300,
+                )
+
+                self.assertFalse(result.ok)
+                self.assertEqual(result.error_code, "conversation_delete_failed")
+
+    def test_single_conversation_clear_rejects_save_started_before_reset(self):
+        actor_key = "student:55:9001"
+        conversation_key = engine_memory.conversation_cache_key(
+            actor_key=actor_key,
+            scope_fp="noscope",
+            conversation_id="in-flight-reset",
+        )
+        backend = _ScriptedCacheBackend()
+        engine_memory.save_state(
+            cache_backend=backend,
+            key=conversation_key,
+            turns=[{"role": "student", "content": "Old private question"}],
+            summary="",
+            ttl_seconds=300,
+            actor_key=actor_key,
+        )
+        state_loaded_before_reset = engine_memory.load_state(
+            cache_backend=backend,
+            key=conversation_key,
+            max_messages=20,
+        )
+
+        result = engine_memory.clear_turns(
+            cache_backend=backend,
+            key=conversation_key,
+            actor_key=actor_key,
+            ttl_seconds=300,
+        )
+        engine_memory.save_state(
+            cache_backend=backend,
+            key=conversation_key,
+            turns=[*state_loaded_before_reset["turns"], {"role": "assistant", "content": "Old answer"}],
+            summary="",
+            ttl_seconds=300,
+            actor_key=actor_key,
+            expected_generation=str(state_loaded_before_reset["generation"]),
+        )
+
+        self.assertTrue(result.ok)
+        self.assertIsNone(backend.get(conversation_key))
+        self.assertNotIn(
+            conversation_key,
+            backend.get(engine_memory.conversation_actor_index_key(actor_key=actor_key)) or [],
+        )
+        self.assertNotIn(
+            conversation_key,
+            backend.get(engine_memory.conversation_class_index_key(class_id=55)) or [],
+        )
+
+    def test_index_removal_preserves_registration_waiting_on_mutation_lock(self):
+        index_key = engine_memory.conversation_actor_index_key(actor_key="student:55:9001")
+        removed_key = "conversation-remove"
+        existing_key = "conversation-existing"
+        concurrent_key = "conversation-concurrent"
+        backend = _ScriptedCacheBackend()
+        backend.values[index_key] = [removed_key, existing_key]
+        removal_read = threading.Event()
+        allow_removal = threading.Event()
+        removal_results = []
+        registration_results = []
+
+        def pause_after_removal_read(key):
+            if key != index_key:
+                return
+            backend.after_get = None
+            removal_read.set()
+            allow_removal.wait(timeout=1)
+
+        backend.after_get = pause_after_removal_read
+        removal_thread = threading.Thread(
+            target=lambda: removal_results.append(
+                engine_memory._remove_conversation_from_index(
+                    cache_backend=backend,
+                    index_key=index_key,
+                    conversation_key=removed_key,
+                    ttl_seconds=300,
+                )
+            )
+        )
+        removal_thread.start()
+        self.assertTrue(removal_read.wait(timeout=1))
+        registration_thread = threading.Thread(
+            target=lambda: registration_results.append(
+                engine_memory._register_index_key(
+                    cache_backend=backend,
+                    index_key=index_key,
+                    conversation_key=concurrent_key,
+                    ttl_seconds=300,
+                )
+            )
+        )
+        registration_thread.start()
+        time.sleep(0.02)
+        allow_removal.set()
+        removal_thread.join(timeout=1)
+        registration_thread.join(timeout=1)
+
+        self.assertEqual(removal_results, [True])
+        self.assertEqual(registration_results, [True])
+        self.assertEqual(backend.get(index_key), [existing_key, concurrent_key])
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     @patch("tutor.views_reset.engine_memory.clear_class_conversations")
