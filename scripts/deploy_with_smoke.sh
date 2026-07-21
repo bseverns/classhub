@@ -241,11 +241,36 @@ echo "[deploy] caddy reload OK"
 
 SMOKE_MODE="${DEPLOY_SMOKE_MODE:-strict}"
 HELPER_SMOKE_MODE="${DEPLOY_HELPER_SMOKE_MODE:-auto}"
+SMOKE_RETURN_CODE_FOR_DEPLOY="${SMOKE_RETURN_CODE:-}"
 if [[ -f "${COMPOSE_ENV_LIB}" ]]; then
   # shellcheck disable=SC1090
   source "${COMPOSE_ENV_LIB}"
   if [[ "${HELPER_SMOKE_MODE}" == "auto" ]]; then
     HELPER_SMOKE_MODE="$(helper_smoke_mode_auto "${ROOT_DIR}/compose/.env")"
+  fi
+fi
+if [[ "${SMOKE_MODE}" == "strict" && -z "${SMOKE_RETURN_CODE_FOR_DEPLOY}" ]]; then
+  smoke_class_code="$(env_file_value SMOKE_CLASS_CODE)"
+  smoke_display_name="${SMOKE_DISPLAY_NAME:-$(env_file_value SMOKE_DISPLAY_NAME)}"
+  smoke_display_name="${smoke_display_name:-Smoke Student}"
+  if [[ -n "${smoke_class_code}" ]]; then
+    SMOKE_RETURN_CODE_FOR_DEPLOY="$(
+      run_compose exec -T \
+        -e SMOKE_CLASS_CODE="${smoke_class_code}" \
+        -e SMOKE_DISPLAY_NAME="${smoke_display_name}" \
+        classhub_web \
+        python manage.py shell -c \
+        "import os; from hub.models import Class, StudentIdentity; classroom = Class.objects.filter(join_code__iexact=os.environ['SMOKE_CLASS_CODE'].strip()).first(); student = StudentIdentity.objects.filter(classroom=classroom, display_name__iexact=os.environ['SMOKE_DISPLAY_NAME'].strip()).order_by('id').first() if classroom else None; print(f'FOUND:{student.return_code}' if student else 'MISSING')"
+    )"
+    SMOKE_RETURN_CODE_FOR_DEPLOY="$(echo "${SMOKE_RETURN_CODE_FOR_DEPLOY}" | tr -d '\r' | tail -n1)"
+    if [[ "${SMOKE_RETURN_CODE_FOR_DEPLOY}" == FOUND:* ]]; then
+      SMOKE_RETURN_CODE_FOR_DEPLOY="${SMOKE_RETURN_CODE_FOR_DEPLOY#FOUND:}"
+    else
+      SMOKE_RETURN_CODE_FOR_DEPLOY=""
+    fi
+    if [[ -n "${SMOKE_RETURN_CODE_FOR_DEPLOY}" ]]; then
+      echo "[deploy] reusing the existing smoke identity for strict rejoin"
+    fi
   fi
 fi
 if [[ "${SMOKE_MODE}" == "golden" ]]; then
@@ -255,7 +280,9 @@ if [[ "${SMOKE_MODE}" == "golden" ]]; then
   set -e
 elif [[ "${SMOKE_MODE}" == "strict" ]]; then
   set +e
-  SMOKE_HELPER_MODE="${HELPER_SMOKE_MODE}" "${SMOKE_CHECK}" --strict 2>&1 | tee "${SMOKE_LOG_FILE}"
+  SMOKE_HELPER_MODE="${HELPER_SMOKE_MODE}" \
+    SMOKE_RETURN_CODE="${SMOKE_RETURN_CODE_FOR_DEPLOY}" \
+    "${SMOKE_CHECK}" --strict 2>&1 | tee "${SMOKE_LOG_FILE}"
   smoke_status=$?
   set -e
   if [[ ${smoke_status} -ne 0 ]] && grep -Eq '\[smoke\] FAIL: /join returned (404: \{"error":[[:space:]]*"invalid_code"\}|invalid_code for SMOKE_CLASS_CODE=)' "${SMOKE_LOG_FILE}"; then

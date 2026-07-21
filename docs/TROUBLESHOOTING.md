@@ -94,6 +94,10 @@ If the LMS hostname works but another hostname on the same IP fails during TLS n
 
 For a co-hosted Memory Engine, also check that `CADDY_PROXY_CONFIG_TEMPLATE=Caddyfile.proxy.memory-engine`, that both proxy containers appear in `docker network inspect public_edge`, and that `memory_engine_proxy` resolves from `classhub_caddy`. A missing public site block produces a TLS handshake failure; a missing shared-network upstream produces a `502` after TLS succeeds.
 
+The tracked Memory Engine proxy redirects its bare public hostname to `/kiosk/`. A healthy `/healthz` and `/kiosk/` paired with a bare-host `404` means the deployed proxy fragment predates that redirect.
+
+Strict deployment smoke reuses the existing smoke identity's return code from inside the trusted ClassHub container. This keeps repeated deploys compatible with `CLASSHUB_REQUIRE_RETURN_CODE_FOR_REJOIN=1` without creating a new roster entry or storing the return code in `compose/.env`.
+
 ## Symptom: deploy logs repeated `The "<token>" variable is not set` warnings
 
 Example signal:

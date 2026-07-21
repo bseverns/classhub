@@ -69,6 +69,7 @@ else
 fi
 DISPLAY_NAME="${SMOKE_DISPLAY_NAME:-$(env_file_value SMOKE_DISPLAY_NAME)}"
 DISPLAY_NAME="${DISPLAY_NAME:-Smoke Student}"
+RETURN_CODE="${SMOKE_RETURN_CODE:-}"
 HELPER_MESSAGE="${SMOKE_HELPER_MESSAGE:-$(env_file_value SMOKE_HELPER_MESSAGE)}"
 HELPER_MESSAGE="${HELPER_MESSAGE:-Give one short Scratch hint about moving a sprite.}"
 CLASS_CODE="${SMOKE_CLASS_CODE:-$(env_file_value SMOKE_CLASS_CODE)}"
@@ -224,7 +225,11 @@ if [[ -n "${CLASS_CODE}" ]]; then
   CSRF_TOKEN="$(awk '$6=="csrftoken"{print $7}' "${COOKIE_JAR}" | tail -n1)"
   [[ -n "${CSRF_TOKEN}" ]] || fail "unable to get csrftoken for student join"
 
-  JOIN_PAYLOAD="$(printf '{"class_code":"%s","display_name":"%s"}' "${CLASS_CODE}" "${DISPLAY_NAME}")"
+  if [[ -n "${RETURN_CODE}" ]]; then
+    JOIN_PAYLOAD="$(printf '{"class_code":"%s","display_name":"%s","return_code":"%s"}' "${CLASS_CODE}" "${DISPLAY_NAME}" "${RETURN_CODE}")"
+  else
+    JOIN_PAYLOAD="$(printf '{"class_code":"%s","display_name":"%s"}' "${CLASS_CODE}" "${DISPLAY_NAME}")"
+  fi
   code="$(curl "${CURL_FLAGS[@]}" -o "${TMP_JOIN}" -w "%{http_code}" \
     -c "${COOKIE_JAR}" -b "${COOKIE_JAR}" \
     -H "Content-Type: application/json" \

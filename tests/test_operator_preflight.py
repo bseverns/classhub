@@ -370,9 +370,11 @@ class OperatorPreflightTests(unittest.TestCase):
         proxy_text = (REPO_ROOT / "compose" / "Caddyfile.proxy.memory-engine").read_text(encoding="utf-8")
         deploy_text = (REPO_ROOT / "scripts" / "deploy_with_smoke.sh").read_text(encoding="utf-8")
         golden_smoke_text = (REPO_ROOT / "scripts" / "golden_path_smoke.sh").read_text(encoding="utf-8")
+        smoke_text = (REPO_ROOT / "scripts" / "smoke_check.sh").read_text(encoding="utf-8")
 
         self.assertIn(":/etc/caddy/Caddyfile.proxy:ro", compose_text)
         self.assertIn("reverse_proxy {$CADDY_MEMORY_ENGINE_UPSTREAM}", proxy_text)
+        self.assertIn("redir / /kiosk/ 302", proxy_text)
         self.assertIn("public_edge:", overlay_text)
         self.assertIn("external: true", overlay_text)
         self.assertNotIn("classhub_web:", overlay_text)
@@ -382,6 +384,14 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertIn("http://memory_engine_proxy/healthz", deploy_text)
         self.assertIn('env_file_value CADDY_PROXY_CONFIG_TEMPLATE', golden_smoke_text)
         self.assertIn('COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")', golden_smoke_text)
+        self.assertIn("SMOKE_RETURN_CODE_FOR_DEPLOY", deploy_text)
+        self.assertIn("SMOKE_RETURN_CODE_FOR_GOLDEN", golden_smoke_text)
+        self.assertIn("print(f'FOUND:{student.return_code}' if student else 'MISSING')", deploy_text)
+        self.assertIn("print(f'FOUND:{student.return_code}' if student else 'MISSING')", golden_smoke_text)
+        self.assertIn('== FOUND:*', deploy_text)
+        self.assertIn('== FOUND:*', golden_smoke_text)
+        self.assertIn('RETURN_CODE="${SMOKE_RETURN_CODE:-}"', smoke_text)
+        self.assertIn('"return_code":"%s"', smoke_text)
 
     def test_domain_mode_rejects_non_public_hostname(self) -> None:
         result = run_preflight(
