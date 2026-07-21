@@ -496,6 +496,39 @@ class HelperChatAuthTests(TestCase):
         self.assertEqual(reset.json().get("error"), "conversation_reset_failed")
         self.assertNotIn("conversation_reset", reset.json())
 
+    @patch.dict("os.environ", {"HELPER_CONVERSATION_ENABLED": "0"}, clear=False)
+    def test_chat_reset_clears_existing_cache_when_new_conversations_are_disabled(self):
+        self._set_student_session()
+        conversation_id = "123e4567-e89b-12d3-a456-426614174005"
+        actor_key = "student:5:101"
+        conversation_key = engine_memory.conversation_cache_key(
+            actor_key=actor_key,
+            scope_fp=views._conversation_scope_fingerprint(self._scope_token()),
+            conversation_id=conversation_id,
+        )
+        engine_memory.save_state(
+            cache_backend=cache,
+            key=conversation_key,
+            turns=[{"role": "student", "content": "Old retained question"}],
+            summary="",
+            ttl_seconds=300,
+            actor_key=actor_key,
+        )
+
+        reset = self._post_chat(
+            {
+                "message": "",
+                "conversation_id": conversation_id,
+                "reset_conversation": True,
+            }
+        )
+
+        self.assertEqual(reset.status_code, 200)
+        self.assertTrue(reset.json().get("conversation_reset"))
+        self.assertIsNone(cache.get(conversation_key))
+        self.assertIsNone(cache.get(engine_memory.conversation_actor_index_key(actor_key=actor_key)))
+        self.assertIsNone(cache.get(engine_memory.conversation_class_index_key(class_id=5)))
+
     @patch("tutor.engine.backends.invoke_backend")
     def test_chat_isolates_conversation_history_by_actor_and_scope(self, invoke_backend_mock):
         invoke_backend_mock.side_effect = [

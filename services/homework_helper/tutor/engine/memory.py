@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import re
+import time
 import uuid
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -26,6 +27,9 @@ _ALLOWED_INTENTS = {
 _UUID_HEX_RE = re.compile(r"^[a-f0-9]{32}$")
 _ACTOR_SANITIZE_RE = re.compile(r"[^a-zA-Z0-9:_-]")
 _STUDENT_ACTOR_CLASS_RE = re.compile(r"^student:(\d+):\d+$")
+_INDEX_LOCK_TTL_SECONDS = 10
+_INDEX_LOCK_ATTEMPTS = 40
+_INDEX_LOCK_RETRY_SECONDS = 0.005
 
 
 @dataclass(frozen=True)
@@ -151,6 +155,36 @@ def _coerce_state(raw, *, max_messages: int) -> dict[str, object]:
     return {"summary": summary, "turns": turns}
 
 
+def _index_lock_key(index_key: str) -> str:
+    return f"{index_key}:mutation-lock"
+
+
+def _acquire_index_lock(*, cache_backend, index_key: str) -> str:
+    lock_key = _index_lock_key(index_key)
+    token = uuid.uuid4().hex
+    for attempt in range(_INDEX_LOCK_ATTEMPTS):
+        try:
+            acquired = cache_backend.add(lock_key, token, timeout=_INDEX_LOCK_TTL_SECONDS)
+        except Exception:
+            logger.warning("conversation_memory_cache_add_failed key=%s", lock_key)
+            return ""
+        if acquired:
+            return token
+        if attempt + 1 < _INDEX_LOCK_ATTEMPTS:
+            time.sleep(_INDEX_LOCK_RETRY_SECONDS)
+    logger.warning("conversation_memory_index_lock_unavailable key=%s", index_key)
+    return ""
+
+
+def _release_index_lock(*, cache_backend, index_key: str, token: str) -> None:
+    lock_key = _index_lock_key(index_key)
+    try:
+        if cache_backend.get(lock_key) == token:
+            cache_backend.delete(lock_key)
+    except Exception:
+        logger.warning("conversation_memory_index_lock_release_failed key=%s", index_key)
+
+
 def load_state(*, cache_backend, key: str, max_messages: int) -> dict[str, object]:
     try:
         stored = cache_backend.get(key)
@@ -170,26 +204,32 @@ def _register_index_key(
 ) -> bool:
     if not index_key:
         return False
+    lock_token = _acquire_index_lock(cache_backend=cache_backend, index_key=index_key)
+    if not lock_token:
+        return False
     try:
-        existing = cache_backend.get(index_key)
-    except Exception:
-        logger.warning("conversation_memory_cache_get_failed key=%s", index_key)
-        return False
-    values = _coerce_key_list(existing, max_items=max_entries)
-    if conversation_key in values:
-        values = [item for item in values if item != conversation_key]
-    values.append(conversation_key)
-    if max_entries > 0 and len(values) > max_entries:
-        values = values[-max_entries:]
-    try:
-        result = cache_backend.set(index_key, values, timeout=max(int(ttl_seconds), 1))
-    except Exception:
-        logger.warning("conversation_memory_cache_set_failed key=%s", index_key)
-        return False
-    if result is False:
-        logger.warning("conversation_memory_cache_set_unconfirmed key=%s", index_key)
-        return False
-    return True
+        try:
+            existing = cache_backend.get(index_key)
+        except Exception:
+            logger.warning("conversation_memory_cache_get_failed key=%s", index_key)
+            return False
+        values = _coerce_key_list(existing, max_items=max_entries)
+        if conversation_key in values:
+            values = [item for item in values if item != conversation_key]
+        values.append(conversation_key)
+        if max_entries > 0 and len(values) > max_entries:
+            values = values[-max_entries:]
+        try:
+            result = cache_backend.set(index_key, values, timeout=max(int(ttl_seconds), 1))
+        except Exception:
+            logger.warning("conversation_memory_cache_set_failed key=%s", index_key)
+            return False
+        if result is False:
+            logger.warning("conversation_memory_cache_set_unconfirmed key=%s", index_key)
+            return False
+        return True
+    finally:
+        _release_index_lock(cache_backend=cache_backend, index_key=index_key, token=lock_token)
 
 
 def _delete_after_failed_save(*, cache_backend, key: str) -> None:
@@ -330,33 +370,39 @@ def _remove_conversation_from_index(
     conversation_key: str,
     ttl_seconds: int,
 ) -> bool:
-    try:
-        indexed = cache_backend.get(index_key)
-    except Exception:
-        logger.warning("conversation_memory_cache_get_failed key=%s", index_key)
-        return False
-    keys = _coerce_key_list(indexed, max_items=0)
-    remaining = [key for key in keys if key != conversation_key]
-    if remaining == keys:
-        return True
-    if not remaining:
-        return _delete_key_confirmed(cache_backend=cache_backend, key=index_key)
-    try:
-        updated = cache_backend.set(index_key, remaining, timeout=max(int(ttl_seconds), 1))
-    except Exception:
-        logger.warning("conversation_memory_cache_set_failed key=%s", index_key)
-        return False
-    if updated is False:
-        logger.warning("conversation_memory_cache_set_unconfirmed key=%s", index_key)
+    lock_token = _acquire_index_lock(cache_backend=cache_backend, index_key=index_key)
+    if not lock_token:
         return False
     try:
-        confirmed = conversation_key not in _coerce_key_list(cache_backend.get(index_key), max_items=0)
-    except Exception:
-        logger.warning("conversation_memory_cache_get_failed key=%s", index_key)
-        return False
-    if not confirmed:
-        logger.warning("conversation_memory_cache_set_unconfirmed key=%s", index_key)
-    return confirmed
+        try:
+            indexed = cache_backend.get(index_key)
+        except Exception:
+            logger.warning("conversation_memory_cache_get_failed key=%s", index_key)
+            return False
+        keys = _coerce_key_list(indexed, max_items=0)
+        remaining = [key for key in keys if key != conversation_key]
+        if remaining == keys:
+            return True
+        if not remaining:
+            return _delete_key_confirmed(cache_backend=cache_backend, key=index_key)
+        try:
+            updated = cache_backend.set(index_key, remaining, timeout=max(int(ttl_seconds), 1))
+        except Exception:
+            logger.warning("conversation_memory_cache_set_failed key=%s", index_key)
+            return False
+        if updated is False:
+            logger.warning("conversation_memory_cache_set_unconfirmed key=%s", index_key)
+            return False
+        try:
+            confirmed = conversation_key not in _coerce_key_list(cache_backend.get(index_key), max_items=0)
+        except Exception:
+            logger.warning("conversation_memory_cache_get_failed key=%s", index_key)
+            return False
+        if not confirmed:
+            logger.warning("conversation_memory_cache_set_unconfirmed key=%s", index_key)
+        return confirmed
+    finally:
+        _release_index_lock(cache_backend=cache_backend, index_key=index_key, token=lock_token)
 
 
 def clear_turns(

@@ -169,7 +169,7 @@ async def handle_chat(
         conversation_enabled = False
 
     reset_requested = bool(payload.get("reset_conversation"))
-    if conversation_enabled and reset_requested:
+    if actor_key and reset_requested:
         clear_result = deps.clear_conversation_turns(
             conversation_id=conversation_id,
             actor_key=actor_key,

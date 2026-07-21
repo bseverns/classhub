@@ -1498,6 +1498,8 @@ Execution ownership and gates:
 - Student UI shows a transcript; `Reset chat` clears the active backend cache before clearing the browser transcript and starting a fresh conversation id.
 - A reset is acknowledged only after cache deletion is confirmed; failed or unconfirmed deletion returns an error so the browser does not clear a transcript that the backend may still retain.
 - Successful single-conversation resets unregister the cache key from both actor and class indexes so reset conversations are not enumerated by later class snapshots.
+- Single-conversation reset and registration mutations share per-index cache locks so a reset cannot overwrite a concurrent registration from another browser tab.
+- Authenticated reset requests clear pre-existing cache entries even when new conversation persistence is disabled at runtime.
 
 **Why this remains active:**
 - Makes helper responses meaningfully conversational without introducing long-term transcript retention by default.

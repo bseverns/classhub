@@ -1,6 +1,8 @@
 import json
 import os
 import tempfile
+import threading
+import time
 from pathlib import Path
 from unittest.mock import patch
 
@@ -22,11 +24,22 @@ class _ScriptedCacheBackend:
         self.set_values = []
         self.after_set = None
         self.after_delete = None
+        self.after_get = None
 
     def get(self, key):
         if key in self.get_error_keys:
             raise RuntimeError("cache read failed")
-        return self.values.get(key)
+        value = self.values.get(key)
+        if self.after_get is not None:
+            self.after_get(key)
+        return value
+
+    def add(self, key, value, timeout=None):
+        if key in self.values:
+            return False
+        self.values[key] = value
+        self.timeouts[key] = timeout
+        return True
 
     def delete(self, key):
         self.deleted_keys.append(key)
@@ -233,6 +246,58 @@ class HelperInternalResetTests(TestCase):
 
                 self.assertFalse(result.ok)
                 self.assertEqual(result.error_code, "conversation_delete_failed")
+
+    def test_index_removal_preserves_registration_waiting_on_mutation_lock(self):
+        index_key = engine_memory.conversation_actor_index_key(actor_key="student:55:9001")
+        removed_key = "conversation-remove"
+        existing_key = "conversation-existing"
+        concurrent_key = "conversation-concurrent"
+        backend = _ScriptedCacheBackend()
+        backend.values[index_key] = [removed_key, existing_key]
+        removal_read = threading.Event()
+        allow_removal = threading.Event()
+        removal_results = []
+        registration_results = []
+
+        def pause_after_removal_read(key):
+            if key != index_key:
+                return
+            backend.after_get = None
+            removal_read.set()
+            allow_removal.wait(timeout=1)
+
+        backend.after_get = pause_after_removal_read
+        removal_thread = threading.Thread(
+            target=lambda: removal_results.append(
+                engine_memory._remove_conversation_from_index(
+                    cache_backend=backend,
+                    index_key=index_key,
+                    conversation_key=removed_key,
+                    ttl_seconds=300,
+                )
+            )
+        )
+        removal_thread.start()
+        self.assertTrue(removal_read.wait(timeout=1))
+        registration_thread = threading.Thread(
+            target=lambda: registration_results.append(
+                engine_memory._register_index_key(
+                    cache_backend=backend,
+                    index_key=index_key,
+                    conversation_key=concurrent_key,
+                    ttl_seconds=300,
+                )
+            )
+        )
+        registration_thread.start()
+        time.sleep(0.02)
+        allow_removal.set()
+        removal_thread.join(timeout=1)
+        registration_thread.join(timeout=1)
+
+        self.assertEqual(removal_results, [True])
+        self.assertEqual(registration_results, [True])
+        self.assertEqual(backend.get(index_key), [existing_key, concurrent_key])
 
     @override_settings(HELPER_INTERNAL_API_TOKEN="token-123")
     @patch("tutor.views_reset.engine_memory.clear_class_conversations")
