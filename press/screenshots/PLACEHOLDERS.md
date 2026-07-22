@@ -27,8 +27,8 @@ No pending captures.
 
 ## Notes
 - Public screenshot set is complete through `21`, plus optional companion `19-rbac-tools-tab-approval-on.png`, in both screenshot folders.
-- Browser captures `01`–`07`, `09`–`12`, and `14`–`20` were refreshed on 2026-07-21 from the local deterministic demo fixture at 1400 px width; the matching capture manifest is tracked under `scripts/a11y/artifacts/press_capture_fullpage/`.
-- Terminal captures `08`, `13`, and `21` remain current from their prior evidence runs and were not regenerated during the browser-only refresh.
+- Browser captures `01`–`06`, `09`–`11`, and `14`–`20` were refreshed on 2026-07-21 from the local deterministic demo fixture at 1400 px width; the matching capture manifest is tracked under `scripts/a11y/artifacts/press_capture_fullpage/`.
+- Browser captures `07` and `12`, plus terminal captures `08`, `13`, and `21`, remain current from their prior evidence runs and were not regenerated during this refresh.
 - The refreshed `20-data-lifespan-evidence.png` uses a local synthetic helper-status response so the curriculum-only RAG boundary is visible without connecting to production services.
 - `13` and `21` returned to the public set after the 2026-04-14 terminal closeout pass.
 - Do not use production or real student/staff data.
