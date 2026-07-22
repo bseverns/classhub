@@ -649,3 +649,32 @@ Draw, test, and explain one loop.
         resp = self.client.get("/trust", HTTP_ACCEPT_LANGUAGE="ksw")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "တၢ်လၢပသိမ်းဆည်း / တၢ်လၢပတသိမ်းဆည်းနီတဘျီဘၣ်")
+
+    def _assert_standard_privacy_i18n(self, *, language, expected_level, expected_data_copy):
+        resp = self.client.get("/privacy?reading_level=standard", HTTP_ACCEPT_LANGUAGE=language)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, expected_level)
+        self.assertContains(resp, expected_data_copy)
+        self.assertNotContains(resp, "No Accounts:")
+
+    def test_standard_privacy_page_spanish_uses_existing_translated_copy(self):
+        self._assert_standard_privacy_i18n(
+            language="es",
+            expected_level="Nivel de lectura: Estándar",
+            expected_data_copy="Guardamos tu nombre para mostrar de la clase para que tu maestro pueda identificar tu trabajo.",
+        )
+
+    def test_standard_privacy_page_somali_uses_existing_translated_copy(self):
+        self._assert_standard_privacy_i18n(
+            language="so",
+            expected_level="Heerka akhriska: Caadi",
+            expected_data_copy="Waxaan kaydinnaa magacaaga muuqda ee fasalka si macallinkaagu u garto shaqadaada.",
+        )
+
+    def test_standard_privacy_page_sgaw_karen_uses_existing_translated_copy(self):
+        self._assert_standard_privacy_i18n(
+            language="ksw",
+            expected_level="တၢ်ဖးအပတီၢ်: ပတီၢ်ညီ",
+            expected_data_copy="ပသိမ်းဆည်း နတီၤအ display name ဒ်သိး နဆရာ/မ ကသ့ၣ်ညါ နတၢ်မၤ.",
+        )

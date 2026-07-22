@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Privacy Information | {{ operator_profile.product_name }}</title>
+    <title>{% trans "Privacy Information" %} | {{ operator_profile.product_name }}</title>
     {% include "includes/glass_theme.html" %}
     <link rel="stylesheet" href="{% static 'css/privacy.css' %}" />
 </head>
@@ -15,13 +15,13 @@
     <div class="shell">
         <main id="main-content">
             <div class="top">
-                <div class="muted"><a href="/trust">&larr; Back</a></div>
+                <div class="muted"><a href="/trust">&larr; {% trans "Back" %}</a></div>
                 <h1>{% trans "Privacy Information" %}</h1>
                 <p class="muted">{% trans "How we handle your data on" %} {{ operator_profile.product_name }}.</p>
                 <p class="muted">
                     <a href="?reading_level=simple">{% trans "Simple" %}</a> ·
                     <a href="?reading_level=standard">{% trans "Standard" %}</a> ·
-                    {% trans "Reading level:" %} {{ selected_reading_level|title }}
+                    {% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
                 </p>
             </div>
 
@@ -35,27 +35,19 @@
                     <li><strong>{% trans "Basic timestamps:" %}</strong> {% trans "We save when you join or upload." %}</li>
                 </ul>
                 {% else %}
-                <p>{% trans "We design this platform to collect as little about you as possible." %}</p>
                 <ul>
-                    <li><strong>No Accounts:</strong> You don't create an account or provide an email. You log in using
-                        an anonymous class code and a display name you choose.</li>
-                    <li><strong>Your Uploads:</strong> Files, reflections, and checklist items you submit for class
-                        activities are saved so your teacher can review them.</li>
-                    <li><strong>System Logs:</strong> We keep minimal system logs (like basic diagnostic events when
-                        joining/uploading). These events link to your class and student record and may include an IP
-                        address, which is truncated by default. They do not include helper prompts or uploaded file
-                        contents.</li>
+                    <li>{% trans "We store your class display name so your teacher can identify your work." %}</li>
+                    <li>{% trans "We store your class files and activity responses (checklists, reflections, rubric answers)." %}</li>
+                    <li>{% trans "We store basic event timestamps (for example join time and upload time)." %}</li>
+                    <li>{% trans "These events link to your class and student record and may include an IP address, which is truncated by default. They do not include helper prompts or uploaded file contents." %}</li>
+                    <li>{% trans "We never require student email or student password for normal class use." %}</li>
+                    <li>{% trans "Teachers and approved staff can see student work in their class. Other classes cannot." %}</li>
                 </ul>
                 {% endif %}
             </section>
 
             <section class="section-box warning-box">
-                <h2>{% trans "Don't upload sensitive documents" %}</h2>
-                <p>
-                    <strong>Never upload personal, sensitive, or confidential documents</strong> (such as medical
-                    records, social security cards, passwords, or financial information). We do not require this
-                    information for any workshop.
-                </p>
+                <h2>{% trans "Consider using a nickname instead of personal information." %}</h2>
             </section>
 
             <section class="section-box">
@@ -65,19 +57,12 @@
                 {% else %}
                 <p>{% trans "You own your artifacts. While in an active session, you can export or delete your files at any time." %}</p>
                 {% endif %}
-                <ol>
-                    <li>From the classroom dashboard, click the <strong>"My Data"</strong> link or navigate to
-                        <code>/student/my-data</code>.
-                    </li>
-                    <li>Click <strong>"Download my work"</strong> to get a ZIP archive containing everything you've
-                        uploaded.</li>
-                    {% if student_self_delete_mode == "request" %}
-                    <li>Click <strong>"Request deletion"</strong> to send a staff-reviewed deletion request for your uploads and responses.</li>
-                    {% else %}
-                    <li>Click <strong>"Delete my work now"</strong> to immediately erase your uploads and responses from
-                        our servers, including your class activity event history.</li>
-                    {% endif %}
-                </ol>
+                <p>{% trans "Student controls are at" %} <code>/student/my-data</code>: {% trans "rename, download, delete, and end session." %}</p>
+                {% if student_self_delete_mode == "request" %}
+                <p><strong>{% trans "Request deletion" %}:</strong> {% trans "Students can request deletion of their own artifacts and class activity history from My Data. Staff review the request before removal." %}</p>
+                {% else %}
+                <p>{% trans "Students can delete their own artifacts and class activity history from My Data at any time." %}</p>
+                {% endif %}
             </section>
 
             <section class="section-box">
@@ -88,17 +73,8 @@
                 <p>{% trans "We don't hold on to your data forever." %}</p>
                 {% endif %}
                 <ul>
-                    <li><strong>Automated Cleanup:</strong> If enabled by the operator, student submissions and system
-                        events are automatically deleted after a specified retention period (often 90 to 180 days after
-                        a workshop ends).</li>
-                    <li><strong>Teacher Actions:</strong> Teachers can manually clear rosters and delete student data at
-                        the end of a session.</li>
-                    {% if student_self_delete_mode == "request" %}
-                    <li><strong>Your Actions:</strong> You can request deletion via the "My Data" portal. Staff review and apply deletion under program policy.</li>
-                    {% else %}
-                    <li><strong>Your Actions:</strong> As described above, you can delete your own work at any time via
-                        the "My Data" portal.</li>
-                    {% endif %}
+                    <li>{% trans "Retention policy for submissions:" %} {% if submission_retention_days %}{{ submission_retention_days }} {% trans "day(s)." %}{% else %}{% trans "operator-controlled by class policy." %}{% endif %}</li>
+                    <li>{% trans "Retention policy for event metadata:" %} {% if student_event_retention_days %}{{ student_event_retention_days }} {% trans "day(s)." %}{% else %}{% trans "operator-controlled by class policy." %}{% endif %}</li>
                 </ul>
             </section>
 

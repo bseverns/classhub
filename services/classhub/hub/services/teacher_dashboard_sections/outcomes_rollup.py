@@ -21,6 +21,9 @@ def build_outcome_rollup(
 ) -> dict:
     student_ids = [int(student.id) for student in students]
     events_qs = student_outcome_events_queryset().filter(classroom_id=int(classroom.id))
+    if include_class_metrics:
+        active_since = timezone.now() - timedelta(days=max(int(active_window_days or 0), 1))
+        events_qs = events_qs.filter(created_at__gte=active_since)
     sessions_by_student: dict[int, int] = {}
     artifacts_by_student: dict[int, int] = {}
     milestones_by_student: dict[int, int] = {}
@@ -60,7 +63,6 @@ def build_outcome_rollup(
     total_milestones = 0
     active_students = 0
     if include_class_metrics:
-        active_since = timezone.now() - timedelta(days=max(int(active_window_days or 0), 1))
         total_sessions = events_qs.filter(
             event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
         ).count()
@@ -72,7 +74,6 @@ def build_outcome_rollup(
         ).count()
         active_students = (
             events_qs.filter(
-                created_at__gte=active_since,
                 student_id__isnull=False,
             )
             .values("student_id")

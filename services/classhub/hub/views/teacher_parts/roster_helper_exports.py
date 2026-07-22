@@ -19,7 +19,6 @@ from .shared import (
     apply_download_safety,
     apply_no_store,
     safe_attachment_filename,
-    staff_can_manage_policy,
     staff_classroom_or_none,
     staff_member_required,
     timezone,
@@ -141,7 +140,7 @@ def teach_export_class_remote_helper_snapshot(request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_policy(request.user, classroom):
+    if not request.user.is_superuser:
         return HttpResponse("Forbidden", status=403)
 
     export_format = (request.GET.get("format") or "json").strip().lower()

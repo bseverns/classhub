@@ -13,7 +13,7 @@ from ...services.helper_control import (
     set_remote_compute_state,
 )
 from ...services.remote_compute_signals import build_remote_compute_signal_summary
-from .shared_auth import staff_can_manage_policy, staff_classroom_or_none
+from .shared_auth import staff_classroom_or_none
 from .shared_routing import _audit, _safe_internal_redirect, _teach_class_path, _with_notice
 
 
@@ -53,7 +53,7 @@ def teach_set_remote_helper_compute_impl(*, request, class_id: int):
     classroom = staff_classroom_or_none(request.user, class_id)
     if not classroom:
         return HttpResponse("Not found", status=404)
-    if not staff_can_manage_policy(request.user, classroom):
+    if not request.user.is_superuser:
         return HttpResponse("Forbidden", status=403)
 
     action = (request.POST.get("action") or "").strip().lower()

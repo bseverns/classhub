@@ -113,8 +113,8 @@ class OrganizationMembership(models.Model):
     ROLE_TEACHER = "teacher"
     ROLE_VIEWER = "viewer"
     ROLE_CHOICES = [
-        (ROLE_OWNER, "Owner"),
-        (ROLE_ADMIN, "Admin"),
+        (ROLE_OWNER, "Class-scoped owner"),
+        (ROLE_ADMIN, "Class-scoped admin"),
         (ROLE_TEACHER, "Teacher"),
         (ROLE_VIEWER, "Viewer"),
     ]

@@ -20,7 +20,7 @@
         <div class="muted">
           <a href="/student/my-data?reading_level=simple">{% trans "Simple" %}</a> ·
           <a href="/student/my-data?reading_level=standard">{% trans "Standard" %}</a> ·
-          {% trans "Reading level:" %} {{ selected_reading_level|title }}
+          {% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
         </div>
         <div class="muted">{% trans "Signed in as" %} <strong>{{ student.display_name }}</strong> · {{ classroom.name }}
         </div>

@@ -3,6 +3,28 @@ from ._teacher_admin_portal_base import TeacherPortalBaseTests
 
 
 class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
+    def _non_operator_teacher_class(self, *, suffix: str):
+        organization = Organization.objects.create(name=f"Teaching Org {suffix}")
+        teacher = get_user_model().objects.create_user(
+            username=f"teacher_{suffix}",
+            password="pw12345",
+            is_staff=True,
+            is_superuser=False,
+        )
+        OrganizationMembership.objects.create(
+            organization=organization,
+            user=teacher,
+            role=OrganizationMembership.ROLE_TEACHER,
+            is_active=True,
+        )
+        classroom = Class.objects.create(
+            name=f"Teaching Class {suffix}",
+            join_code=f"{suffix.upper():0<8}"[:8],
+            organization=organization,
+        )
+        _force_login_staff_verified(self.client, teacher)
+        return classroom
+
     @override_settings(CLASSHUB_OPERATOR_NAME="Northside Public Schools")
     def test_helper_reset_copy_does_not_claim_another_operator_has_access(self):
         classroom = Class.objects.create(name="Period Helper Copy", join_code="HLC12345")
@@ -62,7 +84,7 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertEqual(event.metadata.get("helper_request_id"), "helper-reset-fail-1")
 
     @patch("hub.views.teacher_parts.roster_class_remote_compute.set_remote_compute_state")
-    def test_teacher_can_activate_remote_helper_compute(self, set_remote_compute_mock):
+    def test_operator_can_activate_remote_helper_compute(self, set_remote_compute_mock):
         classroom = Class.objects.create(name="Partner Session", join_code="GPU12345")
         set_remote_compute_mock.return_value = HelperRemoteComputeActionResult(
             ok=True,
@@ -94,7 +116,19 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertEqual(event.metadata.get("helper_request_id"), "helper-remote-req-1")
 
     @patch("hub.views.teacher_parts.roster_class_remote_compute.set_remote_compute_state")
-    def test_teacher_remote_helper_compute_failure_redirects_with_error(self, set_remote_compute_mock):
+    def test_non_operator_teacher_cannot_control_remote_compute(self, set_remote_compute_mock):
+        classroom = self._non_operator_teacher_class(suffix="control")
+
+        resp = self.client.post(
+            f"/teach/class/{classroom.id}/remote-helper-compute",
+            {"action": "activate", "duration_minutes": "90"},
+        )
+
+        self.assertEqual(resp.status_code, 403)
+        set_remote_compute_mock.assert_not_called()
+
+    @patch("hub.views.teacher_parts.roster_class_remote_compute.set_remote_compute_state")
+    def test_operator_remote_helper_compute_failure_redirects_with_error(self, set_remote_compute_mock):
         classroom = Class.objects.create(name="Partner Session Fail", join_code="GPU54321")
         set_remote_compute_mock.return_value = HelperRemoteComputeActionResult(
             ok=False,
@@ -119,7 +153,7 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertEqual(event.metadata.get("helper_request_id"), "helper-remote-fail-1")
 
     @patch("hub.views.teacher_parts.roster_class_remote_compute.set_remote_compute_state")
-    def test_teacher_remote_helper_compute_stop_uses_manual_stop_reason(self, set_remote_compute_mock):
+    def test_operator_remote_helper_compute_stop_uses_manual_stop_reason(self, set_remote_compute_mock):
         classroom = Class.objects.create(name="Partner Session Stop", join_code="GPU54322")
         set_remote_compute_mock.return_value = HelperRemoteComputeActionResult(
             ok=True,
@@ -148,7 +182,7 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
 
     @patch("hub.views.teacher_parts.roster_class_remote_compute.fetch_remote_compute_evidence")
     @patch("hub.views.teacher_parts.roster_class_remote_compute.fetch_remote_compute_status")
-    def test_teach_class_dashboard_shows_remote_helper_compute_panel_for_policy_managers(self, status_mock, evidence_mock):
+    def test_teach_class_dashboard_shows_remote_helper_compute_panel_for_superusers(self, status_mock, evidence_mock):
         classroom = Class.objects.create(name="Partner Session Status", join_code="GPU00001")
         status_mock.return_value = HelperRemoteComputeStatusResult(
             ok=True,
@@ -219,25 +253,20 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertContains(resp, f"/teach/class/{classroom.id}/export-helper-remote-snapshot?format=json")
         self.assertContains(resp, f"/teach/class/{classroom.id}/export-helper-remote-snapshot?format=csv")
 
-    @patch("hub.views.teacher_parts.roster_class_dashboard.staff_can_manage_policy", return_value=False)
     @patch("hub.views.teacher_parts.roster_class_remote_compute.fetch_remote_compute_status")
-    def test_teach_class_dashboard_hides_remote_helper_compute_panel_without_policy_capability(
-        self,
-        status_mock,
-        _manage_policy_mock,
-    ):
-        classroom = Class.objects.create(name="Partner Session Hidden", join_code="GPU00002")
-        status_mock.return_value = HelperRemoteComputeStatusResult(ok=True, state="ready", use_remote_backend=True)
+    def test_non_operator_teacher_does_not_see_remote_compute_panel(self, status_mock):
+        classroom = self._non_operator_teacher_class(suffix="panel")
 
-        _force_login_staff_verified(self.client, self.staff)
         resp = self.client.get(f"/teach/class/{classroom.id}")
+
         self.assertEqual(resp.status_code, 200)
         self.assertNotContains(resp, "Remote helper compute")
         status_mock.assert_not_called()
 
+
     @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_status")
     @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_evidence")
-    def test_teacher_can_export_remote_helper_snapshot_json(self, evidence_mock, status_mock):
+    def test_operator_can_export_remote_helper_snapshot_json(self, evidence_mock, status_mock):
         classroom = Class.objects.create(name="Partner Session Export", join_code="GPU10001")
         evidence_mock.return_value = HelperRemoteComputeEvidenceResult(
             ok=True,
@@ -316,9 +345,18 @@ class TeacherPortalHelperOpsTests(TeacherPortalBaseTests):
         self.assertEqual(event.metadata.get("state"), "ready")
         self.assertTrue(event.metadata.get("ok"))
 
+    @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_evidence")
+    def test_non_operator_teacher_cannot_export_remote_compute_snapshot(self, evidence_mock):
+        classroom = self._non_operator_teacher_class(suffix="export")
+
+        resp = self.client.get(f"/teach/class/{classroom.id}/export-helper-remote-snapshot?format=json")
+
+        self.assertEqual(resp.status_code, 403)
+        evidence_mock.assert_not_called()
+
     @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_status")
     @patch("hub.views.teacher_parts.roster_helper_exports.fetch_remote_compute_evidence")
-    def test_teacher_can_export_remote_helper_snapshot_csv(self, evidence_mock, status_mock):
+    def test_operator_can_export_remote_helper_snapshot_csv(self, evidence_mock, status_mock):
         classroom = Class.objects.create(name="Partner Session Export CSV", join_code="GPU10002")
         evidence_mock.return_value = HelperRemoteComputeEvidenceResult(
             ok=False,

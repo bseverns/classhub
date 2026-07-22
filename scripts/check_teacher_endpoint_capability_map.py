@@ -137,11 +137,11 @@ ROUTE_CAPABILITY_MAP: dict[str, RouteContract] = {
         "teach_reset_helper_conversations",
     ),
     "/teach/class/<int:class_id>/export-helper-remote-snapshot": RouteContract(
-        "policy.manage",
+        "org.superuser",
         "teach_export_class_remote_helper_snapshot",
     ),
     "/teach/class/<int:class_id>/remote-helper-compute": RouteContract(
-        "policy.manage",
+        "org.superuser",
         "teach_set_remote_helper_compute",
     ),
     "/teach/class/<int:class_id>/toggle-lock": RouteContract("policy.manage", "teach_toggle_lock"),

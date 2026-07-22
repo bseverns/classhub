@@ -1299,6 +1299,44 @@ title: "Build"
         self.assertContains(resp, "eligible")
 
     @override_settings(
+        CLASSHUB_OUTCOME_WINDOW_DAYS=30,
+        CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,
+        CLASSHUB_CERTIFICATE_MIN_ARTIFACTS=1,
+    )
+    def test_outcome_snapshot_excludes_old_events_but_certificate_rollup_remains_lifetime(self):
+        from ..services.teacher_roster_class import _build_outcome_snapshot, build_certificate_eligibility_rows
+
+        classroom = Class.objects.create(name="Windowed Outcomes", join_code="WIN12345")
+        ada = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        old_session = StudentOutcomeEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+            source="test",
+            details={},
+        )
+        StudentOutcomeEvent.objects.filter(id=old_session.id).update(
+            created_at=timezone.now() - timedelta(days=90)
+        )
+        StudentOutcomeEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            source="test",
+            details={},
+        )
+
+        snapshot = _build_outcome_snapshot(classroom=classroom, students=[ada])
+        certificate = build_certificate_eligibility_rows(classroom=classroom, students=[ada])
+
+        self.assertEqual(snapshot["total_sessions"], 0)
+        self.assertEqual(snapshot["total_artifacts"], 1)
+        self.assertEqual(snapshot["top_students"][0]["session_count"], 0)
+        self.assertFalse(snapshot["top_students"][0]["certificate_eligible"])
+        self.assertEqual(certificate["rows"][0]["session_count"], 1)
+        self.assertTrue(certificate["rows"][0]["certificate_eligible"])
+
+    @override_settings(
         CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,
         CLASSHUB_CERTIFICATE_MIN_ARTIFACTS=1,
     )

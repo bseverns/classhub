@@ -37,6 +37,14 @@ from ..services.org_access import (
 )
 
 
+class OrganizationRoleLabelTests(SimpleTestCase):
+    def test_owner_and_admin_labels_state_the_class_scoped_boundary(self):
+        labels = dict(OrganizationMembership.ROLE_CHOICES)
+
+        self.assertEqual(labels[OrganizationMembership.ROLE_OWNER], "Class-scoped owner")
+        self.assertEqual(labels[OrganizationMembership.ROLE_ADMIN], "Class-scoped admin")
+
+
 class StaffCapabilityEvaluatorTests(TestCase):
     def setUp(self):
         self.User = get_user_model()

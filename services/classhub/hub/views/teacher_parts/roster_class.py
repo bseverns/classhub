@@ -42,7 +42,7 @@ def teach_reset_helper_conversations(request, class_id: int):
 @staff_member_required
 @require_POST
 def teach_set_remote_helper_compute(request, class_id: int):
-    # Guard contract token: staff_can_manage_policy(
+    # Guard contract token: request.user.is_superuser
     return _remote_compute.teach_set_remote_helper_compute_impl(request=request, class_id=class_id)
 
 
