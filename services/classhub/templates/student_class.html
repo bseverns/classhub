@@ -51,9 +51,9 @@
           </nav>
           <h1>{{ classroom.name }}</h1>
           <div class="muted">
-            <a href="/student?reading_level=simple">Simple</a> ·
-            <a href="/student?reading_level=standard">Standard</a> ·
-            {% trans "Reading level:" %} {{ selected_reading_level|title }}
+            <a href="/student?reading_level=simple">{% trans "Simple" %}</a> ·
+            <a href="/student?reading_level=standard">{% trans "Standard" %}</a> ·
+            {% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
           </div>
           <div class="muted">
             {% trans "Signed in as" %} <strong>{{ student.display_name }}</strong>

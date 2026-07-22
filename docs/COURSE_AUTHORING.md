@@ -461,6 +461,10 @@ This validates:
 - manifest/front-matter slug/session consistency
 - front matter `course`/`course_slug` exactly matches the course folder/manifest slug
 
+Before promotion, record the separate human content review in
+[`COURSE_PUBLICATION_REVIEWS.md`](COURSE_PUBLICATION_REVIEWS.md). Automated
+validation does not replace that receipt.
+
 Then run the full preflight:
 
 ```bash

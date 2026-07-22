@@ -105,6 +105,36 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertNotContains(resp, "Classroom focus")
         self.assertNotContains(resp, "Recent submissions")
 
+    def test_teach_home_setup_mode_does_not_leak_translation_tags(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach?portal_mode=setup")
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(
+            resp,
+            "Create pre-formatted `.md` and `.docx` starter files for teachers.",
+        )
+        self.assertContains(
+            resp,
+            "Admin/superuser backup and catalog downloads for repo-authored course syllabi.",
+        )
+        self.assertNotContains(resp, "{% trans", html=False)
+
+        spanish_resp = self.client.get(
+            "/teach?portal_mode=setup",
+            HTTP_ACCEPT_LANGUAGE="es",
+        )
+        self.assertContains(
+            spanish_resp,
+            "Crea archivos iniciales `.md` y `.docx` ya formateados para maestros.",
+        )
+        self.assertContains(
+            spanish_resp,
+            "Descargas de respaldo y catálogo para administradores o superusuarios",
+        )
+        self.assertNotContains(spanish_resp, "{% trans", html=False)
+
     def test_teach_home_setup_mode_surfaces_class_workspace_seed_fields(self):
         _force_login_staff_verified(self.client, self.staff)
 
@@ -1297,6 +1327,44 @@ title: "Build"
         self.assertContains(resp, "Top outcome students")
         self.assertContains(resp, "Ada")
         self.assertContains(resp, "eligible")
+
+    @override_settings(
+        CLASSHUB_OUTCOME_WINDOW_DAYS=30,
+        CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,
+        CLASSHUB_CERTIFICATE_MIN_ARTIFACTS=1,
+    )
+    def test_outcome_snapshot_excludes_old_events_but_certificate_rollup_remains_lifetime(self):
+        from ..services.teacher_roster_class import _build_outcome_snapshot, build_certificate_eligibility_rows
+
+        classroom = Class.objects.create(name="Windowed Outcomes", join_code="WIN12345")
+        ada = StudentIdentity.objects.create(classroom=classroom, display_name="Ada")
+        old_session = StudentOutcomeEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentOutcomeEvent.EVENT_SESSION_COMPLETED,
+            source="test",
+            details={},
+        )
+        StudentOutcomeEvent.objects.filter(id=old_session.id).update(
+            created_at=timezone.now() - timedelta(days=90)
+        )
+        StudentOutcomeEvent.objects.create(
+            classroom=classroom,
+            student=ada,
+            event_type=StudentOutcomeEvent.EVENT_ARTIFACT_SUBMITTED,
+            source="test",
+            details={},
+        )
+
+        snapshot = _build_outcome_snapshot(classroom=classroom, students=[ada])
+        certificate = build_certificate_eligibility_rows(classroom=classroom, students=[ada])
+
+        self.assertEqual(snapshot["total_sessions"], 0)
+        self.assertEqual(snapshot["total_artifacts"], 1)
+        self.assertEqual(snapshot["top_students"][0]["session_count"], 0)
+        self.assertFalse(snapshot["top_students"][0]["certificate_eligible"])
+        self.assertEqual(certificate["rows"][0]["session_count"], 1)
+        self.assertTrue(certificate["rows"][0]["certificate_eligible"])
 
     @override_settings(
         CLASSHUB_CERTIFICATE_MIN_SESSIONS=1,

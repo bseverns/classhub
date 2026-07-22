@@ -21,7 +21,7 @@
         <p class="muted">
           <a href="?reading_level=simple">{% trans "Simple" %}</a> ·
           <a href="?reading_level=standard">{% trans "Standard" %}</a> ·
-          {% trans "Reading level:" %} {{ selected_reading_level|title }}
+          {% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
         </p>
       </div>
 

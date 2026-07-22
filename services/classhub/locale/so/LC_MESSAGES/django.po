@@ -2057,7 +2057,11 @@ msgstr "We design this platform to collect as little about you as possible."
 
 #: services/classhub/templates/privacy.html:51
 msgid "Don't upload sensitive documents"
-msgstr "Don't upload sensitive documents"
+msgstr "Ha soo gelin dukumiintiyo xasaasi ah"
+
+#: services/classhub/templates/privacy.html:52
+msgid "Never upload medical records, government IDs, passwords, or financial information. We do not require this information for class."
+msgstr "Waligaa ha soo gelin diiwaanno caafimaad, aqoonsiyo dowladeed, furaha sirta ah, ama macluumaad maaliyadeed. Uma baahnin macluumaadkan fasalka."
 
 #: services/classhub/templates/privacy.html:60
 msgid "2. How to export or delete your work"
@@ -3819,14 +3823,14 @@ msgstr "Fur dabagalka gelinta diiwaanka fasalkan"
 #~ msgid "Toggle lock"
 #~ msgstr "Beddel qufulka"
 
-#~ msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
-#~ msgstr ""
-#~ "Samee faylal `.md` iyo `.docx` oo bilow ah oo hore loo qaabeeyey oo loogu "
-#~ "talagalay macallimiinta."
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:264
+msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
+msgstr "Samee faylal `.md` iyo `.docx` oo bilow ah oo hore loo qaabeeyey oo loogu talagalay macallimiinta."
 
-#~ msgid ""
-#~ "Admin/superuser backup and catalog downloads for repo-authored course "
-#~ "syllabi."
-#~ msgstr ""
-#~ "Soo dejinta kaydka iyo kataloogga ee admin ama superuser-ka ee manhajyada "
-#~ "koorsooyinka repo-ga lagu qoray."
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:329
+msgid ""
+"Admin/superuser backup and catalog downloads for repo-authored course "
+"syllabi."
+msgstr ""
+"Soo dejinta kaydka iyo kataloogga ee admin ama superuser-ka ee manhajyada "
+"koorsooyinka repo-ga lagu qoray."

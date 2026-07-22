@@ -165,5 +165,12 @@ If you need a spoken architecture moment, pair this shotlist with:
 - Current public screenshot set is complete through `21`.
 - Placeholder tracker remains available for future drift, but there is no active screenshot backlog.
 
+## Current capture receipt
+
+- Files `14` through `19` were recaptured on 2026-07-22 from base commit `c40aed64982281894f23fb22c3383288c110c3ff` plus the current audit-remediation worktree.
+- Capture environment: local Django development server, synthetic course/student records, `secondary` profile, strict organization membership on, RBAC approval workflow off, and telemetry write/read modes `off`/`core`.
+- Teacher 2FA was disabled only in the local capture process; the temporary capture account and synthetic capture-only student rows were removed afterward.
+- `python3 scripts/press_screenshot_audit.py` verifies that press and docs copies match and are non-placeholder PNGs.
+
 ## Placeholders
 - If future screenshots drift or go missing, track them in `press/screenshots/PLACEHOLDERS.md` before re-embedding.

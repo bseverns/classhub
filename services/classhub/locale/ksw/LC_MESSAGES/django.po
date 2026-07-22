@@ -2041,6 +2041,10 @@ msgstr "ပမၤကတီၤ platform အံၤ ဒ်သိးကပာ်ဖ�
 msgid "Don't upload sensitive documents"
 msgstr "တ upload sensitive document တဂ့ၤ"
 
+#: services/classhub/templates/privacy.html:52
+msgid "Never upload medical records, government IDs, passwords, or financial information. We do not require this information for class."
+msgstr ""
+
 #: services/classhub/templates/privacy.html:60
 msgid "2. How to export or delete your work"
 msgstr "2. ထုးထီၣ် မ့တမ့ၢ် ဖျီၣ်ကွံာ် နတၢ်မၤ ဒ်လဲၣ်"
@@ -3784,12 +3788,14 @@ msgstr "ကးလီၤဖျါ registry import audit လၢတီၤအံၤ�
 #~ msgid "Toggle lock"
 #~ msgstr "ထိၣ်ဃာ်ကဒီး lock"
 
-#~ msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
-#~ msgstr "တ့ထီၣ် `.md` ဒီး `.docx` starter file လၢတၢ်ကတဲာ်ကတီၤပာ်စၢၤအီၤလံ လၢဆရာ/မတဖၣ်အဂီၢ်."
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:264
+msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
+msgstr "တ့ထီၣ် `.md` ဒီး `.docx` starter file လၢတၢ်ကတဲာ်ကတီၤပာ်စၢၤအီၤလံ လၢဆရာ/မတဖၣ်အဂီၢ်."
 
-#~ msgid ""
-#~ "Admin/superuser backup and catalog downloads for repo-authored course "
-#~ "syllabi."
-#~ msgstr ""
-#~ "admin/superuser backup ဒီး catalog download တဖၣ် လၢ repo-authored course "
-#~ "syllabus တဖၣ်အဂီၢ်."
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:329
+msgid ""
+"Admin/superuser backup and catalog downloads for repo-authored course "
+"syllabi."
+msgstr ""
+"admin/superuser backup ဒီး catalog download တဖၣ် လၢ repo-authored course "
+"syllabus တဖၣ်အဂီၢ်."

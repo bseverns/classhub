@@ -37,6 +37,8 @@ PRESS_ARCHITECTURE_DIAGRAM_SOURCE_PATH = Path("press/diagrams/classhub_boundary_
 PRESS_REMOTE_STATE_DIAGRAM_SOURCE_PATH = Path("press/diagrams/remote_helper_compute_state.mmd")
 SHOTLIST_PATH = Path("press/screenshots/SHOTLIST.md")
 PLACEHOLDERS_PATH = Path("press/screenshots/PLACEHOLDERS.md")
+COURSE_ROOT = Path("services/classhub/content/courses")
+COURSE_PUBLICATION_REVIEWS_PATH = Path("docs/COURSE_PUBLICATION_REVIEWS.md")
 ENV_EXAMPLE_PATHS = (
     Path("compose/.env.example"),
     Path("compose/.env.example.local"),
@@ -147,6 +149,19 @@ def _validate_shotlist_capture_targets(failures: list[str]) -> None:
             failures.append(
                 f"{SHOTLIST_PATH}: capture target {idx} expected `{expected_file}`, found `{filename}`"
             )
+
+
+def _validate_course_publication_receipts(failures: list[str]) -> None:
+    text = _read(COURSE_PUBLICATION_REVIEWS_PATH)
+    for manifest in sorted(COURSE_ROOT.glob("*/course.yaml")):
+        slug = manifest.parent.name
+        section = _extract_section(text, start_header=f"## `{slug}`", end_header="\n## ")
+        if not section:
+            failures.append(f"{COURSE_PUBLICATION_REVIEWS_PATH}: missing receipt for `{slug}`")
+            continue
+        for required in ("- Reviewer:", "- Review date:", "- Status: approved for publication"):
+            if required not in section:
+                failures.append(f"{COURSE_PUBLICATION_REVIEWS_PATH}: `{slug}` missing {required!r}")
 
 
 def _validate_no_stale_refresh_markers(failures: list[str]) -> None:
@@ -400,6 +415,7 @@ def main() -> int:
     try:
         _validate_risk_register_line_counts(failures)
         _validate_shotlist_capture_targets(failures)
+        _validate_course_publication_receipts(failures)
         _validate_no_stale_refresh_markers(failures)
         _validate_placeholder_backlog(failures)
         _validate_runtime_registry_contracts(failures)

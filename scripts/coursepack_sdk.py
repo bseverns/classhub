@@ -23,19 +23,6 @@ CLASSHUB_SERVICE_DIR = Path(__file__).resolve().parents[1] / "services" / "class
 if str(CLASSHUB_SERVICE_DIR) not in sys.path:
     sys.path.insert(0, str(CLASSHUB_SERVICE_DIR))
 
-from hub.services.coursepack_registry import (  # noqa: E402
-    CoursepackRegistryError,
-    build_registry_entry,
-    fetch_registry_artifact,
-    new_registry_document,
-    read_registry_document,
-    select_registry_entry,
-    upsert_registry_entry,
-    validate_registry_document,
-    write_registry_document,
-)
-
-
 SDK_VERSION = "0.1.0"
 _IGNORED_FILE_NAMES = {".DS_Store"}
 
@@ -162,6 +149,15 @@ def _validate_command(args: argparse.Namespace) -> int:
 
 
 def _build_or_package_command(args: argparse.Namespace, *, validate_first: bool) -> int:
+    from hub.services.coursepack_registry import (
+        CoursepackRegistryError,
+        build_registry_entry,
+        new_registry_document,
+        read_registry_document,
+        upsert_registry_entry,
+        write_registry_document,
+    )
+
     slug = (args.course_slug or "").strip()
     if not slug:
         print("[coursepack-sdk] FAIL: --course-slug is required", file=sys.stderr)
@@ -273,6 +269,12 @@ def _build_or_package_command(args: argparse.Namespace, *, validate_first: bool)
 
 
 def _registry_validate_command(args: argparse.Namespace) -> int:
+    from hub.services.coursepack_registry import (
+        CoursepackRegistryError,
+        read_registry_document,
+        validate_registry_document,
+    )
+
     index_location = str(args.index or "").strip()
     try:
         payload, _ = read_registry_document(index_location)
@@ -304,6 +306,8 @@ def _registry_validate_command(args: argparse.Namespace) -> int:
 
 
 def _registry_list_command(args: argparse.Namespace) -> int:
+    from hub.services.coursepack_registry import CoursepackRegistryError, read_registry_document
+
     index_location = str(args.index or "").strip()
     try:
         payload, _ = read_registry_document(index_location)
@@ -335,6 +339,13 @@ def _registry_list_command(args: argparse.Namespace) -> int:
 
 
 def _registry_fetch_command(args: argparse.Namespace) -> int:
+    from hub.services.coursepack_registry import (
+        CoursepackRegistryError,
+        fetch_registry_artifact,
+        read_registry_document,
+        select_registry_entry,
+    )
+
     index_location = str(args.index or "").strip()
     slug = str(args.course_slug or "").strip()
     version = str(args.version or "").strip()

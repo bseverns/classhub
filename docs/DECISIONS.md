@@ -251,7 +251,7 @@ Historical implementation logs and superseded decisions are archived by month in
 
 **Current decision:**
 - Keep remote helper compute off by default.
-- Add a staff-only, class-scoped activation lease so teachers/admins can enable expensive remote compute for a bounded live-session window.
+- Add an operator-only, class-scoped activation lease so superusers can enable expensive remote compute for a bounded live-session window.
 - Gate the capability with `CLASSHUB_REMOTE_HELPER_COMPUTE_ENABLED=1` plus explicit paid-usage acknowledgement via `CLASSHUB_REMOTE_HELPER_COMPUTE_ACKNOWLEDGED=1`.
 - Use an explicit remote-compute state model (`off`, `requested`, `starting`, `ready`, `degraded`, `stopping`, `error`) and only route helper traffic remotely when the class state is `ready`.
 - Treat `ready` as a helper-verified state, not just a provider-declared state:
@@ -264,7 +264,7 @@ Historical implementation logs and superseded decisions are archived by month in
 - If the remote path errors during an active lease, fall back to local/default helper compute for the request.
 - Persist the active remote lease and per-class accounting in helper-owned Django tables, with cache used only as a hot-read mirror.
 - Reconcile durable remote lease state on helper start via a management command before gunicorn boots, so cold-cache restarts do not wait for a teacher page refresh to normalize expired or degraded leases.
-- Expose a teacher-facing JSON/CSV remote-helper snapshot export from `/teach/class/<id>` so staff can preserve the current lease/accounting state outside the live dashboard card.
+- Expose a superuser-only JSON/CSV remote-helper snapshot export from `/teach/class/<id>` so operators can preserve the current lease/accounting state outside the live dashboard card.
 - Derive a low-noise operator trend summary from that class evidence so `/teach/class/<id>` and snapshot exports can flag waste, fallback rate, provider reachability, and slow warm-up without requiring raw log reads.
 - Expose one aggregate helper-owned operator snapshot so `/teach/data-lifespan` can show active lease posture and recent class trend rows without making the LMS reach into helper tables directly.
 - Keep lightweight operator accounting for the remote path:
@@ -523,7 +523,7 @@ Execution ownership and gates:
 **Current decision:**
 - Add first-class `Organization` and `OrganizationMembership` models in ClassHub.
 - `Class.organization` is optional during rollout so existing data can migrate safely.
-- Staff role choices are `owner`, `admin`, `teacher`, `viewer`.
+- Staff role values are `owner`, `admin`, `teacher`, `viewer`; the UI labels owner/admin as `Class-scoped owner` and `Class-scoped admin` because organization membership and policy management remain superuser-only.
 - Superusers can manage organizations and org memberships directly in the teacher portal (`/teach`) without using Django admin.
 - Teacher portal class visibility now uses org memberships when present:
   - superusers keep full visibility.
@@ -1018,6 +1018,8 @@ Execution ownership and gates:
 - On lesson and handout routes, treat both the reading-level label/value pair and the first action label (`Start here` / `Do this now`) as explicit localization seams and keep them covered by rendered-route tests.
 - Use authored/simple copy variants in templates and views instead of runtime rewriting.
 - Preserve the same storage, deletion, and retention semantics across reading levels; only the wording changes.
+- Keep the explicit warning against uploading medical records, government IDs, passwords, and financial information visible at every privacy-page reading level.
+- Ship reviewed Spanish and Somali warning copy; keep the detailed S'gaw Karen warning sentence as an exact English fallback until a proficient speaker reviews localized safety wording.
 
 **Why this remains active:**
 - Trust and join flows are where reading complexity most directly blocks classroom access.
@@ -4503,3 +4505,26 @@ Execution ownership and gates:
 - Strict return-code rejoin correctly rejects a fixed smoke display name from a new cookie jar, but deployment smoke must remain repeatable.
 - Reusing the dedicated identity avoids accumulating a new student record on every release and avoids persisting its return code in `compose/.env` or logs.
 - The root redirect preserves the established operator-facing Memory Engine entrypoint while `/healthz` and application routes continue through the same constrained upstream.
+
+## Multiline template copy uses block translation tags (2026-07-22)
+
+**Current decision:**
+- Keep short `{% trans %}` tags on one physical template line.
+- Use `{% blocktrans trimmed %}` for longer copy that needs source formatting across lines.
+- Assert that the rendered teacher setup response never exposes literal translation-tag syntax, and keep compiled Spanish, Somali, and S'gaw Karen catalogs synchronized with the source strings.
+
+**Why this remains active:**
+- Django does not interpret a `{% trans %}` token split across template lines, which can expose raw template syntax in staff-facing pages and screenshot evidence.
+- A response-level regression covers both visible summaries and controls hidden inside collapsed setup sections.
+
+## Audit medium findings use existing boundaries before new machinery (2026-07-22)
+
+**Current decision:**
+- Apply the configured outcome window once to the snapshot queryset; keep certificate eligibility as a separate lifetime rollup.
+- Import Django-backed coursepack registry code only inside SDK commands that use it, so plain validation stays dependency-light.
+- Reuse existing locale-catalog trust copy and translated reading-level labels instead of inventing translations. Newly added disclosure text still requires reviewed locale variants before claiming complete translation coverage.
+- Refresh public captures `14` through `19` against the current UI with synthetic records, mirror them into the docs gallery, and verify screenshot hashes.
+- Require a real reviewer/date/checklist receipt in `COURSE_PUBLICATION_REVIEWS.md` for promoted coursepacks; automated validation is not a substitute.
+
+**Why this remains active:**
+- These are smaller, testable boundaries than parallel counting, registry, translation, screenshot, or review systems.

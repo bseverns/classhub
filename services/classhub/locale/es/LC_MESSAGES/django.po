@@ -2083,6 +2083,10 @@ msgstr "Diseñamos esta plataforma para recopilar lo menos posible sobre ti."
 msgid "Don't upload sensitive documents"
 msgstr "No subas documentos confidenciales"
 
+#: services/classhub/templates/privacy.html:52
+msgid "Never upload medical records, government IDs, passwords, or financial information. We do not require this information for class."
+msgstr "Nunca subas expedientes médicos, identificaciones gubernamentales, contraseñas ni información financiera. No necesitamos esta información para la clase."
+
 #: services/classhub/templates/privacy.html:60
 msgid "2. How to export or delete your work"
 msgstr "2. Cómo exportar o eliminar tu trabajo"
@@ -3866,13 +3870,15 @@ msgstr "Abrir auditoría de importación del registro para esta clase"
 #~ msgid "Toggle lock"
 #~ msgstr "Cambiar bloqueo"
 
-#~ msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
-#~ msgstr ""
-#~ "Crea archivos iniciales `.md` y `.docx` ya formateados para maestros."
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:264
+msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
+msgstr ""
+"Crea archivos iniciales `.md` y `.docx` ya formateados para maestros."
 
-#~ msgid ""
-#~ "Admin/superuser backup and catalog downloads for repo-authored course "
-#~ "syllabi."
-#~ msgstr ""
-#~ "Descargas de respaldo y catálogo para administradores o superusuarios de "
-#~ "programas de curso escritos en el repositorio."
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:329
+msgid ""
+"Admin/superuser backup and catalog downloads for repo-authored course "
+"syllabi."
+msgstr ""
+"Descargas de respaldo y catálogo para administradores o superusuarios de "
+"programas de curso escritos en el repositorio."

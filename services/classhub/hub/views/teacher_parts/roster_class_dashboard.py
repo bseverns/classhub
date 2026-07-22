@@ -95,7 +95,7 @@ def teach_class_dashboard(request, class_id: int):
     can_manage_classroom = bool(staff_can_manage_classroom(request.user, classroom))
     can_manage_roster = bool(staff_can_manage_roster(request.user, classroom))
     can_manage_policy = bool(staff_can_manage_policy(request.user, classroom))
-    can_manage_remote_compute = can_manage_policy
+    can_manage_remote_compute = bool(request.user.is_superuser)
     get_token(request)
 
     response = render(
