@@ -1018,6 +1018,8 @@ Execution ownership and gates:
 - On lesson and handout routes, treat both the reading-level label/value pair and the first action label (`Start here` / `Do this now`) as explicit localization seams and keep them covered by rendered-route tests.
 - Use authored/simple copy variants in templates and views instead of runtime rewriting.
 - Preserve the same storage, deletion, and retention semantics across reading levels; only the wording changes.
+- Keep the explicit warning against uploading medical records, government IDs, passwords, and financial information visible at every privacy-page reading level.
+- Ship reviewed Spanish and Somali warning copy; keep the detailed S'gaw Karen warning sentence as an exact English fallback until a proficient speaker reviews localized safety wording.
 
 **Why this remains active:**
 - Trust and join flows are where reading complexity most directly blocks classroom access.

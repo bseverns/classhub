@@ -2083,6 +2083,10 @@ msgstr "Diseñamos esta plataforma para recopilar lo menos posible sobre ti."
 msgid "Don't upload sensitive documents"
 msgstr "No subas documentos confidenciales"
 
+#: services/classhub/templates/privacy.html:52
+msgid "Never upload medical records, government IDs, passwords, or financial information. We do not require this information for class."
+msgstr "Nunca subas expedientes médicos, identificaciones gubernamentales, contraseñas ni información financiera. No necesitamos esta información para la clase."
+
 #: services/classhub/templates/privacy.html:60
 msgid "2. How to export or delete your work"
 msgstr "2. Cómo exportar o eliminar tu trabajo"

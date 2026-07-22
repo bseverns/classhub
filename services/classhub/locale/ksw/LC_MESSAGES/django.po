@@ -2041,6 +2041,10 @@ msgstr "ပမၤကတီၤ platform အံၤ ဒ်သိးကပာ်ဖ�
 msgid "Don't upload sensitive documents"
 msgstr "တ upload sensitive document တဂ့ၤ"
 
+#: services/classhub/templates/privacy.html:52
+msgid "Never upload medical records, government IDs, passwords, or financial information. We do not require this information for class."
+msgstr ""
+
 #: services/classhub/templates/privacy.html:60
 msgid "2. How to export or delete your work"
 msgstr "2. ထုးထီၣ် မ့တမ့ၢ် ဖျီၣ်ကွံာ် နတၢ်မၤ ဒ်လဲၣ်"

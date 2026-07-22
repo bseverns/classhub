@@ -650,19 +650,41 @@ Draw, test, and explain one loop.
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "တၢ်လၢပသိမ်းဆည်း / တၢ်လၢပတသိမ်းဆည်းနီတဘျီဘၣ်")
 
-    def _assert_standard_privacy_i18n(self, *, language, expected_level, expected_data_copy):
+    def _assert_standard_privacy_i18n(
+        self,
+        *,
+        language,
+        expected_level,
+        expected_data_copy,
+        expected_warning_heading,
+        expected_warning_copy,
+    ):
         resp = self.client.get("/privacy?reading_level=standard", HTTP_ACCEPT_LANGUAGE=language)
 
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, expected_level)
         self.assertContains(resp, expected_data_copy)
+        self.assertContains(resp, expected_warning_heading)
+        self.assertContains(resp, expected_warning_copy)
         self.assertNotContains(resp, "No Accounts:")
+
+    def test_privacy_page_retains_sensitive_document_warning(self):
+        resp = self.client.get("/privacy?reading_level=standard")
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Don't upload sensitive documents")
+        self.assertContains(resp, "medical records")
+        self.assertContains(resp, "government IDs")
+        self.assertContains(resp, "passwords")
+        self.assertContains(resp, "financial information")
 
     def test_standard_privacy_page_spanish_uses_existing_translated_copy(self):
         self._assert_standard_privacy_i18n(
             language="es",
             expected_level="Nivel de lectura: Estándar",
             expected_data_copy="Guardamos tu nombre para mostrar de la clase para que tu maestro pueda identificar tu trabajo.",
+            expected_warning_heading="No subas documentos confidenciales",
+            expected_warning_copy="Nunca subas expedientes médicos, identificaciones gubernamentales, contraseñas ni información financiera.",
         )
 
     def test_standard_privacy_page_somali_uses_existing_translated_copy(self):
@@ -670,6 +692,8 @@ Draw, test, and explain one loop.
             language="so",
             expected_level="Heerka akhriska: Caadi",
             expected_data_copy="Waxaan kaydinnaa magacaaga muuqda ee fasalka si macallinkaagu u garto shaqadaada.",
+            expected_warning_heading="Ha soo gelin dukumiintiyo xasaasi ah",
+            expected_warning_copy="Waligaa ha soo gelin diiwaanno caafimaad, aqoonsiyo dowladeed, furaha sirta ah, ama macluumaad maaliyadeed.",
         )
 
     def test_standard_privacy_page_sgaw_karen_uses_existing_translated_copy(self):
@@ -677,4 +701,6 @@ Draw, test, and explain one loop.
             language="ksw",
             expected_level="တၢ်ဖးအပတီၢ်: ပတီၢ်ညီ",
             expected_data_copy="ပသိမ်းဆည်း နတီၤအ display name ဒ်သိး နဆရာ/မ ကသ့ၣ်ညါ နတၢ်မၤ.",
+            expected_warning_heading="တ upload sensitive document တဂ့ၤ",
+            expected_warning_copy="Never upload medical records, government IDs, passwords, or financial information.",
         )
