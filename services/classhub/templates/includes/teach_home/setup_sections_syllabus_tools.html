@@ -26,12 +26,9 @@
           <div>
             <label for="import-default-ui-level">{% trans "Default UI level" %}</label>
             <select id="import-default-ui-level" name="import_default_ui_level">
-              <option value="elementary" {% if import_default_ui_level == "elementary" %}selected{% endif %}>{% trans
-                "elementary" %}</option>
-              <option value="secondary" {% if import_default_ui_level == "secondary" %}selected{% endif %}>{% trans
-                "secondary" %}</option>
-              <option value="advanced" {% if import_default_ui_level == "advanced" %}selected{% endif %}>{% trans
-                "advanced" %}</option>
+              <option value="elementary" {% if import_default_ui_level == "elementary" %}selected{% endif %}>{% trans "elementary" %}</option>
+              <option value="secondary" {% if import_default_ui_level == "secondary" %}selected{% endif %}>{% trans "secondary" %}</option>
+              <option value="advanced" {% if import_default_ui_level == "advanced" %}selected{% endif %}>{% trans "advanced" %}</option>
             </select>
           </div>
           <div>
@@ -39,10 +36,8 @@
             <select id="import-session-parse-mode" name="import_session_parse_mode">
               <option value="auto" {% if import_session_parse_mode == "auto" %}selected{% endif %}>{% trans "auto" %}
               </option>
-              <option value="template" {% if import_session_parse_mode == "template" %}selected{% endif %}>{% trans
-                "template" %}</option>
-              <option value="verbose" {% if import_session_parse_mode == "verbose" %}selected{% endif %}>{% trans
-                "verbose" %}</option>
+              <option value="template" {% if import_session_parse_mode == "template" %}selected{% endif %}>{% trans "template" %}</option>
+              <option value="verbose" {% if import_session_parse_mode == "verbose" %}selected{% endif %}>{% trans "verbose" %}</option>
             </select>
           </div>
           <div>
@@ -266,8 +261,9 @@
     <summary class="support-summary">
       <span class="support-summary-text">
         <span class="support-summary-title">{% trans "Generate Course Authoring Templates" %}</span>
-        <span class="support-summary-note muted">{% trans "Create pre-formatted `.md` and `.docx` starter files for
-          teachers." %}</span>
+        <span class="support-summary-note muted">{% blocktrans trimmed %}
+          Create pre-formatted `.md` and `.docx` starter files for teachers.
+        {% endblocktrans %}</span>
       </span>
     </summary>
     <div class="support-collapsible-body">
@@ -330,8 +326,9 @@
     <summary class="support-summary">
       <span class="support-summary-text">
         <span class="support-summary-title">{% trans "Syllabus Exports" %}</span>
-        <span class="support-summary-note muted">{% trans "Admin/superuser backup and catalog downloads for
-          repo-authored course syllabi." %}</span>
+        <span class="support-summary-note muted">{% blocktrans trimmed %}
+          Admin/superuser backup and catalog downloads for repo-authored course syllabi.
+        {% endblocktrans %}</span>
       </span>
     </summary>
     <div class="support-collapsible-body">

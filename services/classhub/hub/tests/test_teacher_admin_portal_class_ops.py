@@ -105,6 +105,36 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertNotContains(resp, "Classroom focus")
         self.assertNotContains(resp, "Recent submissions")
 
+    def test_teach_home_setup_mode_does_not_leak_translation_tags(self):
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach?portal_mode=setup")
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(
+            resp,
+            "Create pre-formatted `.md` and `.docx` starter files for teachers.",
+        )
+        self.assertContains(
+            resp,
+            "Admin/superuser backup and catalog downloads for repo-authored course syllabi.",
+        )
+        self.assertNotContains(resp, "{% trans", html=False)
+
+        spanish_resp = self.client.get(
+            "/teach?portal_mode=setup",
+            HTTP_ACCEPT_LANGUAGE="es",
+        )
+        self.assertContains(
+            spanish_resp,
+            "Crea archivos iniciales `.md` y `.docx` ya formateados para maestros.",
+        )
+        self.assertContains(
+            spanish_resp,
+            "Descargas de respaldo y catálogo para administradores o superusuarios",
+        )
+        self.assertNotContains(spanish_resp, "{% trans", html=False)
+
     def test_teach_home_setup_mode_surfaces_class_workspace_seed_fields(self):
         _force_login_staff_verified(self.client, self.staff)
 

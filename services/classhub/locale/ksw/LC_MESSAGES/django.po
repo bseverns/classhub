@@ -3784,12 +3784,14 @@ msgstr "ကးလီၤဖျါ registry import audit လၢတီၤအံၤ�
 #~ msgid "Toggle lock"
 #~ msgstr "ထိၣ်ဃာ်ကဒီး lock"
 
-#~ msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
-#~ msgstr "တ့ထီၣ် `.md` ဒီး `.docx` starter file လၢတၢ်ကတဲာ်ကတီၤပာ်စၢၤအီၤလံ လၢဆရာ/မတဖၣ်အဂီၢ်."
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:264
+msgid "Create pre-formatted `.md` and `.docx` starter files for teachers."
+msgstr "တ့ထီၣ် `.md` ဒီး `.docx` starter file လၢတၢ်ကတဲာ်ကတီၤပာ်စၢၤအီၤလံ လၢဆရာ/မတဖၣ်အဂီၢ်."
 
-#~ msgid ""
-#~ "Admin/superuser backup and catalog downloads for repo-authored course "
-#~ "syllabi."
-#~ msgstr ""
-#~ "admin/superuser backup ဒီး catalog download တဖၣ် လၢ repo-authored course "
-#~ "syllabus တဖၣ်အဂီၢ်."
+#: services/classhub/templates/includes/teach_home/setup_sections_syllabus_tools.html:329
+msgid ""
+"Admin/superuser backup and catalog downloads for repo-authored course "
+"syllabi."
+msgstr ""
+"admin/superuser backup ဒီး catalog download တဖၣ် လၢ repo-authored course "
+"syllabus တဖၣ်အဂီၢ်."

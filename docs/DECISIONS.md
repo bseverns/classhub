@@ -4504,6 +4504,17 @@ Execution ownership and gates:
 - Reusing the dedicated identity avoids accumulating a new student record on every release and avoids persisting its return code in `compose/.env` or logs.
 - The root redirect preserves the established operator-facing Memory Engine entrypoint while `/healthz` and application routes continue through the same constrained upstream.
 
+## Multiline template copy uses block translation tags (2026-07-22)
+
+**Current decision:**
+- Keep short `{% trans %}` tags on one physical template line.
+- Use `{% blocktrans trimmed %}` for longer copy that needs source formatting across lines.
+- Assert that the rendered teacher setup response never exposes literal translation-tag syntax, and keep compiled Spanish, Somali, and S'gaw Karen catalogs synchronized with the source strings.
+
+**Why this remains active:**
+- Django does not interpret a `{% trans %}` token split across template lines, which can expose raw template syntax in staff-facing pages and screenshot evidence.
+- A response-level regression covers both visible summaries and controls hidden inside collapsed setup sections.
+
 ## Audit medium findings use existing boundaries before new machinery (2026-07-22)
 
 **Current decision:**
