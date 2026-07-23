@@ -47,6 +47,7 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - Guided one-command bootstrap script (`scripts/quickstart_stack.sh`) for low-friction setup: env init + secret seeding + compose up + migrations + optional admin/demo/doctor steps.
 
 ### Fixed
+- Production `make smoke-full` now preserves the co-hosted Memory Engine `public_edge` attachment, and repeat golden invite checks reuse their fixture return code.
 - Student "Delete my work" (`/student/delete-work`) crashed with 500 because `StudentEvent.delete()` was called without the required `allow_retention_delete()` context manager.
 - Media isolation URL matching now handles trailing slashes in teacher-entered lesson URLs.
 - API heartbeat (`last_seen_at`) throttled to once per 60 seconds to prevent DB churn from polling.

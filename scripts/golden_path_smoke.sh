@@ -437,6 +437,7 @@ TMP_JOIN_BODY="$(mktemp)"
 TMP_CSV_BODY="$(mktemp)"
 INVITE_CLASS_ID=""
 INVITE_ORIGINAL_ENROLLMENT_MODE=""
+INVITE_DISPLAY_NAME="Invite Smoke Student"
 cleanup_golden_smoke() {
   rm -f "${TMP_COOKIE_JAR}" "${TMP_JOIN_BODY}" "${TMP_CSV_BODY}"
   if [[ -n "${INVITE_CLASS_ID}" && -n "${INVITE_ORIGINAL_ENROLLMENT_MODE}" ]]; then
@@ -482,7 +483,22 @@ JOIN_BLOCK_CODE="$(
 grep -Eq '"error"[[:space:]]*:[[:space:]]*"invite_required"' "${TMP_JOIN_BODY}" \
   || fail "expected invite_required error in invite-only mode: $(cat "${TMP_JOIN_BODY}")"
 
-INVITE_JOIN_PAYLOAD="$(printf '{"display_name":"Invite Smoke Student","invite_token":"%s"}' "${INVITE_TOKEN}")"
+SMOKE_INVITE_RETURN_CODE_FOR_GOLDEN="$(
+  run_compose exec -T \
+    -e SMOKE_CLASS_ID="${CLASS_ID}" \
+    -e SMOKE_DISPLAY_NAME="${INVITE_DISPLAY_NAME}" \
+    classhub_web \
+    python manage.py shell -c \
+    "import os; from hub.models import StudentIdentity; student = StudentIdentity.objects.filter(classroom_id=int(os.environ['SMOKE_CLASS_ID']), display_name__iexact=os.environ['SMOKE_DISPLAY_NAME'].strip()).order_by('id').first(); print(f'FOUND:{student.return_code}' if student else 'MISSING')"
+)"
+SMOKE_INVITE_RETURN_CODE_FOR_GOLDEN="$(echo "${SMOKE_INVITE_RETURN_CODE_FOR_GOLDEN}" | tr -d '\r' | tail -n1)"
+if [[ "${SMOKE_INVITE_RETURN_CODE_FOR_GOLDEN}" == FOUND:* ]]; then
+  SMOKE_INVITE_RETURN_CODE_FOR_GOLDEN="${SMOKE_INVITE_RETURN_CODE_FOR_GOLDEN#FOUND:}"
+  INVITE_JOIN_PAYLOAD="$(printf '{"display_name":"%s","invite_token":"%s","return_code":"%s"}' "${INVITE_DISPLAY_NAME}" "${INVITE_TOKEN}" "${SMOKE_INVITE_RETURN_CODE_FOR_GOLDEN}")"
+else
+  SMOKE_INVITE_RETURN_CODE_FOR_GOLDEN=""
+  INVITE_JOIN_PAYLOAD="$(printf '{"display_name":"%s","invite_token":"%s"}' "${INVITE_DISPLAY_NAME}" "${INVITE_TOKEN}")"
+fi
 INVITE_JOIN_CODE="$(
   curl "${CURL_FLAGS[@]}" -o "${TMP_JOIN_BODY}" -w "%{http_code}" \
     -c "${TMP_COOKIE_JAR}" -b "${TMP_COOKIE_JAR}" \

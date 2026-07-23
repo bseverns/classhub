@@ -4487,6 +4487,7 @@ Execution ownership and gates:
 - Attach only the two proxy containers to that network; keep both applications, databases, caches, and object stores on their private Compose networks.
 - Use tracked opt-in Compose overlays and a constrained Caddy fragment rather than production-only edits.
 - Require the stable `memory_engine_proxy:80` upstream and verify DNS plus `/healthz` from `classhub_caddy` during deployment.
+- Make `system_doctor.sh` select the same public-edge overlay whenever the Memory Engine proxy fragment is active, so `make smoke-full` cannot recreate Caddy without its co-hosted-service network.
 
 **Why this remains active:**
 - Nested public TLS proxies complicate certificate ownership and can introduce redirect loops.
@@ -4498,6 +4499,7 @@ Execution ownership and gates:
 **Current decision:**
 - Let `smoke_check.sh` accept a process-scoped `SMOKE_RETURN_CODE` without adding that value to operator env examples.
 - Resolve the existing smoke identity's return code inside the trusted ClassHub container during strict and golden deployment workflows.
+- Apply the same lookup to the invite-only golden-smoke identity, preserving a no-code first join while making later runs authenticate the existing fixture instead of failing or creating duplicates.
 - Keep first-run behavior unchanged: when no matching identity exists, smoke creates it through the normal public join flow.
 - Redirect the co-hosted Memory Engine bare hostname to `/kiosk/` at the public ClassHub Caddy edge.
 
