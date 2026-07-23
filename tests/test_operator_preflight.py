@@ -385,8 +385,18 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertIn("http://memory_engine_proxy/healthz", deploy_text)
         self.assertIn('env_file_value CADDY_PROXY_CONFIG_TEMPLATE', golden_smoke_text)
         self.assertIn('COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")', golden_smoke_text)
-        self.assertIn('env_file_value CADDY_PROXY_CONFIG_TEMPLATE', system_doctor_text)
+        self.assertNotIn(
+            '"$(env_file_value CADDY_PROXY_CONFIG_TEMPLATE)',
+            system_doctor_text,
+        )
+        self.assertIn(
+            'compose_env_file_value CADDY_PROXY_CONFIG_TEMPLATE "${ENV_FILE}"',
+            system_doctor_text,
+        )
         self.assertIn('COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")', system_doctor_text)
+        self.assertIn('index .NetworkSettings.Networks "public_edge"', system_doctor_text)
+        self.assertIn("getent hosts memory_engine_proxy", system_doctor_text)
+        self.assertIn('"http://${MEMORY_ENGINE_UPSTREAM}/healthz"', system_doctor_text)
         self.assertIn("SMOKE_RETURN_CODE_FOR_DEPLOY", deploy_text)
         self.assertIn("SMOKE_RETURN_CODE_FOR_GOLDEN", golden_smoke_text)
         self.assertIn("SMOKE_INVITE_RETURN_CODE_FOR_GOLDEN", golden_smoke_text)
@@ -397,6 +407,29 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertIn('"return_code":"%s"', golden_smoke_text)
         self.assertIn('RETURN_CODE="${SMOKE_RETURN_CODE:-}"', smoke_text)
         self.assertIn('"return_code":"%s"', smoke_text)
+
+    def test_compose_env_file_value_selects_memory_engine_proxy_fragment(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            env_path = Path(tmpdir) / ".env"
+            env_path.write_text(
+                "CADDY_PROXY_CONFIG_TEMPLATE=Caddyfile.proxy.memory-engine\n",
+                encoding="utf-8",
+            )
+            command = (
+                "CADDY_PROXY_CONFIG_TEMPLATE=Caddyfile.proxy.empty; "
+                f'source "{REPO_ROOT / "scripts" / "lib" / "compose_env.sh"}"; '
+                f'compose_env_file_value CADDY_PROXY_CONFIG_TEMPLATE "{env_path}"'
+            )
+            result = subprocess.run(
+                ["bash", "-c", command],
+                cwd=REPO_ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.strip(), "Caddyfile.proxy.memory-engine")
 
     def test_domain_mode_rejects_non_public_hostname(self) -> None:
         result = run_preflight(

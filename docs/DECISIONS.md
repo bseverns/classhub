@@ -4487,12 +4487,14 @@ Execution ownership and gates:
 - Attach only the two proxy containers to that network; keep both applications, databases, caches, and object stores on their private Compose networks.
 - Use tracked opt-in Compose overlays and a constrained Caddy fragment rather than production-only edits.
 - Require the stable `memory_engine_proxy:80` upstream and verify DNS plus `/healthz` from `classhub_caddy` during deployment.
-- Make `system_doctor.sh` select the same public-edge overlay whenever the Memory Engine proxy fragment is active, so `make smoke-full` cannot recreate Caddy without its co-hosted-service network.
+- Make `system_doctor.sh` read the proxy selector, domain, and upstream from `compose/.env` through a file-only shared helper, matching preflight validation and Caddy's `env_file` source rather than accepting process overrides for routing.
+- After bringing up the stack, require the doctor to verify Caddy's `public_edge` attachment, Docker DNS resolution, and the Memory Engine proxy `/healthz` response before smoke checks continue.
 
 **Why this remains active:**
 - Nested public TLS proxies complicate certificate ownership and can introduce redirect loops.
 - Proxying through Memory Engine's Caddy layer preserves its request-body limit and security headers without exposing its API directly.
 - An explicit shared edge allows the two stacks to remain independently deployable while making their production relationship inspectable and repeatable.
+- Runtime assertions keep a missing selector helper or future Compose drift from reporting a green smoke run after silently disconnecting the co-hosted service.
 
 ## Deployment smoke reuses its return-code identity (2026-07-21)
 

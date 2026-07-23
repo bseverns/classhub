@@ -157,11 +157,17 @@ else
   exit 1
 fi
 
-if [[ "$(env_file_value CADDY_PROXY_CONFIG_TEMPLATE)" == "Caddyfile.proxy.memory-engine" ]]; then
+MEMORY_ENGINE_PROXY_ENABLED=0
+MEMORY_ENGINE_DOMAIN=""
+MEMORY_ENGINE_UPSTREAM=""
+if [[ "$(compose_env_file_value CADDY_PROXY_CONFIG_TEMPLATE "${ENV_FILE}")" == "Caddyfile.proxy.memory-engine" ]]; then
   if [[ ! -f "${PUBLIC_EDGE_COMPOSE_FILE}" ]]; then
     echo "[doctor] missing public-edge compose overlay: ${PUBLIC_EDGE_COMPOSE_FILE}" >&2
     exit 1
   fi
+  MEMORY_ENGINE_PROXY_ENABLED=1
+  MEMORY_ENGINE_DOMAIN="$(compose_env_file_value CADDY_MEMORY_ENGINE_DOMAIN "${ENV_FILE}")"
+  MEMORY_ENGINE_UPSTREAM="$(compose_env_file_value CADDY_MEMORY_ENGINE_UPSTREAM "${ENV_FILE}")"
   COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")
 fi
 
@@ -272,6 +278,27 @@ wait_for_container_state classhub_redis healthy
 wait_for_container_state classhub_web healthy
 wait_for_container_state helper_web healthy
 wait_for_container_state classhub_caddy running
+if [[ "${MEMORY_ENGINE_PROXY_ENABLED}" == "1" ]]; then
+  CADDY_ON_PUBLIC_EDGE="$(docker inspect classhub_caddy --format '{{if index .NetworkSettings.Networks "public_edge"}}true{{end}}' 2>/dev/null || true)"
+  if [[ "${CADDY_ON_PUBLIC_EDGE}" != "true" ]]; then
+    echo "[doctor] classhub_caddy is not attached to public_edge" >&2
+    print_compose_diagnostics
+    exit 1
+  fi
+  if ! docker exec classhub_caddy getent hosts memory_engine_proxy >/dev/null; then
+    echo "[doctor] memory_engine_proxy does not resolve from classhub_caddy" >&2
+    print_compose_diagnostics
+    exit 1
+  fi
+  if ! docker exec classhub_caddy wget -qO- \
+      --header="Host: ${MEMORY_ENGINE_DOMAIN}" \
+      "http://${MEMORY_ENGINE_UPSTREAM}/healthz" >/dev/null; then
+    echo "[doctor] Memory Engine proxy health check failed across public_edge" >&2
+    print_compose_diagnostics
+    exit 1
+  fi
+  echo "[doctor] Memory Engine public-edge topology OK"
+fi
 if llm_uses_local_ollama_compose "${ENV_FILE}"; then
   wait_for_container_state classhub_ollama healthy
   bash "${ENSURE_LOCAL_OLLAMA_MODEL}" --compose-mode "${COMPOSE_MODE}"

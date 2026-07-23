@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-compose_env_value() {
+compose_env_file_value() {
   local key="$1"
   local env_file="$2"
-  local explicit="${!key-}"
-  if [[ -n "${explicit}" ]]; then
-    echo "${explicit}"
-    return 0
-  fi
   if [[ ! -f "${env_file}" ]]; then
     echo ""
     return 0
@@ -19,6 +14,17 @@ compose_env_value() {
   raw="${raw%\'}"
   raw="${raw#\'}"
   echo "${raw}"
+}
+
+compose_env_value() {
+  local key="$1"
+  local env_file="$2"
+  local explicit="${!key-}"
+  if [[ -n "${explicit}" ]]; then
+    echo "${explicit}"
+    return 0
+  fi
+  compose_env_file_value "${key}" "${env_file}"
 }
 
 _compose_env_url_host() {
