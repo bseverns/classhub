@@ -13,6 +13,7 @@ COMPOSE_ENV_LIB="${ROOT_DIR}/scripts/lib/compose_env.sh"
 SMOKE_CHECK="${ROOT_DIR}/scripts/smoke_check.sh"
 GOLDEN_SMOKE="${ROOT_DIR}/scripts/golden_path_smoke.sh"
 ENV_FILE="${ROOT_DIR}/compose/.env"
+PUBLIC_EDGE_COMPOSE_FILE="${ROOT_DIR}/compose/docker-compose.public-edge.yml"
 
 COMPOSE_MODE="${COMPOSE_MODE:-prod}" # prod or dev
 BRING_UP=1
@@ -154,6 +155,14 @@ elif [[ "${COMPOSE_MODE}" == "dev" ]]; then
 else
   echo "[doctor] invalid --compose-mode '${COMPOSE_MODE}' (expected prod|dev)" >&2
   exit 1
+fi
+
+if [[ "$(env_file_value CADDY_PROXY_CONFIG_TEMPLATE)" == "Caddyfile.proxy.memory-engine" ]]; then
+  if [[ ! -f "${PUBLIC_EDGE_COMPOSE_FILE}" ]]; then
+    echo "[doctor] missing public-edge compose overlay: ${PUBLIC_EDGE_COMPOSE_FILE}" >&2
+    exit 1
+  fi
+  COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")
 fi
 
 if llm_uses_local_ollama_compose "${ENV_FILE}"; then
