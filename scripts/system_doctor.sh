@@ -159,13 +159,15 @@ fi
 
 MEMORY_ENGINE_PROXY_ENABLED=0
 MEMORY_ENGINE_DOMAIN=""
-if [[ "$(compose_env_value CADDY_PROXY_CONFIG_TEMPLATE "${ENV_FILE}")" == "Caddyfile.proxy.memory-engine" ]]; then
+MEMORY_ENGINE_UPSTREAM=""
+if [[ "$(compose_env_file_value CADDY_PROXY_CONFIG_TEMPLATE "${ENV_FILE}")" == "Caddyfile.proxy.memory-engine" ]]; then
   if [[ ! -f "${PUBLIC_EDGE_COMPOSE_FILE}" ]]; then
     echo "[doctor] missing public-edge compose overlay: ${PUBLIC_EDGE_COMPOSE_FILE}" >&2
     exit 1
   fi
   MEMORY_ENGINE_PROXY_ENABLED=1
-  MEMORY_ENGINE_DOMAIN="$(compose_env_value CADDY_MEMORY_ENGINE_DOMAIN "${ENV_FILE}")"
+  MEMORY_ENGINE_DOMAIN="$(compose_env_file_value CADDY_MEMORY_ENGINE_DOMAIN "${ENV_FILE}")"
+  MEMORY_ENGINE_UPSTREAM="$(compose_env_file_value CADDY_MEMORY_ENGINE_UPSTREAM "${ENV_FILE}")"
   COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")
 fi
 
@@ -290,7 +292,7 @@ if [[ "${MEMORY_ENGINE_PROXY_ENABLED}" == "1" ]]; then
   fi
   if ! docker exec classhub_caddy wget -qO- \
       --header="Host: ${MEMORY_ENGINE_DOMAIN}" \
-      http://memory_engine_proxy/healthz >/dev/null; then
+      "http://${MEMORY_ENGINE_UPSTREAM}/healthz" >/dev/null; then
     echo "[doctor] Memory Engine proxy health check failed across public_edge" >&2
     print_compose_diagnostics
     exit 1

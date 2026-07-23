@@ -385,15 +385,18 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertIn("http://memory_engine_proxy/healthz", deploy_text)
         self.assertIn('env_file_value CADDY_PROXY_CONFIG_TEMPLATE', golden_smoke_text)
         self.assertIn('COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")', golden_smoke_text)
-        self.assertNotIn('env_file_value CADDY_PROXY_CONFIG_TEMPLATE', system_doctor_text)
+        self.assertNotIn(
+            '"$(env_file_value CADDY_PROXY_CONFIG_TEMPLATE)',
+            system_doctor_text,
+        )
         self.assertIn(
-            'compose_env_value CADDY_PROXY_CONFIG_TEMPLATE "${ENV_FILE}"',
+            'compose_env_file_value CADDY_PROXY_CONFIG_TEMPLATE "${ENV_FILE}"',
             system_doctor_text,
         )
         self.assertIn('COMPOSE_ARGS+=(-f "${PUBLIC_EDGE_COMPOSE_FILE}")', system_doctor_text)
         self.assertIn('index .NetworkSettings.Networks "public_edge"', system_doctor_text)
         self.assertIn("getent hosts memory_engine_proxy", system_doctor_text)
-        self.assertIn("http://memory_engine_proxy/healthz", system_doctor_text)
+        self.assertIn('"http://${MEMORY_ENGINE_UPSTREAM}/healthz"', system_doctor_text)
         self.assertIn("SMOKE_RETURN_CODE_FOR_DEPLOY", deploy_text)
         self.assertIn("SMOKE_RETURN_CODE_FOR_GOLDEN", golden_smoke_text)
         self.assertIn("SMOKE_INVITE_RETURN_CODE_FOR_GOLDEN", golden_smoke_text)
@@ -405,7 +408,7 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertIn('RETURN_CODE="${SMOKE_RETURN_CODE:-}"', smoke_text)
         self.assertIn('"return_code":"%s"', smoke_text)
 
-    def test_compose_env_value_selects_memory_engine_proxy_fragment(self) -> None:
+    def test_compose_env_file_value_selects_memory_engine_proxy_fragment(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             env_path = Path(tmpdir) / ".env"
             env_path.write_text(
@@ -413,8 +416,9 @@ class OperatorPreflightTests(unittest.TestCase):
                 encoding="utf-8",
             )
             command = (
+                "CADDY_PROXY_CONFIG_TEMPLATE=Caddyfile.proxy.empty; "
                 f'source "{REPO_ROOT / "scripts" / "lib" / "compose_env.sh"}"; '
-                f'compose_env_value CADDY_PROXY_CONFIG_TEMPLATE "{env_path}"'
+                f'compose_env_file_value CADDY_PROXY_CONFIG_TEMPLATE "{env_path}"'
             )
             result = subprocess.run(
                 ["bash", "-c", command],
