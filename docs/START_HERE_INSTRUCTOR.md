@@ -48,6 +48,7 @@ Learner-view captures:
 
 ## What to review next
 
+- Family-facing notice and opt-out/contact fields: [FAMILY_NOTICE.md](FAMILY_NOTICE.md)
 - Guided teacher docs path: [TEACHER_DOCS_JOURNEY.md](TEACHER_DOCS_JOURNEY.md)
 - Fast operational walkthrough: [RUN_A_CLASS_TOMORROW.md](RUN_A_CLASS_TOMORROW.md)
 - Class-local lesson editing without changing shared curriculum: [LESSON_OVERRIDES.md](LESSON_OVERRIDES.md)

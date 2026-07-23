@@ -104,6 +104,7 @@ nav:
       - RBAC Guide: RBAC_GUIDE.md
       - Endpoint Checklist: ENDPOINT_CHECKLIST.md
       - Privacy Addendum: PRIVACY-ADDENDUM.md
+      - Family Notice: FAMILY_NOTICE.md
       - Helper Policy: HELPER_POLICY.md
 
   - Engineering:
@@ -113,6 +114,7 @@ nav:
       - Facilitator CLI (hubctl): HUBCTL.md
       - Localization: LOCALIZATION.md
       - Somali Review Packet: LOCALIZATION_SO_REVIEW_PACKET.md
+      - v1.9 Language Review Packet: V1_9_LANGUAGE_REVIEW_PACKET.md
       - Coursepack Registry RFC (Historical): COURSEPACK_REGISTRY_RFC.md
       - Async Self-Paced RFC: ASYNC_SELF_PACED_RFC.md
       - Identity SSO Expansion Plan: IDENTITY_SSO_EXPANSION_PLAN.md

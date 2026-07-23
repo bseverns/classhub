@@ -1,10 +1,10 @@
 {% load hub_extras %}
         <div class="card">
           {% if notice %}
-            <p class="notice flash-banner">{{ notice }}</p>
+            <p class="notice flash-banner" role="status" aria-live="polite">{{ notice }}</p>
           {% endif %}
           {% if error %}
-            <p class="error flash-banner">{{ error }}</p>
+            <p class="error flash-banner" role="alert" aria-live="assertive">{{ error }}</p>
           {% endif %}
           {% include "includes/teach_class/class_setup_landing_section.html" %}
           {% include "includes/teach_class/class_setup_invites_section.html" %}

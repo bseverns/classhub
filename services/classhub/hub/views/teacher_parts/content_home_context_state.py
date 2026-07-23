@@ -1,5 +1,7 @@
 """State-reading helpers for teacher home context assembly."""
 
+from ...services.org_access import staff_accessible_classes_queryset
+
 
 def _read_profile_state(request, user):
     profile_first_name = (request.GET.get("profile_first_name") or "").strip()
@@ -57,7 +59,7 @@ def _read_portal_mode(
     advanced_tools_enabled: bool,
 ) -> str:
     requested = (request.GET.get("portal_mode") or "").strip().lower()
-    default_mode = "setup"
+    default_mode = "day" if staff_accessible_classes_queryset(user).exists() else "setup"
     allowed = {"day", "setup"}
     if user.is_superuser and advanced_tools_enabled:
         allowed.add("all")

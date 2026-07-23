@@ -4517,6 +4517,18 @@ Execution ownership and gates:
 - Django does not interpret a `{% trans %}` token split across template lines, which can expose raw template syntax in staff-facing pages and screenshot evidence.
 - A response-level regression covers both visible summaries and controls hidden inside collapsed setup sections.
 
+## v1.9 language-and-accessibility gate; v2 safety gate (2026-07-22)
+
+**Current decision:**
+- Treat F2, F3, F11, F12, F27, and F28 as the bounded v1.9 gate.
+- Keep F2 and F3 open until proficient human reviewers approve the S'gaw Karen safeguarding phrases/fixed response and substantive Spanish, Somali, and S'gaw Karen handout variants recorded in `V1_9_LANGUAGE_REVIEW_PACKET.md`.
+- Make the Family Notice discoverable, scan representative privacy/trust/admin/destructive surfaces at the serious accessibility threshold, default returning teachers to day-of-class mode, and announce class-dashboard notices/errors through native live-region semantics.
+- Position v2 as the later safety/governance release rather than expanding feature scope.
+
+**Why this remains active:**
+- The remaining v1.9 work is reviewed language, not a new translation system.
+- Safety-critical wording and institutional rehearsals need real people and evidence; generated copy or empty checklists do not close those gates.
+
 ## Audit medium findings use existing boundaries before new machinery (2026-07-22)
 
 **Current decision:**
