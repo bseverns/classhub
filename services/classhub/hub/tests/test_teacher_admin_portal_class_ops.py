@@ -78,6 +78,29 @@ class TeacherPortalClassOpsTests(TeacherPortalBaseTests):
         self.assertEqual(resp.status_code, 200)
         self.assertNotContains(resp, "Org-boundary warning: strict org membership mode is currently off.")
 
+    def test_teach_home_defaults_returning_teacher_with_class_to_day_mode(self):
+        self._build_lesson_with_submission()
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get("/teach")
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Classroom focus")
+        self.assertContains(resp, "Recent submissions")
+        self.assertNotContains(resp, "Compile Coursepack ZIP")
+
+    def test_teach_class_flash_messages_are_announced(self):
+        classroom, _upload = self._build_lesson_with_submission()
+        _force_login_staff_verified(self.client, self.staff)
+
+        resp = self.client.get(
+            f"/teach/class/{classroom.id}",
+            {"notice": "Class saved", "error": "Class update failed"},
+        )
+
+        self.assertContains(resp, '<p class="notice flash-banner" role="status" aria-live="polite">Class saved</p>', html=True)
+        self.assertContains(resp, '<p class="error flash-banner" role="alert" aria-live="assertive">Class update failed</p>', html=True)
+
     def test_teach_home_day_mode_hides_setup_and_admin_sections(self):
         self._build_lesson_with_submission()
         _force_login_staff_verified(self.client, self.staff)

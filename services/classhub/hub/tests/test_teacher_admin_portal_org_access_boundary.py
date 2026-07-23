@@ -31,7 +31,7 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
         self.assertNotContains(resp, "Beta Cohort")
 
     def test_teach_home_hides_syllabus_exports_for_teacher_role(self):
-        resp = self.client.get("/teach")
+        resp = self.client.get("/teach?portal_mode=setup")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Start Here Today")
         self.assertContains(resp, "Daily teaching workflows (tasks 1-8)")
@@ -40,13 +40,13 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
         self.assertNotContains(resp, "RBAC tools")
         self.assertNotContains(resp, "Operator config snapshot")
 
-    def test_non_superuser_invalid_portal_mode_falls_back_to_setup(self):
+    def test_non_superuser_invalid_portal_mode_falls_back_to_day_for_returning_teacher(self):
         resp = self.client.get("/teach?portal_mode=admin")
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Portal setup + account tools")
+        self.assertContains(resp, "Classroom focus")
         self.assertContains(resp, "Class setup")
         self.assertNotContains(resp, "All panels")
-        self.assertNotContains(resp, "Classroom focus")
+        self.assertNotContains(resp, "Portal setup + account tools")
         self.assertNotContains(resp, "Operator config snapshot")
         self.assertNotContains(resp, "Organizations + Staff Memberships")
 
@@ -59,7 +59,7 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
         membership.role = OrganizationMembership.ROLE_ADMIN
         membership.save(update_fields=["role"])
 
-        home_resp = self.client.get("/teach")
+        home_resp = self.client.get("/teach?portal_mode=setup")
         self.assertEqual(home_resp.status_code, 200)
         self.assertContains(home_resp, "Syllabus Exports")
         self.assertNotContains(home_resp, "RBAC tools")
@@ -121,7 +121,7 @@ class TeacherOrganizationBoundaryAccessTests(TestCase):
         self.assertNotContains(dashboard, f"/teach/class/{self.class_a.id}/resolve-delete-request")
         self.assertNotContains(dashboard, "/teach/lessons/release")
 
-        home = self.client.get("/teach")
+        home = self.client.get("/teach?portal_mode=setup")
         self.assertEqual(home.status_code, 200)
         self.assertContains(home, "Your organization role does not allow you to create a class.")
         self.assertNotContains(home, "You need an active organization membership before you can create a class.")

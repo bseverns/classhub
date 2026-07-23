@@ -96,6 +96,7 @@ Optional stricter mode:
 
 Human review packet (trust-critical strings):
 - [LOCALIZATION_SO_REVIEW_PACKET.md](LOCALIZATION_SO_REVIEW_PACKET.md)
+- [V1_9_LANGUAGE_REVIEW_PACKET.md](V1_9_LANGUAGE_REVIEW_PACKET.md) tracks the remaining S'gaw Karen safeguarding and substantive translated-handout review needed for F2/F3.
 
 ## Adding a language
 

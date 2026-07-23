@@ -56,4 +56,4 @@ jobs:
           bash scripts/a11y_smoke.sh \
             --compose-mode prod \
             --install-browsers \
-            --fail-impact critical
+            --fail-impact serious

@@ -20,8 +20,11 @@ const failImpactThreshold = impactRank[failImpactRaw] || impactRank.serious;
 
 const routes = [
   { name: "Student Join", path: "/", auth: "none" },
+  { name: "Privacy", path: "/privacy", auth: "none" },
+  { name: "Trust", path: "/trust", auth: "none" },
   { name: "Teacher Home", path: "/teach", auth: "teacher" },
   { name: "Teacher Lessons", path: "/teach/lessons", auth: "teacher" },
+  { name: "Django Admin Login", path: "/admin/login/", auth: "none" },
   { name: "Student Home + Helper Widget", path: "/student", auth: "student" },
   { name: "My Data", path: "/student/my-data", auth: "student" },
   { name: "Portfolio", path: "/student/portfolio", auth: "student" },
