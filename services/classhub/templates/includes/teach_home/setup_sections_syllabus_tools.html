@@ -184,7 +184,7 @@
                   <td class="muted">{% if row.event.actor_user %}{{ row.event.actor_user.username }}{% else %}-{% endif %}</td>
                   <td><code>{{ row.event.action }}</code></td>
                   <td class="muted">{% if row.event.classroom %}{{ row.event.classroom.name }}{% else %}-{% endif %}</td>
-                  <td class="muted">{{ row.event.metadata.import_channel|default:row.event.metadata.source_kind|default:"-" }}</td>
+                  <td class="muted">{{ row.channel }}</td>
                   <td class="muted">
                     {{ row.event.summary|default:"-" }}
                     <span class="content-audit-inline-link">
@@ -225,7 +225,7 @@
               </div>
               <div>
                 <div class="muted">{% trans "Channel" %}</div>
-                <div>{{ content_audit_selected_event.metadata.import_channel|default:content_audit_selected_event.metadata.source_kind|default:"-" }}</div>
+                <div>{{ content_audit_selected_channel }}</div>
               </div>
               <div>
                 <div class="muted">{% trans "Registry version" %}</div>
