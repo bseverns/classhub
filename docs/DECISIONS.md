@@ -4586,6 +4586,8 @@ Execution ownership and gates:
   every publishable source artifact.
 - Export the resolved commit with `git archive`; never package tracked paths
   from the working directory.
+- Normalize Git archive extraction with `tar.umask=0022` so indexed file modes
+  become deterministic `0644`/`0755` payload modes on every build host.
 - Embed version, full commit, tag object, build timestamp, supported upgrade
   origins, runtime pins, migration heads, and the complete payload inventory
   in `RELEASE-MANIFEST.json`.

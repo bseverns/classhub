@@ -35,6 +35,7 @@ BLOCKED_PARTS = {
     "dist",
 }
 BLOCKED_EXACT = {"compose/.env", "compose/.env.local"}
+BLOCKED_PREFIXES = ("compose/docker-compose.override.yml.disabled",)
 BLOCKED_SUFFIXES = (".pyc", ".pyo", ".DS_Store")
 
 
@@ -72,6 +73,8 @@ def _is_forbidden(path: str) -> bool:
         "compose/.env.example.local",
         "compose/.env.example.domain",
     }:
+        return True
+    if any(normalized.startswith(prefix) for prefix in BLOCKED_PREFIXES):
         return True
     return normalized.endswith(BLOCKED_SUFFIXES)
 

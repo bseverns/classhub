@@ -116,7 +116,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
-git -C "${ROOT_DIR}" archive --format=tar --output="${SOURCE_TAR}" "${COMMIT}"
+git -C "${ROOT_DIR}" -c tar.umask=0022 archive \
+  --format=tar \
+  --output="${SOURCE_TAR}" \
+  "${COMMIT}"
 tar -xf "${SOURCE_TAR}" -C "${STAGE_DIR}"
 BUILD_TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 

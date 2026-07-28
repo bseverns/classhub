@@ -64,6 +64,7 @@ class ReleaseArtifactTests(unittest.TestCase):
         self._git("init", "-q")
         self._git("config", "user.name", "Release Test")
         self._git("config", "user.email", "release-test@example.invalid")
+        self._git("config", "tar.umask", "0002")
         self._git("add", ".")
         self._git("commit", "-qm", "fixture")
         self.commit = self._git("rev-parse", "HEAD").stdout.strip()
@@ -140,6 +141,18 @@ class ReleaseArtifactTests(unittest.TestCase):
         result = self._build("--allow-untagged")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("clean working tree", result.stderr)
+        self.assertFalse(self.output.exists())
+
+    def test_disabled_compose_override_is_rejected(self) -> None:
+        override = self.repo / "compose/docker-compose.override.yml.disabled"
+        override.write_text("services: {}\n", encoding="utf-8")
+        self._git("add", str(override.relative_to(self.repo)))
+        self._git("commit", "-qm", "add forbidden local override")
+
+        result = self._build("--allow-untagged")
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("compose/docker-compose.override.yml.disabled", result.stderr)
         self.assertFalse(self.output.exists())
 
     def test_payload_tampering_is_detected(self) -> None:
