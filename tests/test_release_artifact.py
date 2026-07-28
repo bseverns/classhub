@@ -44,7 +44,10 @@ class ReleaseArtifactTests(unittest.TestCase):
             ),
             "services/classhub/hub/migrations/0002_next.py": (
                 "class Migration:\n"
-                "    dependencies = [('hub', '0001_initial')]\n"
+                "    dependencies = [\n"
+                "        ('hub', '0001_initial'),\n"
+                "        migrations.swappable_dependency('auth.User'),\n"
+                "    ]\n"
             ),
             "payload.txt": "committed payload\n",
         }

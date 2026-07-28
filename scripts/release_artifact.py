@@ -120,11 +120,18 @@ def _migration_heads(root: Path) -> dict[str, list[str]]:
                 continue
             if not any(isinstance(target, ast.Name) and target.id == "dependencies" for target in node.targets):
                 continue
-            try:
-                dependencies = ast.literal_eval(node.value)
-            except (ValueError, TypeError):
-                continue
-            for dependency in dependencies:
+            dependency_nodes = (
+                node.value.elts
+                if isinstance(node.value, (ast.List, ast.Tuple))
+                else [node.value]
+            )
+            for dependency_node in dependency_nodes:
+                try:
+                    dependency = ast.literal_eval(dependency_node)
+                except (ValueError, TypeError):
+                    # Django helpers such as swappable_dependency() are
+                    # cross-app edges and do not affect this app's leaf set.
+                    continue
                 if (
                     isinstance(dependency, (list, tuple))
                     and len(dependency) == 2
