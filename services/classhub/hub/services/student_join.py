@@ -190,7 +190,7 @@ def apply_device_hint_cookie(response, *, classroom: Class, student: StudentIden
         max_age=device_hint_cookie_max_age_seconds(),
         httponly=True,
         samesite="Lax",
-        secure=not settings.DEBUG,
+        secure=settings.SESSION_COOKIE_SECURE,
     )
 
 
@@ -203,7 +203,7 @@ def clear_device_hint_cookie(response) -> None:
         path="/",
         httponly=True,
         samesite="Lax",
-        secure=not settings.DEBUG,
+        secure=settings.SESSION_COOKIE_SECURE,
     )
 
 

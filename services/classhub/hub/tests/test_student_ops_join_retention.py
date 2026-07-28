@@ -23,6 +23,36 @@ class JoinClassTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.json()["ok"])
 
+    @override_settings(DEBUG=False, SESSION_COOKIE_SECURE=False)
+    def test_device_hint_cookie_follows_local_http_session_transport(self):
+        resp = self.client.post(
+            "/join",
+            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "Local HTTP Student"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.cookies["classhub_student_hint"]["secure"], "")
+
+        logout_resp = self.client.get("/logout")
+        self.assertEqual(logout_resp.status_code, 302)
+        self.assertEqual(logout_resp.cookies["classhub_student_hint"]["secure"], "")
+
+    @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=True)
+    def test_device_hint_cookie_follows_secure_session_transport(self):
+        resp = self.client.post(
+            "/join",
+            data=json.dumps({"class_code": self.classroom.join_code, "display_name": "HTTPS Student"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.cookies["classhub_student_hint"]["secure"])
+
+        logout_resp = self.client.get("/logout")
+        self.assertEqual(logout_resp.status_code, 302)
+        self.assertTrue(logout_resp.cookies["classhub_student_hint"]["secure"])
+
     @override_settings(
         SECRET_KEY="primary-secret-key-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         DEVICE_HINT_SIGNING_KEY="device-hint-key-bbbbbbbbbbbbbbbbbbbbbbbbbbbb",
