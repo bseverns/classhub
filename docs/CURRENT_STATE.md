@@ -3,7 +3,7 @@
 ## Summary
 This page is the live snapshot of what ClassHub currently ships on `main`.
 It is updated manually when shipped capabilities change.
-Last reviewed: 2026-06-20
+Last reviewed: 2026-07-28
 
 ## Current state at a glance
 
@@ -30,11 +30,17 @@ Last reviewed: 2026-06-20
 
 ### Ops/reliability
 - Health checks, smoke checks, docs truth checks, view budgets, migration gates, and dependency/container scans are part of the guardrail set.
+- Source releases now carry tracked `VERSION` identity and are exported from
+  exact annotated Git objects with embedded/detached manifests, full payload
+  inventory, migration/runtime provenance, and checksum sidecars.
 - Data lifespan dashboard and CSV/JSON export are live at `/teach/data-lifespan`.
 - Runbook, restore rehearsal, incident response, and deployment docs are maintained as operator-facing controls.
 
 ### Advanced/flagged infrastructure
 - Homework Helper runs as a separate Django service behind `/helper/*`.
+- Domain deployments require Helper to validate ClassHub student sessions
+  fail-closed and issue student API tokens from a dedicated key with a 24-hour
+  maximum lifetime.
 - Optional curriculum-only RAG, private model-host topology, and bounded remote helper compute controls are implemented with explicit operator boundaries.
 - Scoped RBAC grants, delegated approval workflow, kiosk mode, and some telemetry split paths remain controlled rollout surfaces.
 

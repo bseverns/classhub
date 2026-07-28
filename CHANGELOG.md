@@ -7,6 +7,9 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 ## [Unreleased]
 
 ### Added
+- Immutable release identity: tracked SemVer metadata, exact-Git-object source
+  archives, embedded file/migration/runtime provenance, detached manifests,
+  and archive checksum sidecars.
 - A v1.9 human-review packet for S'gaw Karen safeguarding phrases/fixed response copy and substantive Spanish, Somali, and S'gaw Karen handout variants.
 - Family Notice navigation and an instructor-facing entry point.
 - Durable remote-helper lease evidence: per-lease sessions/events, ready/degraded time accounting, remote route and fallback counts, leased-minute / optional cost estimates, staff JSON/CSV export, and helper internal evidence/status endpoints for conference-grade operator review.
@@ -62,6 +65,8 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - Workflow-lint action resolution failure (`rhysd/actionlint`) in CI.
 
 ### Changed
+- Full-stack and release-tool CI now execute from an extracted exact-commit
+  release artifact, while publishing requires a matching annotated tag.
 - Domain deployments now require a dedicated student API-token signing key,
   a positive bearer-token lifetime (24 hours in the shipped profile), and
   fail-closed ClassHub session-table checks for Homework Helper access.

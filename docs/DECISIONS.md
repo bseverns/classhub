@@ -4577,3 +4577,27 @@ Execution ownership and gates:
   invalidating teacher/admin Django sessions.
 - A production Helper must not treat an unavailable identity source as proof
   that a student session is valid.
+
+## Release identity comes from an annotated Git object (2026-07-28)
+
+**Current decision:**
+- Track the next release identity in `VERSION` using semantic versioning.
+- Require a clean tracked worktree and an annotated tag matching `VERSION` for
+  every publishable source artifact.
+- Export the resolved commit with `git archive`; never package tracked paths
+  from the working directory.
+- Embed version, full commit, tag object, build timestamp, supported upgrade
+  origins, runtime pins, migration heads, and the complete payload inventory
+  in `RELEASE-MANIFEST.json`.
+- Publish the ZIP with a detached manifest and SHA-256 sidecar.
+- Permit untagged exact-commit builds only through an explicit CI verification
+  option, and run stack smoke from the extracted artifact.
+
+**Why this remains active:**
+- A filename containing a commit SHA is not evidence when its contents may
+  come from a different working-tree state.
+- The ZIP cannot contain its own final checksum without a circular dependency;
+  the embedded manifest therefore covers the payload, while the detached
+  manifest and sidecar cover the completed ZIP.
+- Testing only the checkout does not prove that the distributed file contains
+  the code, migrations, modes, and operational scripts that CI approved.

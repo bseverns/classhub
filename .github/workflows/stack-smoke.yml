@@ -18,8 +18,15 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Prepare compose env for CI doctor run
+      - name: Export exact-commit release tree
         run: |
+          bash scripts/make_release_zip.sh --allow-untagged --ref "$GITHUB_SHA" /tmp/classhub_stack_release.zip
+          mkdir -p /tmp/classhub_stack_release
+          python3 -m zipfile -e /tmp/classhub_stack_release.zip /tmp/classhub_stack_release
+
+      - name: Prepare compose env in extracted release
+        run: |
+          cd /tmp/classhub_stack_release
           cp compose/.env.example compose/.env
           mkdir -p data/postgres data/minio data/classhub_uploads data/classhub_content
           sed -i "s/^APP_UID=.*/APP_UID=$(id -u)/" compose/.env
@@ -46,6 +53,7 @@ jobs:
 
       - name: Run system doctor with golden-path smoke
         run: |
+          cd /tmp/classhub_stack_release
           bash scripts/system_doctor.sh \
             --build \
             --compose-mode prod \
@@ -54,6 +62,7 @@ jobs:
 
       - name: Run accessibility smoke
         run: |
+          cd /tmp/classhub_stack_release
           bash scripts/a11y_smoke.sh \
             --compose-mode prod \
             --install-browsers \

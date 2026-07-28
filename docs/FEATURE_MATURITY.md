@@ -22,7 +22,7 @@ An operator can explain each enabled non-default flag in one sentence and show o
 | Setting | Default | Scope | Why it matters |
 |---|---|---|---|
 | `CLASSHUB_PROGRAM_PROFILE` | `secondary` | ClassHub + Helper behavior defaults | Baseline pacing + helper policy defaults. |
-| `DJANGO_CSP_MODE` | `report-only` in shipped env examples (`relaxed` only as code fallback when unset) | Browser hardening rollout | Keeps strict CSP visible in telemetry while full enforcement completes staged acceptance checks. |
+| `DJANGO_CSP_MODE` | `strict` in the domain profile; `report-only` in general/local profiles (`relaxed` only as code fallback when unset) | Browser hardening rollout | Enforces CSP for the production domain while keeping local/day-1 diagnostics available. |
 | `CLASSHUB_STUDENT_KIOSK_PWA_ENABLED` | `0` | Student shell constraints | Enables kiosk route allowlist + focused student navigation shell. |
 | `CLASSHUB_STUDENT_KIOSK_DEFAULT` | `0` | Student shell default mode | Forces kiosk mode on by default unless toggled off per device. |
 | `REQUIRE_ORG_MEMBERSHIP_FOR_STAFF` | `1` in production presets (`0` in local/dev preset) | ClassHub access control | Controls whether staff without active org membership can access classes. |

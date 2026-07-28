@@ -50,7 +50,9 @@ Operator shortcut:
 | `security_posture_snapshot.py` | Renders a compact operator-facing snapshot of active security posture, transitional items, and critical flags from an env file. |
 | `test_teacher_admin.sh`| CI gate validating teacher and admin interface functionality. |
 | `run_bandit.sh` | Python security linter enforcing safe coding practices. |
-| `lint_release_artifact.py` | Validates zip release packages before GH Release publishing. |
+| `make_release_zip.sh` | Exports an exact Git commit into the canonical release ZIP; publishing requires a matching annotated `VERSION` tag. |
+| `release_artifact.py` | Builds/verifies embedded payload inventory, migration/runtime provenance, detached manifest, and ZIP checksum. |
+| `lint_release_artifact.py` | Validates the complete release identity and integrity contract before GitHub Release publishing. |
 
 ## Curriculum Engineering
 | Script | Intent |
