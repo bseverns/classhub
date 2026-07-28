@@ -22,6 +22,7 @@ REQUIRED_TOKENS: dict[str, tuple[str, ...]] = {
     "test-suite.yml": (
         "release-artifact-check:",
         "make_release_zip.sh --allow-untagged --ref",
+        "release_artifact.py extract",
         "Test release tooling from extracted artifact",
         "classhub-tests:",
         "helper-tests:",
@@ -34,6 +35,7 @@ REQUIRED_TOKENS: dict[str, tuple[str, ...]] = {
     "stack-smoke.yml": (
         "doctor:",
         "Export exact-commit release tree",
+        "release_artifact.py extract",
         "cd /tmp/classhub_stack_release",
         "scripts/system_doctor.sh",
         "scripts/a11y_smoke.sh",

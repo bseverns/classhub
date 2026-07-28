@@ -4592,6 +4592,8 @@ Execution ownership and gates:
 - Publish the ZIP with a detached manifest and SHA-256 sidecar.
 - Permit untagged exact-commit builds only through an explicit CI verification
   option, and run stack smoke from the extracted artifact.
+- Verify before extraction and restore each payload file's manifest-recorded
+  Git mode; generic ZIP extraction is not a release installation path.
 
 **Why this remains active:**
 - A filename containing a commit SHA is not evidence when its contents may
@@ -4601,3 +4603,5 @@ Execution ownership and gates:
   manifest and sidecar cover the completed ZIP.
 - Testing only the checkout does not prove that the distributed file contains
   the code, migrations, modes, and operational scripts that CI approved.
+- Common ZIP extractors do not consistently restore Unix executable bits, so
+  testing their output can fail before the packaged operational scripts run.

@@ -128,6 +128,13 @@ ZIP. `.github/workflows/stack-smoke.yml` also runs the full doctor and
 accessibility smoke from an extracted exact-commit artifact rather than the
 checkout.
 
+Use the manifest-aware extractor instead of a generic ZIP extractor so
+executable Git modes are restored after integrity verification:
+
+```bash
+python3 scripts/release_artifact.py extract "${ZIP_PATH}" /tmp/classhub_release
+```
+
 ## Ops + Security Notes (per release)
 
 Use this as the standard release appendix/checklist.

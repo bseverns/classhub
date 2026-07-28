@@ -22,8 +22,9 @@ jobs:
         run: bash scripts/repo_hygiene_check.sh /tmp/classhub_release_ci.zip
       - name: Test release tooling from extracted artifact
         run: |
-          mkdir -p /tmp/classhub_release_ci
-          python3 -m zipfile -e /tmp/classhub_release_ci.zip /tmp/classhub_release_ci
+          python3 scripts/release_artifact.py extract \
+            /tmp/classhub_release_ci.zip \
+            /tmp/classhub_release_ci
           cd /tmp/classhub_release_ci
           python3 -m unittest tests.test_release_artifact
       - name: Upload canonical release proof

@@ -394,6 +394,35 @@ def verify_artifact(zip_path: Path) -> dict[str, object]:
     return manifest
 
 
+def extract_artifact(zip_path: Path, destination: Path) -> dict[str, object]:
+    """Verify and safely extract an artifact while restoring manifest file modes."""
+    manifest = verify_artifact(zip_path)
+    if destination.is_symlink():
+        raise ArtifactError(f"extraction destination must not be a symlink: {destination}")
+    if destination.exists():
+        if not destination.is_dir():
+            raise ArtifactError(f"extraction destination is not a directory: {destination}")
+        if any(destination.iterdir()):
+            raise ArtifactError(f"extraction destination must be empty: {destination}")
+    else:
+        destination.mkdir(parents=True)
+    destination = destination.resolve()
+
+    payload = manifest["payload"]
+    inventory = {row["path"]: row for row in payload["files"]}
+    with ZipFile(zip_path.resolve()) as archive:
+        for name in sorted(archive.namelist()):
+            if name.endswith("/"):
+                continue
+            relative = PurePosixPath(name)
+            target = destination.joinpath(*relative.parts)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(archive.read(name))
+            mode = 0o644 if name == MANIFEST_NAME else int(str(inventory[name]["mode"]), 8)
+            target.chmod(mode)
+    return manifest
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -408,6 +437,12 @@ def main() -> int:
     build.add_argument("--build-timestamp", required=True)
     verify = subparsers.add_parser("verify", help="Verify an existing release ZIP")
     verify.add_argument("zip_path", type=Path)
+    extract = subparsers.add_parser(
+        "extract",
+        help="Verify and safely extract a release ZIP with its recorded file modes",
+    )
+    extract.add_argument("zip_path", type=Path)
+    extract.add_argument("destination", type=Path)
     args = parser.parse_args()
     try:
         if args.command == "build":
@@ -423,11 +458,18 @@ def main() -> int:
             )
             verify_artifact(args.output)
             print(f"Release artifact built and verified: {args.output}")
-        else:
+        elif args.command == "verify":
             manifest = verify_artifact(args.zip_path)
             print(
                 "Release artifact verified: "
                 f"version={manifest['version']} commit={manifest['source']['commit']}"
+            )
+        else:
+            manifest = extract_artifact(args.zip_path, args.destination)
+            print(
+                "Release artifact verified and extracted: "
+                f"version={manifest['version']} commit={manifest['source']['commit']} "
+                f"destination={args.destination}"
             )
     except ArtifactError as exc:
         print(f"Release artifact check failed: {exc}", file=sys.stderr)

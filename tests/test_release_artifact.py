@@ -50,11 +50,13 @@ class ReleaseArtifactTests(unittest.TestCase):
                 "    ]\n"
             ),
             "payload.txt": "committed payload\n",
+            "scripts/executable.sh": "#!/usr/bin/env bash\nexit 0\n",
         }
         for relative, content in fixture_files.items():
             path = self.repo / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content, encoding="utf-8")
+        (self.repo / "scripts/executable.sh").chmod(0o755)
         scripts_dir = self.repo / "scripts"
         scripts_dir.mkdir(parents=True, exist_ok=True)
         for name in ("make_release_zip.sh", "release_artifact.py", "lint_release_artifact.py"):
@@ -174,6 +176,34 @@ class ReleaseArtifactTests(unittest.TestCase):
         )
         self.assertNotEqual(verify.returncode, 0)
         self.assertIn("sidecar is missing", verify.stderr)
+
+    def test_extract_restores_manifest_file_modes(self) -> None:
+        result = self._build("--allow-untagged")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        destination = self.repo / "extracted"
+
+        extract = subprocess.run(
+            [
+                sys.executable,
+                "scripts/release_artifact.py",
+                "extract",
+                str(self.output),
+                str(destination),
+            ],
+            cwd=self.repo,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(extract.returncode, 0, extract.stdout + extract.stderr)
+        self.assertEqual((destination / "scripts/executable.sh").stat().st_mode & 0o777, 0o755)
+        self.assertEqual((destination / "payload.txt").stat().st_mode & 0o777, 0o644)
+        subprocess.run(
+            [str(destination / "scripts/executable.sh")],
+            cwd=destination,
+            check=True,
+        )
 
 
 if __name__ == "__main__":

@@ -51,7 +51,7 @@ Operator shortcut:
 | `test_teacher_admin.sh`| CI gate validating teacher and admin interface functionality. |
 | `run_bandit.sh` | Python security linter enforcing safe coding practices. |
 | `make_release_zip.sh` | Exports an exact Git commit into the canonical release ZIP; publishing requires a matching annotated `VERSION` tag. |
-| `release_artifact.py` | Builds/verifies embedded payload inventory, migration/runtime provenance, detached manifest, and ZIP checksum. |
+| `release_artifact.py` | Builds/verifies embedded payload inventory, migration/runtime provenance, detached manifest, and ZIP checksum; safely extracts verified artifacts while restoring recorded file modes. |
 | `lint_release_artifact.py` | Validates the complete release identity and integrity contract before GitHub Release publishing. |
 
 ## Curriculum Engineering
