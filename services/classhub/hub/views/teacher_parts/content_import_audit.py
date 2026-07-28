@@ -54,6 +54,7 @@ def _content_audit_default_context() -> dict:
         "content_audit_event_id": "",
         "content_audit_open": False,
         "content_audit_selected_event": None,
+        "content_audit_selected_channel": "-",
         "content_audit_selected_metadata_json": "",
     }
 
@@ -78,6 +79,7 @@ def _content_audit_query_string(*, action: str, class_id: str, limit: str, event
 def _content_audit_row(*, event, action: str, class_id: str, limit: str, selected_event_id: int | None) -> dict:
     return {
         "event": event,
+        "channel": _content_audit_channel(event),
         "inspect_url": f"/teach?{_content_audit_query_string(action=action, class_id=class_id, limit=limit, event_id=event.id)}#content-import-audit",
         "selected": bool(selected_event_id and event.id == selected_event_id),
     }
@@ -101,6 +103,11 @@ def _content_audit_selected_metadata_json(selected_event) -> str:
     if selected_event is None:
         return ""
     return json.dumps(selected_event.metadata or {}, indent=2, sort_keys=True, ensure_ascii=False)
+
+
+def _content_audit_channel(event) -> str:
+    metadata = event.metadata if isinstance(event.metadata, dict) else {}
+    return str(metadata.get("import_channel") or metadata.get("source_kind") or "-")
 
 
 def build_content_import_audit_context(*, classes, state: dict, user) -> dict:
@@ -150,6 +157,7 @@ def build_content_import_audit_context(*, classes, state: dict, user) -> dict:
             event_id=selected_event_id_raw,
         ),
         "content_audit_selected_event": selected_event,
+        "content_audit_selected_channel": _content_audit_channel(selected_event) if selected_event else "-",
         "content_audit_selected_metadata_json": _content_audit_selected_metadata_json(selected_event),
     }
 

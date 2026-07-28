@@ -201,6 +201,35 @@ submission:
         self.assertNotContains(resp, "content audit drop beta class")
         self.assertNotContains(resp, "content audit drop action family")
 
+    def test_content_import_audit_accepts_syllabus_export_metadata_without_channel_keys(self):
+        _force_login_staff_verified(self.client, self.staff)
+        AuditEvent.objects.create(
+            actor_user=self.staff,
+            action="syllabus_export.backup_zip",
+            target_type="SyllabusExport",
+            target_id="all_courses",
+            summary="production-shaped syllabus backup",
+            metadata={
+                "kind": "backup_zip",
+                "filename": "classhub_syllabus_backup_20260710T183625Z.zip",
+                "file_count": 68,
+                "course_slug": "",
+                "course_count": 6,
+            },
+        )
+
+        resp = self.client.get(
+            "/teach",
+            {
+                "portal_mode": "setup",
+                "advanced": "1",
+                "content_audit_action": "syllabus_export.",
+            },
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "production-shaped syllabus backup")
+
     def test_superuser_can_inspect_selected_content_import_audit_event(self):
         _force_login_staff_verified(self.client, self.staff)
         classroom = Class.objects.create(name="Audit Detail Cohort", join_code="AUDIT003")

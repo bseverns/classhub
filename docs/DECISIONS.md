@@ -4544,3 +4544,14 @@ Execution ownership and gates:
 
 **Why this remains active:**
 - These are smaller, testable boundaries than parallel counting, registry, translation, screenshot, or review systems.
+
+## Operator audit rendering tolerates legacy metadata (2026-07-28)
+
+**Current decision:**
+- Normalize the content-import audit channel in the Python context builder.
+- Prefer `import_channel`, fall back to `source_kind`, and display `-` when neither key exists.
+- Treat audit metadata as historical evidence that may legitimately predate newer display fields.
+
+**Why this remains active:**
+- Django resolves filter arguments eagerly, so chaining a missing metadata lookup through the template `default` filter can raise `VariableDoesNotExist`.
+- A valid syllabus-export audit event without channel keys must not make the entire superuser operator surface return HTTP 500.
