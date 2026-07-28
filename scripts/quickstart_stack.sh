@@ -255,6 +255,9 @@ prepare_env_file() {
     env_set "DJANGO_CSRF_COOKIE_SECURE" "0" "${ENV_FILE}"
     env_set "CSRF_TRUSTED_ORIGINS" "http://localhost" "${ENV_FILE}"
     env_set "DJANGO_ALLOWED_HOSTS" "localhost,127.0.0.1" "${ENV_FILE}"
+    env_set "CLASSHUB_API_TOKEN_MAX_AGE_SECONDS" "0" "${ENV_FILE}"
+    env_set "CLASSHUB_API_TOKEN_ALLOW_INDEFINITE" "1" "${ENV_FILE}"
+    env_set "HELPER_REQUIRE_CLASSHUB_TABLE" "0" "${ENV_FILE}"
   else
     env_set "CADDYFILE_TEMPLATE" "Caddyfile.domain" "${ENV_FILE}"
     local domain_value
@@ -272,6 +275,9 @@ prepare_env_file() {
     env_set "DJANGO_SESSION_COOKIE_SECURE" "1" "${ENV_FILE}"
     env_set "DJANGO_CSRF_COOKIE_SECURE" "1" "${ENV_FILE}"
     env_set "REQUEST_SAFETY_TRUST_PROXY_HEADERS" "1" "${ENV_FILE}"
+    env_set "CLASSHUB_API_TOKEN_MAX_AGE_SECONDS" "86400" "${ENV_FILE}"
+    env_set "CLASSHUB_API_TOKEN_ALLOW_INDEFINITE" "0" "${ENV_FILE}"
+    env_set "HELPER_REQUIRE_CLASSHUB_TABLE" "1" "${ENV_FILE}"
   fi
 
   env_set "HELPER_LLM_BACKEND" "${HELPER_BACKEND}" "${ENV_FILE}"
@@ -296,6 +302,7 @@ seed_required_secrets() {
     "DJANGO_SECRET_KEY"
     "DEVICE_HINT_SIGNING_KEY"
     "HELPER_SCOPE_SIGNING_KEY"
+    "CLASSHUB_API_TOKEN_SIGNING_KEY"
     "HELPER_INTERNAL_API_TOKEN"
     "CLASSHUB_INTERNAL_EVENTS_TOKEN"
   )

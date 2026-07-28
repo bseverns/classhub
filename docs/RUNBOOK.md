@@ -76,6 +76,23 @@ python3 scripts/operator_preflight.py --env-file compose/.env
 bash scripts/system_doctor.sh --smoke-mode golden
 ```
 
+### Upgrade: bounded student API tokens
+
+Before deploying the release that introduces the domain token boundary, add
+these settings to the existing production `compose/.env`:
+
+```dotenv
+CLASSHUB_API_TOKEN_SIGNING_KEY=<new random value of at least 32 characters>
+CLASSHUB_API_TOKEN_MAX_AGE_SECONDS=86400
+CLASSHUB_API_TOKEN_ALLOW_INDEFINITE=0
+HELPER_REQUIRE_CLASSHUB_TABLE=1
+```
+
+Generate a new key with `openssl rand -hex 32`; do not reuse
+`DJANGO_SECRET_KEY`. Then run `bash scripts/validate_env_secrets.sh` before the
+normal deploy. Existing browser sessions remain valid, but students using API
+bearer tokens must join or rejoin once after the new key takes effect.
+
 ### Start / stop stack
 
 ```bash

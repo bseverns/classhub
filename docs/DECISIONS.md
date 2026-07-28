@@ -4557,3 +4557,23 @@ Execution ownership and gates:
 **Why this remains active:**
 - Django resolves filter arguments eagerly, so chaining a missing metadata lookup through the template `default` filter can raise `VariableDoesNotExist`.
 - A valid syllabus-export audit event without channel keys must not make the entire superuser operator surface return HTTP 500.
+
+## Domain student credentials are bounded and identity checks fail closed (2026-07-28)
+
+**Current decision:**
+- Sign student API bearer tokens with `CLASSHUB_API_TOKEN_SIGNING_KEY`, distinct
+  from `DJANGO_SECRET_KEY`, in the domain profile.
+- Limit domain-profile bearer tokens to 24 hours and require
+  `CLASSHUB_API_TOKEN_ALLOW_INDEFINITE=0`.
+- Require `HELPER_REQUIRE_CLASSHUB_TABLE=1` in the domain profile so a missing
+  ClassHub session table denies student Helper access.
+- Preserve explicit epoch-only token compatibility for local and existing
+  deployments, while making the domain deploy validator reject the weaker posture.
+
+**Why this remains active:**
+- Class-epoch invalidation is useful but does not bound a leaked token when no
+  roster reset occurs.
+- Key separation lets operators rotate student API credentials without
+  invalidating teacher/admin Django sessions.
+- A production Helper must not treat an unavailable identity source as proof
+  that a student session is valid.

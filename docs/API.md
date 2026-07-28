@@ -48,11 +48,13 @@ Authorization: Bearer <token>
 ```
 
 **Token properties:**
-- Signed with `CLASSHUB_API_TOKEN_SIGNING_KEY` (falls back to `SECRET_KEY`).
+- Domain deployments sign with a dedicated `CLASSHUB_API_TOKEN_SIGNING_KEY`.
+  Local/legacy profiles retain the `SECRET_KEY` fallback for compatibility.
 - Contains `{sid, cid, epoch}`. Automatically invalidated when a teacher
   resets the class roster (bumps `session_epoch`).
-- Optional hard TTL: set `CLASSHUB_API_TOKEN_MAX_AGE_SECONDS` to enforce
-  expiry (default: `None` = no expiry, epoch-based only).
+- Domain deployments set `CLASSHUB_API_TOKEN_MAX_AGE_SECONDS=86400` and
+  `CLASSHUB_API_TOKEN_ALLOW_INDEFINITE=0`. Local/legacy profiles may explicitly
+  use `0` plus `CLASSHUB_API_TOKEN_ALLOW_INDEFINITE=1` for epoch-only expiry.
 - **Fail-closed:** If an `Authorization: Bearer` header is present on `/api/`
   but invalid (tampered, expired, or epoch mismatch), the request fails
   immediately with `401 {"error": "invalid_token"}`. It does **not** fall

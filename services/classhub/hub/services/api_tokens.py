@@ -3,8 +3,8 @@
 Student tokens contain {sid, cid, epoch} signed with a dedicated key.
 They are validated in StudentSessionMiddleware for /api/ paths.
 
-Optional operator lever: set CLASSHUB_API_TOKEN_MAX_AGE_SECONDS to enforce
-a hard TTL on tokens (default: None = no expiry, epoch-based only).
+The domain profile uses a dedicated signing key and a bounded lifetime. Legacy
+and local profiles may explicitly retain epoch-only invalidation.
 """
 
 from django.conf import settings
