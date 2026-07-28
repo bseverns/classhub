@@ -42,7 +42,7 @@ Run from repo root:
 bash scripts/repo_hygiene_check.sh
 ruff check services scripts
 python3 scripts/check_frontend_static_refs.py
-bash scripts/make_release_zip.sh /tmp/classhub_release_ci.zip
+bash scripts/make_release_zip.sh --allow-untagged /tmp/classhub_release_ci.zip
 python3 scripts/lint_release_artifact.py /tmp/classhub_release_ci.zip
 ```
 
