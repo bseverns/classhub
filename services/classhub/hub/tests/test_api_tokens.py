@@ -36,6 +36,17 @@ class IssueAndVerifyTokenTests(TestCase):
         self.assertIsNotNone(payload)
         self.assertEqual(payload["epoch"], 1)
 
+    @override_settings(CLASSHUB_API_TOKEN_SIGNING_KEY="a" * 48)
+    def test_dedicated_signing_key_separates_tokens_from_django_secret(self):
+        token = self.issue(student_id=1, class_id=2, epoch=1)
+        with override_settings(CLASSHUB_API_TOKEN_SIGNING_KEY="b" * 48):
+            self.assertIsNone(self.verify(token))
+
+    @override_settings(CLASSHUB_API_TOKEN_MAX_AGE_SECONDS=-1)
+    def test_expired_token_is_rejected(self):
+        token = self.issue(student_id=1, class_id=2, epoch=1)
+        self.assertIsNone(self.verify(token))
+
 
 class BearerTokenMiddlewareTests(TestCase):
     """Integration tests for bearer token resolution in StudentSessionMiddleware."""

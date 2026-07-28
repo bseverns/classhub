@@ -27,6 +27,7 @@ It does not try to replace your password manager or cloud secret store.
 | `DJANGO_SECRET_KEY` | Django signing root | `classhub_web`, `helper_web` | invalidates Django-signed sessions/tokens; treat as highest-impact rotation |
 | `DEVICE_HINT_SIGNING_KEY` | student same-device rejoin hint cookie | `classhub_web` | existing same-device student hint cookies stop working; students can still rejoin with class code + return code |
 | `HELPER_SCOPE_SIGNING_KEY` | signed helper lesson scope token | `classhub_web`, `helper_web` | existing helper scope tokens stop validating until lesson pages are reloaded |
+| `CLASSHUB_API_TOKEN_SIGNING_KEY` | student API bearer tokens | `classhub_web` | existing mobile/headless bearer tokens stop validating; students must join or rejoin again |
 | `CLASSHUB_INTERNAL_EVENTS_TOKEN` | helper -> ClassHub event ingest | `helper_web` caller, `classhub_web` receiver | helper event forwarding fails until both services match again |
 | `HELPER_INTERNAL_API_TOKEN` | ClassHub -> helper internal control/status endpoints | `classhub_web` caller, `helper_web` receiver | teacher-side helper control/status panels fail closed until both services match again |
 | `LLM_API_KEY` / `OLLAMA_API_KEY` | helper -> private LLM/auth proxy | `helper_web`, private model edge | helper backend calls fail until helper and private proxy agree |
@@ -89,6 +90,22 @@ Expected impact:
 - already-rendered lesson pages may hold stale helper scope tokens,
 - a page reload should restore helper access.
 
+#### `CLASSHUB_API_TOKEN_SIGNING_KEY`
+
+Use when:
+- student bearer-token leakage is suspected,
+- or as part of scheduled signing-key rotation.
+
+Steps:
+
+1. Set a new strong `CLASSHUB_API_TOKEN_SIGNING_KEY` distinct from `DJANGO_SECRET_KEY`.
+2. Recreate `classhub_web`.
+3. Join or rejoin once and verify `/api/v1/student/session` with the new token.
+
+Expected impact:
+- existing student bearer tokens stop validating immediately,
+- browser sessions and teacher/admin sessions are unaffected.
+
 #### `DJANGO_SECRET_KEY`
 
 Use when:
@@ -98,7 +115,8 @@ Use when:
 Steps:
 
 1. Set a new strong `DJANGO_SECRET_KEY`.
-2. Keep `DEVICE_HINT_SIGNING_KEY` and `HELPER_SCOPE_SIGNING_KEY` distinct from it.
+2. Keep `DEVICE_HINT_SIGNING_KEY`, `HELPER_SCOPE_SIGNING_KEY`, and
+   `CLASSHUB_API_TOKEN_SIGNING_KEY` distinct from it.
 3. Recreate both Django services.
 4. Verify admin login, teacher login, and student join after rotation.
 

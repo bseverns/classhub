@@ -220,8 +220,11 @@ bash scripts/retention_maintenance.sh --compose-mode prod
   - `CLASSHUB_INTERNAL_EVENTS_URL`
   - `CLASSHUB_INTERNAL_EVENTS_TOKEN`
 - Student helper session-table checks are configurable:
-  - default: fail-open when classhub tables are unavailable
-  - production hardening option: `HELPER_REQUIRE_CLASSHUB_TABLE=1` (fail-closed)
+  - local/legacy default: fail-open when classhub tables are unavailable
+  - domain profile: `HELPER_REQUIRE_CLASSHUB_TABLE=1` (fail-closed)
+- Student API bearer tokens in the domain profile use a key distinct from
+  `DJANGO_SECRET_KEY` and expire after 24 hours. The deploy validator rejects
+  indefinite tokens in domain mode.
 - Local LLM (`Ollama`) keeps inference on your infrastructure, but logs and prompt handling still require governance.
 
 ## Upload malware scanning (optional)

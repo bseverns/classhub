@@ -92,6 +92,41 @@ class OperatorPreflightTests(unittest.TestCase):
         self.assertIn('env_set "CSRF_TRUSTED_ORIGINS" "https://${domain_value}"', source)
         self.assertIn('operator_preflight.py" --env-file "${ENV_FILE}"', source)
 
+    def test_domain_profile_closes_student_token_and_helper_identity_boundaries(self) -> None:
+        domain_source = (REPO_ROOT / "compose/.env.example.domain").read_text(encoding="utf-8")
+        default_source = (REPO_ROOT / "compose/.env.example").read_text(encoding="utf-8")
+        local_source = (REPO_ROOT / "compose/.env.example.local").read_text(encoding="utf-8")
+        validator_source = (REPO_ROOT / "scripts/validate_env_secrets.sh").read_text(encoding="utf-8")
+        quickstart_source = QUICKSTART_PATH.read_text(encoding="utf-8")
+        stack_smoke_source = (REPO_ROOT / ".github/workflows/stack-smoke.yml").read_text(encoding="utf-8")
+
+        self.assertIn("CLASSHUB_API_TOKEN_MAX_AGE_SECONDS=86400", domain_source)
+        self.assertIn("CLASSHUB_API_TOKEN_ALLOW_INDEFINITE=0", domain_source)
+        self.assertIn("HELPER_REQUIRE_CLASSHUB_TABLE=1", domain_source)
+        self.assertIn("CLASSHUB_API_TOKEN_SIGNING_KEY=REPLACE_ME_STRONG", domain_source)
+        self.assertIn("CLASSHUB_API_TOKEN_SIGNING_KEY=\n", default_source)
+        self.assertIn("CLASSHUB_API_TOKEN_SIGNING_KEY=\n", local_source)
+        self.assertIn(
+            'require_distinct_values "DJANGO_SECRET_KEY" "CLASSHUB_API_TOKEN_SIGNING_KEY"',
+            validator_source,
+        )
+        self.assertIn(
+            'fail "HELPER_REQUIRE_CLASSHUB_TABLE must be 1 in domain mode"',
+            validator_source,
+        )
+        self.assertIn(
+            'env_set "CLASSHUB_API_TOKEN_MAX_AGE_SECONDS" "86400"',
+            quickstart_source,
+        )
+        self.assertIn(
+            'env_set "HELPER_REQUIRE_CLASSHUB_TABLE" "1"',
+            quickstart_source,
+        )
+        self.assertIn(
+            "CLASSHUB_API_TOKEN_SIGNING_KEY=hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh",
+            stack_smoke_source,
+        )
+
     def test_demo_coursepack_uses_mounted_content_root(self) -> None:
         source = (REPO_ROOT / "scripts" / "load_demo_coursepack.sh").read_text(encoding="utf-8")
 

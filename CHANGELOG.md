@@ -62,6 +62,9 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - Workflow-lint action resolution failure (`rhysd/actionlint`) in CI.
 
 ### Changed
+- Domain deployments now require a dedicated student API-token signing key,
+  a positive bearer-token lifetime (24 hours in the shipped profile), and
+  fail-closed ClassHub session-table checks for Homework Helper access.
 - Accessibility smoke now includes privacy, trust, Django admin, and existing student deletion surfaces and blocks serious-or-higher violations in CI.
 - Returning teachers with an accessible class now land in day-of-class mode by default; teachers without a class still land in setup mode.
 - Teacher class-dashboard notice and error banners now expose status/alert live-region semantics.

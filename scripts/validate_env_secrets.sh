@@ -254,6 +254,20 @@ CADDYFILE_TEMPLATE="$(env_file_value CADDYFILE_TEMPLATE)"
 SMOKE_BASE_URL="$(env_file_value SMOKE_BASE_URL)"
 DJANGO_SESSION_COOKIE_SECURE="$(env_file_value DJANGO_SESSION_COOKIE_SECURE)"
 DJANGO_CSRF_COOKIE_SECURE="$(env_file_value DJANGO_CSRF_COOKIE_SECURE)"
+if [[ "${CADDYFILE_TEMPLATE}" == Caddyfile.domain* ]]; then
+  require_strong_secret "CLASSHUB_API_TOKEN_SIGNING_KEY" 32
+  require_distinct_values "DJANGO_SECRET_KEY" "CLASSHUB_API_TOKEN_SIGNING_KEY"
+  CLASSHUB_API_TOKEN_MAX_AGE_SECONDS="$(env_file_value CLASSHUB_API_TOKEN_MAX_AGE_SECONDS)"
+  if [[ ! "${CLASSHUB_API_TOKEN_MAX_AGE_SECONDS}" =~ ^[1-9][0-9]*$ ]]; then
+    fail "CLASSHUB_API_TOKEN_MAX_AGE_SECONDS must be a positive integer in domain mode"
+  fi
+  if [[ "$(env_file_value CLASSHUB_API_TOKEN_ALLOW_INDEFINITE)" != "0" ]]; then
+    fail "CLASSHUB_API_TOKEN_ALLOW_INDEFINITE must be 0 in domain mode"
+  fi
+  if [[ "$(env_file_value HELPER_REQUIRE_CLASSHUB_TABLE)" != "1" ]]; then
+    fail "HELPER_REQUIRE_CLASSHUB_TABLE must be 1 in domain mode"
+  fi
+fi
 if [[ "${CADDYFILE_TEMPLATE}" == "Caddyfile.local" || "${SMOKE_BASE_URL}" == http://* ]]; then
   if [[ "${DJANGO_SESSION_COOKIE_SECURE}" != "0" ]]; then
     fail "DJANGO_SESSION_COOKIE_SECURE must be 0 for local HTTP mode (Caddyfile.local / SMOKE_BASE_URL=http://...)"

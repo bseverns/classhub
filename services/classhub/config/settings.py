@@ -103,6 +103,33 @@ if not HELPER_SCOPE_SIGNING_KEY:
 if not DEBUG and _secret_key_looks_unsafe(HELPER_SCOPE_SIGNING_KEY):
     raise RuntimeError("HELPER_SCOPE_SIGNING_KEY must be a strong non-default value when DJANGO_DEBUG=0")
 
+CLASSHUB_API_TOKEN_SIGNING_KEY = env("CLASSHUB_API_TOKEN_SIGNING_KEY", default="").strip()
+CLASSHUB_API_TOKEN_ALLOW_INDEFINITE = env.bool("CLASSHUB_API_TOKEN_ALLOW_INDEFINITE", default=True)
+_api_token_max_age_seconds = env.int("CLASSHUB_API_TOKEN_MAX_AGE_SECONDS", default=0)
+CLASSHUB_API_TOKEN_MAX_AGE_SECONDS = (
+    _api_token_max_age_seconds if _api_token_max_age_seconds > 0 else None
+)
+if CLASSHUB_API_TOKEN_SIGNING_KEY and not DEBUG:
+    if _secret_key_looks_unsafe(CLASSHUB_API_TOKEN_SIGNING_KEY):
+        raise RuntimeError(
+            "CLASSHUB_API_TOKEN_SIGNING_KEY must be a strong non-default value when DJANGO_DEBUG=0"
+        )
+    if CLASSHUB_API_TOKEN_SIGNING_KEY == SECRET_KEY:
+        raise RuntimeError(
+            "CLASSHUB_API_TOKEN_SIGNING_KEY must differ from DJANGO_SECRET_KEY when DJANGO_DEBUG=0"
+        )
+if not CLASSHUB_API_TOKEN_ALLOW_INDEFINITE:
+    if not CLASSHUB_API_TOKEN_SIGNING_KEY:
+        raise RuntimeError(
+            "CLASSHUB_API_TOKEN_SIGNING_KEY is required when "
+            "CLASSHUB_API_TOKEN_ALLOW_INDEFINITE=0"
+        )
+    if CLASSHUB_API_TOKEN_MAX_AGE_SECONDS is None:
+        raise RuntimeError(
+            "CLASSHUB_API_TOKEN_MAX_AGE_SECONDS must be greater than 0 when "
+            "CLASSHUB_API_TOKEN_ALLOW_INDEFINITE=0"
+        )
+
 ALLOWED_HOSTS = [h.strip() for h in env("DJANGO_ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",") if h.strip()]
 CLASSHUB_COURSEPACK_REGISTRY_ALLOWED_HOSTS = [
     host.strip().lower()
