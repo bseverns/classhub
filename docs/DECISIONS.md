@@ -1361,6 +1361,7 @@ Execution ownership and gates:
 - `compose/docker-compose.yml` pins Ollama and MinIO images by versioned tag defaults (`OLLAMA_IMAGE`, `MINIO_IMAGE`) instead of `:latest`.
 - `compose/.env.example`, `.env.example.local`, and `.env.example.domain` declare these pinned image tags as explicit operator-facing defaults.
 - CI lint now runs `scripts/check_no_latest_tags.py` to fail on committed `:latest` tags in compose/env config files.
+- Use the pinned `pgsty/silo` MinIO-compatible image because the former `minio/minio` Docker Hub repository is no longer anonymously pullable.
 
 **Why this remains active:**
 - Improves reproducibility across deploys and classroom sessions by avoiding implicit upstream image churn.
