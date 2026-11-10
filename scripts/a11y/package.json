@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "@axe-core/playwright": "4.10.2",
-    "playwright": "1.55.1"
+    "playwright": "1.65.0"
   }
 }
