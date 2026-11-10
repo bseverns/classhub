@@ -17,11 +17,7 @@
       <div class="top">
         <div class="muted"><a href="/student?reading_level={{ selected_reading_level }}">{% trans "Back to class" %}</a> · <a href="/privacy?reading_level={{ selected_reading_level }}">{% trans "Privacy" %}</a> · <a href="/trust?reading_level={{ selected_reading_level }}">{% trans "Trust notes" %}</a> · <a href="/student/portfolio">{% trans "What I made" %}</a> · <a href="/logout">{% trans "Log out" %}</a></div>
         <h1>{% trans "My Data" %}</h1>
-        <div class="muted">
-          <a href="/student/my-data?reading_level=simple">{% trans "Simple" %}</a> ·
-          <a href="/student/my-data?reading_level=standard">{% trans "Standard" %}</a> ·
-          {% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
-        </div>
+        {% include "includes/reading_level_picker.html" %}
         <div class="muted">{% trans "Signed in as" %} <strong>{{ student.display_name }}</strong> · {{ classroom.name }}
         </div>
       </div>

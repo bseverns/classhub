@@ -73,7 +73,7 @@ Draw, test, and explain one loop.
                 self.assertEqual(resp.status_code, 200)
                 self.assertContains(resp, "Around you")
                 self.assertContains(resp, "Words for this lesson")
-                self.assertContains(resp, "Reading level: Simple")
+                self.assertRegex(resp.content.decode("utf-8"), r'<option\s+value="simple"\s+selected\b')
                 self.assertContains(resp, "Start here")
                 self.assertContains(resp, "Draw one circuit.")
                 self.assertContains(resp, "Download handout")

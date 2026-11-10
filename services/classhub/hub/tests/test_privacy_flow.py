@@ -44,7 +44,7 @@ class PrivacyPageTests(TestCase):
         resp = self.client.get("/?reading_level=simple")
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Type your class code. Pick a name for class.")
-        self.assertContains(resp, "Reading level: Simple")
+        self.assertRegex(resp.content.decode("utf-8"), r'<option\s+value="simple"\s+selected\b')
 
     def test_privacy_page_links_to_trust_page(self):
         resp = self.client.get("/privacy")

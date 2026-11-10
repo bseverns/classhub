@@ -181,7 +181,7 @@ class StudentDataControlsTests(TestCase):
 
         resp = self.client.get("/student/my-data?reading_level=simple")
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Reading level: Simple")
+        self.assertRegex(resp.content.decode("utf-8"), r'<option\s+value="simple"\s+selected\b')
         self.assertContains(resp, "Stored data: your class name, your uploads, and basic class timestamps.")
         self.assertContains(resp, "Delete now removes your uploads, class responses, and class activity history")
 

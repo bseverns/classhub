@@ -1,0 +1,18 @@
+{% load static i18n %}
+<form class="reading-level-picker" method="get">
+  {% if picker_lang %}
+  <input type="hidden" name="lang" value="{{ picker_lang }}">
+  {% endif %}
+  <label for="reading-level-{{ picker_id|default:'main' }}">{% trans "Reading level:" %}</label>
+  <select id="reading-level-{{ picker_id|default:'main' }}" name="reading_level">
+    {% if selected_reading_level == "simple" %}
+    <option value="simple" selected>{% trans "Simple" %}</option>
+    <option value="standard">{% trans "Standard" %}</option>
+    {% else %}
+    <option value="simple">{% trans "Simple" %}</option>
+    <option value="standard" selected>{% trans "Standard" %}</option>
+    {% endif %}
+  </select>
+  <button type="submit" class="btn reading-level-apply">{% trans "Apply" %}</button>
+</form>
+<script src="{% static 'js/reading_level_picker.js' %}" defer></script>

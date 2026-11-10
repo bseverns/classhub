@@ -535,3 +535,30 @@
   body.glass-theme.teacher-comfort .glass-bg-orbs {
     display: none;
   }
+
+  /* Reading-level picker */
+  .reading-level-picker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+
+  .reading-level-picker label {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .reading-level-picker select {
+    width: auto;
+    min-width: 8.5rem;
+  }
+
+  .reading-level-picker.is-js .reading-level-apply {
+    display: none;
+  }

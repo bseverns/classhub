@@ -47,11 +47,7 @@
       <div class="hero">
         <h1>{% trans "Join your class" %}</h1>
         {% include "includes/language_chooser.html" %}
-        <p class="muted">
-          <a href="?reading_level=simple">{% trans "Simple" %}</a> ·
-          <a href="?reading_level=standard">{% trans "Standard" %}</a> ·
-          {% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
-        </p>
+        {% include "includes/reading_level_picker.html" %}
         {% if invite_join_classroom %}
         <p class="muted">{% blocktrans with class_name=invite_join_classroom.name %}You are joining <strong>{{ class_name }}</strong> by invite link.{% endblocktrans %}</p>
         {% else %}

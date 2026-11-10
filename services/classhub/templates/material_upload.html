@@ -37,11 +37,7 @@
             </div>
             <h1>{{ material.title }}</h1>
             <div class="muted">{% trans "Signed in as" %} <strong>{{ student.display_name }}</strong> · {{ classroom.name }}</div>
-            <div class="muted">
-              <a href="?reading_level=simple">{% trans "Simple" %}</a> ·
-              <a href="?reading_level=standard">{% trans "Standard" %}</a> ·
-              {% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
-            </div>
+            {% include "includes/reading_level_picker.html" %}
           </div>
         </div>
 

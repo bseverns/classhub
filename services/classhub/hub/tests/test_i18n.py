@@ -662,7 +662,10 @@ Draw, test, and explain one loop.
         resp = self.client.get("/privacy?reading_level=standard", HTTP_ACCEPT_LANGUAGE=language)
 
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, expected_level)
+        level_label, level_value = expected_level.split(": ", 1)
+        self.assertContains(resp, level_label + ":")
+        self.assertContains(resp, level_value)
+        self.assertRegex(resp.content.decode("utf-8"), r'<option\s+value="standard"\s+selected\b')
         self.assertContains(resp, expected_data_copy)
         self.assertContains(resp, expected_warning_heading)
         self.assertContains(resp, expected_warning_copy)

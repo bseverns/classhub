@@ -19,11 +19,7 @@
           <div class="muted"><a href="/">{% trans "Join page" %}</a> · <a href="/student?reading_level={{ selected_reading_level }}">{% trans "Student home" %}</a>
           </div>
           <h1>{{ course.title|default:course_slug }}</h1>
-          <p class="muted">
-            <a href="?reading_level=simple">{% trans "Simple" %}</a> ·
-            <a href="?reading_level=standard">{% trans "Standard" %}</a> ·
-            {% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
-          </p>
+          {% include "includes/reading_level_picker.html" %}
           {% if course.privacy %}
           <p class="muted">{{ course.privacy|join:" · " }}</p>
           {% endif %}

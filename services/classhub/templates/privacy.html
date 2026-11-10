@@ -18,11 +18,7 @@
                 <div class="muted"><a href="/trust">&larr; {% trans "Back" %}</a></div>
                 <h1>{% trans "Privacy Information" %}</h1>
                 <p class="muted">{% trans "How we handle your data on" %} {{ operator_profile.product_name }}.</p>
-                <p class="muted">
-                    <a href="?reading_level=simple">{% trans "Simple" %}</a> ·
-                    <a href="?reading_level=standard">{% trans "Standard" %}</a> ·
-                    {% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
-                </p>
+                {% include "includes/reading_level_picker.html" %}
             </div>
 
             <section class="section-box">

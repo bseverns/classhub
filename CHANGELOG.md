@@ -65,6 +65,9 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - Workflow-lint action resolution failure (`rhysd/actionlint`) in CI.
 
 ### Changed
+- The Simple and Standard reading-level control on join, student, upload, My Data,
+  privacy, trust, course, and lesson pages is now a single "Reading level"
+  dropdown instead of a row of links.
 - Full-stack and release-tool CI now execute from an extracted exact-commit
   release artifact, while publishing requires a matching annotated tag.
 - Domain deployments now require a dedicated student API-token signing key,

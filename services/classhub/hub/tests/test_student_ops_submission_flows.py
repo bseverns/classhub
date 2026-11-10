@@ -124,7 +124,7 @@ class StudentEventSubmissionTests(TestCase):
         self._login_student()
         resp = self.client.get(f"/material/{self.material.id}/upload?reading_level=simple")
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Reading level: Simple")
+        self.assertRegex(resp.content.decode("utf-8"), r'<option\s+value="simple"\s+selected\b')
         self.assertContains(resp, "Need to remove your work?")
 
     def test_gallery_upload_can_opt_in_to_class_sharing(self):

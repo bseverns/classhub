@@ -359,9 +359,9 @@ class LessonReleaseTests(TestCase):
 
         resp = self.client.get("/course/piper_scratch_12_session?reading_level=simple")
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "Reading level: Simple")
+        self.assertRegex(resp.content.decode("utf-8"), r'<option\s+value="simple"\s+selected\b')
         self.assertContains(resp, "Open a lesson to see what to do next.")
-        self.assertContains(resp, "?reading_level=simple")
+        self.assertContains(resp, 'name="reading_level"')
 
     @override_settings(CLASSHUB_PROGRAM_PROFILE="advanced")
     def test_student_home_prefers_course_ui_level_over_global_profile(self):

@@ -50,11 +50,7 @@
             {% endif %}
           </nav>
           <h1>{{ classroom.name }}</h1>
-          <div class="muted">
-            <a href="/student?reading_level=simple">{% trans "Simple" %}</a> ·
-            <a href="/student?reading_level=standard">{% trans "Standard" %}</a> ·
-            {% trans "Reading level:" %} {% if selected_reading_level == "simple" %}{% trans "Simple" %}{% else %}{% trans "Standard" %}{% endif %}
-          </div>
+          {% include "includes/reading_level_picker.html" %}
           <div class="muted">
             {% trans "Signed in as" %} <strong>{{ student.display_name }}</strong>
             · {% trans "Code" %} <span class="pill">{{ classroom.join_code }}</span>
