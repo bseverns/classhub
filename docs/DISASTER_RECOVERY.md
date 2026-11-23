@@ -23,7 +23,9 @@ bash scripts/restore_rehearsal_evidence.sh \
 
 Automation path:
 - `.github/workflows/restore-rehearsal.yml` runs weekly and on manual dispatch.
+- It uses example configuration and synthetic probe data to exercise the backup/rehearsal format; it is **not** proof that a production backup, production secrets, restored uploads/MinIO, or a replacement host has recovered successfully.
 - Each run uploads rehearsal evidence artifacts (log, metrics, backup checksums) for auditability.
+- Claim production recovery readiness only from a dated, scoped entry in [RESTORE_REHEARSAL_LOG.md](RESTORE_REHEARSAL_LOG.md) with its evidence directory.
 
 ```mermaid
 flowchart TD
